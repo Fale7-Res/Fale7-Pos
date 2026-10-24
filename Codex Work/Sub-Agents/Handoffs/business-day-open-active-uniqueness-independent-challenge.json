@@ -1,0 +1,118 @@
+{
+  "artifact": "business-day-open-active-uniqueness-independent-challenge",
+  "created_utc": "2026-10-21",
+  "review_scope": "Bounded static challenge of whether concurrent opens with distinct RequestIds can persist more than one active business day; inspected open handler/domain rule, EF model, migrations/snapshot, provider registration and application-source serialization clues.",
+  "disposition": "SOURCE_SUPPORTED_CONCURRENT_ACTIVE_DAY_RISK; NO ACTIVE-DAY UNIQUE CONSTRAINT OR HANDLER TRANSACTION FOUND",
+  "confidence": "High for configured application source and SQL Server EF model/migration scope. Concurrent dual commit is a predicted outcome, not observed SQL execution; external deployment-level coordination remains unknown.",
+  "source_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "signature": "OpenBusinessDayHandler.HandleAsync(OpenBusinessDayRequest, CancellationToken)",
+      "lines": [
+        25,
+        61
+      ],
+      "sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+      "observed": "Distinct RequestId replay lookup at 27; reads all currently active day rows at 35-37; applies domain Open at 42-43; creates new row and calls SaveChanges at 51-55 without an enclosing transaction or post-read coordination. Catch only replays same OpenRequestId at 57-61."
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "signature": "BusinessDayRules.IsActive; Open",
+      "lines": [
+        22,
+        43
+      ],
+      "sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "observed": "Active set is Open, Closing, Reopened (22-24). Open rejects when the supplied snapshot contains any active day (40-43); this is correct for sequential requests but does not serialize independent snapshots."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "signature": "BusinessDayEntity model configuration",
+      "lines": [
+        137,
+        141
+      ],
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "observed": "BusinessDay has primary key and unique OpenRequestId only; no active-state/Status filtered unique index or concurrency token shown."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs",
+      "signature": "AddBusinessDay.Up index creation",
+      "lines": [
+        15,
+        38
+      ],
+      "sha256": "0b2db7efe2138b0c3f3d8896a6092012f07db22858a5e28e58af818a15a7cb4a",
+      "observed": "BusinessDays table is created with Status and OpenRequestId, and the only table index added in this migration is unique IX_BusinessDays_OpenRequestId."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "signature": "BusinessDayEntity model snapshot",
+      "lines": [
+        326,
+        336
+      ],
+      "sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917",
+      "observed": "Snapshot shows required Status, PK Id and unique OpenRequestId; no active-day unique index. Migration-source scan found no later migration adding one for BusinessDays."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "signature": "FalahDbContext provider and business-day open route",
+      "lines": [
+        66,
+        71
+      ],
+      "additional_ranges": [
+        [
+          358,
+          369
+        ]
+      ],
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "observed": "Configured provider is SQL Server. Open endpoint at 358-369 invokes handler directly; source path shows no route-level shared transaction/lock."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "signature": "OpenShiftHandler single active-shift invariant comment",
+      "lines": [
+        16,
+        21
+      ],
+      "sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "observed": "Nearby comparator explicitly identifies filtered unique Status=Open index as the shift race-safety net; this is for Shifts only and does not protect BusinessDays."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs",
+      "signature": "filtered unique open Shift index creation",
+      "lines": [
+        113,
+        119
+      ],
+      "sha256": "cb5a87888005ec1e51221f85077402a68b501708bdac9f7203284a6cc0e4d608",
+      "observed": "Migration creates unique IX_Shifts_Status filtered to Status=Open; no BusinessDays equivalent in migration set."
+    }
+  ],
+  "predicted_interleaving": [
+    "T1 and T2 have distinct RequestIds and both query before either insert; each sees no active BusinessDay.",
+    "Each calls BusinessDayRules.Open with an empty active-day list and receives a new Open record.",
+    "Each inserts a distinct Id and distinct unique OpenRequestId. Without an active-day constraint or shared lock, both inserts are compatible with visible schema and can commit."
+  ],
+  "effect": "Two rows may remain in an active status (Open/Closing/Reopened), making first-active readers such as BusinessDayGate ambiguous and allowing financial operations to stamp different active day IDs. Exact user-visible or accounting effect depends on query ordering and subsequent operations.",
+  "counterevidence": [
+    "Same OpenRequestId is protected by unique index and replay handling; candidate specifically uses distinct IDs.",
+    "BusinessDayRules correctly blocks a second active row in a sequentially refreshed read.",
+    "OpenShift demonstrates the application uses a filtered unique index for an analogous single-active invariant, but that index is Shift-only.",
+    "SQL Server provider plus RCSI does not itself establish uniqueness; no row/range/application lock was found in the shown open path.",
+    "External reverse proxy, scheduler, service host or database trigger coordination was not certified; source scan is not proof about deployment infrastructure."
+  ],
+  "application_serialization_check": "Static scan across src/**/*.cs for OpenBusinessDayHandler references and business-day lock/semaphore/transaction/app-lock patterns found only the handler and ordinary business-day transaction handlers (e.g. close); no open-specific shared semaphore, SQL application lock, transaction-held active-day lock or endpoint wrapper was located. This is bounded source-search evidence, not deployment inspection.",
+  "recommendation": "Use database-enforced single-active ownership shared by Open and Reopen (for example a carefully designed active-state key/filtered unique constraint or singleton ownership row claimed transactionally), with explicit repair of pre-existing duplicates before migration. Ensure all active-day statuses used by BusinessDayGate are covered. Keep same-request idempotency. Alternative database transaction/locking design needs cross-process semantics and migration/provider proof.",
+  "acceptance_tests": [
+    "SQL Server integration test with barrier after both active-day reads and two distinct RequestIds proves at most one active day commits; loser gets explicit conflict and no second row.",
+    "Same RequestId concurrent replay returns one stable day.",
+    "Include active-status policy Open/Closing/Reopened and race open versus reopen if they share the invariant.",
+    "Run against actual supported SQL Server isolation/provider; assert active reader fails closed if legacy duplicate rows exist."
+  ],
+  "runtime_limitations": "No migration applied, database queried or written, app built/run, or concurrent test executed. Source predicts the race under ordinary parallel requests but no actual double-commit is claimed.",
+  "reviewed_scope_only": "BusinessDays active-day uniqueness. Do not infer the separate FIN-009 financial finding completion or claim any repair implemented."
+}

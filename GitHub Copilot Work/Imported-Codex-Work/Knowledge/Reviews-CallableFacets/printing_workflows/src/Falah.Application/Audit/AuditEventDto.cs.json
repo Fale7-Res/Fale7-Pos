@@ -1,0 +1,44 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Audit/AuditEventDto.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:05:06.157983+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "a64ead29501f69803e7f23a1be61a9611f2cbdcfb13c9f9eb65e081396b77f4a",
+  "worktree_sha256": "a64ead29501f69803e7f23a1be61a9611f2cbdcfb13c9f9eb65e081396b77f4a",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-8a4c3690d1610b32523596476a156b10484e089cf8f11850cab3710f564e31c0",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Audit.AuditEventDto::record-generated-behavior",
+      "source_span": [
+        3,
+        6
+      ],
+      "reasoning": "AuditEventDto projects persisted audit identity/actor role,action/category/details/severity/time and optional shift/device/reason/authorizedBy/old/new values/operation/reference. Generated record constructor validates none and ToString includes full history payloads;copy/equality is value-based on scalar strings/time,not chain-of-custody or tamper verification. AuditQueryService.ToDto32-35 maps existing row directly and read route gates separately. PreviousValue/NewValue may themselves be JSON strings,which remain opaque rather than recursively validated by generated properties.",
+      "inputs": "Seventeen stored projection fields,including potentially sensitive old/new JSON text.",
+      "outputs": "Read-side audit transport row,not AuditEvent write command.",
+      "side_effects": "No persistence/log append from constructor or generated members.",
+      "trust_boundaries": "Audit data disclosure/sanitization boundary;ToString can expand PII/config values,no general safe logging guarantee.",
+      "database": "AuditQueryService17-35 actual range/filter/limit query;DTO no SQL or immutable ledger guarantee.",
+      "printing_ui": "UI audit screen must distinguish missing optional fields and escape text;not device action.",
+      "performance": "Strings can be large;record hash/equals scans string content but no nested JSON parsing.",
+      "duplicates_conflicts": "with-copy can fabricate display attribution in memory;must not feed result into security decisions. IDs do not include cryptographic signature.",
+      "issues_hypotheses": [
+        "Generated value semantics provide no integrity/authenticity audit guarantee"
+      ],
+      "tests_missing": [
+        "Large old/new strings,null optional fields,JSON roundtrip escaped text,source mapping fields and safe rendering"
+      ],
+      "verified_callers_callees": [
+        "AuditEventDto.cs3-6",
+        "Infrastructure/Audit/AuditQueryService.cs17-35",
+        "CashierWinUI/ApiClient.GetAuditEventsAsync356-358",
+        "DailyStatementQueryService.BuildAuditTrail"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

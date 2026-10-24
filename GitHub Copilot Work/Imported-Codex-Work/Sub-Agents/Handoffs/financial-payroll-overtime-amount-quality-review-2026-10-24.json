@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Source-quality review of PayrollRules.CalculateOvertimeAmount(Money,int,double,double), including units/rounding/ranges, attendance and correction callers, payroll consumption, settings writer and existing test source. Static only; tests not executed.",
+  "stable_id": "sym-35771f9335c189af64a8a80880cdfe014e5323d667a208d401cbff41d823dfc1",
+  "signature": "Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money, int, double, double)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [55, 61],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "assignment_status_at_selection": "EXISTING_REASONING_UNVERIFIED (coordinator-selected; no shared promotion made)",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "reasoning_summary": "Gets normal rate, returns zero amount for overtimeHours<=0; otherwise computes double product and Math.Round then casts to long. Does not reject negative/non-finite multipliers/hours; policy validation belongs to callers."
+  },
+  "arithmetic_units_and_boundaries": {
+    "source_expression": "rate = NormalHourlyRate(dailyWage, workdayHours); if (overtimeHours <= 0) return (rate, zero); amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier))",
+    "rate_units": "Piastres per hour. NormalHourlyRate uses integer division dailyWage.Piastres / workdayHours for positive workday hours; nonpositive workday hours yield zero rate.",
+    "amount_units": "Piastres; computed as hourly piastres * double overtime hours * multiplier.",
+    "rounding": "Math.Round(double) default midpoint behavior is ToEven. Fractional piastres are rounded to nearest integer, with exact half values to an even integer. The multiplication is binary floating-point and integer hourly-rate division truncates any wage remainder before multiplication.",
+    "boundaries_and_unusual_inputs": [
+      "overtimeHours<=0 returns zero amount, including negative hours; rate field still reflects NormalHourlyRate.",
+      "zero multiplier returns zero; negative multiplier can return a negative Money amount for positive hours/rate.",
+      "Negative daily wage is not rejected by this pure helper, but the two reviewed infrastructure callers guard on employee.DailyWagePiastres>0 before invoking it for persisted overtime.",
+      "NaN/Infinity or an excessively large finite product is not explicitly validated in the helper. Math.Round/cast-to-long edge behavior and overflow outcome were not executed or claimed; direct correction requests are typed double and are not range-checked in the inspected handler.",
+      "A nonpositive workday-hours configuration yields zero rate and hence zero amount for finite input, avoiding divide-by-zero but silently suppressing overtime pay."
+    ]
+  },
+  "call_chain_and_effects": [
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "NormalHourlyRate",
+      "lines": [31, 32],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "effect": "Integer-divides daily wage in piastres by positive workday hours; otherwise returns zero. Its truncation feeds overtime rate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "symbol": "BiometricCheckOutHandler.HandleAsync",
+      "lines": [126, 149],
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "effect": "Computes finite work/overtime hours from check-in and current time; overtimeHours is floored at zero. If hours and daily wage are positive, calls the reviewed rule and posts only positive result as a deterministic employee/date Overtime ledger Credit via EmployeeLedgerPoster; negative/zero computed amount is suppressed."
+    },
+    {
+      "path": "src/Falah.Application/Employees/AttendanceRequests.cs",
+      "symbol": "CorrectAttendanceRequest",
+      "lines": [25, 29],
+      "sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "effect": "Carries WorkHours and OvertimeHours as double with no range/validation metadata in this request record."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "symbol": "POST /api/attendance/{recordId}/correct",
+      "lines": [796, 806],
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "effect": "Copies route recordId into the request and passes the submitted numeric fields to CorrectAttendanceHandler; route adds no numeric bounds."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "symbol": "CorrectAttendanceHandler.HandleAsync overtime adjustment",
+      "lines": [30, 121],
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "effect": "Checks reason/status, authorization and manager approval, then within a transaction computes old/new overtime amounts with persisted settings. overtimeDelta=new-old; positive delta is credited as Adjustment and negative delta debited. A negative multiplier reverses the ordinary direction (increasing hours yields a negative delta/debit; reducing hours yields a positive delta/credit). Request numeric bounds are not visible in the inspected handler."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
+      "symbol": "UpdateSettingsHandler.HandleAsync",
+      "lines": [45, 128],
+      "sha256": "fcbeb3b2a7895001c185355dc1d9551d5efd4256d3b89a8805328e2a83eab79f",
+      "effect": "settings_manage is required for normal settings changes; OvertimeMultiplier is assigned directly at line 108 without visible nonnegative/finite validation. The current settings UI does not submit it; authorized direct API requests can."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "symbol": "SettingsQueryService.Defaults",
+      "lines": [20, 30],
+      "sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "effect": "Default workday is 10 hours and OvertimeMultiplier is 1.5, an ordinary positive configuration."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "symbol": "CreatePayrollHandler.HandleAsync",
+      "lines": [42, 65],
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "effect": "Loads monthly EmployeeLedgerEntries and passes credit/debit facts into CalculatePayrollLines; this overtime function is not called by payroll creation. Persisted Overtime credits from biometric check-out become payroll Overtime component inputs."
+    }
+  ],
+  "tests_reviewed_static_only": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "lines": [47, 62],
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "Tests zero hours and a standard positive case (20,000 piastres/day, 10-hour workday, 2 overtime hours, multiplier 1.5 => 6,000 piastres). Does not cover negative hours/multiplier, nondivisible hourly rate, midpoint behavior, nonpositive workday hours, non-finite input or overflow."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "lines": [100, 109],
+      "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+      "coverage": "Check-out integration asserts a zero overtime-hours case; no positive automatic overtime posting assertion in that inspected case. Correction tests at lines 244-261 and 318-324 exercise correction/replay state but do not establish malformed multiplier or precise signed overtime ledger values."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "lines": [93, 109],
+      "sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "coverage": "Confirms a manually recorded 6,000-piastre Overtime credit is included in a payroll line; it tests ledger-to-payroll consumption, not this arithmetic helper's edge cases."
+    }
+  ],
+  "counterevidence_and_limits": [
+    "Normal settings default to positive multiplier 1.5 and ten-hour workday; no bad setting or incident was inspected.",
+    "Biometric check-out only persists a positive calculated amount, so negative overtime amount from a negative multiplier is suppressed in that caller.",
+    "Correction is manager-authorized/approved, uses transaction and idempotency/audit behavior; these protect correction integrity but do not establish intended sign for invalid config.",
+    "No payroll policy evidence reviewed establishes whether overtime multiplier may be zero, negative, or fractional, or what maximum hours/rate are expected. The user-visible current settings screen omits OvertimeMultiplier, which limits routine UI editing but not the authorized API path.",
+    "Non-finite arithmetic/cast and extreme-value behavior were not dynamically validated; no runtime or database state was used."
+  ],
+  "recommendation_and_disposition": {
+    "verdict": "Receipt's core arithmetic description is corroborated. The function is financially material because it can determine an automatic overtime ledger credit or a correction debit/credit that payroll later consumes.",
+    "finding": "No new finding recommended absent payroll policy. Source-supported conditional concern: authorized negative OvertimeMultiplier can invert correction adjustment direction; the automatic attendance path suppresses negative amounts. Non-finite and overflow outcomes remain unverified.",
+    "owner_question": "Define whether OvertimeMultiplier must be finite/nonnegative and specify allowed workday-hours, overtime-hour and rate bounds.",
+    "if_policy_requires_nonnegative": "Validate at settings command boundary and correction numeric boundary; add tests for zero/negative multiplier, fractional piastre midpoint, non-divisible daily wage, nonpositive workday hours, negative/extreme overtimeHours and old/new signed adjustment behavior."
+  },
+  "runtime_tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_registry_modified": false,
+  "next_action": "Wait for coordinator reconciliation and the next exact queue item; do not infer a global ordered queue from this callable assignment."
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "financial_integrity_continuation",
+  "updated_at_utc": "2026-10-24",
+  "status": "bounded_review_saved",
+  "assignment": {
+    "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+    "source": "src/Falah.Domain/Payroll/PayrollRules.cs:83-112",
+    "initial_status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "handoff_path": "Codex Work/Sub-Agents/Handoffs/financial-payroll-lines-quality-review-2026-10-24.json",
+  "handoff_sha256": "7ca634d92da04f4e9a9994ff5e0632825d7a63f9def0e0fcd9f43b163fdf8acc",
+  "disposition": "Stable ID/signature/span/current and receipt source hash match. Receipt reasoning is corroborated. CreatePayrollHandler maps canonical ledger categories and persists the calculated net; PayPayrollHandler settles that net. FIN-012 Adjustment-credit omission is confirmed but remains the sole canonical finding. Net is clamped to zero for ordinary input; advance deductions are currently supplied as zero. No new finding recommended.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_exact_candidate": {
+    "stable_id": "sym-8719cc9ed97b8fd6f6cf0036f03f556504a686e5dc6c2ab50d660eb77d46b593",
+    "signature": "Falah.Domain.Payroll.PayrollRules.PayrollReport(IEnumerable<(Falah.Domain.Common.Money Base, Falah.Domain.Common.Money Overtime, Falah.Domain.Common.Money ExtraShifts, Falah.Domain.Common.Money Bonuses, Falah.Domain.Common.Money NetPayable, bool IsPaid)>)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "line_range": [116, 125],
+    "live_overlay_status": "EXISTING_REASONING_UNVERIFIED"
+  }
+}

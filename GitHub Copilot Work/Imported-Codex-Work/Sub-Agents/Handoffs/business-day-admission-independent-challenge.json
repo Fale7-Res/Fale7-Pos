@@ -1,0 +1,66 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original financial specialist",
+  "at_utc": "2026-10-18T08:54:13.218908+00:00",
+  "method": "Independent bounded source challenge, retaining prior individually authored Payroll method receipts and newly reading root day/source/model evidence. No runtime/SQL/DB/HTTP operation executed.",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "originator": "root; this review is independent of root candidate construction",
+  "candidate_key": "FIN-CAND-CLOSEDAY-ADMISSION-001",
+  "severity_assessment": "HIGH financial close integrity candidate survives qualified independent challenge",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+      "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d"
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    }
+  ],
+  "reasoning": [
+    "Gate24-29 reads no-tracking BusinessDay status Open/Closing/Reopened and returns ID. It accepts Closing deliberately as active, but a wholly committed Closed day is excluded.",
+    "Deposit58 resolves day beforeTx60 and beforejournal reservation64-66. Choose pause after58, so close evaluator has no pending depositjournal and no depositmovement toobserve. Depositrequires no open shift, uses allowed externalcapital destination and positiveamount.",
+    "Close64 opens Tx; Evaluate75 checks global shifts/custody/journal/pendingelectronics/checklists/reconciliation, all can be satisfied with pauseddeposit absent. Reporting87 reads movement subset forday; snapshot101 freezes reconciliation, dayClosed106, commit121.",
+    "Deposit resumes after closecommit, createsjournal/movement70-73 using stale dayID andSave84/Commit85, with no gate recheck or concurrency update to BusinessDays. Parent FK only existence cannot prohibitClosed parent. Model137-141 no daytoken/admission lock.",
+    "Reporting174-179 daymovementquery would now include new deposit, while snapshotjson at101 retains older balance; explicit mismatch between live ledger and authoritativeclosed snapshot, not claim cash physical theft."
+  ],
+  "accepted_schedule": [
+    "Authorized deposit passes actor/policy/gate, pause beforeTx.",
+    "Separately authorized close with no actual blockers freezesbalances and commitsClosed.",
+    "Deposit resumes commits positive incoming movement linkedtoClosed day, no transaction overlap or pendingjournal at closeevaluation."
+  ],
+  "rejected_or_qualified_claims": [
+    "Do not generalize all writes: some gatesinsideTx and some source/employee locks exist; each workflow needs own admission trace.",
+    "Even Serializable close cannot block future deposit that begins only afterclosecommit, because no financial Tx existed duringpause.",
+    "Frozen snapshot is a time-specific historical view bydesign, but current RequireOpen boundary and daystamping imply no newClosed-day admission. If product intentionallyallows lateactivity, ownerpolicy and delta/revisiondisplay must beexplicit before droppingissue.",
+    "No full SQL/HTTP financial reproduction, lock trace or external deployment-global serializer inspected. Authentication middleware invocation source only forwards; CORS/rate limiter do not supply transaction admission."
+  ],
+  "correction_design": "Shared transaction-held admission coordination for financial writers and close, with day-status revalidation inside writer boundary. Close must stop admitting newwork and drain alreadyadmitted work before snapshot; support intentional lateentry onlyvia explicitreopen/revision policy.",
+  "regression_tests": [
+    "Pause deposit immediately afterGate returns, closecommit thenresumedeposit must failwithno ledger/journalwrites, or attachonlytoauthorizednewday.",
+    "Pause an alreadyadmitted Txwriter, close mustwait andsnapshotitscommittedfact.",
+    "Blockedcloseaudits, same-keyreplay, explicitreopen/reclose and multipleprocesses retain correctsemantics."
+  ]
+}

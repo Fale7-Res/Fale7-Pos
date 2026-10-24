@@ -1,0 +1,26 @@
+{
+  "at_utc": "2026-10-18T03:29:21.871939+00:00",
+  "reviewer": "root",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "paths": [
+    "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+    "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+    "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+    "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs"
+  ],
+  "verified_differences": [
+    "Deposit external inflow has no source account to guard; Withdrawal starts transaction before source lock. Shared superficially similar validation/approval/journal/replay is not interchangeable business behavior.",
+    "Deposit/Withdrawal persist authorization.Approver returned by policy; CloseShift uses optional presentation.ApproverName instead. Root financial attribution challenge explains actual divergent behavior.",
+    "Display balance query takes no lock; spending query depends on caller transaction. Do not replace both by one generic unlocked read."
+  ],
+  "recommendation": "If extracting helpers, preserve account/type closed sets, signed direction, validated approval provenance, transaction ownership and replay result contracts. No implementation.",
+  "tests": [
+    "Inbound vs outbound balances",
+    "Direct permission vs valid delegated approval attribution",
+    "Replay same key with unchanged and changed payload",
+    "Different concurrent request keys cannot overdraw protected source",
+    "Display does not block spending; spending caller starts transaction"
+  ],
+  "source_receipts": "Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/",
+  "runtime_tested": false
+}

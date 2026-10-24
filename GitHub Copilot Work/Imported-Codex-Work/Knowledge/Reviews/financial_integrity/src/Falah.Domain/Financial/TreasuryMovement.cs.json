@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+  "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+  "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:04:35.365397+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-fd1e297372ee88ceee8f09beba84e26bb954e73a75b4a2c34e0d471c56301e32",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod)",
+      "span": [
+        32,
+        5,
+        39,
+        7
+      ],
+      "reasoning": "CashmapstoDrawer, CardBank, InstaPay/Wallettheirownaccounts; Multi/undefined throwDomainException. DistinctfrompurchasingcashMain, intentionaldifferentfundschannel. No accountmembershiporbalancequery.",
+      "inputs": "PaymentMethod",
+      "outputs": "AccountID/exception",
+      "side_effects": "Constructs domainfact only; noDBposting/journalreservation/printing.",
+      "database": "NoDB; uniqueness andtransactionality belongEFmodel/handler.",
+      "trust_boundaries": "Signedamounts/accounts/actorlabels suppliedtrustedhandler; factorydoesnotauthorize orcheckfunds.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedfieldconstruction/stringinterpolation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN001 sale key reusedbyconfirm; FIN003 collectionentitlement notcheckedhere; FIN004 operationalShift taggedcorrectlybutqueryomitsrefund.",
+      "tests_missing": "Eachsupportedmethod, Multi/undefined, cashpurchasingdistinction",
+      "verified_callers_callees": "Switch34-38; BuildSale51/Refund72 call; PurchasingRules86 separate."
+    },
+    {
+      "stable_id": "sym-09cae14c79a57ea1d349d3d7e1d5480575f01ceac63381fcb45dce5029b44666",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Financial.TreasuryMovementFactory.BuildSaleMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, DateTimeOffset)",
+      "span": [
+        41,
+        5,
+        60,
+        40
+      ],
+      "reasoning": "BuildsPosted sale_collection incomingexternalmovement withsale-checkoutRequestId key, orderreference, day/shift andactor; noapproval. Deterministickey notsuffixedmethodintrinsically, handlerMultiexplicitlymustsuffixoroverrideasdone; confirmsamekeycollisionFIN001 rootedcombinedjournalcontract. Positiveamountnotasserted.",
+      "inputs": "Sale IDs/method/amount/day/shift/actor/time",
+      "outputs": "TreasuryMovement",
+      "side_effects": "Constructs domainfact only; noDBposting/journalreservation/printing.",
+      "database": "NoDB; uniqueness andtransactionality belongEFmodel/handler.",
+      "trust_boundaries": "Signedamounts/accounts/actorlabels suppliedtrustedhandler; factorydoesnotauthorize orcheckfunds.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedfieldconstruction/stringinterpolation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN001 sale key reusedbyconfirm; FIN003 collectionentitlement notcheckedhere; FIN004 operationalShift taggedcorrectlybutqueryomitsrefund.",
+      "tests_missing": "Samecheckoutkeychannelparts; amountpositiveguardcaller; referenceprovenance",
+      "verified_callers_callees": "Checkout261/270, Confirm80 usefactory; PaymentAccountFor51; key46."
+    },
+    {
+      "stable_id": "sym-54ae359a243bba3860566240eba77e8948f7d3e6ab380b051e6233b450912f5c",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Financial.TreasuryMovementFactory.BuildRefundMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, string, string, DateTimeOffset)",
+      "span": [
+        62,
+        5,
+        81,
+        40
+      ],
+      "reasoning": "BuildsPosted refund outgoingfromoriginalpaymentchannel withrefund-requestkey, order_refundreforderIDandOPERATIONALcurrentShift. Doesnotassertoriginalpaid,remainingrefund,balance orpositiveamount; RefundHandler domain/auth/lockedfundsguardsseparate. Shiftselectioniscorrecthere, reconciliationusingoriginalordercausesFIN004elsewhere.",
+      "inputs": "Refund IDs/method/amount/day/currentShift/actor/approver/reason/time",
+      "outputs": "TreasuryMovement",
+      "side_effects": "Constructs domainfact only; noDBposting/journalreservation/printing.",
+      "database": "NoDB; uniqueness andtransactionality belongEFmodel/handler.",
+      "trust_boundaries": "Signedamounts/accounts/actorlabels suppliedtrustedhandler; factorydoesnotauthorize orcheckfunds.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedfieldconstruction/stringinterpolation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN001 sale key reusedbyconfirm; FIN003 collectionentitlement notcheckedhere; FIN004 operationalShift taggedcorrectlybutqueryomitsrefund.",
+      "tests_missing": "Unpaidorderblockedbyentitlementfuturetest; currentvsoriginalshift; methodchannelmapping",
+      "verified_callers_callees": "RefundHandler103-106; SourcePaymentAccount72, Shift77, key67."
+    },
+    {
+      "stable_id": "sym-95d2b4f02d7c04d8181bd86130950252fffd0493d559e1a4ff841b3a34685098",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset)",
+      "span": [
+        83,
+        5,
+        103,
+        40
+      ],
+      "reasoning": "Generic lifecyclefactorycopies source/dest/type/key/amount/ref/day/shift/actor/approver, marksPosted. No mandatorysourceordest, distinctaccountorpositiveamountguard; helperisfactconstruction, existinghandlerssupplypurposevalidation. Do not inferatomicpersist fromreturnvalue orPostedflag.",
+      "inputs": "Lifecyclemovementfields",
+      "outputs": "TreasuryMovement",
+      "side_effects": "Constructs domainfact only; noDBposting/journalreservation/printing.",
+      "database": "NoDB; uniqueness andtransactionality belongEFmodel/handler.",
+      "trust_boundaries": "Signedamounts/accounts/actorlabels suppliedtrustedhandler; factorydoesnotauthorize orcheckfunds.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedfieldconstruction/stringinterpolation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN001 sale key reusedbyconfirm; FIN003 collectionentitlement notcheckedhere; FIN004 operationalShift taggedcorrectlybutqueryomitsrefund.",
+      "tests_missing": "Bothnull/selfsource/negativeamount rejectedcaller wherepolicy; fieldroundtrip",
+      "verified_callers_callees": "Deposit69-73, PayPurchase92-96, PayPayroll129-134; DTOmappingexternal."
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "financial_independent_challenge",
+  "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+  "reviewer": "financial_integrity_continuation",
+  "updated_at_utc": "2026-10-20T09:54:26.9306878Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "source_confirmed_overlap_mechanics": true,
+  "duplicate_pay_defect_confirmed": false,
+  "policy_exclusivity_confirmed": false,
+  "owner_policy_confirmed": false,
+  "live_usage_confirmed": false,
+  "runtime_reproduced": false,
+  "disposition": "Retain as a source-confirmed cross-flow accounting risk / requirements question pending explicit policy and usage confirmation; do not promote duplicate-pay as a canonical defect from the available evidence.",
+  "support": {
+    "standalone_contract": "src/Falah.Application/Employees/EmployeeRequests.cs:57-63 and src/Falah.Server/Program.cs:732-735 state standalone PAY EMPLOYEE pays the continuous running balance at any time, up to currently owed balance, without a payroll run; payroll is separately period-run-gated.",
+    "creation": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:45-62 selects all employee ledger entries in UTC year/month, computes lines, and stores frozen NetPayablePiastres.",
+    "calculation": "src/Falah.Domain/Payroll/PayrollRules.cs:95-107 includes eligible earnings less Deduction/Adjustment, but not Settlement.",
+    "pay": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs:86-88,136-163 pays the frozen net and writes PayrollSettlement; inspected write path does not recompute current employee balance or net prior Settlement.",
+    "availability": "Both routes and same cashier application flows exist; independent permissions differ (employees_ledger vs payroll_pay), and a user with both can invoke both absent server cross-flow guard.",
+    "docs": "docs/IMPLEMENTATION_MATRIX.md:98-99 states payroll is no longer the only employee payment path."
+  },
+  "counterevidence_and_limits": [
+    "Distinct ledger types and distinct permissions can be intentional separate modes; source has no exclusivity/settlement-netting rule, and separate permissions alone do not prove mutual exclusion.",
+    "Existing PayEmployeeVerticalSliceTests assert Settlement distinct from PayrollSettlement; PayrollVerticalSliceTests verify the independent calculation/payment path. Inspected tests do not cover same-period combined sequence.",
+    "FIN-006 is generic payroll transition skipping treasury/ledger; FIN-012 is attendance-correction credit excluded from payroll. Both are adjacent existing findings but neither establishes duplicate payment.",
+    "Source schedule/arithmetic only; no database-backed combined test, owner policy, deployment configuration, or live use established."
+  ],
+  "required_policy_question": "Are standalone Settlement payments intended as advances against the same period earnings included in PayrollLine, and can a user holding both employees_ledger and payroll_pay invoke both for that period? If yes, define a shared outstanding-obligation basis; if no, identify source enforcement for exclusive modes.",
+  "recommendation": "Keep candidate as unconfirmed cross-flow integrity risk until policy is clarified. No canonical registry write.",
+  "execution": "Read-only source/evidence inspection; no tests, DB, runtime, source edits, or permission changes."
+}

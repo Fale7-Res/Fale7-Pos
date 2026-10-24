@@ -1,0 +1,110 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:06:36.909234+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "942d8dbf033357f7186def2e56f3871b14b273b7ca559738d1456cde829215e2",
+  "worktree_sha256": "fe92b9e4d8ea353aa57fb2a70c4a7948a5821376a246c055c6b7282d72929ac0",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-da38737fcf626be073a1901b106ee4d8c73e0fe5415f8b908bb483231353ee75",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel._openingCashText::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        10,
+        41,
+        10,
+        63
+      ],
+      "reasoning": "Observable OpeningCashText defaults0 and can receive settings suggestion; CashInput parsing yields piastres despite variable openingEgp name. Retained memory request ignores later input edits.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No actual money transferred.",
+      "tests_missing": "No actual money transferred. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeAsync; OpenShiftAsync"
+    },
+    {
+      "stable_id": "sym-5acea04a3c119b7e8d3aab4aad64207d1e46f3a64e7ba1d1f32d2a7c1da8864a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel._openShiftError::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        11,
+        42,
+        11,
+        57
+      ],
+      "reasoning": "Observable OpenShiftError presents validation or sendfailure; unknown operation persists in memory and editguard. Not a proven no-open outcome.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "UI001 persistence limitation alreadychallenged.",
+      "tests_missing": "UI001 persistence limitation alreadychallenged. NOT_EXECUTED.",
+      "verified_callers_callees": "CompleteOpenShiftAsync"
+    },
+    {
+      "stable_id": "sym-f0d36b60d5548a37ddde0806d00c45adf0e939297719caa85b0c268f5d4895d0",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel._isOpeningShift::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        12,
+        39,
+        12,
+        54
+      ],
+      "reasoning": "Observable IsOpeningShift invokes RefreshOperationState, blocking editing/lock during request. New process clears busy and memorypending.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Server uniqueactive constraint mitigates duplicate opens, not client outcome clarity.",
+      "tests_missing": "Server uniqueactive constraint mitigates duplicate opens, not client outcome clarity. NOT_EXECUTED.",
+      "verified_callers_callees": "OnIsOpeningShiftChanged"
+    },
+    {
+      "stable_id": "sym-2303f8d666e4c24c8dd5f49852db95fe292fc6a3d0775a636b208be33417046c",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()::relay-command-generator-input",
+      "exact_kind": "ToolkitRelayCommandGeneratorInput",
+      "exact_span": [
+        14,
+        5,
+        43,
+        6
+      ],
+      "reasoning": "Async OpenShiftCommand explicit body guards busy/initializing/permission, replays pendingDTO before newparse, uses stable perVM ID and local hour name, sends through completion. No cancellationattribute or durable primaryjournal.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Source behavior differs management newGuid eachretry UI016; no shift operation executed.",
+      "tests_missing": "Source behavior differs management newGuid eachretry UI016; no shift operation executed. NOT_EXECUTED.",
+      "verified_callers_callees": "OpenShiftAsync; CompleteOpenShiftAsync"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

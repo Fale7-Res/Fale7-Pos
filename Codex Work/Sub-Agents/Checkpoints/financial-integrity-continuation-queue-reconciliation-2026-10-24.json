@@ -1,0 +1,25 @@
+{
+  "artifact_kind": "financial_integrity_continuation_checkpoint",
+  "reviewer": "financial_integrity_continuation",
+  "created_at_utc": "2026-10-24T12:35:39.801720+00:00",
+  "assignment": "Resume Batch16 continuation, re-read current recovery/overlay and choose one risk-ranked unverified financial callable from persisted queue.",
+  "handoff_path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-next-queue-reconciliation-2026-10-24.json",
+  "handoff_sha256": "7d7838d665da46490e4eebab116fdeb2baa321a1410b99bbe14360547dcf3ba1",
+  "decision": "NO_DEFENSIBLE_NEXT_CALLABLE_FROM_PERSISTED_RISK_RANKED_QUEUE",
+  "reviewed_callable": null,
+  "source_review_performed": false,
+  "current_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "9216d188a87c530ac0986009485746475cb699c3ffaac7680d6eda5e8efec9d8",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7755,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 66
+    },
+    "total": 8804
+  },
+  "next_action_sha256": "5dbaf97b37f221518a84669f582d03d09a971bd8a6ce9e06ee5fe84e5c7272b2",
+  "tests_run": [],
+  "source_test_database_runtime_shared_registry_changed": false,
+  "next_action": "Wait for coordinator to persist an exact risk-ranked next callable queue or a specific stable ID assignment; then verify the ID is still EXISTING_REASONING_UNVERIFIED and not in Batch1-16, inspect its receipt and source, and save a reviewer-owned handoff/checkpoint."
+}

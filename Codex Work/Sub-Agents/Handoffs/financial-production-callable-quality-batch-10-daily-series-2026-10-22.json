@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_batch_10",
+  "created_at_utc": "2026-10-22T04:28:06Z",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Batch10 selected the next source-order financial dashboard callable remaining EXISTING_REASONING_UNVERIFIED. BuildProfitability was excluded after coordinator promotion to verified during assignment execution; Batch08/09 IDs were not selected.",
+  "live_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "41c4c42aa74ef7400a26c3a6af916b9932881936623094f088170c0afbeedc24",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7762,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 59
+    },
+    "no_shared_overlay_edit": true
+  },
+  "excluded_during_selection": {
+    "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+    "reason": "Coordinator reported source validation/promotion; live overlay now SUBSTANTIVE_REVIEW_VERIFIED. No duplicate callable review performed in this batch."
+  },
+  "review": {
+    "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+    "status_at_selection": "EXISTING_REASONING_UNVERIFIED",
+    "status_current_after_review": "EXISTING_REASONING_UNVERIFIED",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_lines": [
+      111,
+      132
+    ],
+    "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+    "source_index_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "receipt_author": "financial_coordinator",
+    "receipt_status": "ANALYZED",
+    "receipt_reasoning": "Fetches all noncancelled order timestamps/total/refund in normalized interval then groups Cairo date and emits every original range.Days point. Net is total minus cumulative refund, not cash collection/date-of-refund flow. Reversed range silently yields no series despite normalized nonempty aggregate query.",
+    "source_evidence": [
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "lines": [
+          111,
+          132
+        ],
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "symbol": "OwnerDashboardQueryService.LoadDailySeriesAsync",
+        "facts": "AsNoTracking Orders excludes Status=Cancelled and filters CreatedAtUtc using range.ToUtcRange(); projects CreatedAt/TotalPiastres/RefundAmountPiastres; groups by BusinessClock.BusinessDate; daily net is sum(TotalPiastres-RefundAmountPiastres), count is all noncancelled orders; emits every `range.Days()` date and a zero point for missing days."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "lines": [
+          76,
+          107
+        ],
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "symbol": "LoadTrendAsync",
+        "facts": "Uses this daily series for every range where IsSingleDay is false. Headline comparison uses shared ReportingQueryService GetSalesReportAsync for same range; no transaction/common snapshot."
+      },
+      {
+        "path": "src/Falah.Domain/Common/BusinessClock.cs",
+        "lines": [
+          47,
+          53,
+          58,
+          82
+        ],
+        "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+        "symbol": "BusinessDateRange.ToUtcRange / Days",
+        "facts": "ToUtcRange delegates to UtcRangeForBusinessDates, which normalizes reversed endpoints by swapping them; Days enumerates from From while day<=To and does not normalize. Thus a reversed range can load an ascending time window for order rows while `Days()` yields no dates."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+        "lines": [
+          35,
+          51,
+          88,
+          93
+        ],
+        "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+        "symbol": "LoadSalesOrdersAsync / GetSalesReportAsync",
+        "facts": "Sales headline uses the same range.ToUtcRange window and excludes cancelled orders; sales rule computes the headline from loaded orders. Therefore for a reversed multi-day input headline can be computed over normalized dates while the daily chart is empty."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+        "lines": [
+          138,
+          165
+        ],
+        "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+        "symbol": "A_span_of_days_is_charted_by_day_and_closed_days_are_zero_not_missing",
+        "facts": "Forward seven-day range produces seven daily points and test asserts series net sum equals dashboard headline; no reversed-range case in inspected class."
+      }
+    ],
+    "behavior_and_effect": "Read-only query/materialization and local grouping; no financial write. For ascending range, report points reflect original order creation date and cumulative refund field, not the timestamp of refund event. This follows the same sales snapshot basis as the headline, but does not represent when refunds were processed.",
+    "counterevidence": [
+      "Source XML summary (109-110) explicitly says points use total less refunds, matching SalesRules period total; the forward-span integration test asserts daily series sums to headline.",
+      "The `ToUtcRange` endpoint normalization makes a nonempty sales query for reversed endpoints; the `Days()` enumerator itself yields none for `From > To`, so chart/headline mismatch is source-supported. Whether reverse input should be rejected or normalized consistently is a range policy/API behavior question, not proven data corruption.",
+      "Both report headline and series use current cumulative order refund amount and order CreatedAt; no refund-event date is in this method. This is likely intentional for order-date net sales, but would be wrong only if this chart is specified as refund-date activity."
+    ],
+    "remaining_action": [
+      "Add a dashboard integration test for reversed multi-day range and decide policy: reject with validation or normalize both the returned dates and point iteration. Assert headline/series consistency.",
+      "Document that series groups refunds against order creation date if that is intended; if refund-date reporting is needed, derive series from refund event timestamps and define reconciliation to net-sales headline.",
+      "If report consistency under concurrent writes is required, add a snapshot-consistency requirement/test; this review did not inspect provider isolation."
+    ],
+    "tests_executed": false,
+    "review_provenance": "Independent callable-specific source check against authored financial_coordinator receipt; not a status promotion."
+  },
+  "next_exact_candidate": {
+    "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_line_range": [
+      134,
+      154
+    ],
+    "status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "limits": [
+    "Static source and test-source review only; no tests run.",
+    "No source/runtime/DB/shared registry/report/Git changes.",
+    "This is one callable review and does not certify dashboard/report workflow."
+  ]
+}

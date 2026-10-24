@@ -1,0 +1,77 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:03:25.8328577Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/MoneyTests.cs",
+  "symbol_count": 5,
+  "symbols": [
+    {
+      "stable_id": "sym-7bb2d2aad3c2eb8b7f9f4650ca0f197edb7cc6d87c4efca587bd2eb4ad1e9a4f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.MoneyTests.FromEgp_converts_to_exact_piastres_no_floating_point_drift(string, long)",
+      "span": [
+        8,
+        5,
+        17,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0b9807a2daf8b1e15a917a0a920be2976b47ba5d7dc9a65db587b3c38eea34bd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.MoneyTests.Adding_classic_floating_point_trap_amounts_is_exact()",
+      "span": [
+        19,
+        5,
+        27,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-698e974ac86446292bad70a2e5124bfe7832a50513001cefc42d995847cce584",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.MoneyTests.Repeated_addition_never_drifts()",
+      "span": [
+        29,
+        5,
+        35,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b35fe9085eb55351f700a971f41ad2cd88a8fb13079055753d7b926a771e066c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.MoneyTests.Subtraction_can_go_negative_for_difference_reporting()",
+      "span": [
+        37,
+        5,
+        44,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2669e0e446457a7e352e2d9add4a7026cd851f26ba5a03b3f006653cd51ddc95",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.MoneyTests.Ordering_operators_compare_by_piastres()",
+      "span": [
+        46,
+        5,
+        52,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover exact EG pounds-to-piastres conversion for decimal inputs, integer minor-unit addition, repeated addition, negative differences and absolute values, and ordering. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/5 exact IDs present",
+    "financial_coordinator": "/5 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

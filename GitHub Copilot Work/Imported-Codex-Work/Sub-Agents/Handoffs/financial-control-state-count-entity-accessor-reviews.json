@@ -1,0 +1,1457 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/ControlCenterEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-2cfb7c978081e546d1817b9f42a16fb81fbfb758e2131cf3c8cf6ad7ed3f8397",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Id.get",
+        "span": [
+          66,
+          24,
+          66,
+          28
+        ],
+        "reasoning": "Getter joins review overlay to recomputed deterministic exception ID; an old stored row is invisible if its exception is not currently produced.",
+        "inputs": "Entity containing string exception ID.",
+        "outputs": "string exception ID exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-288becc958d03a5af5781ccbc726c1c28050159c5159b70183a3638bc26b1322",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Id.set",
+        "span": [
+          66,
+          29,
+          66,
+          33
+        ],
+        "reasoning": "Setter accepts request ExceptionId without verifying a currently live exception in this handler; PK identity keeps one latest overlay, not one immutable review event.",
+        "inputs": "string exception ID from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-f9739f2eb1348e915ca7353fbbc896132d19ab28645d577f3a7ef0c06a06719f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Status.get",
+        "span": [
+          67,
+          28,
+          67,
+          32
+        ],
+        "reasoning": "Getter overrides default open only for a currently emitted exception; resolved label does not remove underlying financial facts or conditions.",
+        "inputs": "Entity containing string review status.",
+        "outputs": "string review status exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-8cabe1e832188286795c2fbcc5be65a3c29a4a09d5e1a40502ee8c8fed174be4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Status.set",
+        "span": [
+          67,
+          33,
+          67,
+          37
+        ],
+        "reasoning": "Setter stores only acknowledged/resolved after explicit handler whitelist, but entity string has no intrinsic guard or allowed transition enforcement.",
+        "inputs": "string review status from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-956c795ff8edd5f3f2026f42cbb5fb204a005b19682afb5a43ab367113257b05",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Actor.get",
+        "span": [
+          68,
+          27,
+          68,
+          31
+        ],
+        "reasoning": "Getter returns latest reviewer name, not the exception-causing actor or stable identity used to authorize action.",
+        "inputs": "Entity containing string reviewer name.",
+        "outputs": "string reviewer name exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-94a916f0c005a07ec358d59192f0093aef5f9a2c1746d0b4a917e865ef33627e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Actor.set",
+        "span": [
+          68,
+          32,
+          68,
+          36
+        ],
+        "reasoning": "Setter captures actor.Name after control_center authorization and replaces it with each review; immutable review history is separately appended to ControlAuditEvents.",
+        "inputs": "string reviewer name from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-b9cf3efe38a195f222afa2b4e219e60ec184d5ca1a6454f5961ee982b5686e7c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Reason.get",
+        "span": [
+          69,
+          28,
+          69,
+          32
+        ],
+        "reasoning": "Getter exposes latest human review explanation; it is not a financial correction or validation that original condition ceased.",
+        "inputs": "Entity containing string review reason.",
+        "outputs": "string review reason exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-2621f10b93a8058be0b9a1589492039dee560765d21b58b2ead20d4768cc86cd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.Reason.set",
+        "span": [
+          69,
+          33,
+          69,
+          37
+        ],
+        "reasoning": "Setter stores required trimmed reason on new or existing overlay; no ledger, order or custody is repaired by assigning text.",
+        "inputs": "string review reason from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-cf0667bf389359fe486259673b1ac016703ba6ea1bd316481ab31d95da1699fe",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.TimestampUtc.get",
+        "span": [
+          70,
+          42,
+          70,
+          46
+        ],
+        "reasoning": "Getter shows most recent overlay review timestamp, independent of original exception source event or historical audit entries.",
+        "inputs": "Entity containing DateTimeOffset latest review.",
+        "outputs": "DateTimeOffset latest review exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-8796f69443e9c64272e298b9f706331499dd1e84325486193a26201bf177fc22",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlExceptionStateEntity.TimestampUtc.set",
+        "span": [
+          70,
+          47,
+          70,
+          51
+        ],
+        "reasoning": "Setter replaces time on every acknowledged/resolved write; source permits resolved-to-acknowledged change, so this is mutable review state rather than append-only chronology.",
+        "inputs": "DateTimeOffset latest review from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-a375b55573a3675043b0152d1fd9988d532bb658e6e0e036c2302c510c9f7504",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Id.get",
+        "span": [
+          83,
+          24,
+          83,
+          28
+        ],
+        "reasoning": "Getter exposes independent administrative audit row identity, different from correlated operation/entity IDs.",
+        "inputs": "Entity containing string audit PK.",
+        "outputs": "string audit PK exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-577c36502c0ac82ee85e7d4ae487a28f7b8a4aeadce5dfa671c0ed69815d84df",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Id.set",
+        "span": [
+          83,
+          29,
+          83,
+          33
+        ],
+        "reasoning": "Setter receives audit-GUID or control-audit-GUID in inspected callers; PK uniqueness does not itself make the entire log immutable or cryptographically chained.",
+        "inputs": "string audit PK from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-70e36f10276051319034b9a08dc7ec0906798a05971e0fc83d7c6754997ff0bf",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Action.get",
+        "span": [
+          84,
+          28,
+          84,
+          32
+        ],
+        "reasoning": "Getter supplies administrative event classification to audit DTO, including close started/blocked/closed, exception review and cash-count finalization.",
+        "inputs": "Entity containing string action label.",
+        "outputs": "string action label exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-34ee1f8c41e546ac6d11522de5db35954156be2783faf096726c25097f2416ad",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Action.set",
+        "span": [
+          84,
+          33,
+          84,
+          37
+        ],
+        "reasoning": "Setter is caller-chosen action text; it records operation outcome label and does not execute the operation or validate its truth.",
+        "inputs": "string action label from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-6896668e3ac2bea182acb46b54c03a42aed7cd45e1883d3b9d127f74cc5053af",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Actor.get",
+        "span": [
+          85,
+          27,
+          85,
+          31
+        ],
+        "reasoning": "Getter exposes actor display snapshot for administrative trail, not an authorization predicate.",
+        "inputs": "Entity containing string actor display name.",
+        "outputs": "string actor display name exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-42745bef59a0fd5c831af8d22852175d3daec04a452777262b7c69af7685374b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Actor.set",
+        "span": [
+          85,
+          32,
+          85,
+          36
+        ],
+        "reasoning": "Setter copies resolved actor name in inspected control handlers; repeated names can refer to different users, so field cannot be treated as stable user FK.",
+        "inputs": "string actor display name from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-c4d98b91eb328d493859ac372cd2dddc0c3465eb751b82b0d5a8693425e5bd29",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.EntityId.get",
+        "span": [
+          86,
+          30,
+          86,
+          34
+        ],
+        "reasoning": "Getter identifies action subject, polymorphic across business day, exception, user and cash count rather than one relational entity type.",
+        "inputs": "Entity containing string subject identity.",
+        "outputs": "string subject identity exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-5c49bc4c908d942bf94fb9d115d6f4a4752804daf3ae4382d6634fdf849f2e22",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.EntityId.set",
+        "span": [
+          86,
+          35,
+          86,
+          39
+        ],
+        "reasoning": "Setter receives caller subject ID; inspected mapping declares no polymorphic FK enforcement, leaving subject meaning to Action and originating handler.",
+        "inputs": "string subject identity from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-e1458541b91dc0b8f39c4f674181a99eb06e9b1c5060c063f82268fec5288cdc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.AmountPiastres.get",
+        "span": [
+          87,
+          35,
+          87,
+          39
+        ],
+        "reasoning": "Getter returns optional event amount, such as counted cash total; null is not zero and amount is informational rather than a treasury balance entry.",
+        "inputs": "Entity containing nullable long informational amount.",
+        "outputs": "nullable long informational amount exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-9f21b7cdccc3907eeb983ef1473584ee5611d602290629955554e170c9e6f8de",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.AmountPiastres.set",
+        "span": [
+          87,
+          40,
+          87,
+          44
+        ],
+        "reasoning": "Setter copies cash-count total on finalized event while close/exception events omit it. It does not validate funding, debit accounts or make an accounting posting.",
+        "inputs": "nullable long informational amount from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-b99e8fd8c45ef62605101b239962f6f6cbc340034c316229b8725516094f0444",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.OperationId.get",
+        "span": [
+          88,
+          34,
+          88,
+          38
+        ],
+        "reasoning": "Getter correlates administrative events from one close attempt; it is optional and not the audit primary key or a unique request receipt.",
+        "inputs": "Entity containing nullable correlation ID.",
+        "outputs": "nullable correlation ID exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-68b9554a04755086053336da9cbfbba41f57130c0ace713518ad60406802229c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.OperationId.set",
+        "span": [
+          88,
+          39,
+          88,
+          43
+        ],
+        "reasoning": "Setter records close operation correlation where supplied; missing value on other actions is allowed and does not create a shared idempotency barrier.",
+        "inputs": "nullable correlation ID from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-2e3f2d43543fa1fa9fee131749e5b97bc75b71925b2044663e265211bfd3d926",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.ApprovedBy.get",
+        "span": [
+          89,
+          33,
+          89,
+          37
+        ],
+        "reasoning": "Getter exposes optional approver-name attribution; no value may accompany valid permission-only execution under documented policy.",
+        "inputs": "Entity containing nullable approver name.",
+        "outputs": "nullable approver name exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-1e28493ea95ac9fbb37aec4812c71ab4c43c3ff87dc48f3a0535c791eb956394",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.ApprovedBy.set",
+        "span": [
+          89,
+          38,
+          89,
+          42
+        ],
+        "reasoning": "Setter copies authorization result in inspected close/exception writers. Name string does not consume approval; actual policy and registry own validation.",
+        "inputs": "nullable approver name from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-c71a260a283f3690c6b11df4d5a5a3130653f76daeef27bc0c79620aa8306acc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Reason.get",
+        "span": [
+          90,
+          29,
+          90,
+          33
+        ],
+        "reasoning": "Getter exposes optional human rationale, separate from machine blocker codes and exception status overlay.",
+        "inputs": "Entity containing nullable rationale.",
+        "outputs": "nullable rationale exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-84069fbe53def75ca2960dc6dfaf980f6005d6fc228759f3f43f109ecc2149a9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.Reason.set",
+        "span": [
+          90,
+          34,
+          90,
+          38
+        ],
+        "reasoning": "Setter stores caller-validated reason where operation requires it; optional storage cannot establish all actions require a reason or bypass such requirement.",
+        "inputs": "nullable rationale from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-5a47b0f761b49a6b47e86dd008232251f8bfbd36c620e05814ef969d79318844",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.BlockerCodesJson.get",
+        "span": [
+          93,
+          39,
+          93,
+          43
+        ],
+        "reasoning": "Getter yields optional serialized blocker-code array deserialized by audit query; it is not live reevaluation of day-close safety.",
+        "inputs": "Entity containing nullable blocker JSON.",
+        "outputs": "nullable blocker JSON exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-853af8b46f5dc13d355a078f2b53eb70bfec810d285a3dbc0fa63735c00db301",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.BlockerCodesJson.set",
+        "span": [
+          93,
+          44,
+          93,
+          48
+        ],
+        "reasoning": "Setter serializes failed close blocker codes only in inspected blocked event. Other events leave null; corrupt text can fail DTO parsing and setter performs no JSON validation.",
+        "inputs": "nullable blocker JSON from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-7924e2a8b756d747d7ac39977309079ffdc3aa2b180b69487f5e93717aa2d486",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.CreatedAtUtc.get",
+        "span": [
+          94,
+          42,
+          94,
+          46
+        ],
+        "reasoning": "Getter controls audit range and descending ordering; it is an event timestamp, not unique monotonic commit sequence.",
+        "inputs": "Entity containing DateTimeOffset audit instant.",
+        "outputs": "DateTimeOffset audit instant exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-f677068a3940aeebb9419dd4f8a94d098991b86807a8d4de9da122a8f20803e4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity.CreatedAtUtc.set",
+        "span": [
+          94,
+          47,
+          94,
+          51
+        ],
+        "reasoning": "Setter copies handler now captured during attempt. DbContext indexes timestamp for query but imposes no uniqueness or automatic timestamp generation in inspected block.",
+        "inputs": "DateTimeOffset audit instant from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-54741b09d4e820f2351ffdc09b385944df77ae1186e5c5e305645ec91d3f1808",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.Id.get",
+        "span": [
+          106,
+          24,
+          106,
+          28
+        ],
+        "reasoning": "Getter identifies finalized count replay globally by request Id, independent of supplied business day on retry.",
+        "inputs": "Entity containing string count PK.",
+        "outputs": "string count PK exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-533ea51a208a3e85ae1177ac8801d64a64c90327e6121de8ac35a3f0ec7c13d7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.Id.set",
+        "span": [
+          106,
+          29,
+          106,
+          33
+        ],
+        "reasoning": "Setter stores caller-provided ID. Same-ID lookup and PK catch provide replay, but existing-row path precedes actor/day checks and does not compare full payload.",
+        "inputs": "string count PK from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-79729c5772f1b64bdb34f0bc40d4d55da5d8a69351a3b15619922b518bb13023",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.BusinessDayId.get",
+        "span": [
+          107,
+          35,
+          107,
+          39
+        ],
+        "reasoning": "Getter scopes count listing to a day but does not prove the day was open when count was finalized.",
+        "inputs": "Entity containing string day association.",
+        "outputs": "string day association exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-2562540c0cefc1b3543e0a9cbbe44bd6316af261f7a384e334d9d22c6fc3b150",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.BusinessDayId.set",
+        "span": [
+          107,
+          40,
+          107,
+          44
+        ],
+        "reasoning": "Setter stores day ID after existence lookup; inspected count mapping has index but no authored FK or open-day/shift consistency check.",
+        "inputs": "string day association from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-2a13b66fcb56e165d8e6ee5b5d1d7fff4e0c17aac0fc9851139ae0df59b91a0f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.ShiftId.get",
+        "span": [
+          108,
+          30,
+          108,
+          34
+        ],
+        "reasoning": "Getter exposes optional shift attribution for display, not a validated ownership or ledger allocation.",
+        "inputs": "Entity containing nullable shift association.",
+        "outputs": "nullable shift association exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-29c5a1dee41f3ca8370e265e9c0ad49c5823221c7d62ab9c9ca73bbe9373094b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.ShiftId.set",
+        "span": [
+          108,
+          35,
+          108,
+          39
+        ],
+        "reasoning": "Setter accepts optional request ShiftId without shift lookup in inspected handler; existence and same-day binding are not enforced by this accessor.",
+        "inputs": "nullable shift association from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-2ac07fe54804027e9a52486e7624082b4e77a211f5708af586ff786d3761f862",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.RowsJson.get",
+        "span": [
+          109,
+          30,
+          109,
+          34
+        ],
+        "reasoning": "Getter provides frozen denomination rows deserialized in DTO mapping rather than recalculating from a physical device.",
+        "inputs": "Entity containing string denomination-row JSON.",
+        "outputs": "string denomination-row JSON exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-ad0c7ef7899724bc0219ac3cb5f24e5b57677d8c2a65ddcb3235fa7b799fd5c9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.RowsJson.set",
+        "span": [
+          109,
+          35,
+          109,
+          39
+        ],
+        "reasoning": "Setter serializes calculated rows with negative quantity clamped to zero; calculation does not whitelist denominations or checked multiply. Existing cash-denomination candidate covers source admission, no duplicate finding.",
+        "inputs": "string denomination-row JSON from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-25a89ca2c787e1a9aa9a3dd460a8ceedb6f29209de3060a5b97eabc1a9570996",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.TotalPiastres.get",
+        "span": [
+          110,
+          33,
+          110,
+          37
+        ],
+        "reasoning": "Getter exposes computed row total, not an actual drawer account balance or independently verified physical count.",
+        "inputs": "Entity containing long counted total.",
+        "outputs": "long counted total exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-968cfcf802825a8579fa750be309885698f963fdb50f3b0d88ad9252cb14cc18",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.TotalPiastres.set",
+        "span": [
+          110,
+          38,
+          110,
+          42
+        ],
+        "reasoning": "Setter copies domain Sum of row totals. Negative quantities are clamped, but arbitrary signed denomination and unchecked product limits remain in existing candidate; no currency movement happens.",
+        "inputs": "long counted total from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-5997ea48258d7b1eb665a2b46ee9802a51afffd822385e66f9f1dd843f3adc4c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.ExpectedPiastres.get",
+        "span": [
+          111,
+          36,
+          111,
+          40
+        ],
+        "reasoning": "Getter exposes expected amount supplied in count request, not a fresh server-computed drawer reconciliation.",
+        "inputs": "Entity containing long supplied expected amount.",
+        "outputs": "long supplied expected amount exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-e1585d30bc1031e0b640b22478272a14bb2499937916a4f76609551ee428654c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.ExpectedPiastres.set",
+        "span": [
+          111,
+          41,
+          111,
+          45
+        ],
+        "reasoning": "Setter copies calculated.ExpectedPiastres which directly preserves request input. No source-account query or expected-balance binding occurs in this handler.",
+        "inputs": "long supplied expected amount from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-6a9d6e5a640abd81c89f5a649c31699580dd410ecdee4345332f38d765dddf1e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.DifferencePiastres.get",
+        "span": [
+          112,
+          38,
+          112,
+          42
+        ],
+        "reasoning": "Getter exposes frozen total-minus-expected arithmetic, separate from posted settlement or discrepancy approval.",
+        "inputs": "Entity containing long frozen difference.",
+        "outputs": "long frozen difference exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-e49a8fa937a896dad7089bb97ee8466daea6fc9cf02765a6d5e2af2a8b926d4c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.DifferencePiastres.set",
+        "span": [
+          112,
+          43,
+          112,
+          47
+        ],
+        "reasoning": "Setter copies domain difference; it is not recalculated automatically if public total/expected fields are later mutated. Calculation is subject to the existing numeric-boundary candidate.",
+        "inputs": "long frozen difference from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-9e10cfacc09a79a94b0904370ed8d7c3ab5ea7d55b48f28505592cde6972fd3b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.CountedBy.get",
+        "span": [
+          113,
+          31,
+          113,
+          35
+        ],
+        "reasoning": "Getter exposes counter user-name snapshot in DTO and count history, not stable actor identity or physical measurement attestation.",
+        "inputs": "Entity containing string counter name.",
+        "outputs": "string counter name exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-954255792a4a61df36a8f5073880ccc544e4870667202bc4d8f7b3813f06da14",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.CountedBy.set",
+        "span": [
+          113,
+          36,
+          113,
+          40
+        ],
+        "reasoning": "Setter copies resolved actor name after cash_count permission check; display field itself cannot authorize counting.",
+        "inputs": "string counter name from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-55b65e90fd4b0040e37c3780f086823c139aad2d27b8f55e3ecd55dad4f3b3d6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.CreatedAtUtc.get",
+        "span": [
+          114,
+          42,
+          114,
+          46
+        ],
+        "reasoning": "Getter orders count history by recorded creation instant rather than transaction commit or physical counting start.",
+        "inputs": "Entity containing DateTimeOffset creation time.",
+        "outputs": "DateTimeOffset creation time exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-02146fc96c16a3cd6bc0c73b927fa5402f7cb6dbf0d25f05ea79c1ae29fccaec",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.CreatedAtUtc.set",
+        "span": [
+          114,
+          47,
+          114,
+          51
+        ],
+        "reasoning": "Setter receives handler now after calculation and before SaveChanges; subsequent same-ID replay returns stored time without new record.",
+        "inputs": "DateTimeOffset creation time from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-bc2e6c171a8fc11e3d7c19a08bdbd8a81dbde318250d6fe4a1d708482be88934",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.FinalizedAtUtc.get",
+        "span": [
+          115,
+          45,
+          115,
+          49
+        ],
+        "reasoning": "Getter exposes nullable finalization timestamp; normal writer sets immediately, so null is representable but not produced by that successful path.",
+        "inputs": "Entity containing nullable DateTimeOffset finalized time.",
+        "outputs": "nullable DateTimeOffset finalized time exposed directly.",
+        "side_effects": "No side effects or hidden database query.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      },
+      {
+        "stable_id": "sym-81ce73740a1fae5572c5e7522387a71b1df6c17baad0dd2d5cf59a64e5230be0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.CashDenominationCountEntity.FinalizedAtUtc.set",
+        "span": [
+          115,
+          50,
+          115,
+          54
+        ],
+        "reasoning": "Setter sets same now as CreatedAtUtc in current writer, not a separate later finalize workflow. Entity remains mutable despite documented finalized-once command behavior.",
+        "inputs": "nullable DateTimeOffset finalized time from inspected state/count/audit writer.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory field assignment; caller EF SaveChanges writes records. Accessor has no cash, stock, printer or hardware effect.",
+        "trust_boundaries": "SetExceptionStatus validates status/reason and control_center authorization; SaveCashCount checks cash_count and day existence. Stored labels, expected figures and names are not independently trusted financial proof.",
+        "database": "Model407-413 state/audit PK and audit timestamp index;429-433 count PK/day index. Inspected source declares no count shift/day FK, immutable-row constraint or JSON check in those blocks. No SQL executed.",
+        "printing_ui": "ControlCenterQuery106-140 projects review overlay, audit and denomination rows. Existing source UI/physical workflows were not run; no actual cash count or ticket was generated.",
+        "performance": "O(1) accessor. Caller JSON deserialization can fail malformed archival input; query limits/paging belong service, not property.",
+        "duplicates_conflicts": "Control audit differs from general EfAuditLog; comment calling general audit unwired is historical and not current proof (EfAuditLog source exists). Existing cash denomination candidate remains distinct from treasury facts.",
+        "issues_hypotheses": "No duplicate finding promoted. Human resolved/count metadata does not establish source-condition correction or authoritative server balance; existing canonical qualification retained.",
+        "tests_missing": "Source-only analysis; no test fixtures executed. Need overlay recurrence/review history, malformed JSON, same-ID different-payload replay, denomination bounds, expected-source binding and count day/shift consistency regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26-69",
+          "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:29-76",
+          "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs:100-140",
+          "src/Falah.Domain/BusinessDay/BusinessDayRules.cs:125-134",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:407-413,429-433"
+        ]
+      }
+    ]
+  }
+]

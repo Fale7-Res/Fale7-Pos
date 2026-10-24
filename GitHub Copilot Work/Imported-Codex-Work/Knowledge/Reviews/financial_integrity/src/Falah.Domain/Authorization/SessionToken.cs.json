@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Authorization/SessionToken.cs",
+  "source_git_blob_sha256": "356e4dcde7e8778421f240589c9f00791d583700266d9b1d548ffc380e6d2668",
+  "worktree_sha256": "356e4dcde7e8778421f240589c9f00791d583700266d9b1d548ffc380e6d2668",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:56:03.977417+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-366eeee2b930d5b1113e9da11bd4e85f015de550f5c0e0a20b58c5c47b2f8d4a",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.SessionToken.Issue()",
+      "span": [
+        25,
+        5,
+        25,
+        105
+      ],
+      "reasoning": "Generates32 randombytes with cryptographicRNG thenuppercasehex, preserving256bit entropy in64characters. NotderivedfromPIN/user/time. Doesnotpersistorassociateuser; retaining/plainloggingcallerresponsibility.",
+      "inputs": "None",
+      "outputs": "Random token string",
+      "side_effects": "Token Issue random generation or purehash/time predicate; no audit execution.",
+      "database": "NoDB; sessionpersistence external.",
+      "trust_boundaries": "Bearerproof onlyifcaller stores/validateshash andbinds actor; no claim sourcecomments prove entireauthsecure.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant32bytesrandom/64hex; hashlinear inputlength; timeconstant.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Root securityowns full auth attackpaths; this is individualsourcecontract review.",
+      "tests_missing": "Length/format/nonrepeat and RNGfailure handling; no tokensgeneratedduringaudit",
+      "verified_callers_callees": "RandomNumberGenerator.GetBytes25; SessionService caller not rereadhere UNKNOWN."
+    },
+    {
+      "stable_id": "sym-05d8a487238d17d4b2f03881ba0021eb70528b0893331613e075ade227683682",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.SessionToken.Hash(string)",
+      "span": [
+        29,
+        5,
+        30,
+        89
+      ],
+      "reasoning": "Hashes exact UTF8tokenbytes withSHA256thenhex. Itdoesnotparsehex orcanonicalizecase, so lowercasing otherwiseequivalenthex changescredentialhash; issuedtokensuppercaseand shouldberetainedexactly. NullthrowsEncoding API; invalidtokenformatnotrejectedlocally.",
+      "inputs": "Token string",
+      "outputs": "HexSHA256",
+      "side_effects": "Token Issue random generation or purehash/time predicate; no audit execution.",
+      "database": "NoDB; sessionpersistence external.",
+      "trust_boundaries": "Bearerproof onlyifcaller stores/validateshash andbinds actor; no claim sourcecomments prove entireauthsecure.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant32bytesrandom/64hex; hashlinear inputlength; timeconstant.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Root securityowns full auth attackpaths; this is individualsourcecontract review.",
+      "tests_missing": "Exactcase, whitespace, null/oversizetoken behavior",
+      "verified_callers_callees": "UTF8.GetBytes and SHA256.HashData30; sessionconsumer parentreview."
+    },
+    {
+      "stable_id": "sym-1458c6017e531448ea0fd414f087e83be3d6fb4156e1222969d1f0022088882e",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.SessionToken.IsExpired(DateTimeOffset, DateTimeOffset)",
+      "span": [
+        37,
+        5,
+        38,
+        45
+      ],
+      "reasoning": "Expired iff supplied now-lastSeen strictly exceeds16hours; exact16 remainsvalid. FuturelastSeen/clockrollback makesnegativeageunexpired, callerclocktrustimportant. Noabsoluteexpiry orrevocationcheckhere.",
+      "inputs": "lastSeen/now DateTimeOffset",
+      "outputs": "Boolean",
+      "side_effects": "Token Issue random generation or purehash/time predicate; no audit execution.",
+      "database": "NoDB; sessionpersistence external.",
+      "trust_boundaries": "Bearerproof onlyifcaller stores/validateshash andbinds actor; no claim sourcecomments prove entireauthsecure.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant32bytesrandom/64hex; hashlinear inputlength; timeconstant.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Root securityowns full auth attackpaths; this is individualsourcecontract review.",
+      "tests_missing": "Exact16h/+tick, clockrollback/futuretimestamp",
+      "verified_callers_callees": "IdleLifetime35; subtraction38."
+    }
+  ],
+  "remaining_callable_ids": []
+}

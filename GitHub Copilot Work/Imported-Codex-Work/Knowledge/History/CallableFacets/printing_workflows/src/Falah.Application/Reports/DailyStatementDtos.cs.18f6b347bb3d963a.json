@@ -1,0 +1,54 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:01:24.757940+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-64be5645b7ec1dc2a38cc53a5c0c7749e5a213dab7a25b5d93952a21ede09a2e",
+      "status": "ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyEmployeeRowDto.TotalPaidTodayPiastres::get()",
+      "source_span": [
+        79,
+        80
+      ],
+      "reasoning": "DailyEmployeeRowDto.TotalPaidTodayPiastres sums AdvancePaidToday,WithdrawalPaidToday,PayrollSettlementPaidToday and standalone SettlementPaidToday;it excludes accrued wages/overtime/bonus,deductions and all-time RunningBalance. Producer BuildEmployeeRows groups day ledger and sums four distinct debit types,so normal source rows do not double-count kinds. Standalone Settlement default0 preserves older constructor payloads. This getter is presentation arithmetic,not permission,payout or balance guard.",
+      "inputs": "Four long daily debit totals from DTO constructor;last Settlement defaults0.",
+      "outputs": "long total daily payouts;unchecked addition can overflow adversarial/extreme supplied values.",
+      "side_effects": "Pure arithmetic,may be serialized/read by WinUI binding;no payment action.",
+      "trust_boundaries": "Server producer supplies ledger-derived data,but public record constructor/JSON can hold inconsistent or negative fields without validation.",
+      "database": "No SQL in getter;DailyStatementQueryService155-184 is actual day ledger producer.",
+      "printing_ui": "DailyStatementView293 displays total;must not call it earned pay or remaining balance. Existing test196 asserts standalone3000 included.",
+      "performance": "Constant four additions;not a bottleneck.",
+      "duplicates_conflicts": "Copies update fields shallow/value scalars;derived getter recomputes after with-copy. No cached total that could drift separately.",
+      "issues_hypotheses": [
+        "Boundary long overflow not validated here;financial command invariant belongs upstream"
+      ],
+      "tests_missing": [
+        "Four distinct nonzero types,default missing Settlement,negative/extreme totals and serialization;existing test read,not executed"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs70-80",
+        "DailyStatementQueryService.cs155-184",
+        "DailyStatementView.xaml293",
+        "DailyStatementVerticalSliceTests.cs180-197"
+      ]
+    }
+  ],
+  "source_git_blob_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+  "worktree_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [
+    "sym-0385e08521da4771b4011ec3e1b9debf4bd138481661282d0afdcb6a5ff2456a",
+    "sym-0748f2fa5ed2df9f32ef4618c264d412ec998c1981fead88eb021cf88254be0c",
+    "sym-1961ec08ef8b38c792e9747d88cbc3bbc0704801752894f38bc1627904e60e58",
+    "sym-60aec8203c4791a758d5f3f6f69b95d3dff8512d7dc15ad59d0a79c9bcb280e0",
+    "sym-6112b72142ef11524947bca633238b4a5553ab1a60f62f7db98c169a25e02988",
+    "sym-a292792f7cd40ba06bd19d6d3d0f6e56ea5744674badfe71da8774f12dc34f80",
+    "sym-b7305c1adc3a4474dc0d6d44da42dbdd3a22a4cf1d0b15ece8cac98e83542c78",
+    "sym-bd34577a85b33825f542407bc570a79676587377be82b5fc7105c9c7c317d5e0",
+    "sym-ef893dfcaea2da2ab31e3d4a8ce114200d5c27944c989d04309aac991725ce96"
+  ],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

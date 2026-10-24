@@ -1,0 +1,68 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "at_utc": "2026-10-19T22:05:47.898Z",
+  "candidate_key": "EMPLOYEE_CREDIT_APPROVAL_BEFORE_DURABLE_REPLAY",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_PRECONDITIONS",
+  "suggested_severity": "MEDIUM recoverability/acknowledgement contract, not duplicate financial posting",
+  "method": "Independently read exact handlers, authorization/EF registry, ledger dedupe and replay-first correction. Raw hashes verified. No SQL/API/UI/test operation, no fullfile rereview receipts.",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384"
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
+      "git_blob_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce",
+      "worktree_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    }
+  ],
+  "evidence": [
+    "RecordDailyWageHandlers Overtime79 input guard,80-90 actor/approval authorize precedes deterministic key96 and PostIfNew97; replay100-105 occurs only after authorization. ExtraShift127-138 similarly precedes key145/replay149-153.",
+    "ApprovalRegistry73 own-permission short circuit is real countercontrol; delegated fallback77 invokes ValidateApproval89-96, rejection92-93 includes registry.IsConsumed; marking95 calls EF registry MarkConsumed45-52.",
+    "EfApprovalRegistry21-31 registers Consumed=false;45-52 tracked update Consumed=true. First successful wage command Save107/155 persists ledger and tracked approval in same SaveChanges context.",
+    "LedgerPoster36-37 returns null if deterministic ID exists, preventing another staged credit if reached. Spent-approval rejection on retry precedes this durable dedupe lookup.",
+    "CorrectAttendance45-51 checks immutable audit receipt, actor and target before approval path55 onward; this is a bounded positive contrast rather than recommendation to return arbitrary mismatched receipt."
+  ],
+  "schedule": [
+    "Legitimate actor lacks employees_ledger but has a valid issued matching manager approval. First same-task overtime/extra-shift request commits normally, including ledger and consumed approval.",
+    "Response is lost after successful persistence; actor retries identical RequestId, parameters and now-spent approval in a new context.",
+    "Actor still lacks own permission; authorization sees consumed approval and throws before existing deterministic ledger row can be returned. Existing credit remains; no second credit or treasury transfer is produced by this failure."
+  ],
+  "counterevidence": [
+    "Own employees_ledger or all permission bypasses approval validation and permits reaching existing-row replay.",
+    "If first operation did not commit, there is no durable consumption/credit to support this exact failure scenario.",
+    "A newly issued valid approval or a suitably authorized actor can reach replay, so not permanent irrecoverability or lost financial data.",
+    "This is not UI001 identity regeneration or FIN024 signed rate admission; no duplicate-money exploit claimed. Existing canonical titles checked for overtime/retry/approval overlap; no matching same defect title found, parent owns final dedup.",
+    "Concurrent EF uniqueness/range behavior and actual client approval-refresh recovery were not executed or proven; this is deterministic source ordering for sequential committed retry."
+  ],
+  "source_reference_correction": "Actual ValidateApproval span89-96 and consumed condition92-93, not old shorthand94-99; EF registry IsConsumed41-43/MarkConsumed45-52.",
+  "correction_design": "Before consuming another approval, resolve an existing durable command receipt with actor and employee/target/payload binding. Preserve current session/active checks and reject mismatched receipt reuse. For new operation retain permission-or-approval and atomic approval/ledger commit. Do not simply skip authorization on arbitrary existing key without binding.",
+  "regression_tests": [
+    "Delegated approval request commits, response-lost identical retry returns original entry without second credit or fresh approval consumption.",
+    "Own-permission retry remains valid; uncommitted failed request can safely retry original approval.",
+    "Same request key with different employee/actor/payload is rejected according to explicit binding policy; CorrectAttendance control retained.",
+    "Separate concurrency tests prove at most one ledger fact and one approval consumption; no such tests run here."
+  ]
+}

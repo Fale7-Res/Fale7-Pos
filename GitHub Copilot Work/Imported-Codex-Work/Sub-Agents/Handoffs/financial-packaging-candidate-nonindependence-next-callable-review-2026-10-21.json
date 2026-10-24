@@ -1,0 +1,35 @@
+{
+  "artifact_kind": "financial_candidate_independence_disposition_and_callable_review",
+  "id": "financial-packaging-candidate-nonindependence-next-callable-review-2026-10-21",
+  "created_utc": "2026-10-21T08:01:16.8822097Z",
+  "assignment": "Bounded independent challenge of FIN-CAND-PACKAGING-COVERAGE-001; if prior reviewer work compromises independence, identify and substantively verify one exact next financial callable instead.",
+  "packaging_candidate": {
+    "candidate_id": "FIN-CAND-PACKAGING-COVERAGE-001",
+    "disposition": "NOT_INDEPENDENTLY_CHALLENGED_BY_THIS_REVIEWER",
+    "reason": "I previously prepared the reviewer-owned financial-five-candidates-repair-readiness-supplement and explicitly re-read this candidate evidence and the same packaging/dashboard source chain. That prior source-specific analysis makes this follow-up non-independent for this candidate. I therefore do not offer a second challenge as independent evidence and do not rely on SEM-MIRROR-039.",
+    "prior_reviewer_artifact": "Codex Work/Sub-Agents/Handoffs/financial-five-candidates-repair-readiness-supplement.json",
+    "prior_artifact_sha256": "6951b4373c174aec58e23c40e0a6235a92b488e45ef1517151160ab21863a059",
+    "saved_candidate": "Codex Work/Deep-Audit/Database-and-Finance/packaging-completeness-candidate.json",
+    "saved_candidate_sha256": "bfe3858ba943c1e039b987b45ac7135ef07bf0070a118b93f5121ddc43a02b5c"
+  },
+  "next_callable": {
+    "status": "SOURCE_REASONING_PERSONALLY_VERIFIED; NOT A NEW FINDING",
+    "stable_id": "sym-42ede0a0661cfd895d08809ec61dcca1b382196251d3e21614fffcce439b6fa1",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetCategorySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "lines": "325-339; shared Range helper lines 241-246",
+    "source_worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+    "actual_flow": "Range converts optional business dates into UTC start/end bounds. The query selects OrderItems joined to Orders whose status is not Cancelled and whose CreatedAtUtc is >= start and < end, then joins each row to the current Product to read its current CategoryId. It loads current category names into a dictionary, groups by CategoryId, sums item Quantity and TotalPricePiastres, substitutes the category ID when its name is absent, and sorts descending by summed piastres. This callable is read-only query/local aggregation; it neither posts nor changes financial state.",
+    "callers": "GET /api/reports/category-sales calls RequireReportsAccessAsync before GetCategorySalesAsync (src/Falah.Server/Program.cs:2032-2033).",
+    "cross_evidence": "The reporting integration test Top_selling_items_and_category_sales_aggregate_across_orders at tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs:169-179 makes a cash order and asserts the category total is at least 12000 piastres. It does not test cancellation filtering, date boundaries, category reassignment, discounts/refunds, or a missing category row.",
+    "counterevidence_and_limits": "Canceled orders are explicitly excluded; date filters use half-open UTC ranges, reducing boundary duplication. Current category joins mean a legitimate product recategorization can restate historical category grouping; the existing test only verifies basic aggregate presence. Whether historical category attribution is intended is a reporting-policy question. No defect is asserted from that alone.",
+    "independent_receipt": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json; matching symbol record has substantive reasoning about current category grouping and restricted product deletion.",
+    "receipt_sha256": "fe05e42d2d07c073c0448e752e44fd61612247c4725b523e40f0650dc8b8d112d",
+    "tests": "Source read only. No test execution."
+  },
+  "limitations": [
+    "No application source, tests, runtime, database, registry/report or Git changes.",
+    "This callable review does not certify global finance coverage and does not establish that this is an unreviewed callable; an existing per-callable receipt is present."
+  ]
+}

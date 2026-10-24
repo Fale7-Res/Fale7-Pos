@@ -1,0 +1,119 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:09:53.1530844Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/PayablesAgingTests.cs",
+  "symbol_count": 8,
+  "symbols": [
+    {
+      "stable_id": "sym-fe5d3066cf4f2a30dfa9dde24cab7c14bec7b899fb4e85416b8634be73b43ab7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.An_invoice_with_no_due_date_is_never_overdue()",
+      "span": [
+        16,
+        5,
+        21,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1ff2eea080a039c812c8a9d9f926c57119fcb14499c53cc8e6905e12e46e3be1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.An_invoice_not_yet_due_is_zero_days_overdue_not_negative()",
+      "span": [
+        23,
+        5,
+        29,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6ee8e9aad19c9069475e3aa8922cb8e297ecd2ad8f1f3e6ed88bdb56b9e1d35c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.An_invoice_due_today_is_not_yet_late()",
+      "span": [
+        31,
+        5,
+        36,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5b9ba8bf2a7bddc1e065383887d88d16259eced3b3895b82d766ec90ece54219",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.Buckets_are_inclusive_at_their_upper_bound(int, Falah.Domain.Purchasing.PayablesAging.Bucket)",
+      "span": [
+        38,
+        5,
+        51,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-108971f05f7ba084c9835af9f74c0f1f37087e9c36c906efd26ed6019b536900",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.Age_is_answerable_even_when_overdue_is_not()",
+      "span": [
+        53,
+        5,
+        61,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-570bde1a2957db260383bbf8d5f2e0bf91e3990ac6c07c457bf52d16322d3776",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.An_invoice_received_in_the_future_ages_zero_days_not_negative()",
+      "span": [
+        63,
+        5,
+        67,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2eca77643eeac369a8a3692d4f9ac8f808a7f112d665a3f65cb537d18ed35524",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.An_invoice_entered_late_with_an_already_expired_term_is_simply_overdue()",
+      "span": [
+        69,
+        5,
+        78,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6117c5adb3d36ae204474109ebae613c4960105258357a8f1531da626c8f44b6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayablesAgingTests.Every_bucket_has_a_label()",
+      "span": [
+        80,
+        5,
+        85,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static unit tests cover null and future due dates, due today, exact aging bucket boundaries, invoice age independent of due date, future receipt dates clamped to zero age, late invoice entry with an already-expired due date, and nonblank labels for every bucket. PayablesAging implements these rules consistently. Existing PayablesAgingVerticalSliceTests provide read-only evidence for unscheduled vs overdue buckets, future-due and settled invoices, late entry, permissions, and agreement between owner dashboard totals and the detailed payables report. No source/test discrepancy or independent finding identified. No tests were executed.",
+  "source_ranges": "PayablesAgingTests.cs: 1-86; PayablesAging.cs: 1-67; OwnerDashboardQueryService.cs: 332-357; PayablesAgingVerticalSliceTests.cs: 68-130, 176-228.",
+  "execution": "Read-only source/test review; no tests or runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/PayablesAgingTests.cs": "D9B5478B09316333DE81688D36A1FD5875784C2619EE562CC12A3A8322FB74B2",
+    "src/Falah.Domain/Purchasing/PayablesAging.cs": "1E5C3B20E445A616B5B6BBB38BD30F3C3132D377A1967C53CE4AD7AC048389B7",
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+    "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs": "D045DC58B7E1C82985A1270A9A33128B0CD262ABA1A89773997BD495967A9BD6"
+  },
+  "shard_reconciliation": {
+    "financial_integrity": "0/8 exact IDs present",
+    "financial_coordinator": "0/8 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

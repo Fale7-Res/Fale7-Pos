@@ -1,0 +1,186 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-021",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:10:00Z",
+  "scope": "Bounded comparison of owner-dashboard active business-day indicators against the domain lifecycle and server active-day query/reopen workflow. This does not audit all business-day financial close controls.",
+  "decision": "The domain marks Open, Closing and Reopened as active; BusinessDayGate.TryGetActiveAsync and OpenBusinessDayHandler use that same three-state set, and ReopenBusinessDayHandler persists Status=Reopened after a valid reopen. OwnerDashboardQueryService.LoadAttentionAsync independently selects Status=Open for both openDayAge and the day used to compute close blockers. Consequently, after a successful reopen and while the day remains Reopened, dashboard HasOpenBusinessDay is false, OpenBusinessDayAgeDays is null and CloseBlockerCount remains zero even though the day is active and must be closed again. This is a source-supported cross-component projection divergence; dashboard endpoint behavior for the reopened state has not been executed.",
+  "finding_candidate": "FIN-CAND-DASHBOARD-REOPENED-DAY-OMISSION-001",
+  "severity": "LOW_CANDIDATE",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          235,
+          243
+        ],
+        [
+          265,
+          294
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-21b13272c77ed156008a1bae9861754b5c6aec46ada2a4505417aa31705c09d8",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadAttentionAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "span": [
+            235,
+            5,
+            295,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "line_ranges": [
+        [
+          23,
+          29
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+          "signature": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+          "span": [
+            23,
+            5,
+            29,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "line_ranges": [
+        [
+          5,
+          5
+        ],
+        [
+          22,
+          31
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c78076a07c30a3119a0145b7d66e3e13cd2288a2806cbb330e97d9e02a39382e",
+          "signature": "Falah.Domain.BusinessDay.BusinessDayRules.IsActive(Falah.Domain.BusinessDay.BusinessDayRecord?)",
+          "span": [
+            24,
+            5,
+            24,
+            115
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+      "worktree_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+      "source_git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+      "line_ranges": [
+        [
+          29,
+          111
+        ],
+        [
+          71,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7f7926930b1d96d08b14f64c04c966e2b241703a0ee2e8e8b1f270d8ede20ce6",
+          "signature": "Falah.Infrastructure.ControlCenter.ReopenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.ReopenBusinessDayRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            111,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "worktree_sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+      "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+      "line_ranges": [
+        [
+          322,
+          336
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-25d0677d55aba7948e0de5b7f436c43fcf0eeff9112898f0da43c3a27f612a27",
+          "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.Reopening_a_closed_day_succeeds_and_clears_its_closing_checklist()",
+          "span": [
+            322,
+            5,
+            336,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "worktree_sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "source_git_blob_sha256": "dafabe15f75a8e81a9095b9825896d0ce5c5e0c818aa7fd9736209f8671602e7",
+      "line_ranges": [
+        [
+          183,
+          192
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-73461c9768cef9a3c93a001d6162647ccf16d177e261f691edd3e881f3387fcd",
+          "signature": "Falah.Server.IntegrationTests.OwnerDashboardVerticalSliceTests.An_open_shift_and_its_blockers_are_surfaced_as_work_to_do()",
+          "span": [
+            183,
+            5,
+            192,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "lifecycle": "BusinessDayRules.ActiveStatuses includes Open, Closing and Reopened, and IsActive uses it to reject opening a second day. BusinessDayGate.TryGetActiveAsync returns a day in any of those same three persisted states. ReopenBusinessDayHandler applies BusinessDayRules.Reopen then stores Status=Reopened and resets the close checklist so the day can be closed again.",
+    "dashboard": "LoadAttentionAsync separately queries Status==Open when deriving openDayAge and again when selecting day to call BusinessDayCloseEvaluator. The returned DTO sets HasOpenBusinessDay to day!=null, OpenBusinessDayAgeDays to openDayAge, and CloseBlockerCount to zero when that query returns null. Therefore Reopened state is omitted from all three indicators.",
+    "comparison": "These callers have different status predicates despite representing the active business-day indicator and the day eligible for close. A reopened day is accepted as active by the actual write/gate/domain path but appears absent in dashboard attention until it is transitioned. This is a semantic mismatch, not proof that close is blocked or that the day cannot be processed.",
+    "tests": "BusinessDayCloseVerticalSliceTests proves a successful closed→reopened transition and reset checklist. OwnerDashboardVerticalSliceTests only verifies indicators for the ordinary open state; the inspected suite has no dashboard-after-reopen assertion. Tests were read, not run.",
+    "limitations": "Static source and test inspection. No API call, database state, UI observation, or financial close operation was executed. The exact owner-facing wording for reopened days and whether all three indicators should treat it as active need product-owner confirmation.",
+    "independent_review": "Independent static challenge by financial_integrity_continuation confirmed the bounded status mismatch and identified DTO wording/Control Center access as counterevidence. It did not establish that owner dashboard is required to include Reopened; retain LOW candidate pending product intent."
+  },
+  "recommendation": "Derive dashboard active-day indicators from the same Open/Closing/Reopened status set or a shared active-day query. Add an integration case that reopens a closed day and asserts HasOpenBusinessDay, age and close-blocker values follow the intended reopened-day contract.",
+  "required_regression_tests": [
+    "After successful reopen, dashboard indicates an active business day and evaluates its reset close checklist.",
+    "After closing the reopened day, dashboard no longer reports it as active.",
+    "Preserve ordinary Open and Closing status behavior."
+  ],
+  "reviewer": "Main Codex coordinator; narrow manual semantic comparison. Independent Financial Integrity source challenge requested; pending.",
+  "independent_challenge": {
+    "reviewer": "financial_integrity_continuation",
+    "artifact": "Sub-Agents/Handoffs/SEM-MIRROR-021-reopened-business-day-dashboard-independent-challenge.json",
+    "sha256": "82ba170dd1549f714f0184a1edac060a3a913432fe393ac4db871058035b8814",
+    "decision": "SOURCE_CONFIRMED_LIMITED_DASHBOARD_PROJECTION_DIVERGENCE",
+    "assessment": "Independent reviewer confirmed Reopened is active, persists through reopen, and is eligible to close; dashboard open-only queries emit false/null/zero. Counterevidence: DTO wording may intentionally mean status exactly Open and Control Center exposes reopened-day review/blocker preview. Keep low severity and pending product-intent clarification; runtime not executed."
+  }
+}

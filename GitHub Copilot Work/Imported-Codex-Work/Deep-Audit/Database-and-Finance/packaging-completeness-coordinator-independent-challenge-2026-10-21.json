@@ -1,0 +1,307 @@
+{
+  "artifact_kind": "coordinator_independent_static_finding_challenge",
+  "id": "packaging-completeness-coordinator-independent-challenge-2026-10-21",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T08:34:45.784099+00:00",
+  "reviewer": "root coordinator; independently traced source and UI/test paths, not original finding author",
+  "target_finding": "FIN-CAND-PACKAGING-COVERAGE-001",
+  "disposition": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "question": "Can the report/dashboard mark food-cost completeness true and calculate numeric profit while an active order-level packaging cost is unknown?",
+  "independent_reasoning": {
+    "precondition": "At least one sold dish line has a fully costed recipe; at least one sold order belongs to an order type with an active packaging rule whose ingredient unit cost cannot be resolved.",
+    "path": "GetFoodCostReportAsync increments SoldLineCount for every dish line and KnownLineCount only for complete dish recipes. In a separate order-type loop, unknown active packaging adds its item name to Missing and skips amount accumulation without altering either dish-line counter. The returned DTO has total cost, the dish-only counters, and Missing. OwnerDashboardQueryService passes only the two counters to ComputeGrossProfit/ComputeOperatingMargin. ProfitabilityRules marks complete by those counters; when all dish lines are known it computes numeric profit from the partial subtotal and returns IsComplete=true. ReportsViewModel.HasIncompleteFoodCost uses the same dish-line comparison; OwnerDashboardViewModel warning also keys off IsFoodCostComplete. The XAML warnings bind to these properties. Under the stated precondition the false-complete state follows from source logic.",
+    "counterevidence": "The missing packaging item label remains in FoodCostReportDto and OwnerDashboard ProfitabilityDto. But the standalone Reports card does not display Missing, and owner dashboard UnknownCostLabel is shown only when IsFoodCostComplete is false. Unknown dish costs do lower line coverage and warn; absence of an active order packaging rule is intentionally known optional zero. Thus the defect is a contradictory completeness contract, not evidence of a ledger posting or realized cash loss.",
+    "independence": "I reread the code and test paths independently of the finance reviewer. The original specialist challenge is treated as corroboration, not as my evidence. No runtime, database, UI, or test execution was performed.",
+    "limits": "Source path and DTO/UI flow are confirmed. Real occurrence depends on current rules and sales. No live database was queried."
+  },
+  "suggested_repair_spec": "Carry aggregate completeness for all cost components separately from sold dish-line counts (or add an explicit packaging completeness signal). Thread unknown active order-packaging state through FoodCostReportDto, ProfitabilityRules, owner dashboard DTO and UI warnings. Preserve per-order packaging cardinality; do not fabricate dish counts.",
+  "required_tests": [
+    "Known recipe + active unknown packaging: report and dashboard expose aggregate incomplete state and warn.",
+    "Known recipe + known packaging: apply exact cost once per qualifying order and remain complete.",
+    "No active packaging rule remains known optional zero.",
+    "Multiple dish lines in one order and multiple orders preserve per-order packaging cardinality.",
+    "Unknown dish recipe plus unknown packaging preserves both missing labels and incomplete aggregate flag.",
+    "API/DTO/UI communicate completeness and missing labels consistently."
+  ],
+  "acceptance_criteria": [
+    "Aggregate completeness false whenever any sold dish or applicable order-level packaging component is unknown.",
+    "Known subtotal may remain only if explicitly labeled partial.",
+    "Dish line counts preserve their documented unit.",
+    "Known and optional-zero packaging behavior remains unchanged."
+  ],
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          388,
+          423
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          143,
+          190
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd",
+          "signature": "Falah.Domain.Inventory.CostingRules.OrderPackagingCost(string, IEnumerable<Falah.Domain.Inventory.OrderPackagingRule>, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            181,
+            5,
+            190,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          205,
+          224
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            205,
+            5,
+            224,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          35,
+          60
+        ],
+        [
+          84,
+          106
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db",
+          "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            60,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3b30b9f7f2919b08de4a132e96cee459d12fcc85f9f2432077b3ed317b50900d",
+          "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeOperatingMargin(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            106,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "worktree_sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "source_git_blob_sha256": "ebf6a9f85068ce2a86d389e35c3f08646e0e4b11a44f699e2d8f09ab9a989dab",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          148,
+          166
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1a32deb3c7ad772116c3a96c5b9912e7e2be51a649717744024d0e4cd199b87d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.HasIncompleteFoodCost",
+          "kind": "PropertyDeclaration",
+          "span": [
+            151,
+            5,
+            151,
+            101
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+      "worktree_sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+      "source_git_blob_sha256": "10bd354942034056001cb72f047bddb9937559c3da0fd601062ef317262775d0",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          420,
+          434
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-757146152ce449812fa9cd98033f48ba960ea028ec6c0cac2a17ad9c51613495",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.HasUnknownFoodCost",
+          "kind": "PropertyDeclaration",
+          "span": [
+            420,
+            5,
+            420,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-7435f4c046d1e884983e63bda9c95557851a9367e4a88a0cf3d16c6979a3fa23",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.UnknownCostLabel",
+          "kind": "PropertyDeclaration",
+          "span": [
+            422,
+            5,
+            435,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "worktree_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          226,
+          255
+        ],
+        [
+          257,
+          274
+        ],
+        [
+          276,
+          306
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1e0739bb068536e84702c631bb678ca291f36ffe1700cfbb9348e6c78351e2e4",
+          "signature": "Falah.Server.IntegrationTests.ReportingVerticalSliceTests.Food_cost_report_computes_cogs_from_sold_items_current_recipe_cost()",
+          "kind": "MethodDeclaration",
+          "span": [
+            226,
+            5,
+            255,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e9302e32200f6d87290ffd8e251cebf12aeb79a01b67841b6e74fef015eee899",
+          "signature": "Falah.Server.IntegrationTests.ReportingVerticalSliceTests.Food_cost_report_names_a_sold_item_with_unknown_ingredient_cost_instead_of_folding_it_in_as_zero()",
+          "kind": "MethodDeclaration",
+          "span": [
+            257,
+            5,
+            274,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "worktree_sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "source_git_blob_sha256": "dafabe15f75a8e81a9095b9825896d0ce5c5e0c818aa7fd9736209f8671602e7",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          90,
+          112
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "worktree_sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "source_git_blob_sha256": "c651254a3cf46fde7d9b8337061f87603c0d54e06dc2e7d20c3392bd94e0e99a",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          335,
+          348
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+      "worktree_sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+      "source_git_blob_sha256": "c7626ca4d4c66233519de67702c4835e8e59dee9754e6c347cf728cf068edeba",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          271,
+          275
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "worktree_sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "source_git_blob_sha256": "0a615dd0d71fc11bd9382cf3d832a4e116620c4b13b804a2431458cfb1f6d160",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          66,
+          72
+        ]
+      ],
+      "relevant_symbols": []
+    }
+  ]
+}

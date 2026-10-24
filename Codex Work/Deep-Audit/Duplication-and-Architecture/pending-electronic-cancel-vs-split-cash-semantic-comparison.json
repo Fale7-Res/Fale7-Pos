@@ -1,0 +1,184 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-053",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21T10:56:38Z",
+  "reviewer": "/root coordinator",
+  "title": "Pending electronic cancellation versus already collected split-cash reporting",
+  "scope": "Bounded state-transition and accounting-projection comparison: domain cancellation, server persistence, payment-channel query, and existing split/cancellation test coverage. Corroborates existing FIN-002; no duplicate finding or runtime incidence claim.",
+  "decision": "SOURCE_CORROBORATES_FIN-002; WHOLE_ORDER_CANCELLATION_CAUSES_PAYMENT_AND_CASH_REFUND_PROJECTIONS_TO_SKIP_PREVIOUSLY_POSTED_SPLIT_CASH_WITHOUT_REVERSAL",
+  "behavior": {
+    "before_cancel": "For a Multi order with cash and pending electronic legs, PaymentMethodTotals counts the cash leg immediately and skips the pending electronic leg, as documented and tested.",
+    "cancel_transition": "CancelElectronicPayment marks the entire order Cancelled, IsPaid false and ElectronicPayment Cancelled. The handler persists those fields and audit event but does not post a reversing treasury movement.",
+    "after_cancel_projection": "Both PaymentMethodTotals and CashRefundsFromOrders skip orders with Cancelled status before processing payment splits/refunds. Consequently, after cancelling an order that already contributed an immediate cash split leg, the reporting projection drops that cash amount while this cancellation path does not reverse it. This supports FIN-002’s source-level accounting discrepancy; whether a mixed payment can complete this precise lifecycle operationally and how the owner intends partial cancellation remain policy/flow validation questions."
+  },
+  "cross_file_call_chain": [
+    "Checkout creates a Multi split order and immediate cash movement -> CancelPendingElectronicPaymentHandler.HandleAsync -> Order.CancelElectronicPayment -> persists Status=cancelled and payment status -> OrderPaymentQueries.PaymentMethodTotals/CashRefundsFromOrders skip cancelled order -> SalesRules and ShiftReconciliation use those query results."
+  ],
+  "counterevidence_and_limits": [
+    "The linked split test establishes that immediate cash is counted while a sibling electronic leg is pending, but does not cancel the order.",
+    "Cancellation tests cover only a pure electronic order; no regression test combines a split cash leg with cancellation.",
+    "The handler writes an audit event and correctly does not reverse a nonexistent electronic movement; it also does not reverse the already-posted cash leg.",
+    "FIN-001 records a separate electronic confirmation path gap. This comparison does not prove a live mixed order was cancelled or cash was lost.",
+    "No database/runtime behavior was executed; reports here are projections of source query rules."
+  ],
+  "existing_finding": "FIN-002",
+  "new_finding_created": false,
+  "future_action": "Implement the already identified FIN-002 fix only after deciding the business invariant: either partial cancellation preserves the fulfilled cash sale and leaves the order financially active for collected legs, or whole-order cancellation creates an explicit, authorized compensating cash movement/refund and reconciles inventory/order state. Do not simply exclude the cancelled order from totals while retaining its cash movement. Preserve audit trail and idempotent request semantics.",
+  "tests": {
+    "executed": "NONE",
+    "existing_test_evidence": "Pure split pending cash accounting is tested; pure electronic cancellation is tested; mixed cancellation is not.",
+    "needed": [
+      "Domain/integration test: create 100 cash + 100 pending InstaPay, confirm cash movement once, cancel electronic leg, then assert order state, cash channel, drawer expectation and treasury movement follow owner-approved invariant.",
+      "Retry same cancellation key and assert no duplicate compensating movement or audit event beyond intended replay semantics.",
+      "Test full immediate split and pure-electronic cancellation controls."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "line_ranges": [
+        [
+          200,
+          214
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ef81f7d92aa9f70da5294f622e8a1d04296d541608a4bded139916238b25beba",
+          "signature": "Falah.Domain.Orders.Order.CancelElectronicPayment(string, string, DateTimeOffset)",
+          "kind": "MethodDeclaration",
+          "span": [
+            200,
+            5,
+            214,
+            6
+          ]
+        }
+      ],
+      "evidence": "Cancellation changes whole Order.Status to Cancelled, IsPaid false and electronic status to Cancelled; no treasury reversal is performed by the aggregate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+      "worktree_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "source_git_blob_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "line_ranges": [
+        [
+          31,
+          73
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+          "signature": "Falah.Infrastructure.Orders.CancelPendingElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            31,
+            5,
+            73,
+            6
+          ]
+        }
+      ],
+      "evidence": "Handler persists cancelled order/electronic status and audit event under an order-row transaction; it has no treasury movement reversal."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "worktree_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "source_git_blob_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "line_ranges": [
+        [
+          26,
+          54
+        ],
+        [
+          71,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8d4c1f9bbd505fd48eee24237ff27f9801da8afca94d7459fd1550db5fd53f7",
+          "signature": "Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            54,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9ce2bb347d6384cf1dfbc0019fca416da2cd0b2a6ba2096c05fde5a6cb0100db",
+          "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            71,
+            5,
+            81,
+            6
+          ]
+        }
+      ],
+      "evidence": "Both payment-channel and cash-refund projections skip any OrderStatus.Cancelled before processing payment splits/refunds. For active multi orders, cash split legs count immediately while electronic legs await confirmation."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/OrderPaymentQueriesTests.cs",
+      "worktree_sha256": "6d4efbe18d40151ca25104a3b21f2f285a4f4e46085ae31bc89d35a8fdfb9609",
+      "source_git_blob_sha256": "6d4efbe18d40151ca25104a3b21f2f285a4f4e46085ae31bc89d35a8fdfb9609",
+      "line_ranges": [
+        [
+          45,
+          56
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a848a69e7ed1745c4c9908663906b7348a8a956261ab604537037f6a08989dcf",
+          "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.A_split_orders_cash_leg_counts_immediately_while_its_sibling_electronic_leg_is_still_pending()",
+          "kind": "MethodDeclaration",
+          "span": [
+            45,
+            5,
+            56,
+            6
+          ]
+        }
+      ],
+      "evidence": "A split cash+InstaPay order counts the cash leg and excludes pending electronic before cancellation; it does not assert post-cancel reporting."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/OrderCancelElectronicPaymentTests.cs",
+      "worktree_sha256": "57f89c0cf38259234ee8c147b372707b7726c5fc5f23f87bcc8b2107c9b90208",
+      "source_git_blob_sha256": "57f89c0cf38259234ee8c147b372707b7726c5fc5f23f87bcc8b2107c9b90208",
+      "line_ranges": [
+        [
+          27,
+          38
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3244f63efbad2317e05925d2b5e2544a8dd9fadf326b0db136b942c54bf1faec",
+          "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.Cancelling_a_pending_electronic_order_marks_the_whole_order_cancelled()",
+          "kind": "MethodDeclaration",
+          "span": [
+            27,
+            5,
+            38,
+            6
+          ]
+        }
+      ],
+      "evidence": "Cancellation tests use a pure InstaPay order, confirming whole-order Cancelled status but not the mixed split cash consequence."
+    }
+  ],
+  "limitations": [
+    "Static source comparison only.",
+    "The intended accounting treatment of canceling one pending leg when another leg is already collected requires owner/business-policy confirmation.",
+    "No claim of runtime transaction loss or live user impact."
+  ]
+}

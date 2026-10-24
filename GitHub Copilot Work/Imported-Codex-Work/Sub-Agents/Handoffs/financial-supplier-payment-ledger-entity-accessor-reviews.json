@@ -1,0 +1,1867 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-b635f0f0cf337e1a8f03003d9285dc44efe5cdaa36aa3d26579ec23c90cee2a6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Id.get",
+        "span": [
+          5,
+          24,
+          5,
+          28
+        ],
+        "reasoning": "Getter identifies supplier account independently of name/phone, linking invoice/stock receipt/ledger references.",
+        "inputs": "Entity containing string supplier PK.",
+        "outputs": "string supplier PK without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-ebd7b39f4836a7bbd5e5b2ab198144dca5c86a6eccdc8a034ddb66debde2bb39",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Id.set",
+        "span": [
+          5,
+          29,
+          5,
+          33
+        ],
+        "reasoning": "Setter stores sup-RequestId for AddSupplier replay; PK alone does not prevent same named vendor entered through distinct request IDs.",
+        "inputs": "string supplier PK from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-8c3fa0ba67cb6f0166aa3c46bf1459d2d76c0f77a0f097dad04d7210a81c64cd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Name.get",
+        "span": [
+          6,
+          26,
+          6,
+          30
+        ],
+        "reasoning": "Getter returns current supplier display name for invoice aging and ledger account; it is not normalized identity key.",
+        "inputs": "Entity containing string vendor name.",
+        "outputs": "string vendor name without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-78b0fd1e0844c382662a672fc97059464ce715f69c73f9d72d3b450bbf8d3e48",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Name.set",
+        "span": [
+          6,
+          31,
+          6,
+          35
+        ],
+        "reasoning": "Setter trims nonblank request name on creation. Duplicate names remain possible without declared unique index, not a new financial duplicate-payment proof.",
+        "inputs": "string vendor name from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-4eedd2173942031021b0a83f888e5f7fc0d3f792aed542d7b52ecb79e193060b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Phone.get",
+        "span": [
+          7,
+          27,
+          7,
+          31
+        ],
+        "reasoning": "Getter exposes contact text rather than customer-style normalized-phone identity.",
+        "inputs": "Entity containing string vendor phone.",
+        "outputs": "string vendor phone without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-28e14567a984de5c7decf6a9c24ccdb3ddb02df48ecd63cdcb585b2e08d02f56",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Phone.set",
+        "span": [
+          7,
+          32,
+          7,
+          36
+        ],
+        "reasoning": "Setter stores request phone or empty string without normalization; it is not a payment account or validation of supplier authenticity.",
+        "inputs": "string vendor phone from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-d33fc581e56eb05714d4c4ca1c54f0ad674162a8d909b2530e6ec305d586ac15",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Address.get",
+        "span": [
+          8,
+          29,
+          8,
+          33
+        ],
+        "reasoning": "Getter returns vendor contact address, not receiving warehouse or customer delivery snapshot.",
+        "inputs": "Entity containing string vendor address.",
+        "outputs": "string vendor address without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-726680cd026168fd82c88eabbc2fcd775850894412fe9cc3c2d08fefb03574e0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Address.set",
+        "span": [
+          8,
+          34,
+          8,
+          38
+        ],
+        "reasoning": "Setter stores request address or empty string; metadata assignment cannot prove goods physically arrived.",
+        "inputs": "string vendor address from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-42edc566a9479eba72070639a7c0e11a617fc5e32f2148927ff4e4f8be0f0cf9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Category.get",
+        "span": [
+          9,
+          30,
+          9,
+          34
+        ],
+        "reasoning": "Getter exposes management grouping distinct from expense category or inventory item unit.",
+        "inputs": "Entity containing string vendor grouping.",
+        "outputs": "string vendor grouping without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-178751f7a419e1af8f2657b3d8761c424dee992b3089e21f740287999323acc8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Category.set",
+        "span": [
+          9,
+          35,
+          9,
+          39
+        ],
+        "reasoning": "Setter uses requested nonblank category or default Arabic raw-material supplier label; it is descriptive, not account authority.",
+        "inputs": "string vendor grouping from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-e3dd354437b82890d21e07346cdf4662c2662a807bb1204e327203c3e1a8754d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Active.get",
+        "span": [
+          10,
+          26,
+          10,
+          30
+        ],
+        "reasoning": "Getter exposes supplier availability flag; historical liabilities remain regardless activation.",
+        "inputs": "Entity containing bool vendor active.",
+        "outputs": "bool vendor active without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-ad553a3fd1cb79306a205294076cf1682eb72a702c92182c4879cb34fb03db0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Active.set",
+        "span": [
+          10,
+          31,
+          10,
+          35
+        ],
+        "reasoning": "Setter initializes true in AddSupplier; this metadata flag alone neither cancels invoices nor removes outstanding ledger balance.",
+        "inputs": "bool vendor active from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-18ca24b76be1e0d9a3c765d3f129226970861975a0c538b8f964b0b02281e262",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Notes.get",
+        "span": [
+          11,
+          28,
+          11,
+          32
+        ],
+        "reasoning": "Getter exposes optional vendor memo, not immutable approval or bank instructions validated by financial rules.",
+        "inputs": "Entity containing nullable vendor memo.",
+        "outputs": "nullable vendor memo without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-6b2bf5253833e2832cff857fc3a2b2901195a781b62e7739f69729ceb4a01972",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierEntity.Notes.set",
+        "span": [
+          11,
+          33,
+          11,
+          37
+        ],
+        "reasoning": "Setter copies request notes without affecting account liability. No getter/setter sanitization or secret value access performed here.",
+        "inputs": "nullable vendor memo from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-863985fb1684a784c2f73c2513511a23a20930a4e468e2e18d8345d5e438b64f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.Id.get",
+        "span": [
+          77,
+          24,
+          77,
+          28
+        ],
+        "reasoning": "Getter identifies payment record; initial and later writer IDs differ in suffix, separate from business replay key.",
+        "inputs": "Entity containing string payment PK.",
+        "outputs": "string payment PK without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-d972d6e6b7ca45944108b5a28a4d8afc27c555e35bd32f60438b354dd315183e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.Id.set",
+        "span": [
+          77,
+          29,
+          77,
+          33
+        ],
+        "reasoning": "Setter stores payment-RequestId[-initial]. PK uniqueness is global, while idempotency key includes invoice for later payments; no automatic cross-invoice payload binding.",
+        "inputs": "string payment PK from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-943585155857308c2729f0e9bea9eca7a0ebe27287bbd3efcc2ab70a5974b91d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.IdempotencyKey.get",
+        "span": [
+          78,
+          36,
+          78,
+          40
+        ],
+        "reasoning": "Getter links payment replay to unique financial business key also used by treasury/journal.",
+        "inputs": "Entity containing string payment business key.",
+        "outputs": "string payment business key without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-dc10192f5b23b06d2b20a4fb1ef041c461ecfb72261da525b268e222f8db56fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.IdempotencyKey.set",
+        "span": [
+          78,
+          41,
+          78,
+          45
+        ],
+        "reasoning": "Setter copies initial movement key or later purchase-payment-invoice-RequestId. Unique index prevents duplicate key but distinct request overpay remains FIN005.",
+        "inputs": "string payment business key from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-1074d6740edf41e939952c5f118bbffdaf632f158ba8e58dbb1fc8b603160db1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PurchaseId.get",
+        "span": [
+          79,
+          32,
+          79,
+          36
+        ],
+        "reasoning": "Getter attributes payment to invoice, making ledger/payment rows capable of per-invoice attribution contrary to old query comment.",
+        "inputs": "Entity containing string invoice FK.",
+        "outputs": "string invoice FK without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-37eb04aa7891647dbef4d78a090809d5b98dd85a45fe58b445d2475ca91013fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PurchaseId.set",
+        "span": [
+          79,
+          37,
+          79,
+          41
+        ],
+        "reasoning": "Setter binds received or later-loaded invoice ID, with invoice Payments cascade FK from model285.",
+        "inputs": "string invoice FK from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-cbb972934dcec0978ecd189723efb4ad3f00a6216098b16c6ba939806402fa12",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.SupplierId.get",
+        "span": [
+          80,
+          32,
+          80,
+          36
+        ],
+        "reasoning": "Getter records supplier account alongside invoice. It is not a replacement for invoice-to-supplier relation consistency.",
+        "inputs": "Entity containing string supplier reference.",
+        "outputs": "string supplier reference without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-d835cd2936c1bff5f9b6a08de8b26b5f87cac903d1864e4e6f68279715e82d80",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.SupplierId.set",
+        "span": [
+          80,
+          37,
+          80,
+          41
+        ],
+        "reasoning": "Setter copies verified/loaded purchase supplier ID; no extra supplier FK appears in payment model block292-296, so correctness is caller maintained.",
+        "inputs": "string supplier reference from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-c0290d400195872d2c2a848b7a0d448fa521e3e8286a7343a6f1a33d9e47fb0a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.AmountPiastres.get",
+        "span": [
+          81,
+          34,
+          81,
+          38
+        ],
+        "reasoning": "Getter returns amount actually posted for this payment, distinct from cached invoice cumulative Paid.",
+        "inputs": "Entity containing long payment amount.",
+        "outputs": "long payment amount without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-f08189daa835f892c1d4de306bc97394acc460b979541b02c4eb1edaf5032409",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.AmountPiastres.set",
+        "span": [
+          81,
+          39,
+          81,
+          43
+        ],
+        "reasoning": "Setter copies positive initial paid or later validated amount. Row alone does not enforce sufficient source funds or upper invoice outstanding cap.",
+        "inputs": "long payment amount from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-f2a56e95d84b396ec36e14583650876f2e3cf298aea15c0b53c0411b9f788fa2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PaymentAccountId.get",
+        "span": [
+          82,
+          38,
+          82,
+          42
+        ],
+        "reasoning": "Getter identifies account for this individual payment, unlike invoice initial account field.",
+        "inputs": "Entity containing string source account.",
+        "outputs": "string source account without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-0d7c1725b5dd16f704e13da19dd002384d7227bef55146c097dd7ddbb50f0dd9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PaymentAccountId.set",
+        "span": [
+          82,
+          43,
+          82,
+          47
+        ],
+        "reasoning": "Setter stores resolved source account. Later payments may legitimately use different account than initial receive payment.",
+        "inputs": "string source account from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-43b0e4af380c11a1623f49571d33cc092f0cd85b42d49d12755332f4b49a4d7d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.TreasuryMovementId.get",
+        "span": [
+          83,
+          40,
+          83,
+          44
+        ],
+        "reasoning": "Getter links individual payment to posted debit fact; unlike invoice optional initial pointer this normal child field is required.",
+        "inputs": "Entity containing string payment movement ID.",
+        "outputs": "string payment movement ID without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-f210ad042ce4ab7129ecc1e0dcba3fc61312aab64078f4ba1c24f2c4fe242cf4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.TreasuryMovementId.set",
+        "span": [
+          83,
+          45,
+          83,
+          49
+        ],
+        "reasoning": "Setter copies newly staged movement.Id. No movement FK is authored in inspected payment block, so required string is not database proof target exists.",
+        "inputs": "string payment movement ID from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-a24795ead351bb33b354e798d54d8771bb733f84251b7edf736f1921466051af",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.OperationId.get",
+        "span": [
+          84,
+          33,
+          84,
+          37
+        ],
+        "reasoning": "Getter correlates payment with corresponding supplier ledger/treasury/audit operation, not all payments on invoice.",
+        "inputs": "Entity containing string payment operation.",
+        "outputs": "string payment operation without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-bb1c47f118bbe3ab78738e57915a7ecf0cd1ad1ecf28a9aea441d224a373a9ed",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.OperationId.set",
+        "span": [
+          84,
+          38,
+          84,
+          42
+        ],
+        "reasoning": "Setter copies operation GUID generated per receive/later payment; unique operation constraint is not declared here.",
+        "inputs": "string payment operation from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-22e920872b1d02e97037d25bbd3b8c3362a341311857805fbd3a5878e92d3313",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedBy.get",
+        "span": [
+          85,
+          31,
+          85,
+          35
+        ],
+        "reasoning": "Getter exposes paying actor-name snapshot, separate from invoice receiver and approving manager.",
+        "inputs": "Entity containing string payer name.",
+        "outputs": "string payer name without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-b2c0c28b6421831ebde193e74c5ee85a2f88b7246d1ec345c40e6ccafbb94e30",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedBy.set",
+        "span": [
+          85,
+          36,
+          85,
+          40
+        ],
+        "reasoning": "Setter copies actorUser.Name after purchasing_manage command authorization, not stable user relation.",
+        "inputs": "string payer name from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-3837b147f693c9cfb837c5d010602f16a131ca90e559a8ba9ab0cba907b68e2a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.ApprovedBy.get",
+        "span": [
+          86,
+          33,
+          86,
+          37
+        ],
+        "reasoning": "Getter exposes optional actual authorization approver name for this payment, not original invoice approver reused automatically.",
+        "inputs": "Entity containing nullable payment approver.",
+        "outputs": "nullable payment approver without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-6bb816c719fc7639517d2229e3fbba1e1b37085453570298a71eba0b4ce3959e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.ApprovedBy.set",
+        "span": [
+          86,
+          38,
+          86,
+          42
+        ],
+        "reasoning": "Setter copies authorization.Approver?.ApproverName from corresponding receive/payment command. Permission-only null remains valid countercontrol.",
+        "inputs": "nullable payment approver from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-7780d9c42303770f12640651093bfb94f96a346c0de4a6d94610ae4726ec308a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedAtUtc.get",
+        "span": [
+          87,
+          42,
+          87,
+          46
+        ],
+        "reasoning": "Getter records individual payment instant used in history; payment chronology differs from invoice receipt time.",
+        "inputs": "Entity containing DateTimeOffset payment time.",
+        "outputs": "DateTimeOffset payment time without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-38d77608088253f19d4b70a538e946adabe900106ab2994eebbebfbfd8ea6c25",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedAtUtc.set",
+        "span": [
+          87,
+          47,
+          87,
+          51
+        ],
+        "reasoning": "Setter copies command now. Concurrent equal instants need explicit history tie-break if deterministic display order required, not property guarantee.",
+        "inputs": "DateTimeOffset payment time from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-4e513a1696ba75f92bdc76ef8238ad0eaa1ab3366acc8c52fed500366e9af037",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Id.get",
+        "span": [
+          95,
+          24,
+          95,
+          28
+        ],
+        "reasoning": "Getter identifies supplier fact row, separate from unique business event key and invoice ID.",
+        "inputs": "Entity containing string supplier fact PK.",
+        "outputs": "string supplier fact PK without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-57bc6a93ab1028aef3da2214656797973371361ab93b03e68cf96aa92dbbc8d2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Id.set",
+        "span": [
+          95,
+          29,
+          95,
+          33
+        ],
+        "reasoning": "Setter stores deterministic invoice/payment-prefixed identity; invoice and payment rows intentionally have different IDs for one received invoice.",
+        "inputs": "string supplier fact PK from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-19a38f620d94524568156f0cae34cf3341ad7d5f1e0d5cd46293957a93c8f3ab",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.IdempotencyKey.get",
+        "span": [
+          96,
+          36,
+          96,
+          40
+        ],
+        "reasoning": "Getter provides unique supplier fact replay identity; invoice liability and initial payment use distinct keys.",
+        "inputs": "Entity containing string supplier fact key.",
+        "outputs": "string supplier fact key without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-69ac914bb7859dc911c365b946aa539a1131d120479dc372df14f08ea6f92a22",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.IdempotencyKey.set",
+        "span": [
+          96,
+          41,
+          96,
+          45
+        ],
+        "reasoning": "Setter copies invoice-specific key or financial movement key; uniqueness does not serialize distinct invoice payment admissions FIN005.",
+        "inputs": "string supplier fact key from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-3b23c6063a811fd461f0aa2386e4dc54956c0d7ee513de5d740d8c3c3821cc65",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.SupplierId.get",
+        "span": [
+          97,
+          32,
+          97,
+          36
+        ],
+        "reasoning": "Getter selects account for outstanding aggregation, backed by composite supplier/purchase index and supplier FK.",
+        "inputs": "Entity containing string supplier FK.",
+        "outputs": "string supplier FK without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-79688d3111bf6eb4b423a1771bd8bbb57766424a7a0975e36172ca3afed86b0f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.SupplierId.set",
+        "span": [
+          97,
+          37,
+          97,
+          41
+        ],
+        "reasoning": "Setter copies verified source supplier. FK enforces existence, not matching arbitrary external PurchaseId/ReferenceId if rows were corrupted.",
+        "inputs": "string supplier FK from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-814c63c1fe012c61eb84733a8745b62594a31d60fc6a304e43f0a41a521757a1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Type.get",
+        "span": [
+          101,
+          26,
+          101,
+          30
+        ],
+        "reasoning": "Getter drives invoiced/paid category summaries, while overall outstanding sums Debit-Credit regardless Type.",
+        "inputs": "Entity containing string supplier fact type.",
+        "outputs": "string supplier fact type without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-e0b8cf3d00f1012d3e94ae4b086d5b0152525d32f219f9996f34bda1aadb4ffd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Type.set",
+        "span": [
+          101,
+          31,
+          101,
+          35
+        ],
+        "reasoning": "Setter writes purchase_invoice for receive debit or supplier_payment for credit. No returned-goods/adjustment writer is demonstrated here; string type permits representation but not implemented workflow proof.",
+        "inputs": "string supplier fact type from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-e268dc92b3f5fa368c32fce01c4ca3f067fc4417ed01cf40e3c2d4335c6366a9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.DebitPiastres.get",
+        "span": [
+          102,
+          33,
+          102,
+          37
+        ],
+        "reasoning": "Getter increases supplier liability in actual Outstanding equation; sign is supplier-account convention, not outgoing treasury debit interpretation.",
+        "inputs": "Entity containing long supplier debit.",
+        "outputs": "long supplier debit without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-811bc948683efd4de3eeedfbff4f3b89dcea991b9b0add67bcbf5f8898aea128",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.DebitPiastres.set",
+        "span": [
+          102,
+          38,
+          102,
+          42
+        ],
+        "reasoning": "Setter records invoice total or zero for payments. Signed invalid totals could distort debt via FIN018, so storage type alone does not enforce positive liability.",
+        "inputs": "long supplier debit from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-5330e3379d42a59513b856286ba074b5464f651b87b1bd49c7738eed514acc5d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreditPiastres.get",
+        "span": [
+          103,
+          34,
+          103,
+          38
+        ],
+        "reasoning": "Getter reduces supplier liability in Outstanding, and payment Type categories aggregate this value.",
+        "inputs": "Entity containing long supplier credit.",
+        "outputs": "long supplier credit without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-5b59e22ee280954bf95f9b4da07aa4da3e5273811331c44eb0e7677a88d72eb2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreditPiastres.set",
+        "span": [
+          103,
+          39,
+          103,
+          43
+        ],
+        "reasoning": "Setter stores paid amount on supplier_payment and zero on invoice. Treasury source debit is separate actual account effect, preventing treating supplier credit as cash inflow.",
+        "inputs": "long supplier credit from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-c02f345be87f3e2a3ce1ee2d7c236af96f66ed1f5b3960d7096ca97b725208b8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.PurchaseId.get",
+        "span": [
+          104,
+          33,
+          104,
+          37
+        ],
+        "reasoning": "Getter explicitly attributes fact to invoice; Outstanding optionally filters this or ReferenceId, so source supports per-invoice balances.",
+        "inputs": "Entity containing nullable invoice attribution.",
+        "outputs": "nullable invoice attribution without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-6d5857c456c60102c592d32f3f42e19b75fc7164aedc0a386701d472af229a84",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.PurchaseId.set",
+        "span": [
+          104,
+          38,
+          104,
+          42
+        ],
+        "reasoning": "Setter stores purchase.Id in both receive and later-payment writers. No Purchase FK is declared in inspected ledger block297-305, so source correctness is caller maintained.",
+        "inputs": "nullable invoice attribution from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-e25eb2ba3a7ba68ae60a5e3a3ee80b7541be116b05909fc07c1d1c0bbd431636",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.ReferenceId.get",
+        "span": [
+          105,
+          34,
+          105,
+          38
+        ],
+        "reasoning": "Getter provides alternate invoice/reference attribution used by Outstanding OR condition; not a validated polymorphic relationship.",
+        "inputs": "Entity containing nullable fallback reference.",
+        "outputs": "nullable fallback reference without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-db723d2cb6815304fcf75bb9d52fc192ec5684a28be518f394b7d72e5eef51ec",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.ReferenceId.set",
+        "span": [
+          105,
+          39,
+          105,
+          43
+        ],
+        "reasoning": "Setter copies invoice/purchase ID in inspected writers; matching either PurchaseId or ReferenceId includes the row once through predicate, not twice.",
+        "inputs": "nullable fallback reference from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-c31d704bc402e69092cf0c44c5718f3f3946fc30c69d5c6dcc76014efe7b1374",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Reason.get",
+        "span": [
+          106,
+          28,
+          106,
+          32
+        ],
+        "reasoning": "Getter exposes invoice/payment explanation, distinct from amount sign/type classification.",
+        "inputs": "Entity containing string ledger reason.",
+        "outputs": "string ledger reason without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-659180cea31904a7e9e8f2746aa9ad063950278d2faa5f358e5ce2c28fdc231b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Reason.set",
+        "span": [
+          106,
+          33,
+          106,
+          37
+        ],
+        "reasoning": "Setter stores generated receipt/payment rationale. It is not required approval evidence or proof goods/money physically changed hands.",
+        "inputs": "string ledger reason from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-c59facb9f353c99c5dab4ccebd5066326c18daf23ee7423e0e6d4730eaa35eb8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedBy.get",
+        "span": [
+          107,
+          31,
+          107,
+          35
+        ],
+        "reasoning": "Getter exposes actor display attribution on supplier fact, not stable user FK or receiving operator guarantee.",
+        "inputs": "Entity containing string fact actor name.",
+        "outputs": "string fact actor name without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-c4cc30d0b740d2a08d9b1fe4149778c847844e042eeb74c530f9571d1d043311",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedBy.set",
+        "span": [
+          107,
+          36,
+          107,
+          40
+        ],
+        "reasoning": "Setter copies resolved actor name from receive/later payment; field alone does not authenticate actor.",
+        "inputs": "string fact actor name from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-5b8188f4e2225e550a95f3638b49cc45cf229425dda4296fb77f3008e47b5c4a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.OperationId.get",
+        "span": [
+          108,
+          34,
+          108,
+          38
+        ],
+        "reasoning": "Getter groups supplier liability/payment fact with stock and treasury operation where supplied.",
+        "inputs": "Entity containing nullable operation correlation.",
+        "outputs": "nullable operation correlation without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-4c028b935898413e795d51a3ebb4f0bc2c0390ed2de94b293872f624b741030a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.OperationId.set",
+        "span": [
+          108,
+          39,
+          108,
+          43
+        ],
+        "reasoning": "Setter stores initial/later operation GUID; optional field is not the unique dedupe key and does not enforce transaction atomicity.",
+        "inputs": "nullable operation correlation from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-4826a5a7ae2ab00980e82004fc2ab107cb1af417ac540d7801c7ec869c309589",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.TreasuryMovementId.get",
+        "span": [
+          109,
+          41,
+          109,
+          45
+        ],
+        "reasoning": "Getter is null on invoice liability row and populated on actual payment credit; null liability is normal without cash movement.",
+        "inputs": "Entity containing nullable linked payment movement.",
+        "outputs": "nullable linked payment movement without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-dd065ffa18b1d924741d2923baf237f9c066decfacbb7e563245999beb5bee52",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.TreasuryMovementId.set",
+        "span": [
+          109,
+          46,
+          109,
+          50
+        ],
+        "reasoning": "Setter records corresponding movement ID only for payment facts. No automatic treasury write or FK proof follows from reference assignment.",
+        "inputs": "nullable linked payment movement from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-575c006755178eb6627c9c0456a75762fcefc0633ce6c95ea422fc1a7799f009",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedAtUtc.get",
+        "span": [
+          110,
+          42,
+          110,
+          46
+        ],
+        "reasoning": "Getter orders supplier fact history, distinct from agreed due date and report as-of date.",
+        "inputs": "Entity containing DateTimeOffset supplier fact instant.",
+        "outputs": "DateTimeOffset supplier fact instant without funds or liability posting.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      },
+      {
+        "stable_id": "sym-478bfae1975295d4c9580cef1f543de0fa70999433a329ee2b5b3ac7560feeae",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedAtUtc.set",
+        "span": [
+          110,
+          47,
+          110,
+          51
+        ],
+        "reasoning": "Setter copies operation now, allowing invoice and initial-payment rows to share instant. Timestamp alone is not deterministic total event ordering.",
+        "inputs": "DateTimeOffset supplier fact instant from supplier/receive/payment command.",
+        "outputs": "Field assignment only.",
+        "side_effects": "Tracked property mutation; caller stages and commits fact/treasury/invoice graph. No financial, supplier or DB writes executed in audit.",
+        "trust_boundaries": "Supplier contact metadata is not verified vendor identity; financial amounts require purchasing authorization, source/account and outstanding checks in handlers. Stored name/approval strings alone are not authority.",
+        "database": "DbContext275 supplier PK;292-305 payment and ledger PK/unique keys, invoice child FK via285, ledger supplier FK and supplier/purchase index. No Purchase concurrency token, no payment movement FK in inspected blocks. No SQL run.",
+        "printing_ui": "PurchasingQuery16-35 supplier/ledger DTOs and Receive ToDto expose financial history. No actual invoice UI, external supplier communication, receipt or printer execution.",
+        "performance": "O(1) accessor. Supplier list loads ledger and per-supplier filters; history loads/order rows. No live plan, memory or latency measurement.",
+        "duplicates_conflicts": "Supplier liability=sum Debit-Credit with optional invoice/fallback reference filter (PurchasingRules95-98), unlike treasury balance signs. Existing FIN005 distinct-key payment admission is not solved by per-row uniqueness.",
+        "issues_hypotheses": "No new accessor finding. Normal payment row links and fact-derived debt are corroborated; old always-in-sync cache and cannot-attribute ledger comments explicitly rejected as unconditional behavior.",
+        "tests_missing": "No tests run. Need invoice/payment key uniqueness, distinct-key concurrent overpay, per-invoice attribution, multi-account history, liability sign, contact duplicates policy and movement/ledger atomicity regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25-64",
+          "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs:121-162",
+          "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34-124",
+          "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16-35",
+          "src/Falah.Domain/Inventory/PurchasingRules.cs:95-98",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:275-305"
+        ]
+      }
+    ]
+  }
+]

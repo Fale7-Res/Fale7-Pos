@@ -1,0 +1,983 @@
+{
+  "artifact_kind": "bounded_semantic_crossflow_comparison",
+  "id": "SEM-MIRROR-017-REPAIR-READINESS-SUPPLEMENT",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T03:52:20.756Z",
+  "scope": "Repair-readiness supplement to existing SEM-MIRROR-017. This does not add a second comparison group or a new finding.",
+  "decision": "SUPPLEMENTS SEM-MIRROR-017: distinct payout workflows are source-confirmed; same-obligation duplicate remains policy/runtime conditional.",
+  "related_existing_findings": [
+    "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001"
+  ],
+  "severity": "HIGH conditional financial risk; not a confirmed duplicate-pay defect",
+  "confidence": "HIGH for distinct source mechanics; owner policy and same-period runtime sequence unresolved",
+  "source_confirmed": true,
+  "runtime": {
+    "status": "NOT_EXECUTED",
+    "reason": "No disposable SQL/HTTP test or real transaction authorized/executed; static only."
+  },
+  "manual_reasoning": {
+    "standalone_settlement": {
+      "entry": "PayEmployeeHandler.HandleAsync",
+      "flow": "Accepts standalone employee settlement request, checks current employee balance and protected treasury balance, posts treasury movement plus Settlement ledger debit under a standalone request idempotency key and transaction.",
+      "source_ranges": [
+        [
+          46,
+          154
+        ]
+      ],
+      "symbol_context": "The call is not tied to payroll run or period in handler evidence."
+    },
+    "payroll_creation": {
+      "entry": "CreatePayrollHandler.HandleAsync",
+      "flow": "Selects period ledger entries, creates PayrollLineInput, calculates and persists a frozen Draft run. PayPayroll later uses that stored line amount.",
+      "source_ranges": [
+        [
+          29,
+          104
+        ]
+      ],
+      "symbol_context": "The creation query filters by UTC year/month; period entries are not recalculated by PayPayroll."
+    },
+    "calculation": {
+      "entry": "PayrollRules.CalculatePayrollLines",
+      "flow": "Builds base from MonthlySalary or DailyWage/Salary credits, plus overtime/extra-shift/bonus earnings, less named deductions/adjustments and requested advance deduction. Settlement debit is not an explicit payroll deduction category in the reviewed calculation.",
+      "source_ranges": [
+        [
+          83,
+          110
+        ]
+      ],
+      "symbol_context": "This supports separate accounting treatment; whether Settlement is intended to offset payroll is a business policy not established by source."
+    },
+    "payroll_payment": {
+      "entry": "PayPayrollHandler.HandleAsync",
+      "flow": "Reads persisted run lines, sums NetPayablePiastres, then within a database transaction posts one Treasury payroll movement, per-line PayrollSettlement ledger entries, and marks run Paid.",
+      "source_ranges": [
+        [
+          39,
+          182
+        ]
+      ],
+      "symbol_context": "The handler does not recompute the run from current employee balance before paying; this is consistent with paying a frozen approved run, but enables overlap if standalone settlement covers the same earnings."
+    }
+  },
+  "conclusion": "The two mechanisms are distinct, not mirrored copies: PayEmployee is an independent ledger settlement; payroll is a period-snapshot obligation, with a separate approval/payment path. A same-period double payout is possible only if the owner intends standalone Settlement and period payroll to cover the same earning obligation and both authorized flows are used. Source demonstrates separate posting mechanics, not that an operator actually did this or that policy prohibits it.",
+  "counterevidence_and_limits": [
+    "Standalone settlement checks current employee balance, so it cannot by itself pay more than current ledger balance at the time it runs.",
+    "Payroll uses a unique live-period run constraint and frozen approved lines; this prevents multiple concurrent active runs, not cross-channel offset of standalone settlements.",
+    "Payroll lines and settlement types may be intentionally independent; no owner policy defines whether the categories overlap.",
+    "No isolated combined-sequence test or production data inspection was performed."
+  ],
+  "owner_decision_needed": "Clarify whether a standalone Settlement is an advance against earnings already included in a month payroll, a separate obligation, or an exclusive alternate process. If same obligation, decide whether settlements before run creation reduce the run and whether settlements after approval/payroll freeze invalidate or adjust the approved amount.",
+  "repair_options": [
+    {
+      "option": "Treat standalone Settlement as a prepayment against current-period payroll",
+      "requirements": [
+        "Persist period/obligation attribution for settlement.",
+        "Payroll creation subtracts valid period settlements before freezing.",
+        "If settlement occurs after run freeze, require controlled recalculation/revision or block payout; preserve approved historical version and audit trail."
+      ]
+    },
+    {
+      "option": "Treat standalone Settlement as a separate liability class",
+      "requirements": [
+        "Document separate accounting source and avoid implying period earnings are offset.",
+        "Verify employee balance and payroll totals represent distinct obligations.",
+        "Add tests that prove the two categories cannot double-count a common earning."
+      ]
+    },
+    {
+      "option": "Make payment modes exclusive per employee/period",
+      "requirements": [
+        "Enforce server-side invariant, not only UI visibility.",
+        "Provide migration/legacy behavior for already-created runs and ledger rows."
+      ]
+    }
+  ],
+  "required_tests": [
+    "Disposable SQL integration: create same-period earning, post standalone Settlement, create and pay payroll; assert chosen policy and one obligation funded exactly once.",
+    "Reverse order: create and approve a frozen payroll run, post a standalone settlement, then attempt payroll payment; assert policy-specific block/revision/remaining liability.",
+    "Concurrent distinct payment requests around payroll approval/payment; assert database serialization and one permitted outcome.",
+    "Idempotent retries after lost response for each flow; assert no duplicate treasury movement or employee ledger debit.",
+    "Legacy-data test for outstanding and partially settled employees."
+  ],
+  "acceptance_criteria": [
+    "Owner-approved accounting policy is recorded and the source/API enforcement matches it.",
+    "For every allowed sequence, employee payable balance and treasury outflow reconcile to the same obligation without duplicate debit/payout.",
+    "A frozen payroll run cannot silently pay a superseded amount if policy permits a later standalone settlement.",
+    "Rejected/conflicting operations leave no partial ledger or treasury writes; retries return a durable result.",
+    "Existing distinct-obligation use cases remain payable and auditable."
+  ],
+  "implementation_readiness": "Policy decision required before selecting a code fix; source mechanics and test plan are explicit.",
+  "source_references": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          732,
+          746
+        ],
+        [
+          812,
+          817
+        ],
+        [
+          841,
+          851
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-656229634498aae4cd2482acd06b9ec591e58ba1d5b36db5334fab9c0b9ee5cb",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            736,
+            48,
+            746,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-39087865c2bf5b1972694eb10d9f7271e1b9ad53a7059c6a37b6393695f9de96",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            812,
+            34,
+            817,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-4dda857c58fb8e8ee8a575a8bc36627544905b33bf18c403c6e69bede2961dfe",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            841,
+            46,
+            851,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+      "source_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+      "worktree_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+      "source_git_blob_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+      "line_ranges": [
+        [
+          75,
+          118
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e70aeac0fc4b33e22cc9d8a9f16f572e3f1e88fe389a1b30dad6c9c6cefcc2a4",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SubmitPayAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            75,
+            5,
+            107,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9a967d271478e6c4657305889c16bc3748a1be164d966e28234cbea205465421",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            79,
+            68,
+            79,
+            99
+          ]
+        },
+        {
+          "stable_id": "sym-d7a6790630b304eb4c22a729f4d374d0637c50823a722da9a1deed1eae8f46d5",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            96,
+            28,
+            106,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-075103ead67d973663fdbe556ee8390f4c53530a83e83ddaeb405e9873deb117",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            100,
+            81,
+            100,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-a36970d7a23dca5188a511de8643728e65d5af8babc72ae4afc369208673c85f",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompletePayAsync(Falah.Application.Employees.PayEmployeeRequest)",
+          "kind": "MethodDeclaration",
+          "span": [
+            109,
+            5,
+            118,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2be04b6e18afff64c1440b5c47490eeef74dde18d427cf5974cec9da3c8b7643",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            111,
+            59,
+            111,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "source_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "line_ranges": [
+        [
+          227,
+          264
+        ],
+        [
+          331,
+          358
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ec00e04435a209c2480ca6e9f0ced9f06d350341b60e3a0059f7c0231a90eacb",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CreateRunAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            227,
+            5,
+            251,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-844ac13e151edb982971d3d163daf85bde00664601e454aa345da0e4049c9ea3",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CompleteCreateAsync(Falah.Application.Employees.CreatePayrollRequest)",
+          "kind": "MethodDeclaration",
+          "span": [
+            253,
+            5,
+            264,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9cdc88a0bfcb5c6ac39969eff72faac2af7eb8e5a8063c3cc304cef8744a5842",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            256,
+            66,
+            256,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-26c8a933d130d79c6c6647f02d0345fce9c49a7af7e30149e0b4d72d4add56e1",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayRunAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            331,
+            5,
+            358,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b695e62825f025063b1ec21a2b77d7654f3615cfc94b0e5c866c8d0c47cd4cb9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            346,
+            63,
+            346,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "source_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          46,
+          154
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+          "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            46,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-507cc99d8e94efd1b25afb289fcd8d2ea223da312139dd7d1289d0b59848567f",
+          "signature": "LoadReplayAsync()",
+          "kind": "LocalFunctionStatement",
+          "span": [
+            54,
+            9,
+            60,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-2b1f7b9ca0b82a5239cc2dbde576c370d5c9b69e3d94d879e104a2cd8a06e314",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            56,
+            92,
+            56,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-49ac8ecd309f59996efafd92aded337ab9fe96811dda789bf2f0e411d198679e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            58,
+            91,
+            58,
+            130
+          ]
+        },
+        {
+          "stable_id": "sym-6bc9450e7f0331c8a677e5fba386122163d016f5aa2fd6e32fdc958836543e4c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            67,
+            76,
+            67,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-8ae5a37763d69995f863bbe8be1be294f61fbea8c381ecf3b801b813154a3f6c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            71,
+            79,
+            71,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            83,
+            25,
+            83,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            89,
+            87,
+            89,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            101,
+            25,
+            101,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            103,
+            71,
+            103,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "source_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "line_ranges": [
+        [
+          29,
+          104
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+          "signature": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            29,
+            5,
+            104,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e227aff9c583534e17faca096241fd815efd7aa4c9c953d8864170ce39856c0e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            35,
+            34,
+            35,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-b21a9d9cccfc4babfe64cc3e92c09a23e727e32313d00b59159b3f895e9c5ef1",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            38,
+            76,
+            38,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-6883abd4f8ef4dd18e286cf776a7904878462037a5133d608116cb323765610f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            46,
+            20,
+            46,
+            97
+          ]
+        },
+        {
+          "stable_id": "sym-17a63eacca5de5a61fdfc231e5b887b260a4b9e7d9e401cb7439a5f5db3e42ac",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            54,
+            43,
+            63,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b0e5eac49582c0788a267876bf5deede5cec1ce9bfa065e8577b49f3854a6c8c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            56,
+            50,
+            56,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-de9e43eacc05dbfa2072b8418d775374227dad8d4c6efa3bba196e67381ee111",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            57,
+            25,
+            57,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-9964b0b07f23e88f1ad3a2ad193f6358c19cd766403db17475473c97a1803696",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            98,
+            38,
+            99,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          83,
+          110
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            83,
+            5,
+            112,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fb6e06c94ed98882fd223b075315e64ea785607dd4fc9ead89e76b8bf161dd11",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            88,
+            51,
+            88,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-5c54e9ee3a705e9926060f72df563e5c19dc0239cdbc90519b5ab7cb3667b0d4",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            97,
+            62,
+            97,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-87f6f012e75f4ceba9a9b9f25a4ada25083ece3b18eb241a301ff5b2f6c0ca7b",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            97,
+            106,
+            97,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-c88242c0c88b12e693a5cd1e86059e585d5a190698448c6c91fb05c01cea56cd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            98,
+            71,
+            98,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-aa49efb2be6439fd698d692a1b232ec88d58b38bb0b96b57268c9ffdf54b5faa",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            98,
+            102,
+            98,
+            124
+          ]
+        },
+        {
+          "stable_id": "sym-ae42b9392712dd4b24684dbdeffe96476fd168b45936231b1acdd759bd0f7313",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            99,
+            74,
+            99,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-ec12fc9b089e55273554965f0cf22e4d0e93aaae7a4f21aa3243a6f3e4e8f62f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            99,
+            107,
+            99,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-97a1c09544dab50238f260b23e0a62832c2dfa5aaf7ada402e3742683f0136a2",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            100,
+            70,
+            100,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-25025ec4c7c0577967b58ed456ff0a55139cdcc7d4a7f2619ad6f77a856c7a17",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            100,
+            116,
+            100,
+            138
+          ]
+        },
+        {
+          "stable_id": "sym-e275b089567793bca24444064ad55f1ef63eed026ecf642c2e9fabe4c14ffc3e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            101,
+            73,
+            101,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-8e097b381da5228f3dd076e77d3fa589a6c9b8008c21128032e5f09af0389a84",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            101,
+            121,
+            101,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "source_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [
+        [
+          39,
+          182
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+          "signature": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            39,
+            5,
+            182,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7f914af4a24a9ce3bed9c10a4876aff19e2f061b63235ef11faf754eb4f95b37",
+          "signature": "LoadReplayAsync()",
+          "kind": "LocalFunctionStatement",
+          "span": [
+            46,
+            9,
+            54,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b5dfbb39eb2ce8353e216ea365c71fa4a1516b8db59b4204821850f8761bbef6",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            49,
+            38,
+            49,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-2d508425f63fd9def1925b5f9f0c24f9b2ab72acb622db9e7fd9c8da976d80cc",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            52,
+            29,
+            52,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-25c724797da7b2e53e917cd6d4fe1cbe615e9106baa5770e0447ee96a8bbf77a",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            58,
+            76,
+            58,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-e1836001213e59d67e5f4c5b5d410a03df04bd624f958d0722a0947d8d809d3a",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            62,
+            61,
+            62,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-0bbd6fe5564c74dae99787284731cdf5d99093345acbeefdf132a09905904bcf",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            79,
+            83,
+            79,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-166c23b1374dde0bc098da55c4f80ff9bdabc3292f42c3ca8ad4d72aec8d0a15",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            86,
+            50,
+            86,
+            93
+          ]
+        },
+        {
+          "stable_id": "sym-6e5308987c8babd84e68b2e29d364e1bb40a70e6c29c299f06bbacfb29dc0476",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            87,
+            31,
+            87,
+            56
+          ]
+        },
+        {
+          "stable_id": "sym-739f54119add32bbc86ae738b323f2f5b57e4b4ec461010dc8d58383abb2b84d",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            95,
+            44,
+            95,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-08ac74b4094a84644796fd173d79c63c07d74366d9ab778dfae114370db529fc",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            97,
+            24,
+            99,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-e3d25049b1c9075f24cfd7ae8f153a463a28dcfca8bb1481cb5166ae90914c01",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            100,
+            25,
+            100,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-8133ca06a75a53035e0cbae5ae0cf103f3fd51574b0f3ad5be305ae2b012b355",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            137,
+            46,
+            137,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-70eab91fffa09ac3c25d02850447fdde07ce31a75cf2483aaab375af99bb35e3",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            174,
+            21,
+            174,
+            56
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+      "source_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "worktree_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "source_git_blob_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "line_ranges": [
+        [
+          228,
+          240
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8df91dfe5804d592f947e6bdeb1ba570bdc6a758c392a97c91a56e1ec4e3f2b",
+          "signature": "Falah.Server.IntegrationTests.PayEmployeeVerticalSliceTests.A_payment_is_recorded_as_its_own_distinct_ledger_type_never_advance_or_withdrawal_or_payroll()",
+          "kind": "MethodDeclaration",
+          "span": [
+            228,
+            5,
+            240,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-930be55d2ee82316771f98ef240469eec26b843642d6a9427dd8ac5ff00c1ee9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            235,
+            47,
+            235,
+            150
+          ]
+        },
+        {
+          "stable_id": "sym-ed30dc11b1db8d1bd22f1706641d7bf57eadc2e9d85fb68f2ba3af782a320c78",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            235,
+            90,
+            235,
+            149
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "source_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "line_ranges": [
+        [
+          93,
+          109
+        ],
+        [
+          188,
+          206
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c3f0fe1c5ec463b05976812fc031032cc86b986fac22c781ae9c804e952a5e5f",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.A_payroll_run_computes_one_line_per_employee_with_earning_activity_this_period()",
+          "kind": "MethodDeclaration",
+          "span": [
+            93,
+            5,
+            109,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1596ca1386149e1857ef5340fcc5179abc58518a08160a0358ced69ea5c10062",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            105,
+            42,
+            105,
+            74
+          ]
+        },
+        {
+          "stable_id": "sym-132578ab3f11c4ab2c29a5cb5054fd6dcd49c2868330b589f4c68192d3050f35",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_an_approved_run_posts_one_movement_and_settles_every_line()",
+          "kind": "MethodDeclaration",
+          "span": [
+            188,
+            5,
+            206,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-468fbc12e53ee9f60407cdb875cd175b9be26c84641f6909fac047a324c17dab",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            204,
+            55,
+            204,
+            163
+          ]
+        },
+        {
+          "stable_id": "sym-82a573fd1425de7438e2a8d488cec75e6f8eefabf750f6efc6af0ba782a34d86",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            204,
+            93,
+            204,
+            162
+          ]
+        }
+      ]
+    }
+  ],
+  "supplements_semantic_comparison": "SEM-MIRROR-017"
+}

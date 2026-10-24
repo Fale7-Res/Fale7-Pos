@@ -1,0 +1,128 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:05:57.1525225Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs",
+  "symbol_count": 9,
+  "symbols": [
+    {
+      "stable_id": "sym-b9ad18f6388937ce16c68155bf31b15e07eb2732791a5b849215b9b0ce5ffd28",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPrinting.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        91,
+        10
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-4cd02044bd15125af758f3390a4de0a90b9c38be8365f002bcad9dbfb3d9a872",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        22,
+        26,
+        36,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9b4f4b77fef4ab2ac1f58f137d6e3200ff811569755d98d2b1cd9b1f8081d279",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        37,
+        30,
+        40,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-37bff3cf96ea0637b42cc1b0e4dd01da335df3931ec276a5bfdcf1e89734f71d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        39,
+        54,
+        39,
+        63
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f88ab40c1830d83d62ab01bdc4a8692d1260f0585d78c033241493e1be5b8617",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        44,
+        26,
+        54,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7c3271582a08acadcaf683eca296e449c737f198566f76c70e62c5b7d53d32a2",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        55,
+        30,
+        64,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2cb44ceee09956dba0e6b34efcc34f8c23b607d493b5dd38ffab947b00b9d1f8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        57,
+        61,
+        57,
+        70
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-332a0736ca74a71ae141c947bb846fdd1a7264c309360109367b6e614e104da5",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        60,
+        33,
+        60,
+        50
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c2f9a1d5bcfa83eebb1bb90fa63c501bc13196cdaf2be8839df4cc0fb86ad822",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPrinting.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        94,
+        9,
+        105,
+        10
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Database-schema-only review of the AddPrinting migration (printing workflow behavior remains outside scope). Up adds nullable Products.PreparationStation, PrintJobs with a primary key and indexes for CreateRequestId, OrderId, and Route+Status, and PrintJobAttempts with a primary key, required PrintJob FK to PrintJobs with cascade delete, unique IdempotencyKey, and PrintJobId index. Down drops attempts before jobs, then drops the nullable product column. No financial entities or financial columns are touched; no schema-only financial integrity defect identified. Runtime migration execution and deployed data state unverified.",
+  "source_ranges": "20260904010325_AddPrinting.cs: 12-105; entire migration",
+  "execution": "Read-only database schema review; migration not executed.",
+  "source_sha256": {
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs": "DC989B4BACE8A81CD57B4986C22430DAE47FA2B0ED08C02C5F598310D85E3860"
+  },
+  "shard_reconciliation": {
+    "financial_integrity": "0/9 exact IDs present",
+    "financial_coordinator": "0/9 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

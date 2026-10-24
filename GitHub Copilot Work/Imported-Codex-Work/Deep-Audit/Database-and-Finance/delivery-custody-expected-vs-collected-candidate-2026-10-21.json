@@ -1,0 +1,805 @@
+{
+  "id": "FIN-CAND-DELIVERY-CUSTODY-EXPECTED-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "INDEPENDENTLY_CORROBORATED_STATIC_METRIC_MISMATCH; FIELD_CONTRACT_AND_RUNTIME_IMPACT_QUALIFIED",
+  "severity": "MEDIUM",
+  "confidence": "HIGH_SOURCE_CONFIDENCE_FOR_DATAFLOW; USER_MEANING_AND_RUNTIME_IMPACT_NOT_TESTED",
+  "title": "Delivery report field labeled expected unsettled custody aggregates collected amount instead",
+  "observed_behavior": "GetDeliveryOutcomesReportAsync filters all non-settled custody rows without a date filter, counts them, then sums CollectedPiastres into DTO field UnsettledCustodyExpectedPiastres. DeliveryRules.CreateCashCustody initializes Expected to responsibility and Collected to zero; assignment persists both. RecordDeliveryResultHandler populates Collected only when Delivered and stores any variance. OwnerDashboardQueryService independently projects unsettled custody as the sum of ExpectedPiastres. The report UI binds the mismatched DTO amount. Thus an assigned/out-for-delivery order can count as unsettled while its labeled expected amount is zero; a delivered variance can also make collected differ from expected.",
+  "preconditions": "At least one non-prepaid delivery has been assigned (creating Open custody) and has not yet reached Delivered, or a delivered custody has an approved recorded variance. No real runtime state was created or queried.",
+  "impact": "If the DTO/UI contract means expected cash at driver risk, the report underreports that exposure while delivery is in transit and diverges from the owner dashboard. If it intentionally means cash already collected but not settled, the aggregation may be deliberate but DTO name and tests are misleading. No loss, duplicate payment, or ledger corruption is established.",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          545,
+          585
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9540f190ed8ec51dddcb8e596c3029dfb065f06440dbe67f31e1c1ef20c7f4de",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetDeliveryOutcomesReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            545,
+            5,
+            585,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b40c2907bddbcd729114c8d0b0d899e0ac88aee67027721e22447a984c7816bc",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            549,
+            20,
+            549,
+            140
+          ]
+        },
+        {
+          "stable_id": "sym-4657a9ed80131b7733cba4964b391e97a99fff9187300ac76b9c3a9c7ae6c3b0",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            550,
+            21,
+            550,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-f63c8df28a6ab317e690f74facf5cfc18d42d3af3f828a0412c980aad6280815",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            552,
+            25,
+            552,
+            136
+          ]
+        },
+        {
+          "stable_id": "sym-54995c55600844aa1fe52f477da4efd26fd55d9340dc97f67a6f5ffef1d5a3ec",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            554,
+            25,
+            554,
+            142
+          ]
+        },
+        {
+          "stable_id": "sym-d1ff5a95d1da73c32d115e3ab55f39a9e2aaf7dc0dc0636e133c438519af3fc7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            557,
+            51,
+            557,
+            83
+          ]
+        },
+        {
+          "stable_id": "sym-6d2976a96c9cdbffd7a54b4f70860c4346dbd6c6619e8cc1b188f1ca67352a43",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            557,
+            94,
+            557,
+            127
+          ]
+        },
+        {
+          "stable_id": "sym-bca6ac22a389d1362e555eae33a8be48decb76d5db3c0dd5983e285ff5fa0018",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            559,
+            72,
+            559,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-3163bc888e4c4a97c6961969a8d6486841e48345dfc1703eafaf68004e2572ed",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            564,
+            20,
+            565,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-31b9bde080a95781916ec11365be3a07478671b2964a43f3a781b62c3df9f9cd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            566,
+            21,
+            566,
+            73
+          ]
+        },
+        {
+          "stable_id": "sym-b40a321c7393ad663a99706174c658f9e116f9b4da2945af1bdac6af62098c40",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            569,
+            21,
+            569,
+            95
+          ]
+        },
+        {
+          "stable_id": "sym-fc8c6e9eb3e0ac33a511aca7d5ad44a50b410c979abb208853b3ada629437eed",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            570,
+            20,
+            570,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-5cb52eaea7b4d695c2df02c8651f07abfeeb591167523f8590210945beb21007",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            574,
+            20,
+            574,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-239e8ffcc67e55745771a06cfc5ef6a2a467f77bd0357b3b12c4678198d0ed36",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            574,
+            73,
+            574,
+            113
+          ]
+        },
+        {
+          "stable_id": "sym-fb8e4d6e80b28715ac10121de122e033a680bf08f609b01f9d550325e7cd94d7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            575,
+            21,
+            575,
+            72
+          ]
+        },
+        {
+          "stable_id": "sym-e28d09091cff989a0741415533575e575081476304d9570ef22e43354135b6d9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            579,
+            44,
+            579,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-e174f55c821c6454c6e219f3dc6e31b0a074e407a25ff1e013b4ea0a99854da2",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            581,
+            29,
+            581,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-ec3c2705a7228847093736e8d9c9852c43dd3590ce197718e7d9631a45d879bd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            582,
+            29,
+            582,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-2938b0a8bffccbed8cdf6fa0ffc3aad394cd5257b8f692a4ae162d5e9d325231",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            583,
+            29,
+            583,
+            67
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 545,
+          "end": 585,
+          "text": "    public async Task<DeliveryOutcomesReportDto> GetDeliveryOutcomesReportAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default)\n    {\n        var (start, end) = Range(from, to);\n        var deliveredIds = await _db.Deliveries.AsNoTracking()\n            .Where(d => d.DeliveredAtUtc != null && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end))\n            .Select(d => d.OrderId).ToListAsync(ct);\n        var failedCount = await _db.Deliveries.AsNoTracking()\n            .CountAsync(d => d.FailedAtUtc != null && (start == null || d.FailedAtUtc >= start) && (end == null || d.FailedAtUtc < end), ct);\n        var returnedCount = await _db.Deliveries.AsNoTracking()\n            .CountAsync(d => d.ReturnedAtUtc != null && (start == null || d.ReturnedAtUtc >= start) && (end == null || d.ReturnedAtUtc < end), ct);\n\n        var deliveryFees = deliveredIds.Count == 0 ? 0 :\n            await _db.Orders.AsNoTracking().Where(o => deliveredIds.Contains(o.Id)).SumAsync(o => (long?)o.DeliveryFeePiastres, ct) ?? 0;\n\n        var unsettled = await _db.DriverCustodies.AsNoTracking().Where(c => c.Status != nameof(CustodyStatus.Settled)).ToListAsync(ct);\n\n        // Ported from deliveryReport's own averageDeliveryMinutes: only deliveries with BOTH\n        // timestamps count, and null (not zero) when none qualify.\n        var durationsMinutes = await _db.Deliveries.AsNoTracking()\n            .Where(d => d.OutForDeliveryAtUtc != null && d.DeliveredAtUtc != null\n                && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end))\n            .Select(d => new { d.OutForDeliveryAtUtc, d.DeliveredAtUtc })\n            .ToListAsync(ct);\n        var validDurations = durationsMinutes\n            .Select(d => (d.DeliveredAtUtc!.Value - d.OutForDeliveryAtUtc!.Value).TotalMinutes)\n            .Where(m => m >= 0).ToList();\n        long? averageDeliveryMinutes = validDurations.Count == 0 ? null : (long)Math.Round(validDurations.Average());\n\n        var settlements = await _db.DriverSettlements.AsNoTracking()\n            .Where(s => start == null || s.CreatedAtUtc >= start).Where(s => end == null || s.CreatedAtUtc < end)\n            .Select(s => new { s.ActualPiastres, s.DifferencePiastres }).ToListAsync(ct);\n\n        return new DeliveryOutcomesReportDto(\n            deliveredIds.Count, failedCount, returnedCount, deliveryFees,\n            unsettled.Count, unsettled.Sum(c => c.CollectedPiastres),\n            averageDeliveryMinutes,\n            settlements.Sum(s => s.ActualPiastres),\n            settlements.Sum(s => Math.Max(0, -s.DifferencePiastres)),\n            settlements.Sum(s => Math.Max(0, s.DifferencePiastres)),\n            settlements.Count);\n    }"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "worktree_sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "source_git_blob_sha256": "0a615dd0d71fc11bd9382cf3d832a4e116620c4b13b804a2431458cfb1f6d160",
+      "line_ranges": [
+        [
+          91,
+          100
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 91,
+          "end": 100,
+          "text": "/// <summary>Ported from deliveryReport in lib/delivery-domain.mjs. SettlementCount replaces\n/// legacy's own `trips` count - this system's per-order delivery model has no separate \"trip\"\n/// concept (a driver settlement is itself the closest scoped unit here), so counting settlements in\n/// range is the honest analog rather than inventing a trip abstraction that doesn't exist.\n/// AverageDeliveryMinutes is null (not zero) when no delivery in range has both timestamps, matching\n/// legacy's own `durations.length ? ... : undefined`.</summary>\npublic sealed record DeliveryOutcomesReportDto(\n    int DeliveredCount, int FailedCount, int ReturnedCount, long DeliveryFeesPiastres,\n    int UnsettledCustodyCount, long UnsettledCustodyExpectedPiastres,\n    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+      "source_git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1",
+      "line_ranges": [
+        [
+          9,
+          23
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7f74270bff495f8f65e9922bb01272134643b7a32d671e48a8e6176fa074dcf7",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.DeliveryCashResponsibility(Falah.Domain.Financial.PaymentMethod, bool, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            11,
+            5,
+            12,
+            102
+          ]
+        },
+        {
+          "stable_id": "sym-944ad288b4dd0efc8daff84933ffa25e37d27cf3c837657f6fd0e161fe1613f7",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.CreateCashCustody(string, string, Falah.Domain.Delivery.DeliveryFacts, string, DateTimeOffset)",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            21,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 9,
+          "end": 23,
+          "text": "    /// <summary>Cash payment method: the driver is responsible for the whole amount. Any other\n    /// method: responsible only if it has not already settled electronically.</summary>\n    public static Money DeliveryCashResponsibility(PaymentMethod paymentMethod, bool paymentAlreadySettled, Money amount) =>\n        paymentMethod == PaymentMethod.Cash ? amount : (paymentAlreadySettled ? Money.Zero : amount);\n\n    /// <summary>Returns null (no custody row needed) when there is nothing to collect - a genuinely\n    /// prepaid or fully-comped delivery.</summary>\n    public static DriverCustody? CreateCashCustody(string custodyId, string tripId, DeliveryFacts delivery, string driverId, DateTimeOffset createdAtUtc)\n    {\n        var expected = DeliveryCashResponsibility(delivery.PaymentMethod, delivery.PaymentAlreadySettled, delivery.AmountToCollect);\n        if (expected.IsZero) return null;\n        return new DriverCustody(custodyId, tripId, driverId, delivery.OrderId, delivery.Id, expected, Money.Zero, Money.Zero, Money.Zero, CustodyStatus.Open, createdAtUtc);\n    }\n\n    /// <summary>Reassignment transfers custody by re-labeling the SAME custody record's driver - it"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "worktree_sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+      "source_git_blob_sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+      "line_ranges": [
+        [
+          77,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a927df96046d6df8eb9d12678fc2a6d3165efc0ea8d1ffe1277af6a84873e6d5",
+          "signature": "Falah.Infrastructure.Delivery.AssignDeliveryHandler.HandleAsync(Falah.Application.Delivery.AssignDeliveryRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            36,
+            5,
+            151,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5275c3e2462e5d1b0fad87671cb4c0c003a235e46967d16742247212a48e1a77",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            81,
+            77,
+            81,
+            106
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 77,
+          "end": 109,
+          "text": "\n            DeliveryTransitions.AssertTransition(DeliveryStatus.Ready, DeliveryStatus.Assigned);\n            DeliveryTransitions.AssertTransition(DeliveryStatus.Assigned, DeliveryStatus.OutForDelivery);\n\n            var order = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == delivery.OrderId, ct)\n                ?? throw new InvalidOperationException(\"الطلب المرتبط بالدليفري غير موجود.\");\n            var facts = DeliveryFactsComposer.Compose(delivery, order);\n\n            var now = DateTimeOffset.UtcNow;\n            var tripId = $\"delivery-trip-auto-{request.RequestId}\";\n            var custody = DeliveryRules.CreateCashCustody($\"custody-assign-{request.RequestId}\", tripId, facts, driver!.Id, now);\n\n            delivery.Status = nameof(DeliveryStatus.OutForDelivery);\n            delivery.DriverId = driver.Id;\n            delivery.DriverNameAtHandover = driver.Name;\n            delivery.TripId = tripId;\n            delivery.AssignedBy = actorUser.Name;\n            delivery.AssignedAtUtc = now;\n            delivery.OutForDeliveryAtUtc = now;\n            delivery.Version++;\n\n            if (custody is not null)\n            {\n                _db.DriverCustodies.Add(new DriverCustodyEntity\n                {\n                    Id = custody.Id, TripId = custody.TripId, DriverId = custody.DriverId, OrderId = custody.OrderId,\n                    DeliveryId = custody.DeliveryId, ExpectedPiastres = custody.Expected.Piastres,\n                    CollectedPiastres = custody.Collected.Piastres, SettledPiastres = custody.Settled.Piastres,\n                    DifferencePiastres = custody.Difference.Piastres, Status = nameof(CustodyStatus.Open), CreatedAtUtc = now,\n                });\n            }\n\n            _db.DeliveryEvents.Add(new DeliveryEventEntity"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+      "worktree_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "source_git_blob_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "line_ranges": [
+        [
+          86,
+          110
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ee328e92de0ccaa197e6b26dd0742965a52f9fd8b9c1dfb52da056e0410c3f96",
+          "signature": "Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.HandleAsync(Falah.Application.Delivery.RecordDeliveryResultRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            45,
+            5,
+            162,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d1d927d16332c4726eedb2ea9878d274606998f7df38fc07c4a7381b56ca843f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            88,
+            77,
+            88,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-b70433bb1a6206d93fe47e1245a429a3ba307f04ee5fde7f15f458b270a4d20f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            105,
+            77,
+            105,
+            109
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 86,
+          "end": 110,
+          "text": "            DeliveryTransitions.AssertTransition(currentStatus, targetStatus);\n\n            var order = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == delivery.OrderId, ct)\n                ?? throw new InvalidOperationException(\"الطلب المرتبط بالدليفري غير موجود.\");\n            var facts = DeliveryFactsComposer.Compose(delivery, order);\n            var now = DateTimeOffset.UtcNow;\n            long? collectedForEvent = null;\n\n            if (targetStatus == DeliveryStatus.Delivered)\n            {\n                var expected = DeliveryRules.DeliveryCashResponsibility(facts.PaymentMethod, facts.PaymentAlreadySettled, facts.AmountToCollect);\n                var collected = request.CollectedAmountPiastres.HasValue ? Money.FromPiastres(request.CollectedAmountPiastres.Value) : expected;\n                DeliveryRules.AssertCollectionAmount(expected, collected, request.Reason);\n\n                delivery.DeliveredAtUtc = now;\n                delivery.CollectedAmountPiastres = collected.Piastres;\n                delivery.FailureNotes = request.Reason; // reused as \"variance explanation\", matching the reference app\n                collectedForEvent = collected.Piastres;\n\n                var custody = await _db.DriverCustodies.FirstOrDefaultAsync(c => c.DeliveryId == delivery.Id, ct);\n                if (custody is not null)\n                {\n                    custody.CollectedPiastres = collected.Piastres;\n                    custody.DifferencePiastres = collected.Piastres - custody.ExpectedPiastres;\n                }"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          254,
+          289
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-21b13272c77ed156008a1bae9861754b5c6aec46ada2a4505417aa31705c09d8",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadAttentionAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            235,
+            5,
+            295,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ab572a32f4e1f4fc9643fd4c9339a38806dbca0ff3070833c750730e51a1388e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            256,
+            43,
+            256,
+            113
+          ]
+        },
+        {
+          "stable_id": "sym-e834300bc5b9f199da595baa54902c23696f6d333c56ea3945a505dee37fce47",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            259,
+            20,
+            259,
+            66
+          ]
+        },
+        {
+          "stable_id": "sym-ff8d1d39ad21f1e73a68e8ee570bbda0d6a57e2ce6c9945a46454ed0551cee3f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            260,
+            21,
+            260,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-9556226ff7276197323a1361dc33865c0b2b8ddac3d71db0edca3cb60434d7e7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            263,
+            25,
+            263,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-0de81067c81b1898c4a0969a535f49d781a3c109be557e1d43eb47948f8de8e0",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            266,
+            25,
+            266,
+            48
+          ]
+        },
+        {
+          "stable_id": "sym-ff0dba80dd805fc20fe07d4031ffec9fe8c75b19e3c7df91c3aed61dc2112aaf",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            269,
+            34,
+            269,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-b63c143cb293a46ee5716dc9bddadfe9bda83d24deffd404cfbee7afe72372d8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            279,
+            42,
+            279,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-ed9be78b8cba61f75cf76cdf9f471e32f403e340fc182d8cf8bb0cb1ae876948",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            281,
+            57,
+            281,
+            90
+          ]
+        },
+        {
+          "stable_id": "sym-827f6febb29914598f0a3e8ca95d4698cd4992c16593ab80496d3457d6fdc48e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            281,
+            96,
+            281,
+            133
+          ]
+        },
+        {
+          "stable_id": "sym-b5495cf972113cbe33e0439f17133ebea50d2f771195dc3dd55ff34d35e69bf0",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            282,
+            56,
+            282,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-5039e9f06bea168d492ed51b929f621aaee4ce52bbeabcb5477562265fff9320",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            282,
+            95,
+            282,
+            131
+          ]
+        },
+        {
+          "stable_id": "sym-88da3ea301f1946d6d445104abb91f91857b643aea239199e1d0900011854da8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            285,
+            69,
+            286,
+            99
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 254,
+          "end": 289,
+          "text": "            .ToListAsync(ct);\n\n        var withDifference = shifts.Where(s => s.CashDifferencePiastres != null && s.CashDifferencePiastres != 0).ToList();\n\n        var custodies = await _db.DriverCustodies.AsNoTracking()\n            .Where(c => c.Status != nameof(CustodyStatus.Settled))\n            .Select(c => c.ExpectedPiastres).ToListAsync(ct);\n\n        var pendingElectronic = await _db.Orders.AsNoTracking()\n            .CountAsync(o => o.ElectronicPaymentStatus == \"Pending\", ct);\n\n        var openExceptions = await _db.ControlExceptionStates.AsNoTracking()\n            .CountAsync(e => e.Status == \"Open\", ct);\n\n        var day = await _db.BusinessDays.AsNoTracking()\n            .FirstOrDefaultAsync(d => d.Status == nameof(Falah.Domain.BusinessDay.BusinessDayStatus.Open), ct);\n\n        var blockerCount = 0;\n        if (day is not null)\n        {\n            var blockers = await Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.EvaluateAsync(_db, day, ct);\n            blockerCount = blockers.Count;\n        }\n\n        return new AttentionDto(\n            OpenShiftCount: shifts.Count(s => s.Status != \"Closed\"),\n            ShiftsWithDiscrepancyCount: withDifference.Count,\n            ShiftShortagePiastres: withDifference.Where(s => s.CashDifferencePiastres < 0).Sum(s => -s.CashDifferencePiastres!.Value),\n            ShiftOveragePiastres: withDifference.Where(s => s.CashDifferencePiastres > 0).Sum(s => s.CashDifferencePiastres!.Value),\n            // A difference beyond the configured threshold that nobody authorised is the one a\n            // manager has to answer for - it is also what blocks the business day from closing.\n            UnauthorizedShiftDiscrepancyCount: withDifference.Count(s => s.DifferenceAuthorizedBy == null\n                && (s.CashDifferencePiastres > threshold || s.CashDifferencePiastres < -threshold)),\n            UnsettledCustodyCount: custodies.Count,\n            UnsettledCustodyPiastres: custodies.Sum(),\n            PendingElectronicOrderCount: pendingElectronic,"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "source_git_blob_sha256": "46998d7ab7f677438be4477df32b02e33a9be00ccb105a63a9e690b4f69389d1",
+      "line_ranges": [
+        [
+          110,
+          123
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 110,
+          "end": 123,
+          "text": "/// <summary>What is unfinished right now. Every entry here is something a person has to resolve, not\n/// a number to read.</summary>\npublic sealed record AttentionDto(\n    int OpenShiftCount,\n    int ShiftsWithDiscrepancyCount,\n    long ShiftShortagePiastres,\n    long ShiftOveragePiastres,\n    int UnauthorizedShiftDiscrepancyCount,\n    int UnsettledCustodyCount,\n    long UnsettledCustodyPiastres,\n    int PendingElectronicOrderCount,\n    int OpenExceptionCount,\n    int CloseBlockerCount,\n    bool HasOpenBusinessDay,"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "worktree_sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "source_git_blob_sha256": "c651254a3cf46fde7d9b8337061f87603c0d54e06dc2e7d20c3392bd94e0e99a",
+      "line_ranges": [
+        [
+          288,
+          297
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 288,
+          "end": 297,
+          "text": "                                <Grid.RowDefinitions><RowDefinition Height=\"Auto\"/><RowDefinition Height=\"Auto\"/><RowDefinition Height=\"Auto\"/></Grid.RowDefinitions>\n                                <TextBlock Text=\"تم التسليم\" Style=\"{StaticResource TableCellText}\" Foreground=\"{ThemeResource TextMutedBrush}\"/>\n                                <TextBlock Grid.Column=\"1\" FontWeight=\"SemiBold\" Text=\"{Binding Delivery.DeliveredCount}\"/>\n                                <TextBlock Grid.Row=\"1\" Text=\"فشل / مرتجع\" Style=\"{StaticResource TableCellText}\" Foreground=\"{ThemeResource TextMutedBrush}\"/>\n                                <TextBlock Grid.Row=\"1\" Grid.Column=\"1\" FontWeight=\"SemiBold\" Text=\"{Binding Delivery.FailedCount}\"/>\n                                <TextBlock Grid.Row=\"2\" Text=\"عهدة غير مسوّاة\" Style=\"{StaticResource TableCellText}\" Foreground=\"{ThemeResource TextMutedBrush}\"/>\n                                <TextBlock Grid.Row=\"2\" Grid.Column=\"1\" FontWeight=\"SemiBold\"\n                                           Text=\"{Binding Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}\"/>\n                            </Grid>\n                        </StackPanel>"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml",
+      "worktree_sha256": "a4719ca4c0b5f6ddd089aac9cf790f31fdd850c06506ab521a0d53461ccc2cbe",
+      "source_git_blob_sha256": "e9771424cbe111d081d1b32b1e665700546d31fdd97456617b1d956b99f69b51",
+      "line_ranges": [
+        [
+          330,
+          335
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 330,
+          "end": 335,
+          "text": "                        <Border Grid.Column=\"2\" Background=\"{ThemeResource NeutralBackgroundBrush}\" CornerRadius=\"10\" Padding=\"8\"><StackPanel><TextBlock Text=\"مرتجع\" Style=\"{StaticResource CaptionText}\"/><TextBlock Text=\"{Binding Statement.Delivery.ReturnedCount}\" FontWeight=\"Bold\"/></StackPanel></Border>\n                        <Border Grid.Column=\"3\" Background=\"{ThemeResource NeutralBackgroundBrush}\" CornerRadius=\"10\" Padding=\"8\"><StackPanel><TextBlock Text=\"رسوم التوصيل\" Style=\"{StaticResource CaptionText}\"/><TextBlock Text=\"{Binding Statement.Delivery.DeliveryFeesPiastres, Converter={StaticResource PiastresToDisplayConverter}}\" FontWeight=\"Bold\"/></StackPanel></Border>\n\n                        <Border Grid.Row=\"1\" Background=\"{ThemeResource NeutralBackgroundBrush}\" CornerRadius=\"10\" Padding=\"8\"><StackPanel><TextBlock Text=\"متوسط زمن التوصيل (دقيقة)\" Style=\"{StaticResource CaptionText}\"/><TextBlock Text=\"{Binding Statement.Delivery.AverageDeliveryMinutes}\" FontWeight=\"Bold\"/></StackPanel></Border>\n                        <Border Grid.Row=\"1\" Grid.Column=\"1\" Background=\"{ThemeResource NeutralBackgroundBrush}\" CornerRadius=\"10\" Padding=\"8\"><StackPanel><TextBlock Text=\"عهدة غير مسوّاة (الآن)\" Style=\"{StaticResource CaptionText}\"/><TextBlock Text=\"{Binding Statement.Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}\" FontWeight=\"Bold\" Foreground=\"{ThemeResource WarningBrush}\"/></StackPanel></Border>\n                        <Border Grid.Row=\"1\" Grid.Column=\"2\" Background=\"{ThemeResource NeutralBackgroundBrush}\" CornerRadius=\"10\" Padding=\"8\"><StackPanel><TextBlock Text=\"تسويات اليوم\" Style=\"{StaticResource CaptionText}\"/><TextBlock Text=\"{Binding Statement.Delivery.SettlementCount}\" FontWeight=\"Bold\"/></StackPanel></Border>"
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "worktree_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+      "line_ranges": [
+        [
+          424,
+          445
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8898bbcd1cb127507ff903fbacd1a383c61c3ad45e9329134419f6375ee5461f",
+          "signature": "Falah.Server.IntegrationTests.ReportingVerticalSliceTests.Delivery_outcomes_report_counts_delivered_orders_and_unsettled_custody()",
+          "kind": "MethodDeclaration",
+          "span": [
+            409,
+            5,
+            447,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c1a1b1d9532a09a0115625158a9837c264e05242b57b0f868530775adb3bacd5",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            424,
+            52,
+            424,
+            142
+          ]
+        },
+        {
+          "stable_id": "sym-5f3ac34b8a49ac7b429847fea260d3a1d24bdcf8bbce2a8be86b28cea611ad40",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            424,
+            78,
+            424,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-20e2a73676327e056a16920a30b0f841092594c2913f585b7c560d802c64c0c4",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            424,
+            119,
+            424,
+            128
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 424,
+          "end": 445,
+          "text": "        var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order!.OrderId).Select(d => d.Id).FirstAsync());\n        await _client.PostAsJsonAsync($\"/api/delivery/{deliveryId}/ready\", new MarkDeliveryReadyRequest(deliveryId, _managerId, null, null));\n        var driver = await (await _client.PostAsJsonAsync(\"/api/delivery/drivers\", new CreateDriverRequest($\"req-{Guid.NewGuid():N}\", \"سائق\", _managerId))).Content.ReadFromJsonAsync<DriverDto>();\n        await _client.PostAsJsonAsync($\"/api/delivery/{deliveryId}/assign\", new AssignDeliveryRequest($\"req-{Guid.NewGuid():N}\", deliveryId, driver!.Id, _managerId, null, null));\n        await _client.PostAsJsonAsync($\"/api/delivery/{deliveryId}/result\", new RecordDeliveryResultRequest($\"req-{Guid.NewGuid():N}\", deliveryId, \"Delivered\", null, null, null, _managerId, null, null));\n\n        var report = await (await _client.GetAsync($\"/api/reports/delivery-outcomes?actorUserId={_managerId}\")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();\n        Assert.Equal(1, report!.DeliveredCount);\n        Assert.Equal(1, report.UnsettledCustodyCount); // delivered but not yet settled\n        Assert.Equal(16000, report.UnsettledCustodyExpectedPiastres); // 15000 product + 1000 delivery fee, cash-on-delivery\n\n        // Ported from deliveryReport's settledCashPiastres/shortages/overages/trips (here:\n        // SettlementCount, since this per-order model has no separate \"trip\" concept) - a real gap\n        // found during the legacy-parity audit.\n        await _client.PostAsJsonAsync($\"/api/delivery/drivers/{driver!.Id}/settle\",\n            new SettleDriverCustodyRequest($\"req-{Guid.NewGuid():N}\", driver.Id, 16000, null, _managerId, null, null));\n\n        var afterSettle = await (await _client.GetAsync($\"/api/reports/delivery-outcomes?actorUserId={_managerId}\")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();\n        Assert.Equal(0, afterSettle!.UnsettledCustodyCount);\n        Assert.Equal(1, afterSettle.SettlementCount);\n        Assert.Equal(16000, afterSettle.SettledCashPiastres);\n        Assert.Equal(0, afterSettle.ShortagesPiastres);"
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "worktree_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "source_git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "line_ranges": [
+        [
+          218,
+          229
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a129838f4c6ade039fe1fa38c69cd7bc86a7c4db39826939518377a50c722244",
+          "signature": "Falah.Server.IntegrationTests.DailyStatementVerticalSliceTests.Delivery_and_cod_custody_figures_match_the_dedicated_delivery_outcomes_report()",
+          "kind": "MethodDeclaration",
+          "span": [
+            202,
+            5,
+            227,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 218,
+          "end": 229,
+          "text": "        var driver = await (await _client.PostAsJsonAsync(\"/api/delivery/drivers\", new CreateDriverRequest($\"req-{Guid.NewGuid():N}\", \"سائق\", _managerId))).Content.ReadFromJsonAsync<DriverDto>();\n        await _client.PostAsJsonAsync($\"/api/delivery/{deliveryId}/assign\", new AssignDeliveryRequest($\"req-{Guid.NewGuid():N}\", deliveryId, driver!.Id, _managerId, null, null));\n        await _client.PostAsJsonAsync($\"/api/delivery/{deliveryId}/result\", new RecordDeliveryResultRequest($\"req-{Guid.NewGuid():N}\", deliveryId, \"Delivered\", null, null, null, _managerId, null, null));\n\n        var statement = await GetTodayAsync();\n        Assert.Equal(16000, statement.Sales.CashWithDriversPiastres); // still with the driver, not the restaurant\n        Assert.Equal(1, statement.Delivery.DeliveredCount);\n        Assert.Equal(1, statement.Delivery.UnsettledCustodyCount);\n        Assert.Equal(16000, statement.Delivery.UnsettledCustodyExpectedPiastres);\n    }\n\n    // ---- Pending electronic + cancelled-order exclusion (Sections 1/10 semantics) ----"
+        }
+      ]
+    }
+  ],
+  "independent_verification": {
+    "status": "SOURCE_CORROBORATED_BY_INDEPENDENT_FINANCIAL_AGENT",
+    "reviewer": "/root/financial_integrity_continuation",
+    "artifact": "Sub-Agents/Handoffs/financial-negative-variant-and-delivery-outcomes-independent-challenge-2026-10-21.json",
+    "scope": "Independent challenge of coordinator report path; same baseline sources, no runtime test."
+  },
+  "related_temporal_question": "The non-settled count/amount query is global current state while delivery outcomes and settlement totals are period-filtered. DailyStatement passes a date but labels the amount “now”. Whether a historical statement should show current outstanding custody or as-of-date custody remains a separate owner policy question.",
+  "counterevidence": [
+    "The application may intend this field to represent collected-but-unsettled cash; however the DTO explicitly says Expected, the existing integration assertion comments expected responsibility, and the owner dashboard uses ExpectedPiastres.",
+    "Existing reporting test checks the row only after full amount is collected, so Expected and Collected are equal in that test.",
+    "No API, SQL Server, or UI execution was performed; no current incident is known."
+  ],
+  "repair_specification": {
+    "recommended_direction": "Confirm report contract. Existing DTO name, owner dashboard, and test comments support ExpectedPiastres: if that is the intended meaning, sum c.ExpectedPiastres. If the intended metric is collected-but-unsettled, rename the DTO/display and retain/add a distinct expected-at-risk metric so the two values are not conflated.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "src/Falah.Application/Reports/ReportingDtos.cs",
+      "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml",
+      "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs"
+    ],
+    "tests": [
+      "Open assigned COD custody before Delivered: report count is one and expected amount equals responsibility; collected amount is zero.",
+      "Delivered with exact collection: expected and collected equal and both projections agree.",
+      "Delivered with approved shortage/overage: expected remains original responsibility while collected reflects actual; report fields follow chosen names/contract.",
+      "After settlement, unsettled count/amount falls to zero; settled-period totals remain date-filtered.",
+      "Historical DailyStatement queried before/after a later settlement: assert current-now versus as-of-date policy explicitly."
+    ],
+    "acceptance_criteria": [
+      "DTO field name and source aggregate express the same amount.",
+      "Owner dashboard and delivery report agree for the same non-settled custody cohort when they claim to show expected custody.",
+      "In-transit and variance cases are covered by tests; no real printer or financial operation is needed.",
+      "Historical statement temporal semantics are documented separately.",
+      "Before delivery, delivery report and owner dashboard agree on expected cash responsibility for the same open custody cohort while collected remains zero."
+    ],
+    "risks": "Renaming DTO fields is a client wire-contract change. Switching to Expected may change displayed amount for in-transit and variance cases but does not alter ledger rows or driver settlement.",
+    "required_regression_tests": [
+      "Assigned, open COD custody before delivery: query the same unsettled cohort through the delivery report and owner dashboard; assert both expected-at-risk amounts equal the original cash responsibility, collected is zero, and counts agree.",
+      "Approved variance cross-view case: expected-at-risk remains the original responsibility in both projections while collected reflects the actual driver collection; assert the chosen field names and values explicitly."
+    ]
+  },
+  "runtime_status": "NOT_EXECUTED; static source review only",
+  "tests_executed": [],
+  "source_paths": 11,
+  "reviewed_callable_ids": [
+    "sym-0de81067c81b1898c4a0969a535f49d781a3c109be557e1d43eb47948f8de8e0",
+    "sym-20e2a73676327e056a16920a30b0f841092594c2913f585b7c560d802c64c0c4",
+    "sym-21b13272c77ed156008a1bae9861754b5c6aec46ada2a4505417aa31705c09d8",
+    "sym-239e8ffcc67e55745771a06cfc5ef6a2a467f77bd0357b3b12c4678198d0ed36",
+    "sym-2938b0a8bffccbed8cdf6fa0ffc3aad394cd5257b8f692a4ae162d5e9d325231",
+    "sym-3163bc888e4c4a97c6961969a8d6486841e48345dfc1703eafaf68004e2572ed",
+    "sym-31b9bde080a95781916ec11365be3a07478671b2964a43f3a781b62c3df9f9cd",
+    "sym-4657a9ed80131b7733cba4964b391e97a99fff9187300ac76b9c3a9c7ae6c3b0",
+    "sym-5039e9f06bea168d492ed51b929f621aaee4ce52bbeabcb5477562265fff9320",
+    "sym-5275c3e2462e5d1b0fad87671cb4c0c003a235e46967d16742247212a48e1a77",
+    "sym-54995c55600844aa1fe52f477da4efd26fd55d9340dc97f67a6f5ffef1d5a3ec",
+    "sym-5cb52eaea7b4d695c2df02c8651f07abfeeb591167523f8590210945beb21007",
+    "sym-5f3ac34b8a49ac7b429847fea260d3a1d24bdcf8bbce2a8be86b28cea611ad40",
+    "sym-6d2976a96c9cdbffd7a54b4f70860c4346dbd6c6619e8cc1b188f1ca67352a43",
+    "sym-7f74270bff495f8f65e9922bb01272134643b7a32d671e48a8e6176fa074dcf7",
+    "sym-827f6febb29914598f0a3e8ca95d4698cd4992c16593ab80496d3457d6fdc48e",
+    "sym-8898bbcd1cb127507ff903fbacd1a383c61c3ad45e9329134419f6375ee5461f",
+    "sym-88da3ea301f1946d6d445104abb91f91857b643aea239199e1d0900011854da8",
+    "sym-944ad288b4dd0efc8daff84933ffa25e37d27cf3c837657f6fd0e161fe1613f7",
+    "sym-9540f190ed8ec51dddcb8e596c3029dfb065f06440dbe67f31e1c1ef20c7f4de",
+    "sym-9556226ff7276197323a1361dc33865c0b2b8ddac3d71db0edca3cb60434d7e7",
+    "sym-a129838f4c6ade039fe1fa38c69cd7bc86a7c4db39826939518377a50c722244",
+    "sym-a927df96046d6df8eb9d12678fc2a6d3165efc0ea8d1ffe1277af6a84873e6d5",
+    "sym-ab572a32f4e1f4fc9643fd4c9339a38806dbca0ff3070833c750730e51a1388e",
+    "sym-b40a321c7393ad663a99706174c658f9e116f9b4da2945af1bdac6af62098c40",
+    "sym-b40c2907bddbcd729114c8d0b0d899e0ac88aee67027721e22447a984c7816bc",
+    "sym-b5495cf972113cbe33e0439f17133ebea50d2f771195dc3dd55ff34d35e69bf0",
+    "sym-b63c143cb293a46ee5716dc9bddadfe9bda83d24deffd404cfbee7afe72372d8",
+    "sym-b70433bb1a6206d93fe47e1245a429a3ba307f04ee5fde7f15f458b270a4d20f",
+    "sym-bca6ac22a389d1362e555eae33a8be48decb76d5db3c0dd5983e285ff5fa0018",
+    "sym-c1a1b1d9532a09a0115625158a9837c264e05242b57b0f868530775adb3bacd5",
+    "sym-d1d927d16332c4726eedb2ea9878d274606998f7df38fc07c4a7381b56ca843f",
+    "sym-d1ff5a95d1da73c32d115e3ab55f39a9e2aaf7dc0dc0636e133c438519af3fc7",
+    "sym-e174f55c821c6454c6e219f3dc6e31b0a074e407a25ff1e013b4ea0a99854da2",
+    "sym-e28d09091cff989a0741415533575e575081476304d9570ef22e43354135b6d9",
+    "sym-e834300bc5b9f199da595baa54902c23696f6d333c56ea3945a505dee37fce47",
+    "sym-ec3c2705a7228847093736e8d9c9852c43dd3590ce197718e7d9631a45d879bd",
+    "sym-ed9be78b8cba61f75cf76cdf9f471e32f403e340fc182d8cf8bb0cb1ae876948",
+    "sym-ee328e92de0ccaa197e6b26dd0742965a52f9fd8b9c1dfb52da056e0410c3f96",
+    "sym-f63c8df28a6ab317e690f74facf5cfc18d42d3af3f828a0412c980aad6280815",
+    "sym-fb8e4d6e80b28715ac10121de122e033a680bf08f609b01f9d550325e7cd94d7",
+    "sym-fc8c6e9eb3e0ac33a511aca7d5ad44a50b410c979abb208853b3ada629437eed",
+    "sym-ff0dba80dd805fc20fe07d4031ffec9fe8c75b19e3c7df91c3aed61dc2112aaf",
+    "sym-ff8d1d39ad21f1e73a68e8ee570bbda0d6a57e2ce6c9945a46454ed0551cee3f"
+  ]
+}

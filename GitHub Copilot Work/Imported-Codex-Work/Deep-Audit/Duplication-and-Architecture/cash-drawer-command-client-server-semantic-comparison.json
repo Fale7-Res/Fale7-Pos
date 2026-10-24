@@ -1,0 +1,299 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-037",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T07:48:16Z",
+  "scope": "Bounded trace of cash-drawer-open command across the active WinUI caller, two clients’ API wrappers, shared server command/result handlers and current vertical-slice tests. Search found the Call Center wrapper declaration but no usage; no actual hardware command was executed.",
+  "decision": "The Cashier WinUI workflow constructs and submits the open request, resolves manager approval as needed, retains the same request across an unknown API outcome, and advances its request ID only after a determinate success. The Call Center API repeats the same typed endpoint wrapper but no call site was found; no second drawer-opening UI implementation was identified. Server OpenCashDrawerHandler checks reason, persisted user, open shift and cash_drawer authorization, then writes a Requested command and audit event; it intentionally posts no treasury movement. ReportCashDrawerResultHandler records a later hardware agent result. Existing tests assert no treasury write, same-key replay, and status-only failed result. Thus wrapper repetition is transport boilerplate and no duplicate money-moving implementation exists. Cashier-machine-only use is described as an architectural boundary, but no device identity is in the request contract; whether server-side machine restriction is required remains an owner/security-policy question outside this bounded mirror disposition. Physical hardware integration and dispatch are expressly not runtime-verified.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+      "worktree_sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+      "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+      "line_ranges": [
+        [
+          184,
+          215
+        ],
+        [
+          410,
+          426
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3fc0c681bda25901ec89d63cafdc5f74914a5aabcee2ea0c9c0fded217f768b6",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitCashDrawerAsync()",
+          "span": [
+            184,
+            5,
+            215,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6475b1b50a5ac148748741633f1550ab050061c1bf1db684372cef51a2777656",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteCashDrawerAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest)",
+          "span": [
+            410,
+            5,
+            426,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          697,
+          700
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-35761f0922ca0129c156451f8c621fd3223aaa2ce134337c70910668e3c36b17",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.OpenCashDrawerAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+          "span": [
+            697,
+            5,
+            700,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+      "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+      "line_ranges": [
+        [
+          219,
+          222
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-047fb8c176024edbaaa245efd1d917c6e6dae544f0b341f9cbdddd08f868d803",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.OpenCashDrawerAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+          "span": [
+            219,
+            5,
+            222,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs",
+      "worktree_sha256": "e894c1a9e72507c94ebfc8406bd8168753b460ab29aa5234dd345ec74eadf993",
+      "source_git_blob_sha256": "e894c1a9e72507c94ebfc8406bd8168753b460ab29aa5234dd345ec74eadf993",
+      "line_ranges": [
+        [
+          31,
+          82
+        ],
+        [
+          84,
+          85
+        ],
+        [
+          96,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9b36353687b4ac2479e29b8ffec5e2d129c16799eed5fc917fe14b50d98df967",
+          "signature": "Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.HandleAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+          "span": [
+            31,
+            5,
+            82,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c632f07174798a7956ca70ff39f4e7108e85d71295ed9bad55e975b27bca2c62",
+          "signature": "Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.ToDto(Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity)",
+          "span": [
+            84,
+            5,
+            85,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-fe45f0bcd6ab3f5c74f21b45226e301bc5dc85b347c8e6a087356bed32fb7a7e",
+          "signature": "Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.HandleAsync(Falah.Application.CashDrawer.ReportCashDrawerResultRequest, CancellationToken)",
+          "span": [
+            96,
+            5,
+            109,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/CashDrawer/CashDrawerRequests.cs",
+      "worktree_sha256": "2017b7d096025be994e729fd69cf9446b30775b4aabaafa99b965bc49c08b157",
+      "source_git_blob_sha256": "2017b7d096025be994e729fd69cf9446b30775b4aabaafa99b965bc49c08b157",
+      "line_ranges": [
+        [
+          10,
+          10
+        ],
+        [
+          12,
+          12
+        ],
+        [
+          17,
+          17
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a9329adea73f612e59c5d11c6752e8e7ee3fcf12a59d767832adc87c8e0b4be5",
+          "signature": "Falah.Application.CashDrawer.OpenCashDrawerRequest",
+          "span": [
+            10,
+            1,
+            10,
+            171
+          ]
+        },
+        {
+          "stable_id": "sym-9499937e2e8ceb41b5f2306cf7187768ca97d9489d73dfc694abb237642fe2fe",
+          "signature": "Falah.Application.CashDrawer.CashDrawerOpenDto",
+          "span": [
+            12,
+            1,
+            12,
+            187
+          ]
+        },
+        {
+          "stable_id": "sym-43825783abe2730e3b84745d0b917f80c3a655e47cd9d71a0c8d9190e475e086",
+          "signature": "Falah.Application.CashDrawer.ReportCashDrawerResultRequest",
+          "span": [
+            17,
+            1,
+            17,
+            133
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs",
+      "worktree_sha256": "797fdff97b6cd2c97100fbdfed9303f727be98bcd2ca7b6d3ca00c91ca213d3e",
+      "source_git_blob_sha256": "2c7d0c917c8b7ff056bf28c8ab442d64751ac3bd78b8041ed285b2fff677fc66",
+      "line_ranges": [
+        [
+          51,
+          59
+        ],
+        [
+          90,
+          101
+        ],
+        [
+          127,
+          141
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6b435ef921fbbc5f922677731901a1ce5c980bdc84eaaf3da412ca748de59240",
+          "signature": "Falah.Server.IntegrationTests.CashDrawerVerticalSliceTests.Opening_the_drawer_posts_no_treasury_movement_at_all()",
+          "span": [
+            51,
+            5,
+            59,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d85158447c63a04a224162a4cd5f3eb583929884fb11e9604216cca24ce205fd",
+          "signature": "Falah.Server.IntegrationTests.CashDrawerVerticalSliceTests.Retrying_the_same_open_request_id_replays_not_duplicates()",
+          "span": [
+            90,
+            5,
+            101,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-651c9323525e3f2a3fa9cb8403549f237494dbf7a93357f62b0c1febdd2547b0",
+          "signature": "Falah.Server.IntegrationTests.CashDrawerVerticalSliceTests.Reporting_a_failed_open_records_the_error_without_touching_anything_financial()",
+          "span": [
+            127,
+            5,
+            141,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          1673,
+          1709
+        ]
+      ],
+      "relevant_symbols": [],
+      "note": "Top-level Minimal API statements; source symbol inventory emits no callable IDs for these route declarations."
+    }
+  ],
+  "manual_reasoning": [
+    {
+      "question": "Are there multiple active drawer-open implementations with different business behavior?",
+      "result": "Tracked-source search found the Cashier WinUI SubmitCashDrawerAsync caller and Call Center OpenCashDrawerAsync wrapper declaration; no Call Center invocation was found. The legacy WPF cashier has no OpenCashDrawerRequest submission. Both typed wrappers target the same endpoint; money-moving/business behavior remains in one server handler."
+    },
+    {
+      "question": "Does opening the drawer alter financial truth?",
+      "result": "Handler creates CashDrawerOpenEntity and audit warning but no TreasuryMovement. Dedicated integration test explicitly counts movements before/after and expects no change. Failure-result test likewise checks no financial write. No actual physical command was sent."
+    },
+    {
+      "question": "How is retry behavior represented?",
+      "result": "WinUI CompleteCashDrawerAsync stores the exact request in _pendingCashDrawer while result is unresolved, retries it, and mints a new request ID after success. Server derives row ID from RequestId and returns existing row; integration test asserts same-key replay creates one command row."
+    },
+    {
+      "question": "Does source establish machine-only enforcement?",
+      "result": "DTO and handler identify actor/user and shift, while comments say this is cashier-machine-only by architecture and that no per-machine identity exists to enforce it. This comparison cannot treat that UI/deployment boundary as server authorization; whether owner requires enforcement is unresolved and belongs in separate security/deployment review."
+    }
+  ],
+  "counterevidence": [
+    "One server handler owns command persistence; both API methods are thin wrappers.",
+    "Tests specifically verify no treasury movement and idempotent command-row replay.",
+    "The code explicitly separates requested status from later reported physical success; it does not claim a requested record proves hardware opened."
+  ],
+  "recommendation": "Keep the cash-drawer command separate from treasury accounting and preserve same-request retry semantics. Retain one server command implementation. If physical-device authorization is a requirement, define a device identity/trust model in a separate security review before implementing any guard. Test physical activation only on approved isolated hardware; none was run here.",
+  "required_regression_tests": [
+    "Same request ID produces one command row under retry/concurrency.",
+    "Request rows and success/failure reports never alter treasury/order/payment records.",
+    "Unknown API result retries the same request ID; determinate success rotates it.",
+    "If device binding is required, unauthorized non-cashier-machine client is rejected using an authenticated device identity (owner decision required)."
+  ],
+  "limitations": [
+    "No physical hardware or device agent exists in this tested execution context; no print/drawer operation was sent.",
+    "No runtime tests were executed in this audit batch; existing test source was inspected only.",
+    "Absence of Call Center/WPF call site is limited to tracked source text search.",
+    "Machine identity policy is not established by this mirror comparison."
+  ]
+}

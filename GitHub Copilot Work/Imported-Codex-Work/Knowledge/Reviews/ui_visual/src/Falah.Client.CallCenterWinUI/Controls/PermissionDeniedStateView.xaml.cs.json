@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Controls/PermissionDeniedStateView.xaml.cs",
+  "source_git_blob_sha256": "5c25986077eee8621869212367667a8c7adfe2a4e9f681a80d8b69a185538a3b",
+  "worktree_sha256": "5c25986077eee8621869212367667a8c7adfe2a4e9f681a80d8b69a185538a3b",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:38:41.166822+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Reusable CallCenter PermissionDeniedStateView dependency properties and explicit visual/event callbacks individually reconciled; no native interaction.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Controls/PermissionDeniedStateView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-d97896dbeb96fd57b9352b61dd4195e14de0ba3a8e2d111c4386486a1b5a5de5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Controls.PermissionDeniedStateView.PermissionDeniedStateView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        8,
+        5,
+        11,
+        6
+      ],
+      "reasoning": "Only initializes static permission-denied XAML; displaying this view is explanatory UI, while actual authorization must remain enforced by server and owning navigation.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Do not infer endpoint permission enforcement from this visual component.",
+      "tests_missing": "Do not infer endpoint permission enforcement from this visual component. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

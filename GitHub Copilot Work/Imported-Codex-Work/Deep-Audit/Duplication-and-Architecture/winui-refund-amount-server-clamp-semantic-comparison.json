@@ -1,0 +1,339 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-070",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:56:55.519Z",
+  "reviewer": "root coordinator",
+  "title": "WinUI refund amount preflight versus authoritative server clamp and ledger effects",
+  "scope": "Bounded semantic comparison of active Cashier WinUI refund form/request construction against RefundOrderHandler, RefundRules, Order.ApplyRefund, refund API route, and refund integration-test source. The prior WPF/WinUI comparison covers uncertain request retry lifecycle; this comparison focuses on amount validation, authorization, remaining balance, and effects.",
+  "decision": "The client rejects nonpositive amounts and values above its displayed remaining refundable balance, while the server independently clamps any requested amount to the remaining amount and rejects a resulting zero. This is a deliberate permissive server boundary rather than an over-refund path: order locking, aggregate invariants, protected source-account balance, transaction, immutable refund record and treasury movement constrain effects. Existing tests explicitly cover server clamp, same-key replay and concurrent distinct refunds without aggregate overdraw. No new divergence or finding was confirmed. Tests were read, not run.",
+  "behavior": {
+    "client": "OpenRefund initializes amount to total minus prior RefundAmount. SubmitRefundAsync rejects parse failure, amount <= 0 or amount greater than displayed remaining; it resolves orders_refund approval, creates a request, and retains the exact pending request on ambiguous outcome for same-ID retry during ViewModel lifetime.",
+    "server": "RefundOrderHandler derives idempotency key, replays existing refund, authorizes orders_refund or manager approval, locks order, computes remaining and clamps requested amount. It rejects zero after clamp, verifies protected source-account balance, assigns operational shift policy, applies aggregate guard, appends refund+treasury movement+audit in one transaction, then commits.",
+    "domain": "RefundableRemaining floors negative remainder at zero; ClampRefundAmount floors negative requested/remaining values at zero and caps above-remaining requests; Order.ApplyRefund rejects cancelled/multi orders, zero/negative amount or amount above remainder and sets Refunded only when fully exhausted.",
+    "tests": "Source tests cover full/partial refunds, over-remaining clamp, same-key idempotent sequential replay, same-key concurrency, distinct-key same-order overdraw protection, authorization rejection and multi-payment rejection. These are source assertions only; no tests executed in this task."
+  },
+  "counterevidence_and_limits": [
+    "Client/server amount behavior differs intentionally in strictness: client provides preflight UX, server clamps rather than rejecting excessive positive requests; this remains bounded by actual remaining amount.",
+    "Tests are integration-test source using the project test host; they do not establish deployed SQL Server lock/transaction behavior in the live restaurant environment.",
+    "The prior WPF/WinUI retry comparison records WPF new-ID retries and WinUI in-memory pending request semantics; this artifact does not repeat its transport lifecycle findings.",
+    "No live endpoint, actual refund, user account, database or treasury operation was executed."
+  ],
+  "recommendation": "Keep current client preflight and server-side clamp/aggregate/balance checks aligned with the documented refund contract. If owners prefer rejection rather than clamping, change server and client behavior together and update operator feedback; preserve non-over-refund, protected-source-account and idempotency invariants. Add/retain tests for exact remaining, over-remaining clamp/reject policy, zero/negative, authorization, insufficient account balance, same-key payload mismatch, process-loss recovery, and concurrent distinct-key attempts; execute database-backed tests against the supported SQL Server provider before any repair is accepted.",
+  "required_tests": [
+    "UI request test rejects nonpositive and over-displayed-remaining values and sends selected amount/reason/approval fields.",
+    "Server tests establish expected clamp-versus-reject contract and verify a clamped amount is the amount in both OrderRefund and treasury movement.",
+    "No writes occur for zero/negative, missing authorization, multi-payment, or protected source-account insufficiency.",
+    "Same-key replay, payload mismatch, process restart and concurrent distinct-ID refunds preserve idempotency and total-refund limits under SQL Server."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "worktree_sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a",
+      "source_git_blob_sha256": "b6427c10ddcf4e6307ead2d5f77b7bd306811e1a5c30ca9009274ff7c9037e96",
+      "line_ranges": [
+        [
+          75,
+          121
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a0e4ad66cf3e74e2b5cf4ce0333694529f9a9ea315b41b4a45c2e9c61cc5decd",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenRefund()",
+          "kind": "MethodDeclaration",
+          "span": [
+            75,
+            5,
+            80,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ddd226e6103a40ff38653e365c9a8e91d31d41422d2e08b2245bcc7b449e19e8",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitRefundAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            87,
+            5,
+            109,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-23a8a6e2023370c65fa2d80abc93a7d6bfd21de8722e08093dc7b2c53bf02de8",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteRefundAsync(Falah.Application.Orders.RefundOrderRequest, bool)",
+          "kind": "MethodDeclaration",
+          "span": [
+            110,
+            5,
+            122,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "src/Falah.Application/Orders/RefundOrderRequest.cs",
+      "worktree_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+      "source_git_blob_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+      "line_ranges": [
+        [
+          3,
+          19
+        ]
+      ],
+      "relevant_symbols": [],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "worktree_sha256": "ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085",
+      "source_git_blob_sha256": "c55ddefabc347194bc60b7907229bbcd0c0494fceb5b691115351c65ad1f3a7b",
+      "line_ranges": [
+        [
+          45,
+          135
+        ],
+        [
+          141,
+          165
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-94e0b0a6b61d82d55f776e03860869d9482ed2f56a4176a0ec53c8735a4d0517",
+          "signature": "Falah.Infrastructure.Orders.RefundOrderHandler.HandleAsync(Falah.Application.Orders.RefundOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            45,
+            5,
+            152,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "src/Falah.Domain/Orders/RefundRules.cs",
+      "worktree_sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9",
+      "source_git_blob_sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9",
+      "line_ranges": [
+        [
+          9,
+          20
+        ],
+        [
+          34,
+          42
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1fa7e6ef5af36de3690e6714a63cca628b5062492134016dc0e9073318528ba0",
+          "signature": "Falah.Domain.Orders.RefundRules.RefundableRemaining(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            9,
+            5,
+            13,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-402278e3a689955b1eb4946f3073ee0aa5764185cd42070e60fac50d06b511d4",
+          "signature": "Falah.Domain.Orders.RefundRules.ClampRefundAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            15,
+            5,
+            20,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b81a8ef3422036edfe0a2132176acc2d4840fc6c31a789e6967aa79c40be4e64",
+          "signature": "Falah.Domain.Orders.RefundRules.ResolveOperationalShift(string, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Financial.PaymentMethod)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            42,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "line_ranges": [
+        [
+          220,
+          232
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b90e1805757f7674b897ad8aa3ea2233c933d06f04534c70530022d4d1107f12",
+          "signature": "Falah.Domain.Orders.Order.ApplyRefund(Falah.Domain.Orders.OrderRefund)",
+          "kind": "MethodDeclaration",
+          "span": [
+            220,
+            5,
+            232,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          1395,
+          1414
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc0e464231bf0f3e28e65acd45b5eaceb7d73de85b0ba7872ec37afad3e7e5b8",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            1395,
+            35,
+            1414,
+            2
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+      "worktree_sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+      "source_git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+      "line_ranges": [
+        [
+          53,
+          92
+        ],
+        [
+          96,
+          150
+        ],
+        [
+          154,
+          181
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6e167d880bb3020c418f5378bf7d0b3aba3e4c0101a1f4d3818262bec07cd4fb",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_full_refund_marks_the_order_refunded_and_posts_exactly_one_movement()",
+          "kind": "MethodDeclaration",
+          "span": [
+            52,
+            5,
+            66,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9988d58c00aa7a9b3c6121ba8cd8d8a2e24d12ebe9974cc21b0fc4308f92842c",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_partial_refund_keeps_the_order_completed_and_tracks_what_remains()",
+          "kind": "MethodDeclaration",
+          "span": [
+            68,
+            5,
+            78,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-14b05e6029018770f312b06d0e331f4a698b6c8cd9d334ea4ef938521d9fe527",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_refund_request_larger_than_what_remains_is_clamped_not_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            80,
+            5,
+            93,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b7ff5d9048c9ab77029bdf5e2e7c5b6042ee0d6a4a2c527db567e92874e7072a",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.Retrying_the_exact_same_refund_request_sequentially_never_creates_a_second_movement()",
+          "kind": "MethodDeclaration",
+          "span": [
+            95,
+            5,
+            111,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c9cf9c46767feaed23f43e557d1264462cf0677df7920f8e429f813a4dc805d0",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.Concurrent_refund_requests_with_the_same_idempotency_key_race_to_exactly_one_refund()",
+          "kind": "MethodDeclaration",
+          "span": [
+            113,
+            5,
+            128,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5c5003b5ed991a4dd838ab1d7003743cfc1c0d3579d4ebba9ba7d97cd0947e9f",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.Concurrent_refunds_for_different_amounts_on_the_same_order_never_overdraw_the_order_total()",
+          "kind": "MethodDeclaration",
+          "span": [
+            130,
+            5,
+            151,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-caccd3c29b723647858859d8324053476ccdb3b130aa3af6603e9c48caf6c8e6",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.Refund_without_permission_or_approval_is_rejected_and_nothing_is_written()",
+          "kind": "MethodDeclaration",
+          "span": [
+            153,
+            5,
+            165,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e11b3af6200fab76ccbce62bf7ee28dcebdfc33150c2cb686db54ce73fd06517",
+          "signature": "Falah.Server.IntegrationTests.RefundVerticalSliceTests.A_multi_payment_order_cannot_be_refunded_through_this_path()",
+          "kind": "MethodDeclaration",
+          "span": [
+            167,
+            5,
+            181,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "worktree hash matches source-symbol index"
+    }
+  ],
+  "runtime_status": "NOT_EXECUTED; static source and test review only",
+  "limitations": [
+    "Current source-level client and server behavior is bounded to amount and transaction semantics.",
+    "Concurrent refund test assertions were not executed and should not be treated as runtime verification.",
+    "CashierWinUI is the active source path in this comparison; legacy WPF deployment status remains unknown and its retry lifecycle is documented in the earlier comparison."
+  ],
+  "related_comparison": "Deep-Audit/Duplication-and-Architecture/wpf-winui-refund-ambiguous-retry-semantic-comparison.json",
+  "canonical_findings": "No new finding; related existing refund/cash-custody and idempotency findings, if applicable, remain the canonical records."
+}

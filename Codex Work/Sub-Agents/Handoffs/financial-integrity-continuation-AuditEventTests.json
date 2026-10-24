@@ -1,0 +1,65 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:57:49.2730156Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/AuditEventTests.cs",
+  "symbol_count": 4,
+  "symbols": [
+    {
+      "stable_id": "sym-ef0d982b31ed271ff11288b871b3d5e63b096dcd1a61e3eb59ab0442c9eee3fc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuditEventTests.Every_reference_app_severity_value_is_accepted(string)",
+      "span": [
+        9,
+        5,
+        17,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a296dd01f4ab492e907e310c71efbd7daac4f9a34d21716a37a2c8868f9d22ee",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuditEventTests.An_unknown_severity_is_rejected()",
+      "span": [
+        19,
+        5,
+        23,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-4d81dfa181978b9c6e428bda09f929fbee916c1f223324f32194c26646cebf86",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        22,
+        40,
+        22,
+        92
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-60159390abee0498834954eb5c50a9d3280429b24e1355fc77f9448fcb7aa779",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuditEventTests.Appending_to_the_in_memory_log_makes_it_readable_back_for_tests()",
+      "span": [
+        25,
+        5,
+        33,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static inspection of the test source only: verifies accepted severity strings and rejection of an unknown severity, plus append/readback behavior of InMemoryAuditLog. Does not exercise persistent audit storage, transactions, or audit/finance operation rollback. No test executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/4 exact IDs present",
+    "financial_coordinator": "/4 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

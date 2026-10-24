@@ -1,0 +1,33 @@
+{
+  "artifact_kind": "financial_callable_independent_challenge",
+  "at_utc": "2026-10-24T13:18:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "callable": {
+    "stable_id": "sym-8719cc9ed97b8fd6f6cf0036f03f556504a686e5dc6c2ab50d660eb77d46b593",
+    "signature": "Falah.Domain.Payroll.PayrollRules.PayrollReport(IEnumerable<(Money Base, Money Overtime, Money ExtraShifts, Money Bonuses, Money NetPayable, bool IsPaid)>)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      116,
+      125
+    ],
+    "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "agent_handoff": "Sub-Agents/Handoffs/financial-payroll-report-helper-quality-review-2026-10-24.json",
+  "checks": {
+    "source_hash": true,
+    "receipt_hash": true,
+    "symbol_index_span": true,
+    "relevant_reference_hashes_ranges": true,
+    "repo_call_search": "rg PayrollReport( in src/tests found only declaration; no call site",
+    "tests_read_not_run": true,
+    "errors": []
+  },
+  "verified_semantics": {
+    "earned": "Gross components Base+Overtime+ExtraShifts+Bonuses, independent of IsPaid.",
+    "paid": "NetPayable when IsPaid true.",
+    "outstanding": "NetPayable when IsPaid false.",
+    "limitations": "No zero floor, explicit checked-overflow guard, runtime test, production/test caller or IsPaid provenance. No current finding supported."
+  },
+  "recommendation": "If the helper is wired into a report, use net values and deliberate status mapping; test gross/net distinction, mixed paid/unpaid rows and monetary bounds.",
+  "scope": "Callable helper semantics verified; lack of callers prevents asserting operational impact."
+}

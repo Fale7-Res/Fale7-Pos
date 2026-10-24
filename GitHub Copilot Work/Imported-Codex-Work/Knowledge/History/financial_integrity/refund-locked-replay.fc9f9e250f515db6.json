@@ -1,0 +1,52 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "at_utc": "2026-10-20T03:02:25.869Z",
+  "candidate_key": "REFUND_LOCKED_STATE_REPLAY_RECHECK_GAP",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_ACKNOWLEDGEMENT_ONLY",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "worktree_sha256": "ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085",
+      "git_blob_sha256": "c55ddefabc347194bc60b7907229bbcd0c0494fceb5b691115351c65ad1f3a7b"
+    },
+    {
+      "path": "src/Falah.Domain/Orders/RefundRules.cs",
+      "worktree_sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9",
+      "git_blob_sha256": "10bf926d5ad29fcc2d25b98ce32e523ae76769ae077bbd0d659b59443501feb9"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+      "worktree_sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+      "git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04"
+    }
+  ],
+  "method": "Actual narrow refund control flow/domain helper plus concurrent-test source read. No fixtures/tests/SQL/HTTP/UI execution, no author coverage increment.",
+  "preconditions": [
+    "Two legitimate identical RefundRequestId and OrderId requests overlap. Actor has own orders_refund to avoid separate consumed-approval issue.",
+    "A requests complete remaining amount and commits while B already saw no receipt at initial lookup49 but has not loaded current parent under lock60.",
+    "Sufficient pooled source balance and valid refund state/shift allow A to succeed; no uncollected-order entitlement scenario required."
+  ],
+  "trace": [
+    "B key lookup49-50 finds no row before A persists, then request can pause before transaction or parent query.",
+    "A writes full refund, cumulative amount=total, refund receipt and treasury movement, commits130-131.",
+    "B then loads fresh parent with order lock59-63 and included refunds; it never rechecks same refund key after this admission boundary.",
+    "RefundRules9-20 computes refundable0 and clamps same positive request to0; Handler83 throws DomainException before another fact/movement is staged.",
+    "Catch137-150 handles DbUpdate/Concurrency/lock contention, not this DomainException; B receives failure despite durable samekey success.",
+    "A later new request using same key reaches early49 receipt and succeeds as replay."
+  ],
+  "counterevidence": [
+    "Money remains protected by order lock/refund cap and unique key. This is not duplicate payout or over-refund.",
+    "Partial samekey refund can proceed far enough to hit unique conflict and replay instead; current concurrent test116-127 uses8000 of20000, so it is a useful control but does not exhaust remaining.",
+    "Normal sequential replay after prior commit works. A repeated UI retry can recover, unlike FIN028 same-spent-approval loop; permanent loss/deadlock not claimed.",
+    "Provider schedule not executed. Source interleaving does not require assuming a second successful conflicting commit; B may simply delay its initial parent load until A committed."
+  ],
+  "severity_assessment": "Acknowledgement/recoverability issue only; LOW to MEDIUM depending operational error/retry contract. No direct extra money-loss impact established; parent decides calibrated severity.",
+  "dedup_assessment": "Related idempotent recovery family to FIN028 but different admission boundary/countercontrol: own permission and full-refund state exhaustion, subsequent retry works. Existing FIN003 entitlement/FIN004 attribution are different. No new ID assigned by specialist.",
+  "correction_design": "After acquiring original order lock, recheck durable refund receipt for same request key before refundable-state rejection; retain intended actor/order/payload binding policy and current-result versus original-response contract. Do not weaken cap/funds/authorization or broaden catch to treat unrelated DomainException as success.",
+  "tests_missing": [
+    "Controlled full-amount same-key overlap: B initial missing receipt, A commit, B admission must return same persisted refund and no second fact.",
+    "Retain partial current concurrency test, distinct-key cap/overrefund and sequential replay tests.",
+    "Different key or mismatched order must not falsely return unrelated prior receipt; failed A must not fabricate success."
+  ]
+}

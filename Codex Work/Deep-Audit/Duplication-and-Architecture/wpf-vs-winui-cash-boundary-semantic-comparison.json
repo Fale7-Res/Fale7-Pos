@@ -1,0 +1,295 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-023",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:23:00Z",
+  "scope": "Bounded comparison of the WPF cashier reference, current WinUI cashier, and duplicated Call Center cash-input helper for EGP/piastre boundaries in shift opening, refunds, and checkout.",
+  "decision": "The current WinUI cashier routes shift opening, refunds, tender and related money entry through CashInput.TryParse, which normalizes Arabic/Persian digits and Arabic decimal punctuation, rejects values above long piastre capacity, and rejects values with more than two effective decimal places. The WPF cashier reference instead parses decimal values directly and converts with (long)Math.Round(egp * 100m) in OpenShiftAsync, SubmitRefundAsync, and SubmitPaymentAsync. The WPF shift-opening and refund fields are free text boxes; no local precision or piastre-range guard appears before the checked decimal-to-long conversion. This is a source-confirmed behavioral divergence between the two cashier implementations. It creates a plausible input-validation/rounding/overflow risk for the WPF reference; operational impact is unverified because documentation describes WPF as a temporary reference while it remains a solution project and legacy-parity docs describe it as runnable.",
+  "finding_candidate": "FIN-CAND-WPF-CASH-BOUNDARY-DIVERGENCE-001",
+  "severity": "LOW_CANDIDATE",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+      "worktree_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+      "source_git_blob_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+      "line_ranges": [
+        [
+          7,
+          19
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2c7354f95736e0fc30eda26f59cab2db70b8f9dfd400f7605ac878b5c4996d68",
+          "signature": "Falah.Client.CashierWinUI.Services.CashInput.TryParse(string?, out long)",
+          "span": [
+            7,
+            5,
+            17,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0e781f88be37f6c6e7c3669feac2930517675213538fa7596a9365123b51223d",
+          "signature": "Falah.Client.CashierWinUI.Services.CashInput.Format(long)",
+          "span": [
+            19,
+            5,
+            19,
+            116
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs",
+      "worktree_sha256": "137baa022eb1e158ae5ab7ae1b6e986cfe2bcd96853c091fd9d5d1d101db7929",
+      "source_git_blob_sha256": "137baa022eb1e158ae5ab7ae1b6e986cfe2bcd96853c091fd9d5d1d101db7929",
+      "line_ranges": [
+        [
+          13,
+          49
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0bcfba27cbaf30d48baa2176ac90e99264681cce083ed914bed9b70d353c488c",
+          "signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.OpenShiftAsync()",
+          "span": [
+            13,
+            5,
+            49,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
+      "worktree_sha256": "9f41d9133ed49ccb2e8dff94a43e70dc525500836f7c6c6e8ada4912bc1861dd",
+      "source_git_blob_sha256": "9f41d9133ed49ccb2e8dff94a43e70dc525500836f7c6c6e8ada4912bc1861dd",
+      "line_ranges": [
+        [
+          66,
+          106
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a45c2b02060d48b97e9b65ccc87f511b36e1cb0e00b0bc668d245830614981a7",
+          "signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.SubmitRefundAsync()",
+          "span": [
+            66,
+            5,
+            106,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+      "worktree_sha256": "abe203792ef03f7e0562f6f1029dbaba99cda77914f7f220d16893b9dd2b9373",
+      "source_git_blob_sha256": "515219765f36ce15d4c0470c3f1272a191da27af2cc4508d8ce8bcaaec21bd33",
+      "line_ranges": [
+        [
+          82,
+          140
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9dd8d9e1a27d3b535c1c54f45da533bfbbe014924b0e4a9e8ff2cb728aff048d",
+          "signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.SubmitPaymentAsync()",
+          "span": [
+            82,
+            5,
+            140,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs",
+      "worktree_sha256": "fe92b9e4d8ea353aa57fb2a70c4a7948a5821376a246c055c6b7282d72929ac0",
+      "source_git_blob_sha256": "942d8dbf033357f7186def2e56f3871b14b273b7ca559738d1456cde829215e2",
+      "line_ranges": [
+        [
+          15,
+          43
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9605f4acfb5b89766bd0aa47a5ebd5639b921a37c13d339608c4e71afeb431f5",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()",
+          "span": [
+            14,
+            5,
+            43,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "worktree_sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a",
+      "source_git_blob_sha256": "b6427c10ddcf4e6307ead2d5f77b7bd306811e1a5c30ca9009274ff7c9037e96",
+      "line_ranges": [
+        [
+          87,
+          108
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ddd226e6103a40ff38653e365c9a8e91d31d41422d2e08b2245bcc7b449e19e8",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitRefundAsync()",
+          "span": [
+            87,
+            5,
+            109,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "line_ranges": [
+        [
+          23,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e4202acad35cfd0610601d90dda4f1d7b1e3673bc895752547848b1623fad352",
+          "signature": "Falah.Domain.Common.Money.FromEgp(decimal)",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+      "worktree_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+      "source_git_blob_sha256": "baf4b720fcdbf84824b6a2b4b3952be1b25fd4452b5661ef780dd7ca4415d59d",
+      "line_ranges": [
+        [
+          12,
+          22
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e42e4d96fb648494260ef2e82da1aa6c13dc49f77610d4e78e2d18c157317872",
+          "signature": "Falah.Client.Tests.CashierCorrectnessTests.Money_entry_preserves_piastre_units(string, long)",
+          "span": [
+            12,
+            5,
+            16,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-8a50cfd18fbc553bc0fca0411166088962426d15ea713ccf53fcfe3b6ac23f60",
+          "signature": "Falah.Client.Tests.CashierCorrectnessTests.Ambiguous_or_unrepresentable_money_is_rejected(string)",
+          "span": [
+            18,
+            5,
+            22,
+            59
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Views/CashierView.xaml",
+      "worktree_sha256": "1144993977b6f66a46a50bb5cb31d5ebc448756cd8a12d4579dee0d3e82ceaad",
+      "source_git_blob_sha256": "f4ad86f2f888998008880ff98facd4c9b027254296c1942b385b5c305649549c",
+      "line_ranges": [
+        [
+          21,
+          21
+        ],
+        [
+          450,
+          450
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs",
+      "worktree_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+      "source_git_blob_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+      "line_ranges": [
+        [
+          7,
+          19
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-98e06dae1402dbf99896541a516a6e924cbdfdca3336178f6979a46b926fa1fd",
+          "signature": "Falah.Client.CallCenterWinUI.Services.CashInput.TryParse(string?, out long)",
+          "span": [
+            7,
+            5,
+            17,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4e69b3ad9c7fb7149417d3996b05ae13c9ca922292c7845208c2c6b9b0754135",
+          "signature": "Falah.Client.CallCenterWinUI.Services.CashInput.Format(long)",
+          "span": [
+            19,
+            5,
+            19,
+            116
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "current_winui": "CashInput.TryParse normalizes Arabic and Persian digits and Arabic decimal separator, parses invariant decimal text, rejects negative values, values greater than long.MaxValue/100, and values that are not exactly representable to two decimals; successful conversion multiplies by 100 and casts to long. WinUI OpenShiftAsync and SubmitRefundAsync call this helper before constructing requests. The WinUI checkout change calculation also parses through the same helper.",
+    "wpf_reference": "WPF OpenShiftAsync and SubmitRefundAsync use decimal.TryParse with ambient culture and reject only parse failure or negative/nonpositive amounts. They multiply by 100 and call Math.Round without selecting MidpointRounding, then cast directly to long. The WPF refund and shift-opening XAML fields are editable TextBoxes. SubmitPaymentAsync uses the same conversion expression, although its displayed tender amount is normally manipulated through the numeric keypad; its exact reachable malformed-input surface was not established.",
+    "domain_contract": "Money.FromEgp explicitly uses MidpointRounding.AwayFromZero. Therefore half-piastre input such as 0.005 EG has different conversion semantics from the WPF default decimal Math.Round (ToEven), while current WinUI CashInput rejects this precision before conversion. The client comparison alone does not establish a posted accounting error: server-side request validation may reject a zero-rounded refund or out-of-range values.",
+    "tests": "CashierCorrectnessTests exercises CashInput localized digits, exact piastre conversion, and rejection of excess precision/unrepresentable input. Those assertions exercise the strict helper, not the WPF CashierViewModel methods. The test source was read only and was not executed. No equivalent WPF-specific input-boundary test was identified in this comparison.",
+    "counterevidence": "Project documentation describes Falah.Client.Cashier as a temporary WPF reference while Falah.Client.CashierWinUI is the current WinUI cashier. That reduces practical exposure if WPF is never deployed, but the WPF project remains in Falah.sln and docs/LEGACY_PARITY_MAP.md describes a WPF implementation that runs against the real server. No server handler was exercised, so whether server validation fully contains these client outcomes remains pending Financial Integrity review. The Call Center helper is a namespace-adjusted copy of the WinUI helper; no parser divergence exists between those two copies. ",
+    "impact_and_confidence": "Independent source challenge confirms the reachable input behavior: 10.005 EGP becomes 1000 piastres by default ToEven rounding, versus 1001 by Money.FromEgp AwayFromZero. This is a minor input correctness discrepancy, not a confirmed posted-loss or unauthorized-amount defect. Excessively large decimal values can overflow before the request and disrupt the UI command. Confidence high for behavior; low for business impact because the WPF client is a legacy reference and expected input precision is not defined.",
+    "limitations": "Independent static challenge completed; runtime and tests remain NOT_EXECUTED. No evidence establishes actual WPF deployment or prevalence of third-decimal entries.",
+    "independent_challenge": "Confirmed a reachable scale/rounding mismatch on these two cashier UI paths. Both accept any current-culture decimal and convert EGP*100 using Math.Round default ToEven; neither rejects more than two decimal places nor applies the max representable-piastres bound used by CashInput.TryParse. Money.FromEgp uses AwayFromZero. For a user-entered exact half-piastre amount such as 10.005 EGP, the UI path rounds 1000.5 piastres to 1000 (ToEven), whereas the Money boundary policy rounds to 1001 (AwayFromZero); opening float or refund can differ by one piastre. This is source-supported for reachable text-box paths, not runtime reproduced. Server receives integer piastres, so it cannot recover the entered precision or chosen rounding intent. Server protections bound consequence: Shift.Open rejects negative opening balances and positive floats are subject to active-day, account balance and transaction controls; RefundOrderHandler floors negative requests to zero, rejects zero, caps the requested integer to refundable remainder and checks source-account balance. These do not restore the user's unambiguous precision contract, but prevent this conversion mismatch from producing a refund above remaining amount or spending above protected balance. Excessively large decimal text may overflow at the client cast before a request, a UI error/availability concern rather than posted money. Main disposition: minor input correctness risk; unify cashier parsing with a shared bounded two-decimal parser (or explicitly define rounding), and add tests for third decimal exact-midpoint, excess precision, negative, and maximum amount. Static only.",
+    "server_counterevidence": "Reviewer source-checked OpenShiftHandler, Shift.Open and RefundOrderHandler. Server receives integer piastres and enforces nonnegative opening funds plus day/account controls; refund path rejects zero and caps to remaining refundable amount with account-balance checks. These controls bound effects, but cannot reconstruct the user-entered third decimal or intended midpoint rule.",
+    "helper_copy_comparison": "The Call Center and WinUI CashInput source files are byte-for-byte equivalent after substituting only their file-scoped namespace. Call Center currently calls Format for product/split-payment display; a repository search found no production call to its TryParse method. WinUI uses its helper for active financial entry. This duplicate has no current behavioral divergence, but the WPF reference path bypasses the strict WinUI parser."
+  },
+  "recommendation": "If the WPF reference remains an executable deployment target, use the same explicit localized two-decimal and representable-range boundary contract already implemented in the WinUI CashInput helper before converting amounts, and test shift opening/refund/checkout inputs at 0.005, maximum piastre value, and overflow boundaries. Otherwise clearly retire/exclude the WPF executable from deployment artifacts. Keep server-side amount validation authoritative. The WinUI/Call Center CashInput copies currently match after namespace substitution; consider extracting their shared parser/formatter only if both projects remain maintained.",
+  "required_regression_tests": [
+    "WPF input 0.005 EGP should be rejected or converted according to an explicit documented policy; compare with Money.FromEgp and WinUI behavior.",
+    "WPF shift-opening and refund fields must reject values whose piastre conversion exceeds Int64 without throwing out of the UI command.",
+    "For both frontends, accept localized Arabic/Persian digits and exact two-decimal amounts or document intentional differences.",
+    "Run WPF client tests and a server validation test for zero-rounded and out-of-range refund/open-shift requests."
+  ],
+  "reviewer": "Main Codex coordinator; bounded semantic comparison independently challenged by Financial Integrity continuation.",
+  "independent_challenge": {
+    "path": "Sub-Agents/Handoffs/financial-cashier-money-input-precision-independent-challenge.json",
+    "sha256": "6e904e73711f036c1447d16306414269d3a6b9203c7acf3e343c331ca147544c",
+    "reviewer": "financial_integrity_continuation",
+    "decision": "SMALL_REACHABLE_PRECISION_RISK_SERVER_BOUNDS_LIMIT_IMPACT",
+    "runtime": "NOT_EXECUTED",
+    "summary": "Confirmed a reachable scale/rounding mismatch on these two cashier UI paths. Both accept any current-culture decimal and convert EGP*100 using Math.Round default ToEven; neither rejects more than two decimal places nor applies the max representable-piastres bound used by CashInput.TryParse. Money.FromEgp uses AwayFromZero. For a user-entered exact half-piastre amount such as 10.005 EGP, the UI path rounds 1000.5 piastres to 1000 (ToEven), whereas the Money boundary policy rounds to 1001 (AwayFromZero); opening float or refund can differ by one piastre. This is source-supported for reachable text-box paths, not runtime reproduced. Server receives integer piastres, so it cannot recover the entered precision or chosen rounding intent. Server protections bound consequence: Shift.Open rejects negative opening balances and positive floats are subject to active-day, account balance and transaction controls; RefundOrderHandler floors negative requests to zero, rejects zero, caps the requested integer to refundable remainder and checks source-account balance. These do not restore the user's unambiguous precision contract, but prevent this conversion mismatch from producing a refund above remaining amount or spending above protected balance. Excessively large decimal text may overflow at the client cast before a request, a UI error/availability concern rather than posted money. Main disposition: minor input correctness risk; unify cashier parsing with a shared bounded two-decimal parser (or explicitly define rounding), and add tests for third decimal exact-midpoint, excess precision, negative, and maximum amount. Static only."
+  }
+}

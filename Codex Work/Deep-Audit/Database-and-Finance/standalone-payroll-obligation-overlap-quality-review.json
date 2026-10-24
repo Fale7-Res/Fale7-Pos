@@ -1,0 +1,334 @@
+{
+  "artifact_kind": "financial_quality_review_candidate",
+  "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+  "created_at_utc": "2026-10-20T09:51:06.733Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "SOURCE_CONFIRMED_CROSS_FLOW_RISK_POLICY_RECONCILIATION_PENDING",
+  "severity": "HIGH",
+  "confidence": "HIGH_SOURCE_BEHAVIOR_MEDIUM_REALIZATION_POLICY_AND_RUNTIME_UNVERIFIED",
+  "title": "Standalone employee settlements are not netted from frozen period payroll",
+  "source_symbols": [
+    {
+      "id": "src/Falah.Domain/Payroll/PayrollRules.cs:83:5:MethodDeclaration",
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "qualifiedSymbol": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+      "range": [
+        83,
+        112
+      ],
+      "indexStatus": "NOT_ANALYZED"
+    },
+    {
+      "id": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:29:5:MethodDeclaration",
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "qualifiedSymbol": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+      "range": [
+        29,
+        104
+      ],
+      "indexStatus": "NOT_ANALYZED"
+    },
+    {
+      "id": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:46:5:MethodDeclaration",
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "qualifiedSymbol": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+      "range": [
+        46,
+        154
+      ],
+      "indexStatus": "NOT_ANALYZED"
+    },
+    {
+      "id": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs:39:5:MethodDeclaration",
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "qualifiedSymbol": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+      "range": [
+        39,
+        182
+      ],
+      "indexStatus": "NOT_ANALYZED"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "lines": [
+        [
+          732,
+          746
+        ],
+        [
+          810,
+          850
+        ]
+      ],
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "worktree_git_blob_sha1": "52617f6d2798831077bac17085d70e8cd3dc410d",
+      "baseline_git_blob_sha1": "52617f6d2798831077bac17085d70e8cd3dc410d"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+      "lines": [
+        [
+          8,
+          15
+        ],
+        [
+          26,
+          54
+        ],
+        [
+          75,
+          117
+        ]
+      ],
+      "worktree_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+      "worktree_git_blob_sha1": "42c57814ea3937f6965caa307d9ab57fcd569305",
+      "baseline_git_blob_sha1": "42c57814ea3937f6965caa307d9ab57fcd569305"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "lines": [
+        [
+          227,
+          264
+        ],
+        [
+          307,
+          350
+        ]
+      ],
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "worktree_git_blob_sha1": "bc7f8cdb5bf5d22a053d49a29522e2db3dd7c86a",
+      "baseline_git_blob_sha1": "bc7f8cdb5bf5d22a053d49a29522e2db3dd7c86a"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "lines": [
+        [
+          16,
+          30
+        ],
+        [
+          74,
+          107
+        ],
+        [
+          113,
+          140
+        ]
+      ],
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "worktree_git_blob_sha1": "250c04cac0e47851419da30b7ca0f6c3ee4e6569",
+      "baseline_git_blob_sha1": "250c04cac0e47851419da30b7ca0f6c3ee4e6569"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "lines": [
+        [
+          42,
+          63
+        ],
+        [
+          65,
+          88
+        ]
+      ],
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "worktree_git_blob_sha1": "5c9f2f1224db7339ea3c88d2094c0c1e878fdd1e",
+      "baseline_git_blob_sha1": "5c9f2f1224db7339ea3c88d2094c0c1e878fdd1e"
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "lines": [
+        [
+          83,
+          110
+        ]
+      ],
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_git_blob_sha1": "2b5ee2e577e39360c4cb8a104aedec9424b4419b",
+      "baseline_git_blob_sha1": "2b5ee2e577e39360c4cb8a104aedec9424b4419b"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "lines": [
+        [
+          84,
+          108
+        ],
+        [
+          136,
+          163
+        ]
+      ],
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "worktree_git_blob_sha1": "75a33563aa384cd1a70e3ab9270b791f121b9dfc",
+      "baseline_git_blob_sha1": "75a33563aa384cd1a70e3ab9270b791f121b9dfc"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+      "lines": [
+        [
+          10,
+          15
+        ],
+        [
+          226,
+          240
+        ]
+      ],
+      "worktree_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "worktree_git_blob_sha1": "a8553569a958cd202dfce8f55d49ff1025ba9ecc",
+      "baseline_git_blob_sha1": "a8553569a958cd202dfce8f55d49ff1025ba9ecc"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "lines": [
+        [
+          93,
+          109
+        ],
+        [
+          188,
+          206
+        ]
+      ],
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "worktree_git_blob_sha1": "de1efd58fe25d58a6d1a1ea47189eecae64883bc",
+      "baseline_git_blob_sha1": "de1efd58fe25d58a6d1a1ea47189eecae64883bc"
+    },
+    {
+      "path": "docs/IMPLEMENTATION_MATRIX.md",
+      "lines": [
+        [
+          98,
+          99
+        ]
+      ],
+      "worktree_sha256": "28c1f130c8610878d5a08f08e6a024adae2e533e5fec258e70bfe5bbb2f1bc10",
+      "worktree_git_blob_sha1": "2655db29243314d9e91295e3aad6f2608e7813ba",
+      "baseline_git_blob_sha1": "2655db29243314d9e91295e3aad6f2608e7813ba"
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "lines": [
+        732,
+        746
+      ],
+      "observation": "Server describes standalone PAY EMPLOYEE as a final pre-go-live rule, payable at any time with no payroll run; separate payroll routes are registered."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "lines": [
+        99,
+        107,
+        125,
+        139
+      ],
+      "observation": "Standalone payout computes current balance under employee ledger locks, verifies amount <= balance, posts debit Settlement and treasury outflow atomically."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "lines": [
+        45,
+        65,
+        76,
+        88
+      ],
+      "observation": "Payroll creation reads employee ledger entries by UTC year/month and freezes PayrollLine values."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "lines": [
+        95,
+        107
+      ],
+      "observation": "Non-monthly net includes DailyWage/Salary, Overtime, ExtraShift, Bonus/OtherEarning less only Deduction/Adjustment; Settlement is omitted."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "lines": [
+        86,
+        88,
+        136,
+        163
+      ],
+      "observation": "Approved payroll pays frozen NetPayablePiastres and writes PayrollSettlement; reviewed writer does not recompute current employee balance or subtract prior Settlement."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+      "lines": [
+        8,
+        15,
+        75,
+        117
+      ],
+      "observation": "Standalone payment is reachable from employee roster and uses current positive balance and employees_ledger authorization."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "lines": [
+        227,
+        264,
+        307,
+        350
+      ],
+      "observation": "Payroll creation and payment are available in same cashier app under separate payroll permissions."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+      "lines": [
+        226,
+        240
+      ],
+      "observation": "Test asserts standalone payment uses distinct Settlement type, not PayrollSettlement."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "lines": [
+        93,
+        109,
+        188,
+        206
+      ],
+      "observation": "Tests show earned daily wage enters payroll and payroll payment debits ledger; no inspected scenario exercises same-period standalone payment before or after payroll."
+    },
+    {
+      "path": "docs/IMPLEMENTATION_MATRIX.md",
+      "lines": [
+        98,
+        99
+      ],
+      "observation": "Project decision says payroll run is no longer the only way to pay employees; no mutual-exclusion or settlement-netting rule is stated."
+    }
+  ],
+  "mechanism": {
+    "example": "Earn 20,000 piastres as current-period DailyWage; standalone handler pays that amount and records Settlement debit. Payroll creation includes period ledger rows but PayrollRules ignores Settlement, so the frozen line remains 20,000. Paying the run posts another 20,000 treasury outflow and PayrollSettlement; projected ledger balance becomes -20,000.",
+    "static_arithmetic_only": true
+  },
+  "counterevidence_and_limits": [
+    "Ledger types intentionally remain distinct and each path has separate permissions; business intent may define mutually exclusive modes, but inspected routes/handlers do not enforce exclusivity.",
+    "Payroll snapshots freeze at create time; standalone payment after creation leaves the frozen line unchanged.",
+    "No database-backed scenario or owner policy confirmation was performed.",
+    "Inspected tests cover each payment path separately, not the combined sequence."
+  ],
+  "classification": {
+    "source_confirmed": true,
+    "combined_scenario_runtime_tested": false,
+    "live_business_usage_confirmed": false,
+    "policy_exclusivity_evidence_found": false,
+    "independent_challenge": "PENDING_ORIGINAL_FINANCIAL_SPECIALIST_SESSION_UNAVAILABLE_UNSUPPORTED_MODEL"
+  },
+  "recommendation": "Define and enforce one authoritative outstanding-obligation basis across both payment paths. If standalone settlement prepays current-period earnings, net eligible settlements when payroll is created and prevent stale frozen lines from paying them again; alternatively enforce mutually exclusive payout modes for the covered period. Preserve audit history and test standalone-before-run, standalone-after-run-before-pay, and retry cases.",
+  "required_regression_tests": [
+    "Daily wage then standalone settlement then create/pay same month; total paid must not exceed the net obligation.",
+    "Create/approve run then standalone settlement then pay; frozen payroll must not duplicate already paid amount.",
+    "Separate earned periods and historical settlement; verify correct period assignment.",
+    "Replay requests and repeat combined workflow; no duplicate treasury or ledger debit."
+  ],
+  "runtime": "NOT_EXECUTED",
+  "source_code_or_database_modified": false
+}

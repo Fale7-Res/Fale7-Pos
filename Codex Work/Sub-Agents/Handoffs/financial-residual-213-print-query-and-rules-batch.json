@@ -1,0 +1,1920 @@
+{
+  "id": "financial-residual-213-print-query-and-rules-batch",
+  "created_utc": "2026-10-21",
+  "input_queue": "Codex Work/Sub-Agents/Results/financial-residual-213-reconciliation-queue.json",
+  "batch": {
+    "reviewed": 97,
+    "PrintJobQueryService": 65,
+    "PrintRules": 32,
+    "pending_before": 213,
+    "pending_after": 116
+  },
+  "entries": [
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-70ee7a7a8497b22609a80516e74e5a72cdc13f88b4efff2043b3f43a2ca2802b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.DetermineKitchenRoutes(IEnumerable<string?>)",
+      "span": [
+        24,
+        5,
+        30,
+        26
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "route selection",
+        "actual_flow": "Routes kitchen work by preparation station; no monetary values.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-583878864399c9a9706db502ac0ab7710b784ca456b7192078f01bf879e20f4a",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        26,
+        20,
+        26,
+        49
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "route selection",
+        "actual_flow": "Routes kitchen work by preparation station; no monetary values.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-dc48c5e7888a7b479fdeb52dca8313997859e933d2ad35d4242de1fe83470e0d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        27,
+        21,
+        27,
+        97
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "route selection",
+        "actual_flow": "Routes kitchen work by preparation station; no monetary values.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-13cddb46a96ce0c511439e45d3344272694c95940d90fa350a97ccd8b3384470",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        20,
+        28,
+        73
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "route selection",
+        "actual_flow": "Routes kitchen work by preparation station; no monetary values.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-9ef821d26b980f42c4533ab4a54d1ebbd4bde84020288381ecf367f7a651c42a",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        21,
+        29,
+        34
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "route selection",
+        "actual_flow": "Routes kitchen work by preparation station; no monetary values.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-7e81aa7079ee5740c763da267d7fb9f48be78602f220fc4681a2143299663e27",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeKitchenTicket(Falah.Domain.Printing.PrintRoute, string, string, string, Falah.Domain.Orders.OrderType, IReadOnlyList<Falah.Domain.Printing.TicketItem>, DateTimeOffset, DateTimeOffset?)",
+      "span": [
+        36,
+        5,
+        76,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "kitchen ticket",
+        "actual_flow": "Renders order items and pickup metadata only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-0fdc768df76d8108c30867cf93ce1fc726d304690d9081eb3b206d83de9831b7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        43,
+        40,
+        43,
+        85
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "kitchen ticket",
+        "actual_flow": "Renders order items and pickup metadata only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-ef3f9f2ed75e468cf22ef31c93b5f01e2871d6278f4bb3af2b5a90866ecdf1ae",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeReceiptTicket(Falah.Domain.Printing.PrintRoute, Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "span": [
+        89,
+        5,
+        108,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "receipt",
+        "actual_flow": "Composes receipt from order header, items and totals.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-6f2a991ecbb77848f3faea158c311bc66818f6a3b59e5c50c94ea15980480f78",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCustomerNumberSection(Falah.Domain.Printing.ReceiptHeader)",
+      "span": [
+        117,
+        5,
+        134,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "customer identifier",
+        "actual_flow": "Renders customer/order identity; no amounts.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-a351329f8a343a30737e6b02af7e1f286006717468b4b193a7910246b53e55cc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCashierDetailSection(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "span": [
+        147,
+        5,
+        200,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "cashier detail",
+        "actual_flow": "Renders ordered items, payment, totals/change.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-435ada71ddeb34c9fef15fd375681f43d164c3c60660f4d8bf8bdf212b204351",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeBrandHeader(Falah.Domain.Printing.ReceiptHeader)",
+      "span": [
+        204,
+        5,
+        210,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "brand",
+        "actual_flow": "Restaurant branding/footer only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-837f1f9976c2e61dbf8c62b89ea71bc6bb34147259ec6437cd3bf600c4d914b6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeBrandFooter(Falah.Domain.Printing.ReceiptHeader)",
+      "span": [
+        219,
+        5,
+        230,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "brand",
+        "actual_flow": "Restaurant branding/footer only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-4c4a46c0a454ba87768a1792ea8ca383c65ad458bb0e8a3c25b67c7bef90a068",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCashierTotals(Falah.Domain.Printing.ReceiptHeader, Falah.Domain.Printing.ReceiptTotals)",
+      "span": [
+        236,
+        5,
+        260,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "cashier totals",
+        "actual_flow": "Renders financial totals and payment state.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-414caa833061f2c487be830db6a2b04699a9c38dbeec5cae6a53275f11bd80de",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDetailedOrderSection(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "span": [
+        265,
+        5,
+        292,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "detailed order",
+        "actual_flow": "Renders detailed item/price and order totals.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-077cc40a76a3964f7882c8b0461b426c8865cc747f4c06df106676e23cb3c496",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDeliveryOrderTicket(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals, Falah.Domain.Printing.DeliveryOrderTicketInfo)",
+      "span": [
+        299,
+        5,
+        329,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "delivery order",
+        "actual_flow": "Renders totals, outstanding/COD information.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-695d0b0fc9a412b1c6219c3588152c306c328d6785d5ee9750a0608d16af7777",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDriverDispatchTicket(string, string, string, string, string?, string?, string?, string?, Falah.Domain.Common.Money, bool, bool, string?, DateTimeOffset, bool)",
+      "span": [
+        337,
+        5,
+        370,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Renders amount-to-collect and payment state.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-a1b0356cef90b6be1df774c4e53b9b6d1462d50cc8b56d39e56d8cbd3ecedcbf",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeItemTable(IReadOnlyList<Falah.Domain.Printing.TicketItem>, bool)",
+      "span": [
+        372,
+        5,
+        385,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "item table",
+        "actual_flow": "Renders item unit/line prices.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-3a47cbd8f29a1b6f5670568f6965983235085c03a8024888f1c8cf51bb72478c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeTotals(Falah.Domain.Printing.ReceiptTotals)",
+      "span": [
+        387,
+        5,
+        401,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "totals formatting",
+        "actual_flow": "Formats passed totals; no calculation/post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-e0f8b501a2a8c071a44eace1d252ca52aa5f3e2d2778a0556f92545befed92ff",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCollectionInstruction(bool, bool, Falah.Domain.Common.Money)",
+      "span": [
+        406,
+        5,
+        425,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "collection instruction",
+        "actual_flow": "Formats collection instruction/amount.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-93e7bef23704a447d770221fbe1381ec7428b07774e63c8f0a8eefe2ba8f051d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.DescribeRequestedPickup(DateTimeOffset?)",
+      "span": [
+        430,
+        5,
+        431,
+        83
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "time formatting",
+        "actual_flow": "Pickup/Cairo date-time formatting only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-005de894e9dbba89f0ef5994a21135f60bfbfd9ebb4865c5c4760d6913f74a06",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.FormatCairo(DateTimeOffset)",
+      "span": [
+        433,
+        5,
+        434,
+        97
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "time formatting",
+        "actual_flow": "Pickup/Cairo date-time formatting only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-cb0a101a16e90a50a623f090440a3fbb9cc38bf71292aec29e7b31f0c89040c6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.FormatCairoDate(DateTimeOffset)",
+      "span": [
+        443,
+        5,
+        444,
+        102
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "time formatting",
+        "actual_flow": "Pickup/Cairo date-time formatting only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-ccf9c3b1372163a357ee5df06435b92669025dfbf7d1b26e7103e44affe2fced",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.FormatCairoTime(DateTimeOffset)",
+      "span": [
+        450,
+        5,
+        454,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "time formatting",
+        "actual_flow": "Pickup/Cairo date-time formatting only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-d7d02ae2c93a2e085fc3dcd4e0e11a3720c1e734ab1be8985fef9fb4bc5aec33",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.DescribeOrderType(Falah.Domain.Orders.OrderType)",
+      "span": [
+        456,
+        5,
+        462,
+        7
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "order-type label",
+        "actual_flow": "Order-type wording only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-5f4e6e86d94cd61241387a3242b762d812b4e9679c29d0c3eddaeb4c09378740",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.DescribePaymentMethod(Falah.Domain.Financial.PaymentMethod)",
+      "span": [
+        464,
+        5,
+        472,
+        7
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "payment label",
+        "actual_flow": "Payment method wording; receipt info only.",
+        "disposition": "FINANCIAL_PRESENTATION_SUPPORT",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-1ee92b37b87b522d3b8dd50b289b3de1d4a01239f2914d353927979179ce1bd2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.MarkAsReprint(Falah.Domain.Printing.ComposedTicket, DateTimeOffset, string)",
+      "span": [
+        484,
+        5,
+        501,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "reprint label",
+        "actual_flow": "Labels reprint user/time for audit distinction; no accounting mutation.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT_MARKING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-1ecfc0a46a4ff535ede556b351019e7b251c05b1e9ac847bea69e42df5d65819",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ReprintBanner(DateTimeOffset, string)",
+      "span": [
+        503,
+        5,
+        510,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "reprint label",
+        "actual_flow": "Labels reprint user/time for audit distinction; no accounting mutation.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT_MARKING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeShiftOpenTicket(Falah.Domain.Printing.ShiftSlipIdentity, Falah.Domain.Common.Money)",
+      "span": [
+        516,
+        5,
+        530,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "opening slip",
+        "actual_flow": "Renders opening float cash.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-25feaf1735a0ac547b0637b0715cf862f157b4fa5c98b9cea5c411b3512aecf9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeShiftCloseTicket(Falah.Domain.Printing.ShiftSlipIdentity, DateTimeOffset, Falah.Domain.Printing.ShiftCashBreakdown, IReadOnlyList<Falah.Domain.Printing.ExpenseSummaryLine>, IReadOnlyList<string>, string?)",
+      "span": [
+        537,
+        5,
+        598,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "close slip",
+        "actual_flow": "Renders breakdown, expected/actual/difference, expense lines, warnings.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeExpenseTicket(Falah.Domain.Printing.ExpenseSlipInfo)",
+      "span": [
+        602,
+        5,
+        620,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "expense slip",
+        "actual_flow": "Renders supplied expense amount/account/metadata; no post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-27cca94b89540c1a9d123d8737e5445facdd1292940ebb6d277795b7d21af6f1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.SlipHeading(string, string?, string)",
+      "span": [
+        628,
+        5,
+        634,
+        6
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "slip heading",
+        "actual_flow": "Brand/title only.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "stable_id": "sym-1aca6f097cfe49a340df18b29561a832e401f0aeda27e676b7d0b7138396ce3b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Printing.PrintRules.DescribeDifference(Falah.Domain.Common.Money)",
+      "span": [
+        636,
+        5,
+        637,
+        103
+      ],
+      "source_sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "review": {
+        "flow": "difference label",
+        "actual_flow": "Maps sign to matched/deficit/surplus wording; no arithmetic.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-3887372e673464f2e890e77df0733c2c769505d07a304afb671b127cec4a0483",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.PrintJobQueryService(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Settings.SettingsQueryService)",
+      "span": [
+        25,
+        5,
+        29,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "configuration",
+        "actual_flow": "Dependency wiring only; no financial state or amount flow.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-90094e0cac7fbd191330c00ad4c811d4de817eb3e337719619fefc0d5b53d3de",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ListJobsForOrderAsync(string, CancellationToken)",
+      "span": [
+        31,
+        5,
+        33,
+        60
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-f6534b5b30f0af3745292a092e56b2b25fdde640f89be19e8de2ef2e32558fd4",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        32,
+        51,
+        32,
+        76
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-625cbb8727caf80333632d9cfd632c04336c42e1c6a04e5d718a96fced5fa473",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        32,
+        86,
+        32,
+        105
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-d82b38fb0a9ee15ede41c3ac50a02fa13727977ad4f6b810db0c5b2b4d1454ae",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ListPendingJobsForRouteAsync(string, CancellationToken)",
+      "span": [
+        37,
+        5,
+        41,
+        60
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-b333f6213bed029bd8af99045b3fcb9fd642ead5e956afce63f455ee90e0637c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        39,
+        20,
+        39,
+        87
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-4057b3061649c38b20eb8e1e21214dfb8f0eff0d6a5bac34a04cea4089ce2856",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        40,
+        22,
+        40,
+        41
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "queue projection",
+        "actual_flow": "Read-only print job status/order polling, no ledger or amount composition.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-8c3835c787d50a7a02513fc600cb1d50df9c1b8b31a749d8d52d922798bc94b6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.GetOverviewAsync(CancellationToken)",
+      "span": [
+        49,
+        5,
+        86,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-43e811c58883c186a87dc0131ff4e133698f7b3a79c5cca5a8d2a740e1c9e7a4",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        53,
+        20,
+        53,
+        100
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-f9b9ae857e29f2660e415dc2a8f51982c2e513f0998a3e311a734fac8127e9d4",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        60,
+        39,
+        60,
+        60
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-a16ec015416ac5e4c6040850f950dcba1f3ac5d13eaa9f91706f36d5c1d2d451",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        61,
+        42,
+        61,
+        89
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-6a99e03e3a4d97d3d6a35eed43154af9e0adb3fedc244554ee07c1aaffa1226c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        65,
+        32,
+        65,
+        78
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-1655b2c278b253bd9e57ce108aa6db3bca5d5cc61268e7780ba0a06c0bcfd57b",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        66,
+        31,
+        66,
+        65
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-dc62b57bde02bc397429383b6d36d62ed0f442772115683a512d64ede2516556",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        67,
+        57,
+        67,
+        76
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-27aa2315312f672f4df13c3a08687ebda49b71fb28653f6e2940bdcc39d4c5fd",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        68,
+        32,
+        68,
+        81
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-37012aded7bf75ee43804d68cb12664cba11d7a6feeb8db0b67640b2d9d310e7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        69,
+        29,
+        69,
+        52
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-9a2b1c705d95d1b113cc81029942f39ff2bfc3a8fb6da63c1413a10cc8bc5747",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        75,
+        20,
+        76,
+        105
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-0ec123d66244bb1b4b01cca866c978761b9c44c2d2393c184d81ee218d967f64",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        77,
+        22,
+        77,
+        76
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-bc89332dd56817109a46e903bdd71bdac8c658e91e28533d2f64dbf425aadf8e",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        78,
+        21,
+        78,
+        40
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-7eb3fcc4843b76e771e0a5b8e82806577e0fbeb0623e8b528527458cc3de0fd1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        85,
+        24,
+        85,
+        43
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-bc29575d23fabcf5f938adcd943ffd5b0adef92fa50017ff1088416a33936a7e",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        85,
+        57,
+        85,
+        75
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-4fbade798e9dd4eb570a207c7a6a5c567df48f29664a67a7d8cbbd09f28830f3",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        85,
+        89,
+        85,
+        106
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "operational print health",
+        "actual_flow": "Read-only pending/failed/stuck counts by route, no money fields.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-245ab7929705bf53915267565f3a05c6b2d87ffb7e8c7f04dca87cc2a306cbaf",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.GetJobDetailsAsync(string, CancellationToken)",
+      "span": [
+        88,
+        5,
+        97,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "attempt history",
+        "actual_flow": "Read-only print attempt metadata, no amount or posting.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-13c44c00623d68120b28c6f9455ae3e9c58941f2e357809400254acbbe9a1518",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        90,
+        74,
+        90,
+        92
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "attempt history",
+        "actual_flow": "Read-only print attempt metadata, no amount or posting.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-4e5ef52c6cda23a5ac903dc04432b0c7e1ee622785053c4a095812ae5c3850bc",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        92,
+        72,
+        92,
+        98
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "attempt history",
+        "actual_flow": "Read-only print attempt metadata, no amount or posting.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-1ff0e3418fe31d8e0c051eed54a0c141ef6d00bdd4a40659245c86f487e92347",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        93,
+        22,
+        93,
+        43
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "attempt history",
+        "actual_flow": "Read-only print attempt metadata, no amount or posting.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-fe01c0531ebf33fa18d56222ca8af062d7eb153fce86d1e7ee823e1a9a5394a3",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        94,
+        21,
+        94,
+        102
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "attempt history",
+        "actual_flow": "Read-only print attempt metadata, no amount or posting.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeTicketContentAsync(string, CancellationToken)",
+      "span": [
+        99,
+        5,
+        140,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-6c03bda4a838e0362bc8222a32c318e754b31a776a565edfd0693c6c682815c1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        101,
+        74,
+        101,
+        92
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-2b4a41d6126cf616df59838f4a536165203b837c4931950b027d5ea7e3db6f96",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        118,
+        61,
+        118,
+        73
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-15e22c415f59e2e756c0fca35f40baec27fcabf8dc5bd6a3061d9f02832a6281",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        118,
+        95,
+        118,
+        119
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-7416f9be0e5e18e3f12dc9fe70291d6bcaad53a6ea21268b8ce5ac315f6ed313",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        120,
+        74,
+        120,
+        102
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        122,
+        46,
+        125,
+        34
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ToDto(Falah.Domain.Printing.ComposedTicket)",
+      "span": [
+        142,
+        5,
+        144,
+        73
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "ticket content",
+        "actual_flow": "Document-kind branch renders frozen order amounts or shift/expense slips; presentation only.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.MarkIfReprint(Falah.Domain.Printing.ComposedTicket, Falah.Infrastructure.Persistence.Entities.PrintJobEntity)",
+      "span": [
+        149,
+        5,
+        150,
+        104
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "reprint marker",
+        "actual_flow": "Adds reprint label from job metadata; no accounting change.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT_MARKING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-00759ae2c2172a131a01b2e5b318cbd84f0f1ea06d14969cc8a7024a5d9387b7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.LoadShiftIdentityAsync(string, CancellationToken)",
+      "span": [
+        154,
+        5,
+        162,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "shift identity",
+        "actual_flow": "Reads cashier/shift identity and reference for slips; no monetary arithmetic.",
+        "disposition": "FINANCIAL_PRESENTATION_SUPPORT",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        156,
+        73,
+        156,
+        93
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "shift identity",
+        "actual_flow": "Reads cashier/shift identity and reference for slips; no monetary arithmetic.",
+        "disposition": "FINANCIAL_PRESENTATION_SUPPORT",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        158,
+        74,
+        158,
+        107
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "shift identity",
+        "actual_flow": "Reads cashier/shift identity and reference for slips; no monetary arithmetic.",
+        "disposition": "FINANCIAL_PRESENTATION_SUPPORT",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ShiftReference(string)",
+      "span": [
+        166,
+        5,
+        167,
+        93
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "shift identity",
+        "actual_flow": "Reads cashier/shift identity and reference for slips; no monetary arithmetic.",
+        "disposition": "FINANCIAL_PRESENTATION_SUPPORT",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-770982e2e7dac5b5bfbbb35322473d1acef9a103024becbc72aa19ef329bf387",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeShiftOpenSlipAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, CancellationToken)",
+      "span": [
+        169,
+        5,
+        173,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "opening slip",
+        "actual_flow": "Reads Shift.OpeningCashPiastres and renders opening float.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeShiftCloseSlipAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, CancellationToken)",
+      "span": [
+        181,
+        5,
+        204,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-2ce2dc03ad514a699a680c72815c82e9c6946204d4169b1df9f81830c779ef18",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        196,
+        24,
+        196,
+        70
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-0b6e3bbdb8f25d0f906213d9c5272cc5b9ad3b212d0555d2577998ed095da2c1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        197,
+        25,
+        197,
+        66
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        198,
+        22,
+        198,
+        37
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-85f8c7eb34deca96a636dba2214a40c26ec2de23f993e175f91e420d08fca331",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        199,
+        21,
+        199,
+        105
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        199,
+        81,
+        199,
+        102
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        200,
+        32,
+        200,
+        54
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "closing slip",
+        "actual_flow": "Reads persisted close figures with recomputed breakdown/expenses; composes slip, no writes.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.LoadCloseWarningsAsync(Falah.Infrastructure.Persistence.Entities.ShiftEntity, CancellationToken)",
+      "span": [
+        208,
+        5,
+        226,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "close warnings",
+        "actual_flow": "Counts pending/unpaid orders by shift; open DriverCustodies by status globally and sums expected piastres; warning only.",
+        "disposition": "FINANCIAL_PRESENTATION_WARNING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-0e89a2f33ddd9bd0153d2c14c12a41fe40c961301e4915169dad8d5b7b9c69d3",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        213,
+        25,
+        213,
+        93
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "close warnings",
+        "actual_flow": "Counts pending/unpaid orders by shift; open DriverCustodies by status globally and sums expected piastres; warning only.",
+        "disposition": "FINANCIAL_PRESENTATION_WARNING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        217,
+        20,
+        217,
+        43
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "close warnings",
+        "actual_flow": "Counts pending/unpaid orders by shift; open DriverCustodies by status globally and sums expected piastres; warning only.",
+        "disposition": "FINANCIAL_PRESENTATION_WARNING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        217,
+        52,
+        217,
+        75
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "close warnings",
+        "actual_flow": "Counts pending/unpaid orders by shift; open DriverCustodies by status globally and sums expected piastres; warning only.",
+        "disposition": "FINANCIAL_PRESENTATION_WARNING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        222,
+        25,
+        222,
+        128
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "close warnings",
+        "actual_flow": "Counts pending/unpaid orders by shift; open DriverCustodies by status globally and sums expected piastres; warning only.",
+        "disposition": "FINANCIAL_PRESENTATION_WARNING",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeExpenseSlipAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, CancellationToken)",
+      "span": [
+        228,
+        5,
+        239,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "expense voucher",
+        "actual_flow": "Reads expense amount/category/account and renders voucher; no post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        230,
+        77,
+        230,
+        101
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "expense voucher",
+        "actual_flow": "Reads expense amount/category/account and renders voucher; no post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        232,
+        76,
+        232,
+        112
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "expense voucher",
+        "actual_flow": "Reads expense amount/category/account and renders voucher; no post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.DescribePaymentAccount(string?)",
+      "span": [
+        242,
+        5,
+        250,
+        7
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "expense voucher",
+        "actual_flow": "Reads expense amount/category/account and renders voucher; no post.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeReceiptAsync(Falah.Domain.Printing.PrintRoute, Falah.Infrastructure.Persistence.Entities.OrderEntity, Falah.Domain.Orders.OrderType, string, IReadOnlyList<Falah.Domain.Printing.TicketItem>, CancellationToken)",
+      "span": [
+        257,
+        5,
+        278,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "receipt",
+        "actual_flow": "Uses stored order totals, amount paid, change, payment method and frozen line prices.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeDeliveryOrderAsync(Falah.Infrastructure.Persistence.Entities.OrderEntity, Falah.Domain.Orders.OrderType, string, IReadOnlyList<Falah.Domain.Printing.TicketItem>, CancellationToken)",
+      "span": [
+        284,
+        5,
+        308,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "delivery ticket",
+        "actual_flow": "Uses stored totals and max(0,total-paid), COD via shared CheckoutRules.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-77865f1b79a9809e6659dc558788bcd8b94d3b0689553284c1d1af2cd1f20698",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeDriverDispatchAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, Falah.Infrastructure.Persistence.Entities.OrderEntity, CancellationToken)",
+      "span": [
+        313,
+        5,
+        345,
+        6
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        315,
+        80,
+        315,
+        106
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-23da0b45e4164917169060adc3329ed18c2adb008b6ca2486fc181f00c99d328",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        318,
+        92,
+        318,
+        113
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        318,
+        122,
+        318,
+        133
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        324,
+        20,
+        324,
+        89
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        325,
+        22,
+        325,
+        41
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "stable_id": "sym-1abd25cadaf889820b2dce1949645e50b9bd4e0e25c88a819ff3bd8f761f6a88",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        330,
+        23,
+        330,
+        134
+      ],
+      "source_sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "review": {
+        "flow": "driver dispatch",
+        "actual_flow": "Uses stored order outstanding amount, COD rule and dispatch/reassignment metadata.",
+        "disposition": "FINANCIAL_PRESENTATION",
+        "limitation": "Static only; no print/render/runtime/provider execution."
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001",
+      "status": "conditional presentation integrity risk; no confirmed defect",
+      "evidence": "PrintJobQueryService.cs:183-203 uses saved expected/actual/difference when available but recomputes breakdown; PrintRules.cs:555-577 prints breakdown components and expected total. Post-close mutability policy not examined.",
+      "next": "Check close writer and post-close mutation constraints before promoting."
+    },
+    {
+      "id": "FIN-PRINT-CLOSE-WARNING-SCOPE-001",
+      "status": "probable shift-scope presentation defect; no accounting balance impact established",
+      "evidence": "LoadCloseWarningsAsync (PrintJobQueryService.cs:216-219) counts all Status==Open DriverCustodies without shift join. Counterevidence: DeliveryRules.UnsettledCustodyForShift (src/Falah.Domain/Delivery/DeliveryRules.cs:99-104) restricts custody by deliveries whose ShiftId matches the requested shift; DeliveryRulesTests.cs:120-130 explicitly excludes another shift. CloseShiftHandler.cs:81-84 says outstanding custody is shown on this shift handover slip; DeliveryRules.cs:94-97 likewise describes shift handover slip and marks it not a shift-close blocker. DeliveryVerticalSliceTests.cs:825-860 verifies one same-shift custody appears, but not cross-shift leakage.",
+      "implication": "The slip’s open-custody warning count/value can include a different shift’s delivery, contrary to the named shift-scoped helper and comments. This is a presentation/reconciliation-scope issue, not evidence of a ledger posting or expected-cash error.",
+      "counterevidence": "Could have an intentionally global handover policy; no owner policy found in evidence reviewed. Existing test only establishes same-shift inclusion.",
+      "next": "Coordinator mirror and owner should confirm wording/policy; if intended shift-scoped as source comments imply, change query to use delivery ShiftId semantics and add cross-shift test (outside this audit task). No source change made."
+    }
+  ],
+  "static_limitations": [
+    "No runtime/DB or physical printing.",
+    "No general print subsystem audit; this batch only exact residual symbols in the two named files."
+  ],
+  "source_hashes": {
+    "src/Falah.Domain/Printing/PrintRules.cs": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+    "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C"
+  },
+  "counterevidence_references": {
+    "src/Falah.Domain/Delivery/DeliveryRules.cs": {
+      "sha256": "CF4AB3BA7E243A1EF76BE56D3E5C4D0F5EFE0D9C6C17D49E6A08AD4D6716EEFA",
+      "lines": [
+        94,
+        104
+      ]
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs": {
+      "sha256": "154147D00EC004748752FCAE6A3EEEDB23290384E0BA13F73EBB20841D1FE559",
+      "lines": [
+        36,
+        42,
+        63,
+        80
+      ]
+    },
+    "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs": {
+      "sha256": "58319FDF46C1A0F6181BABA6FF711129913FBF4C64E7A00923FA2862D0EA36DE",
+      "lines": [
+        81,
+        84
+      ]
+    },
+    "tests/Falah.Domain.Tests/DeliveryRulesTests.cs": {
+      "sha256": "C7720A63722934BAF1E3F3914054159C1E2810082451D3731A2F91D89472D918",
+      "lines": [
+        120,
+        130
+      ]
+    },
+    "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs": {
+      "sha256": "2CF833E812D290B7BFCB7C48307D02C36DAA9A072EA9394120A12C8690C8134F",
+      "lines": [
+        825,
+        860
+      ]
+    }
+  }
+}

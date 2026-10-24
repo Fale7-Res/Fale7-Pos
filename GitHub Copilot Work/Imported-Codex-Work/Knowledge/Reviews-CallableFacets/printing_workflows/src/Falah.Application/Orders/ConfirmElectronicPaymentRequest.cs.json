@@ -1,0 +1,69 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/ConfirmElectronicPaymentRequest.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:06:32.313792+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "68e0c3ba5b014d60604f18bc199befd9e4210ef7f6b858fdbfbf73dd03849747",
+  "worktree_sha256": "68e0c3ba5b014d60604f18bc199befd9e4210ef7f6b858fdbfbf73dd03849747",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-52b26ed991c3bbb2398198a12abdf1c00c3ed5d1da7b95ba9391f85ceedc0af3",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.ConfirmElectronicPaymentRequest::record-generated-behavior",
+      "source_span": [
+        7,
+        7
+      ],
+      "reasoning": "ConfirmElectronicPaymentRequest has only OrderId and claimed CashierId;no amount,method,provider receipt or new request ID. Generated constructor/value copy adds no payment verification. Handler derives actual pending electronic leg from locked order,requires pos/cash_drawer_sale and open shift,and status supplies idempotency. with-copy CashierId changes claim rather than authenticated principal,SEC001 boundary. Equality of request is neither evidence money arrived nor a registry receipt.",
+      "inputs": "OrderId,CashierId strings.",
+      "outputs": "JSON instruction to confirm stored electronic leg.",
+      "side_effects": "No confirmation until handler invoked.",
+      "trust_boundaries": "No provider callback signature;operator confirmation under actor permission,body identity validated separately.",
+      "database": "ConfirmElectronicPaymentHandler25-100 locks order/posts deferred sale;FIN001 collision remains.",
+      "printing_ui": "Does not itself auto-release held kitchen tickets,existing FLOW002;no direct printer.",
+      "performance": "Small scalar record;server lookup/hash no generated behavior.",
+      "duplicates_conflicts": "Repeated equal request relies order status,not record equality or unique request key;changed actor same OrderId still same underlying event.",
+      "issues_hypotheses": "Client cannot supply settled amount via this contract,positive counterevidence.",
+      "tests_missing": [
+        "Same order repeated,different actor,alreadyconfirmed,FIN001 split conflict,invalid/no electronic leg"
+      ],
+      "verified_callers_callees": [
+        "ConfirmElectronicPaymentRequest.cs7",
+        "ConfirmElectronicPaymentHandler.cs25-110",
+        "Program confirm endpoint",
+        "FLOW002"
+      ]
+    },
+    {
+      "stable_id": "sym-d1a9afb3ab60b167ed06a40ed27b530aa3e0dba3863ecd440559cf37ef9d8380",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.ConfirmElectronicPaymentResult::record-generated-behavior",
+      "source_span": [
+        9,
+        10
+      ],
+      "reasoning": "ConfirmElectronicPaymentResult reports OrderId,ElectronicPaymentStatus,IsPaid,nullable TreasuryMovementId and WasReplayed. Generated constructor/copy does not enforce confirmed implies nonnull movement;replay builder queries first sale_collection and can return null. Result cannot distinguish immediate mixed cash movement from deferred electronic movement solely by generic ID,so no claim complete financial proof. Scalar equality only response snapshot.",
+      "inputs": "Five handler-derived fields.",
+      "outputs": "Confirmation acknowledgement/replay.",
+      "side_effects": "No financial write in generated record.",
+      "trust_boundaries": "Caller must not treat edited result as authority;server movement/status authoritative.",
+      "database": "BuildReplayResult103-110 queries existing movement;constructor no DB.",
+      "printing_ui": "Payment-confirm UI may refresh actual order/print state;response not physical payment or kitchen release proof.",
+      "performance": "Constant field access,no implicit query.",
+      "duplicates_conflicts": "with copy changes display flags only;WasReplayed not amount attributed to electronic leg.",
+      "issues_hypotheses": "Nullable movement and generic sale_collection query limit reconciliation certainty.",
+      "tests_missing": [
+        "Replay with no movement,split cash+electronic first movement,flags after concurrent refund"
+      ],
+      "verified_callers_callees": [
+        "ConfirmElectronicPaymentRequest.cs9-10",
+        "ConfirmElectronicPaymentHandler.BuildReplayResultAsync103-110",
+        "FIN001 source trace"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

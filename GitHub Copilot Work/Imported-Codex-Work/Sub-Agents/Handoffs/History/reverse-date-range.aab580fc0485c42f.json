@@ -1,0 +1,55 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "originator": "root",
+  "updated_at_utc": "2026-10-18T09:01:41.704674+00:00",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "severity": "MEDIUM",
+  "verification": "Actual source independently read; parent synthetic component result files inspected as parent evidence only, not independently rerun. No application/SQL/UI/account/ledger writes.",
+  "candidate_id": "FIN-CAND-REPORT-RANGE-001",
+  "sources": [
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+    }
+  ],
+  "evidence": [
+    "BusinessDateRange.Resolve65-71 retainsFrom>To; DayCount74 can0/negative, Days79-82 yieldsnone. UtcRangeForBusinessDates47-53 swapslocalarguments only, ToUtcRange76 delegates.",
+    "Program1976-1983 ownerdashboard endpointusesResolve andReportpermission, noorderrejection. OwnerGetAsync38-43 sendsrange tosales/expenses butrawrange.From/To tofoodcost/significantactions.",
+    "LoadSalesOrders35-43 usesToUtcRange normalizeddates. Foodcost349-355 usesRange241-246 directFrommidnight/Toend; reverseadjacentdates =>start=end, separatedreverse =>start>end, no timestampmatches.",
+    "DashboardBuildProfitability211-223 combinesnormalizednonzerosaleswithfoodcost0lines/0cost; ComputeGrossProfit38 treats0soldlinescomplete anddoesnotwithholdknownzero, so complete-looking100percentgrossmarginpossiblewhenactualnormalrangecostpositive."
+  ],
+  "counterevidence": [
+    "Callerhasreportspermission, thisisinputconsistency notunauthorizeddataaccess.",
+    "Userinterface maypreventreverseddatepickers; existingAPIallowsbothDateOnlyparameters.",
+    "NoSQL/endpoint/dashboardexecution; parent8pureassertionsprobecomponents/syntheticpredicateonly.",
+    "Same-date/forwarddatesnotaffectedbythisorderinggap; historicalcurrentrecipepricing distinct."
+  ],
+  "correction_design": "Enforceonecanonicalorderedrange atconstruction/boundary (rejectorfullnormalization), thenmakeallqueriesandDayCount/Days consumethatvalue; do notnormalizeonlyoneUTCconversion.",
+  "regression_tests": [
+    "Reverseadjacent/separateddates yield400orallsame normalizedscope acrosssales/cost/wages/actions/trend.",
+    "Knownsolddishcost stayspresent andprofitcompleteflag correctforreversedinput.",
+    "Forward/sameday inclusiveCairodateboundaries regression."
+  ]
+}

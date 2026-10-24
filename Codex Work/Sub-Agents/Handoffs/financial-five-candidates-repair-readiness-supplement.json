@@ -1,0 +1,373 @@
+{
+  "artifact": "financial-repair-readiness-five-candidates",
+  "created_utc": "2026-10-21",
+  "scope": "Bounded read-only repair-readiness supplement for five existing finance candidates; no source, registry, runtime, test, or database changes.",
+  "method": "Re-read saved candidate evidence and current source excerpts; source hashes below are current worktree SHA-256. Recommendations are proposals requiring owner/policy and implementation review.",
+  "limitations": [
+    "Static source analysis only. No application build, runtime, SQL/database, API, UI, or concurrency test was run.",
+    "Predicted interleavings are schedules implied by source control flow, not observed commits/outcomes.",
+    "No repair is implemented; expected policy choices are called out rather than inferred."
+  ],
+  "candidates": [
+    {
+      "candidate_id": "FIN-CAND-CASHCOUNT-001",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/cash-denomination-boundary-lead.json",
+      "source_confirmed_behavior": "BusinessDayRules.CalculateDenominationCount clamps negative quantities to zero, but accepts denomination values and positive quantities without visible range/whitelist validation, multiplying and summing signed long values and subtracting expected cash. SaveCashCountHandler forwards request rows and ExpectedPiastres into this calculation and persists the count and a cash_count_finalized audit event in one SaveChanges call. The request contract allows arbitrary long denomination and quantity values. Endpoint delegates to this handler.",
+      "sources": [
+        {
+          "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+          "signature": "CalculateDenominationCount(IReadOnlyList<(long DenominationPiastres, long Quantity)> rows, long expectedPiastres)",
+          "lines": [
+            125,
+            135
+          ],
+          "sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06"
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+          "signature": "SaveCashCountHandler.HandleAsync(SaveCashCountRequest, CancellationToken)",
+          "lines": [
+            29,
+            64
+          ],
+          "sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3"
+        },
+        {
+          "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+          "signature": "SaveCashCountRequest; DenominationRowInput",
+          "lines": [
+            47,
+            51
+          ],
+          "sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "signature": "POST /api/business-day/{id}/cash-counts",
+          "lines": [
+            488,
+            500
+          ],
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "root_cause": "Arithmetic and domain validation are not bounded at the finalization boundary; persisted audit data records the derived result without enforcing the supported denomination set or representable totals.",
+      "preconditions": "Authenticated/authorized cash_count actor; existing business day; crafted request values beyond the normal denomination list. For misstatement, inputs must reach signed overflow or use unsupported denominations/expected amount. Negative quantity behavior is explicitly a compatibility clamp.",
+      "impact": "Could finalize and audit a mathematically incorrect cash total/difference. Existing evidence does not show direct treasury posting, shift settlement, or close-blocker override; do not characterize as cash loss.",
+      "counterevidence": [
+        "Normal denomination-list endpoint returns fixed valid notes/coins; normal UI path need not generate arbitrary denomination IDs.",
+        "Authorization and business-day existence checks gate handler.",
+        "Negative quantity clamping is documented intended compatibility behavior and should not be casually removed.",
+        "Saved isolated pure reproduction is not actual net8 application/database acceptance; host/build checked-arithmetic overrides were not certified."
+      ],
+      "proposed_fix_or_owner_decision": "Owner must first decide whether ExpectedPiastres is a client-supplied comparison target or must be derived from a server-authoritative snapshot. Then whitelist supported positive denominations and bound each quantity/aggregate; use checked multiply, sum, and difference and convert overflow/invalid rows to explicit domain rejection. Preserve agreed negative-quantity compatibility semantics or reject only by explicit policy.",
+      "regression_tests": [
+        "Domain tests for every allowed denomination, unsupported/zero/negative denomination, maximum quantity, multiplication overflow, aggregate overflow, and difference overflow.",
+        "Authorized handler test proves invalid input creates neither count nor audit record; valid input persists exact values atomically.",
+        "Endpoint test verifies invalid input maps to a deliberate client error.",
+        "Verify whether finalized cash-count data participates in close reconciliation and that any such use is server-validated.",
+        "Build/run arithmetic behavior under the actual net8 deployment configuration."
+      ],
+      "acceptance_criteria": [
+        "All accepted values fall within explicit denomination and monetary bounds; no wraparound reaches persisted count/audit.",
+        "Rejected values produce no partial count/audit writes.",
+        "ExpectedPiastres authority and negative quantity semantics are documented and covered.",
+        "Any reconciliation consumer uses the validated result or independently recomputes the expected value."
+      ],
+      "runtime_limits": "None of the above proposed tests run in this supplement; no persisted-state effect or deployed behavior established."
+    },
+    {
+      "candidate_id": "FIN-CAND-CLOSEDAY-ADMISSION-001",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/business-day-admission-candidate.json",
+      "source_confirmed_behavior": "DepositHandler resolves an open business day before beginning its transaction, then posts movement/journal and commits without a second state admission check. CloseBusinessDayHandler starts a transaction, evaluates blockers/reconciliation, persists an authoritative snapshot, marks the day Closed, and commits. BusinessDayGate query considers Open, Closing, and Reopened active; the close evaluator checks journal and several blockers but no demonstrated serialization with prevalidated deposit admission.",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+          "signature": "DepositHandler.HandleAsync",
+          "lines": [
+            56,
+            85
+          ],
+          "sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d"
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "signature": "RequireOpenAsync; TryGetActiveAsync",
+          "lines": [
+            14,
+            29
+          ],
+          "sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962"
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+          "signature": "CloseBusinessDayHandler.HandleAsync",
+          "lines": [
+            64,
+            121
+          ],
+          "sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255"
+        },
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+          "signature": "BusinessDayCloseEvaluator.EvaluateAsync",
+          "lines": [
+            25,
+            57
+          ],
+          "sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "signature": "GetBusinessDayReconciliationAsync (candidate linked range)",
+          "lines": [
+            164,
+            208
+          ],
+          "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+        }
+      ],
+      "root_cause": "Financial write admission is validated outside its monetary transaction and no shared day-state lock, revision predicate, or revalidation is visible in the selected path. Close snapshot and blocker reads therefore do not source-demonstrably drain operations that already passed the gate.",
+      "preconditions": "Authorized treasury deposit resolves active day, pauses before transaction; close actor can close with no blockers while that deposit has not yet created its journal/movement; no uninspected deployment-level admission serialization.",
+      "impact": "Predicted post-snapshot movement/journal attached to a now-closed day, potentially diverging from its authoritative close-time snapshot if post-close activity is forbidden. This is not an observed SQL interleaving or loss.",
+      "counterevidence": [
+        "Each command is individually transactional; the candidate timeline deliberately pauses before deposit transaction, so operation-local transactions alone do not prove exclusion.",
+        "Snapshot may intentionally represent immutable close-time history; if policy permits later day-stamped postings, delta reporting/immutability semantics need owner clarification.",
+        "Current RequireOpen contract and authoritative snapshot favor admission closure but do not fully state product policy.",
+        "No external process/proxy admission coordination was audited; source suggests no handler-level shared gate."
+      ],
+      "proposed_fix_or_owner_decision": "Confirm whether financial writes are forbidden after close. If yes, coordinate day admission in the database: acquire a transaction-held lock/revision on the business-day row and revalidate Open within each financial write transaction; close takes the same lock before blocker evaluation/snapshot and waits for already-admitted writes. Define cross-process semantics, retry policy, and consistent lock order. If late postings are allowed, define how frozen snapshot reconciliation and subsequent deltas are represented instead of silently treating snapshot as current ledger.",
+      "regression_tests": [
+        "SQL-backed barrier test pauses deposit after initial lookup; close wins; resumed deposit must reject with zero journal/movement.",
+        "Reverse schedule: admitted deposit commits first and close waits/includes it in snapshot.",
+        "Cover other financial commands using the same admission contract plus reopen/new-day and idempotent replay.",
+        "Run controlled multi-process concurrency test under the supported provider/isolation level; verify no stale admission slips."
+      ],
+      "acceptance_criteria": [
+        "A documented policy distinguishes immutable close-time snapshot from permitted subsequent postings.",
+        "Under forbid-after-close policy, every monetary write serializes/revalidates against close inside the database transaction; close snapshot covers all writes admitted before close.",
+        "Concurrency tests prove both orderings and absence of partial or post-close financial effects; lock order avoids deadlocks."
+      ],
+      "runtime_limits": "Source-only predicted race. No SQL, provider isolation, database transaction, deployment topology, or concurrency outcome verified."
+    },
+    {
+      "candidate_id": "FIN-CAND-PACKAGING-COVERAGE-001",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/packaging-completeness-candidate.json",
+      "source_confirmed_behavior": "ReportingQueryService increments SoldLineCount/KnownLineCount for dish recipes, then adds order-level packaging cost separately. Unknown active packaging appends its name to Missing and continues without changing line completeness counts. OwnerDashboardQueryService passes only these dish counts to ProfitabilityRules; that rule sets IsComplete from KnownLineCount >= SoldLineCount. Thus an unknown configured packaging cost can coexist with IsComplete=true and a numeric profit calculation. CostingRules treats absence of an active packaging rule as known zero.",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "signature": "GetFoodCostReportAsync packaging and dish aggregation",
+          "lines": [
+            399,
+            423
+          ],
+          "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "signature": "OrderPackagingCost",
+          "lines": [
+            181,
+            190
+          ],
+          "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "signature": "BuildProfitability",
+          "lines": [
+            205,
+            223
+          ],
+          "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "signature": "ComputeGrossProfit",
+          "lines": [
+            35,
+            46
+          ],
+          "sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+        }
+      ],
+      "root_cause": "Completeness boolean uses dish-line counters while food-cost total also includes separately accumulated order-level packaging; packaging unknown state is not passed to profitability completeness calculation.",
+      "preconditions": "At least one sold dish line has a known recipe cost; an active packaging rule applies to a sold order type and its ingredient cost is unknown.",
+      "impact": "Profitability result can be numerically computed and marked complete although packaging costs are excluded; reports can overstate gross/operating profit. This concerns report completeness, not ledger posting or realized cash loss.",
+      "counterevidence": [
+        "Packaging item name is retained in Missing in FoodCostReportDto/ProfitabilityDto, so issue is conflicting completeness signal rather than silent omission.",
+        "No active packaging rule is explicitly modeled as optional known-zero.",
+        "Unknown dish recipe costs already reduce known dish counts; the candidate is scoped to packaging’s separate cost unit.",
+        "A saved isolated component probe did not execute ReportingQueryService, OwnerDashboard, DTO/UI, or SQL; visual warning visibility is unverified."
+      ],
+      "proposed_fix_or_owner_decision": "Carry an explicit aggregate cost-coverage/completeness signal across dish and order-packaging components into profitability calculation and DTO, preserving distinct dish counts and per-order packaging cardinality. Keep missing names. Do not convert packaging unknowns into fabricated sold dish-line counts.",
+      "regression_tests": [
+        "Known dish plus unknown active packaging returns IsComplete=false and does not present the aggregate profit as fully costed.",
+        "Known packaging adds exact configured cost once per order and retains true completeness.",
+        "No active packaging rule remains known optional zero.",
+        "Multiple dishes in one order versus multiple orders preserves packaging count/cost cardinality.",
+        "DTO/API and UI communicate incomplete state consistently alongside missing item names."
+      ],
+      "acceptance_criteria": [
+        "IsComplete is false whenever any sold dish or applicable packaging component is unknown.",
+        "The amount excludes unknown cost but is visibly and machine-readably partial; counts retain their documented units.",
+        "Known/optional-zero cases preserve existing results and packaging charges are applied exactly once per applicable order."
+      ],
+      "runtime_limits": "Static source chain confirmed; isolated pure probe was partial and not an end-to-end financial/UI/runtime test."
+    },
+    {
+      "candidate_id": "FIN-CAND-PAYROLL-001",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/payroll-status-race-candidate.json",
+      "source_confirmed_behavior": "TransitionPayrollHandler loads a tracked PayrollRun, validates from current in-memory Status, assigns Cancelled, and SaveChanges without a shared run lock or visible conditional update/version. PayPayrollHandler validates Approved before its transaction; inside the transaction it locks source treasury balance, posts movement/journal/employee ledger settlements, and sets run Paid. Same-run idempotency protects duplicate payment requests but does not make status-only cancellation coordinate with payment. Entity mapping shows no PayrollRun concurrency token; filtered live-period index protects one live run per period.",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "signature": "TransitionPayrollHandler.HandleAsync",
+          "lines": [
+            24,
+            60
+          ],
+          "sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "signature": "PayPayrollHandler.HandleAsync precondition and payment transaction",
+          "lines": [
+            62,
+            87
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+          "additional_ranges": [
+            {
+              "lines": [
+                110,
+                162
+              ],
+              "same_file_hash": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+            }
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "signature": "AssertTransition",
+          "lines": [
+            13,
+            27
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "signature": "PayrollRunEntity mapping/indexes",
+          "lines": [
+            460,
+            477
+          ],
+          "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+          "signature": "PayrollRunEntity",
+          "lines": [
+            5,
+            20
+          ],
+          "sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04"
+        }
+      ],
+      "root_cause": "Pay and cancel authorize from independent Approved snapshots; no shared run-level transaction lock, compare-and-swap state predicate, or concurrency token is visible. Payment protects source-account balance, not PayrollRun state.",
+      "preconditions": "Two authorized concurrent commands on the same Approved run; one payment and one status transition/cancellation; candidate schedules pause after the stale status read and deliberately avoid replacement-run insertion where relevant.",
+      "impact": "Predicted inconsistent final state: a payroll can be financially paid while status becomes Cancelled, or payment can proceed after cancellation. Downstream reporting/recreation decisions become unreliable. Do not claim duplicate payment reproduced; same-run payment idempotency is counterevidence to duplicate pay on replay.",
+      "counterevidence": [
+        "Same-run payment idempotency and unique journal/movement protect repeated pay requests for the same run.",
+        "Treasury source-balance locking is inside the payment transaction and protects account sufficiency, but not run status.",
+        "Fresh reads enforce Paid/Cancelled terminal state; predicted schedules depend on stale reads.",
+        "Filtered unique live-period index may reject restoring a Paid run if replacement live run was created; cited candidate schedule avoids that conflicting condition.",
+        "No EF generated SQL or database interleaving tested; exact concurrent commit outcome remains unverified."
+      ],
+      "proposed_fix_or_owner_decision": "Use one database-coordinated PayrollRun state transition primitive for pay/cancel (transaction-held run-row lock or optimistic concurrency token/conditional Approved-to-claimed update). Payment must acquire/claim Approved within its transaction before movement/ledger posting; cancellation must perform mutually exclusive conditional transition. A losing operation must produce no movement, journal, settlement, paid-line, or status side effects. Preserve idempotency, filtered live-period index, and consistent treasury/run lock ordering.",
+      "regression_tests": [
+        "Barrier: pay reads Approved, cancel commits first; payment claim must fail and leave zero financial rows/line effects.",
+        "Barrier: cancellation reads Approved, payment claims/commits first; cancellation must fail and Paid status/effects remain consistent.",
+        "Repeat same idempotency key and concurrent duplicate pay; only one movement and one settlement per line.",
+        "Exercise cancellation and replacement-run creation against filtered live-period unique index.",
+        "Assert state and all side effects atomically under production provider and supported isolation."
+      ],
+      "acceptance_criteria": [
+        "At most one of pay/cancel succeeds for a given Approved version.",
+        "Paid state is committed atomically with movement, journal, line settlements and audit; Cancelled state cannot coexist with those effects from the losing race.",
+        "Lost race yields explicit conflict/reload response and no partial writes.",
+        "Existing retry idempotency and one-live-run policy remain intact."
+      ],
+      "runtime_limits": "Two schedules are source-based predictions, not observed SQL races; no DB writes, runtime, or concurrency tests executed. Do not elevate to proven duplicate-pay."
+    },
+    {
+      "candidate_id": "FIN-CAND-PREPGRAPH-001",
+      "evidence_artifact": "Codex Work/Deep-Audit/Database-and-Finance/prep-graph-concurrency-candidate.json",
+      "source_confirmed_behavior": "SavePrepRecipeHandler validates the prospective recipe and queries the active recipe graph for cycles before beginning its transaction; transaction then writes/replaces only the selected recipe and lines. Two simultaneous saves of distinct output nodes can each validate against a graph lacking the other’s new edge. CostingRules has a path-local recursion guard that returns unknown/incomplete on revisiting an output, limiting damage if a cycle is present.",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+          "signature": "SavePrepRecipeHandler.HandleAsync validation through transaction and save",
+          "lines": [
+            25,
+            73
+          ],
+          "sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+          "signature": "AssertDoesNotConsumeItsOwnOutputAsync",
+          "lines": [
+            84,
+            109
+          ],
+          "sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "signature": "IngredientUnitCost cycle guard",
+          "lines": [
+            28,
+            45
+          ],
+          "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "signature": "ComputePrepRecipeCost",
+          "lines": [
+            97,
+            127
+          ],
+          "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        }
+      ],
+      "root_cause": "Cycle validation is a shared-graph predicate read before the transaction, while each transaction writes only one recipe; no database-level serialization/revalidation of the graph-wide invariant is visible.",
+      "preconditions": "Two authorized concurrent recipe saves for distinct output ingredients with opposite dependencies, each graph read completes before either new edge commits; no other graph edge already closes either cycle.",
+      "impact": "Predicted active prep-recipe cycle can be persisted despite save-time cycle rejection; costing becomes Unknown/incomplete for affected paths and report reliability falls. No direct treasury, inventory movement, or ledger posting from recipe save is evidenced.",
+      "counterevidence": [
+        "Costing recursion guard returns Unknown on repeated output, preventing infinite recursion/stack overflow.",
+        "Sequential second save sees the first edge and is rejected.",
+        "Per-recipe transaction makes a single replacement atomic but does not establish graph-wide predicate serialization.",
+        "No actual SQL dual-commit observed; this is a proposed concurrency schedule."
+      ],
+      "proposed_fix_or_owner_decision": "Coordinate graph mutations with a transaction-scoped shared graph revision/lock, then revalidate against the current graph before persisting. Alternatively use serializable predicate validation with bounded retry and consistent cross-process semantics. Retain defensive Unknown cycle guard for existing/legacy data.",
+      "regression_tests": [
+        "Barrier-controlled opposite-edge concurrent save: at most one can commit; loser receives stable cycle/conflict error.",
+        "Two unrelated acyclic concurrent recipe saves both succeed if product policy permits.",
+        "Sequential cycle rejection remains.",
+        "Legacy cyclic fixture terminates and returns Unknown/incomplete, with report not presenting complete cost.",
+        "Exercise recipe replacement and output identity changes under same graph coordination."
+      ],
+      "acceptance_criteria": [
+        "The active prep graph remains acyclic after every successful save, including concurrent saves through multiple server processes.",
+        "A race loser causes no partial recipe/line replacement.",
+        "Unrelated valid edits retain expected concurrency; bounded retry/conflict behavior is documented.",
+        "Costing defense remains finite and conservative for pre-existing invalid data."
+      ],
+      "runtime_limits": "No runtime/SQL concurrency test run; dual-commit is not confirmed. Effects are bounded to costing completeness unless another consumer is proven."
+    }
+  ]
+}

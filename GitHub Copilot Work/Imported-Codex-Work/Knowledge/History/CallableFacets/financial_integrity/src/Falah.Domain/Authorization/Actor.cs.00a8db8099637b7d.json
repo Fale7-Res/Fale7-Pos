@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Authorization/Actor.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:40:50.292871+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "bd3c6edcf6f3dd8ab4f27d0d8890f0c15f278c2aa3420c5570ebf928a4f4203c",
+  "worktree_sha256": "bd3c6edcf6f3dd8ab4f27d0d8890f0c15f278c2aa3420c5570ebf928a4f4203c",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-cfdfbbad3aea4ace32ef9f5863d085bf00ab95dc2c485d748d86e9f34f1f167d",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional Actor record carries Id,Name,Role,Active and IReadOnlySet Permissions. Generated init/with-copy is shallow for permission-set reference; equality uses collection reference, not deep permission equivalence. A trusted caller can retain and mutate concrete HashSet even though property interface is read-only; no external API alias path proven. Record Role alone grants nothing; real policy uses Active and permissions. No database/user lookup or authentication is synthesized.",
+      "inputs": "Exact positional declaration fields at source span [9, 9]",
+      "outputs": "Generated constructor/init/equality/hash/copy/deconstruction/printing context, not enumerated invented CLR methods.",
+      "side_effects": "Value/reference copy and possible generated string construction only; no DB, journal, permission issuance or print transport.",
+      "trust_boundaries": "Generated record behavior does not authenticate or validate financial state.",
+      "database": "No database read/write; identity, uniqueness and transaction rules remain outside record.",
+      "printing_ui": "May be represented as diagnostics or order snapshots; generated ToString is not physical printing.",
+      "performance": "Fixed scalar/string fields; Actor permission collection compared as reference.",
+      "duplicates_conflicts": "Original authored functions and getter facets retained; this is separate generated-context accounting.",
+      "issues_hypotheses": "Specific constraints and existing/pending financial findings distinguished in reasoning; no finding counted from generated behavior alone.",
+      "tests_missing": "Value equality/copy field retention, invalid direct construction rejected by actual boundary, collection alias where applicable.",
+      "verified_callers_callees": "Actual callers/constraints are identified individually in reasoning; relevant source reads and original exact callable receipts remain in financial_integrity shards. No new caller relationship inferred solely from record name."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

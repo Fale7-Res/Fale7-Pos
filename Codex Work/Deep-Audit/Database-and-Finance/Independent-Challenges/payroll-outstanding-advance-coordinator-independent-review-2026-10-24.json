@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_independent_financial_callable_review",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-24T12:55:58.405Z",
+  "reviewer": "root coordinator",
+  "independent_of": "financial_integrity_continuation",
+  "callable": {
+    "stable_id": "sym-2f3ef5568479d5beb0bb60dcc7f291090e777e53aa065617641d12686c087b44",
+    "signature": "Falah.Domain.Payroll.PayrollRules.OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      66,
+      70
+    ],
+    "source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "receipt_sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "specialist_handoff": "Codex Work/Sub-Agents/Handoffs/financial-payroll-outstanding-advance-quality-review-2026-10-24.json"
+  },
+  "classification": "SUBSTANTIVE_REVIEW_VERIFIED for source semantics and current call reachability; no active production effect or new defect established",
+  "independent_validation": {
+    "source_hash_match": true,
+    "index_and_receipt_identity_span_match": true,
+    "reference_hashes_and_ranges_match": true,
+    "source_and_test_refs_checked": 7,
+    "failed_checks": 0,
+    "production_caller_search": {
+      "scope": "all current src/**/*.cs files",
+      "query": "OutstandingAdvance(",
+      "matching_files": [
+        "src/Falah.Domain/Payroll/PayrollRules.cs"
+      ],
+      "interpretation": "definition only; no application call site found"
+    }
+  },
+  "verified_behavior": [
+    "The helper takes synthetic tuples, adds Debit for exact lowercase Type advance, subtracts AdvanceDeduction for exact lowercase payroll_settlement, sums, then clamps to caller-provided floorAtZero (default zero). Other casing/types contribute zero.",
+    "Application persisted employee ledger uses Type strings based on nameof(LedgerEntryType.X), including PascalCase Advance and PayrollSettlement. EmployeeLedgerEntryEntity has no separate AdvanceDeduction property.",
+    "Current CreatePayrollHandler maps period ledger facts to CalculatePayrollLines; comments and assignments keep RequestedAdvanceDeduction/AvailableAdvance at zero. PayPayrollHandler posts settlement as PayrollSettlement debit for net payable and does not persist a separate advance-deduction field.",
+    "Therefore the helper has no current production caller; passing the raw persisted ledger shape would not satisfy its string/tuple contract. Its present status is an unwired future interface/legacy port, not a demonstrated current balance or payroll miscalculation.",
+    "A custom positive/negative floor changes the clamp; no caller or policy for nonzero floor exists."
+  ],
+  "tests_review": {
+    "domain": "PayrollRulesTests.cs:85-104 exercises only synthetic lowercase tuple values and default zero floor; no persisted-type adapter, caller wiring or custom floor test.",
+    "executed": false
+  },
+  "disposition": {
+    "new_finding": false,
+    "reason": "No production caller, no observed output affecting payroll or employee balance, and no confirmed requirement that this legacy helper be wired. Do not report as current defect.",
+    "future_action": "If a future change wires it, define an explicit mapper from persisted ledger types and a source for AdvanceDeduction, specify floorAtZero policy, then test PascalCase/legacy variants, missing/unrecognized categories, empty input and settlement lifecycle."
+  },
+  "limits": [
+    "Static search covered current src/**/*.cs; reflective/external consumers and other runtime assemblies were not tested.",
+    "No business requirement establishes whether this method is obsolete, planned or legacy-only.",
+    "No tests, runtime/database operations or app source modifications performed."
+  ],
+  "tests_executed": false,
+  "application_source_modified": false,
+  "database_or_runtime_modified": false
+}

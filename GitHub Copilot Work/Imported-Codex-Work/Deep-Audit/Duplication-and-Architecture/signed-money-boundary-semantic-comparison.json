@@ -1,0 +1,329 @@
+{
+  "id": "SEM-MIRROR-006",
+  "at_utc": "2026-10-19T02:03:11.865Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "status": "BOUNDED_MANUAL_FINANCIAL_BOUNDARY_COMPARISON_COMPLETE_NO_NEW_FINDING",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "line_ranges": [
+        [
+          16,
+          17
+        ],
+        [
+          22,
+          35
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d3393ef8a702a111a5b506a3234d3bdd07b723b494aa0cbcce02ef4edc51240e",
+          "signature": "Falah.Domain.Common.Money.FromPiastres(long)",
+          "span": [
+            17,
+            5,
+            17,
+            70
+          ]
+        },
+        {
+          "stable_id": "sym-e4202acad35cfd0610601d90dda4f1d7b1e3673bc895752547848b1623fad352",
+          "signature": "Falah.Domain.Common.Money.FromEgp(decimal)",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-be47ab7c4ccdbbd07c9f674bca6eca4e1a3ddbd3ba9a259bad07803efa9f0cf6",
+          "signature": "Falah.Domain.Common.Money.operator +(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "span": [
+            31,
+            5,
+            31,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-2b79e4e0396b587f81e1adc4476e02c0d328f40682f294a063385531170be426",
+          "signature": "Falah.Domain.Common.Money.operator -(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "span": [
+            32,
+            5,
+            32,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-fb15b7d83203f5c5c64b5b2e86f064e13b1d696986b6a95e3b339b8c565b22d6",
+          "signature": "Falah.Domain.Common.Money.operator -(Falah.Domain.Common.Money)",
+          "span": [
+            33,
+            5,
+            33,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-dfe2052fe432d9a1cf07032050f47700c64355309d46286d70758c51e2806f91",
+          "signature": "Falah.Domain.Common.Money.operator *(Falah.Domain.Common.Money, long)",
+          "span": [
+            34,
+            5,
+            34,
+            86
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+      "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+      "line_ranges": [
+        [
+          31,
+          42
+        ],
+        [
+          68,
+          72
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5",
+          "signature": "Falah.Infrastructure.Treasury.DepositHandler.HandleAsync(Falah.Application.Treasury.DepositRequest, CancellationToken)",
+          "span": [
+            31,
+            5,
+            106,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "line_ranges": [
+        [
+          65,
+          73
+        ],
+        [
+          102,
+          143
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-52812d646bc01666ed94fa6cafda8f2d045fb62b0e7c939f2835c3ca52b5b740",
+          "signature": "lambda expression",
+          "span": [
+            72,
+            21,
+            72,
+            127
+          ]
+        },
+        {
+          "stable_id": "sym-eff21506998a8535612b2da6e2c8a2ab908ae24c715a9f20c524a61a02c0d40e",
+          "signature": "lambda expression",
+          "span": [
+            127,
+            83,
+            127,
+            122
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "line_ranges": [
+        [
+          10,
+          11
+        ],
+        [
+          76,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-07bd03e837172dc2925f7f402d126b06ee7d334a51b5c68027946018122746c5",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.PurchaseLineTotal(long, Falah.Domain.Common.Money)",
+          "span": [
+            10,
+            5,
+            11,
+            103
+          ]
+        },
+        {
+          "stable_id": "sym-fe2f5a4666db2ef9e2420389e5c48495bd0e63834623e55d5a026f72d7b70147",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.AssertPurchasePayment(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "span": [
+            77,
+            5,
+            81,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "line_ranges": [
+        [
+          122,
+          135
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e133d5904af8e891421ef2489df104ac275f1230476034329c253ad13fce37c6",
+          "signature": "Falah.Domain.BusinessDay.BusinessDayRules.CalculateDenominationCount(IReadOnlyList<(long DenominationPiastres, long Quantity)>, long)",
+          "span": [
+            125,
+            5,
+            135,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2d9e7e9af9dbf79c2ce84a8f6e47307a31e55746afe0bde5738207e461f6ac81",
+          "signature": "lambda expression",
+          "span": [
+            128,
+            38,
+            132,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-aa2b1d30a97a3f44471d4a6ce851561fd8aee8bb78f7ff0610a1125bc8196bd3",
+          "signature": "lambda expression",
+          "span": [
+            133,
+            36,
+            133,
+            56
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "worktree_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+      "source_git_blob_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+      "line_ranges": [
+        [
+          29,
+          51
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d1fac0a62a9a06a19397c440997f02d62aec3d8d862291a178aa4e2ddf2539eb",
+          "signature": "Falah.Infrastructure.ControlCenter.SaveCashCountHandler.HandleAsync(Falah.Application.BusinessDay.SaveCashCountRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            70,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-01d4ff07b3c4456b5f4e182fc2de47177877d096f90690af10fa5ad0f61b34e1",
+          "signature": "lambda expression",
+          "span": [
+            31,
+            92,
+            31,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-8ac9e28a16c55c5a1b525e49209ffbd3f5853bd90572c763959280867d987bff",
+          "signature": "lambda expression",
+          "span": [
+            34,
+            76,
+            34,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-db2f71d3bde39e3ca2f4d4a723199de6da90119cffe1410b33a956830c6e3c78",
+          "signature": "lambda expression",
+          "span": [
+            38,
+            71,
+            38,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-0c8e31730eaa848df04f92426e1b5ce4acdb2c9659204d5d73a081c533b2a5c6",
+          "signature": "lambda expression",
+          "span": [
+            42,
+            33,
+            42,
+            74
+          ]
+        }
+      ]
+    }
+  ],
+  "reasoning": [
+    "Money.FromPiastres intentionally represents signed long facts; it does not assert a positive payment. Negative balances, net amounts and differences can be legitimate, so banning negative Money globally would regress financial meaning.",
+    "Deposit explicitly requires AmountPiastres>0 before constructing movement; aggregate paid validation in PurchasingRules does not establish positive receipt quantity/unitcost. FIN018 remains a command/line admission defect, not evidence that every signed monetary field must be positive.",
+    "Checkout accepts signed fee and attaches authorization to distinct positive discount/comp fields, established FIN016. Shared Money or client input helper does not close this server boundary.",
+    "CashCount handler delegates denomination values to Domain; Quantity clamp is intentional but denomination itself and multiplication/difference remain existing cash-count finding. LINQ Sum has different overflow behavior from unchecked per-row multiplication; do not claim all arithmetic wraps."
+  ],
+  "counterevidence": [
+    "Different commands have legitimate distinct sign/zero policies: external capital deposit positive, fully comped/zero delivery fee valid, discrepancies and balances signed.",
+    "Existing Deposit gate is positive counterevidence to blanket missing financial amount validation; no new finding count, source functions not re-promoted."
+  ],
+  "recommendations": [
+    "Define explicit typed/command-level amount and range invariants before constructing shared Money facts. Preserve signed net/difference representation and legitimate zero policy.",
+    "Centralize repeatable boundary checks only where semantics match; do not replace distinct line allocation, fee authority and physical denomination policies with a universal parser."
+  ],
+  "required_tests": [
+    "Per-command negative/zero/positive/extreme boundary matrix with permissions and atomic rejection.",
+    "Preserve legitimate negative variance/net balance and zero-price/fee/comp; FIN016/018/cashcount regressions plus valid Deposit control."
+  ],
+  "related_findings": [
+    "FIN-016",
+    "FIN-018",
+    "FIN-CAND-CASHCOUNT-001"
+  ],
+  "new_financial_callable_receipts": 0,
+  "new_canonical_findings": 0,
+  "runtime": "NOT_EXECUTED"
+}

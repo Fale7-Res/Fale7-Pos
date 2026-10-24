@@ -1,0 +1,72 @@
+{
+  "at_utc": "2026-10-19T01:56:54.112Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root",
+  "original_reviewer": "/root/financial_integrity",
+  "source_path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+  "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+  "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+  "review_artifact": "Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs.json",
+  "review_snapshot_sha256": "536a4c1610ac44c3bf78f0fd13fc48a719adc628a40f2617699be05108359bb1",
+  "checks": [
+    {
+      "stable_id": "sym-8db96d208b788eeb4c7c1b2f9f314e6bc9ebc69d3fdceaf0b10bb5642817b1f9",
+      "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.ListInventoryItemsAsync(CancellationToken)",
+      "span": [
+        20,
+        5,
+        35,
+        6
+      ],
+      "decision": "BOUNDED_INDEPENDENT_SOURCE_REASONING_CORROBORATION",
+      "reasoning": "Source correctly uses all-time signed In/Out aggregation and current item Unit/minimum; no stored balance update. Independent separate reads are not one snapshot. Confirms FIN013 counterevidence, not universal dashboard sign bug.",
+      "scope_limit": "No endpoint/provider/SQL execution; not whole-file certification."
+    },
+    {
+      "stable_id": "sym-fd7c46353845795a8fc1119558a5ab749183194a477368fe130f4282e6dfd415",
+      "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.GetStockBalanceAsync(string, CancellationToken)",
+      "span": [
+        37,
+        5,
+        41,
+        6
+      ],
+      "decision": "BOUNDED_INDEPENDENT_SOURCE_REASONING_CORROBORATION",
+      "reasoning": "Source calls item-filtered LoadFacts216-221 then Domain signed balance. Helper parses persisted type/direction; local function has no independent account/stock mutation. No endpoint permission/unknown-enum runtime guarantee inferred.",
+      "scope_limit": "No endpoint/provider/SQL execution; not whole-file certification."
+    },
+    {
+      "stable_id": "sym-00eaaf67afeee584ae99097746b60863ec5fea8d6d4fcfb0a753373931745fa5",
+      "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.ListStockMovementsAsync(string?, int, CancellationToken)",
+      "span": [
+        43,
+        5,
+        50,
+        6
+      ],
+      "decision": "BOUNDED_INDEPENDENT_SOURCE_REASONING_CORROBORATION",
+      "reasoning": "Optional item filter, descending timestamp, caller Take limit and DTO projection exactly present. No local limit cap or secondary ordering; source receipt limits this to query behavior, not demonstrated provider failure.",
+      "scope_limit": "No endpoint/provider/SQL execution; not whole-file certification."
+    },
+    {
+      "stable_id": "sym-8671c1f3d869cc9eba8160385753432ba9f5b8ff5ff7bbf29fd7ebc5578ae54a",
+      "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.GetLossSummaryAsync(DateOnly, CancellationToken)",
+      "span": [
+        52,
+        5,
+        65,
+        6
+      ],
+      "decision": "BOUNDED_INDEPENDENT_SOURCE_REASONING_CORROBORATION",
+      "reasoning": "Uses shared business-date UTC half-open interval and three named loss types; persisted null values summed as0 while rowcount retained. Frozen-value use confirmed, unknown-valuations presentation remains unpromoted lead, not treasury loss.",
+      "scope_limit": "No endpoint/provider/SQL execution; not whole-file certification."
+    }
+  ],
+  "field_specificity_note": "Per-method reasoning is substantive; several supporting inputs/outputs/performance/tests fields are batch-level reusable context. They must not be interpreted as every listed input/test applying to every method or all callees/endpoints verified.",
+  "counts": {
+    "methods_spotchecked": 4,
+    "new_financial_author_receipts": 0
+  },
+  "gate": "BOUNDED_SPOTCHECK_PASS_WITH_SCOPE_AND_FIELD_SPECIFICITY_NOTE",
+  "remaining": "Other financial methods/callees remain own exact queue; this sample does not independently certify5940receipts."
+}

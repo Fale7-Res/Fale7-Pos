@@ -1,0 +1,1326 @@
+{
+  "at_utc": "2026-10-18T09:45:50.631544+00:00",
+  "id": "FIN-005",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "disposition": "FINDING_SURVIVES_BUT_LEGACY_MODEL_CITATION_IRRELEVANT_AND_REQUIRES_CORRECTION",
+  "original_finding_preserved": {
+    "id": "FIN-005",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 36,
+        "end": 44,
+        "source_excerpt": "        var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)\n            .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)\n            ?? throw new InvalidOperationException(\"فاتورة الشراء غير موجودة.\");\n        if (purchase.Status == \"cancelled\") throw new DomainException(\"فاتورة الشراء غير متاحة للسداد.\");\n\n        var idempotencyKey = $\"purchase-payment-{purchase.Id}-{request.RequestId}\";\n        var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);\n        if (existingPayment is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 59,
+        "end": 80,
+        "source_excerpt": "        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()\n            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);\n        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(\n            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),\n            purchase.SupplierId, purchase.Id);\n\n        var amount = Money.FromPiastres(request.AmountPiastres);\n        PurchasingRules.AssertPurchasePayment(amount, outstanding);\n        if (!amount.IsPositive) throw new DomainException(\"مبلغ السداد يجب أن يكون أكبر من صفر.\");\n\n        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)\n            ?? throw new DomainException(\"يجب تحديد حساب دفع فعلي.\");\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Read under a lock, inside the transaction, immediately before spending.\n            // Outside it, concurrent commands each read the same balance, each decide it covers\n            // them, and each write - which is how an account holding 30 paid out three separate\n            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 95,
+        "end": 115,
+        "source_excerpt": "            var remaining = outstanding - amount;\n            purchase.PaidPiastres += amount.Piastres;\n            purchase.RemainingAmountPiastres = remaining.Piastres;\n            purchase.PaymentStatus = remaining.Piastres == 0 ? \"paid\" : \"partially_paid\";\n            purchase.Status = purchase.PaymentStatus;\n            purchase.Payments.Add(new PurchasePaymentEntity\n            {\n                Id = $\"payment-{request.RequestId}\", IdempotencyKey = idempotencyKey, PurchaseId = purchase.Id,\n                SupplierId = purchase.SupplierId, AmountPiastres = amount.Piastres, PaymentAccountId = accountId,\n                TreasuryMovementId = movement.Id, OperationId = operationId, CreatedBy = actorUser.Name,\n                ApprovedBy = authorization.Approver?.ApproverName, CreatedAtUtc = now,\n            });\n\n            _db.SupplierLedgerEntries.Add(new SupplierLedgerEntryEntity\n            {\n                Id = $\"ledger-{idempotencyKey}\", IdempotencyKey = idempotencyKey, SupplierId = purchase.SupplierId,\n                Type = \"supplier_payment\", DebitPiastres = 0, CreditPiastres = amount.Piastres, PurchaseId = purchase.Id,\n                ReferenceId = purchase.Id, Reason = \"سداد لاحق لفاتورة مشتريات\", CreatedBy = actorUser.Name,\n                OperationId = operationId, TreasuryMovementId = movement.Id, CreatedAtUtc = now,\n            });\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "start": 309,
+        "end": 328,
+        "source_excerpt": "            b.HasKey(c => c.Id);\n            // Phone is the identity - never looked up or merged by name (CustomerRules' own doc\n            // comment). The database itself, not just an application-level check, refuses a second\n            // customer row for the same normalized phone number.\n            b.HasIndex(c => c.Phone).IsUnique();\n            b.HasMany(c => c.Addresses).WithOne().HasForeignKey(a => a.CustomerId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<CustomerAddressEntity>(b => b.HasKey(a => a.Id));\n\n        modelBuilder.Entity<DriverEntity>(b => b.HasKey(d => d.Id));\n        modelBuilder.Entity<DeliveryServiceEntity>(b => b.HasKey(d => d.Id));\n\n        modelBuilder.Entity<DeliveryEntity>(b =>\n        {\n            b.HasKey(d => d.Id);\n            // One delivery row per order, ever - this is what makes checkout's auto-creation\n            // idempotent by construction on retry, the same way CheckoutRequestId protects Orders.\n            b.HasIndex(d => d.OrderId).IsUnique();\n            b.HasOne<OrderEntity>().WithMany().HasForeignKey(d => d.OrderId).OnDelete(DeleteBehavior.Restrict);\n            b.HasOne<ShiftEntity>().WithMany().HasForeignKey(d => d.ShiftId).OnDelete(DeleteBehavior.Restrict);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB invoice outstanding 100 EGP, source account 1000. Two requests different RequestIds both pre-read 100, each pays 80. Account lock serializes account only; second never refreshes invoice. Ledger receives total160 while invoice stale Paid80/Remaining20.",
+    "root_cause": "Business invariant checked outside transaction and unrelated account lock; purchase has no concurrency token or invoice row lock.",
+    "correction_design": "Acquire invoice UPDLOCK/HOLDLOCK in transaction before reading outstanding and tracked state; requery supplier invoice ledger under protection, validate then post/cache. Stable lock ordering relative to account and approvals; unique keys remain for replay.",
+    "regression_tests": "Barrier-controlled two distinct 80 payments against 100 from same and different accounts: one succeeds, one rejects, total <=100, caches equal ledger; same-request retry replays.",
+    "counterevidence_and_limits": "Treasury lock protects account from negative pooled balance but cannot make stale outstanding fresh. Different IDs legitimately bypass idempotency. No runtime reproduction performed.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs"
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          277,
+          305
+        ]
+      ],
+      "excerpts": [
+        {
+          "start": 277,
+          "end": 305,
+          "source_excerpt": "        modelBuilder.Entity<PurchaseEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            // Same idempotency contract as every other financial command in this codebase - a\n            // retried receivePurchase can never post the same invoice/stock/payment twice.\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(p => p.SupplierId).OnDelete(DeleteBehavior.Restrict);\n            b.HasMany(p => p.Lines).WithOne().HasForeignKey(l => l.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n            b.HasMany(p => p.Payments).WithOne().HasForeignKey(pp => pp.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<PurchaseLineEntity>(b =>\n        {\n            b.HasKey(l => l.Id);\n            b.HasOne<InventoryItemEntity>().WithMany().HasForeignKey(l => l.InventoryItemId).OnDelete(DeleteBehavior.Restrict);\n        });\n        modelBuilder.Entity<PurchasePaymentEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n        });\n        modelBuilder.Entity<SupplierLedgerEntryEntity>(b =>\n        {\n            b.HasKey(e => e.Id);\n            b.HasIndex(e => e.IdempotencyKey).IsUnique();\n            // Every read of \"how much do we owe this supplier\" (or \"for this one invoice\") filters\n            // by exactly this - see PurchasingRules.SupplierOutstandingFromLedger.\n            b.HasIndex(e => new { e.SupplierId, e.PurchaseId });\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(e => e.SupplierId).OnDelete(DeleteBehavior.Restrict);\n        });"
+        }
+      ],
+      "symbol_contexts": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1cdf05cee28a4c4e601f25e1f7fc8407a7e4452bd80cdb6fc4d7f7365c429bca",
+          "signature": "lambda expression",
+          "span": [
+            277,
+            45,
+            286,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-d386cdd06086d1412f8d605758f3a7152955533fa47377902e1e1184adaf5a67",
+          "signature": "lambda expression",
+          "span": [
+            279,
+            22,
+            279,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-2676704e61c14f9050c6855657e6d5bc712ab0f853e5cb53268e2b86d2f8d38d",
+          "signature": "lambda expression",
+          "span": [
+            282,
+            24,
+            282,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-b1a38776b2d3361d2b565a8870cc77ead8d9049be8a40971dbc3e2e016c24ead",
+          "signature": "lambda expression",
+          "span": [
+            283,
+            65,
+            283,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-1f8bcc6a662396161b70b5c814648babdcaea07627c68732c83902e0dc70900c",
+          "signature": "lambda expression",
+          "span": [
+            284,
+            23,
+            284,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-c42e29fb725a83964f497ff0bc85fa4c93ac5acbc8e29d1c7d8c059b893f43fe",
+          "signature": "lambda expression",
+          "span": [
+            284,
+            61,
+            284,
+            78
+          ]
+        },
+        {
+          "stable_id": "sym-01d53c4d80724dd5ed92431636bf6ce06d38e940ff26cd2be5d6c44bb631d8ab",
+          "signature": "lambda expression",
+          "span": [
+            285,
+            23,
+            285,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-4e6316f1723fa184e3fcaef43785290d9873851f18f9dccca1569686d1f3761a",
+          "signature": "lambda expression",
+          "span": [
+            285,
+            64,
+            285,
+            83
+          ]
+        },
+        {
+          "stable_id": "sym-cb5bf9ef6b893ff746b592fbc3b75019fc8e62b70fd21deb8e1fb15ccf5eb00b",
+          "signature": "lambda expression",
+          "span": [
+            287,
+            49,
+            291,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-9f6516a8a2efdfd0834f070757e6b2fabb987347b42bd3670fc24c8f43b0e1df",
+          "signature": "lambda expression",
+          "span": [
+            289,
+            22,
+            289,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-e89f37bee890b9219d084e25ab00bde6b413eaaaa6d51dce32366f2e62088b02",
+          "signature": "lambda expression",
+          "span": [
+            290,
+            70,
+            290,
+            92
+          ]
+        },
+        {
+          "stable_id": "sym-3258b12c151d7bc2d27d518597b9c53ca7dedf5332f803466f0994f214e582b8",
+          "signature": "lambda expression",
+          "span": [
+            292,
+            52,
+            296,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-7327f2eb36b97dec7aa13f8fadae498d4e4f19a9f3a8e7bfb23f2c1ff043df6c",
+          "signature": "lambda expression",
+          "span": [
+            294,
+            22,
+            294,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-4896d8f30954ca801a3ef11c7e1d8be0a9afc6262987e795294491494cd114f5",
+          "signature": "lambda expression",
+          "span": [
+            295,
+            24,
+            295,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-9397c5cad3d87715bdf9d8ffa0cacc227938f219355cebeb7223b189cf159549",
+          "signature": "lambda expression",
+          "span": [
+            297,
+            56,
+            305,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-94ff9373c314bb612b9114d6b94919aa1f18562d07b43bf930dca8021314dc09",
+          "signature": "lambda expression",
+          "span": [
+            299,
+            22,
+            299,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-235cb38faeee33e2f241dbbafd26965a8f9cfd4e2082cd97d4bdf58179919dde",
+          "signature": "lambda expression",
+          "span": [
+            300,
+            24,
+            300,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-35fa54d0e22fb324e78fbd6d0e0be9060c2f6fa6dcdbfa6ae7b8eda33e2c03f6",
+          "signature": "lambda expression",
+          "span": [
+            303,
+            24,
+            303,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-e9752202c3273b1839b3563a0999556e6592250989c29438ee6788f29d8f7e49",
+          "signature": "lambda expression",
+          "span": [
+            304,
+            65,
+            304,
+            82
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+      "worktree_sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978",
+      "source_git_blob_sha256": "8bee9148544c6025b177b748cef36ac65761b11b9d979df1c686d3bfceb289a3",
+      "line_ranges": [
+        [
+          20,
+          60
+        ],
+        [
+          75,
+          89
+        ],
+        [
+          93,
+          112
+        ]
+      ],
+      "excerpts": [
+        {
+          "start": 20,
+          "end": 60,
+          "source_excerpt": "public class PurchaseEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public string? InvoiceNumber { get; set; }\n    public long SubtotalPiastres { get; set; }\n    public long TotalPiastres { get; set; }\n    public long PaidPiastres { get; set; }\n    public long RemainingAmountPiastres { get; set; }\n    /// <summary>One of cash/instapay/bank/credit - \"credit\" (آجل) means nothing was paid at receipt\n    /// time; the invoice is carried entirely on the supplier ledger until a later payment.</summary>\n    public string PaymentMethod { get; set; } = default!;\n    /// <summary>The real treasury account the INITIAL payment (if any) was drawn from - null when\n    /// PaymentMethod is credit or Paid is zero. A purchase can later accumulate further payments\n    /// (see PurchasePaymentEntity) against different accounts; this column only records the first.</summary>\n    public string? PaymentAccountId { get; set; }\n    /// <summary>draft/received/partially_paid/paid/cancelled - mirrors PaymentStatus except a\n    /// fully-unpaid invoice reads \"received\", not \"unpaid\" (there is no distinct draft state used by\n    /// this system's checkout-free receiving flow).</summary>\n    public string Status { get; set; } = default!;\n    public string PaymentStatus { get; set; } = default!;\n    public string ReceivedBy { get; set; } = default!;\n    public string? Notes { get; set; }\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    /// <summary>The treasury movement for the INITIAL payment at receipt time only - null when\n    /// nothing was paid then. Later payments each carry their own movement id on their own\n    /// PurchasePaymentEntity row instead.</summary>\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n\n    /// <summary>When this invoice is due, as a business date. Null means no term was agreed - which\n    /// is a real and common state, not a missing value to guess at: an invoice with no due date is\n    /// never reported as overdue, it is reported as having no due date. Aging still ages it, by the\n    /// date it was received, because \"how long have we been carrying this\" is answerable either way.</summary>\n    public DateOnly? DueDate { get; set; }\n\n    public List<PurchaseLineEntity> Lines { get; set; } = new();\n    public List<PurchasePaymentEntity> Payments { get; set; } = new();\n}"
+        },
+        {
+          "start": 75,
+          "end": 89,
+          "source_excerpt": "public class PurchasePaymentEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string PurchaseId { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public long AmountPiastres { get; set; }\n    public string PaymentAccountId { get; set; } = default!;\n    public string TreasuryMovementId { get; set; } = default!;\n    public string OperationId { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? ApprovedBy { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}\n"
+        },
+        {
+          "start": 93,
+          "end": 112,
+          "source_excerpt": "public class SupplierLedgerEntryEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    /// <summary>purchase_invoice (debit) or supplier_payment (credit) - the only two types this\n    /// system posts; supplier_return/adjustment exist in the reference app's type union but have no\n    /// command that produces them yet (no supplier-return flow in this pass).</summary>\n    public string Type { get; set; } = default!;\n    public long DebitPiastres { get; set; }\n    public long CreditPiastres { get; set; }\n    public string? PurchaseId { get; set; }\n    public string? ReferenceId { get; set; }\n    public string Reason { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}"
+        }
+      ],
+      "symbol_contexts": [
+        {
+          "stable_id": "sym-3d4206cf63b4b0d71e3d26aa5c48bbe723469eda813f465bfb66aea10d68bd32",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Id.get",
+          "span": [
+            22,
+            24,
+            22,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-7e61fa28983be7e0b5eac85f5f2ca4af219ab1ea9797f0524a4a0ff09cceb148",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Id.set",
+          "span": [
+            22,
+            29,
+            22,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-7ccd3ef535d73aa667617160107b3287670c5a7503bb952efae77a804a55c5d8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.IdempotencyKey.get",
+          "span": [
+            23,
+            36,
+            23,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-ab7f14939aeaa4d29c94f614b81e56071e14dd0cf1dfc67fa4ee032f6cf24229",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.IdempotencyKey.set",
+          "span": [
+            23,
+            41,
+            23,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-4f89cec344674ec49ef73a16914dc4b482bdc9efeb00884c7f63179586f41e60",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SupplierId.get",
+          "span": [
+            24,
+            32,
+            24,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-30c4ac53a15566f7660edd2d3b84423a2a1764c4109bc37799490d71a4e1920e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SupplierId.set",
+          "span": [
+            24,
+            37,
+            24,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-7623d05e89b73c14de5a2b821bc6cf3e97800a12604b96210b38d6db95db4832",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.InvoiceNumber.get",
+          "span": [
+            25,
+            36,
+            25,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-52e6c649b19fa2e3d3e62e7b6d4bd0249b67b7840690d2ed99f44f14b0f4cfd7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.InvoiceNumber.set",
+          "span": [
+            25,
+            41,
+            25,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-4e3b237be003491734ae0d063fb0c72dbf6e61bb8897a769d7544eabd10e9ee8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SubtotalPiastres.get",
+          "span": [
+            26,
+            36,
+            26,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-3f11eca9e1f00421d073fd2e4da6642e7a5840ad182541f2a9b19fdc3d92a364",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.SubtotalPiastres.set",
+          "span": [
+            26,
+            41,
+            26,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-5f5f14b555b8f7ce5492b4d72e1da5ce790a9b01e959c8194aaafda4843cb22b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TotalPiastres.get",
+          "span": [
+            27,
+            33,
+            27,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-231f47890f445fb633dcabba07eac28a51838c8eaecde8c0d07c1a7fb334221c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TotalPiastres.set",
+          "span": [
+            27,
+            38,
+            27,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-49984e9a2c89416a5be45e1ab3629c3c340c0a4a9c7db499ee743a5fbcef381a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaidPiastres.get",
+          "span": [
+            28,
+            32,
+            28,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-4b068ab5c9ebf472c3bcd0bbe30d74665de8ee30b08c453c81598c9f6f125514",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaidPiastres.set",
+          "span": [
+            28,
+            37,
+            28,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-d8c77ecaa63b7f7f9906f00ab332de0a073d2d6e1363dfc60d284fd7472a31c1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.RemainingAmountPiastres.get",
+          "span": [
+            29,
+            43,
+            29,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-e6576004de9fbc840e9f7b52dce1a31d78f0b6f62199e0a39860df831ad1e3b6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.RemainingAmountPiastres.set",
+          "span": [
+            29,
+            48,
+            29,
+            52
+          ]
+        },
+        {
+          "stable_id": "sym-30b97fb27b87caf98b72bd4e9c563accf5133e95f955d8d874e821b6c86dd43f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentMethod.get",
+          "span": [
+            32,
+            35,
+            32,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-ed13e99cc952e256b6526f4f12176d3c69f4d7632f492978f1d3ecbda666d451",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentMethod.set",
+          "span": [
+            32,
+            40,
+            32,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-c37b13651b3825a5768344197b5978d5a65c1c4fdd50f2ffa0ca23d9f6095112",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentAccountId.get",
+          "span": [
+            36,
+            39,
+            36,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-368b43a57218c04090f59a78af024eff979993c9a9fc323f1d1ee8b2b49104e3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentAccountId.set",
+          "span": [
+            36,
+            44,
+            36,
+            48
+          ]
+        },
+        {
+          "stable_id": "sym-0477b57bf9397bd0a436e7bc941e10934d8c57044e99e5cf09877fa2c71f1d44",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Status.get",
+          "span": [
+            40,
+            28,
+            40,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-59cd8ef74cee9c369227617bf38629624896a60c7f8aa538b120e08400250ed3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Status.set",
+          "span": [
+            40,
+            33,
+            40,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-cec60b8f936bac8afaef3f6499ec66e0fa098255be4234680173f57046f85228",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentStatus.get",
+          "span": [
+            41,
+            35,
+            41,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-583aba0d5ea5f76521a2265c83d867b5a0a7e01c3bcc78b3b45d9a9998b2c603",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.PaymentStatus.set",
+          "span": [
+            41,
+            40,
+            41,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-53f76cc7965d3ddc2e0f64608ec4835696c6e503f22156e939f9ef94db7fad6c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.ReceivedBy.get",
+          "span": [
+            42,
+            32,
+            42,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-c1c649e49141c2a49148a9e6670e6016ec0269779e75292ad22c2d8f122e3c42",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.ReceivedBy.set",
+          "span": [
+            42,
+            37,
+            42,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-af3a4dfc76c94b8e9aa1bd6c8f6e9aaaab7368e51efefc2441c9d35e339e2010",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Notes.get",
+          "span": [
+            43,
+            28,
+            43,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-4a2ec86884bcf06a3a1ffa10d8663aee363af7b84431221182f5a6d103a6d27c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Notes.set",
+          "span": [
+            43,
+            33,
+            43,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-7af3988224e4b07311833842c092542e56ce56cf9833e6868ad705bde146e108",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedBy.get",
+          "span": [
+            44,
+            31,
+            44,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-d474631348d0125fe0ce1450ddd5f97d198316e710e400b5d2cf10823d552026",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedBy.set",
+          "span": [
+            44,
+            36,
+            44,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-555b1788755c6caa72c37300656d011c942647b37e1d2b729dc7b596b56b3b40",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.OperationId.get",
+          "span": [
+            45,
+            34,
+            45,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-a8497ee592f817d343ffc6577841376b137fa6f994e377d366f535a79bf2a96b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.OperationId.set",
+          "span": [
+            45,
+            39,
+            45,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-1194cfc31e7cf43be2556ea09f84087b481c0cb57f0fb0585660c57f9b767ac0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TreasuryMovementId.get",
+          "span": [
+            49,
+            41,
+            49,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-494ea5715692a2a0592ed2794da0beefdbe860c058f15c6d095eedc6c9959cd5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.TreasuryMovementId.set",
+          "span": [
+            49,
+            46,
+            49,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-15f23e8b7fee488f596221426e7dba5dbbe1d1d647715968198d9bcbaa2dfa25",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedAtUtc.get",
+          "span": [
+            50,
+            42,
+            50,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-f7507a70054a241cedf3a776690827f1aceacf8c780c388a3b2aa6b3d6ae1c6d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.CreatedAtUtc.set",
+          "span": [
+            50,
+            47,
+            50,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-8b7d69615a1e0240dba07204e3900552e3e8866d00e067a5107f1a4424c04a10",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.DueDate.get",
+          "span": [
+            56,
+            32,
+            56,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-922ac8a8aa10610cde8ba954405e42a788377c7ea9e98c138d5c6bd5233a61ae",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.DueDate.set",
+          "span": [
+            56,
+            37,
+            56,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-39c2a06f9e576f27f87f8c858e8705069ce461c9e0121691c3cd46454157e186",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Lines.get",
+          "span": [
+            58,
+            45,
+            58,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-b1764630827c5ab136f1a68bacd2aeec66d0fbde75d9f00f1d0b8bee181e51a1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Lines.set",
+          "span": [
+            58,
+            50,
+            58,
+            54
+          ]
+        },
+        {
+          "stable_id": "sym-2a238c0b1a184dec21e909e7d6150b13f0cabb141fe6f8a785de362e997d922a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Payments.get",
+          "span": [
+            59,
+            51,
+            59,
+            55
+          ]
+        },
+        {
+          "stable_id": "sym-df1b57efed12cd7c058572490da013eb2c7f1f5d23c405f81e735918cf9aafb0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchaseEntity.Payments.set",
+          "span": [
+            59,
+            56,
+            59,
+            60
+          ]
+        },
+        {
+          "stable_id": "sym-863985fb1684a784c2f73c2513511a23a20930a4e468e2e18d8345d5e438b64f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.Id.get",
+          "span": [
+            77,
+            24,
+            77,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-d972d6e6b7ca45944108b5a28a4d8afc27c555e35bd32f60438b354dd315183e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.Id.set",
+          "span": [
+            77,
+            29,
+            77,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-943585155857308c2729f0e9bea9eca7a0ebe27287bbd3efcc2ab70a5974b91d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.IdempotencyKey.get",
+          "span": [
+            78,
+            36,
+            78,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-dc10192f5b23b06d2b20a4fb1ef041c461ecfb72261da525b268e222f8db56fa",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.IdempotencyKey.set",
+          "span": [
+            78,
+            41,
+            78,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-1074d6740edf41e939952c5f118bbffdaf632f158ba8e58dbb1fc8b603160db1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PurchaseId.get",
+          "span": [
+            79,
+            32,
+            79,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-37eb04aa7891647dbef4d78a090809d5b98dd85a45fe58b445d2475ca91013fa",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PurchaseId.set",
+          "span": [
+            79,
+            37,
+            79,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-cbb972934dcec0978ecd189723efb4ad3f00a6216098b16c6ba939806402fa12",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.SupplierId.get",
+          "span": [
+            80,
+            32,
+            80,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-d835cd2936c1bff5f9b6a08de8b26b5f87cac903d1864e4e6f68279715e82d80",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.SupplierId.set",
+          "span": [
+            80,
+            37,
+            80,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-c0290d400195872d2c2a848b7a0d448fa521e3e8286a7343a6f1a33d9e47fb0a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.AmountPiastres.get",
+          "span": [
+            81,
+            34,
+            81,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-f08189daa835f892c1d4de306bc97394acc460b979541b02c4eb1edaf5032409",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.AmountPiastres.set",
+          "span": [
+            81,
+            39,
+            81,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-f2a56e95d84b396ec36e14583650876f2e3cf298aea15c0b53c0411b9f788fa2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PaymentAccountId.get",
+          "span": [
+            82,
+            38,
+            82,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-0d7c1725b5dd16f704e13da19dd002384d7227bef55146c097dd7ddbb50f0dd9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.PaymentAccountId.set",
+          "span": [
+            82,
+            43,
+            82,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-43b0e4af380c11a1623f49571d33cc092f0cd85b42d49d12755332f4b49a4d7d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.TreasuryMovementId.get",
+          "span": [
+            83,
+            40,
+            83,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-f210ad042ce4ab7129ecc1e0dcba3fc61312aab64078f4ba1c24f2c4fe242cf4",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.TreasuryMovementId.set",
+          "span": [
+            83,
+            45,
+            83,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-a24795ead351bb33b354e798d54d8771bb733f84251b7edf736f1921466051af",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.OperationId.get",
+          "span": [
+            84,
+            33,
+            84,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-bb1c47f118bbe3ab78738e57915a7ecf0cd1ad1ecf28a9aea441d224a373a9ed",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.OperationId.set",
+          "span": [
+            84,
+            38,
+            84,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-22e920872b1d02e97037d25bbd3b8c3362a341311857805fbd3a5878e92d3313",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedBy.get",
+          "span": [
+            85,
+            31,
+            85,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-b2c0c28b6421831ebde193e74c5ee85a2f88b7246d1ec345c40e6ccafbb94e30",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedBy.set",
+          "span": [
+            85,
+            36,
+            85,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-3837b147f693c9cfb837c5d010602f16a131ca90e559a8ba9ab0cba907b68e2a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.ApprovedBy.get",
+          "span": [
+            86,
+            33,
+            86,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-6bb816c719fc7639517d2229e3fbba1e1b37085453570298a71eba0b4ce3959e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.ApprovedBy.set",
+          "span": [
+            86,
+            38,
+            86,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-7780d9c42303770f12640651093bfb94f96a346c0de4a6d94610ae4726ec308a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedAtUtc.get",
+          "span": [
+            87,
+            42,
+            87,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-38d77608088253f19d4b70a538e946adabe900106ab2994eebbebfbfd8ea6c25",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PurchasePaymentEntity.CreatedAtUtc.set",
+          "span": [
+            87,
+            47,
+            87,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-4e513a1696ba75f92bdc76ef8238ad0eaa1ab3366acc8c52fed500366e9af037",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Id.get",
+          "span": [
+            95,
+            24,
+            95,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-57bc6a93ab1028aef3da2214656797973371361ab93b03e68cf96aa92dbbc8d2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Id.set",
+          "span": [
+            95,
+            29,
+            95,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-19a38f620d94524568156f0cae34cf3341ad7d5f1e0d5cd46293957a93c8f3ab",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.IdempotencyKey.get",
+          "span": [
+            96,
+            36,
+            96,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-69ac914bb7859dc911c365b946aa539a1131d120479dc372df14f08ea6f92a22",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.IdempotencyKey.set",
+          "span": [
+            96,
+            41,
+            96,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-3b23c6063a811fd461f0aa2386e4dc54956c0d7ee513de5d740d8c3c3821cc65",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.SupplierId.get",
+          "span": [
+            97,
+            32,
+            97,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-79688d3111bf6eb4b423a1771bd8bbb57766424a7a0975e36172ca3afed86b0f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.SupplierId.set",
+          "span": [
+            97,
+            37,
+            97,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-814c63c1fe012c61eb84733a8745b62594a31d60fc6a304e43f0a41a521757a1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Type.get",
+          "span": [
+            101,
+            26,
+            101,
+            30
+          ]
+        },
+        {
+          "stable_id": "sym-e0b8cf3d00f1012d3e94ae4b086d5b0152525d32f219f9996f34bda1aadb4ffd",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Type.set",
+          "span": [
+            101,
+            31,
+            101,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-e268dc92b3f5fa368c32fce01c4ca3f067fc4417ed01cf40e3c2d4335c6366a9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.DebitPiastres.get",
+          "span": [
+            102,
+            33,
+            102,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-811bc948683efd4de3eeedfbff4f3b89dcea991b9b0add67bcbf5f8898aea128",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.DebitPiastres.set",
+          "span": [
+            102,
+            38,
+            102,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-5330e3379d42a59513b856286ba074b5464f651b87b1bd49c7738eed514acc5d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreditPiastres.get",
+          "span": [
+            103,
+            34,
+            103,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-5b59e22ee280954bf95f9b4da07aa4da3e5273811331c44eb0e7677a88d72eb2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreditPiastres.set",
+          "span": [
+            103,
+            39,
+            103,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-c02f345be87f3e2a3ce1ee2d7c236af96f66ed1f5b3960d7096ca97b725208b8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.PurchaseId.get",
+          "span": [
+            104,
+            33,
+            104,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-6d5857c456c60102c592d32f3f42e19b75fc7164aedc0a386701d472af229a84",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.PurchaseId.set",
+          "span": [
+            104,
+            38,
+            104,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-e25eb2ba3a7ba68ae60a5e3a3ee80b7541be116b05909fc07c1d1c0bbd431636",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.ReferenceId.get",
+          "span": [
+            105,
+            34,
+            105,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-db723d2cb6815304fcf75bb9d52fc192ec5684a28be518f394b7d72e5eef51ec",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.ReferenceId.set",
+          "span": [
+            105,
+            39,
+            105,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-c31d704bc402e69092cf0c44c5718f3f3946fc30c69d5c6dcc76014efe7b1374",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Reason.get",
+          "span": [
+            106,
+            28,
+            106,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-659180cea31904a7e9e8f2746aa9ad063950278d2faa5f358e5ce2c28fdc231b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.Reason.set",
+          "span": [
+            106,
+            33,
+            106,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-c59facb9f353c99c5dab4ccebd5066326c18daf23ee7423e0e6d4730eaa35eb8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedBy.get",
+          "span": [
+            107,
+            31,
+            107,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-c4cc30d0b740d2a08d9b1fe4149778c847844e042eeb74c530f9571d1d043311",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedBy.set",
+          "span": [
+            107,
+            36,
+            107,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-5b8188f4e2225e550a95f3638b49cc45cf229425dda4296fb77f3008e47b5c4a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.OperationId.get",
+          "span": [
+            108,
+            34,
+            108,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-4c028b935898413e795d51a3ebb4f0bc2c0390ed2de94b293872f624b741030a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.OperationId.set",
+          "span": [
+            108,
+            39,
+            108,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-4826a5a7ae2ab00980e82004fc2ab107cb1af417ac540d7801c7ec869c309589",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.TreasuryMovementId.get",
+          "span": [
+            109,
+            41,
+            109,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-dd065ffa18b1d924741d2923baf237f9c066decfacbb7e563245999beb5bee52",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.TreasuryMovementId.set",
+          "span": [
+            109,
+            46,
+            109,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-575c006755178eb6627c9c0456a75762fcefc0633ce6c95ea422fc1a7799f009",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedAtUtc.get",
+          "span": [
+            110,
+            42,
+            110,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-478bfae1975295d4c9580cef1f543de0fa70999433a329ee2b5b3ac7560feeae",
+          "signature": "Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity.CreatedAtUtc.set",
+          "span": [
+            110,
+            47,
+            110,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "worktree_sha256": "34ed4f90f854e21b20c18b1c708754d010dc9b3313c648c5b29be1af08844306",
+      "source_git_blob_sha256": "be370184f006f531f6e35a30c4bfe6c8ab03cea1f55db268a0148dfbc22f9ba2",
+      "line_ranges": [
+        [
+          36,
+          44
+        ],
+        [
+          59,
+          81
+        ],
+        [
+          95,
+          115
+        ]
+      ],
+      "excerpts": [
+        {
+          "start": 36,
+          "end": 44,
+          "source_excerpt": "        var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)\n            .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)\n            ?? throw new InvalidOperationException(\"فاتورة الشراء غير موجودة.\");\n        if (purchase.Status == \"cancelled\") throw new DomainException(\"فاتورة الشراء غير متاحة للسداد.\");\n\n        var idempotencyKey = $\"purchase-payment-{purchase.Id}-{request.RequestId}\";\n        var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);\n        if (existingPayment is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);\n"
+        },
+        {
+          "start": 59,
+          "end": 81,
+          "source_excerpt": "        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()\n            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);\n        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(\n            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),\n            purchase.SupplierId, purchase.Id);\n\n        var amount = Money.FromPiastres(request.AmountPiastres);\n        PurchasingRules.AssertPurchasePayment(amount, outstanding);\n        if (!amount.IsPositive) throw new DomainException(\"مبلغ السداد يجب أن يكون أكبر من صفر.\");\n\n        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)\n            ?? throw new DomainException(\"يجب تحديد حساب دفع فعلي.\");\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Read under a lock, inside the transaction, immediately before spending.\n            // Outside it, concurrent commands each read the same balance, each decide it covers\n            // them, and each write - which is how an account holding 30 paid out three separate\n            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);\n            FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, amount);"
+        },
+        {
+          "start": 95,
+          "end": 115,
+          "source_excerpt": "            var remaining = outstanding - amount;\n            purchase.PaidPiastres += amount.Piastres;\n            purchase.RemainingAmountPiastres = remaining.Piastres;\n            purchase.PaymentStatus = remaining.Piastres == 0 ? \"paid\" : \"partially_paid\";\n            purchase.Status = purchase.PaymentStatus;\n            purchase.Payments.Add(new PurchasePaymentEntity\n            {\n                Id = $\"payment-{request.RequestId}\", IdempotencyKey = idempotencyKey, PurchaseId = purchase.Id,\n                SupplierId = purchase.SupplierId, AmountPiastres = amount.Piastres, PaymentAccountId = accountId,\n                TreasuryMovementId = movement.Id, OperationId = operationId, CreatedBy = actorUser.Name,\n                ApprovedBy = authorization.Approver?.ApproverName, CreatedAtUtc = now,\n            });\n\n            _db.SupplierLedgerEntries.Add(new SupplierLedgerEntryEntity\n            {\n                Id = $\"ledger-{idempotencyKey}\", IdempotencyKey = idempotencyKey, SupplierId = purchase.SupplierId,\n                Type = \"supplier_payment\", DebitPiastres = 0, CreditPiastres = amount.Piastres, PurchaseId = purchase.Id,\n                ReferenceId = purchase.Id, Reason = \"سداد لاحق لفاتورة مشتريات\", CreatedBy = actorUser.Name,\n                OperationId = operationId, TreasuryMovementId = movement.Id, CreatedAtUtc = now,\n            });\n"
+        }
+      ],
+      "symbol_contexts": [
+        {
+          "stable_id": "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+          "signature": "Falah.Infrastructure.Purchasing.PayPurchaseHandler.HandleAsync(Falah.Application.Purchasing.PayPurchaseRequest, CancellationToken)",
+          "span": [
+            34,
+            5,
+            149,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-96bb62d46b55e676bafefc69b465092c0eb5f80d3a251f2cd944a809e5c56ab7",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            52,
+            36,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-9993c3438ad02c1474bcb92b9256465fe98d22f3263ef8903623508c518ba055",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            74,
+            36,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-2bb387f8130c35a9434214b403861b7814267136992081f28803ea9b3b3e58d3",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            34,
+            37,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-f4edf0d5b004ef355b050520aebe97b04b7af31b1ba2ac072fd4cf2def27d592",
+          "signature": "lambda expression",
+          "span": [
+            42,
+            93,
+            42,
+            132
+          ]
+        },
+        {
+          "stable_id": "sym-e1ecfa460ff16580fc3854d7f043e5133c513197ee8c5bebb489bac331292ad6",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            20,
+            60,
+            60
+          ]
+        },
+        {
+          "stable_id": "sym-8e4a0c1cc7d6fe1cd5b00333a40ef37495e27fa88d667bacc293e915b854e897",
+          "signature": "lambda expression",
+          "span": [
+            62,
+            34,
+            62,
+            180
+          ]
+        }
+      ]
+    }
+  ],
+  "citation_error": "Original finding FalahDbContext.cs309-328 quotes real source but covers Customer/Delivery mappings, not Purchase. It cannot support absence of Purchase concurrency guard. Correct Purchase/Payment/SupplierLedger mappings277-305 and actual entity20-60 inspected.",
+  "reasoning": "Purchase configuration has ID and unique receive idempotency, relationships and payment/ledger individual-key uniqueness. PurchaseEntity has ordinary Paid/Remaining fields and no Version/concurrency annotation. Model search IsConcurrencyToken/RowVersion is present on Order/Shift/Approval/Delivery, not Purchase. PayPurchase reads tracked invoice and supplier outstanding before transaction; later account locking refreshes account movements, not invoice/outstanding. Distinct valid request IDs and sufficient source cash permit two stale invoice admissions; independent repeated-request identity protection does not bind aggregate paid<=invoice invariant.",
+  "counterevidence": "Existing account lock protects protected account from aggregate overdraft. Purchase paid cache is not source of supplier balance. No claim ordinary same-request replay duplicates; both commands require legitimate purchasing authority. SQL provider lock/deadlock execution was not performed.",
+  "runtime": "NOT_EXECUTED; no DB/API/financial records or application code changed",
+  "recommended_action": "Financial owner correct active citation while preserving historical finding and this correction. Do not silently edit original source or claim a new defect count.",
+  "new_function_coverage_claimed": 0
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml",
+  "source_git_blob_sha256": "854ca9c2ea472b17280ca93a8811b20f27c49ce006140357d13a8b08138644ed",
+  "worktree_sha256": "b871ffc43c860f736353206caa0e147a9f2fb5a9d7c691166c8d2fc34cb9264a",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:27:13.424501+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Cashier live product grid with theme resources, bestseller marker and offers.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "ProductsGridView",
+      "reasoning": "VisibleProducts bound, CanEditOperation disables nested input, item click versus selection none. Dynamic sizing is delegated to codebehind; no claim of native fit from comments."
+    },
+    {
+      "anchor": "IsBestSeller",
+      "reasoning": "Marker has literal translucent white#F2FFFFFF but TextPrimaryBrush varies by theme. In dark theme light text on near-white can repeat UI002 conditional contrast issue; image underneath can vary. No screenshot proof."
+    },
+    {
+      "anchor": "FallbackIcon",
+      "reasoning": "Image overlays fallback in same104px band; HasImage only denotes URL presence, not completed decode. Name wraps3lines and price21px; card sizing must accommodate offers beneath."
+    },
+    {
+      "anchor": "StationLabel",
+      "reasoning": "Preparation route label and variant count presented separately; route badge says configured station rather than tested printer availability."
+    },
+    {
+      "anchor": "OnOfferTapped",
+      "reasoning": "Nested offer button handles pointer Tapped only, no Click or Command. Parent base-product ItemClick must be suppressed by codebehind. Keyboard/automation activation is not established by markup."
+    },
+    {
+      "anchor": "Offer.FixedPricePiastres",
+      "reasoning": "Name star column and auto price avoid direct horizontal overlap. Fixed pale green pill and dark green text stay light palette while surrounding card is theme-aware."
+    },
+    {
+      "anchor": "RetryLoadMenuCommand",
+      "reasoning": "Real retry plus loading/error/empty overlays; only spinner and grid loading inverses defined here. VM must prevent empty state competing with error. No demo records or financial writes in markup."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need native dark bestseller contrast, pointer/keyboard nested offers, thumbnail failure, variable offer heights, DPI/text scaling and coherent error overlay tests. Immutable XAML map has no callable declarations.",
+  "recommendations": "Use semantic badge background/foreground pair and accessible offer activation; native screen evidence pending.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

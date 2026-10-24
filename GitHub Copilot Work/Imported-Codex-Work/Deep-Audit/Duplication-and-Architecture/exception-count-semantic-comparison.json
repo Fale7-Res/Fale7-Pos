@@ -1,0 +1,196 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-022",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:12:00Z",
+  "scope": "Bounded comparison of owner-dashboard open-control-exception count with dynamically computed Control Center exceptions and persisted acknowledgment/resolution overlay. Does not audit all control exception rules or their authorization.",
+  "decision": "ControlCenterRules.BuildExceptions recomputes active exception candidates from current shift/refund/expense/custody/journal/delivery facts and its record intentionally has no status. ControlCenterQueryService.GetExceptionsAsync overlays persisted state or defaults each current candidate to lowercase \"open\". SetExceptionStatusHandler accepts only lowercase \"acknowledged\" or \"resolved\" and persists those values. OwnerDashboardQueryService.LoadAttentionAsync instead counts rows in ControlExceptionStates whose Status equals capitalized \"Open\"; it neither computes candidates nor applies the default-open overlay. In a clean/current normal lifecycle, newly computed open exceptions have no persisted row, and reviewed rows are lowercase acknowledged/resolved, so the dashboard count does not represent current open exceptions and will ordinarily remain zero. This is a source-supported cross-component projection candidate; no dashboard endpoint execution occurred.",
+  "finding_candidate": "FIN-CAND-DASHBOARD-DERIVED-OPEN-EXCEPTION-COUNT-001",
+  "severity": "MEDIUM_CANDIDATE",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          265,
+          267
+        ],
+        [
+          288,
+          294
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-21b13272c77ed156008a1bae9861754b5c6aec46ada2a4505417aa31705c09d8",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadAttentionAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "span": [
+            235,
+            5,
+            295,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "source_git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "line_ranges": [
+        [
+          70,
+          114
+        ],
+        [
+          104,
+          113
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-428436e07762bde96fa0918de3bb0f04adfc5453518e5770ff071d325f05fe3e",
+          "signature": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.GetExceptionsAsync(string, CancellationToken)",
+          "span": [
+            70,
+            5,
+            114,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+      "worktree_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+      "source_git_blob_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+      "line_ranges": [
+        [
+          1,
+          5
+        ],
+        [
+          39,
+          85
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e2933fa4f3e34bbe3eb226c9e5fb4ae2a6326870c45d046d482976fead3c25b0",
+          "signature": "Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptionsInputs)",
+          "span": [
+            39,
+            5,
+            85,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs",
+      "worktree_sha256": "45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee",
+      "source_git_blob_sha256": "45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee",
+      "line_ranges": [
+        [
+          26,
+          70
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5391bcb1e6cb308427adb93669b901290d129c880c3b1e2768bf87aa2e35fb82",
+          "signature": "Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken)",
+          "span": [
+            26,
+            5,
+            70,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "worktree_sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+      "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+      "line_ranges": [
+        [
+          394,
+          430
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-70e642bc9a991a9897f5aa729a1ed63465f7f141db8e1bd73a27de4b8944f743",
+          "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.Acknowledging_an_exception_persists_its_state_and_is_overlaid_on_the_next_read()",
+          "span": [
+            394,
+            5,
+            430,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+      "worktree_sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+      "source_git_blob_sha256": "10bd354942034056001cb72f047bddb9937559c3da0fd601062ef317262775d0",
+      "line_ranges": [
+        [
+          266,
+          356
+        ],
+        [
+          291,
+          294
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cb60f9ca4b447b55f59bf33c8ce996f94f75dac8fe095f5519923488094a920c",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildAttention(Falah.Application.Reports.OwnerDashboardDto?)",
+          "span": [
+            266,
+            5,
+            356,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "dynamic_candidates": "ControlCenterRules.BuildExceptions derives exception candidates from current inputs (including large refunds, large expenses, unsettled custody and incomplete journal entries) and deliberately defines no status field. A current candidate can exist without a matching row in ControlExceptionStates.",
+    "control_center_projection": "GetExceptionsAsync loads the candidate list, matches persisted states by deterministic exception ID, and defaults missing state to lowercase \"open\". The integration test reads a large-refund exception as \"open\", acknowledges it, then reads it as \"acknowledged\".",
+    "state_writer": "SetExceptionStatusHandler rejects any status outside lowercase \"acknowledged\" or \"resolved\"; on first review it creates a row with that lowercase status. It does not create an Open row.",
+    "dashboard_projection": "LoadAttentionAsync counts only persisted ControlExceptionStates with Status == \"Open\" (capital O), then exposes that as OpenExceptionCount. It does not call BuildExceptions or GetExceptionsAsync and does not synthesize the default-open rows.",
+    "comparison": "The owner dashboard and Control Center compute materially different populations and status conventions for the same concept. A newly generated open candidate is absent from dashboard state storage; after action the row becomes acknowledged/resolved lowercase. This strongly supports a dashboard count that misses open exception candidates. Query collation cannot make a nonexistent persisted row count, and whether lowercase matching alone would help depends on defining/altering persistence semantics.",
+    "counterevidence": "The Control Center endpoint and review interface still expose generated candidates; no exception state is deleted by the dashboard path. Some legacy/manual state rows may exist in uppercase Open, and UI may display another source; neither was established by inspected implementation. No client binding or live UI was checked.",
+    "tests": "BusinessDayCloseVerticalSliceTests demonstrates an open large-refund candidate defaults to lowercase open, then persists acknowledged and reads it back. No inspected test compares dashboard OpenExceptionCount with a fresh generated candidate. Existing test is source evidence only, not executed.",
+    "limitations": "Static source/test review only. No API, database, or UI runtime verification. Exact owner-facing reliance on dashboard count and whether migration-era uppercase rows exist are unverified.",
+    "client_effect": "The cashier dashboard OwnerDashboardViewModel.RebuildAttention adds the Control Center attention card only when OpenExceptionCount > 0. Thus a zero server projection means the user-facing dashboard attention list omits this navigation item, while the underlying Control Center route remains independently accessible. This was checked from source; no native UI was launched.",
+    "independent_review": "Financial Integrity continuation independently confirmed the server-side candidate derivation, state overlay/default lowercase open, allowed persisted status values, and dashboard persisted capitalized Open query. It did not inspect the cashier UI binding; the coordinator separately checked RebuildAttention and its conditional card."
+  },
+  "recommendation": "Derive dashboard open exception count from the same current candidates and status overlay as ControlCenterQueryService (or a shared query), preserving day/system scope and deterministic ID matching. Add a dashboard integration test before and after acknowledgment and after the source condition disappears.",
+  "required_regression_tests": [
+    "Create a current large-refund or unsettled-journal candidate with no saved review state; dashboard open-exception count reflects it and Control Center reports lowercase open.",
+    "After acknowledgement or resolution, dashboard count follows the defined meaning of open rather than relying on a capitalized status value.",
+    "Remove/resolve the underlying condition and ensure derived exception count no longer claims it remains open.",
+    "Verify system-wide and day-scoped exception populations remain consistent with ControlCenterQueryService."
+  ],
+  "reviewer": "Main Codex coordinator; independent financial source challenge requested and pending.",
+  "independent_challenge": {
+    "reviewer": "financial_integrity_continuation",
+    "artifact": "Sub-Agents/Handoffs/SEM-MIRROR-022-exception-count-independent-challenge.json",
+    "sha256": "c2c0f873cf8e6b9af3076f2c543a64f56ba88a898c3be149a9fd38d152371414",
+    "decision": "SOURCE_CONFIRMED_DERIVED_EXCEPTION_COUNT_OMISSION",
+    "assessment": "Independent source challenge confirmed candidate derivation/default-open, status writer allowed values, and dashboard persisted-Open count mismatch. Dedicated Control Center remains functional counterevidence; actual dashboard endpoint/client reliance and legacy rows remain unverified. Static only."
+  },
+  "counterevidence": "undefined The cashier client conditionally omits the attention card at zero; direct Control Center access remains available, and actual user reliance/layout was not runtime-tested."
+}

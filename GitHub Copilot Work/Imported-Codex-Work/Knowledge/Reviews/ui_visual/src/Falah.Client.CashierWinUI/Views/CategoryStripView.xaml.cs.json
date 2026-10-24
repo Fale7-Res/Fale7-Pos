@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/CategoryStripView.xaml.cs",
+  "source_git_blob_sha256": "25006ba49574980ca8651714e2b79229a46108ef2880448f23e5c0ea36e8bc3c",
+  "worktree_sha256": "77608404b2ebe19fba83eb0a6bba43f19126da60cc70e8b1439cf3f488f0e696",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:41:30.401464+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Category strip constructor, focus helper and item-click exact bodies.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/CategoryStripView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-8d03a95d920b0adf7a734241563fa199a785b81ca29dc5a6cce4fa0e6c689baf",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.CategoryStripView.CategoryStripView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        12,
+        5,
+        12,
+        58
+      ],
+      "reasoning": "Initializes category/search strip XAML only; no menu request or selection mutation during construction.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Native search/category rendering not observed.",
+      "tests_missing": "Native search/category rendering not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    },
+    {
+      "stable_id": "sym-f3edb30526e85bba5caaa11df7aca0372befb04ae50e820aa6872a35eefce55f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.CategoryStripView.FocusSearch()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        16,
+        5,
+        20,
+        6
+      ],
+      "reasoning": "Programmatically focuses product search textbox then SelectAll to replace existing query on next typing; ignores Focus return value and does not clear text immediately.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "F3 routing with modal overlays remains UI010 parent candidate; native focus not observed.",
+      "tests_missing": "F3 routing with modal overlays remains UI010 parent candidate; native focus not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "ProductSearchBox.Focus; SelectAll"
+    },
+    {
+      "stable_id": "sym-1679161df1806f0169205269fd466b5cef84d04b88310e01cc4f4cbc92cd1581",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        22,
+        5,
+        26,
+        6
+      ],
+      "reasoning": "For clicked CategoryTile and valid cashier VM executes SelectCategoryCommand with tile; command owns current filter and editability guards.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Check pending-operation category changes are guarded in VM, not merely view.",
+      "tests_missing": "Check pending-operation category changes are guarded in VM, not merely view. NOT_EXECUTED.",
+      "verified_callers_callees": "CashierViewModel.SelectCategoryCommand.Execute"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

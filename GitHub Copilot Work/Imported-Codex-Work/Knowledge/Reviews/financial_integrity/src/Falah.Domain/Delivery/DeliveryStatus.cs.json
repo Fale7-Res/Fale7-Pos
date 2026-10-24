@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Delivery/DeliveryStatus.cs",
+  "source_git_blob_sha256": "ac7798dec40be08c0cf518bac1226059a34ef34f54744c4bf74cf56979665be6",
+  "worktree_sha256": "ac7798dec40be08c0cf518bac1226059a34ef34f54744c4bf74cf56979665be6",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:04:35.330536+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-38a7e170fdb20db835f7804b1bf7024faaa9e52d947964d2982a808238145868",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Delivery.DeliveryTransitions.AssertTransition(Falah.Domain.Delivery.DeliveryStatus, Falah.Domain.Delivery.DeliveryStatus)",
+      "span": [
+        28,
+        5,
+        32,
+        6
+      ],
+      "reasoning": "Validates allowededge table exactenum andthrowsifinvalidcurrent/target. AssignedcanreturnReadyforreassignmentoradvanceOutdirect; FailedonlyReturned, notSettled directly, while settlementhandler may intentionallyclosefailedthroughdifferentpath requiringindependenttrace. Settled/Cancelledterminal,selftransitionsinvalid. Pureguardnotatomicpersistenttransition.",
+      "inputs": "From/toDeliveryStatus",
+      "outputs": "Void/DomainException",
+      "side_effects": "Noactualstatuswrite, pureguardonly.",
+      "database": "NoDB orlocks.",
+      "trust_boundaries": "Statecheckrequirescallerfreshsnapshot, noactorpermission.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedmap/shortarraylookup.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedfinding; directsettlementhandlingnotassumedinvalidbytablealone.",
+      "tests_missing": "Alllegal/illegaledges, Failedsettlementcontract, invalidenum, concurrencystale state.",
+      "verified_callers_callees": "Allowed15-24; TryGetValue30; deliveryhandlers ownlocks mustverify."
+    }
+  ],
+  "remaining_callable_ids": []
+}

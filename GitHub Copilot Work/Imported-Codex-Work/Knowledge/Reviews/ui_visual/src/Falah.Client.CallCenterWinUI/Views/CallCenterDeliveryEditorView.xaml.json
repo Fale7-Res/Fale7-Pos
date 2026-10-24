@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml",
+  "source_git_blob_sha256": "3645c88eab358dc65f711b2929843426a77eb9fce2834d4042aa753095660f76",
+  "worktree_sha256": "fa6fe4684602329cfc44514c3f1d957cfcd3858704c7320883752ce2886d7067",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:27:13.586856+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "RTL customer phone/address and delivery service draft overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "IsDeliveryEditorOpen",
+      "reasoning": "Grid overlay with real header close, middle star ScrollViewer and pinned footer. MaxWidth760/margin28 supports vertical scroll; no ContentDialog focus confinement present here."
+    },
+    {
+      "anchor": "CustomerPhone",
+      "reasoning": "TwoWay immediate phone and LookupCustomerCommand remain editable during IsLookingUpCustomer. Spinner only reports activity; corroborates UI007 phoneA/B stale reply reachability rather than disproving it with field locking."
+    },
+    {
+      "anchor": "SavedAddresses",
+      "reasoning": "Combo visible when Count>0 and saves selected address; template shows area+street only, not building/unit, so multiple same-street addresses ambiguous until loaded into fields."
+    },
+    {
+      "anchor": "DeliveryServices",
+      "reasoning": "TwoWay service selection separate area field. User may change fields during service reload; explicit error and reload command communicate network failure."
+    },
+    {
+      "anchor": "DeliveryBuilding",
+      "reasoning": "Building/floor/apartment three equal columns plus street/landmark/notes, all real bound fields; telephone scope and Arabic headers aid input context. No local max lengths or numeric-only building assumption."
+    },
+    {
+      "anchor": "SaveDeliveryDetailsCommand",
+      "reasoning": "Footer error wraps and save remains reachable through command. This is draft capture; actual customer upsert/order write happens checkout VM. Form edits no per-field CanEditOperation binding; modal opening/saving must be guarded in VM."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test delayed phone lookup while phone changes (UI007), duplicate-street addresses, narrow/scaled layout, keyboard trap/return focus and pending checkout reopening. No callable declarations indexed for XAML.",
+  "recommendations": "Bind address identity clearly and guard async lookup publication with captured phone/generation. Verify modal command gates and focus using native observation later.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

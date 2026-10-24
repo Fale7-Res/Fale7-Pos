@@ -1,0 +1,34 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "records": [
+    {
+      "existing_declaration_stable_id": "sym-cbd63bcb2f2973dbeb0c6dd95f79f2bbc81f601491bf65114ef69672366cd956",
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "span": [
+        64,
+        5,
+        64,
+        59
+      ],
+      "source_expression": "_refunds",
+      "reasoning": "Expression-bodied Refunds property is executable getter despite originalmap isCallablefalse. Returns private List<OrderRefund> directly typed IReadOnlyList; no defensive copy or ReadOnlyCollection wrapper. Reconstitute copies incoming refunds into this List and ApplyRefund appends while scalar RefundAmount tracks separate sum. Trusted compiled caller can cast returned object to List and mutate without scalar update; actual reachable API path doing such cast UNKNOWN, so this is encapsulation/design concern not exploitfinding.",
+      "inputs": "Existing Order aggregate",
+      "outputs": "Same internal mutable refundList exposed as IReadOnlyList",
+      "side_effects": "Getter no direct mutation/I/O; returned concrete object canbealiased",
+      "trust_boundaries": "In-process trusted consumers; no direct network deserialization into returnedList shown",
+      "database": "NoDB I/O; persistence mapper external",
+      "printing_ui": "Reports/tickets mayread history; nohardware",
+      "performance": "O1 no allocation, strongerreadonlywrapper/copytradeoff ifdesired",
+      "duplicates_conflicts": "Independent collection/scalar invariants vulnerabletoin-processmutation, noAPIexploit demonstrated",
+      "issues_hypotheses": "Parentacceptedinventorygap; sourcegetterfacet awaitsadditive-mapidentity. Originalcallablecounts excludeit.",
+      "tests_missing": "Casting/retainedreference mutation cannot silently alterrefundhistory; childsum=RefundAmount invariant; no codefixperformed",
+      "verified_callers_callees": "Reconstitute167 AddRange copies into _refunds; ApplyRefund229 Add; property64 exposes_sameobject. External consumers UNKNOWN beyondhandlersmappercall.",
+      "coverage_classification": "SUPPLEMENTAL_EXPRESSION_GETTER_REASONED_PENDING_FACET_MAP",
+      "status": "SOURCE_REASONED_NOT_PROMOTED_ORIGINAL_CALLABLE_COUNT",
+      "at_utc": "2026-10-17T21:53:47.718251+00:00"
+    }
+  ]
+}

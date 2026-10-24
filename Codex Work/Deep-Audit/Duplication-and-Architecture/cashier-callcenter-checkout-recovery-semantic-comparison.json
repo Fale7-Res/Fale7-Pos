@@ -1,0 +1,216 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-047",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21T09:33:07Z",
+  "reviewer": "/root coordinator",
+  "title": "Call Center checkout durably recovers an ambiguous request while cashier checkout retains it only in memory",
+  "scope": "Targeted comparison of restart recovery for checkout idempotency requests across the two active WinUI stations; follows the request through client store, VM dispatch, and server replay lookup. It does not certify all station lifecycle or deployed usage.",
+  "decision": "SOURCE_CONFIRMED_RECOVERY_DIFFERENCE; RELATED_TO_UI-001_NO_DUPLICATE_FINDING_CREATED",
+  "behavior": {
+    "call_center": "App configures FileRetainedRequestStore before view models. CallCenterViewModel constructor restores owner-scoped CheckoutOrderRequest, and SendCheckoutAsync saves before network dispatch; unknown outcomes preserve it for same-request retry, successful or definite rejected outcomes clear it.",
+    "cashier": "App also configures FileRetainedRequestStore and uses RetainedRequest<T> for selected other operations, but checkout uses private CurrentCheckoutRequestId and _pendingCheckout fields. Same-process unknown outcomes reuse the request. This checkout code does not persist or restore the pending CheckoutOrderRequest across process reconstruction.",
+    "server": "CheckoutOrderHandler.HandleAsync looks up CheckoutRequestId before doing work and returns the existing order on replay. The key helps only if the client retains the original request/key.",
+    "consequence": "After a cashier process/power loss during an unknown checkout result, the client-side exact request is not recovered through the inspected checkout path. A later reconstructed order can carry a fresh request id and represent a second order. This is a conditional duplicate-intent/recovery risk, not proof of automatic retry, duplicate database write, or real-world occurrence. UI-001 already covers cashier checkout and related money operations; this comparison adds the cross-station contrast and is not a new finding."
+  },
+  "counterevidence_and_limits": [
+    "Cashier's same-process retry retains the immutable DTO and server idempotency key.",
+    "Call Center's startup restore can expose the same original checkout DTO after process loss.",
+    "The source does not establish that an operator will recreate the same order, nor that any duplicate order occurred.",
+    "No runtime/power-loss/network-fault test was performed; actual deployment and operator workflow are unverified.",
+    "This comparison does not independently re-review all UI-001 surfaces; it references that existing finding rather than duplicating it."
+  ],
+  "related_findings": [
+    "UI-001"
+  ],
+  "recommendation": "For future remediation, align cashier checkout with a durable owner-scoped retained request already used by the Call Center and other operations. Save the immutable request before dispatch, restore and reconcile it before allowing a new order, and clear only after a definite rejection or confirmed success. Avoid persisting credentials or unrelated cart state. Add fresh-view-model recovery tests for committed-but-lost response and definite rejection; verify same request id results in one order and one set of side effects in an isolated integration database.",
+  "tests": {
+    "executed": "NONE; source inspection only",
+    "needed": [
+      "Construct a fresh CashierViewModel with an unresolved retained checkout and assert the original DTO/key is available before new checkout.",
+      "Simulate server commit followed by lost response; restart client; retry exact DTO and assert one order, one inventory deduction, one financial journal entry and one intended print job.",
+      "Simulate definite server rejection; verify correction path does not preserve an invalid request indefinitely.",
+      "Compare cashier and Call Center process-loss recovery behavior using the same fake retained store and API outcomes."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/App.xaml.cs",
+      "worktree_sha256": "63bd32b07694b98e4d04fe82e84aac3bb5a41069e6269e4bc34438b8ecf72e53",
+      "source_git_blob_sha256": "be75bda41587b475e82dde243495617f4f5a911a7ce81043c8e710cf038f283d",
+      "line_ranges": [
+        [
+          19,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-452be973de4fe12f62b59e6193df950118fdacbf64248ba25e832bdd08858213",
+          "span": [
+            12,
+            5,
+            19,
+            6
+          ]
+        }
+      ],
+      "evidence": "The application initializes a station-scoped file retained-request store before view-model construction."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+      "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+      "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+      "line_ranges": [
+        [
+          25,
+          34
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0db2fa415a025945d3167ee77188457b96bd0f425742504a1973eaa3270df09c",
+          "span": [
+            25,
+            5,
+            34,
+            6
+          ]
+        }
+      ],
+      "evidence": "The view-model constructor calls RecoverPendingOperations during desk construction."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "line_ranges": [
+        [
+          68,
+          92
+        ],
+        [
+          98,
+          110
+        ],
+        [
+          178,
+          210
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fa389ab96267cf518680fe1c3d49115aa223a4cf3317062b0e01b0c97a8547cc",
+          "span": [
+            77,
+            5,
+            92,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ac068985fe1f63f1b67e0480bb8da5498bc8abacd2dbdf722fe7d6eb37b8a8f0",
+          "span": [
+            98,
+            5,
+            176,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f94d1c39876bb927e02302b6f6df7b69e613410d643f53861c2501816cd4b8eb",
+          "span": [
+            178,
+            5,
+            235,
+            6
+          ]
+        }
+      ],
+      "evidence": "Call Center stores the immutable request before dispatch, restores it under the owner key at startup, and retries that same DTO; a definite first rejection clears it, while unknown results preserve it."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
+      "worktree_sha256": "0765214707a8c3d4e0f07b0feff9cb4f5c7bb278e666486088a51be222014dde",
+      "source_git_blob_sha256": "f593c13c1a64b9df886526c990093dd49c327498c7aec1e059ffe9e490c6a2c1",
+      "line_ranges": [
+        [
+          19,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b3ced77dc58e3a49c34019488454f50e4002dbd2572a256298baca2746172210",
+          "span": [
+            19,
+            5,
+            27,
+            6
+          ]
+        }
+      ],
+      "evidence": "Cashier also configures the file store, proving storage is available to the app; this does not by itself persist checkout DTOs."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "line_ranges": [
+        [
+          176,
+          180
+        ],
+        [
+          289,
+          300
+        ],
+        [
+          401,
+          427
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b1120789b8bc6b6ea02dd8875339559db53320d8b1699bcafb74e6adea8d5999",
+          "span": [
+            289,
+            5,
+            389,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8dde295818a585ff796405bbc7a142b4cf4b512609aa800296b22c62fe7f8025",
+          "span": [
+            402,
+            5,
+            427,
+            6
+          ]
+        }
+      ],
+      "evidence": "Cashier checkout keeps its request ID and unresolved DTO only in view-model fields. CompleteCheckoutAsync sets _pendingCheckout before dispatch and reuses it in the same process, but no RetainedRequestStore Save/Load is used by this checkout path."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "line_ranges": [
+        [
+          40,
+          45
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "The server returns the prior order for the same CheckoutRequestId; losing the client copy after commit can prevent that same-key replay path from being used by a restarted client."
+    }
+  ],
+  "quality": {
+    "source_hashes_recomputed": true,
+    "baseline_identity_checked": true,
+    "source_and_test_diff_from_baseline": "CLEAN",
+    "runtime_tests": "NOT_EXECUTED",
+    "new_financial_callable_review_credit": 0
+  }
+}

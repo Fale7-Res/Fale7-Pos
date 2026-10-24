@@ -1,0 +1,135 @@
+{
+  "artifact_path": "Deep-Audit/Duplication-and-Architecture/expense-entry-client-server-boundary-semantic-comparison.json",
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-035",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T10:05:00Z",
+  "scope": "Bounded source trace of expense entry and visibility across the active Cashier WinUI flow, shared application request, server endpoint, authorization policy, EF handler and query service, plus the Call Center API wrapper. Search scope: tracked C# under src (468 files; regex lead manifest dated 2026-10-21 09:55 UTC); expense symbols/callers were then searched directly. This compares contract consistency and identifies whether actual parallel implementations exist; not a full expense financial audit or repository-wide semantic-equivalence proof.",
+  "decision": "There is one observed expense-entry UI submission path in CashierWinUI. It validates positive parsed amount and nonblank description, fixes PaymentAccountId to tre-drawer, takes current session user/shift, obtains an approval for expenses_add_drawer where needed, and retains the exact request across OutcomeUnknown. The shared AddExpenseHandler independently validates protected account/positive amount/description/category, shift open, business day open and protected source balance, reauthorizes against the database-loaded user, then posts expense + treasury movement + audit + print job inside one DB transaction with a request-derived idempotency key. The handler accepts protected non-drawer accounts under its authorization policy although this UI submits only drawer expenses; code comments say main-treasury entry is intended for a future owner/manager screen. CallCenter has a duplicate typed ApiClient transport wrapper but repository search found no invocation outside that wrapper; legacy WPF has no AddExpenseRequest/AddExpenseAsync implementation. Thus transport-wrapper repetition is boilerplate, not a second expense workflow; no client/server amount or accounting divergence is identified in this bounded trace. This does not independently certify the actor identity trust boundary, provider locking behavior, or runtime atomicity.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Application/Expenses/ExpenseRequests.cs",
+      "worktree_sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+      "source_git_blob_sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+      "line_ranges": [
+        [
+          8,
+          10
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-18110c43a4a1fa46e8eead955972cffb8bab9cec8a8eebd1b182f091e9fc7fb8",
+          "signature": "Falah.Application.Expenses.AddExpenseRequest",
+          "span": [
+            8,
+            1,
+            10,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs",
+      "worktree_sha256": "124a969a63f823004a0b4ee64ef499842ad61128518dc236124f122ed8a8deb9",
+      "source_git_blob_sha256": "b5d2195c3ca1de571754e75e5c7c7e4471af3111d749d6f3628b199de22127c4",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+      "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "source_git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs",
+      "worktree_sha256": "02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1",
+      "source_git_blob_sha256": "e2ce5bb7df5972324dd3c67c6098f7dc33554fe3126860500b6f50e0a3781b5d",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/ExpenseQueryService.cs",
+      "worktree_sha256": "a77a348c179416b551b4bbf173398f29c8b2430244609f3fcc23d52d0ac1bd13",
+      "source_git_blob_sha256": "a77a348c179416b551b4bbf173398f29c8b2430244609f3fcc23d52d0ac1bd13",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          626,
+          660
+        ]
+      ],
+      "relevant_symbols": [],
+      "note": "Top-level Minimal API route statements; no callable symbol identity is emitted for these statements by the current syntax inventory."
+    }
+  ],
+  "manual_reasoning": [
+    {
+      "question": "Do multiple clients implement materially different expense-entry business logic?",
+      "result": "No second request construction/submission call site was found. Exact search found the active Cashier WinUI view-model caller and the Call Center API wrapper declaration only; there was no call to that Call Center wrapper and no expense API usage in the legacy WPF cashier project. Search absence is scoped to tracked source searched, not proof against reflection/runtime-generated behavior."
+    },
+    {
+      "question": "Does the single UI flow rely on client validation for financial safety?",
+      "result": "No. Server handler repeats positive amount and required-field checks and applies allowed-account, shift/business-day, source-balance and authorization checks before transactional writes. UI narrows payment source to drawer and requests approval when local permission says it is needed; server recomputes actor and authorization from the loaded user."
+    },
+    {
+      "question": "Can the shared server support a future main-treasury expense screen?",
+      "result": "The handler branches authorization by payment source and permits protected accounts; UI currently fixes drawer. The source documents owner/manager-only main-treasury expenses as future UI scope. Any new client must preserve server-side authorization and should not infer approval behavior from the drawer-only current UI."
+    },
+    {
+      "question": "What source-level transaction invariants are visible?",
+      "result": "Expense, treasury movement, audit event, durable journal completion and voucher PrintJob are saved before the same EF transaction commits. Voucher creation is documented as non-posting. Runtime DB provider isolation/locking and failure outcomes were not exercised."
+    }
+  ],
+  "counterevidence": [
+    "The Cashier WinUI screen is the only verified expense submission call site in tracked source.",
+    "The API wrappers in Cashier and Call Center are structurally similar transport boilerplate, but only Cashier WinUI caller was located; wrapper duplication itself does not duplicate money-moving logic.",
+    "The server handler is the shared authority and contains validation absent from a purely client-side implementation."
+  ],
+  "recommendation": "Keep one shared server command as the accounting authority. If adding Call Center or management expense entry, route through the existing handler and test that each client uses the appropriate payment account/approval context; avoid copying the handler logic into clients. Preserve UI retry request identity and server transaction/idempotency invariants.",
+  "required_regression_tests": [
+    "Cashier WinUI drawer expense rejects invalid/nonpositive input before call and server rejects equivalent malformed API requests.",
+    "Cashier with/without expenses_add_drawer follows approval path; server does not trust client-supplied approver identity beyond the approval registry contract.",
+    "Duplicate same RequestId returns one expense and one treasury movement under competing requests.",
+    "Injected failures before commit leave no expense, movement, audit event, journal completion or print job partially persisted.",
+    "Future main-treasury client test verifies permission and protected balance guards.",
+    "Call Center expense endpoint is either intentionally unused or a visible workflow is added only with owner-approved requirements; no current UI parity assumption."
+  ],
+  "limitations": [
+    "No database/provider/concurrency runtime tests executed.",
+    "No UI runtime test executed.",
+    "Search method uses tracked source C# keyword/name hits plus direct `rg` for AddExpenseAsync/AddExpenseRequest; it cannot prove absence of reflection or dynamically constructed requests.",
+    "Separate authentication/actor identity trust-boundary review remains governed by existing security finding/paused scope."
+  ],
+  "owner_decisions": [
+    "Confirm whether expense creation from Call Center is intended; current evidence shows a wrapper but no UI call site.",
+    "Confirm whether future main-treasury expenses will have a dedicated management UI; current code comments state it is future scope."
+  ]
+}

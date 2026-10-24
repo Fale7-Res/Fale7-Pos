@@ -1,0 +1,251 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-046",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T09:26:12.359242+00:00",
+  "reviewer": "/root coordinator",
+  "title": "Unreferenced OrderValueBreakdown helper is not equivalent to authoritative checkout totals",
+  "scope": "Bounded source/call-site review of the Domain helper against the active checkout plan and order creation; no general dead-code proof.",
+  "decision": "Repository text search found no usages of OrderValueBreakdown outside its declaration file in src or tests. The helper computes list value, offers, charged subtotal, comp and collected from line snapshots only; it does not include CheckoutRules discount, tax or delivery fee. Active CheckoutOrderHandler uses CheckoutRules.BuildPlan, and Order.Create consumes the plan. Thus the helper is currently unreferenced in the searched source/tests and is not an active competing financial path. It would be unsafe to treat it as a drop-in authoritative total if a future caller appears. This is classified as a dormant/historical helper with narrower semantics, not a current financial defect.",
+  "search_evidence": {
+    "scope": "All current src/**/*.cs and tests/**/*.cs text lines, exact identifier OrderValueBreakdown, excluding declaration file when reporting external uses.",
+    "external_occurrences": [],
+    "limitations": "Text search does not prove absence via reflection, generated code, binary consumers or dynamic loading; no such path was found in the inspected solution structure."
+  },
+  "behavior_comparison": [
+    {
+      "implementation": "OrderValueBreakdown.Compute",
+      "inputs": "OrderItem list and comp amount",
+      "arithmetic": "ListUnitPrice*Quantity; TotalPrice sum as charged subtotal; offer is nonnegative list-minus-charged; comp is clamped nonnegative; collected is charged-minus-comp clamped at zero.",
+      "exclusions": "No manual discount, tax, delivery fee, payment method, split payment, deferred electronic/COD state, or persistence side effects.",
+      "disposition": "Unreferenced narrower helper; historical parity utility / maintenance risk if reused as a full checkout amount."
+    },
+    {
+      "implementation": "CheckoutRules.BuildPlan / CheckoutOrderHandler",
+      "inputs": "Resolved server catalog prices, discount, tax, delivery fee, comp, payment and split inputs",
+      "arithmetic": "Computes subtotal, taxable base, tax, payable, cash-on-delivery/electronic deferral, payment validation and paid state. Order.Create receives the plan; handler persists order and related financial/inventory effects.",
+      "disposition": "Active authoritative checkout calculation path in current source."
+    }
+  ],
+  "recommendation": "No removal or code change in this audit. In future maintenance, either document/rename the helper as a line-value breakdown and test its narrow contract, or remove it only after confirming no external consumers. Do not wire it as a replacement for CheckoutRules; any reuse needs explicit tax/discount/delivery/payment semantics and parity tests.",
+  "required_tests": [
+    "If retained, pure tests for list value, offer difference, comp cap and no negative collected.",
+    "If wired by a future feature, equivalence tests against CheckoutRules across tax modes, discounts, fees, comps, COD/electronic/split payments; no such integration exists in current searched call sites."
+  ],
+  "runtime": "NOT_EXECUTED; static source and call-site search only",
+  "new_financial_callable_receipts": 0,
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Orders/OrderValueBreakdown.cs",
+      "worktree_sha256": "4c7f490f4226a5b1e431a26a065ec2a84b283e7b4ee0f2e1232f1ae3dfb5a6b9",
+      "source_git_blob_sha256": "4c7f490f4226a5b1e431a26a065ec2a84b283e7b4ee0f2e1232f1ae3dfb5a6b9",
+      "line_ranges": [
+        [
+          1,
+          22
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d71c1c89a4321af59853b0da276ef06f37413b88c345999ee3114a2004fbf619",
+          "signature": "Falah.Domain.Orders.OrderValueBreakdown.Compute(IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            11,
+            5,
+            21,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8d24f3d661b40d51b594f77cf7d3489ff24d86c7207c9a05463288dbb920261c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            13,
+            54,
+            13,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-7870742ff4b6621eedfb91692db93a183b2b27654050c31bd309de2965875cb7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            14,
+            57,
+            14,
+            89
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 22,
+          "text": "namespace Falah.Domain.Orders;\n\nusing Falah.Domain.Common;\n\n/// <summary>Splits an order's value into the three buckets that must stay separate everywhere\n/// downstream: what the menu says, what an approved offer gave up, and what the restaurant\n/// absorbed as a comp. `Collected` is what the customer is actually asked to pay. Ported from\n/// orderValueBreakdown in lib/pricing-domain.mjs.</summary>\npublic readonly record struct OrderValueBreakdown(Money ListValue, Money OfferValue, Money Subtotal, Money CompValue, Money Collected)\n{\n    public static OrderValueBreakdown Compute(IReadOnlyList<OrderItem> items, Money compAmount)\n    {\n        var listValue = Money.FromPiastres(items.Sum(item => item.ListUnitPrice.Piastres * item.Quantity));\n        var chargedValue = Money.FromPiastres(items.Sum(item => item.TotalPrice.Piastres));\n        var offerValue = listValue - chargedValue;\n        if (offerValue.IsNegative) offerValue = Money.Zero;\n        var comp = compAmount.IsNegative ? Money.Zero : compAmount;\n        var collected = chargedValue - comp;\n        if (collected.IsNegative) collected = Money.Zero;\n        return new OrderValueBreakdown(listValue, offerValue, chargedValue, comp, collected);\n    }\n}"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "line_ranges": [
+        [
+          32,
+          39
+        ],
+        [
+          88,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ab12c252465b9f272f5fd5af0c58f4e0fe0c38137fdc7f0c2903fa62a13f8a57",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputeSubtotal(IReadOnlyList<Falah.Domain.Orders.OrderItem>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            32,
+            5,
+            33,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-628f1878df6d05e54af226a2e2f0d34ee84ca307ce7d6ebd175651f312f5bfe9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            33,
+            38,
+            33,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-4d345e01c2382c8a77c8b8bfc4da2bf2e9bc4c162913ebc88d7d58d85dc32f09",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputePayableTotal(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            39,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-77e1899a5d7a3b40aa3a4e3d0d8fce70eeef75f5b96da6c0dd568170c7eb7a06",
+          "signature": "Falah.Domain.Orders.CheckoutRules.BuildPlan(Falah.Domain.Orders.OrderType, Falah.Domain.Financial.PaymentMethod, IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, IReadOnlyList<Falah.Domain.Financial.PaymentSplit>?, string?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            115,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 32,
+          "end": 39,
+          "text": "    public static Money ComputeSubtotal(IReadOnlyList<OrderItem> items) =>\n        Money.FromPiastres(items.Sum(i => i.TotalPrice.Piastres));\n\n    public static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)\n    {\n        var result = cartTotal + deliveryFee - compAmount;\n        return result.IsNegative ? Money.Zero : result;\n    }"
+        },
+        {
+          "start": 88,
+          "end": 109,
+          "text": "    {\n        if (paymentMethod == PaymentMethod.Multi && (splitPayments is null || splitPayments.Count == 0))\n            throw new DomainException(\"يجب تحديد تفاصيل الدفع المتعدد.\");\n\n        var subtotal = ComputeSubtotal(items);\n        var taxableBase = subtotal - discount;\n        if (taxableBase.IsNegative) taxableBase = Money.Zero;\n        var tax = TaxEngine.Calculate(taxableBase, taxRule);\n        var cartTotal = tax.Final;\n        var payableTotal = ComputePayableTotal(cartTotal, deliveryFee, compAmount);\n\n        var cashOnDelivery = IsCashOnDelivery(orderType, paymentMethod, payableTotal);\n        var electronicLeg = SelectElectronicLeg(paymentMethod, payableTotal, splitPayments, walletProvider);\n\n        if (!cashOnDelivery && amountPaid < payableTotal)\n            throw new DomainException(\"المبلغ المدفوع أقل من إجمالي الطلب.\");\n\n        if (paymentMethod == PaymentMethod.Multi && splitPayments is not null)\n            FinancialRules.AssertSplitPaymentAllocation(splitPayments, payableTotal);\n\n        var defers = DefersAllMoney(payableTotal, cashOnDelivery, electronicLeg, paymentMethod);\n        var isPaid = ComputeIsPaid(cashOnDelivery, electronicLeg);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "line_ranges": [
+        [
+          60,
+          112
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc68116c4c89c5e90771583ba4bb2f75fd28bd3bd8dab21d386fde41f5432fab",
+          "signature": "Falah.Domain.Orders.Order.ElectronicPayment.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            60,
+            51,
+            60,
+            55
+          ]
+        },
+        {
+          "stable_id": "sym-d4b5019437f97615a6f04668323d3f69c61932803bce3a2b6029316bd3fa1aea",
+          "signature": "Falah.Domain.Orders.Order.ElectronicPayment.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            60,
+            56,
+            60,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-4be265f211291ac0d4c74bb99785bc32ebc038cd3de45ca3c3c507350e2c9b40",
+          "signature": "Falah.Domain.Orders.Order.RefundAmount.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            61,
+            33,
+            61,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-dd823a3a264a0bc4649b7a47557724ee8e46690086b767346b25dc1031ef8e8b",
+          "signature": "Falah.Domain.Orders.Order.RefundAmount.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            61,
+            38,
+            61,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-20e34134ea14dc690da76ac75a788f3ce95d2a1809da0b144555d2a1a46b5e14",
+          "signature": "Falah.Domain.Orders.Order.Create(Falah.Domain.Orders.CheckoutRules.CheckoutPlan, string, string, long, string, string, IReadOnlyList<Falah.Domain.Orders.OrderItem>, string, string?, DateTimeOffset, string?, string?, string?, string?, Falah.Domain.Common.Money, string?, string?, string?, int?, string?, string?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            66,
+            5,
+            111,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-430a53eadbf07cfa3c2007550bef5c8212ed6195c3ba99459282337b73ce2cf6",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            107,
+            34,
+            107,
+            52
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 60,
+          "end": 112,
+          "text": "    public ElectronicPayment? ElectronicPayment { get; private set; }\n    public Money RefundAmount { get; private set; } = Money.Zero;\n\n    private readonly List<OrderRefund> _refunds = new();\n    public IReadOnlyList<OrderRefund> Refunds => _refunds;\n\n    public static Order Create(CheckoutRules.CheckoutPlan plan, string id, string orderNumber, long sequenceNumber,\n        string cashierId, string shiftId, IReadOnlyList<OrderItem> items, string checkoutRequestId,\n        string? businessDayId, DateTimeOffset createdAtUtc, string? customerName = null, string? customerPhone = null,\n        string? deliveryAddress = null, string? deliveryArea = null, Money discount = default,\n        string? compReasonCode = null, string? compAuthorizedBy = null, string? compApprovalId = null,\n        int? taxRateBasisPoints = null, string? taxMode = null, string? taxRuleName = null)\n    {\n        var order = new Order\n        {\n            Id = id,\n            OrderNumber = orderNumber,\n            SequenceNumber = sequenceNumber,\n            CashierId = cashierId,\n            ShiftId = shiftId,\n            OrderType = plan.OrderType,\n            CustomerName = customerName,\n            CustomerPhone = customerPhone,\n            DeliveryAddress = deliveryAddress,\n            DeliveryArea = deliveryArea,\n            DeliveryFee = plan.DeliveryFee,\n            Items = items,\n            Subtotal = plan.Subtotal,\n            Discount = discount,\n            CompAmount = plan.CompAmount,\n            CompReasonCode = compReasonCode,\n            CompAuthorizedBy = compAuthorizedBy,\n            CompApprovalId = compApprovalId,\n            TaxAmount = plan.Tax.Tax,\n            TaxableBase = plan.Tax.Taxable,\n            TaxRateBasisPoints = taxRateBasisPoints,\n            TaxMode = taxMode,\n            TaxRuleName = taxRuleName,\n            Total = plan.PayableTotal,\n            PaymentMethod = plan.PaymentMethod,\n            SplitPayments = plan.SplitPayments,\n            AmountPaid = plan.AmountPaid,\n            ChangeDue = plan.ChangeDue,\n            CheckoutRequestId = checkoutRequestId,\n            BusinessDayId = businessDayId,\n            CreatedAtUtc = createdAtUtc,\n        };\n        order.Status = items.Any(i => i.SendToGrill) ? OrderStatus.Preparing : OrderStatus.Completed;\n        order.IsPaid = plan.IsPaid;\n        order.ElectronicPayment = plan.ElectronicLeg;\n        return order;\n    }\n"
+        }
+      ]
+    }
+  ]
+}

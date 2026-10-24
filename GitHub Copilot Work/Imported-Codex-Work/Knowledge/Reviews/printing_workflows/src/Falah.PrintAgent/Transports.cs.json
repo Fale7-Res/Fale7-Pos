@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/Transports.cs",
+  "source_git_blob_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+  "worktree_sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:31.886865+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-0b28cd5ff624d79b1a05a5e5dcfd00e05fd9eb95498ac9f041072c45f8675acc",
+      "status": "ANALYZED",
+      "reasoning": "Stores host, port and timeout only. Network availability and port validity are not checked here; raw destination remains configuration-controlled. Creating object does not open a socket.",
+      "inputs": "host,port,timeout",
+      "outputs": "Network transport instance",
+      "side_effects": "Private field assignments",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No reachability/status/identity verification",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "AgentOptions.CreateTransport",
+        "Network SendAsync"
+      ],
+      "evidence_source_span": [
+        14,
+        19
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-80409032aad2ded732ff9a41280e5bf78618de8fa6a43ec54e797224c743ae1b",
+      "status": "ANALYZED",
+      "reasoning": "Creates one TcpClient per payload and linked cancellation source with timeout; connects then writes/flushes network stream, disposing both. Completion is TCP submission, not printer paper acknowledgement. Timeout/cancel after partial write leaves uncertain output; must not auto-resend.",
+      "inputs": "payload and cancellation",
+      "outputs": "Task accepted/exception",
+      "side_effects": "Actual TCP output if invoked",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002 physical success ambiguity; unclaimed agents can both send. No protocol response/status read",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "TcpClient.ConnectAsync",
+        "NetworkStream.WriteAsync/FlushAsync"
+      ],
+      "evidence_source_span": [
+        23,
+        32
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-698f5ce1fe4d4bc6efbf4d2717ebc0149eeeadf75afa4fb8b72e696a336f4a72",
+      "status": "ANALYZED",
+      "reasoning": "Retains serial port name, baud and timeout without opening device. Invalid baud/path may fail later in Send. No framing, flow control or device-specific printer defaults are configured here.",
+      "inputs": "portName,baudRate,timeout",
+      "outputs": "Serial transport",
+      "side_effects": "Field assignment only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Hardware compatibility deferred; no serial identity proof",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "AgentOptions.CreateTransport",
+        "Serial SendAsync"
+      ],
+      "evidence_source_span": [
+        42,
+        47
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-68b134f33c433e56284024ffd42c5b42bb5363d48fc7160c3769ae20dc5dc09d",
+      "status": "ANALYZED",
+      "reasoning": "Opens SerialPort with write timeout, writes whole byte array, then flushes BaseStream and disposes port. Operation is synchronous despite Task API and never observes ct. Open/Flush may block outside write timeout; local driver acceptance does not prove physical ticket.",
+      "inputs": "payload,cancellation (unused)",
+      "outputs": "Completed Task or synchronous exception",
+      "side_effects": "Serial device open/write/flush/close",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-003 cancellation incomplete; partial output failure remains uncertain. Test with fake driver/isolated port only",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "SerialPort.Open/Write",
+        "BaseStream.Flush"
+      ],
+      "evidence_source_span": [
+        51,
+        63
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-37588fe9857f187f62652345a4f45f9e45f33a3e607d6a4870e89be9c2a009c7",
+      "status": "ANALYZED",
+      "reasoning": "Stores output directory and immediately creates it. It is not a pure transport configuration constructor: directory permission/path failure occurs before polling. Relative path follows process CWD, not automatically repository or executable directory.",
+      "inputs": "directory",
+      "outputs": "File transport instance",
+      "side_effects": "Creates directory",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No output path containment; safe audit must not instantiate against external directory",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "AgentOptions.CreateTransport",
+        "Directory.CreateDirectory"
+      ],
+      "evidence_source_span": [
+        74,
+        78
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-853b8efbb6990d8ec9385f6465450e917b004e7ac6411c5855adc175b64745d0",
+      "status": "ANALYZED",
+      "reasoning": "Creates millisecond UTC timestamp filename and writes payload asynchronously with cancellation. Fast/concurrent sends within same millisecond can collide and overwrite because jobId/GUID absent. A complete file proves bytes stored, never paper printed.",
+      "inputs": "payload,cancellation",
+      "outputs": "Task after file write",
+      "side_effects": "Writes/overwrites .escpos file",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002 file simulation marks success through processor; name collision possible. No append or unique create mode",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "File.WriteAllBytesAsync"
+      ],
+      "evidence_source_span": [
+        82,
+        86
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

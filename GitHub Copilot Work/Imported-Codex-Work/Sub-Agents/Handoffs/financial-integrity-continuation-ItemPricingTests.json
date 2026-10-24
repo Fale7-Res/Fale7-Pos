@@ -1,0 +1,65 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:03:11.6228208Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/ItemPricingRulesTests.cs",
+  "symbol_count": 4,
+  "symbols": [
+    {
+      "stable_id": "sym-c384999093b5cf3af9a9e869e75f60de94076d5ab18648be30acb657203775b8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ItemPricingRulesTests.No_requested_rule_falls_back_to_the_list_price()",
+      "span": [
+        12,
+        5,
+        18,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c4ff03941d22c6704a8c81686b30d83723e643413d73750f69c550f94c028ec3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ItemPricingRulesTests.A_valid_active_rule_overrides_the_list_price_and_is_captured_for_the_frozen_snapshot()",
+      "span": [
+        20,
+        5,
+        30,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c651696cf7edf9de7cd86cb3581073a958a7dfaff5515b98581d6a29e8fb6161",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ItemPricingRulesTests.A_rule_that_expired_since_it_was_requested_is_silently_ignored_not_rejected()",
+      "span": [
+        32,
+        5,
+        45,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-892bc17377fb0bcd66172efb17e60af118b4ddcfb114b67c5e8a523f399bf6dd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ItemPricingRulesTests.A_rule_for_a_different_product_is_ignored()",
+      "span": [
+        47,
+        5,
+        53,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers list-price fallback, effective promotion price plus frozen list/rule snapshot, stale expired-rule fallback at checkout, and refusing a requested rule belonging to another product. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/4 exact IDs present",
+    "financial_coordinator": "/4 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "artifact_kind": "financial_integrity_symbol_batch_handoff",
+  "batch": "OrderHistoryVerticalSliceTests",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:33:14.787Z",
+  "static_only": true,
+  "runtime_or_tests_executed": false,
+  "database_created_or_modified": false,
+  "source_or_database_modified": false,
+  "receipt": {
+    "symbols_reviewed": 11,
+    "ids": [
+      "sym-4f175b3a5d435c16107943a6feb13be3680b0dd3cd65a359f1dbc798ef92fab7",
+      "sym-aeb311242afd8f8429d10ba6411c4bdb4bd521fcd3c28973e036328d6c89d9d2",
+      "sym-8b14fbb5fd89818202f828b236953399ba1b3fedded620ef5b5d37b44bf847a6",
+      "sym-e30dfa7059291438b5b2c80c9499a820c27aa92eef0a43c0763f4e23d12837fe",
+      "sym-02d57a47c0220d9a784d4cdf4b651063ad246244656c9eb0e2ba0255a440ca0e",
+      "sym-3adc85732a0bddedc556277371d0f0c76769adf70fca368bb52fb76a6f35c708",
+      "sym-d594373161f4d801ac86a94faf5dc074fe33e520857c9081e145d0b074d78789",
+      "sym-7c21db649ef9971f735c6daa0e9700ff1f23f11a42f553e9b0d98d4587b11d31",
+      "sym-b4d970094edc7af616188ed435e92487fa9d0f01cd0ce5b860dc5ecb1b073b04",
+      "sym-c03173cdc8f7c60ae3b9e97c2ca0c9709e2bc2220adf72908d018d4e73db4e1d",
+      "sym-8a13b15c0cbddfc42c57d580efb309f4f4994fba49a966cd857931160d0b1155"
+    ],
+    "union_pending_matches": 11,
+    "coordinator_completed_matches": 0,
+    "outside_union": 0,
+    "authoritative_union_total": 7602,
+    "authoritative_remaining_total": 1202
+  },
+  "evidence": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OrderHistoryVerticalSliceTests.cs",
+      "ranges": [
+        "19-46",
+        "48-62",
+        "64-78",
+        "80-92"
+      ],
+      "sha256": "FE0CF452BC9370A775BB3F4D1ACFF6114CC7035BC2BD19F5A6AE4C6E14F4EC83",
+      "observation": "Tests cover cashier list restricted to the system current open shift, manager with orders_view_all seeing both shifts, and cashier receiving empty list when no shift is open."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        "1475-1494"
+      ],
+      "sha256": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6",
+      "observation": "Order list applies orders_view_all or filters to currently open shift; no open shift produces an empty query."
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "ranges": [
+        "18-26",
+        "29-60",
+        "65-103"
+      ],
+      "sha256": "3E64AD8EF5324FE99AA19A0DEAD024A4AFE8F99E038F8E280631B2EB8EABC5EB",
+      "observation": "Business API requires a server-issued session, resolves identity from token, and rejects claimed actorUserId that differs from token user, countering caller-selected authorization identity."
+    }
+  ],
+  "assessment": {
+    "decision": "NO_NEW_FINANCIAL_OR_DATABASE_INTEGRITY_FINDING",
+    "source_confirmed": "The tested route limits orders by open shift unless authenticated actor has orders_view_all, and middleware binds query actor to session identity.",
+    "counterevidence_and_limits": "The tests create orders/shift state and assert visibility but were not executed here. This batch does not challenge access control on separate GET /api/orders/{id} or /lookup routes.",
+    "runtime": "NOT_EXECUTED",
+    "recommendation": "No change recommended from this batch."
+  }
+}

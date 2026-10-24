@@ -1,0 +1,48 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tools/ReceiptPreview/Program.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:02:28.159200+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "c484d32e941af42d914cc6644dccc41b064c2bbd38746e472a075db661cd98f1",
+  "worktree_sha256": "c484d32e941af42d914cc6644dccc41b064c2bbd38746e472a075db661cd98f1",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-d18e76b2a231f908d590a6bf7e3183304f9ba235f68c7ca15cbd6c8371613b05",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "tools/ReceiptPreview/Program.cs::<top-level-entry-point>",
+      "source_span": [
+        17,
+        190
+      ],
+      "reasoning": "ReceiptPreview generated top-level entrypoint is synchronous fixture composition/output workflow. It resolves optional output path and creates directory,constructs fixed sample order/header/items,money,shift and expense data,then calls local Save for receipt,reprint,shift-open,shift-close and expense. Save uses production composition/raster but writes .escpos/PNG and ZXing-decodes QR;no server/config/queue/printer transport instantiated and fixed menu URL is encoded text,not fetched. Therefore execution is offline artifact generation with synthetic fixtures,not evidence live business data or every PrintRoute is working. Compiler wrapper adds no path sandbox or resource cleanup beyond explicit Save/helper source.",
+      "inputs": "Optional output directory argument;hardcoded synthetic Arabic sample data/menu URL/timestamps;installed Windows drawing/fonts.",
+      "outputs": "Preview files and stdout measurements,throws on unexpected QR count/content;normal process completion if all fixture checks pass.",
+      "side_effects": "Creates directory/files at requested resolved path;no SQL/API/auth/physical print. Not executed in this facet task.",
+      "trust_boundaries": "Caller output path can be outside repository if invoked;source has no containment guard. Fixture URL never opens network. Generated Main carries no implicit permissions.",
+      "database": "No database,migrations or real order records.",
+      "printing_ui": "Rendered bits are genuine renderer output for five fixtures;no claims of physical paper,cutter tolerance or delivery/call-center coverage. QR scanner assertion specific fixture payload.",
+      "performance": "Whole-ticket bitmap/per-pixel extraction,Save loops and QR scanning can consume memory/time;no measured latency. Exception path may leave earlier output/files or undisposed pieces.",
+      "duplicates_conflicts": "Generated entrypoint context is not individually counted local functions Save/DecodeQr/CountCuts/InkBounds/QrBounds/AllWhite;those retain earlier explicit reviews.",
+      "issues_hypotheses": [
+        "Offline real-renderer fixtures distinct from real-order UI preview",
+        "Output path not workspace constrained by tool itself",
+        "Not all routes covered despite broad header comment"
+      ],
+      "tests_missing": [
+        "Different safe output paths,renderer exception partial artifacts,each fixture QR/cut assertion,long ticket bounds;no actual invocation or printer"
+      ],
+      "verified_callers_callees": [
+        "tools/ReceiptPreview/Program.cs17-190",
+        "top-level Save calls35-69",
+        "Save74-121",
+        "DecodeQr124-136",
+        "BitmapTicketRenderer.Render",
+        "Domain.Printing.PrintRules.ComposeReceipt/Shift/Expense"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

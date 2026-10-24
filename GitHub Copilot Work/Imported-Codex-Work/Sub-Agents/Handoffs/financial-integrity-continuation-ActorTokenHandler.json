@@ -1,0 +1,26 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:20:49.1940078Z",
+  "path": "tests/Falah.Server.IntegrationTests/ActorTokenHandler.cs",
+  "stable_ids": [
+    "sym-6cda98bcd8e4fb03e320fb17971384dec20052763ad539a3542d1a0a329ad183",
+    "sym-915702117c089eda0893a3e96e3004980e0601ae896a3cd532c71e7fc24e65f7",
+    "sym-d13f0d87383bc577931d32907d4a0f811edb191f00f7df13a3b29578f755a3cf",
+    "sym-8a1155f400847d094563283bb7cfb1c5f40adbc3c70c1873697759ee03450e1b"
+  ],
+  "queued_count": 4,
+  "reconciliation": {
+    "current_union_remaining": 4,
+    "coordinator_database_reports": 4,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/ActorTokenHandler.cs": "1CFF4E756E63668EF2F0D1E8D3861E683726DD9E125A499DF1B58EF316005CE6"
+  },
+  "assessment": "This test-only delegating handler selects a seeded session token to match actor IDs from the outgoing query/body and uses any seeded token for requests with no actor field. It reads the same top-level fields the application endpoints call acting-user IDs, while unauthenticated access tests explicitly use a raw client. That supports the integration suite identity checks; it is not production authorization code and establishes no financial integrity defect.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only test-helper review; no tests, API or DB activity.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

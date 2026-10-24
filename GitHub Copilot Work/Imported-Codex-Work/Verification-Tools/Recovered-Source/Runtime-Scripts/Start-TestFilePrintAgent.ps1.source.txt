@@ -1,0 +1,28 @@
+param([ValidateSet('Receipt','CallCenter','Charcoal','Grill','DriverDispatch','DeliveryOrder')][string]$Route='Receipt')
+$ErrorActionPreference='Stop'
+$repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$health=Invoke-RestMethod 'http://localhost:5151/health' -TimeoutSec 10
+if($health.status -ne 'ok'){throw 'Test backend is not healthy.'}
+$listenerIds=@(Get-NetTCPConnection -LocalPort 5151 -State Listen|Select-Object -ExpandProperty OwningProcess -Unique)
+if($listenerIds.Count -ne 1){throw 'Cannot identify backend listener.'}
+$backend=Get-Process -Id $listenerIds[0]
+if($backend.Path -ne (Join-Path $repoRoot 'src\Falah.Server\bin\Release\net8.0\Falah.Server.exe')){throw 'Unexpected backend executable.'}
+& (Get-Command sqlcmd.exe).Source -S '(localdb)\Fale7CSharpDev' -E -d Fale7CSharp_Test -l 15 -b -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE host_process_id = $($backend.Id) AND database_id = DB_ID(N'Fale7CSharp_Test')) THROW 51000, 'Backend SQL target not verified.', 1;"
+if($LASTEXITCODE -ne 0){throw 'Backend is not verified on isolated database.'}
+$options=Get-Content -LiteralPath (Join-Path $repoRoot 'src\Falah.PrintAgent\appsettings.json') -Raw|ConvertFrom-Json
+$seedText=[IO.File]::ReadAllText((Join-Path $repoRoot 'src\Falah.Infrastructure\Persistence\DemoDataSeeder.cs'))
+$options.Pin=[regex]::Match($seedText,'var managerPin = PinHasher\.Hash\("(?<pin>\d+)"\)').Groups['pin'].Value
+if(!$options.Pin){throw 'Existing sample account provisioning was not found.'}
+$options.ServerBaseAddress='http://localhost:5151'
+$options.Transport='file'
+$options.WindowsPrinterName=''
+$options.PrinterHost=''
+$options.SerialPort=''
+$options.Route=$Route
+$options.ReportedByUserId='user-demo-manager'
+$options.FileOutputDirectory=Join-Path $PSScriptRoot "live-print-output\$Route"
+$configPath=Join-Path $PSScriptRoot "printagent-file-$Route.json"
+$options|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $configPath
+Write-Output "Fale7C# isolated $Route agent: FILE transport only. Ctrl+C stops this worker."
+& (Join-Path $repoRoot 'src\Falah.PrintAgent\bin\Release\net8.0\Falah.PrintAgent.exe') $configPath 2>&1|
+  Tee-Object -FilePath (Join-Path $PSScriptRoot "printagent-$Route.log") -Append

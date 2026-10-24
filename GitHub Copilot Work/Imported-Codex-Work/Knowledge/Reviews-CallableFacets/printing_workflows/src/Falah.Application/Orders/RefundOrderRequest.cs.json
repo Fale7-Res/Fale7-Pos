@@ -1,0 +1,70 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/RefundOrderRequest.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:06:32.325235+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+  "worktree_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-92e334a2b4a9cde84da5c4e0bbee4117263cfc4cac371666c8e8524d3f073b24",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.RefundOrderRequest::record-generated-behavior",
+      "source_span": [
+        5,
+        12
+      ],
+      "reasoning": "RefundOrderRequest holds RefundRequestId,OrderId,Amount,Reason,claimed CashierId and optional approval pair. Compiler constructor/init/with validates neither positive amount nor approval binding;RefundOrderHandler/Order.ApplyRefund cap remaining and use transaction/source account balance. Same key must survive retry;with-copy amount/order retaining ID can replay prior result rather than new refund. FIN003 unpaid/COD and FIN004 operational shift remain source behavior,not remedied by record. ToString exposes free-text reason/approval IDs.",
+      "inputs": "Seven request scalars/nullable strings.",
+      "outputs": "JSON refund command;not immutable refund event.",
+      "side_effects": "No refund until handler validates/posts.",
+      "trust_boundaries": "Body CashierId privilege sink;approval token separately registry checked. Caller lacks direct source account/operational shift field,derived server-side.",
+      "database": "RefundOrderHandler locking/journal/movement;record no SQL.",
+      "printing_ui": "UI amount is piastres,not units or EGPlong;request no inventory line return/print command.",
+      "performance": "Small record/string serialization.",
+      "duplicates_conflicts": "Idempotency key independent from generated value equality;copy altered payload same ID must not imply new command.",
+      "issues_hypotheses": "No IsPaid constructor predicate;upstream FIN003.",
+      "tests_missing": [
+        "Same key changed amount/order,unpaid refund,cumulative cap,approval mismatch,old sale current operational shift"
+      ],
+      "verified_callers_callees": [
+        "RefundOrderRequest.cs5-12",
+        "RefundOrderHandler.HandleAsync45-174",
+        "Order.ApplyRefund220-233",
+        "FIN003/FIN004"
+      ]
+    },
+    {
+      "stable_id": "sym-f707a0564b8425b9ffbf807861b26e0c85ebceb9be1bb94bd3ab8dddaf3c6149",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.RefundOrderResult::record-generated-behavior",
+      "source_span": [
+        14,
+        21
+      ],
+      "reasoning": "RefundOrderResult carries refund/order IDs,actual refunded amount,status,remaining refundable,total TreasuryMovementId and replay flag. Generated record has no validation linking movement amount/order/refund and no current server refresh;these are transaction acknowledgement fields. RemainingRefundable may become stale after concurrent later refund;record copy cannot reserve it. It does not state items physically returned or paper refund voucher printed.",
+      "inputs": "Seven output scalar fields.",
+      "outputs": "Refund acknowledgement snapshot.",
+      "side_effects": "No Treasury action by result properties.",
+      "trust_boundaries": "Only authenticated server response establishes observation;editing returned record does not change server.",
+      "database": "Handler creates after atomic persistence/replay;record no SQL.",
+      "printing_ui": "Monetary refund distinct from inventory reversal;nullable not used movement fieldbut constructor can still receive null at runtime.",
+      "performance": "Constant value copy/hash,strings IDs.",
+      "duplicates_conflicts": "Value equality same refund outcome except WasReplayed;not authoritative current refundable amount.",
+      "issues_hypotheses": "Result snapshot cannot prove original sale was paid,FIN003 remains.",
+      "tests_missing": [
+        "Replay matching immutable refund,remaining amount staleness,amount/movement reconciliation,source-balance failure no success response"
+      ],
+      "verified_callers_callees": [
+        "RefundOrderRequest.cs14-21",
+        "RefundOrderHandler result/replay",
+        "OrderRefund/Treasury records",
+        "FIN003"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

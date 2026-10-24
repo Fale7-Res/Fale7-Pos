@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "docs/CURRENT_ORDER_FOOTER_VERIFICATION.md",
+  "source_git_blob_sha256": "0921364de015ef4dba51c746e44c3401ed7f3a51de9f9aed80c9055ad9a68abc",
+  "worktree_sha256": "0921364de015ef4dba51c746e44c3401ed7f3a51de9f9aed80c9055ad9a68abc",
+  "reviewer": "parent",
+  "updated_at_utc": "2026-10-17T01:47:16.854619+00:00",
+  "responsibilities": "Historical fixture-based native footer layout measurements and reproduction instructions.",
+  "symbols": [],
+  "callables": "NOT_APPLICABLE: no source callable declarations in this document/configuration",
+  "non_callable_analysis": {
+    "role": "Historical fixture-based native footer layout measurements and reproduction instructions.",
+    "reasoning": "All41lines read. Describes separate totals rows, footer outside scrolling, compact mode below520DIP and48 historical fixture cases. Carefully distinguishes DIP-equivalent available dimensions from changing Windows scaling and bitmap capture from geometry; minimum51DIP viewport is not proof practical touch usability. Split state coverage expressly excludes the payment dialog. FooterLayoutProbe command changes build output/entrypoint and uses a hardcoded E-drive path; it was not executed in this audit. Artifacts referenced predate this conversation and remain untouched rather than being claimed as our new screenshots.",
+    "relationships": [
+      "NativeFooterLayoutProbe source",
+      "CartPanelView and TaxEngine",
+      "Ignored artifacts/footer-layout/results.json",
+      "CashierWinUI conditional probe build"
+    ],
+    "tests": "No probe, window capture, scale change, backend request or physical printer action executed. The claimed48passed cases are historical documentation, not independently rerun here.",
+    "recommendation": "Use retained fixture geometry as a starting matrix, then separately approve actual native screen/state/scaling observation and paper-width tests. Validate long cart touch usability, not only nonoverlap.",
+    "risks": "Accidental probe build may replace normal entrypoint; fixed output paths/fixture mode must remain isolated. No direct DB/printing in document itself."
+  },
+  "reviewed_line_spans": [
+    [
+      1,
+      41
+    ]
+  ],
+  "status": "REVIEWED_STATIC_COMPLETE_FILE",
+  "scope_limit": "Full manual file read and specific claim reconciliation; no runtime acceptance inferred",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "docs/GO_LIVE_CLEANUP_CHECKLIST.md",
+  "source_git_blob_sha256": "47191c33a46cea486d85c9b3b45d755c5c78620b4c5c128cf7e112d28434d03c",
+  "worktree_sha256": "06f80b1ff158c2ceaca20a393ae54f7402f337621b0ed0e4a0a0528f824ce6eb",
+  "reviewer": "parent",
+  "updated_at_utc": "2026-10-17T01:58:47.919918+00:00",
+  "responsibilities": "Historical, owner-directed operational cleanup decisions and deployment caveats; not an executable cleanup tool.",
+  "symbols": [],
+  "callables": "NOT_APPLICABLE: no source callable declarations in this document/configuration",
+  "non_callable_analysis": {
+    "role": "Historical, owner-directed operational cleanup decisions and deployment caveats; not an executable cleanup tool.",
+    "reasoning": "All173lines read with credential masking. Counts and balances are September snapshots of a different SQLExpress/Falah database, not facts about the approved LocalDB test environment. Section6 pending queue warning and summary145 drained claim represent different dates; neither proves present queue safety. Deactivate rather than delete users, preserve ledgers, stocktake and explicit adjustments are sound provenance principles, but every described close/settle/cancel/adjust changes business data and was not executed. Section12 explicitly documents public demo-account/default-seeder risk, per-machine print mutex limitation and missing startup retry; these are documented risks, not evidence of covert malicious intent. Session expiry prevents use but unpruned rows are not necessarily harmless for long-term performance/privacy. Historical SQL memory/CU/USB advice is not authorization or measured suitability for this computer.",
+    "relationships": [
+      "DemoDataSeeder and tracked PrintAgent settings",
+      "PRT001 distributed route ownership",
+      "FIN findings and opening-stock runbook",
+      "SessionService expiry and deployment SQL memory settings"
+    ],
+    "tests": "No database counts/balances queried or changed, queue drained, accounts modified, SQL configuration tuned, USB settings changed or printer connected. Historical sensitive values deliberately not reproduced.",
+    "recommendation": "Maintain sanitized, dated runbooks tied to an explicitly verified database target; require separate owner approval for each operational mutation. Verify queue and backup acceptance privately before production. Address known documented seed/agent credential exposure in a later approved implementation phase.",
+    "risks": "Baseline document contains private-looking operational names/balances and demo credentials. New reports record conclusions without those values; original baseline remains untouched. Old cleanup instructions must not be applied to existing unknown databases."
+  },
+  "reviewed_line_spans": [
+    [
+      1,
+      173
+    ]
+  ],
+  "status": "REVIEWED_STATIC_COMPLETE_FILE",
+  "scope_limit": "Full manual file read and specific claim reconciliation; no runtime acceptance inferred",
+  "remaining_callable_ids": []
+}

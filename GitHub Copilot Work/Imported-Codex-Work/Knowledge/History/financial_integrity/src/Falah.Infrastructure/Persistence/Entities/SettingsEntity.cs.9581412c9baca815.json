@@ -1,0 +1,1659 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Entities/SettingsEntity.cs",
+  "source_git_blob_sha256": "3893685ca3b8efc8d0ae2b07410fab96d8835237789b400f0fcafaedd6e4be6d",
+  "worktree_sha256": "ffa6cf363527ff9f4cb38563ed7e10caf8f5695d21987b025f962846275eef2c",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T22:12:11.732141+00:00",
+  "file_review_status": "PARTIAL_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-df7628912608af8c2218ad7a4337778b796ce942c1894071ffa0994684015bc5",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Id.get",
+      "span": [
+        17,
+        24,
+        17,
+        28
+      ],
+      "reasoning": "Getter identifies singleton settings row; service explicitly queries literal settings rather than first arbitrary row.",
+      "inputs": "Settings entity containing string singleton key.",
+      "outputs": "string singleton key via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-ec317b06270bd67b8d7edadd9a78b83f9c5462db8305efc22253df2bf85fcff2",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Id.set",
+      "span": [
+        17,
+        29,
+        17,
+        33
+      ],
+      "reasoning": "Setter defaults to SingletonId but remains writable; convention PK does not itself forbid additional IDs, which normal service ignores.",
+      "inputs": "string singleton key from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-a713b57505a90997c17e38b20ddcc18c381d3801b7dd6e4be408ed23fe8618a3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.RestaurantName.get",
+      "span": [
+        18,
+        36,
+        18,
+        40
+      ],
+      "reasoning": "Getter exposes current restaurant header/receipt identity through settings DTO, not legal account identity.",
+      "inputs": "Settings entity containing string restaurant display name.",
+      "outputs": "string restaurant display name via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-4671a073fa877f8ca9ed08438c4a6a625996c45e7a22cfae4e4b888d5347bd1b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.RestaurantName.set",
+      "span": [
+        18,
+        41,
+        18,
+        45
+      ],
+      "reasoning": "Setter stores request name verbatim on partial update; no nonblank/trim guard appears in settings writer, unlike menu names.",
+      "inputs": "string restaurant display name from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-7532114eff3e7bf550dfb596ce19d6cad02e9d8559d6e2f2675787e3d809f6c0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.SubName.get",
+      "span": [
+        19,
+        29,
+        19,
+        33
+      ],
+      "reasoning": "Getter exposes secondary branding text returned to clients, not a financial branch identity.",
+      "inputs": "Settings entity containing string subtitle.",
+      "outputs": "string subtitle via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-73a7d12d06659e316ac40dc0e12eee9874ed062ed119d9cf222621f2d72f71e0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.SubName.set",
+      "span": [
+        19,
+        34,
+        19,
+        38
+      ],
+      "reasoning": "Setter copies optional update when nonnull; empty string is a deliberate possible stored value, null means unchanged.",
+      "inputs": "string subtitle from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-561a33865da84c606979c6293a4c6b8a8397bcc1d1bb640ed2e01b076bf59fd1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Address.get",
+      "span": [
+        20,
+        29,
+        20,
+        33
+      ],
+      "reasoning": "Getter returns current restaurant address metadata, not historical delivery address or supplier FK.",
+      "inputs": "Settings entity containing string restaurant address.",
+      "outputs": "string restaurant address via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-923ccbfcccb3213d0a83b8550af54086b2ab5f1209782ac01e39541b8b5a3acf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Address.set",
+      "span": [
+        20,
+        34,
+        20,
+        38
+      ],
+      "reasoning": "Setter copies nonnull request address verbatim; no physical/location verification occurs.",
+      "inputs": "string restaurant address from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-99b3629d7bd8b99ec048a321c31696ffbd5d14d6170ee15b64f38d1fd8b08f6d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Phone1.get",
+      "span": [
+        21,
+        28,
+        21,
+        32
+      ],
+      "reasoning": "Getter returns primary contact text, distinct from customer normalized-phone identity.",
+      "inputs": "Settings entity containing string primary phone.",
+      "outputs": "string primary phone via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-c2649a0b7aa85a68ebc8893772e4ea9a976c6ba362f42c1714de096fcd2621a5",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Phone1.set",
+      "span": [
+        21,
+        33,
+        21,
+        37
+      ],
+      "reasoning": "Setter stores requested nonnull string with no phone normalization in writer. It does not change login or driver identity.",
+      "inputs": "string primary phone from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-882b531b35c6987946e06ae565f9a907f6137268ca75fc9048a73497c15f9700",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Phone2.get",
+      "span": [
+        22,
+        28,
+        22,
+        32
+      ],
+      "reasoning": "Getter returns secondary contact text, not a duplicate identity constraint.",
+      "inputs": "Settings entity containing string secondary phone.",
+      "outputs": "string secondary phone via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-aec54157b557a6d852ba9963ee112986a8b0abd5a60ac8d35553245ce9193a04",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Phone2.set",
+      "span": [
+        22,
+        33,
+        22,
+        37
+      ],
+      "reasoning": "Setter accepts nonnull request including empty string to clear; null leaves old value.",
+      "inputs": "string secondary phone from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-4febd98499faa94a4c3728f65005875e142799740a5384f3fd152b105ccc6971",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.PhoneLandline.get",
+      "span": [
+        23,
+        35,
+        23,
+        39
+      ],
+      "reasoning": "Getter exposes landline contact label through DTO without parsing to numeric type.",
+      "inputs": "Settings entity containing string landline.",
+      "outputs": "string landline via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-43ae280dc2d84c919fa94d88e58df8260c2cec37bf3e8619803b1dd2b00fc68e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.PhoneLandline.set",
+      "span": [
+        23,
+        40,
+        23,
+        44
+      ],
+      "reasoning": "Setter copies nonnull request and preserves formatting; no database identity/permission effect.",
+      "inputs": "string landline from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-bae4186714b4e91569d6d120a648c742558cbaa53298fe672aefca91fb02b749",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ComplaintsPhone.get",
+      "span": [
+        24,
+        37,
+        24,
+        41
+      ],
+      "reasoning": "Getter exposes dedicated complaints contact, not a destination for automated communication in accessor.",
+      "inputs": "Settings entity containing string complaints contact.",
+      "outputs": "string complaints contact via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-ee366e3574b4164582043443af2a835fd8198cd5add47d57e90868f564dcef55",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ComplaintsPhone.set",
+      "span": [
+        24,
+        42,
+        24,
+        46
+      ],
+      "reasoning": "Setter stores supplied nonnull value; no message or external call is made by assignment.",
+      "inputs": "string complaints contact from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-198b38e1936d09b20987d6adb6219b8b995ff74032b98f00b0057df5a1346312",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ReceiptFooter.get",
+      "span": [
+        25,
+        35,
+        25,
+        39
+      ],
+      "reasoning": "Getter exposes configurable receipt footer text; it is not a financial warranty, tax policy or encoded amount.",
+      "inputs": "Settings entity containing string footer text.",
+      "outputs": "string footer text via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-ab880f2991cceacf44d7d46f20a8eb642fe92982a28f8b281ebf1a5476b99b83",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ReceiptFooter.set",
+      "span": [
+        25,
+        40,
+        25,
+        44
+      ],
+      "reasoning": "Setter copies nonnull request text verbatim, with actual rendering/width behavior outside this bounded storage review.",
+      "inputs": "string footer text from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-35412e60f2de4e45d6755c25f1323abe9942b2427bb6cf4ca532e5b4447d90ba",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.MenuUrl.get",
+      "span": [
+        29,
+        30,
+        29,
+        34
+      ],
+      "reasoning": "Getter returns optional receipt QR target; null disables configured link rather than a built-in default URL.",
+      "inputs": "Settings entity containing nullable menu URL.",
+      "outputs": "nullable menu URL via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-2feda923cd96b60caebc570faf5c5ecbb0a89b846df01a55e47c5b029108eafa",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.MenuUrl.set",
+      "span": [
+        29,
+        35,
+        29,
+        39
+      ],
+      "reasoning": "Setter uses NormalizeMenuUrl on nonnull request: trimmed empty clears, absolute http/https required. Null request itself means unchanged.",
+      "inputs": "nullable menu URL from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-177898901b3e18e09e357204c006ae3541c234c5b56387c9ee6091c7330b946f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.OvertimeHourlyRatePiastres.get",
+      "span": [
+        30,
+        46,
+        30,
+        50
+      ],
+      "reasoning": "Getter supplies manual overtime default rate in RecordOvertime93, distinct from daily-wage-derived automatic overtime multiplier.",
+      "inputs": "Settings entity containing long manual overtime rate.",
+      "outputs": "long manual overtime rate via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-b96f903535a58be229e1457d524bb93454e31aa33cfc1a16db536dc3de813faf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.OvertimeHourlyRatePiastres.set",
+      "span": [
+        30,
+        51,
+        30,
+        55
+      ],
+      "reasoning": "Setter stores nullable request long without sign/bounds check in shown writer; FIN024 signed custom/default earning boundary remains relevant. Old inert-policy comment is stale.",
+      "inputs": "long manual overtime rate from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-32bd9ba606263b1b86d6d926bf361cbc0683d221debd04c6c4dc154e3e8cb13f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.DeliveryFeePiastres.get",
+      "span": [
+        31,
+        39,
+        31,
+        43
+      ],
+      "reasoning": "Getter supplies configured delivery fee suggestion through DTO, not proof charged fee equals this field for every order.",
+      "inputs": "Settings entity containing long default delivery fee.",
+      "outputs": "long default delivery fee via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-814f0da37379637a804fdba3ef4b7a3b769953ace427f36e95c65b2bd43aa15b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.DeliveryFeePiastres.set",
+      "span": [
+        31,
+        44,
+        31,
+        48
+      ],
+      "reasoning": "Setter accepts raw request long without sign check here. FIN016 actual monetary boundary matters; property does not enforce charged-fee policy.",
+      "inputs": "long default delivery fee from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-41a5189a62dcb53bcf43633a2169bb7596e75678b127d031e960f9a004bd1826",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.DefaultOpeningCashPiastres.get",
+      "span": [
+        35,
+        46,
+        35,
+        50
+      ],
+      "reasoning": "Getter is proposed float for next shift dialog, not actual opening cash persisted on a shift or main treasury current balance.",
+      "inputs": "Settings entity containing long suggested opening float.",
+      "outputs": "long suggested opening float via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-bfdb49f96c258c9e0f443f21353ff6d20fa73157eaaf97994ba2717f25625977",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.DefaultOpeningCashPiastres.set",
+      "span": [
+        35,
+        51,
+        35,
+        55
+      ],
+      "reasoning": "Setter rejects negative requested value and stores nonnegative amount; existing shifts remain unchanged. No stock/cash movement is created by changing suggestion.",
+      "inputs": "long suggested opening float from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-6ddd146cb14f0d7a4d6e7b0b9b91d21fbda1d80b8b03b289ab564aaf991a98fd",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Currency.get",
+      "span": [
+        36,
+        30,
+        36,
+        34
+      ],
+      "reasoning": "Getter exposes display currency label while monetary storage remains integer piastres.",
+      "inputs": "Settings entity containing string display currency.",
+      "outputs": "string display currency via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-b8a64ba3f5138359b3ed552c8fc153a7f39454c35d90be8ce27985fa8d54b4f4",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.Currency.set",
+      "span": [
+        36,
+        35,
+        36,
+        39
+      ],
+      "reasoning": "Setter copies nonnull text; no exchange-rate conversion or historical ledger rescaling occurs.",
+      "inputs": "string display currency from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-a8dec3c91f09d66b82475ade46ab20a82ecf205e0fb74113f8d0ef39ef01325b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.CashDiscrepancyThresholdPiastres.get",
+      "span": [
+        37,
+        52,
+        37,
+        56
+      ],
+      "reasoning": "Getter supplies discrepancy policy read by close-preparation/close handlers; it is not money held in drawer.",
+      "inputs": "Settings entity containing long discrepancy tolerance.",
+      "outputs": "long discrepancy tolerance via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-8306189c32a6e6886d98d86e57f1947369caec58605aaf60f9acbf6669ae9fc4",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.CashDiscrepancyThresholdPiastres.set",
+      "span": [
+        37,
+        57,
+        37,
+        61
+      ],
+      "reasoning": "Setter accepts request long without guard in settings writer; FinancialRules.DiscrepancyNeedsApproval floors negative threshold to zero, rather than assuming all writers normalize.",
+      "inputs": "long discrepancy tolerance from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-eedcc37b88ea25467b1a10617d931c602d3fc5809f4bb637cf649e469bf4ddf0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoLockMinutes.get",
+      "span": [
+        38,
+        34,
+        38,
+        38
+      ],
+      "reasoning": "Getter exposes configured idle-lock minutes; storage does not itself revoke server session or guarantee timer is wired.",
+      "inputs": "Settings entity containing int client lock interval.",
+      "outputs": "int client lock interval via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-ab5e31f6e83d93bb0107cd436a33d4b24e3dfb27f28236258bfae20ee7da9d40",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoLockMinutes.set",
+      "span": [
+        38,
+        39,
+        38,
+        43
+      ],
+      "reasoning": "Setter copies nullable request int without local range validation. Actual client lock/runtime behavior is not reverified by this field review.",
+      "inputs": "int client lock interval from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-7b6fafd7727faef30c4291e0ea6c6607cda9ef349bc45fd1eff81e3e4acb2026",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ActiveShiftName.get",
+      "span": [
+        39,
+        37,
+        39,
+        41
+      ],
+      "reasoning": "Getter is configured suggested shift display name, not the actual currently Open ShiftEntity row.",
+      "inputs": "Settings entity containing string suggested shift name.",
+      "outputs": "string suggested shift name via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-9d79333bc63f8a26c62abd62d80f215506f658d318da1abf92f4f48cc9f065f7",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.ActiveShiftName.set",
+      "span": [
+        39,
+        42,
+        39,
+        46
+      ],
+      "reasoning": "Setter copies request string; it does not open/close a shift or change shift PK.",
+      "inputs": "string suggested shift name from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-7f810de7c119e7f4892676dfa6a1aefb02c74cc8a6395f90d93b040a5ed1decc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.PrinterWidth.get",
+      "span": [
+        40,
+        34,
+        40,
+        38
+      ],
+      "reasoning": "Getter exposes logical paper-width setting, distinct from installed queue/driver configuration.",
+      "inputs": "Settings entity containing string paper-width preference.",
+      "outputs": "string paper-width preference via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-f93bf37bcc68e511befe9b3bea612fa45fd74c800d3594c22d47188a81ecc43a",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.PrinterWidth.set",
+      "span": [
+        40,
+        39,
+        40,
+        43
+      ],
+      "reasoning": "Setter copies raw nonnull text with no enum whitelist here. No real printer system setting is changed by this audit.",
+      "inputs": "string paper-width preference from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-55a9ff957e23dc0b5f669f5c87bccb661dd58553081e4f7a511013de60eba8a5",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoPrintReceipt.get",
+      "span": [
+        41,
+        36,
+        41,
+        40
+      ],
+      "reasoning": "Getter returns receipt automation preference through DTO, not acknowledgement paper printed.",
+      "inputs": "Settings entity containing bool receipt automation preference.",
+      "outputs": "bool receipt automation preference via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-ec7ab28cf9a176ce9594879ca0036eb02fe3ec6a0fa7cb9d1b907e04d6713c7e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoPrintReceipt.set",
+      "span": [
+        41,
+        41,
+        41,
+        45
+      ],
+      "reasoning": "Setter copies request bool under settings_manage; downstream print dispatch semantics not re-audited or executed by this accessor receipt.",
+      "inputs": "bool receipt automation preference from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-c54caae11abdcdfe9f8fd3a17fff2effb35905a7bbfdfa700337446f37f07ebf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoPrintPreparationTicket.get",
+      "span": [
+        42,
+        46,
+        42,
+        50
+      ],
+      "reasoning": "Getter exposes prep ticket automation preference, distinct from receipt automation and hold-until-confirmed policy.",
+      "inputs": "Settings entity containing bool preparation automation preference.",
+      "outputs": "bool preparation automation preference via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-da15fd441f0a64868a6777fca50c7c1c380148fd8c539b1258fb1549a63f5376",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.AutoPrintPreparationTicket.set",
+      "span": [
+        42,
+        51,
+        42,
+        55
+      ],
+      "reasoning": "Setter stores bool independently; field alone neither creates a print job nor proves kitchen ticket delivered.",
+      "inputs": "bool preparation automation preference from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-01c14d5c588e88eecf00e79ae567c9d9ecf6097b18d2e1877ad78f53406b2aa9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.HoldPreparationUntilPaymentConfirmed.get",
+      "span": [
+        52,
+        56,
+        52,
+        60
+      ],
+      "reasoning": "Getter exposes optional operational delay policy for future electronic preparation flow, not whether payment actually settled.",
+      "inputs": "Settings entity containing bool electronic prep hold preference.",
+      "outputs": "bool electronic prep hold preference via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-0bf16022689233bf474255e688a156155eea83b74596e9e17c3cd223b2f35bb8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.HoldPreparationUntilPaymentConfirmed.set",
+      "span": [
+        52,
+        61,
+        52,
+        65
+      ],
+      "reasoning": "Setter stores request bool under settings_manage. It does not confirm payment or reverse existing jobs; downstream exact contract belongs existing print/order review.",
+      "inputs": "bool electronic prep hold preference from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-aaf06f3d2eb2dfa0dd9e39518dde025fc3e424371efeccd0be12945f57a38e7d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.NumberOfReceiptCopies.get",
+      "span": [
+        53,
+        40,
+        53,
+        44
+      ],
+      "reasoning": "Getter returns requested copy preference, not durable attempt count or physical sheets count.",
+      "inputs": "Settings entity containing int desired receipt copies.",
+      "outputs": "int desired receipt copies via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-519910ad97f63a075e28934f8e788e7fb0023a63a04f1b8353a1deda1c9e3c99",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.NumberOfReceiptCopies.set",
+      "span": [
+        53,
+        45,
+        53,
+        49
+      ],
+      "reasoning": "Setter accepts request int without local bounds check; actual renderer/job consumer controls execution and was not tested here.",
+      "inputs": "int desired receipt copies from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-45519efb51ed32987d07bfdb596ab0442a86efde061d6d228f5e0b9de7ef48fe",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.GrillScreenSoundAlert.get",
+      "span": [
+        54,
+        41,
+        54,
+        45
+      ],
+      "reasoning": "Getter exposes grill UI audio preference, not printing, payment or inventory state.",
+      "inputs": "Settings entity containing bool sound preference.",
+      "outputs": "bool sound preference via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-a638aa49340334596e48f42b485f32ce41871b383c0e642bc080970e749ca6ba",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.GrillScreenSoundAlert.set",
+      "span": [
+        54,
+        46,
+        54,
+        50
+      ],
+      "reasoning": "Setter can be changed by ordinary user through onlyGrillSound exception; an empty-only request can also initialize whole singleton defaults, existing policy lead retained.",
+      "inputs": "bool sound preference from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-90b246a0a0c012d18bbe82c2e04e73cb2458635f1863f30830120dac0f58cfc5",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.StandardWorkdayHours.get",
+      "span": [
+        55,
+        39,
+        55,
+        43
+      ],
+      "reasoning": "Getter is actively used in attendance automatic overtime/late deductions and correction, contradicting entity comment saying inert.",
+      "inputs": "Settings entity containing int standard workday hours.",
+      "outputs": "int standard workday hours via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-cb88162ad51e2f809ad251f0bb3d3130857f44a44d240edf3cecc58316a91787",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.StandardWorkdayHours.set",
+      "span": [
+        55,
+        44,
+        55,
+        48
+      ],
+      "reasoning": "Setter copies request int with no range guard here; wage-domain functions handle their own edge policies, so no blanket valid-positive assumption.",
+      "inputs": "int standard workday hours from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-bed5c09a22844a24214a7f88a7238f57ff3bd4f728a941b0be75f8aec65cd7f0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.LateGraceMinutes.get",
+      "span": [
+        56,
+        35,
+        56,
+        39
+      ],
+      "reasoning": "Getter supplies attendance late grace policy for automatic/correction calculations, not a time-of-day check-in record.",
+      "inputs": "Settings entity containing int late grace interval.",
+      "outputs": "int late grace interval via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-a583a633ae867a3ec6a9bd7fb22b4b0a5ae1926b1331bce167885047ca28fbe7",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.LateGraceMinutes.set",
+      "span": [
+        56,
+        40,
+        56,
+        44
+      ],
+      "reasoning": "Setter stores requested int unchanged; existing historical correction reuses current settings, preserving policy-qualified correction-basis candidate.",
+      "inputs": "int late grace interval from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-02304742f752535d0971f6ac93ea8407eac0ab2ede5094b1d9d05aaaee814775",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.MaxLatePenaltyHours.get",
+      "span": [
+        57,
+        38,
+        57,
+        42
+      ],
+      "reasoning": "Getter limits calculated late deduction in payroll rules, independent from actual worked overtime hours.",
+      "inputs": "Settings entity containing int maximum late penalty hours.",
+      "outputs": "int maximum late penalty hours via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-3b50e03477deea3e5b6b22948bb43dd7f598d4ac4cd32ba7a32e9a18254de0a1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.MaxLatePenaltyHours.set",
+      "span": [
+        57,
+        43,
+        57,
+        47
+      ],
+      "reasoning": "Setter accepts request int; property has no nonnegative cap validation and does not post/reverse prior deductions automatically.",
+      "inputs": "int maximum late penalty hours from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-1c63f10c5deeb1fa15866993f0e47d6326ab92dd3089e4c385c267287e2670a0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.LatePenaltyMultiplier.get",
+      "span": [
+        58,
+        43,
+        58,
+        47
+      ],
+      "reasoning": "Getter supplies active double late-deduction multiplier in attendance/correction, not piastre exchange rate.",
+      "inputs": "Settings entity containing double late penalty factor.",
+      "outputs": "double late penalty factor via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-1515fa20db9a3114b13c9aca46be268b345adb6379ff1b0b0194ef283255485c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.LatePenaltyMultiplier.set",
+      "span": [
+        58,
+        48,
+        58,
+        52
+      ],
+      "reasoning": "Setter copies double input without finite/sign guard here. Numeric admission must be checked at boundary/domain; no runtime NaN/Infinity acceptance test performed.",
+      "inputs": "double late penalty factor from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-82fb85995ad6da5fd53f049d8906d2701c399d2712630d06b079e36d359672be",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.OvertimeMultiplier.get",
+      "span": [
+        59,
+        40,
+        59,
+        44
+      ],
+      "reasoning": "Getter supplies automatic attendance overtime factor, distinct from manual OvertimeHourlyRate default.",
+      "inputs": "Settings entity containing double overtime factor.",
+      "outputs": "double overtime factor via DTO or direct consumer.",
+      "side_effects": "No side effects, query or hardware action.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    },
+    {
+      "stable_id": "sym-156726c4cabc4298fcf4e0e3d7273eb9ad30acedde5a93ee5b08e78b1ce329db",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.SettingsEntity.OvertimeMultiplier.set",
+      "span": [
+        59,
+        45,
+        59,
+        49
+      ],
+      "reasoning": "Setter copies requested double without normalization and affects future/current-rate corrections, not frozen already-posted amount snapshots automatically.",
+      "inputs": "double overtime factor from nullable partial-settings request/default initialization.",
+      "outputs": "Field assignment only.",
+      "side_effects": "In-memory settings assignment; UpdateSettings SaveChanges persists and appends general audit. No app timer, money, printer or system setting changed by audit.",
+      "trust_boundaries": "settings_manage required except sound-only/empty request branch50-61. Public stored preferences do not prove actual consumer wiring, safe numeric bounds or physical behavior.",
+      "database": "SettingsQuery32-44 explicitly finds SingletonId and returns Defaults if absent; Update63-83 creates singleton from defaults then merges. Entity Id convention alone is not single-row DB CHECK; no DB/schema query run.",
+      "printing_ui": "Identity/contact/printer preferences returned by DTO. Actual rendering/timers/queue behavior explicitly not runtime verified. Attendance policy is active per Attendance87-92/130-146 and Correct92-108, overriding stale inert comment.",
+      "performance": "O(1) accessor; singleton query/save and client reaction occur outside fields. No performance tests or per-request timer behavior measured.",
+      "duplicates_conflicts": "Preferences differ from frozen financial/order/shift facts. FIN016/024 signed input boundaries and correction-rate policy retain qualifications; no duplicate finding from field storage.",
+      "issues_hypotheses": "No new accessor finding. Zero/negative/double metadata admission and sound-only first initialization are preserved source leads with caller/domain controls, not demonstrated production failure.",
+      "tests_missing": "No tests run. Need partial null-versus-empty merge, first-write defaults, current policy versus posted wage snapshot, numeric finite/bounds, default float nonnegative and actual downstream preference contracts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs:35-42,45-131",
+        "src/Falah.Infrastructure/Settings/SettingsQueryService.cs:16-44",
+        "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:87-92,130-146",
+        "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:92-108",
+        "src/Falah.Domain/Financial/FinancialRules.cs:44-47"
+      ]
+    }
+  ],
+  "remaining_callable_ids": [
+    "sym-6238ce0a840d5a88d2d94d1230c33dcb516b105ae8a80a088e39258d6d19d85e",
+    "sym-6c2e19cc64f55c0674c794ee787755b4cae0284f15549a6d3dffaf77cc6a0f9e",
+    "sym-caf89e7bc0bcbc69836d57c57d046020610df660ee903d55b1ec89378cfdfe73",
+    "sym-89141e1245a0762aef8bf902763e829849d650864a6950bfe62627cfbe61b560",
+    "sym-f1511b8a602dccba3fbfe931aaf8b534014eb50e0937c4bc3af53a75b2156783",
+    "sym-57382667e8fde6f68cbbd1aa08a3d0d507eef9ab91841ff0c7182a967c8a1e0e",
+    "sym-54ab8d897c16b7f1d36087f1302e41063663b78028d593637348fcb9c03d8d19",
+    "sym-f5c1833c5cad49ce30b24b0552083d91f218234bce8d4068c47c78b6bce4d563",
+    "sym-9e16375d3a7852bdb8da5a90b1914e59a2c194b09b7a7c8deb5e7ecd0b7c7ee7",
+    "sym-acaf060a159f42c66b5b74ca50f49be5b205605fcd1847cd9334e7cd55704d3f",
+    "sym-2f199e85ca173750815e089735e0e51863f3fbee6b2009ebca39e9ce9da9aff8",
+    "sym-560f9676eae82ec8481e7fe39d1658a054c44defeacc10498fac7f31b9208b0d",
+    "sym-43f121173d817c3f49d08198f382915e566927a4bf4658e5d12137cae1a06277",
+    "sym-123d7bbc39d6a916600fa13de0cb72a812787d3c0cabe5decf37caff913b1a58",
+    "sym-72ca73f2c25727dc52df05d3a2ff7dd5b7d47be07deefe7ae8d84b1aa5f92913",
+    "sym-c9ad6d78893f7ef8d939ee021f0987be8140dfd50614cbb5750dcaab843a93ae",
+    "sym-2c51f63a0533775c573868b1ca73b85fa4ff1ea879dd2217fae70cf625858f3b",
+    "sym-1a1a16293bc02fb5aef5f3130062e50f83cef17940b39eb5a2c9e11019645cac",
+    "sym-8b662919065b1cfd2d671e18cb87d1415a59b625914782106d63d634e59b94ea",
+    "sym-82d5d116a6d922cda6dca2ab5ef7f7767fb9d418f179d7424b6f6cfba51ef3e3"
+  ]
+}

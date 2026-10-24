@@ -1,0 +1,285 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:12:39.2664499Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/PricingRulesTests.cs",
+  "symbol_count": 22,
+  "symbols": [
+    {
+      "stable_id": "sym-3d2442c7e0b746d917f043da8e5dd933ce6c57a6437857c8ab7cea54535d13c7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.MakeRule(IReadOnlyList<DayOfWeek>?, TimeOnly?, TimeOnly?, bool)",
+      "span": [
+        11,
+        5,
+        13,
+        103
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a2e8a9c093d1d03ce31a1b0d762de0a3b17ca0cbef74018a339470724cf9176a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.Inactive_rule_is_never_active()",
+      "span": [
+        15,
+        5,
+        20,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-780def62c86380d52372e6b499c8aced6633bf4d625f871b4e233849490d4841",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.Rule_with_no_time_window_is_always_active_on_an_allowed_day()",
+      "span": [
+        22,
+        5,
+        27,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9a1eff8b9541122f0984de65badfd3fd04bc6f44e0c122f90bc9eb20255fc6bc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.Rule_restricted_to_specific_days_is_inactive_on_other_days()",
+      "span": [
+        29,
+        5,
+        35,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e98cafb45bba140fa6e1d7eb198664fdb529e20e469a965ebd54081f19363423",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.Ordinary_same_day_window_is_active_only_inside_the_window()",
+      "span": [
+        37,
+        5,
+        45,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-915e4fed86209078f321000780ef78c0906bde2cf132de80ac7db7ede352e6c6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.A_window_crossing_midnight_is_treated_as_a_late_shift_window()",
+      "span": [
+        47,
+        5,
+        58,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1548a84e35c89af4a52a89f8ebe46d972bca579050c84859d36249d48e2d240b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.ValidateAppliedRule_rejects_a_rule_that_expired_since_the_chip_was_tapped()",
+      "span": [
+        60,
+        5,
+        68,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-60d6b7080598bdda01ca01d23b3dcdb98ae073191e454f66a0b974174b249619",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertCompAmount_rejects_a_comp_larger_than_the_order_value()",
+      "span": [
+        70,
+        5,
+        75,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6273be1f56e3cf2f34da4d0fa5ffc2fcff01a4504c2fee0edb71a1217f3a0293",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        73,
+        40,
+        74,
+        84
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0806f0c47d7a8bf26472bcfcb2e4b760a7647af62454fcba8f0cface3499bd62",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertCompAmount_rejects_zero_or_negative_comp()",
+      "span": [
+        77,
+        5,
+        81,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-de218ad1a23a2c442aead6ff0b8652b29aee539ea905c04254fc65cd78e86e46",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        80,
+        40,
+        80,
+        108
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7cf3f18a2d537bfc2b61f317248f100a16ec3019252f89cf39391f9a57a78d11",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertCompAmount_accepts_a_comp_equal_to_the_full_order_value()",
+      "span": [
+        83,
+        5,
+        87,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-17e917a38c40f9c5f4b02d6e6aa689e049f8d3513dda33af05d54e2d4e7ace12",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertPriceRuleInput_requires_a_name()",
+      "span": [
+        89,
+        5,
+        93,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1c8ceb7e29624912c8b376e06d7973720e99acdac215991d9571bd25fc75df9d",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        92,
+        40,
+        92,
+        129
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d31c4368da9bef1a4bfa9836b8437417f406cec28c5c8965094a19273ab2b272",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertPriceRuleInput_requires_at_least_one_product()",
+      "span": [
+        95,
+        5,
+        99,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e75caabfefd98d18965623b4b10325ee9035ead6be0a4f1c8d6356b7f50e0387",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        98,
+        40,
+        98,
+        135
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2e99f042f68e93ef30f822b5584310da7371765d702d073118033de1d7b1d656",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertPriceRuleInput_requires_a_positive_fixed_price()",
+      "span": [
+        101,
+        5,
+        105,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-121b04853dc239d9595151f55201dff0884fac67c8d8b68fc89100d8e8829c16",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        104,
+        40,
+        104,
+        124
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-58b5f23f63f51d6593ce38bf59bbfd46f902e977b23a3b977f482a5cb0b33cb3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertPriceRuleInput_rejects_an_out_of_range_day_of_week()",
+      "span": [
+        107,
+        5,
+        112,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a898c8e2edca028a90a03446f2f57d7c69f0d9f696ee79c0cd5c7e7a7fcba1e1",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        110,
+        40,
+        110,
+        139
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-28d1bd2150c93939cd97d816cefb324e2f0f9961dfdfef981a7cb82382b66abb",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        111,
+        40,
+        111,
+        140
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8831bf80798bc51cd010c9622902bbd51a422ba4a5ea0aa59b080811baf0bd17",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PricingRulesTests.AssertPriceRuleInput_accepts_a_fully_valid_input()",
+      "span": [
+        114,
+        5,
+        118,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover disabled and day/time-limited pricing rules, Cairo time conversion, overnight windows, checkout revalidation after offer expiry, comp amount bounds, and price-rule input requirements. PricingRules matches these expectations. The existing audit note financial-notes-domain-tests-remaining.txt records untested overnight weekday spill and equal-window endpoints; source semantics/comment and policy remain insufficient to establish a financial defect, so these remain coverage gaps only. No independent finding promoted; no tests executed.",
+  "source_ranges": "PricingRulesTests.cs: 1-120; PricingRules.cs: 7-81; existing note: Sub-Agents/Results/financial-notes-domain-tests-remaining.txt.",
+  "execution": "Read-only source/test review; no tests/runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/PricingRulesTests.cs": "D2ED75DA60D780068455B29BFDD287AC65A6E766C41BDC603C88300546028E4B",
+    "src/Falah.Domain/Pricing/PricingRules.cs": "D2959EA1C3FA702C47649369DBBE471792EC0E753A6AD61547395A302903EC7B"
+  },
+  "shard_reconciliation": {
+    "financial_integrity": "0/22 exact IDs present",
+    "financial_coordinator": "0/22 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

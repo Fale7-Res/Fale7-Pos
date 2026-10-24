@@ -1,0 +1,38 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/ThemeService.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:23.027429+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "283b346b238c9c8fff8b920cfab3c2507a2590ff0a8a1372d737a8b1d6ed31c8",
+  "worktree_sha256": "283b346b238c9c8fff8b920cfab3c2507a2590ff0a8a1372d737a8b1d6ed31c8",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-b708b0808eb8ebe636b7727e412dad981def95e9d5aba2d6364e310854b2e299",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ThemeService.PreferenceFile::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        67,
+        5,
+        67,
+        56
+      ],
+      "reasoning": "PreferenceFile record stores Theme string with generated init/equality/ToString; no enum validation or fallback generated. Load Enum.TryParse accepts undefined numeric strings, while Settings appearance First assumes one of3 options.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Low-impact invalid-preference startup/settings candidate source-only; no preference file read/write.",
+      "tests_missing": "Low-impact invalid-preference startup/settings candidate source-only; no preference file read/write. NOT_EXECUTED.",
+      "verified_callers_callees": "ThemeService.Load/Save; SettingsViewModel.InitializeAppearance"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

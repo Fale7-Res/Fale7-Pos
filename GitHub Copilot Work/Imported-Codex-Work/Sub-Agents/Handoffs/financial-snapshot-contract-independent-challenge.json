@@ -1,0 +1,100 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "updated_at_utc": "2026-10-19T21:53:33.204Z",
+  "method": "Bounded independent actual source reading and raw hash verification. No new whole-file/callable receipts, no SQL/HTTP/UI/runtime tests.",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+      "worktree_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+      "git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60"
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+      "worktree_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+      "git_blob_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs",
+      "worktree_sha256": "79a3002b009480d7197f057aedd49d82b6ab2a27646a6a7f1bd2e91796fbaae9",
+      "git_blob_sha256": "01a20063ad42ea2c09228b5197682d9d6f806ec31e751b863b230078a362f38f"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml",
+      "worktree_sha256": "cc8d56dbe18e27540467b08b2453908e87330acba5535f43bacf8764f1812aea",
+      "git_blob_sha256": "ed23bd5b189f84cb0646e92cd197c5450db0d80b9d02c904d6d7af611b942eee"
+    }
+  ],
+  "contracts": [
+    {
+      "key": "SNAPSHOT_REPORT_PERMISSION_BOUNDARY",
+      "disposition": "INDEPENDENT_STATIC_CORROBORATION_WITH_PRECONDITIONS",
+      "evidence": [
+        "Program421-428 returns current/list snapshots through query without reports helper or endpoint-specific gate.",
+        "Query42-53 selects stored snapshot; Close87-102 stores full reconciliation JSON; ToDto162-165 exposes unchanged JSON.",
+        "Program2013-2018 explicitly calls RequireReportsAccessAsync; helper2282-2289 denies lack of all/reports_view.",
+        "AuthenticationMiddleware30-81 enforces valid session and actor consistency but contains no general reports_view or control_center permission requirement. Snapshot GET has no supplied actorUserId to mismatch.",
+        "Client Reconciliation20/28-32 checks reports_view for live query, but128-134 loads snapshot without same guard and125-126 deserializes archived financial report; XAML102-130 visibility is HasSnapshot alone.",
+        "ControlCenterViewModel135 loads snapshot when returned day status is closed."
+      ],
+      "preconditions": [
+        "An existing closed day with nonempty saved financial reconciliation is required.",
+        "A legitimate active session without all/reports_view is required; no anonymous or login bypass claim.",
+        "Ordinary screen reachability may have additional navigation gates outside this bounded review; direct endpoint source path is sufficient to identify missing report gate, not proof every role sees UI."
+      ],
+      "counterevidence": [
+        "Authentication does protect endpoint from anonymous requests.",
+        "Live report helper and client live guard correctly restrict the corresponding live report.",
+        "No HTTP/SQL/session or rendered UI experiment was performed."
+      ],
+      "impact": "Authenticated actor lacking report permission can receive financial report JSON from snapshot endpoints under the inspected source contract. Different from employee report or identity-binding issues; parent owns dedup/security disposition."
+    },
+    {
+      "key": "SNAPSHOT_AUTHORITATIVE_REVISION_CONCURRENCY",
+      "disposition": "SOURCE_ADMISSION_GAP_CANDIDATE_PROVIDER_ORDERING_UNVERIFIED",
+      "evidence": [
+        "Close54-59 reads/validates day state before transaction64; no in-transaction day refresh shown.",
+        "Close91 computes Count+1,92-93 demotes currently visible snapshots,95-108 stages new Authoritative snapshot and day pointer/revision; SaveChanges118.",
+        "DbContext400-405 declares PK Id, nonunique day index and Restrict FK; no unique day/revision or single-Authoritative index in inspected block.",
+        "Query44-46 chooses greatest revision among Authoritative with no tie-break."
+      ],
+      "proposed_schedule": "Distinct close request IDs both validate same open/reopened day and execute count/demotion before either new snapshot is visible. Both may compute same revision and stage Authoritative=true. Whether both commits can succeed depends on actual EF command order, SQL locking and FK parent-lock interactions; not established by static inspection.",
+      "counterevidence": [
+        "Same-request deterministic snapshot PK prevents duplicate persisted ID.",
+        "Existing parent/day FK and day update can serialize/block or yield conversion deadlock depending actual generated DML order; do not assume both succeed without provider proof.",
+        "If second count/demotion occurs after first commit, count advances and prior snapshot is demoted, defeating proposed duplicate-current outcome.",
+        "A single close transaction preserves its own atomic writes but is not itself proof of global admission serialization."
+      ],
+      "next_tests": [
+        "Use controlled SQL Server barrier around count/demotion for two distinct close IDs, record actual EF DML order/locks and outcomes; no live production DB.",
+        "Assert one authoritative row, unique revisions and day pointer coherent after both success/failure scenarios, including existing snapshot history."
+      ],
+      "impact": "Source lacks explicit common day admission lock/state token and schema uniqueness for archival invariants; duplicate-current/same-revision outcome remains a qualified provider-dependent candidate, not reproduced corruption."
+    }
+  ]
+}

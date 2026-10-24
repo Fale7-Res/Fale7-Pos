@@ -1,0 +1,828 @@
+{
+  "at_utc": "2026-10-18T04:14:56.263775+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root financial_coordinator",
+  "new_groups": 22,
+  "groups": [
+    {
+      "group_id": "clone-d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+      "reasoning": "ReadResult shared body interprets success JSON or null outcome-unknown; error body parse failure falls back status message, >=500 unknown. Same known/unknown outcome policy for financial idempotent commands; malformed success is unknown, not proof rollback. Both share common Application request/response types where imported; local generic result/error wrappers remain separate.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ce8892177d95c076ea58255a5542674481164cf0f69939bd51c49b0ed03a0b51",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 56,
+          "end_line": 82,
+          "token_count": 177,
+          "body_token_sha256": "d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-3b7deb7e35f2ff824a946daab34a9fcc0e74669b94795fb748a42a66ad5853b6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 58,
+          "end_line": 84,
+          "token_count": 177,
+          "body_token_sha256": "d14e725c3bfcd48e265ede187b16ea8efacb1bfd811ac8041c47490f32cd6fc7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+      "reasoning": "Login bodies equal: obtain server-issued token, set HttpClient default Authorization and return projected current-user fields. Successful login mutates shared ApiClient auth before view-model followup. UI020 context remains qualified prior finding; helper equality is not proof identical callers or permissions. PIN values never captured or executed.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-bff97485e41dad73fce78e8b0a5f923c01e6684d9e362654925479f0e136c19c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 115,
+          "end_line": 129,
+          "token_count": 145,
+          "body_token_sha256": "a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-2429d401662a38ec3d41aa1d3cf3d4b5bca73cd4d8bd24492b1a0a004e1e83e7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 157,
+          "end_line": 171,
+          "token_count": 145,
+          "body_token_sha256": "a429a38b653b157ef2c16cc3c42e0fc30b5c3bf68361acb57574adad997f46b7",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+      "reasoning": "SendAsync shared body disposes HTTP response, maps HTTP/cancellation/JSON/IO exceptions to financial outcome unknown and same-key retry wording. Does not itself retain/retry requests or ensure idempotency; server journal and calling view model do that. Cashier separate ReadAsync changes message for reads, CallCenter uses SendAsync more broadly.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ef8ede9a94c2d0223771ee0272e47111088426082a8057006cad1ba9cb6814d8",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 84,
+          "end_line": 95,
+          "token_count": 67,
+          "body_token_sha256": "16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 112,
+          "end_line": 123,
+          "token_count": 67,
+          "body_token_sha256": "16d2165af9594c9fe7a9016414be65724e3295342dd9d3fb0cb5ddbec80b3de8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+      "reasoning": "Both WinUI image-URI helpers return null for missing version/base address; otherwise escape ID/version into same route. Cashier comments differ only. No financial amount calculated; generic gateway duplication only, preexisting image authentication candidate remains paused, not validated by this comparison.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-1fa47926cdfa3584921051252ab0149e4a22c0d47504f487faa201babec24c13",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 36,
+          "end_line": 39,
+          "token_count": 43,
+          "body_token_sha256": "f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ProductImageUri(string, string?)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-1fde4faf0f9240ca0b5fc76be50016974322f0a41fafed7b37d657599ad1fe41",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 36,
+          "end_line": 41,
+          "token_count": 43,
+          "body_token_sha256": "f4bc80a2d3c4173e3c961e5fafd9e791d313fec01531fd06e6f04095288cbb76",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ProductImageUri(string, string?)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+      "reasoning": "Logout bodies equal: attempt server revoke, swallow failure then clear local token/header. Local end does not prove remote invalidation on network failure; server expiry separate. No cross-client singleton/session sharing proven.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-8b25b29dae2fcb87d5eb009bc6df9deba1b5f4cb06b32b495ea9538874b47469",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 133,
+          "end_line": 140,
+          "token_count": 42,
+          "body_token_sha256": "51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.LogoutAsync(CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a32dcfe7c7cadd52913a018860e42347286880d5fd8ea5bf0498a3aa5fa54f7c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 175,
+          "end_line": 182,
+          "token_count": 42,
+          "body_token_sha256": "51f6ef16fdd7e62c3410f60920a50e32e7de65999a51a79f6b9f2a621309a6a3",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.LogoutAsync(CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+      "reasoning": "Three string-base constructors (legacy WPF, CashierWinUI, CallCenter) construct HttpClient with same default localhost5151 and10second timeout. Injected-HttpClient overload/configuration can differ, so identical constructor body does not prove identical deployed host/session/lifetime. No runtime connection initiated.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-8d4271940aecfeaded746d23d686c668a5573545bb38f460e31ee05e38a6fe42",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 28,
+          "end_line": 31,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ApiClient(string)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+          "stable_id": "sym-e9ff8fb60ea420b52cdaa5623dc49d64965c88733123145fb11c56122c71a872",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "start_line": 22,
+          "end_line": 25,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.Cashier.Services.ApiClient.ApiClient(string)",
+          "worktree_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a90361360f7f2477338ed3956ba3a2eae1ff5b5b895dbe281b2f21a18a89df91",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 28,
+          "end_line": 31,
+          "token_count": 25,
+          "body_token_sha256": "156390a6af177811cad5648645d85ee64f8d27291cc601e4197a3152ecaf5fb4",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ApiClient(string)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+      "reasoning": "CreatePrintJobs wrappers equal route-escaped order ID/body/result. Queue request separate from financial success; no paper sent. This is narrow API mirror classification, not resumed printing audit.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-985c14e7400e9a6c11cc86f1cc59d57684e757de1ab60e70589bace63672cfe6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 233,
+          "end_line": 236,
+          "token_count": 37,
+          "body_token_sha256": "3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.CreatePrintJobsAsync(string, Falah.Application.Printing.CreatePrintJobsRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-cb5a9d485028bd92305eb773a571c74410610eaa6f1f16bbad1d647030eca5ec",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 711,
+          "end_line": 714,
+          "token_count": 37,
+          "body_token_sha256": "3f08a99e3f997a19603dc90b6a5563ce487a0cab955cab9cbe7c1a0fc2031a95",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CreatePrintJobsAsync(string, Falah.Application.Printing.CreatePrintJobsRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+      "reasoning": "Both WinUI PingHealth dispose response and return HTTP success, catch all including cancellation as false. It tests endpoint reachability/status, not DB/payment readiness. Legacy WPF health response lacks using and is not in this exact-body group; do not infer identical lifetime across legacy.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-2b1fa437886c834801dd0d8bd4616b476eae6883d3add3569ee2e16eaa06e46f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 41,
+          "end_line": 52,
+          "token_count": 30,
+          "body_token_sha256": "9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.PingHealthAsync(CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4fed0daeb772351dd8f2fed528f03df5659b2b061764216eb9c74fe11446980a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 43,
+          "end_line": 54,
+          "token_count": 30,
+          "body_token_sha256": "9f7dd6c2f6b7df36c0ae1acb94809e66c49eb040543bfcb5898c70140fc3898b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.PingHealthAsync(CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+      "reasoning": "GetSettings identical wrapper delegates to SendAsync and common Application SettingsDto; no local settings/database mutation. Transport failure classification shared even though read-only request.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-f2ac9d8cc90d190ad5c63402572481529d76c878205a6e22d134b066324dd1aa",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 105,
+          "end_line": 106,
+          "token_count": 27,
+          "body_token_sha256": "fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-96cadc559790b37adfb7dec98025c9dd2e6119074075eb3e472e8cb9a4f0f5a5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 147,
+          "end_line": 148,
+          "token_count": 27,
+          "body_token_sha256": "fbc868833c226d586f129681d380ad2c6e10bcaf682b40de2f1364719c1aec66",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+      "reasoning": "OpenShift wrappers equal route/request type. Neither calculates opening cash or enforces balance/permission locally; server OpenShift handler owns FIN011 lock issue.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4c7788e6adc55042ffd8d3362e10cf738be9b21573edcd6b7ff5cb057e618ff4",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 147,
+          "end_line": 150,
+          "token_count": 26,
+          "body_token_sha256": "d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-01ab54c6131d03aed2bebc78c0341cadc00b91ef2bc2addd2376540ad1e3f0b6",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 189,
+          "end_line": 192,
+          "token_count": 26,
+          "body_token_sha256": "d956a54adeb0d8598708b4e540a7c49df8e4c73aa97ecd37401f65f5209be57d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+      "reasoning": "PrepareShiftClose wrappers equal request/route and nullable result handling. Read-only preview represented POST; not actual close or movement. Same transport unknown classification does not post money itself.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fc1f7207ce8b9d39422e47bce0ec9b0fe7855df14abcc41a3af5595db0d69ef7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 152,
+          "end_line": 155,
+          "token_count": 26,
+          "body_token_sha256": "8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.PrepareShiftCloseAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-deb0ed463c67ea108165f21304cae3581ce469b4f331b19ee331fa8bcb404008",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 194,
+          "end_line": 197,
+          "token_count": 26,
+          "body_token_sha256": "8c30c52043bb0117bb638856825a959bb8d9d4ac369317fcc58f465521ac43cf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.PrepareShiftCloseAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+      "reasoning": "CloseShift wrappers equal shared DTO and endpoint. Client body equality does not supply server concurrency/reconciliation or validated approval provenance; FIN017 authoritative server issue retained.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-32b3f56adbca3b7dff95164a5a1efbf2edcffc956c7247bf405a522f394dbc40",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 157,
+          "end_line": 160,
+          "token_count": 26,
+          "body_token_sha256": "0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.CloseShiftAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-986adbe8f7a6339fc12009c13d1712d77268746095650729023a87f2fa10a44b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 199,
+          "end_line": 202,
+          "token_count": 26,
+          "body_token_sha256": "0ff1a464bcc5047511e04ba961a4f7c6906c5cabcfc27f183895cd3c340f36ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CloseShiftAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+      "reasoning": "Checkout wrappers equal shared request/route/result; prices, fees, stock and totals resolved server-side. No client cash/callcenter alternate formula in these bodies. FIN016 server signed-fee boundary cannot be repaired merely by merging wrappers.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-aabfda8669a79646d019c89a8d3c98b7af81081c97dba6a26c977182226b896a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 162,
+          "end_line": 165,
+          "token_count": 26,
+          "body_token_sha256": "343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.CheckoutAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-26efc35ddcdb1db4e3da7d285d4df8402809ff59bf30b7bd9e1c32f398bc5ee0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 204,
+          "end_line": 207,
+          "token_count": 26,
+          "body_token_sha256": "343bbf50d4dc03003e55d9541aa19477d3818a56417ea9e31b5b877813fd7774",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CheckoutAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+      "reasoning": "Refund wrappers equal shared DTO/route. Shared HTTP method does not establish same caller role, original/current shift attribution or refund eligibility; server FIN003/004 semantics independent.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-a75c9cbb5f393e1639328b05c729fb73b497544cafbd18fbe7eccc8dce051247",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 167,
+          "end_line": 170,
+          "token_count": 26,
+          "body_token_sha256": "c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.RefundAsync(Falah.Application.Orders.RefundOrderRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-ec0da1424d141b4679844e1a83dba86b4ddc416ea95b8a8a3abbde8f976c2eec",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 209,
+          "end_line": 212,
+          "token_count": 26,
+          "body_token_sha256": "c69fc4df693983a7a5271d8b97b58cc0b4984aeb96263f950e276e6eff731ff0",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.RefundAsync(Falah.Application.Orders.RefundOrderRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+      "reasoning": "Electronic-confirm wrappers equal common request/result and route. No payment-leg arithmetic in client wrapper; server FIN001 mixed-idempotency issue survives both clients.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-544f91711ecb4e51d5725880259a0d12577b58aed8cdcffa1e500f71736a8a37",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 172,
+          "end_line": 175,
+          "token_count": 26,
+          "body_token_sha256": "88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-65fb04a10341c3000ee7669291ddb18ef15eeb3567ee25c68325056b388f5834",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 214,
+          "end_line": 217,
+          "token_count": 26,
+          "body_token_sha256": "88411023ace35dedee58cfe1f87fa6c99d03364d59284b7592303228a499f6a6",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+      "reasoning": "Cancel-pending wrappers equal common request/result and route. Server FIN002 cancellation-versus-collected split cash concern is not a differing client formula.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-5de671da1fcb68579111b3c76e74630f8488204c1533722ab1e89a51def04262",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 177,
+          "end_line": 180,
+          "token_count": 26,
+          "body_token_sha256": "c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.CancelPendingElectronicPaymentAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-3fa28c5b3069f7f395814c68a37bb507e50bb9b7493f2819767cd7add61d22bd",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 219,
+          "end_line": 222,
+          "token_count": 26,
+          "body_token_sha256": "c83bc3145a1cd571a9ac764db7eff20c705a4362a5b9f5901c0fc67fd16e147a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CancelPendingElectronicPaymentAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+      "reasoning": "IssueManagerApproval wrappers equal body/endpoint. Requests are server authority, not client-generated manager proof. Same client methods present does not mean CallCenter role may execute every financial API.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-cd626ecd0fa46f97e141d53e64348cb1761c6973153d745d2349077aee0f2920",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 197,
+          "end_line": 200,
+          "token_count": 26,
+          "body_token_sha256": "fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.IssueManagerApprovalAsync(Falah.Application.Approvals.IssueManagerApprovalRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-6ba7ea01179f2c4cba52fe0421e2b466ca559daaa010a4d65f8a9916466d9705",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 675,
+          "end_line": 678,
+          "token_count": 26,
+          "body_token_sha256": "fa1f88afee9238821ac8e0b2a3e1afe80411ece486a79b00ecc47110a9541d94",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.IssueManagerApprovalAsync(Falah.Application.Approvals.IssueManagerApprovalRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+      "reasoning": "Expense wrappers equal route/common DTO. Server chooses real source account permission and validates amounts; no duplicated expense calculation here.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-4f2f33456e3348083b95a7f6acd043ba498f9b92f423a9da2909771544212813",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 202,
+          "end_line": 205,
+          "token_count": 26,
+          "body_token_sha256": "e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.AddExpenseAsync(Falah.Application.Expenses.AddExpenseRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-54abe4385172de072eb35c3c8f525cb42aa23ff862fa4fe6ed58eb8a059d742f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 680,
+          "end_line": 683,
+          "token_count": 26,
+          "body_token_sha256": "e491ba23427d6e557f770b93f64157a654bf8e54e2c842615f9c70468bcf67ca",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.AddExpenseAsync(Falah.Application.Expenses.AddExpenseRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+      "reasoning": "SafeDrop wrappers equal body/result/route; server owns drawer/account/shift authorization and transaction. Wrapper does not guard current shift status or overdraw independently.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-fc5c96ed582b17eef86da60fb05c872b4a45286d9c724e7acf12b01b1b938d32",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 209,
+          "end_line": 212,
+          "token_count": 26,
+          "body_token_sha256": "f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.SafeDropAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-bf7c14ab9db0007906245eaa9bb009a4aab117da25b92c87a30c26d28babdba5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 687,
+          "end_line": 690,
+          "token_count": 26,
+          "body_token_sha256": "f7228e39125703645f977713545b9b034b52cb6123f7dd47d9801598549f8b0f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SafeDropAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+      "reasoning": "Cashier cash movement wrappers equal DTO/route; server movement type/account logic remains one authoritative implementation.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-68316dd7fbd5117b5b546ae094aae47a8f390720c8ba950449d0132fcb0e8c84",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 214,
+          "end_line": 217,
+          "token_count": 26,
+          "body_token_sha256": "8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.CashierCashMovementAsync(Falah.Application.CashDrawer.CashierCashMovementRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-7f4bf1d3e3bb37b88da94388fb81a22b4ea6848ba79cdd711f4ef5d2b94620cb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 692,
+          "end_line": 695,
+          "token_count": 26,
+          "body_token_sha256": "8fda7b3220961616f4d26c96e56dc3b311bc6ce920b756c5453aab7732058b60",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CashierCashMovementAsync(Falah.Application.CashDrawer.CashierCashMovementRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+      "reasoning": "Cash-drawer-open wrappers equal shared request/route. This comparison invoked no API/hardware; no physical drawer or print operation performed.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-047fb8c176024edbaaa245efd1d917c6e6dae544f0b341f9cbdddd08f868d803",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 219,
+          "end_line": 222,
+          "token_count": 26,
+          "body_token_sha256": "0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.OpenCashDrawerAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-35761f0922ca0129c156451f8c621fd3223aaa2ce134337c70910668e3c36b17",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 697,
+          "end_line": 700,
+          "token_count": 26,
+          "body_token_sha256": "0fb9ee5d2677fe67d84c4c25986c73acf7985468584ef7878c49d882424dcd86",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.OpenCashDrawerAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    },
+    {
+      "group_id": "clone-8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+      "reasoning": "Nested sender lambda within CreatePrintJobs identical. Captures its own HttpClient/order/request/ct; no shared instance or financial ledger effect inferred from token equality.",
+      "occurrences": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-53bb19dce489e9890916992dd8f1520dfb63b727c76402672e264e9d6860031a",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "start_line": 235,
+          "end_line": 235,
+          "token_count": 21,
+          "body_token_sha256": "8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "lambda expression",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "stable_id": "sym-f94ba0392ba96abd3d358f09c3503d8bef2a99bea85bb544571141f645335779",
+          "kind": "ParenthesizedLambdaExpression",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "start_line": 713,
+          "end_line": 713,
+          "token_count": 21,
+          "body_token_sha256": "8b7c8c8d0d426ad39a3c1f2e25259a2b033d586a4069f5875ebacaa4adba8de9",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "signature": "lambda expression",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4"
+        }
+      ]
+    }
+  ],
+  "independently_source_read_not_new_function_coverage": "These callable IDs already have UI-review receipts; no original financial or global function count increment claimed.",
+  "divergent_near_mirrors": [
+    {
+      "difference": "CallCenter uses SendAsync read failure monetary retry wording; Cashier uses ReadAsync non-monetary message. Both have unknown flag true on transport failure. No financial write from GET.",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": "sym-bb04e8e83e22363983422d4ec21ef5a64dc7d1ef065d66b25e1bc85cb5989e04",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.GetMenuAsync(CancellationToken)",
+          "span": [
+            142,
+            145
+          ]
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": "sym-6f147810f35f6833e28c2c8c92c53734477549662087ecaa4cc17fa7733f7b74",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetMenuAsync(CancellationToken)",
+          "span": [
+            184,
+            187
+          ]
+        }
+      ]
+    },
+    {
+      "difference": "Same server balance contract, SendAsync vs ReadAsync affects message; no client balance formula.",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": "sym-3749568b91a72aeb33add8c4e4dfe503fc706810e7d8071cb07b3c2ca529c66e",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.GetTreasuryBalanceAsync(string, CancellationToken)",
+          "span": [
+            228,
+            231
+          ]
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": "sym-7ee8fe99a8d38e4619b1c8881a0c54a6ec124bf381783bc3eadf4d31a7a55fec",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetTreasuryBalanceAsync(string, CancellationToken)",
+          "span": [
+            706,
+            709
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": "No HTTP/auth/DB/native operations. Generic image/print glue classified without reopening paused security-image/printing investigations. Other mirrored code outside these groups not complete."
+}

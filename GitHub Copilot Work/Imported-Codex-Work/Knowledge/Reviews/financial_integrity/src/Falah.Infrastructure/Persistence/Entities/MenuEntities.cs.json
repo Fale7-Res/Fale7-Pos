@@ -1,0 +1,1574 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Entities/MenuEntities.cs",
+  "source_git_blob_sha256": "dafe7329539f81ecfcb08368ba4f141ba946b88eeadcdabed7e17c44568441f4",
+  "worktree_sha256": "93fb6d04445a3c79c5bebc713cb79811bc36fa918b8eda32e3e320651ad007a5",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T21:52:01.845778+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-eb07b2419255f0ad05cd8663bc6a9780f391ec07cf47a72c081d4faa1daa4526",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Id.get",
+      "span": [
+        5,
+        24,
+        5,
+        28
+      ],
+      "reasoning": "Getter is category identity for product FK and menu grouping, not a label-based merge key.",
+      "inputs": "Entity containing string category PK.",
+      "outputs": "string category PK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-778e6fbfb4878e0b26726b295597e3ac491ea3006c3e528d35319c163226037e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Id.set",
+      "span": [
+        5,
+        29,
+        5,
+        33
+      ],
+      "reasoning": "Setter receives category request-derived ID on creation; database PK and product Restrict FK do not authorize changes.",
+      "inputs": "string category PK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-565cf78ec6f79574dcc7f805ec44a9a37a01a1ff8777797c5272edf03c9c1494",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Name.get",
+      "span": [
+        6,
+        26,
+        6,
+        30
+      ],
+      "reasoning": "Getter returns current category display label; menu grouping uses Id, so duplicate names are not identity collisions.",
+      "inputs": "Entity containing string category name.",
+      "outputs": "string category name directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-2f8678829ac9267efb1c4aa06f546de205e6e5586f15da1b190fa0340a8bf7d8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Name.set",
+      "span": [
+        6,
+        31,
+        6,
+        35
+      ],
+      "reasoning": "Setter stores trimmed validated request name on create/update. Historic order lines do not depend on category label by accessor behavior.",
+      "inputs": "string category name assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f477bed6b2b2e3b6ad21a4fe2df6ce0e83f102b0cb551aa3fa65a826b5ab8fcb",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Icon.get",
+      "span": [
+        7,
+        27,
+        7,
+        31
+      ],
+      "reasoning": "Getter provides nullable presentation fallback in menu category DTO, not printer routing or product image bytes.",
+      "inputs": "Entity containing nullable icon.",
+      "outputs": "nullable icon directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-aa71755667c8ff20c2fe66c1e915393628b22e3fe93f58267429f06d5bee54f6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Icon.set",
+      "span": [
+        7,
+        32,
+        7,
+        36
+      ],
+      "reasoning": "Setter accepts optional request icon unchanged; no icon rendering validation occurs in the entity.",
+      "inputs": "nullable icon assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-cbccef4af71aff5d2e559a4dc8be2bfe9f93031f660b2f62b4a9f5d4e994db2b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.SortOrder.get",
+      "span": [
+        8,
+        28,
+        8,
+        32
+      ],
+      "reasoning": "Getter controls category ordering in active menu query, not sale or journal chronology.",
+      "inputs": "Entity containing int category display order.",
+      "outputs": "int category display order directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-b430084424f4e018838bc0f56899d2eb1b26fb99f9dcf8d0ab9e6cc8bcbb96d8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.SortOrder.set",
+      "span": [
+        8,
+        33,
+        8,
+        37
+      ],
+      "reasoning": "Setter accepts request integer without uniqueness enforcement; equal sort orders have no explicit category tie-break in inspected GetMenu query.",
+      "inputs": "int category display order assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-53d9803f0720251a2ca8893e44629fc084d48c64c3a690cf41bb21b107adbbf9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Active.get",
+      "span": [
+        9,
+        26,
+        9,
+        30
+      ],
+      "reasoning": "Getter filters category DTO visibility but checkout pricing checks product availability independently, so hidden category alone is not a demonstrated server-side sale ban.",
+      "inputs": "Entity containing bool category active.",
+      "outputs": "bool category active directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-912143e4abd2baf5124023350b95903d747d5cbb5ff7e1099b11929843fe083c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.CategoryEntity.Active.set",
+      "span": [
+        9,
+        31,
+        9,
+        35
+      ],
+      "reasoning": "Setter changes runtime category activation through authorized command; it does not cascade IsAvailable to products or delete historical items.",
+      "inputs": "bool category active assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f355f7050595baff1111cbfd89f009e9ef284ae4695c1f767f54a6ce80e4fcf3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Id.get",
+      "span": [
+        14,
+        24,
+        14,
+        28
+      ],
+      "reasoning": "Getter supplies product key for pricing lookup, variants, offers and image. It is distinct from generated order-item identity.",
+      "inputs": "Entity containing string product PK.",
+      "outputs": "string product PK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-ae33f42c0da8e8e140a593f12764cc92458d4ba1e3695c869058e02108377d46",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Id.set",
+      "span": [
+        14,
+        29,
+        14,
+        33
+      ],
+      "reasoning": "Setter receives prod-RequestId on creation; deterministic key supports replay but field assignment does not bind payload or actor.",
+      "inputs": "string product PK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-e90bf078e250896d4ef194ba1394dcc4d5bd9623d7f484d35e8a5070f901987b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.CategoryId.get",
+      "span": [
+        15,
+        32,
+        15,
+        36
+      ],
+      "reasoning": "Getter determines current category grouping and enforced FK parent, independent from the product name.",
+      "inputs": "Entity containing string category FK.",
+      "outputs": "string category FK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-a13553da8ade3667ed12bdb1265a43aed31ef30dbcfd6873091c4442af96a6fe",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.CategoryId.set",
+      "span": [
+        15,
+        37,
+        15,
+        41
+      ],
+      "reasoning": "Setter stores existing category.Id after lookup; Restrict-delete relation prevents deleting referenced category, not selecting an inactive category.",
+      "inputs": "string category FK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-d52b6a0c4dc408575b2c5a71a0eae1b4d87ee48b5cba9257f5133be497f123bc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Name.get",
+      "span": [
+        16,
+        26,
+        16,
+        30
+      ],
+      "reasoning": "Getter supplies current catalog label frozen into new OrderItem at pricing; prior sold labels need not change when catalog name is edited.",
+      "inputs": "Entity containing string product name.",
+      "outputs": "string product name directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f7859ee6d8a7b515efa489a80e88738dc4ad738756b674b92b818aaae0f30d15",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Name.set",
+      "span": [
+        16,
+        31,
+        16,
+        35
+      ],
+      "reasoning": "Setter stores trimmed nonblank name after menu_manage validation. Getter/setter do not themselves update already frozen order lines.",
+      "inputs": "string product name assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-70abb50c02e1d78133ef2053468e58f9084d12efeecabd9c3bf3a521a846a737",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.BasePricePiastres.get",
+      "span": [
+        17,
+        37,
+        17,
+        41
+      ],
+      "reasoning": "Getter supplies default unit price when no selected variant; Money conversion and quantity multiplication occur in resolver, not accessor.",
+      "inputs": "Entity containing long base unit piastres.",
+      "outputs": "long base unit piastres directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-892353cc9c56100591092585d8c7291e39c374e7289c90690c9bafa532ff9b85",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.BasePricePiastres.set",
+      "span": [
+        17,
+        42,
+        17,
+        46
+      ],
+      "reasoning": "Setter stores positive long request amount with no authored upper bound in writer. Existing FIN016 monetary overflow boundary applies, not a new safe-arithmetic guarantee.",
+      "inputs": "long base unit piastres assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-d256085686c1dcb7c1734a54b5b2ab9d38760c5b57aa65d6011ecb3c12b009b3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.SendToGrill.get",
+      "span": [
+        18,
+        31,
+        18,
+        35
+      ],
+      "reasoning": "Getter is separate operational preparation-status flag copied to OrderItem; it must not be conflated with PreparationStation printer route.",
+      "inputs": "Entity containing bool preparation flag.",
+      "outputs": "bool preparation flag directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-e3b6c2f79cdf4311c4f0fdb324ddaa8ade1b0c84189381624129ccd2b1001c74",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.SendToGrill.set",
+      "span": [
+        18,
+        36,
+        18,
+        40
+      ],
+      "reasoning": "Setter copies requested bool independently of station. No entity invariant requires station and grill flag to agree, by documented two-role design.",
+      "inputs": "bool preparation flag assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-551dd49afe7787fb60cfcc1327cbe428f94ac0f10c91232c4b2fe6b790ffedfc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.PreparationStation.get",
+      "span": [
+        27,
+        41,
+        27,
+        45
+      ],
+      "reasoning": "Getter returns nullable current route copied into future OrderItem so historical reprints can use frozen station.",
+      "inputs": "Entity containing nullable station text.",
+      "outputs": "nullable station text directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-682197898614a57e91a627d1cfcfe00c5f7bf152a79e00ab5185c29d78fdd6d0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.PreparationStation.set",
+      "span": [
+        27,
+        46,
+        27,
+        50
+      ],
+      "reasoning": "Setter stores MenuValidation-normalized station; null means no preparation route. This review does not operate printers or re-evaluate printing workflow.",
+      "inputs": "nullable station text assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-7c09b86f128e25ef6ba38b3829eee2206b9ff800ae5e3f600e5d1b9c1025c608",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.IsAvailable.get",
+      "span": [
+        28,
+        31,
+        28,
+        35
+      ],
+      "reasoning": "Getter is checked by pricing to reject unavailable product and by available menu query, stronger than category visibility alone.",
+      "inputs": "Entity containing bool sale availability.",
+      "outputs": "bool sale availability directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f8fd1346a71b124ac0f382666b8cfd1ba8ff73603b5b36fd7c965ca05f80f285",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.IsAvailable.set",
+      "span": [
+        28,
+        36,
+        28,
+        40
+      ],
+      "reasoning": "Setter initializes true at creation and changes through availability handler. It does not retract already committed orders or reverse inventory.",
+      "inputs": "bool sale availability assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-fef56e3697494a1bf419193ad749498216bda516dc318ccf3bbc856128a9c541",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.SortOrder.get",
+      "span": [
+        29,
+        28,
+        29,
+        32
+      ],
+      "reasoning": "Getter provides product display ordering, separate from generated order-item sequence and business time.",
+      "inputs": "Entity containing int product sort order.",
+      "outputs": "int product sort order directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-cb216d56d42dcb3d66a85ecad6db6278cf4815ed651d88c1dd9e1f74edeb4b7f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.SortOrder.set",
+      "span": [
+        29,
+        33,
+        29,
+        37
+      ],
+      "reasoning": "Setter stores request integer; ordering behavior is caller-defined and assignment has no financial effect.",
+      "inputs": "int product sort order assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-3189e44a512f7b483eb59f51a50f62c1e92306bef38436de7baa176e13c6940d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.RecipeId.get",
+      "span": [
+        32,
+        31,
+        32,
+        35
+      ],
+      "reasoning": "Getter is fallback recipe when selected variant has no recipe, used for inventory deduction input after price resolution.",
+      "inputs": "Entity containing nullable fallback recipe ID.",
+      "outputs": "nullable fallback recipe ID directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-bf91dcd3d9c50d454e620e59f1891f9feb825f2ea08d47427c59f349273a817b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.RecipeId.set",
+      "span": [
+        32,
+        36,
+        32,
+        40
+      ],
+      "reasoning": "Setter accepts nullable recipe reference; inspected mapping explicitly omits FK because recipe relation points other way. Setter does not prove referenced recipe exists or belongs to product.",
+      "inputs": "nullable fallback recipe ID assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-d1113c057a5d0c2a84e0b4da8485ed3a3626b66f79acabd98cf056d991c8a6d0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Variants.get",
+      "span": [
+        34,
+        50,
+        34,
+        54
+      ],
+      "reasoning": "Getter returns loaded mutable variant list used for selected variant lookup and menu DTO. An unloaded navigation must not mean the product has no variants.",
+      "inputs": "Entity containing List of ProductVariantEntity.",
+      "outputs": "List of ProductVariantEntity directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-490ad8b79435b3240e18eae4729f15f0f1209651baf01b05727e788cd907c8d9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.Variants.set",
+      "span": [
+        34,
+        55,
+        34,
+        59
+      ],
+      "reasoning": "Setter initializes list at creation; update instead removes omitted IDs, updates existing belonging IDs and generates new IDs for unmatched inputs. Field replacement alone has no identity-preservation logic.",
+      "inputs": "List of ProductVariantEntity assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-c5601c1d55bb7dac31e7bb5c61b78a2bbfe1dada6b4b5e0467ba1aae7f37bc5c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.ProductId.get",
+      "span": [
+        50,
+        31,
+        50,
+        35
+      ],
+      "reasoning": "Getter identifies both image primary key and product FK, enforcing one stored image row per product rather than a separate image identity.",
+      "inputs": "Entity containing string product/image PK.",
+      "outputs": "string product/image PK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-6e6d380b209747f063eb5eaf3d99bb73abdc7acd7b979a28cdba0a1af21e941c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.ProductId.set",
+      "span": [
+        50,
+        36,
+        50,
+        40
+      ],
+      "reasoning": "Setter receives verified existing product.Id at upload. Cascade relation deletes image with product, unlike archival sales facts.",
+      "inputs": "string product/image PK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-51e085a89434d24b54cc9fe17046a49d43694583f61ebafc8712133550eec2dc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.ContentType.get",
+      "span": [
+        51,
+        33,
+        51,
+        37
+      ],
+      "reasoning": "Getter supplies normalized media type stored alongside bytes, not proof every persisted byte stream is valid without writer checks.",
+      "inputs": "Entity containing string MIME type.",
+      "outputs": "string MIME type directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f32ca7454a8622b5e46d46e2a6caef5ae52b4329ebf4c6994cf406927d8017ae",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.ContentType.set",
+      "span": [
+        51,
+        38,
+        51,
+        42
+      ],
+      "reasoning": "Setter stores normalized content type after byte signature and size validation in upload handler; max length80 mapping is not media decoding validation.",
+      "inputs": "string MIME type assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-cf7e672d110895ecd35added9d10491c68d747d4bb3b4a73a1b131a64f0176ef",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.Bytes.get",
+      "span": [
+        52,
+        27,
+        52,
+        31
+      ],
+      "reasoning": "Getter returns mutable byte-array reference, with no defensive copy, so in-memory consumers must not assume immutable contents.",
+      "inputs": "Entity containing byte array image body.",
+      "outputs": "byte array image body directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-3fc66839b9824f02026af4a4db96e23f9712527509002b4808747b434a1776b3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.Bytes.set",
+      "span": [
+        52,
+        32,
+        52,
+        36
+      ],
+      "reasoning": "Setter stores decoded validated bytes in separate image table; auto-property itself has no size/content checks and SaveChanges belongs handler.",
+      "inputs": "byte array image body assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-0dc20fb114abd9639d8e644cea4a6fa4de958f319c2071f736677d81a4008092",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.Version.get",
+      "span": [
+        55,
+        29,
+        55,
+        33
+      ],
+      "reasoning": "Getter supplies cache-busting stamp projected without bytes in menu response; it is not a cryptographic content hash.",
+      "inputs": "Entity containing string image cache version.",
+      "outputs": "string image cache version directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-c52b8a399f95b38ad416bd9429a4f2cd4f9e42008d2d67448b20c1f32b22c4bf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.Version.set",
+      "span": [
+        55,
+        34,
+        55,
+        38
+      ],
+      "reasoning": "Setter receives fresh 12hex GUID slice on each upload. Mapping length40 allows stamp, but public setter does not enforce format or uniqueness.",
+      "inputs": "string image cache version assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-fc8706dba5f9af49aa2c166c761e659a4fb71d60fbd72d861cbc50dc28c21215",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.UpdatedAtUtc.get",
+      "span": [
+        56,
+        42,
+        56,
+        46
+      ],
+      "reasoning": "Getter exposes latest upload time, not image creation history or historical order timestamp.",
+      "inputs": "Entity containing DateTimeOffset upload time.",
+      "outputs": "DateTimeOffset upload time directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-fc51a4a442d75c4e4903ad8f7255673953be311416e9b6260cb03d7bcc904155",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.UpdatedAtUtc.set",
+      "span": [
+        56,
+        47,
+        56,
+        51
+      ],
+      "reasoning": "Setter replaces time at upload; existing entity update has no authored version token in inspected mapping, so image cache stamp is not an EF concurrency token.",
+      "inputs": "DateTimeOffset upload time assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-fe73986d2be6c3459f211366b4162fb933850deab2e5a6543859992c4f862d88",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.UpdatedByUserId.get",
+      "span": [
+        57,
+        37,
+        57,
+        41
+      ],
+      "reasoning": "Getter exposes uploader stable ID rather than display snapshot; it does not authorize reads or prove user remains active.",
+      "inputs": "Entity containing string uploader ID.",
+      "outputs": "string uploader ID directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-3be6bbaace6fcba01520f054f7d298aec33a8964940c4db6a765df8c6d76a7ba",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductImageEntity.UpdatedByUserId.set",
+      "span": [
+        57,
+        42,
+        57,
+        46
+      ],
+      "reasoning": "Setter copies resolved actor.Id after menu_manage authorization. Inspected image mapping enforces product FK but no uploader FK in that block.",
+      "inputs": "string uploader ID assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-f49a1ed4038f3c923a8c01045b3953fc4d9bd57a30f611fc1ba0d3e77206c50a",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.Id.get",
+      "span": [
+        62,
+        24,
+        62,
+        28
+      ],
+      "reasoning": "Getter identifies selected variant within product resolver; independent generated ID is frozen into OrderItem rather than relying on mutable label.",
+      "inputs": "Entity containing string variant PK.",
+      "outputs": "string variant PK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-af1613a9034857af66e850e095119b84e13b05a8bc879f96941897bc5d43740d",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.Id.set",
+      "span": [
+        62,
+        29,
+        62,
+        33
+      ],
+      "reasoning": "Setter generates var-GUID for new variants. Update keeps a matching existing child ID, but unmatched supplied ID results in a new generated identity.",
+      "inputs": "string variant PK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-8419b63f69bbbe28622c1c739c0d9b51d46698d33157c03359f9ce3ad6eecbb8",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.ProductId.get",
+      "span": [
+        63,
+        31,
+        63,
+        35
+      ],
+      "reasoning": "Getter binds variant to parent product, restricting selection to loaded product.Variants rather than global ID lookup.",
+      "inputs": "Entity containing string product FK.",
+      "outputs": "string product FK directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-1c4d00eacc1c3857cac238ac2f92c0ab80ca24f1fe0318f465a6a1e0f14050fb",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.ProductId.set",
+      "span": [
+        63,
+        36,
+        63,
+        40
+      ],
+      "reasoning": "Setter receives parent product ID; inspected EF cascade relation enforces ownership at persistence. Setter does not move variants via supported command.",
+      "inputs": "string product FK assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-12e35d984287f05ddaea3c2fff7b5e88c4685aa6670845487feb3354add6784f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.Name.get",
+      "span": [
+        64,
+        26,
+        64,
+        30
+      ],
+      "reasoning": "Getter supplies option label displayed by menu and frozen when sold, distinct from product name and selected price.",
+      "inputs": "Entity containing string variant label.",
+      "outputs": "string variant label directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-175c658cf233c500dc75965bc964b5e1092e31aa8a2d70906b948599869d3da2",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.Name.set",
+      "span": [
+        64,
+        31,
+        64,
+        35
+      ],
+      "reasoning": "Setter trims variant input name but inspected writers do not add nonblank variant-name guard in shown source; no new financial-loss defect asserted.",
+      "inputs": "string variant label assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-bd5444be6f8e6cd46467dba2422fe942cd686327f9d1ac49c63ba38ea50374aa",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.PricePiastres.get",
+      "span": [
+        65,
+        33,
+        65,
+        37
+      ],
+      "reasoning": "Getter supplies selected variant unit price instead of base price even though both are stored on product graph.",
+      "inputs": "Entity containing long variant unit price.",
+      "outputs": "long variant unit price directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-c467582b83f6e9a10beabf6244cd14efe94f4cf3ec9994e22938f319e7ffdc61",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.PricePiastres.set",
+      "span": [
+        65,
+        38,
+        65,
+        42
+      ],
+      "reasoning": "Setter directly stores request long for variants without base-price positivity guard applying to each variant in inspected writers; existing monetary admission/bounds family remains relevant.",
+      "inputs": "long variant unit price assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-df51a6d625b5ca7512e2de162e7900f5c022cc12fd09bc79c831517ce166fdd0",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.RecipeId.get",
+      "span": [
+        66,
+        31,
+        66,
+        35
+      ],
+      "reasoning": "Getter supplies variant-specific recipe or product fallback when null at resolver64, keeping price and inventory recipe choices separate.",
+      "inputs": "Entity containing nullable variant recipe ID.",
+      "outputs": "nullable variant recipe ID directly exposed.",
+      "side_effects": "No side effects or database loading; byte/list references can be mutable.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    },
+    {
+      "stable_id": "sym-eb726fc732f332e5ed737cc29b39e4cb22a8bb9107588a8d9180d35af173de09",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Entities.ProductVariantEntity.RecipeId.set",
+      "span": [
+        66,
+        36,
+        66,
+        40
+      ],
+      "reasoning": "Setter stores optional raw recipe reference on create/update without authored FK in inspected variant mapping. Existence/ownership checks cannot be inferred from property type.",
+      "inputs": "nullable variant recipe ID assigned by authorized catalog writer or EF load.",
+      "outputs": "Field/navigation assignment, no return value.",
+      "side_effects": "In-memory assignment; attached entity persistence or child graph changes occur on caller SaveChanges, not inside accessor.",
+      "trust_boundaries": "Menu authoring permission and product/image input validation live in command handlers; fields are not auth boundaries. Server resolves stored price and freezes new-order data, but that is not a proof arbitrary stored monetary values cannot overflow.",
+      "database": "FalahDbContext195-216: category/product/variant keys, Restrict category FK, cascade variant/product and image/product FKs; optional recipe plain reference, image lengths80/40. No SQL execution.",
+      "printing_ui": "MenuQuery17-42 projects categories/products/variants and image version only; MenuPricing39-64 copies names/prices/station into new order. No UI or printer execution.",
+      "performance": "O(1) accessor; separate image table avoids default product-byte hydration. Bytes getter returns array without copy, query/serialization cost remains caller-specific.",
+      "duplicates_conflicts": "Live catalog fields differ from historical OrderItem snapshots. PreparationStation route and SendToGrill status flag have deliberately different roles. No new duplicate finding.",
+      "issues_hypotheses": "No new standalone accessor defect promoted. Raw variant price/recipe reference admission and missing monetary upper bounds retain existing source-lead qualification, no DB or financial exploit reproduction.",
+      "tests_missing": "Source-only review, no tests run. Regression should cover inactive category versus unavailable product, variant identity retention, image cache/version replacement and historical order snapshot preservation.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Menu/ProductHandlers.cs:30-55,100-142,179-191",
+        "src/Falah.Infrastructure/Menu/CategoryHandlers.cs:41-57,89-98,128-137",
+        "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs:28-72,91-107",
+        "src/Falah.Infrastructure/Menu/MenuQueryService.cs:17-42",
+        "src/Falah.Infrastructure/Orders/MenuPricingService.cs:39-64",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:195-216"
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

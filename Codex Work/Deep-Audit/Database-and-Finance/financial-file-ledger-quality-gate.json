@@ -1,0 +1,26 @@
+{
+  "artifact_kind": "financial_file_ledger_consistency_quality_gate",
+  "at_utc": "2026-10-21T04:27:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "ledger": "Sub-Agents/Results/financial-ledger.json",
+  "method": "Coordinator independently enumerated each financial ledger entry, checked unique source path, current SHA-256 against stored worktree SHA, status, nonempty reasoning/method fields, and reviewed line-span bounds using actual final-newline-aware source line counts.",
+  "results": {
+    "scope_count": 327,
+    "record_count": 327,
+    "unique_paths": 327,
+    "all_statuses_reviewed_static_complete": true,
+    "all_hashes_match_current_worktree": true,
+    "hashes_match": 327,
+    "missing_reasoning_records": 0,
+    "reasoning_records_too_short": 0,
+    "missing_significant_method_lists": 0,
+    "missing_reviewed_line_spans": 0,
+    "invalid_reviewed_line_spans": 0
+  },
+  "conclusion": "PASS — ledger/file source consistency and file-level report presence. NOT proof of independent semantic review of every function; financial-ledger.json coverage_complete remains false and callable depth remains UNKNOWN.",
+  "limitations": [
+    "No source code changes, runtime tests, SQL Server execution, or database operations.",
+    "Nonempty per-file reasoning and significant_methods fields are evidence of a report, not independent function-by-function re-analysis.",
+    "Function-depth historical counts differ and need underlying receipt reconciliation."
+  ]
+}

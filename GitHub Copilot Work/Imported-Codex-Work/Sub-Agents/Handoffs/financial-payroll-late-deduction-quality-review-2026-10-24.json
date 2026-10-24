@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Independent source-quality review of PayrollRules.CalculateLateDeduction(Money,int,int,int,int,double), focusing on settings validation, arithmetic and rounding, ledger effects, payroll consumption, and existing test source. Static only; tests not executed.",
+  "stable_id": "sym-9f4985e65d0f8db068bf3f714512323ef09cf02e3fd3aa6e68cb81acc72da115",
+  "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLateDeduction(Falah.Domain.Common.Money, int, int, int, int, double)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [44, 51],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "assignment_status_at_selection": "EXISTING_REASONING_UNVERIFIED (coordinator-selected; no shared promotion made)",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "reasoning_summary": "Combines integer-truncated normal hourly rate and penalty hours, multiplies by double multiplier, rounds ToEven and casts to long. Does not validate non-finite/extreme multiplier. Because evaluation is left-associative, rate.Piastres*hours is a long intermediate before multiplication by double, with possible unchecked overflow. Returns components; caller posts."
+  },
+  "calculation_and_edges": {
+    "expression": "rate = NormalHourlyRate(dailyWage, workdayHours); hours = CalculateLatePenaltyHours(lateMinutes, graceMinutes, maxPenaltyHours); amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier))",
+    "units": "rate is piastres per scheduled work hour; hours is a discrete penalty-hour count; multiplier is a double factor; amount is rounded integer piastres.",
+    "rounding_and_overflow": [
+      "The default Math.Round overload uses midpoint-to-even rounding.",
+      "rate.Piastres and hours are long/int, so their leftmost product is evaluated in long arithmetic before multiplication by the double multiplier. Very large rate/hour products can overflow the long intermediate depending on checked context; project/runtime execution was not inspected or tested for this case.",
+      "The final Math.Round result is cast to long without an explicit range check. Non-finite/extreme multiplier behavior is not validated here and no runtime outcome is claimed.",
+      "The hourly rate itself is integer division in NormalHourlyRate, so wage not divisible by workday hours loses remainder before penalty multiplication; nonpositive workdayHours returns a zero rate."
+    ],
+    "settings_boundary": "SettingsQueryService defaults are grace=15, maxPenaltyHours=2, LatePenaltyMultiplier=2.0. UpdateSettingsHandler requires settings_manage for these fields but directly assigns LateGraceMinutes, MaxLatePenaltyHours and LatePenaltyMultiplier when supplied, without visible numeric range checks. See prior reviewer-owned handoff financial-payroll-settings-validation-correction-delta-review-2026-10-24.json; no owner policy was found defining allowed bounds."
+  },
+  "callers_and_settlement_effect": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "symbol": "BiometricCheckInHandler.HandleAsync",
+      "lines": [82, 97],
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "effect": "Calls CalculateLateDeduction only when lateMinutes>grace and employee daily wage is positive. Posts an employee-ledger Deduction debit only when Amount.IsPositive, keyed by employee/date; negative or zero amount is suppressed in this automatic path."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "symbol": "CorrectAttendanceHandler.HandleAsync",
+      "lines": [82, 105],
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "effect": "Under an employee-ledger lock and transaction, loads settings, computes old/new amounts, then posts Adjustment debit when new-old is positive or Adjustment credit when negative. With ordinary positive settings, reducing a penalty creates a credit. If maxPenaltyHours or multiplier is negative, a positive penalty-hour case can produce a negative amount; increasing recorded lateness can then create a credit rather than a debit. This is a source-arithmetic consequence conditional on malformed settings, not proof such settings are used or forbidden."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "symbol": "CreatePayrollHandler.HandleAsync",
+      "lines": [42, 65],
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "effect": "Loads monthly employee ledger facts and calls CalculatePayrollLines; it does not call this helper directly."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "CalculatePayrollLines",
+      "lines": [83, 106],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "effect": "Includes Debit amounts for LedgerEntryType Deduction or Adjustment in deductions, but does not include Adjustment credits in base/overtime/extra-shift/bonus totals. Thus a correction credit is not reflected as an earning in the payroll line. This cross-references existing FIN012/Adjustment-credit omission; it is not a new finding from this review."
+    }
+  ],
+  "tests_reviewed_static_only": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "lines": [11, 45],
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "Tests grace/no-penalty and ordinary late deduction under positive defaults. The pure hour-rule tests cover grace and minute 60/61. No negative max/multiplier, non-finite/extreme multiplier, integer-rate remainder, long-intermediate overflow or correction sign case."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "lines": [71, 88],
+      "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+      "coverage": "Inspected late check-in integration case is immediate/no-penalty; it does not prove positive automatic deduction posting or malformed settings. Correction cases at lines 267-284 and 244-284 exercise state/correction, not the requested negative-setting sign outcome."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "lines": [93, 109],
+      "sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "coverage": "Tests ordinary payroll net from daily wage/overtime/other ledger facts; no late-penalty configuration or correction-credit-to-payroll assertion."
+    }
+  ],
+  "counterevidence_and_limits": [
+    "Defaults are positive and ordinary (grace 15/max 2/multiplier 2.0); no bad persisted setting or financial incident was inspected.",
+    "Biometric check-in suppresses negative computed amount, so malformed negative values do not cause an automatic credit through that specific writer.",
+    "Correction requires attendance_manage plus manager approval, uses a transaction and idempotent request/audit workflow. This protects the correction operation but does not define valid payroll settings.",
+    "Policy is absent from reviewed code/tests: cannot conclude negative max/multiplier or unusually high grace are forbidden, nor confirm a product defect without owner decision.",
+    "A correction credit's omission from payroll line income overlaps the existing FIN012 concern; do not duplicate it here."
+  ],
+  "verdict": "The receipt's core calculation description is corroborated and this function is financially material through automatic deductions and correction adjustments. Source confirms conditional sign changes under negative settings and a long intermediate before double multiplication. No new finding recommended until payroll policy defines permitted ranges; overflow/runtime behavior remains unverified.",
+  "recommended_followup": "Cross-reference FIN012 for Adjustment credits. Ask payroll policy owner to define nonnegative/max/grace/multiplier bounds; if negative values are out of policy, enforce at settings boundary and add source-level tests for negative settings and correction debit/credit direction, alongside overflow/midpoint/rate-remainder cases.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_action": "Coordinator to reconcile this bounded review. Adjacent source-order candidate, not yet assigned for review: PayrollRules.OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero), stable ID sym-2f3ef5568479d5beb0bb60dcc7f291090e777e53aa065617641d12686c087b44, src/Falah.Domain/Payroll/PayrollRules.cs:66-70; live overlay currently marks EXISTING_REASONING_UNVERIFIED."
+}

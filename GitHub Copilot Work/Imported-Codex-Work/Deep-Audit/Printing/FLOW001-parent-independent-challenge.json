@@ -1,0 +1,80 @@
+{
+  "at_utc": "2026-10-17T18:31:34.030416+00:00",
+  "finding_id": "FLOW-001",
+  "reviewer": "root",
+  "disposition": "SURVIVES_BOUNDED_REQUIREMENT_GAP_CHALLENGE",
+  "classification": "OWNER_REQUESTED_WORKFLOW_GAP_NOT_SECURITY_EXPLOIT",
+  "severity": "HIGH_REQUIREMENT_GAP",
+  "sources": [
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "baseline_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "reviewed_evidence_spans": [
+        [
+          45,
+          46
+        ],
+        [
+          86,
+          121
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+      "baseline_sha256": "6fa4b76e9a4abdce701c4db9571c19ab2bd3ff8694f64dff9aacc7e9745fadb5",
+      "worktree_sha256": "66cd885af3b6ddf84ea4a1629232490ba92e333be7626715be8614587b91dae1",
+      "reviewed_evidence_spans": [
+        [
+          22,
+          74
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "baseline_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "reviewed_evidence_spans": [
+        [
+          1370,
+          1393
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "baseline_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "reviewed_evidence_spans": [
+        [
+          142,
+          154
+        ],
+        [
+          275,
+          280
+        ]
+      ]
+    }
+  ],
+  "evidence_chain": [
+    "Pure IsCashOnDelivery permits deferred positive cash only for Delivery.",
+    "BuildPlan rejects insufficient non-COD amount; positive Pickup/Cash with zero actual paid is rejected. Electronic pending is a different payment-claim state, not later cash collection.",
+    "CheckoutRequest has no prepare-only or later same-order cash-settlement instruction. Named tracked server order mutation routes found are checkout/refund/electronic confirm/cancel and print jobs.",
+    "Checkout endpoint awaits committed handler then best-effort printing; this is current prepaid/claimed-payment creation flow, not distinct unpaid preparation stage."
+  ],
+  "counterevidence": [
+    "Existing Pickup metadata/time, deferred electronic claims, manual print and delivery COD capabilities are real building blocks.",
+    "No claim that every hypothetical composition/external client/backend path is mathematically impossible. Gap is against named tracked POS workflow and explicit owner requirement.",
+    "Fully comped zero-total order is not an unpaid positive-value pickup workaround.",
+    "Existing valid prepaid pickup behavior is not retrospectively labelled fraudulent or a regression."
+  ],
+  "recommendation": "Specify explicit persisted preparation/payment/handover events using existing capabilities where suitable; never fabricate payment just to start kitchen. No new architecture or code implemented.",
+  "runtime_validation": "NOT_EXECUTED",
+  "required_tests": [
+    "Same persisted order prepared before actual collection, kitchen dispatch once, receipt after payment, cancellation/no-show/shift-close semantics and replay."
+  ],
+  "relation_to_UI003": "Overlapping requirement at active-client scope; retain separate evidence but reconcile as one product requirement in final recommendations instead of counting two independent defects."
+}

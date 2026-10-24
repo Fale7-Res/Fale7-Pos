@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+  "source_git_blob_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+  "worktree_sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:31.810586+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-184843d3d00c2f453c677b51840589745e9f81415c3129e152ba6b3879f33fa1",
+      "status": "ANALYZED",
+      "reasoning": "Stores path and loads complete journal dictionary on construction. Missing file creates empty in-memory dictionary; corruption/error fails closed through Load. Path is caller/configuration-derived rather than remote print content. No file written merely by construction unless surrounding route import occurs.",
+      "inputs": "journal path",
+      "outputs": "Store initialized from disk",
+      "side_effects": "Local file read",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Stable writable journal location required; startup cannot safely ignore corrupted outcomes",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor constructor",
+        "Program ForRoute",
+        "Load"
+      ],
+      "evidence_source_span": [
+        29,
+        33
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9b86541217a34240126464ce36f38879f456574876634102f65da28ea0a65ccb",
+      "status": "ANALYZED",
+      "reasoning": "Canonicalizes route using Enum.Parse then uses canonical route filename and imports every legacy shared-journal entry absent locally. Existing route-local entries win, preserving prior outcome. Import loops Remember and writes once per entry; legacy file is intentionally not deleted.",
+      "inputs": "directory and route",
+      "outputs": "Per-route store",
+      "side_effects": "Reads both journals; may write route file per imported record",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No cross-machine coordination; all-route legacy import may retain irrelevant entries. Direct undefined numeric route accepted by Enum.Parse; Program Validate mitigates normal path",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Program",
+        "Enum.Parse",
+        "Load",
+        "Find",
+        "Remember"
+      ],
+      "evidence_source_span": [
+        35,
+        44
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-732694e718326c4af340cf4c504a294b243d66a118796e8d7ad26cd92faba346",
+      "status": "ANALYZED",
+      "reasoning": "Returns empty for missing file; otherwise reads and JSON-deserializes dictionary, with null treated empty. Any I/O/JSON exception becomes InvalidOperationException requiring inspection instead of dropping evidence and blindly reprinting. No partial-file recovery automatically attempted.",
+      "inputs": "journal path",
+      "outputs": "Dictionary<string,StoredAttempt> or exception",
+      "side_effects": "File existence/read only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Null JSON interpreted empty rather than corrupt; malformed types fail closed. Test missing/null/truncated/permission denied separately",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Constructor",
+        "ForRoute legacy import",
+        "JsonSerializer.Deserialize"
+      ],
+      "evidence_source_span": [
+        46,
+        57
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-ba42c4e0929753cda9fcea07cae8b05e5739aac9c640d50bfe8437b407d11b81",
+      "status": "ANALYZED",
+      "reasoning": "Creates parent directory if needed, writes whole in-memory dictionary to .tmp then overwrite-moves to final path. This improves normal crash atomicity but lacks explicit fsync and does not prove power-loss durability. Temp-name fixed; in-process gate protects callers, not external processes.",
+      "inputs": "Current dictionary and store path",
+      "outputs": "void or filesystem exception",
+      "side_effects": "Directory create, temp file write, final overwrite-move",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Disk full/permissions after physical send leaves uncertain recovery; no durable file flush guarantee. Multi-process same-file races remain if Program mutex bypassed",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Remember",
+        "Forget",
+        "File.WriteAllText",
+        "File.Move overwrite"
+      ],
+      "evidence_source_span": [
+        59,
+        69
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-bc40eb2d35a8442b64f1e6a0a3eaf45a8b5ed599921a3bf589871d42c3401546",
+      "status": "ANALYZED",
+      "reasoning": "Under local object lock returns matching outcome or null. It reads only constructor/current-process dictionary, not fresh disk or server state. Returning record is immutable but caller must not treat it as cross-station physical evidence.",
+      "inputs": "printJobId",
+      "outputs": "StoredAttempt?",
+      "side_effects": "No I/O; lock only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Disk edited by external process remains unseen; exact key string identifies local job",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "ForRoute import"
+      ],
+      "evidence_source_span": [
+        71,
+        74
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f8436799f54dce2d5908c260cff8e67194afef640f2757f05673024de366afb1",
+      "status": "ANALYZED",
+      "reasoning": "Under local lock replaces dictionary entry then Save writes it. Memory changes before disk success; Save exception does not roll memory back. Processor pre-send Remember failure prevents send, while post-send failure may leave persisted uncertain observation rather than final success.",
+      "inputs": "jobId and StoredAttempt",
+      "outputs": "void or Save exception",
+      "side_effects": "Memory mutation and local file persistence",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Crash-window correctness depends persistent path; test failure before send versus after accepted output distinctly",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "ProcessAsync before/after send",
+        "ReportAsync final failure",
+        "Save"
+      ],
+      "evidence_source_span": [
+        76,
+        83
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6e671efd20616dee512b83d470d88ea76f82a71d6b6a200d1c3f445672f4a1de",
+      "status": "ANALYZED",
+      "reasoning": "Removes outcome under local lock and saves only if entry existed. If Save fails, memory has forgotten while disk may retain old entry; server report was already accepted in normal caller. Next process can find stale record, but succeeded server job normally leaves Pending list.",
+      "inputs": "jobId",
+      "outputs": "void or Save exception",
+      "side_effects": "Memory removal, optional disk overwrite",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No cleanup by age; stale failure/status and server reset can re-expose old IDs. Test report-ack then Forget failure",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ReportAsync success",
+        "Save"
+      ],
+      "evidence_source_span": [
+        85,
+        91
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-d533cb5962626371420d44d0f3a17da176d9827e6c17458c3c1157d0e7769a29",
+      "status": "ANALYZED",
+      "reasoning": "Getter locks local dictionary and returns current Count without loading disk. It is a process-memory diagnostic, not count of server Pending jobs or physical unresolved tickets. Concurrent Remember/Forget are serialized by same gate.",
+      "inputs": "Store current dictionary",
+      "outputs": "int count",
+      "side_effects": "Lock read only",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "No I/O; cannot detect externally lost journal or another station outcomes",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "Diagnostic consumers; source shows no main-loop dependency",
+        "Remember/Forget share gate"
+      ],
+      "evidence_source_span": [
+        95,
+        95
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

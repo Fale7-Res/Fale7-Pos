@@ -1,0 +1,311 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:03:54.232657+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-64be5645b7ec1dc2a38cc53a5c0c7749e5a213dab7a25b5d93952a21ede09a2e",
+      "status": "ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyEmployeeRowDto.TotalPaidTodayPiastres::get()",
+      "source_span": [
+        79,
+        80
+      ],
+      "reasoning": "DailyEmployeeRowDto.TotalPaidTodayPiastres sums AdvancePaidToday,WithdrawalPaidToday,PayrollSettlementPaidToday and standalone SettlementPaidToday;it excludes accrued wages/overtime/bonus,deductions and all-time RunningBalance. Producer BuildEmployeeRows groups day ledger and sums four distinct debit types,so normal source rows do not double-count kinds. Standalone Settlement default0 preserves older constructor payloads. This getter is presentation arithmetic,not permission,payout or balance guard.",
+      "inputs": "Four long daily debit totals from DTO constructor;last Settlement defaults0.",
+      "outputs": "long total daily payouts;unchecked addition can overflow adversarial/extreme supplied values.",
+      "side_effects": "Pure arithmetic,may be serialized/read by WinUI binding;no payment action.",
+      "trust_boundaries": "Server producer supplies ledger-derived data,but public record constructor/JSON can hold inconsistent or negative fields without validation.",
+      "database": "No SQL in getter;DailyStatementQueryService155-184 is actual day ledger producer.",
+      "printing_ui": "DailyStatementView293 displays total;must not call it earned pay or remaining balance. Existing test196 asserts standalone3000 included.",
+      "performance": "Constant four additions;not a bottleneck.",
+      "duplicates_conflicts": "Copies update fields shallow/value scalars;derived getter recomputes after with-copy. No cached total that could drift separately.",
+      "issues_hypotheses": [
+        "Boundary long overflow not validated here;financial command invariant belongs upstream"
+      ],
+      "tests_missing": [
+        "Four distinct nonzero types,default missing Settlement,negative/extreme totals and serialization;existing test read,not executed"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs70-80",
+        "DailyStatementQueryService.cs155-184",
+        "DailyStatementView.xaml293",
+        "DailyStatementVerticalSliceTests.cs180-197"
+      ]
+    }
+  ],
+  "source_git_blob_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+  "worktree_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-bd34577a85b33825f542407bc570a79676587377be82b5fc7105c9c7c317d5e0",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyStatementDto::record-generated-behavior",
+      "source_span": [
+        19,
+        39
+      ],
+      "reasoning": "DailyStatementDto is composite report transport record,not a consistent database snapshot. Constructor stores day identity plus scalar nested reports and IReadOnlyList references for sales products,hourly,expenses,shifts,treasury,employees,refunds,audit and current print/backup sections. Compiler-generated init/with is shallow:lists remain caller-owned and equality compares list references,so JSON roundtrip need not compare equal despite identical numbers. GetAsync sequentially composes current and day-scoped data;record generation does not reconcile time bases or freeze nested collections. Nullable day ID/status deliberately permit calendar report when no business-day row.",
+      "inputs": "BusinessDate string,nullable BusinessDayId/status,nested DTOs and collection/aggregate fields exactly source19-40;all supplied by query.",
+      "outputs": "Serialized report graph consumed DailyStatementViewModel;constructor adds no validation.",
+      "side_effects": "Record allocation/reference assignment only;query separately performs DB reads,not writes.",
+      "trust_boundaries": "Server-to-client report boundary includes personnel/audit/financial data;generated ToString may include nested records,do not log whole graph as sanitized data.",
+      "database": "GetAsync60-89 sequential readers,not transaction under record constructor.",
+      "printing_ui": "Current TreasuryBalancesNow/Inventory/Printing mixed with named BusinessDate intentionally explicit;record naming alone no historical closing snapshot.",
+      "performance": "Generated equality/hash shallow and cheap per field;JSON/retained lists can be large;record no lazy fetch/pagination.",
+      "duplicates_conflicts": "with-copy shares every list and nested reference;no observed equality-based business authorization. Mutability through backing List not prevented by IReadOnlyList.",
+      "issues_hypotheses": [
+        "Avoid deep-immutable/snapshot claim from record keyword",
+        "Constructor accepts null/mismatched graph outside nullable compile hints"
+      ],
+      "tests_missing": [
+        "JSON roundtrip semantic comparison rather than record==,with list alias,missing business-day report,current-versus-day labels"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs19-40",
+        "DailyStatementQueryService.GetAsync60-89",
+        "CashierWinUI/Services/ApiClient.cs311-314",
+        "DailyStatementViewModel.Statement"
+      ]
+    },
+    {
+      "stable_id": "sym-6112b72142ef11524947bca633238b4a5553ab1a60f62f7db98c169a25e02988",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.SoldProductLineDto::record-generated-behavior",
+      "source_span": [
+        45,
+        47
+      ],
+      "reasoning": "SoldProductLineDto carries ProductName,nullable category ID/name,Quantity,OrderCount,TotalPiastres and PeakHour. All fields scalar/string so generated record equality/copy compares their values;it is report grouping identity by frozen product NAME,not SKU ID. ReportingQueryService.GetSoldProducts groups same name across IDs,chooses current resolvable category and peak Cairo hour. Constructor does not validate hour0..23,quantity or reconcile Total with prices;no calculation hidden in generated properties.",
+      "inputs": "Seven scalar report values from grouped sold lines.",
+      "outputs": "Positional serialized sold-product report row,not menu item/order command.",
+      "side_effects": "Allocation only,no sale update.",
+      "trust_boundaries": "Report output boundary:product label persisted user text,not executable markup.",
+      "database": "GetSoldProducts272-296 is actual SQL/group producer;record no DB.",
+      "printing_ui": "Same-name product merge and current-category drift retained;PeakHour means quantity peak,not profit hour.",
+      "performance": "Small record;entire sold list size determined producer,not generated pagination.",
+      "duplicates_conflicts": "String/value equality appropriate display row but not persistent product key;with copy can make inconsistent totals without revalidation.",
+      "issues_hypotheses": [
+        "Name grouping collision not prevented by generated equality"
+      ],
+      "tests_missing": [
+        "Two IDs same name,renamed product,missing category and peak tie;JSON/scalar copy equality"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs45-47",
+        "ReportingQueryService.GetSoldProducts272-296",
+        "DailyStatementViewModel.SoldProducts"
+      ]
+    },
+    {
+      "stable_id": "sym-0748f2fa5ed2df9f32ef4618c264d412ec998c1981fead88eb021cf88254be0c",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyExpenseLineDto::record-generated-behavior",
+      "source_span": [
+        53,
+        55
+      ],
+      "reasoning": "DailyExpenseLineDto is itemized snapshot with ID,time,category,description,amount,entered/approved names,payment account and optional shift. Generated constructor and with-copy simply hold values;no amount positivity,permission or matching account check. BuildExpenseLines resolves creator ID to current user name/fallback ID,so EnteredByName is display metadata and ApprovedByName nullable actual stored attribution. Generated ToString contains expense reason/name/amount and should not become indiscriminate logging.",
+      "inputs": "Expense row scalars and resolved names.",
+      "outputs": "Serializable itemized daily expense row.",
+      "side_effects": "No expense creation,payment,printing;record allocation only.",
+      "trust_boundaries": "Personnel/expense description flows API-to-UI;record does not sanitize or authorize.",
+      "database": "BuildExpenseLines92-104 day timestamp SQL + batched user names,not constructor.",
+      "printing_ui": "More detailed names than ExpenseDto;payment account preserves Main/Drawer distinction.",
+      "performance": "Value/string equality/hash fieldwise;no database call per property.",
+      "duplicates_conflicts": "with copy can change name/amount independently;not a trusted financial command or identity proof.",
+      "issues_hypotheses": [
+        "Current name resolution can differ historical action name;no immutable identity snapshot guarantee"
+      ],
+      "tests_missing": [
+        "Missing user fallback,nullable approval/shift,Main versus Drawer and unchanged source amount on roundtrip"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs53-55",
+        "DailyStatementQueryService.BuildExpenseLines92-104",
+        "DailyStatementView itemized expenses"
+      ]
+    },
+    {
+      "stable_id": "sym-60aec8203c4791a758d5f3f6f69b95d3dff8512d7dc15ad59d0a79c9bcb280e0",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.ShiftDayTotalsDto::record-generated-behavior",
+      "source_span": [
+        60,
+        62
+      ],
+      "reasoning": "ShiftDayTotalsDto holds ShiftCount,Opening,Expected,Actual,Shortage,Overage as scalar totals. Generated record carries no aggregation logic;BuildShiftTotals explicitly keeps shortage/overage separate rather than netting,coalesces unclosed expected/actual to0 and sums all shifts. Therefore this DTO cannot distinguish an uncounted open shift from genuine0 solely from total;per-shift list in composite retains detail. Scalar value equality is not proof all shifts closed.",
+      "inputs": "Count and five long amount sums.",
+      "outputs": "Serialized day totals alongside per-shift rows.",
+      "side_effects": "No close/reconciliation/money move.",
+      "trust_boundaries": "Server report calculation boundary,not client count assertion used for close.",
+      "database": "Producer pure BuildShiftTotals106-113 after shift query;constructor no SQL.",
+      "printing_ui": "Shortage/Overage independently displayed,not net difference;open-null->0 caveat must persist.",
+      "performance": "Constant field operations;aggregation O(shifts) outside record.",
+      "duplicates_conflicts": "with-copy can produce impossible total/count;public DTO not invariant-enforcing value object.",
+      "issues_hypotheses": [
+        "No null/open-shift coverage flag in aggregate fields"
+      ],
+      "tests_missing": [
+        "One short+one over not netted,open fields null coalesce0,empty shifts,overflow boundaries outside realistic totals"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs60-62",
+        "DailyStatementQueryService.BuildShiftTotals106-113",
+        "DailyStatementDto.Shifts/ShiftTotals"
+      ]
+    },
+    {
+      "stable_id": "sym-b7305c1adc3a4474dc0d6d44da42dbdd3a22a4cf1d0b15ece8cac98e83542c78",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyEmployeeRowDto::record-generated-behavior",
+      "source_span": [
+        72,
+        81
+      ],
+      "reasoning": "DailyEmployeeRowDto exposes attendance flags/status/times/hours,accrued wage/overtime/bonus/deduction,four payout types and all-time RunningBalance. Compiler-generated constructor properties preserve all scalar inputs and optional SettlementPaidToday default0;with-copy/equality use scalar/string values,derived TotalPaid getter recomputes from fields. No constructor validates hours,attendance consistency or payout-versus-balance. Producer155-184 combines date-scoped attendance/ledger and all-time balance;record generation neither recalculates payroll nor fixes FIN012 missing Adjustment credit categorization.",
+      "inputs": "Employee ID/name,attendance and monetary scalars;SettlementPaidToday optional default0.",
+      "outputs": "Daily employee report row with derived payout total getter reviewed separately.",
+      "side_effects": "No HR/attendance correction or payment,allocation only.",
+      "trust_boundaries": "PII/pay data output;ToString includes name/attendance/money,not inherently sanitized.",
+      "database": "BuildEmployeeRows155-184 performs queries and per-employee balance read;record no DB.",
+      "printing_ui": "HasAttendanceRecord=false plus zero hours is explicit no attendance rather than proof absence;RunningBalance not day wages.",
+      "performance": "Constant scalar copy/hash;producer N+1 balance query not hidden generated method.",
+      "duplicates_conflicts": "with updates derived total automatically,but not attendance/pay invariants;no collection alias in this record.",
+      "issues_hypotheses": [
+        "Zero default backward compatibility can hide omitted standalone payout in stale producers",
+        "Adjustment fields not included as distinct report category"
+      ],
+      "tests_missing": [
+        "Missing attendance,legacy omitted Settlement,all four payouts,JSON getter consistency and FIN012 correction-to-report scenario"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs72-81",
+        "DailyStatementQueryService.BuildEmployeeRows155-184",
+        "TotalPaid getter facet79",
+        "DailyStatementVerticalSliceTests180-197"
+      ]
+    },
+    {
+      "stable_id": "sym-ef893dfcaea2da2ab31e3d4a8ce114200d5c27944c989d04309aac991725ce96",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyInventoryDto::record-generated-behavior",
+      "source_span": [
+        89,
+        93
+      ],
+      "reasoning": "DailyInventoryDto stores daily receipt/usage/loss/count quantities in milliunits,purchase/loss values in piastres,and current low/negative/uncosted counts. Generated scalar constructor has no unit tagging beyond names and cannot prevent mixing quantities/money. BuildInventory separates packaging Usage by CURRENT InventoryItem.IsPackaging and signs CountAdjustment,then current overview counts;metadata reclassification can restate old usage split. Record no deep/snapshot mechanics because fields scalar.",
+      "inputs": "Thirteen scalar quantity/value/count metrics exactly89-93.",
+      "outputs": "Serializable inventory subsection,mixed daily and current-moment metrics.",
+      "side_effects": "No stock movement,count correction or valuation write.",
+      "trust_boundaries": "Server-produced analytic output;public construction not a stock authority.",
+      "database": "BuildInventory191-216 reads day movements,purchase sum,current overview/loss;constructor no SQL.",
+      "printing_ui": "Current stock counts are explicitly not selected-day end balance;money versus milliunits must use correct converter.",
+      "performance": "Cheap scalar record;producer may scan all movement/cost history for current overview.",
+      "duplicates_conflicts": "Fieldwise equality/copy no aggregate recomputation;can construct inconsistent packaging+sale consumption versus total.",
+      "issues_hypotheses": [
+        "Current packaging classification changes historical split;no per-movement packaging snapshot in this DTO"
+      ],
+      "tests_missing": [
+        "Reclassify packaging item,date boundaries,negative count correction,current stock unaffected old date,unit converters"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs89-93",
+        "DailyStatementQueryService.BuildInventory191-216",
+        "InventoryQueryService.GetInventoryOverviewAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-1961ec08ef8b38c792e9747d88cbc3bbc0704801752894f38bc1627904e60e58",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyAuditEntryDto::record-generated-behavior",
+      "source_span": [
+        98,
+        100
+      ],
+      "reasoning": "DailyAuditEntryDto is union display record with Source,Id,Action,Actor and nullable category/details/severity/amount/reason/approval/time. Source is required to disambiguate general versus control audit table;same Id alone not globally authoritative. Generated value equality/copy holds strings/scalars and adds no cross-table dedupe. BuildAuditTrail separately fetches up to500 rows each and maps absent fields null;record cannot recover omitted events or prove audit trail exhaustive.",
+      "inputs": "Two-source audit projection scalar/string values.",
+      "outputs": "Display audit row,not persisted unified audit event.",
+      "side_effects": "No log migration/deletion/write or permission change.",
+      "trust_boundaries": "Stored actor/reason/details cross report boundary;ToString exposes potentially sensitive history. Source/ID supplied producer,not user proof.",
+      "database": "BuildAuditTrail225-241 source queries only;record no DB or foreign key.",
+      "printing_ui": "Null amount for general source not0 money;null severity for control source not benign finding.",
+      "performance": "Small row;up to1000 source rows in composite before UI filtering,record no paging.",
+      "duplicates_conflicts": "Value equality can compare output rows but Source must remain part of key;with-copy cannot authenticate changed Actor.",
+      "issues_hypotheses": [
+        "Source cap500 each means report not exhaustive complete day if more events"
+      ],
+      "tests_missing": [
+        "Overlapping IDs differentSource,null fields,more500 source events,roundtrip actor names/details"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs98-100",
+        "DailyStatementQueryService.BuildAuditTrail225-241",
+        "AuditQueryService.ListAsync/ControlCenter.ListAuditEventsAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-a292792f7cd40ba06bd19d6d3d0f6e56ea5744674badfe71da8774f12dc34f80",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyPrintingDto::record-generated-behavior",
+      "source_span": [
+        106,
+        108
+      ],
+      "reasoning": "DailyPrintingDto carries current Pending/Failed/Stuck counts,day-scoped ReprintCount and IReadOnlyList<PrintRouteStatusDto> Routes. Constructor keeps route list reference;generated record equality compares list identity and with-copy aliases routes. BuildPrinting reuses current overview but counts selected-day audit reprint action,so named-day report is intentionally not historical print-queue snapshot. No generated setter queues or retries jobs,and counts never prove physical paper.",
+      "inputs": "Four counts and shared route status list.",
+      "outputs": "Report printing subsection with mixed current/day chronology.",
+      "side_effects": "No print job mutation or hardware send.",
+      "trust_boundaries": "Server report output,not caller-set print status authority.",
+      "database": "BuildPrinting244-251 reads overview+audit Count;record no SQL.",
+      "printing_ui": "Queued/succeeded fields refer transport observations,PRT002;Routes includes server6 categories even UI may hide2.",
+      "performance": "List serialization proportional route count;generated equality shallow,not deep status comparison.",
+      "duplicates_conflicts": "Copies share mutable list backing;independent identical route lists may compare unequal. No automatic reconciliation counts versus routes.",
+      "issues_hypotheses": [
+        "Do not treat ReprintCount as all paper copies:audited action count only"
+      ],
+      "tests_missing": [
+        "Past date with current backlog,route totals mismatch fixture,list alias/roundtrip equality,and no print invoked"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs106-108",
+        "DailyStatementQueryService.BuildPrinting244-251",
+        "PrintJobQueryService.GetOverviewAsync49-86"
+      ]
+    },
+    {
+      "stable_id": "sym-0385e08521da4771b4011ec3e1b9debf4bd138481661282d0afdcb6a5ff2456a",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Reports.DailyBackupDto::record-generated-behavior",
+      "source_span": [
+        110,
+        112
+      ],
+      "reasoning": "DailyBackupDto holds nullable last verified backup time/age/status plus day request/failure counts. Generated constructor/copy does not validate negative age,consistency or that file still exists. BuildBackup filters latest Succeeded+Valid+nonnull FileSize metadata,computes age at current UTC and counts requests by selected-day window;pruned/missing physical file may remain metadata depending upstream status. No generated property probes filesystem or initiates restore,so record cannot certify backup recovery.",
+      "inputs": "Three nullable status/time/age fields and two counts.",
+      "outputs": "Serializable backup-health subsection,no file bytes/path in this record.",
+      "side_effects": "No backup/verify/restore/file I/O.",
+      "trust_boundaries": "Report metadata is trusted stored observation,not fresh integrity check.",
+      "database": "BuildBackup254-270 reads BackupQueryService list then in-memory filter;record no DB.",
+      "printing_ui": "Null last verified means unknown/none,not0hours;selected-day counts coexist current latest verification.",
+      "performance": "Scalar copy/hash constant;all-backup history materialization belongs producer.",
+      "duplicates_conflicts": "DateTimeOffset/double value equality exact,so recomputed age differs despite same backup;record equality not health-change dedupe strategy.",
+      "issues_hypotheses": [
+        "Age changes every query;not a stable value for equality-based polling",
+        "Metadata verification not restore proof"
+      ],
+      "tests_missing": [
+        "No verified backup,pruned file metadata,selected-day counts,past/future completed clock and null roundtrip"
+      ],
+      "verified_callers_callees": [
+        "DailyStatementDtos.cs110-112",
+        "DailyStatementQueryService.BuildBackup254-270",
+        "BackupQueryService.ListAsync"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

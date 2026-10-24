@@ -1,0 +1,96 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T21:56:00.501433+00:00",
+  "records": [
+    {
+      "id": "FS-BOUNDARY-019",
+      "category": "Authorized backup directory and SQL-controlled disk paths",
+      "evidence": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+          "startLine": 34,
+          "endLine": 57,
+          "source_git_blob_sha256": "d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69",
+          "worktree_sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1",
+          "symbol": {
+            "stable_id": "sym-09b234d19c2dce358b0c0b82c70583b13f72eab8d6c2493e946c31f62a217eef",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken)",
+            "startLine": 34,
+            "endLine": 41,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "backup_manage operator gate; destinationDirectory or config/default used in Directory.CreateDirectory; generated DB/timestamp filename."
+        },
+        {
+          "path": "src/Falah.Domain/Backup/BackupRules.cs",
+          "startLine": 27,
+          "endLine": 33,
+          "source_git_blob_sha256": "c2b4b6d3523da6f903f2f8627dbf0e4ad034e0bafeddacdd192598ac6de79131",
+          "worktree_sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e",
+          "symbol": {
+            "stable_id": "sym-dcfb32e25f5bd35d560fed2f0182644ada73d957ca627cc081b6507553121051",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Domain.Backup.BackupRules.AssertDestinationDirectory(string?)",
+            "startLine": 27,
+            "endLine": 33,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Destination validation only nonblank and invalid path characters, not root/UNC restriction."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+          "startLine": 77,
+          "endLine": 82,
+          "source_git_blob_sha256": "d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69",
+          "worktree_sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1",
+          "symbol": {
+            "stable_id": "sym-803e04758d0d10fe653f641c33c2d4241405ba769c447cd3dc5c8c75c5c64cae",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken)",
+            "startLine": 47,
+            "endLine": 103,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Bound disk path to SQL BACKUP; later local File.Exists/FileInfo size check."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "startLine": 138,
+          "endLine": 159,
+          "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+          "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+          "symbol": {
+            "stable_id": "sym-6169ef3c03b4842183f4796c30d34f069683908c295334130a886381ef1c3f97",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Infrastructure.Backup.RestoreBackupHandler.HandleAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken)",
+            "startLine": 49,
+            "endLine": 195,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Configured DB name allowlisted, master connection and parameterized backup.FilePath; SQL engine performs file restore."
+        }
+      ],
+      "inputs": "Authorized operator destination or trusted configuration; stored backup record selected for restore; no literal operational path/secret inspected.",
+      "outputs_side_effects": "Server Directory creation and SQL service backup/restore file access; configured UNC may carry backup content under service authority.",
+      "legitimate_purpose": "Explicit backup export/restore, not hidden outbound telemetry.",
+      "trust_boundaries": "Privilege backup_manage/config to OS/SQL-service filesystem; approved destination policy remains important.",
+      "counterevidence_limitations": [
+        "Bound SQL path prevents injection, not exfiltration to authorized destination; owner policy/deployed ACLs unknown.",
+        "Same code already independently source-reviewed in SQL-Boundary-Review; this record adds file/network trust classification, not double-counted new function review.",
+        "No backup/restore/UNC operation or database access executed."
+      ],
+      "classification": "PRIVILEGED_EXPLICIT_BACKUP_FILE_DESTINATION_POLICY_LIMIT"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

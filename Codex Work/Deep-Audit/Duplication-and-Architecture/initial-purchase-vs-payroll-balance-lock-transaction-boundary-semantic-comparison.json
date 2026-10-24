@@ -1,0 +1,188 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-051",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21T13:30:00Z",
+  "reviewer": "/root coordinator",
+  "title": "Protected treasury balance lock transaction boundary: initial purchase versus payroll payment",
+  "scope": "Bounded semantic comparison of initial ReceivePurchase and PayPayroll balance checks, with PayPurchase and AddExpense as transaction-boundary controls and the shared TreasuryBalanceQuery contract. Does not audit every balance-query caller.",
+  "decision": "SOURCE_CONFIRMED_TRANSACTION_BOUNDARY_DIVERGENCE_CROSS_REFERENCES_FIN-011; PAYROLL_AND_RECURRING_PURCHASE_CALLERS_HOLD_LOCK_INSIDE_TRANSACTION; INITIAL_PURCHASE_RECEIPT_CHECKS_BEFORE_TRANSACTION",
+  "behavior": {
+    "initial_purchase": "ReceivePurchaseHandler validates the payment amount and account, then for an account id calls LoadAccountMovementsForUpdateAsync and AssertProtectedSourceBalance at lines 77-78. It reads cost basis and checks the business day, and only starts its database transaction at line 97. Later the transaction writes purchase/payment, optional treasury movement, supplier ledger, stock receipt movements, audit and journal completion (lines 100-208). Thus the helper lock is not held across the later posting transaction in this call sequence.",
+    "payroll_control": "PayPayrollHandler checks Approved and computes payroll total first, then opens its transaction before calling the same balance-lock helper at lines 110-119. The guarded movement, employee settlements, Paid run state, journal and audit are saved and committed within that transaction (121-163).",
+    "purchase_payment_control": "PayPurchaseHandler checks open business day and begins its transaction before the same helper call (71-81); payment movement and supplier ledger update occur in that transaction.",
+    "expense_control": "AddExpenseHandler begins a transaction before loading the account movements and asserting the protected source balance (69-78); the expense and movement are written in the same transaction.",
+    "shared_lock_contract": "TreasuryBalanceQuery documents that LoadAccountMovementsForUpdateAsync uses SQL Server UPDLOCK/HOLDLOCK range locks and requires the caller already to be inside a transaction; the lock is released when the transaction ends. It exists to serialize competing inserts affecting an account balance."
+  },
+  "cross_file_call_chain": [
+    "ReceivePurchaseHandler.HandleAsync → TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync + FinancialRules.AssertProtectedSourceBalance → BeginTransactionAsync → optional TreasuryMovement/Purchase/SupplierLedger/StockMovement/Journaling writes",
+    "PayPayrollHandler.HandleAsync → BeginTransactionAsync → TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync + FinancialRules.AssertProtectedSourceBalance → TreasuryMovement/Payroll settlements/journal/run state"
+  ],
+  "counterevidence_and_limits": [
+    "A transaction and idempotency/journal key protect atomicity and same-request replay for each purchase; the comparison does not establish duplicate purchase or a realized overdraft.",
+    "PayPayroll and PayPurchase demonstrate the transaction-held lock ordering in sibling financial workflows, supporting that the shared helper contract is deliberate.",
+    "The purchase lock statement occurs before the explicit transaction in source; exact SQL Server autocommit lock lifetime and an actual competing-spend outcome were not run in this audit.",
+    "This comparison covers these named call sites only; the other TreasuryBalanceQuery callers are not all reviewed here."
+  ],
+  "related_findings": [
+    "FIN-011"
+  ],
+  "recommendation": "No new canonical finding is created; extend/retain FIN-011. Future correction should move the protected-balance read and assertion into ReceivePurchaseHandler’s already existing transaction, immediately before writing the treasury movement, while retaining the shared idempotency/journal and atomic purchase/stock/supplier writes. Also confirm the business-day cutoff policy separately; this comparison concerns account balance locking.",
+  "tests": {
+    "executed": "NONE; static source inspection only",
+    "needed": [
+      "Provider-backed concurrency test: seed a protected account balance, pause ReceivePurchase after current precheck, commit a competing withdrawal/payment, then resume; assert overspend cannot pass after the transaction-held lock is applied.",
+      "Interleave two positive PaidPiastres purchase receipts with different request IDs against one source account and assert aggregate posted outflow never exceeds available protected balance.",
+      "Retain same-request replay test and assert purchase, payment, supplier-ledger, stock-receipt and journal rows are each written once.",
+      "Regression test zero-paid and non-cash purchase paths to preserve legitimate account and balance semantics."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "line_ranges": [
+        [
+          69,
+          79
+        ],
+        [
+          95,
+          109
+        ],
+        [
+          145,
+          175
+        ],
+        [
+          206,
+          229
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+          "signature": "Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            36,
+            5,
+            229,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [
+        [
+          62,
+          75
+        ],
+        [
+          110,
+          120
+        ],
+        [
+          127,
+          163
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+          "signature": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            39,
+            5,
+            182,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+      "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+      "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+      "line_ranges": [
+        [
+          30,
+          46
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dcf4f03b1d7e7f077cd54e46cd31fba4ecbfd39421bf16174a7d08bf0b50c402",
+          "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            37,
+            5,
+            46,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "worktree_sha256": "34ed4f90f854e21b20c18b1c708754d010dc9b3313c648c5b29be1af08844306",
+      "source_git_blob_sha256": "be370184f006f531f6e35a30c4bfe6c8ab03cea1f55db268a0148dfbc22f9ba2",
+      "line_ranges": [
+        [
+          71,
+          94
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+          "signature": "Falah.Infrastructure.Purchasing.PayPurchaseHandler.HandleAsync(Falah.Application.Purchasing.PayPurchaseRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            149,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs",
+      "worktree_sha256": "02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1",
+      "source_git_blob_sha256": "e2ce5bb7df5972324dd3c67c6098f7dc33554fe3126860500b6f50e0a3781b5d",
+      "line_ranges": [
+        [
+          69,
+          90
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-549cf3f660de0fec71a0ca98801b4222c43930bfcbdcf6a2f7e9349f2f59b9b0",
+          "signature": "Falah.Infrastructure.Expenses.AddExpenseHandler.HandleAsync(Falah.Application.Expenses.AddExpenseRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            36,
+            5,
+            151,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "source_read": "All listed ranges read in source for the two principal workflows, the shared lock helper and two inside-transaction control callers.",
+    "baseline": "Current Source-Symbol index identity and worktree hashes checked for each source file.",
+    "independent_review": "No other agent independently challenged this specific comparison in this batch; it cross-references existing FIN-011 evidence.",
+    "tests_executed": false
+  }
+}

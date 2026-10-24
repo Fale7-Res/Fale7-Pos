@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.cs",
+  "source_git_blob_sha256": "2a7817221f688a917458b2445a3877491f4aba38a6220c6038816df5abbc6419",
+  "worktree_sha256": "22f7f5f68e4810bf5d71ef5c4bf820469d7700a8cefd57fd00527cb1897d667c",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:10:21.844723+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-eaef337076793de24c11a92c665f2ce7901c0f592877955e110cae7c3cf175dc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashHandover.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        40,
+        10
+      ],
+      "reasoning": "Up creates CashHandovers receipt-book table and filtered unique nullable TreasuryMovementId. Multiple unlinked NULL records remain possible; nonnull dedupe is not an FK to actual movement or proof physical second-person acknowledgement. No treasury cash posting, receiver authentication or existing handover backfill in this body.",
+      "inputs": "MigrationBuilder supplied by EF and prior schema/data.",
+      "outputs": "Queued schema table/index/drop operations; no financial business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Drawer log is hardware command evidence, handover/audit supports provenance; no physical drawer/print/UI operation or transport review resumed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Lack of FK/append-only/physical attestation is actual schema limit, not demonstrated unauthorized write or cash loss.",
+      "tests_missing": "No tests/migrations run. Disposable SQL upgrade/downgrade should verify nullable/filter semantics, report-history integrity and that removing metadata does not falsely compensate financial facts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-7f3a47d3ecc095c3ab5b99d048105b1b1fed8c9ffa24084429908cfc0a405626",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        16,
+        26,
+        28,
+        18
+      ],
+      "reasoning": "Columns lambda stores account/person text, bigint transfer amount, nullable shift/notes/movement and datetimeoffset. Required HandedBy/ReceivedBy strings are labels rather than user FKs or signed receipts; no amount positivity/account whitelist CHECK here.",
+      "inputs": "Table/column metadata builder parameter of enclosing CreateTable.",
+      "outputs": "Column/constraint/primary-key selector metadata, not executable business query.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Drawer log is hardware command evidence, handover/audit supports provenance; no physical drawer/print/UI operation or transport review resumed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Lack of FK/append-only/physical attestation is actual schema limit, not demonstrated unauthorized write or cash loss.",
+      "tests_missing": "No tests/migrations run. Disposable SQL upgrade/downgrade should verify nullable/filter semantics, report-history integrity and that removing metadata does not falsely compensate financial facts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-358d23110cc282ed438b9f6974bd8bddf28f1d19783cd3af355682b5dd453602",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        30,
+        32,
+        18
+      ],
+      "reasoning": "Constraints lambda supplies only CashHandovers Id primary key, with no movement/shift/account FK. The separate filtered movement index deduplicates linkage but cannot prove referenced fact exists or accounts/amount match.",
+      "inputs": "Table/column metadata builder parameter of enclosing CreateTable.",
+      "outputs": "Column/constraint/primary-key selector metadata, not executable business query.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Drawer log is hardware command evidence, handover/audit supports provenance; no physical drawer/print/UI operation or transport review resumed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Lack of FK/append-only/physical attestation is actual schema limit, not demonstrated unauthorized write or cash loss.",
+      "tests_missing": "No tests/migrations run. Disposable SQL upgrade/downgrade should verify nullable/filter semantics, report-history integrity and that removing metadata does not falsely compensate financial facts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-f21ba090c6dcd4524ae5c5124f71b8788b5b2cac25a996e71200d6121fb148f1",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        31,
+        58,
+        31,
+        67
+      ],
+      "reasoning": "Nested Id selector designates handover row PK. It is not TreasuryMovementId selector; financial one-handover-per-linked-movement enforcement lives in later unique filtered index, not this metadata expression.",
+      "inputs": "Table/column metadata builder parameter of enclosing CreateTable.",
+      "outputs": "Column/constraint/primary-key selector metadata, not executable business query.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Drawer log is hardware command evidence, handover/audit supports provenance; no physical drawer/print/UI operation or transport review resumed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Lack of FK/append-only/physical attestation is actual schema limit, not demonstrated unauthorized write or cash loss.",
+      "tests_missing": "No tests/migrations run. Disposable SQL upgrade/downgrade should verify nullable/filter semantics, report-history integrity and that removing metadata does not falsely compensate financial facts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-4e2cb5d50d881d16091a9e7c051831364b3997d39bc46dfa2da72a383cea82cc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashHandover.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        43,
+        9,
+        47,
+        10
+      ],
+      "reasoning": "Down drops handover receipt-book records while treasury transfer facts remain, losing names/notes/provenance but not returning physical cash. It is not an accounting compensation or deletion of underlying transfer movement.",
+      "inputs": "MigrationBuilder supplied by EF and prior schema/data.",
+      "outputs": "Queued schema table/index/drop operations; no financial business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Drawer log is hardware command evidence, handover/audit supports provenance; no physical drawer/print/UI operation or transport review resumed.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Lack of FK/append-only/physical attestation is actual schema limit, not demonstrated unauthorized write or cash loss.",
+      "tests_missing": "No tests/migrations run. Disposable SQL upgrade/downgrade should verify nullable/filter semantics, report-history integrity and that removing metadata does not falsely compensate financial facts.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

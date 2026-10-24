@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs",
+  "source_git_blob_sha256": "58e69111af7c64b7209f88701f235788a6eb6b0cf600cf2e4a4ba54b1810219c",
+  "worktree_sha256": "58e69111af7c64b7209f88701f235788a6eb6b0cf600cf2e4a4ba54b1810219c",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:56:19.748964+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Legacy electronic confirmation exact source flow.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-96db2bf10eb1558df0816c7b0d2be31d2282f3f24bf4ce439d24e4d9d999664e",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.ConfirmElectronicPaymentAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        15,
+        5,
+        41,
+        6
+      ],
+      "reasoning": "Requires result then sets busy, sends confirmation for current result OrderID/actor and updates LastCheckoutResult with returned paid/status. No explicit busy guard or immutable captured result for postawait with-expression; StartNewOrder/another result could clear/replace it while request pending causing null or wrong result update. Finally busyfalse. No durable pending intent.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Legacy source race; normal AsyncRelayCommand disallows own concurrent execution but does not stop unrelated commands. No request performed.",
+      "tests_missing": "Legacy source race; normal AsyncRelayCommand disallows own concurrent execution but does not stop unrelated commands. No request performed. NOT_EXECUTED.",
+      "verified_callers_callees": "Api.ConfirmElectronicPaymentAsync; LastCheckoutResult with"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

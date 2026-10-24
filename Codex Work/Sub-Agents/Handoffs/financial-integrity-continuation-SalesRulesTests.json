@@ -1,0 +1,42 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:18:04.4175981Z",
+  "path": "tests/Falah.Domain.Tests/SalesRulesTests.cs",
+  "stable_ids": [
+    "sym-7320e5218eda30afe74755742444e7cf2dfe26421b98e180414b8afda6b21e42",
+    "sym-4339fb19e12e7a5e1dec159976bba796b088517f1705709c42894c2d05ae34a8",
+    "sym-34a15a5eae1f5adc2195e3fb1e374b6e7b59531e15a89caf051a1963eb43c3ea",
+    "sym-024f2b05111d3902347f46912f30641240e0f3998ce6c1666b6fd02e94c8bb6b",
+    "sym-3b41ad841cc7398c22a903b9b534c9c9ae38557eec40adcb1d49f8b50f3e8c6b",
+    "sym-722204996255ca8b9e3c1e51a7094544e0cbc096938cd7bfae8bb88cee5a0e12",
+    "sym-e2b405f898313b060cd120db2486912018bdc707b5e4ca36e990cd5a8cec2b8a",
+    "sym-ed5c005d42393995479a7d894b712ee1866cfaabafe53263a96fe0a155a7f2c3",
+    "sym-522a20f2bb1e1dd29f11301015661ef663ad713672134da9ef66adb9bf0b2f8a",
+    "sym-a96feff274c250919e810ad184f98718e0d549ee68796eac1e3036510ee4db9b",
+    "sym-06cc85162f4ed49d2586a949767033b72580012b3bf8a53edd07545851712bce",
+    "sym-88b0f2d85fc8e53ab23a473cd306c86263e2e25526bb8a8dcaae5ba082456259",
+    "sym-eac803cdc7738c17a4683e57df0aa6e6e012c9752993ab224b6aae8c4bb44a8f",
+    "sym-3790e86c865701b5dfbd7213426a51d37b5600be9f8a90c4d37bfed1f8d76073",
+    "sym-a12cc4082aaf8510868dac1bf7dd00a571c150e16c1c32a58256593415a500a8",
+    "sym-3660f136bb9fe7cb0483be1dac779c02f5bd831c72b41e4464731a3e4cfdd619"
+  ],
+  "queued_count": 16,
+  "reconciliation": {
+    "current_union_remaining": 16,
+    "coordinator_database_reports": 16,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/SalesRulesTests.cs": "9BE0E1BCF37A53487A3157D4CE299C39B0C893FEB461F793425BD3983680C52A",
+    "src/Falah.Domain/Reports/SalesRules.cs": "EB5FF2F1A5E957FF106386E34849D11A8B6A2E7F01FB864C3988A00F77ADC4E9"
+  },
+  "assessment": "The test suite covers refunds/net sales, giveaway buckets, list/gross reconciliation, single pending electronic payment, COD held/settled flags, channel totals and order-type totals. No mixed-payment test exists. FIN-010 already captures the confirmed source defect: SalesRules subtracts the whole order total when any electronic payment is pending, while OrderPaymentQueries preserves immediate cash/card legs of a split. This batch confirms test coverage does not challenge that path; no duplicate candidate promoted. The COD settled test uses an empty outstanding set as a passed fact and does not independently verify settlement amount/state; keep as existing coverage limitation.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only review; no tests, database queries, transactions, writes, or API calls.",
+  "existing_findings": [
+    "FIN-010"
+  ],
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

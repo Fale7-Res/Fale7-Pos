@@ -1,0 +1,37 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_key": "REACTIVATION_ACTIVE_PIN_UNIQUENESS_ADMISSION",
+  "status": "QUALIFIED_PAUSED_SECURITY_LEAD_NOT_PROMOTED",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T09:03:34.725Z",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs",
+      "worktree_sha256": "a8e7093c5b410adee29d6fece0c4f15cc532cf10cb686a37dc05e79aba80d9e7",
+      "source_git_blob_sha256": "3583abfee79da782848b72df1c173a91013d04e20a35b9c511fce84a8f5b4220",
+      "reviewed_scope": "Full handler21-70, specifically27-69 without credential uniqueness call"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/PinUniquenessChecker.cs",
+      "worktree_sha256": "bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b",
+      "source_git_blob_sha256": "bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b",
+      "reviewed_scope": "Full checker16-23, specifically Active filter19"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/CreateUserHandler.cs",
+      "worktree_sha256": "a8f333191ce7b9c9c3365b3046dccaac141e8415b1d5dc1145a509e511eb785d",
+      "source_git_blob_sha256": "1f1527763b1a014b31a3e23009030c5f8d3e9c81685a8e861da998beb2cda963",
+      "reviewed_scope": "Full handler23-95, active user create74 and checker59"
+    }
+  ],
+  "source_schedule": "UserA inactive with retained old PIN; checker intentionally ignores inactiveA when legitimate create/change sets same PIN on activeB. Authorized users_manage later reactivatesA via SetUserActive, which has Serializable admin-survival guards but no credential uniqueness check. Both Active may then share a PIN.",
+  "counterevidence": [
+    "Requires legitimate administrator and pre-existing inactive credential reuse; not anonymous or unprivileged self-service claim.",
+    "SetUserActive has real Serializable transaction protecting administrator survival; do not confuse that invariant with PIN uniqueness.",
+    "Authentication may require selected UserId plus PIN, changing impact; login path deliberately not investigated per parent instruction.",
+    "No accounts, hashes, secret values, login attempts or runtime changes used."
+  ],
+  "next_owner": "Paused security specialist/coordinator, not financial finding promotion",
+  "required_followup": "Clarify active-PIN uniqueness contract across reactivation and authentication identity selection; inspect source before deciding impact. Separately authorized disposable validation only.",
+  "new_canonical_findings": 0
+}

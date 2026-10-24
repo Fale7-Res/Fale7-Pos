@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Server/Program.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:02:28.151474+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+  "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-9209e79c8887c8481a5c0245ea98a86fd2f21c38d9fc449a34f4961747deec6a",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "src/Falah.Server/Program.cs::<top-level-entry-point>",
+      "source_span": [
+        29,
+        2303
+      ],
+      "reasoning": "Generated server entrypoint executes composition in declaration order:WebApplication.CreateBuilder/config,WindowsService integration,rate limiter/DI registrations,Build,then synchronous EF Migrate and snapshot-isolation ALTER plus awaited seeder BEFORE accepting requests. It registers middleware/endpoints and app.Run lifetime;startup failure logs restricted target information and rethrows. Compiler top-level async wrapper caused by seeder await supplies no extra transaction/authorization. Endpoint lambda bodies retain their own reviewed identities;this entry context accounts only startup,registration,configuration precedence and lifetime rather than inflating them again.",
+      "inputs": "Process args,final host IConfiguration,environment,ConnectionStrings:Falah override or built-in fallback;source route definitions and DI registrations.",
+      "outputs": "Running ASP.NET host until shutdown,or unhandled startup failure. Async startup continuation eventually blocks in app.Run;no fabricated health success.",
+      "side_effects": "Execution can apply migrations,change RCSI with ROLLBACK IMMEDIATE,seed data,start ScheduledBackupService and accept authenticated write APIs. Never executed for facet review.",
+      "trust_boundaries": "Lazy final DI connection resolution allows test override,but absent override falls back named Falah database. Startup itself is a database-writing deployment boundary before user API login.",
+      "database": "Program startup initialization performs Migrate/ALTER/Seed against configured target;individual business command transactions remain in handlers,not implicit Main transaction.",
+      "printing_ui": "No desktop or printer process launched by host itself;it queues jobs via APIs and background backup may touch files. Health CanConnect does not replace readiness/correctness testing.",
+      "performance": "Cold migration/assembly loading can delay startup;source comments/history not benchmark evidence. Every-client health calls database. Service loop resource ownership managed by host.",
+      "duplicates_conflicts": "DI scoped records/handlers resolved per request;generated Main is not a new backend component. Registering routes does not execute their handler bodies immediately.",
+      "issues_hypotheses": [
+        "Database fallback and automatic startup writes remain material deployment hazards",
+        "Middleware ordering/security findings parent-owned;no new exploit claim"
+      ],
+      "tests_missing": [
+        "Isolated mocked startup ordering/config override tests without live SQL;failure before Run;graceful stop/background cancellation;actual migration requires separate approval"
+      ],
+      "verified_callers_callees": [
+        "Server/Program.cs29-2255 startup/lifetime",
+        "Program.cs187-220 database initialization",
+        "Program.cs2251-2255 health/Run",
+        "accepted130 route records and original188 endpoint evidence",
+        "Infrastructure/Backup/ScheduledBackupService.ExecuteAsync"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

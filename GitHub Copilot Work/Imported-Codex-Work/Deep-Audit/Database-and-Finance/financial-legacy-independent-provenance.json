@@ -1,0 +1,143 @@
+{
+  "at_utc": "2026-10-19T21:50:00.500Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "kind": "Historical independent review provenance recovered from saved original agent artifacts; no new source audit or findings",
+  "reviewer_identity": "printing_workflows original saved reviewer attribution; session remains paused",
+  "records": [
+    {
+      "id": "FIN-001",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        7,
+        7
+      ],
+      "saved_evidence": "| FIN-001 | Confirmed: mixed immediate+electronic split completes initial sale key; later electronic confirm tries same key. Same-request idempotency does not resolve different financial legs. | CheckoutOrderHandler149-154,255-275; CheckoutRules72-77; ConfirmElectronicPaymentHandler82-87; EfFinancialJournal22-35 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-002",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        8,
+        8
+      ],
+      "saved_evidence": "| FIN-002 | Confirmed: cancelling pending electronic leg cancels entire mixed order without reversing posted cash/card; cash totals skip cancelled order. Already confirmed leg is blocked, but pending mixed leg is accepted. | Order.CancelElectronicPayment200-213; CancelPendingElectronicPaymentHandler39-57; OrderPaymentQueries29-47; CheckoutOrderHandler255-267 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-003",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        9,
+        9
+      ],
+      "saved_evidence": "| FIN-003 | Confirmed with bounds: Refund handler and domain aggregate do not require IsPaid or electronic confirmation. Funded pooled account can pay refund for unpaid COD/pending electronic order up to total. Permission/manager approval and source balance are required; Multi explicitly blocked. | RefundOrderHandler45-120; Order.ApplyRefund220-233; RefundRules9-21 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-004",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        10,
+        10
+      ],
+      "saved_evidence": "| FIN-004 | Confirmed: historical cash refund records active operational shift, but active ShiftReconciliation selects Orders by original shift and ignores refund movement type. Old order refund net changes original shift recomputation while actual active cash-out omitted. | RefundRules.ResolveOperationalShift35-44; RefundOrderHandler95-110; ShiftReconciliation28,42-68 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-005",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        11,
+        11
+      ],
+      "saved_evidence": "| FIN-005 | Confirmed with bounds: outstanding and tracked purchase read before transaction; treasury account lock later does not reload invoice outstanding. Distinct request IDs and sufficient funds can both pay stale outstanding. Same-request key and source-balance protections exist. | PayPurchaseHandler36-44,59-83,95-120; financial peer inspected absence of Purchase concurrency token independently |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-006",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        12,
+        12
+      ],
+      "saved_evidence": "| FIN-006 | Confirmed: general transition endpoint accepts Paid, domain permits Approved->Paid, handler only updates status with employees_manage. UI normal NextStatus stops at Approved, so classify API reachability rather than ordinary button accident. | Program830-839; TransitionPayrollHandler25-57; PayrollRules14-24; PayrollViewModel113-129 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-010",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-independent-challenges.md",
+      "artifact_sha256": "9d1c897097c18cd21b3d082e5869487b74569fab38ad16552d950adb5bcc273a",
+      "report_line_span": [
+        13,
+        13
+      ],
+      "saved_evidence": "| FIN-010 | Confirmed: pending electronic report sums entire mixed order.Total; collected subtracts that whole value, while immediate cash leg is counted in channel totals. Example total200 with cash100+pending InstaPay100 gives pending200/collected0/cash100, even though pending100/collected100 is correct. Distinct from failure to confirm FIN-001. | SalesRules56-57,70,75; OrderPaymentQueries34-44; ReportingQueryService114-115 |",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-011",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-progress-assessment.md",
+      "artifact_sha256": "a3ff5f65fd4577fcbf415a7409495c3c27a5adc401ff380c60afb55debf31acf",
+      "report_line_span": [
+        31,
+        31
+      ],
+      "saved_evidence": "**FIN-011 — CONFIRMED STATIC, with scenario bounds.** `OpenShiftHandler` reads/locks Main balance at 53–54 before opening transaction at 69. `ReceivePurchaseHandler` reads/locks source at 77–78 before transaction at 97. `TreasuryBalanceQuery` in `TreasuryMapper.cs:37–47` executes UPDLOCK/HOLDLOCK but creates no transaction; its own comment requires an existing caller transaction. No ambient transaction wrapper exists in the inspected endpoint bodies. In normal HTTP use that read's autocommit transaction ends before later insert, allowing a distinct withdrawal between balance decision and spend. Same-request idempotency, one-open-shift uniqueness and ordinary account checks are counterevidence against broader claims, but do not close a distinct withdrawal/receipt race. A caller supplying an explicit outer ambient transaction could change behavior; current server route does not. No database race was executed.",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-012",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-progress-assessment.md",
+      "artifact_sha256": "a3ff5f65fd4577fcbf415a7409495c3c27a5adc401ff380c60afb55debf31acf",
+      "report_line_span": [
+        33,
+        33
+      ],
+      "saved_evidence": "**FIN-012 — CONFIRMED STATIC.** `CorrectAttendanceHandler:96–104,109–117` posts reduced-penalty/increased-overtime deltas as Adjustment credit; `AttendanceVerticalSliceTests:206–217` expressly asserts a positive Adjustment credit for upward overtime correction. `CreatePayrollHandler:43–60` passes ledger Type/Credit/Debit unchanged into pure payroll calculation. `PayrollRules:95–106` credits DailyWage/Salary, Overtime, ExtraShift, Bonus/OtherEarning but only includes Adjustment on debit deduction side. Positive correction credit therefore changes running ledger balance but not calculated payroll net, provided the correction exists in the selected period before payroll creation. Payroll runs intentionally freeze computed lines: corrections after run creation are a separate policy issue, not this exact failure. No tests or financial records executed.",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    },
+    {
+      "id": "FIN-013",
+      "reviewer": "printing_workflows",
+      "artifact": "Sub-Agents/Handoffs/printing-progress-assessment.md",
+      "artifact_sha256": "a3ff5f65fd4577fcbf415a7409495c3c27a5adc401ff380c60afb55debf31acf",
+      "report_line_span": [
+        35,
+        35
+      ],
+      "saved_evidence": "**FIN-013 — CONFIRMED STATIC.** `OwnerDashboardQueryService.LoadStockAsync:297–309` sums unsigned QuantityMilliUnits across In/Out at line303. `InventoryQueryService:24–26,388–402` applies Direction sign; `InventoryDeductionService:57–58,89–90` writes positive quantities with Out direction. In1000/Out800 gives dashboard1800 versus inventory200; with minimum500 the dashboard can omit the actual low-stock warning. Counterevidence: the metric is current active-item stock, not period usage, so summing gross movement cannot be defended as a different intended metric; its own comment claims agreement with inventory. Pure static arithmetic proof; no DB/test execution.",
+      "status": "RECOVERED_SAVED_INDEPENDENT_STATIC_DISPOSITION",
+      "runtime": "NOT_EXECUTED"
+    }
+  ],
+  "limitations": [
+    "This recovers actual saved reports, not inaccessible agent memory.",
+    "Root read current saved artifacts and added precise pointers; original independent source work is not rerun or counted again.",
+    "Static historical corroboration is not runtime/provider proof; current baseline/hash checks remain separately required."
+  ]
+}

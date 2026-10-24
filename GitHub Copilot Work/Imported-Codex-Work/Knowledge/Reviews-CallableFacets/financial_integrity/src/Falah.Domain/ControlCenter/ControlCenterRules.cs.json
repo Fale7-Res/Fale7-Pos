@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:56:46.410669+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+  "worktree_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-ada31e1499dab35dc31de6224803be70fe85ac4d3bc8319d71bde6a3920cab9d",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional exception record has six string components, synthesized value equality/hash/copy/deconstruction. Id alone is not compiler equality: severity/message/categorychanges make unequal record even when persistence overlay is keyed bysameId. With-copy permits presentationchanges butdoesnotresolve/reopenpersistedexception; nofinancialeffect.",
+      "inputs": "Positionalsourcecomponents at exactmappeddeclaration.",
+      "outputs": "Recordproperty/construction/equality/copy/deconstruct behaviorcontext.",
+      "side_effects": "Shallowvalue/referencecopy only.",
+      "trust_boundaries": "Noauthority orscopevalidation synthesized.",
+      "database": "NoDB; equalitynotrowidentity oracknowledgmentkey guarantee.",
+      "printing_ui": "Exceptions intendedoperator display; no hardware.",
+      "performance": "Fixedcomponentrecordoperation; referencecollectionequality.",
+      "duplicates_conflicts": "DistinctoriginalstableIDs retained; generatedcontextnotinventedmethodcount.",
+      "issues_hypotheses": "ID-overlay policyneedsrealcallertrace beforefinding; no newpromotion.",
+      "tests_missing": "SameIDchangedmessage equality; collectionalias andNowdeterminism.",
+      "verified_callers_callees": "BuildExceptions constructs records46,51,54,57,60,70,72,75; infrastructureoverlay usesdeterministicId bysourcecontract."
+    },
+    {
+      "stable_id": "sym-1233a4fda5e45e10470650f2365b435bc9c25aa828f382707d5be505da963143",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional input record holds six requiredcollections/config fields plusoptionalDeliveries andNowUtc. Synthesized equality/copy is shallow forIReadOnlyListreferences, notdeep immutable snapshot. With-copy canretainsame collectionswhilechangingNow/threshold, enablingdeterministicpuretests; generatedconstructor doesnotvalidate nullrequiredlists ormonetaryrange. BuildExceptions suppliesallbusinessclassification.",
+      "inputs": "Positionalsourcecomponents at exactmappeddeclaration.",
+      "outputs": "Recordproperty/construction/equality/copy/deconstruct behaviorcontext.",
+      "side_effects": "Shallowvalue/referencecopy only.",
+      "trust_boundaries": "Noauthority orscopevalidation synthesized.",
+      "database": "NoDB; equalitynotrowidentity oracknowledgmentkey guarantee.",
+      "printing_ui": "Exceptions intendedoperator display; no hardware.",
+      "performance": "Fixedcomponentrecordoperation; referencecollectionequality.",
+      "duplicates_conflicts": "DistinctoriginalstableIDs retained; generatedcontextnotinventedmethodcount.",
+      "issues_hypotheses": "ID-overlay policyneedsrealcallertrace beforefinding; no newpromotion.",
+      "tests_missing": "SameIDchangedmessage equality; collectionalias andNowdeterminism.",
+      "verified_callers_callees": "BuildExceptions39 readscomponents; CloseBusinessDay createsinput157-163 withDeliveries omitted; optionaldefaults36-37."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

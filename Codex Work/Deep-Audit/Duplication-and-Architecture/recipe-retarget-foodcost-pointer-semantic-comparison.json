@@ -1,0 +1,248 @@
+{
+  "artifact_kind": "source_semantic_comparison",
+  "id": "SEM-MIRROR-058",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-22T04:06:35+00:00",
+  "reviewer": "/root main coordinator; source-level comparison; no runtime execution",
+  "title": "Existing recipe retarget versus product recipe pointers and food-cost report resolution",
+  "scope": "Targeted semantic comparison of SaveRecipe existing-ID updates, Product.RecipeId synchronization, data-model relationship and GetFoodCostReportAsync. Distinct from SEM-MIRROR-038 normal-vs-prep costing and SEM-MIRROR-057 compensation; no duplicate AST group claim.",
+  "decision": "SOURCE-CONFIRMED RETARGET STATE CAN LEAVE OLD PRODUCT RECIPE POINTER UNCHANGED: existing recipe.ProductId is overwritten and new product.RecipeId is set, while the old product.RecipeId is not cleared. Food-cost report resolves sold product lines through current Product.RecipeId and current recipe lines. This is a plausible current-cost attribution defect if existing recipe retargeting is supported and exclusive product-recipe ownership is intended; owner/UI contract and runtime report effect were not tested. No historical cost snapshot guarantee is claimed.",
+  "behavior": {
+    "update_api": "SaveRecipeRequest accepts both optional existing RecipeId and ProductId. Handler loads the recipe by ID and assigns request.ProductId. It does not capture old ProductId or clear old Product.RecipeId. It loads only the new Product and assigns RecipeId when active; when inactive it clears only the new product if it currently points to this recipe.",
+    "data_model": "RecipeEntity stores ProductId; ProductEntity stores independent RecipeId. FalahDbContext comment says the product field is a plain nullable pointer and the reverse recipe.ProductId is the intended relation. The inspected mappings do not enforce uniqueness or bidirectional synchronization.",
+    "reporting": "GetFoodCostReportAsync builds current ProductId->RecipeId map and current recipe dictionary, then resolves each sold line through its current product pointer (or variant pointer). It does not read RecipeEntity.ProductId to resolve report costs.",
+    "conditional_effect": "If a recipe currently linked to product A is updated with ProductId B, active state true, and distinct recipe lines, A can still point to the same recipe while B is newly pointed to it. Current food-cost report can therefore cost both products with the updated recipe lines. Whether this is invalid depends on retarget support and sharing policy."
+  },
+  "cross_file_call_chain": [
+    "SaveRecipeRequest(RecipeId, ProductId) -> SaveRecipeHandler.HandleAsync -> RecipeEntity.ProductId mutation and new ProductEntity.RecipeId assignment -> ReportingQueryService.GetFoodCostReportAsync reads current ProductEntity.RecipeId -> CostingRules.ComputeRecipeCost over current RecipeEntity.Items for sold OrderItems."
+  ],
+  "counterevidence_and_limits": [
+    "Model source comment describes Recipe.ProductId as the real relation; it does not prove API retarget is an intended supported workflow or that old pointer must be cleared.",
+    "No database unique index or FK synchronization was observed in inspected model mapping; complete deployed schema/runtime state was not checked.",
+    "Current report is explicitly based on current recipe/current purchase cost rather than historical snapshots; old orders can already change cost when recipe lines or current prices change. This comparison concerns stale product-to-recipe linkage, not lack of historical costing by itself.",
+    "Normal editor behavior was not inspected for whether it allows moving an existing recipe between products; server request contract permits ProductId in an update.",
+    "No API request, SQL write, report call or test was executed."
+  ],
+  "candidate_disposition": {
+    "candidate_key": "FIN-CAND-RECIPE-RETARGET-STALE-POINTER-001",
+    "canonical_finding_created": false,
+    "existing_related_finding": null,
+    "classification": "PLAUSIBLE_SOURCE-SUPPORTED_CONFIGURATION/REPORTING_RISK_PENDING_OWNER_CONTRACT_AND_INDEPENDENT_FINANCIAL_REVIEW",
+    "severity": "UNASSESSED",
+    "confidence": "MEDIUM_SOURCE_BEHAVIOR_HIGH_IMPACT_CONDITIONAL",
+    "do_not_claim": "Do not claim an actual wrong cost report or loss; do not claim supported retargeting or exclusive ownership until confirmed."
+  },
+  "recommendation": "Confirm whether an existing recipe may be reassigned to a different product and whether recipes are exclusive. If reassignment is supported and exclusive, within the existing transaction capture the old ProductId and clear oldProduct.RecipeId only when it equals recipeId, then set the new product backlink; alternatively reject ProductId changes and require an explicit detach/attach command. If sharing is intended, model it explicitly and make report attribution deterministic. Avoid silently changing historical reporting semantics. No schema migration is needed for a transaction-only consistency correction; a proposed uniqueness constraint would require a legacy-data duplicate survey/migration plan.",
+  "tests": {
+    "executed": [],
+    "needed": [
+      "Create product A and product B; link active recipe R to A; update R to B with different ingredient lines; assert the documented relationship and both product pointers.",
+      "Call GetFoodCostReportAsync for sales of both products before/after retarget and assert old product cost is not silently attributed to the new recipe unless sharing is an explicit rule.",
+      "Retarget inactive recipe and verify only the intended current link is cleared; existing unrelated recipe links are preserved.",
+      "Test repeated save with same RecipeId/ProductId and concurrent retarget attempts if updates are allowed.",
+      "Verify historical report expectations separately; do not accidentally promise frozen recipe/purchase-cost snapshots."
+    ],
+    "acceptance_criteria": [
+      "Product.RecipeId and Recipe.ProductId stay consistent under owner-approved association semantics.",
+      "Food-cost report resolves sold products to the intended recipe after retarget; if sharing is allowed, rules are explicit and deterministic.",
+      "Existing same-product line replacement, new recipe creation and inactive-recipe detach behavior continue to pass.",
+      "No migration or runtime operation is run without separate authorization."
+    ]
+  },
+  "limitations": [
+    "Bounded comparison only; no general recipe editor audit.",
+    "Owner policy and editor update behavior remain to be checked.",
+    "No tests or database/runtime work executed."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Application/Inventory/RecipeRequests.cs",
+      "worktree_sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "source_git_blob_sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "line_ranges": [
+        [
+          13,
+          15
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-125ee0ed239ffa7d3257d9c53741bccecd8b70fed80cf49938783f53f40f6d48",
+          "signature": "Falah.Application.Inventory.SaveRecipeRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            13,
+            1,
+            15,
+            121
+          ]
+        }
+      ],
+      "evidence": "SaveRecipeRequest includes both an existing RecipeId and a request ProductId, so the update path can target a different product."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs",
+      "worktree_sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "source_git_blob_sha256": "b86797c7ddaf58100d4acd1f9872655204613e9791d356f2ce0083683918cf7b",
+      "line_ranges": [
+        [
+          56,
+          97
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4e3ec84e8dd264668bf899fddffc9a2e275c696d735e6d9725ce7b409a1a5523",
+          "signature": "Falah.Infrastructure.Inventory.SaveRecipeHandler.HandleAsync(Falah.Application.Inventory.SaveRecipeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            31,
+            5,
+            100,
+            6
+          ]
+        }
+      ],
+      "evidence": "Handler loads the existing recipe by ID, overwrites RecipeEntity.ProductId, then assigns the recipe ID to the requested product; it does not load/clear the previous product backlink when ProductId changes."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          201,
+          203
+        ],
+        [
+          234,
+          238
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Model comment says Product.RecipeId is a plain nullable checkout/report pointer and Recipe.ProductId points the other direction; neither unique relation nor a synchronization constraint is visible in these model mappings."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+      "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34",
+      "source_git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+      "line_ranges": [
+        [
+          3,
+          11
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-aa8549b379e5bc82f8d14ba5d74df79ab12cee61db352d950a0c1acb5856d22e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.RecipeEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            3,
+            1,
+            11,
+            2
+          ]
+        }
+      ],
+      "evidence": "Recipe entity carries a single ProductId while the recipe has mutable lines and active state."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/MenuEntities.cs",
+      "worktree_sha256": "93fb6d04445a3c79c5bebc713cb79811bc36fa918b8eda32e3e320651ad007a5",
+      "source_git_blob_sha256": "dafe7329539f81ecfcb08368ba4f141ba946b88eeadcdabed7e17c44568441f4",
+      "line_ranges": [
+        [
+          12,
+          35
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e358c0475359262e3a3ea38cf26520188a75f76b676eff5ed56ae622337ccd4d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            12,
+            1,
+            35,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-3189e44a512f7b483eb59f51a50f62c1e92306bef38436de7baa176e13c6940d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.ProductEntity.RecipeId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            32,
+            31,
+            32,
+            35
+          ]
+        }
+      ],
+      "evidence": "Product has an independent nullable RecipeId pointer; it is not an enforced FK in this model configuration."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          349,
+          423
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        }
+      ],
+      "evidence": "Food-cost reporting maps current Product.RecipeId and current Recipe.Items to sold lines; it does not use RecipeEntity.ProductId or a frozen recipe ID on historical order lines."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "line_ranges": [
+        [
+          303,
+          346
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-269086a5fbdd01db3acc5d09995d97a338fd96b91f760538e721e595caee0cf9",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Saving_a_new_recipe_creates_it_with_its_lines_and_costing_reflects_them()",
+          "kind": "MethodDeclaration",
+          "span": [
+            303,
+            5,
+            324,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7e476c1c29fab8c39fe500726eb069032f26de36f893aad43c2188239082e09e",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Saving_an_existing_recipe_replaces_its_entire_line_set()",
+          "kind": "MethodDeclaration",
+          "span": [
+            326,
+            5,
+            346,
+            6
+          ]
+        }
+      ],
+      "evidence": "Tests validate initial product linkage/cost and replacement of lines for the same product; no retarget-existing-recipe-to-another-product assertion appears in the inspected methods."
+    }
+  ]
+}

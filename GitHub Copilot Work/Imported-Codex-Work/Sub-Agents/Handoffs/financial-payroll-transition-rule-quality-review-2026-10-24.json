@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Bounded independent source-quality review of PayrollRules.AssertTransition; no shared registry edits, tests, runtime, or data operations.",
+  "callable": {
+    "stable_id": "sym-7a2c3c021a49d2f8d68558d96a7858da5b7869e2ca3c69a3072bd3e5c31ee2af",
+    "signature": "Falah.Domain.Payroll.PayrollRules.AssertTransition(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "source_span": [23, 5, 27, 6],
+    "current_source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "receipt_sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "receipt_author": "financial_integrity",
+    "receipt_entry_status": "ANALYZED"
+  },
+  "source_behavior": {
+    "transition_table_source_span": [13, 5, 20, 6],
+    "allowed_edges": {
+      "Draft": ["Calculated", "Cancelled"],
+      "Calculated": ["Reviewed", "Cancelled"],
+      "Reviewed": ["Approved", "Cancelled"],
+      "Approved": ["Paid", "Cancelled"],
+      "Paid": [],
+      "Cancelled": []
+    },
+    "semantics": "Pure membership check against the transition dictionary. Missing/unknown source status and unsupported edge throw DomainException; self-transitions are implicitly forbidden. No persistence or monetary side effects in this domain method.",
+    "receipt_reasoning_check": "The saved receipt correctly enumerates Approved->Paid and the terminal states, and links generic status transition to FIN-006. I verified the current source table and method body match its stable ID, signature and span."
+  },
+  "call_path_and_financial_effect": {
+    "generic_api": {
+      "source_path": "src/Falah.Server/Program.cs",
+      "span": [830, 1, 839, 2],
+      "behavior": "POST /api/payroll-runs/{runId}/transition replaces PayrollRunId from route and invokes TransitionPayrollHandler.HandleAsync; DomainException maps to 422.",
+      "request_type": "src/Falah.Application/Employees/PayrollRequests.cs:26; TransitionPayrollRequest carries run ID, string status, actor, and optional approval fields."
+    },
+    "generic_handler": {
+      "source_path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "span": [24, 24, 60, 63],
+      "current_source_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "behavior": "Parses requested enum case-insensitively; requires employees_manage; loads current run; calls AssertTransition; adds payroll_approve approval only for target Approved; assigns run.Status and reviewer/approval metadata; calls SaveChanges. For target Paid, this handler has no payment-account validation, open-day gate, treasury movement, employee PayrollSettlement entries, PaidAtUtc, or invocation of PayPayrollHandler."
+    },
+    "dedicated_payment_counterevidence": {
+      "source_path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "current_source_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "relevant_span": [37, 37, 163, 164],
+      "behavior": "Separate /pay workflow requires Approved and payroll_pay, validates positive total/open business day, uses transaction-held protected-balance lock and idempotency journal, posts one treasury movement and positive per-line employee settlement debits, then sets Paid metadata and commits atomically. This is the supported monetary payout path; it does not make the generic status-only path monetary."
+    },
+    "permission_boundary": "The generic route is not anonymous in handler design: it authorizes employees_manage. But the Approved-only payroll_approve gate does not apply to Paid target, so an employees_manage actor who can call the endpoint can select Paid if the run is Approved. Actual use is unverified."
+  },
+  "tests_and_counterevidence": {
+    "domain_test": {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "span": [67, 3, 80, 6],
+      "coverage": "Theory accepts Draft->Calculated, Draft->Cancelled, Calculated->Reviewed, Reviewed->Approved, Approved->Paid; rejects Draft->Reviewed and Paid/Cancelled->Draft. It does not enumerate every invalid edge, every Cancelled edge, unknown enum values, or assert handler side effects."
+    },
+    "integration_test": {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "transition_spans": [[142, 1, 154, 6], [156, 1, 173, 6]],
+      "payment_span": [188, 1, 205, 6],
+      "coverage": "The lifecycle-named integration case actually transitions Draft->Calculated->Reviewed->Approved and stops at Approved. Separate payment test exercises /pay and checks movement/settlement. No test calls generic /transition with target Paid and then asserts absence of monetary records."
+    },
+    "counterevidence": [
+      "There is a dedicated atomic payout path with explicit safeguards, so not all payroll payment is status-only.",
+      "UI normal next-status flow is documented in existing FIN-006 provenance as stopping at Approved; this reduces evidence of ordinary UI accidental invocation, but does not remove API reachability.",
+      "Generic route requires employees_manage; this is a permission boundary, not evidence that Paid has payout effects."
+    ],
+    "tests_executed": false,
+    "static_limitations": "No test/runtime/DB calls were run. This establishes source-level reachability and missing handler side effects, not a real operator action, unpaid payroll incident, authorization bypass, or database state observed in production."
+  },
+  "finding_disposition": {
+    "verdict": "SUBSTANTIVE_REVIEW_CORROBORATES_EXISTING_FIN-006",
+    "new_finding": false,
+    "reason": "The status-only Approved->Paid transition is already canonical FIN-006. This review confirms the domain edge, route, generic handler behavior, distinct monetary payout path, and test gap; it does not add a separate root cause or duplicate finding.",
+    "required_follow_up": "Keep FIN-006 as a source-confirmed behavior. Owner/policy decision: remove Paid from generic transition edges or make the transition delegate to/require committed payout evidence. Add an integration regression test proving generic transition cannot leave a run Paid without treasury movement and line settlements, while dedicated /pay still commits Paid atomically. Runtime incidence remains unverified."
+  },
+  "next_operation": "Coordinator validation/reconciliation of this bounded handoff; no next callable selected here because the current saved source-order queue is stale and the parent selected this exact task."
+}

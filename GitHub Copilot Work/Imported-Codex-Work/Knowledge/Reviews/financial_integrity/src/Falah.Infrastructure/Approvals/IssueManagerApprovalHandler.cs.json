@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs",
+  "source_git_blob_sha256": "4d367194eeb745f126ee2a06436161e89c73c79606cd27f3592465fc12723a40",
+  "worktree_sha256": "a934e9e87f27da2f2e7a40000685a8806b4239f73c99f500953360132ee9117c",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:07:10.520641+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-753b86ccb0c453fa5ed359bcea24db6c7cc3ce32f6c504a6b421cf82804f468b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Approvals.IssueManagerApprovalHandler.IssueManagerApprovalHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        19,
+        5,
+        23,
+        6
+      ],
+      "reasoning": "Stores EFcontext/approvalregistry, no credentialcheck orquery. PersistedregistrymustusesamecontextsoSavecommitsissuedrow visibletootherrequests/restart.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Productionapprovalissuance maySave; auditdidnotexecute credentialorDBoperation.",
+      "database": "None",
+      "trust_boundaries": "ActualPINidentifiesapprover, thenDomainrole/permission/actionpolicy; transportactorbinding/rate-limit coveredbyrootsecurity.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Loadsallactiveusers, sequentialperuserPBKDF2 costuntilfirstmatch; no timing/performanceclaimtested.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedsecurityexploit; duplicatePINidentity ambiguity/metadatafaults requireexistingrootcontext, notassumedvulnerability.",
+      "tests_missing": "DIcontextidentity andregistrydurability",
+      "verified_callers_callees": "Assignments21-22; Save41."
+    },
+    {
+      "stable_id": "sym-d2be2752ba51c9a192035a291c343da73bb86b62ec6ad3c0cee12ff262f4604f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Approvals.IssueManagerApprovalHandler.HandleAsync(Falah.Application.Approvals.IssueManagerApprovalRequest, CancellationToken)",
+      "span": [
+        25,
+        5,
+        44,
+        6
+      ],
+      "reasoning": "Loadsactiveusercandidates thenfindsfirstwhosepersistedhashedPINverifies providedPIN, treatingnullasempty. DomainIssueManagerApproval receivesactualpersistedactor/action/reason/currentUTC thenSaveimmediately persistsapproval. No requestnamedapprovertrusted. Unknownaction/role rejectedbyDomainregistryissuance; no transactionwithlaterfinancialcommand intended, single-useconsumptionlater. Corruptonecandidatehashcanthrowbeforefindingrealapprover, availabilityleadbutnotnewverifiedexploit.",
+      "inputs": "IssueManagerApprovalRequest/ct",
+      "outputs": "ApprovalID/approver/action/time result",
+      "side_effects": "Productionapprovalissuance maySave; auditdidnotexecute credentialorDBoperation.",
+      "database": "Usersread thenregistryAdd andSave",
+      "trust_boundaries": "ActualPINidentifiesapprover, thenDomainrole/permission/actionpolicy; transportactorbinding/rate-limit coveredbyrootsecurity.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Loadsallactiveusers, sequentialperuserPBKDF2 costuntilfirstmatch; no timing/performanceclaimtested.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedsecurityexploit; duplicatePINidentity ambiguity/metadatafaults requireexistingrootcontext, notassumedvulnerability.",
+      "tests_missing": "WrongPIN, inactiveuser, duplicatePIN, invalidaction, failurebeforeSave, approvalrestartthenconsume",
+      "verified_callers_callees": "Candidates34; Verify35-36; DomainIssue39; Save40; result42."
+    },
+    {
+      "stable_id": "sym-a702a2dfb9c1008cccb20b998c9fb8ebf68a2cd7efc61b6de2396ba5af338ede",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        34,
+        63,
+        34,
+        76
+      ],
+      "reasoning": "SQLactiveflagpredicate excludesinactiveusersfromPINsearch; doesnotnarrowrolebecausemanagerqualificationDomaincheckedafterPINidentified. RegularcashierPIN cannotborrowadifferentmanageridentityunlessduplicatecredentialambiguity, notprovedhere.",
+      "inputs": "User",
+      "outputs": "Boolean",
+      "side_effects": "Productionapprovalissuance maySave; auditdidnotexecute credentialorDBoperation.",
+      "database": "Users SQLreadpredicate.",
+      "trust_boundaries": "ActualPINidentifiesapprover, thenDomainrole/permission/actionpolicy; transportactorbinding/rate-limit coveredbyrootsecurity.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Loadsallactiveusers, sequentialperuserPBKDF2 costuntilfirstmatch; no timing/performanceclaimtested.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedsecurityexploit; duplicatePINidentity ambiguity/metadatafaults requireexistingrootcontext, notassumedvulnerability.",
+      "tests_missing": "InactivecorrectPIN andactivecashierinvalidapprovalaction",
+      "verified_callers_callees": "Where34; DomainIssue39."
+    },
+    {
+      "stable_id": "sym-250c9ec8de9fc238c0aa8cdafa97314533a74b48f71fead2091cd92102cbfb7c",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        35,
+        54,
+        36,
+        97
+      ],
+      "reasoning": "VerifiescandidatePINagainsthash/salt/iterations fromeachrow, notcleartextorrequestrole. Firstmatchshortcircuits, orderingunspecified; uniquenewPINguardoutsidehelperexpected. NoPINvaluecopiedtoauditreceipt.",
+      "inputs": "Persisteduser/candidatePIN",
+      "outputs": "Boolean",
+      "side_effects": "Productionapprovalissuance maySave; auditdidnotexecute credentialorDBoperation.",
+      "database": "Inmemorycandidateverification, no DBqueryitself.",
+      "trust_boundaries": "ActualPINidentifiesapprover, thenDomainrole/permission/actionpolicy; transportactorbinding/rate-limit coveredbyrootsecurity.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Loadsallactiveusers, sequentialperuserPBKDF2 costuntilfirstmatch; no timing/performanceclaimtested.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedsecurityexploit; duplicatePINidentity ambiguity/metadatafaults requireexistingrootcontext, notassumedvulnerability.",
+      "tests_missing": "IncorrectPIN/corruptmetadata/duplicatePIN; nosecretlogging",
+      "verified_callers_callees": "PinHasher.Verify36; sourceHashVerify47-52 independentlyread."
+    }
+  ],
+  "remaining_callable_ids": []
+}

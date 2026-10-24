@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ShellPlaceholderView.xaml.cs",
+  "source_git_blob_sha256": "e0867161a0c148844a26ee0306d35bbcb0d3c5db84b3b9d5183790639c63afee",
+  "worktree_sha256": "e0867161a0c148844a26ee0306d35bbcb0d3c5db84b3b9d5183790639c63afee",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:40:48.039848+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "ShellPlaceholder exact trivial constructor inspected separately; prior full XAML report preserved.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/ShellPlaceholderView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-52a3a41afe37aa4894294e6d4225b2a8e94a0a8a9efdee3e084635dae67b7ff0",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.ShellPlaceholderView.ShellPlaceholderView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        7,
+        5,
+        10,
+        6
+      ],
+      "reasoning": "The ShellPlaceholder view constructor executes InitializeComponent only. It creates the declarative visual tree without loading data, invoking commands, changing permissions or writing business state; actual ShellPlaceholder workflows are owned by bound view models and previously reviewed XAML.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Constructor has no independent business algorithm; native binding resolution/layout remains NOT_OBSERVED and no constructor execution was performed.",
+      "tests_missing": "Constructor has no independent business algorithm; native binding resolution/layout remains NOT_OBSERVED and no constructor execution was performed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent; owning view model binding defined in XAML/ShellView"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

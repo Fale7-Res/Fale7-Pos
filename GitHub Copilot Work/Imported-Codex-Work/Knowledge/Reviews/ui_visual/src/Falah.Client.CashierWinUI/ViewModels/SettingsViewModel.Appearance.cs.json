@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs",
+  "source_git_blob_sha256": "41aa18460e93e1f8f147e979eda55d969a3142a81f6d8155d1d2b48e73c590c0",
+  "worktree_sha256": "41aa18460e93e1f8f147e979eda55d969a3142a81f6d8155d1d2b48e73c590c0",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:53:31.123952+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Local appearance initialization and preference enum boundary exact review.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-5dceef8278a43a5f58f3b5e5381ab3018f853cf27da23130c419b6552805fae9",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.ThemeOptions.get",
+      "exact_kind": "GetAccessorDeclaration",
+      "exact_span": [
+        16,
+        54,
+        16,
+        58
+      ],
+      "reasoning": "Returns fixed Light/Dark/System options; no server setting or permission is consulted for local appearance.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No IO in getter.",
+      "tests_missing": "No IO in getter. NOT_EXECUTED.",
+      "verified_callers_callees": "ThemeOptions initialization"
+    },
+    {
+      "stable_id": "sym-e6c1931de8152610c0cf66c87fad06e423dfbff64e00ff07ecd68c45542b86ec",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        28,
+        5,
+        31,
+        6
+      ],
+      "reasoning": "Sets SelectedTheme to First option matching persisted ThemeService.Current after field initialization. ThemeService.Load Enum.TryParse accepts undefined numeric enums, so malformed but parseable stored enum can produce no matching option and throw here; source-only low-impact preference startup/settings risk.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Unknown numeric enum preference regression needed; no live preference files read.",
+      "tests_missing": "Unknown numeric enum preference regression needed; no live preference files read. NOT_EXECUTED.",
+      "verified_callers_callees": "ThemeOptions.First; ThemeService.Instance.Current"
+    },
+    {
+      "stable_id": "sym-974e091b460bec3a24cbcbe3e8f93018e591c6696d344d18e7d902ed4a484a16",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "SimpleLambdaExpression",
+      "exact_span": [
+        30,
+        44,
+        30,
+        89
+      ],
+      "reasoning": "Matches option enum exactly to current service value; only3 defined options exist and no fallback FirstOrDefault.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Exact source root for unmatched persisted enum hypothesis.",
+      "tests_missing": "Exact source root for unmatched persisted enum hypothesis. NOT_EXECUTED.",
+      "verified_callers_callees": "First(o.Value==Current)"
+    },
+    {
+      "stable_id": "sym-22438f06da3c9d6829845f14bdb16036faf97c7e64d539935ff97d081c123883",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.OnSelectedThemeChanged(Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.ThemeOption)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        33,
+        5,
+        33,
+        102
+      ],
+      "reasoning": "Selection change forwards enum to ThemeService.Set for immediate session/persisted preference, without sending server settings or waiting Save button.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Theme rendering and persistence failure behavior source-only, native not observed.",
+      "tests_missing": "Theme rendering and persistence failure behavior source-only, native not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "ThemeService.Instance.Set(value.Value)"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

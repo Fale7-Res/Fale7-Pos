@@ -1,0 +1,17 @@
+# Financial review bounded continuation checkpoint
+
+Baseline c35816ecae49633674775dd32061c6ee92f94aaf. Same original financial reviewer session, authorized audit only. Parent owns commit/push authorization and global 15-phase assessment. No application code/configuration, database, runtime process, system service or physical printer changed. No tests, SQL scripts, migrations, backups or restore executed by this reviewer.
+
+Saved authoritative ledger: 269 complete-file static reviews of327, 58 NOT_ANALYZED. Every reviewed report records source SHA256, baseline blob SHA256 and verified normalized CRLF/LF equality. File completion means bounded complete source reading and actual file/path reasoning, not complete declaration-to-callable proof. Exact individually reasoned callable total remains UNKNOWN. Some reports enumerate each significant method (including actual SeedIfEmptyAsync and its two helpers, migration Up/Down), but no reconciled proof map exists for all lambdas/accessors/constructors. Do not promote file status or signature inventory into function completion.
+
+Remaining58 =34 migration Designer files, one model snapshot, one Domain PrintRulesTests,22 integration test files. Exact paths in financial-ledger.json. No source partially read in this continuation is falsely marked complete; initial truncated PrintRules output was reread in bounded chunks before report saved.
+
+Findings13 =10 independently corroborated static FIN001 through006 and010 through013;3 candidates FIN007008009 pending independent challenge. No runtime financial reproduction. New peer confirmation is saved by printing reviewer at Codex Work/Sub-Agents/Handoffs/printing-progress-assessment.md: FIN011 pretransaction protected balance check includes both opening shift and purchase receipt, with no ambient HTTP transaction; FIN012 correction Adjustment credit omitted when payroll created after correction within selected period; FIN013 unsigned stock dashboard sum differs from signed inventory. Canonical financial-findings.json and summary updated accordingly, avoiding candidate inflation.
+
+Independent printing peer challenge saved at financial-printing-peer-challenges.md, including actual reread of75line transport verification script for PRT005. No script executed or queue accessed. Earlier PRT001 source corroboration retained. Printing reviewer owns canonical PRT IDs.
+
+Build/runtime assumptions not verified. Backup integration tests really write backup files on fixed E drive if executed, and deliberately delay1100ms in supposedly unique filename test, excluding FIN007 collision. Restore tests stop at guards and never exercise actual maintenance fencing/restore. Attendance tests assert Adjustment credit, but no payroll follow-through. Several test names overstate assertions (positive lateness test actually checks no penalty; charset override uses ASCII equal under both encodings; history All can pass empty). These are test coverage observations, not new high severity findings.
+
+Seeder review confirms Products.Any early return, deterministic demo keys, one final SaveChanges and no per-table repair/backfill. No credentials copied into reports. Legacy inventory Direction default empty and Active default false without conversion remains unpromoted populated-upgrade lead. No concrete legacy database modified or inspected.
+
+Read-only git status --short --untracked-files=no at checkpoint returned empty. Audit documentation remains parent-managed outputs; this is not a claim that audit files were committed or pushed.

@@ -1,0 +1,1010 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "reviewed_at_utc": "2026-10-21T09:16:12.561262+00:00",
+  "status": "BOUNDED_STATIC_REVIEW_COMPLETE_NO_DEFECT_PROMOTED;REPORTING_SEMANTICS_REQUIRES_OWNER_EXPECTATION",
+  "callable": "Falah.Infrastructure.Reports.ReportingQueryService.GetDeliveryOutcomesReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "stable_callable_ids": [
+    "sym-9540f190ed8ec51dddcb8e596c3029dfb065f06440dbe67f31e1c1ef20c7f4de"
+  ],
+  "reasoning": {
+    "period_flows": "Delivery outcome counts are filtered by delivered/failed/returned UTC event timestamps within the input range. Delivery fees are summed for orders corresponding to in-range delivered rows. Settlements are filtered by CreatedAtUtc in the period; shortage/overage totals are derived from each settlement difference.",
+    "outstanding_balance": "The query selects every non-settled custody row globally/currently, counts them, but sums CollectedPiastres into the DTO property named UnsettledCustodyExpectedPiastres. Assignment creates custody with Expected=responsibility and Collected=0; delivery result populates Collected later. The amount may therefore be zero in transit or differ after a variance. The temporal scope ambiguity is distinct from this source-confirmed aggregate/name mismatch.",
+    "historical_statement_effect": "DailyStatementQueryService passes a specific historical business date to the report. Consequently its delivery outcome and settlement fields are date-scoped, while unsettled custody remains current across all dates at query time. The current DTO does not label that distinction or provide an as-of timestamp.",
+    "counterevidence": "Unsettled custody is inherently an outstanding balance and may intentionally be current regardless of requested historical date. The query names it Unsettled rather than settled-period activity. Existing integration test verifies current unsettled custody and then settlement, but does not query a historical date or assert temporal semantics. No owner requirement establishes that a historical statement must freeze this outstanding balance.",
+    "disposition": "No defect promoted. Record as a report-contract clarification question: should a historical DailyStatement show current outstanding driver custody, or custody as-of that business date? If current is intended, label/provenance should say current; if historical is intended, an event/as-of model is required. Do not change report query absent owner decision.",
+    "tests_needed": "If current outstanding is intended, verify period-filtered event totals alongside explicitly current outstanding balance for a past date. If as-of is intended, add data spanning two dates and assert settlement after the report date does not rewrite that historical snapshot; that likely requires a historical event or snapshot source. No test was executed."
+  },
+  "runtime": "NOT_EXECUTED; static source and existing-test inspection only",
+  "new_financial_callable_receipts": 0,
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          545,
+          585
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9540f190ed8ec51dddcb8e596c3029dfb065f06440dbe67f31e1c1ef20c7f4de",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetDeliveryOutcomesReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            545,
+            5,
+            585,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b40c2907bddbcd729114c8d0b0d899e0ac88aee67027721e22447a984c7816bc",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            549,
+            20,
+            549,
+            140
+          ]
+        },
+        {
+          "stable_id": "sym-4657a9ed80131b7733cba4964b391e97a99fff9187300ac76b9c3a9c7ae6c3b0",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            550,
+            21,
+            550,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-f63c8df28a6ab317e690f74facf5cfc18d42d3af3f828a0412c980aad6280815",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            552,
+            25,
+            552,
+            136
+          ]
+        },
+        {
+          "stable_id": "sym-54995c55600844aa1fe52f477da4efd26fd55d9340dc97f67a6f5ffef1d5a3ec",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            554,
+            25,
+            554,
+            142
+          ]
+        },
+        {
+          "stable_id": "sym-d1ff5a95d1da73c32d115e3ab55f39a9e2aaf7dc0dc0636e133c438519af3fc7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            557,
+            51,
+            557,
+            83
+          ]
+        },
+        {
+          "stable_id": "sym-6d2976a96c9cdbffd7a54b4f70860c4346dbd6c6619e8cc1b188f1ca67352a43",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            557,
+            94,
+            557,
+            127
+          ]
+        },
+        {
+          "stable_id": "sym-bca6ac22a389d1362e555eae33a8be48decb76d5db3c0dd5983e285ff5fa0018",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            559,
+            72,
+            559,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-3163bc888e4c4a97c6961969a8d6486841e48345dfc1703eafaf68004e2572ed",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            564,
+            20,
+            565,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-31b9bde080a95781916ec11365be3a07478671b2964a43f3a781b62c3df9f9cd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            566,
+            21,
+            566,
+            73
+          ]
+        },
+        {
+          "stable_id": "sym-b40a321c7393ad663a99706174c658f9e116f9b4da2945af1bdac6af62098c40",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            569,
+            21,
+            569,
+            95
+          ]
+        },
+        {
+          "stable_id": "sym-fc8c6e9eb3e0ac33a511aca7d5ad44a50b410c979abb208853b3ada629437eed",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            570,
+            20,
+            570,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-5cb52eaea7b4d695c2df02c8651f07abfeeb591167523f8590210945beb21007",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            574,
+            20,
+            574,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-239e8ffcc67e55745771a06cfc5ef6a2a467f77bd0357b3b12c4678198d0ed36",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            574,
+            73,
+            574,
+            113
+          ]
+        },
+        {
+          "stable_id": "sym-fb8e4d6e80b28715ac10121de122e033a680bf08f609b01f9d550325e7cd94d7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            575,
+            21,
+            575,
+            72
+          ]
+        },
+        {
+          "stable_id": "sym-e28d09091cff989a0741415533575e575081476304d9570ef22e43354135b6d9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            579,
+            44,
+            579,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-e174f55c821c6454c6e219f3dc6e31b0a074e407a25ff1e013b4ea0a99854da2",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            581,
+            29,
+            581,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-ec3c2705a7228847093736e8d9c9852c43dd3590ce197718e7d9631a45d879bd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            582,
+            29,
+            582,
+            68
+          ]
+        },
+        {
+          "stable_id": "sym-2938b0a8bffccbed8cdf6fa0ffc3aad394cd5257b8f692a4ae162d5e9d325231",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            583,
+            29,
+            583,
+            67
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 545,
+          "end": 585,
+          "text": "    public async Task<DeliveryOutcomesReportDto> GetDeliveryOutcomesReportAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default)\n    {\n        var (start, end) = Range(from, to);\n        var deliveredIds = await _db.Deliveries.AsNoTracking()\n            .Where(d => d.DeliveredAtUtc != null && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end))\n            .Select(d => d.OrderId).ToListAsync(ct);\n        var failedCount = await _db.Deliveries.AsNoTracking()\n            .CountAsync(d => d.FailedAtUtc != null && (start == null || d.FailedAtUtc >= start) && (end == null || d.FailedAtUtc < end), ct);\n        var returnedCount = await _db.Deliveries.AsNoTracking()\n            .CountAsync(d => d.ReturnedAtUtc != null && (start == null || d.ReturnedAtUtc >= start) && (end == null || d.ReturnedAtUtc < end), ct);\n\n        var deliveryFees = deliveredIds.Count == 0 ? 0 :\n            await _db.Orders.AsNoTracking().Where(o => deliveredIds.Contains(o.Id)).SumAsync(o => (long?)o.DeliveryFeePiastres, ct) ?? 0;\n\n        var unsettled = await _db.DriverCustodies.AsNoTracking().Where(c => c.Status != nameof(CustodyStatus.Settled)).ToListAsync(ct);\n\n        // Ported from deliveryReport's own averageDeliveryMinutes: only deliveries with BOTH\n        // timestamps count, and null (not zero) when none qualify.\n        var durationsMinutes = await _db.Deliveries.AsNoTracking()\n            .Where(d => d.OutForDeliveryAtUtc != null && d.DeliveredAtUtc != null\n                && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end))\n            .Select(d => new { d.OutForDeliveryAtUtc, d.DeliveredAtUtc })\n            .ToListAsync(ct);\n        var validDurations = durationsMinutes\n            .Select(d => (d.DeliveredAtUtc!.Value - d.OutForDeliveryAtUtc!.Value).TotalMinutes)\n            .Where(m => m >= 0).ToList();\n        long? averageDeliveryMinutes = validDurations.Count == 0 ? null : (long)Math.Round(validDurations.Average());\n\n        var settlements = await _db.DriverSettlements.AsNoTracking()\n            .Where(s => start == null || s.CreatedAtUtc >= start).Where(s => end == null || s.CreatedAtUtc < end)\n            .Select(s => new { s.ActualPiastres, s.DifferencePiastres }).ToListAsync(ct);\n\n        return new DeliveryOutcomesReportDto(\n            deliveredIds.Count, failedCount, returnedCount, deliveryFees,\n            unsettled.Count, unsettled.Sum(c => c.CollectedPiastres),\n            averageDeliveryMinutes,\n            settlements.Sum(s => s.ActualPiastres),\n            settlements.Sum(s => Math.Max(0, -s.DifferencePiastres)),\n            settlements.Sum(s => Math.Max(0, s.DifferencePiastres)),\n            settlements.Count);\n    }"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "line_ranges": [
+        [
+          60,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0debe5a77f4ef4f5426a52025c203952db3a716ea3d073617739930d00911478",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.GetAsync(DateOnly, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            60,
+            5,
+            90,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3f28751bc14a50b5abc6f28a55020ab41045eec1f8b6bb3ede7d8453fe1ace05",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            65,
+            77,
+            65,
+            112
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 60,
+          "end": 81,
+          "text": "    public async Task<DailyStatementDto> GetAsync(DateOnly businessDate, CancellationToken ct = default)\n    {\n        var range = BusinessDateRange.SingleDay(businessDate);\n        var (start, end) = range.ToUtcRange();\n\n        var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.BusinessDate == businessDate, ct);\n\n        var sales = await _reports.GetSalesReportAsync(range, null, ct);\n        var tax = await _reports.GetTaxReportAsync(range, null, ct);\n        var soldProducts = await _reports.GetSoldProductsAsync(businessDate, businessDate, ct);\n        var productHourly = await _reports.GetProductHourlySalesAsync(businessDate, businessDate, ct);\n        var expenses = await _reports.GetExpenseReportAsync(range, null, ct);\n        var expenseLines = await BuildExpenseLinesAsync(start, end, ct);\n        var shifts = await _reports.GetShiftsForBusinessDateAsync(businessDate, ct);\n        var shiftTotals = BuildShiftTotals(shifts);\n        var treasuryMovements = await LoadTreasuryMovementsAsync(start, end, ct);\n        var treasuryBalancesNow = await LoadCurrentTreasuryBalancesAsync(ct);\n        var employeeRows = await BuildEmployeeRowsAsync(businessDate, start, end, ct);\n        var inventory = await BuildInventoryAsync(businessDate, start, end, ct);\n        var delivery = await _reports.GetDeliveryOutcomesReportAsync(businessDate, businessDate, ct);\n        var refunds = await _reports.GetRefundActivityAsync(range, null, ct);\n        var auditTrail = await BuildAuditTrailAsync(start, end, ct);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "worktree_sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "source_git_blob_sha256": "0a615dd0d71fc11bd9382cf3d832a4e116620c4b13b804a2431458cfb1f6d160",
+      "line_ranges": [
+        [
+          91,
+          100
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 91,
+          "end": 100,
+          "text": "/// <summary>Ported from deliveryReport in lib/delivery-domain.mjs. SettlementCount replaces\n/// legacy's own `trips` count - this system's per-order delivery model has no separate \"trip\"\n/// concept (a driver settlement is itself the closest scoped unit here), so counting settlements in\n/// range is the honest analog rather than inventing a trip abstraction that doesn't exist.\n/// AverageDeliveryMinutes is null (not zero) when no delivery in range has both timestamps, matching\n/// legacy's own `durations.length ? ... : undefined`.</summary>\npublic sealed record DeliveryOutcomesReportDto(\n    int DeliveredCount, int FailedCount, int ReturnedCount, long DeliveryFeesPiastres,\n    int UnsettledCustodyCount, long UnsettledCustodyExpectedPiastres,\n    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          2059,
+          2060
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8428aec0d827406609806bfb987db5cd3e3ca559f8d8c5e8084612084cfcc0b2",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            2059,
+            46,
+            2060,
+            131
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 2059,
+          "end": 2060,
+          "text": "app.MapGet(\"/api/reports/delivery-outcomes\", async (string actorUserId, DateOnly? from, DateOnly? to, FalahDbContext db, ReportingQueryService reports, CancellationToken ct) =>\n    await RequireReportsAccessAsync(db, actorUserId, ct) ?? Results.Ok(await reports.GetDeliveryOutcomesReportAsync(from, to, ct)));"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+      "worktree_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "source_git_blob_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "line_ranges": [
+        [
+          67,
+          78
+        ],
+        [
+          123,
+          142
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9aa3617cbd62b39b30ebcb3947aaac595a80c29d69824b95a957080c55c91ea6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Id.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            69,
+            24,
+            69,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-60ca26ecb610ebfe0fb7863e4d182234b0f106f4648853df7229802e4c4a5bd2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Id.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            69,
+            29,
+            69,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-3d67fa77c76c77ab8107dfc1483b54bafa77e63a55fd3263b88d9622456e6bcb",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.TripId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            70,
+            28,
+            70,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-5617ad934b53c85817e52183b3049a22444811d0b59bd12aab5099b7c43a3b44",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.TripId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            70,
+            33,
+            70,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-c482f581238a0b86558f7a452bad4f641a045ac8483d71237ecb1435eec7eca7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DriverId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            71,
+            30,
+            71,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-507d1096ea1d95652bdc94ba38dd96b69bcc5e727a97030bc8542ffc0c965a45",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DriverId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            71,
+            35,
+            71,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-96b027e57d43bca36978094d0adc6105dd2ff1a65939254db70eaec9751a4d6e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.OrderId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            72,
+            29,
+            72,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-263d4403e14a344f19173151d05eae5510870203f96f011f94171bf029f9f424",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.OrderId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            72,
+            34,
+            72,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-38d04659fbaffb1745c4db0365f5a0bee3eb8bf2161016858391f200ed06011a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DeliveryId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            73,
+            32,
+            73,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-1a115739cefd9ddbb20b42f364d24944c5ba8b0f5d5c1ea7a1e661e5fab3d1c5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DeliveryId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            73,
+            37,
+            73,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-cbcf875a1d240628a4286ba08df06da72e03b11b4755b36dc167cfe3a3d3f906",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.ExpectedPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            74,
+            36,
+            74,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-a6f03b765a5cd89fbff35d0b4bc07b2507752c164f426c4454524aeab32af8c9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.ExpectedPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            74,
+            41,
+            74,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-9771cb27f31b6093dc792e2ef845ddd263a18ba1e1593c8b50f20060aa9a5ba9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CollectedPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            75,
+            37,
+            75,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-b4140fd32759679a218e544998f7f312b730565f199ec24990afc7e940999961",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.CollectedPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            75,
+            42,
+            75,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-c3bb93e219c8a6d79a1be160438dcee1dc9c7fbfb975ee8d614ec7e2e6511d5d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            76,
+            35,
+            76,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-a9fb0c8af1bbd9fc244fe180f126c3b80c3f27720be8c9454b9c239ede6fbe72",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.SettledPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            76,
+            40,
+            76,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-ccfd7a4eeae81bc73b25439f5c8bdeccb27f573843c80921174a7b3e586fe6a7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DifferencePiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            77,
+            38,
+            77,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-c90be685b8cd1ab79e374d5881a89f3405ade757bf33afa79c5af98cc057cf47",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.DifferencePiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            77,
+            43,
+            77,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-3707448378732bf96f66f994e09ab09c9d19d29390faed1e406ebb4ac5e364da",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Status.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            78,
+            28,
+            78,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-ae1f808cf0f8ebc87899314a84ba69d328d2c2ded7147311be4e413bf6dbd49f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity.Status.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            78,
+            33,
+            78,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-a103793571b0b704c60815e91ec696167683779b02b8c0f8f22515412473d5b8",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Id.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            125,
+            24,
+            125,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-ac38df224a3be1b6b466b264cfba1b31e84f205c9873e43570f138c5d816f4e0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Id.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            125,
+            29,
+            125,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-3491f86da596b97039618da607defc3395181effce8ad35d840115462b709cae",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            126,
+            30,
+            126,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-8c999837bc398bf5d0e4124e4004a1d67a2b1dc3ce28dc95e466a14ae3455da9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            126,
+            35,
+            126,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-e144533d0f81fc7edd23358cb5b301f6b82f80ef930e93efd42fbebf43fa369d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverName.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            127,
+            33,
+            127,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-a5423c1c7321b587b28a496bffc06a601da416bc84718ab0cc360873d3f7c01c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DriverName.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            127,
+            38,
+            127,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-f598a74cd7985b3de950f154bb01178ca393c4f607344f069511faf1912988be",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderIdsJson.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            128,
+            34,
+            128,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-cc7efea079fa8d6a3855fa10ce5eb670c3461d11d8557ee74745065464e02a4f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderIdsJson.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            128,
+            39,
+            128,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-d00dddff8e61086345834f573f8a612e5990d411a07840f83dc7fa6cfa086e97",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderCount.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            129,
+            29,
+            129,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-0b7f4789682535b67de158de09b739e17848919ea3bdee67ed8e9b9590f8e82c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OrderCount.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            129,
+            34,
+            129,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-7fa8336828a714c06fbd9164c1494e1acd67cf84b55008cc64964a9d292d932f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            130,
+            38,
+            130,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-e263ac7c2054abd81a916d71b9fd630d816d619b10d57176f5a9e4c099489e8d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.GrossOrderPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            130,
+            43,
+            130,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-82d6526f5aae5061c9f7863ab98c91ba2d3aec4d476bbdb8367a29165d46e539",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            131,
+            35,
+            131,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-bece7ccb84942878768bef80f07003cd436e606d44a17889dbfb2bff4962b4e9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.PrepaidPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            131,
+            40,
+            131,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-8edb690bcfea051ba7a40b5f93549a381cbaad7861e5110adb29fcbf3082a290",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            132,
+            36,
+            132,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-b2d830ecc3f3de878e401a580c9d35d2a4db37cd6c19a9089b8bff0b9144d1f6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ExpectedPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            132,
+            41,
+            132,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-150531493e047e67b7f5660d48cf2e1ac53207dda1f0f4cc2bfff7be4b73817c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            133,
+            34,
+            133,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-6917e152a0537484b10e5c2c266659cf350c91f5ed00eca29010ee5c14875af2",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ActualPiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            133,
+            39,
+            133,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-487738d8bfe2704ca0808faf3e398eb30633336b28db0a14c42e3cd5f01ef556",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            134,
+            38,
+            134,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-ba2945d19e5c2e0d878f169abcf6a4df5d6a5100f166215d999c9c57049067ed",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.DifferencePiastres.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            134,
+            43,
+            134,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-582e4f143e1ccd5170d2556b4c98fdce0fdfddb8ddb247766e8d2e6ae3cb9513",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Reason.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            135,
+            29,
+            135,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-fa7b5db7f70526000590dacb4601e18898b8a23c5ab72ab423f0cc18b32fd8f9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.Reason.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            135,
+            34,
+            135,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-f93a92a1aff1268ee432bdfde64704cc75f17eca9fbbfdb38faca569b2f7968a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ApprovedBy.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            136,
+            33,
+            136,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-6bd270c7a22cb41bff9b5d08c7729fd3aa27916324754ee6a8d5291ec8004791",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ApprovedBy.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            136,
+            38,
+            136,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-3eda6df3e9917682172fb62a3acaaaa87873da82be4e8a0d0e1e0d243ad7fd09",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OperationId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            137,
+            33,
+            137,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-e28b07bd71af7fd557f1ee60c5cfe305e18871c22c4c459137da113a9e0e4132",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.OperationId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            137,
+            38,
+            137,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-069b1c604db25d4a7636e8c4caa1f6eed90f9c378901c7f7ff1f679aa289ce65",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.IdempotencyKey.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            138,
+            36,
+            138,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-e18506fb8247f2d172218a0780058ac875c402af302e2976c49dea30e1b79d6e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.IdempotencyKey.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            138,
+            41,
+            138,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-bd341183fea3d0b2fa78c064db1e5676b7936fee269ba51597c33e2c26bd6764",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.TreasuryMovementId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            139,
+            41,
+            139,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-063936ce5af30ffda720a344776df976491fdad00bf3fb7e7b4fc0b9c6f7dceb",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.TreasuryMovementId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            139,
+            46,
+            139,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-235ff7af0e0ed26719c22422258e7b19e79b61352f77561c607a64fb4ec44d6f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ReceivedBy.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            140,
+            32,
+            140,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-7ccb1be1952490123320f7c16e68196ca16b23fdf0e969e54afd98fa17f43592",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.ReceivedBy.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            140,
+            37,
+            140,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-4473f6c7157cf50145777409430095f1cd161e79c03e39c31e16c778e18eac61",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.CreatedAtUtc.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            141,
+            42,
+            141,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-99444a3038cadf8750f868d3714dc13bc231d5140d66fa67cffe7673b41dd364",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity.CreatedAtUtc.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            141,
+            47,
+            141,
+            51
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 67,
+          "end": 78,
+          "text": "public class DriverCustodyEntity\n{\n    public string Id { get; set; } = default!;\n    public string TripId { get; set; } = default!;\n    public string DriverId { get; set; } = default!;\n    public string OrderId { get; set; } = default!;\n    public string DeliveryId { get; set; } = default!;\n    public long ExpectedPiastres { get; set; }\n    public long CollectedPiastres { get; set; }\n    public long SettledPiastres { get; set; }\n    public long DifferencePiastres { get; set; }\n    public string Status { get; set; } = default!;"
+        },
+        {
+          "start": 123,
+          "end": 142,
+          "text": "public class DriverSettlementEntity\n{\n    public string Id { get; set; } = default!;\n    public string DriverId { get; set; } = default!;\n    public string? DriverName { get; set; }\n    public string OrderIdsJson { get; set; } = default!;\n    public int OrderCount { get; set; }\n    public long GrossOrderPiastres { get; set; }\n    public long PrepaidPiastres { get; set; }\n    public long ExpectedPiastres { get; set; }\n    public long ActualPiastres { get; set; }\n    public long DifferencePiastres { get; set; }\n    public string? Reason { get; set; }\n    public string? ApprovedBy { get; set; }\n    public string OperationId { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string? TreasuryMovementId { get; set; }\n    public string ReceivedBy { get; set; } = default!;\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}"
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "worktree_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+      "line_ranges": [
+        [
+          430,
+          445
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8898bbcd1cb127507ff903fbacd1a383c61c3ad45e9329134419f6375ee5461f",
+          "signature": "Falah.Server.IntegrationTests.ReportingVerticalSliceTests.Delivery_outcomes_report_counts_delivered_orders_and_unsettled_custody()",
+          "kind": "MethodDeclaration",
+          "span": [
+            409,
+            5,
+            447,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 430,
+          "end": 445,
+          "text": "        var report = await (await _client.GetAsync($\"/api/reports/delivery-outcomes?actorUserId={_managerId}\")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();\n        Assert.Equal(1, report!.DeliveredCount);\n        Assert.Equal(1, report.UnsettledCustodyCount); // delivered but not yet settled\n        Assert.Equal(16000, report.UnsettledCustodyExpectedPiastres); // 15000 product + 1000 delivery fee, cash-on-delivery\n\n        // Ported from deliveryReport's settledCashPiastres/shortages/overages/trips (here:\n        // SettlementCount, since this per-order model has no separate \"trip\" concept) - a real gap\n        // found during the legacy-parity audit.\n        await _client.PostAsJsonAsync($\"/api/delivery/drivers/{driver!.Id}/settle\",\n            new SettleDriverCustodyRequest($\"req-{Guid.NewGuid():N}\", driver.Id, 16000, null, _managerId, null, null));\n\n        var afterSettle = await (await _client.GetAsync($\"/api/reports/delivery-outcomes?actorUserId={_managerId}\")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();\n        Assert.Equal(0, afterSettle!.UnsettledCustodyCount);\n        Assert.Equal(1, afterSettle.SettlementCount);\n        Assert.Equal(16000, afterSettle.SettledCashPiastres);\n        Assert.Equal(0, afterSettle.ShortagesPiastres);"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Not a full ReportingQueryService review.",
+    "No DB or API requests executed.",
+    "Historical financial statement temporal contract requires owner policy.",
+    "Global financial callable depth and 327-file completion gate remain open."
+  ],
+  "disposition": "COORDINATOR_DATE_SCOPE_CONCLUSION_CORROBORATED; INDEPENDENT_AGENT FOUND AND COORDINATOR VERIFIED EXPECTED_VS_COLLECTED_FIELD_MISMATCH; CONTRACT/RUNTIME IMPACT QUALIFIED",
+  "related_finding_candidate": "Deep-Audit/Database-and-Finance/delivery-custody-expected-vs-collected-candidate-2026-10-21.json",
+  "independent_challenge": "Sub-Agents/Handoffs/financial-negative-variant-and-delivery-outcomes-independent-challenge-2026-10-21.json",
+  "source_review_correction": {
+    "preserved_prior_record": "Knowledge/History/Financial-Coordinator/delivery-outcomes-crosscheck.47878d3713b51df0.json",
+    "correction": "Prior coordinator text inaccurately called the summed CollectedPiastres an expected amount. Corrected after independent challenge and direct source verification."
+  }
+}

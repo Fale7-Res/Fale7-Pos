@@ -1,0 +1,129 @@
+{
+  "artifact_kind": "financial_six_callable_receipt_quality_check",
+  "id": "financial-six-callable-receipt-quality-check-2026-10-21",
+  "created_utc": "2026-10-21T12:05:00Z",
+  "session_identity": "/root/financial_integrity_continuation; existing session; no replacement",
+  "assignment": "Manually quality-check six existing high-materiality callable receipts against current source, prioritizing payment, payroll, treasury/shift/business-day, purchase, and inventory. Record source-linked conclusions without treating hashes, receipt presence, or test names as proof.",
+  "reconciliation": {
+    "NEXT_ACTION": {"path":"Codex Work/Conversation-Recovery/NEXT_ACTION.md","sha256":"9f55534b179f16a954fdce31b42395851ace087567d5a141f36b363c7eafa731","finding":"Stale versus current checkpoint: still says specialist usage-limit errored and points at a coordinator-reviewed shift report callable. Used the newer checkpoint/ledger and current source instead."},
+    "evidence_ledger": {"path":"Codex Work/Deep-Audit/Database-and-Finance/financial-per-callable-evidence-class-ledger.json","sha256":"03da3d195c05b5934ba12f02a975d42abd1948c91cf32f4f3f2394fcd0fe4fee","finding":"Now labels 7,602 primary receipts quality-ungraded; 989 continuation handoffs identity-linked/depth-ungraded; 213 residual dispositions not depth-certified. No global substantive count is certified."},
+    "receipt_accounting": {"path":"Codex Work/Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json","sha256":"7f5a5def94b7aacfdb0e6778366388597990a32badcf064631c965077af872d7","finding":"PASS_SOURCE_SYMBOL_RECEIPT_STRUCTURE_ONLY; manual reasoning-quality checks remain required."},
+    "residual_depth": {"path":"Codex Work/Sub-Agents/Handoffs/financial-residual-213-depth-reconciliation-latest.json","sha256":"ac4439ccd8007cdc2e795aad14544cc388b83593b6f39a4db03d833d569fd14e","finding":"94-ID selected supplemental queue complete only; disposition coverage does not certify all 213 or global finance depth."},
+    "residual_manifest": {"path":"Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json","sha256":"28686f6cac08360b8687321044f8c8c61770837f8d17addd5d5bc48120014563","finding":"Complete only for authority residual set; explicitly not global financial audit completion."},
+    "current_financial_report": {"path":"Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md","sha256":"7731073beeb807f606b0e6035a05a63e4b37f306b2c5f3279bb5371d23b52619","finding":"Report says exact membership 8,804/8,804, substantive callable depth UNKNOWN, completion INCOMPLETE. It reports FIN-018 source-corroborated and FIN-CAND-PAYROLL-001 as an independently corroborated static candidate with the interleaving still predicted, not reproduced."},
+    "current_financial_findings": {"path":"Codex Work/Sub-Agents/Results/financial-findings.json","sha256":"ccb5d31705dd4bb1060e5a59008d496ea89cd6a365a2fee2bfe175d164a404c9","finding":"Existing canonical source/candidate records were consulted for FIN-001, FIN-006, FIN-011, FIN-018, and FIN-CAND-PAYROLL-001; this handoff does not edit them."},
+    "checkpoint_before_batch": {"path":"Codex Work/Sub-Agents/Checkpoints/financial-integrity-continuation.json","sha256":"e3ec0f1ddebd725f049a4887bc142ce69877a79d38df8d0921746f45a961b97c","finding":"Current continuation and ledger reconciliation recorded; this batch is a distinct manual quality check of six prior receipts."}
+  },
+  "results": [
+    {
+      "stable_id":"sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs","span":[24,5,97,6],"sha256":"cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b","git_blob_sha256":"cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.json","author":"financial_integrity","sha256":"13284308cdf7a57070d40a5bcde2dc09c57fd48511d58934fc9c0b611216b110"},
+      "source_reasoning_checked":"The author note accurately describes the fast confirmed replay, permission/open-shift prechecks, transactional UPDLOCK/HOLDLOCK order reread, domain pending-leg requirement, order status update, sale journal and treasury movement in one transaction, and replay reload on persistence conflict.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Server/AuthenticationMiddleware.cs","ranges":[[30,81]],"sha256":"3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb","effect":"All /api routes require a session and the body cashierId must match the resolved actor; this is counterevidence to unauthenticated use, not to handler command-permission bypass on replay."},
+        {"path":"src/Falah.Server/Program.cs","ranges":[[1416,1435]],"sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","effect":"Route delegates to handler and maps expected failures; no additional handler-specific permission gate is visible there."},
+        {"path":"src/Falah.Domain/Orders/Order.cs","ranges":[[174,184]],"sha256":"4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b","effect":"Only a pending electronic leg can be confirmed; domain marks it confirmed and IsPaid."},
+        {"path":"src/Falah.Domain/Financial/TreasuryMovement.cs","ranges":[[41,60]],"sha256":"89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87","effect":"Sale movement targets the method-specific account and carries order/business-day/shift references."},
+        {"path":"src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs","ranges":[[22,45]],"sha256":"a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a","effect":"Journal start/completion is tracked in the caller's DbContext/transaction; database key enforces uniqueness."}
+      ],
+      "counterevidence_and_limits":"Replays still require a valid authenticated session/actor identity, and the original transaction plus order lock protects same-order double posting. However, the confirmed replay branch precedes handler-level pos/cash_drawer_sale authorization and open-shift checks, so a session whose user lacks those command permissions can receive the replay result. Whether replay disclosure is intentionally allowed is not stated. The source does not validate an external bank/wallet transfer itself; the human/business verification contract is outside this handler.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs:47-87 covers normal confirmation, sequential retry, and same-order concurrent retry; tests were not run. No inspected test covers a non-permitted authenticated actor replaying a confirmed order or external transfer verification.",
+      "remaining_action":"Decide whether replay requires the same command permission as new confirmation; if so, add an authenticated-but-unprivileged replay regression. Keep payment-provider evidence and live transaction behavior outside the static conclusion."
+    },
+    {
+      "stable_id":"sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/Employees/PayPayrollHandler.cs","span":[39,5,182,6],"sha256":"d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084","git_blob_sha256":"0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs.json","author":"financial_integrity","sha256":"4934be9f841aaaf9b1d00e33356bcf06be1de61706c1313ddf34a67292941105"},
+      "source_reasoning_checked":"The receipt's main payment flow is accurate: a run-key replay check, Approved-state and payroll_pay authorization, positive total requirement, open-day gate, transaction-held account balance lock, unique financial journal, one treasury movement, positive per-line employee settlements, Paid metadata/audit, and one SaveChanges/commit. PayrollRules clamps negative computed net to zero; the writer stores those lines, so normal computation does not create negative payable lines.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Domain/Payroll/PayrollRules.cs","ranges":[[83,111]],"sha256":"4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86","effect":"Computes payroll net and clamps negative results to zero."},
+        {"path":"src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs","ranges":[[24,60]],"sha256":"0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4","effect":"Status transition loads tracked run, validates Approved-to-Cancelled as allowed by PayrollRules, assigns status, and saves without a shared transaction/run lock or conditional status update."},
+        {"path":"src/Falah.Infrastructure/Treasury/TreasuryMapper.cs","ranges":[[30,46]],"sha256":"818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400","effect":"Protected account movement query uses UPDLOCK/HOLDLOCK and documents that the caller must already hold a transaction; PayPayroll calls it inside its transaction."},
+        {"path":"src/Falah.Infrastructure/Persistence/FalahDbContext.cs","ranges":[[460,477]],"sha256":"7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c","effect":"PayrollRun has run-key/period unique indexes but no run concurrency token is configured in this mapping."}
+      ],
+      "counterevidence_and_limits":"Unique payroll-payment-run idempotency plus the transaction prevents a second same-run payout through replay, even from another payment account. The separate pay-versus-cancel interleaving remains statically possible because payment reads Approved before its transaction and transition can save Cancelled without coordinating on the run; this is the existing FIN-CAND-PAYROLL-001 predicted race, not a reproduced duplicate payment. No claim of realized accounting outcome.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs:245 exercises six concurrent pay requests for the same run. It does not establish pay-versus-cancel serialization. Tests were not run.",
+      "remaining_action":"Keep FIN-CAND-PAYROLL-001 conditional; add deterministic SQL Server pay/cancel interleaving coverage and an explicit winner/terminal-state policy before promoting an observed concurrency outcome."
+    },
+    {
+      "stable_id":"sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.CashDrawer.CashierCashMovementHandler.HandleAsync(Falah.Application.CashDrawer.CashierCashMovementRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs","span":[40,5,132,6],"sha256":"ce1184171f64ce4ce1f8399d26b6228592ce0c6767aded0f4ff4140d35dbd6fd","git_blob_sha256":"3693c0da66e3187b850bbe00c9197aebf9705745b9beb2c48419f98a48067462"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs.json","author":"financial_integrity","sha256":"d0ad46e805b8db8b3ad206a186ab0a69159eb838b29b2afc453fb388c6591c49"},
+      "source_reasoning_checked":"The note accurately describes movement-type/request-key replay, positive amount/reason and cash_drawer authorization, shift status and open-day checks before the transaction, cash_in Main-to-Drawer / cash_out Drawer-to-Main direction, transaction-held protected-source balance lock, unique journal, treasury movement/audit append, save/commit and replay after a key race.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Infrastructure/Treasury/TreasuryMapper.cs","ranges":[[30,46]],"sha256":"818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400","effect":"Account movement query's range lock is held until caller transaction ends."},
+        {"path":"src/Falah.Domain/Financial/FinancialRules.cs","ranges":[[50,57]],"sha256":"0c48f0fef3792f1bd9e85023ad85978ae8583f9f7d2e2bcaa65f3159aef1b926","effect":"Rejects direct draw that would take a protected source account below zero."},
+        {"path":"src/Falah.Server/Program.cs","ranges":[[1695,1705]],"sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","effect":"API delegates to handler; expected domain/conflict errors map to 422/409."}
+      ],
+      "counterevidence_and_limits":"Same-key replay and protected balance locking address duplicate command and overdraft risks, but the requested shift's Open status is read before the money transaction and never rechecked/locked in this handler. The business-day gate is also before the transaction. This leaves the reported stale shift/day admission interleaving as a source-supported possibility; runtime incidence is unknown.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs:40-148 covers direction, permissions, open-shift rejection, insufficient drawer, same-key replay/concurrency, and expected drawer balance. It does not cover shift handover between the precheck and commit. Tests were not run.",
+      "remaining_action":"For any behavior fix, add deterministic state-change-between-gate-and-commit tests for shift handover and business-day close; preserve the transaction-held balance lock and same-key replay behavior."
+    },
+    {
+      "stable_id":"sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.CloseBusinessDayRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs","span":[34,5,129,6],"sha256":"b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255","git_blob_sha256":"b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs.json","author":"financial_coordinator","sha256":"d0b97b44e6e106b2e8717eec4b986bd12ef01a1a5157356069eff8d2969fdaee"},
+      "source_reasoning_checked":"The coordinator note matches source: request-derived snapshot replay occurs before handler authorization; current status and legal transitions are checked before transaction; started/blocked audits and evaluator run inside transaction; a successful close stores reconciliation, exceptions/checklist, demotes previous snapshots, writes the new authoritative snapshot, updates day Closed metadata, then saves and commits atomically. A blocked attempt commits its audit before throwing.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs","ranges":[[26,55],[62,85]],"sha256":"cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832","effect":"Blockers are computed from shifts, custody, pending journal/electronic orders, closing checklist, protected balances and drawer reconciliation; several reads are system-wide."},
+        {"path":"src/Falah.Server/Program.cs","ranges":[[399,413]],"sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","effect":"Route passes URL day ID into the close request and delegates to handler."},
+        {"path":"src/Falah.Server/AuthenticationMiddleware.cs","ranges":[[30,81]],"sha256":"3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb","effect":"API session and actor identity are checked globally; does not substitute for the handler's command permission on a fast replay."}
+      ],
+      "counterevidence_and_limits":"Snapshot ID uniqueness and same-request replay protect duplicate close requests; the database close is atomic for the snapshot/day fields. But the day status is loaded and validated before the transaction without a transaction-held day lock or re-read; distinct close request IDs and money postings racing with close are not settled by the cited same-request test. Replay bypasses handler-level business_day_close authorization, though global session/actor matching still applies. Concurrency effect remains static, not reproduced.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs:259-289 covers same-request replay and six concurrent close posts producing one snapshot; no inspected test covers different request IDs or a posting command crossing the close gate. Tests were not run.",
+      "remaining_action":"Keep distinct-request and close-vs-post interleavings conditional until owner policy and deterministic provider-backed tests establish the outcome; decide whether authorized replay is intentionally permission-independent."
+    },
+    {
+      "stable_id":"sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs","span":[36,5,229,6],"sha256":"70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795","git_blob_sha256":"9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs.json","author":"financial_integrity","sha256":"5f53ff6b8e8dfe35cbcf88bbbcc1312a7b583492b1585ed46d9918c31f6b6bf9"},
+      "source_reasoning_checked":"The receipt accurately describes deterministic purchase replay, authorization/supplier/item and amount checks, protected account-balance query before the transaction, open-day gate before transaction, and a single transactional set of optional treasury payment, purchase/invoice, supplier debit/credit, stock receipts, audit/cost-change events and journal completion. Request PaidPiastres is nonnegative and cannot exceed total, but no corresponding positive quantity/unit-cost guard is present in the handler or PurchaseLineTotal.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Domain/Inventory/PurchasingRules.cs","ranges":[[10,11],[77,81],[86,93]],"sha256":"e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524","effect":"PurchaseLineTotal multiplies signed quantity and signed unit cost without a positivity assertion; purchase payment rejects negative paid amount and paid amount above total."},
+        {"path":"src/Falah.Infrastructure/Treasury/TreasuryMapper.cs","ranges":[[30,46]],"sha256":"818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400","effect":"Balance-lock helper says caller must hold a transaction; this handler calls it at 77-78 before BeginTransaction at 97, so the lock is not held through spend in the shown flow."},
+        {"path":"src/Falah.Server/Program.cs","ranges":[[2182,2196]],"sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","effect":"Purchases endpoint delegates to handler and translates conflict/domain failures."}
+      ],
+      "counterevidence_and_limits":"The method has request-key replay and one SaveChanges/commit for its financial and inventory side effects; payment amount validation is present. Source shows signed line inputs are copied into an In stock movement and purchase line, while signed multiplication feeds supplier invoice total. This corroborates the current static FIN-018 concern and FIN-011 pretransaction balance-check concern; it does not demonstrate a request was executed or rule out an uninspected database constraint/provider behavior.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs:106-238 covers paid/credit/partial purchase, overpayment, unknown supplier/empty lines, insufficient balance, same-key replay and concurrency. It does not cover negative or zero quantity/unit-cost pairs. Tests were not run.",
+      "remaining_action":"Add server-level positive quantity/unit-cost validation (or document an explicit signed-line policy) and tests for negative-negative, negative-positive, zero, and valid line values; separately test concurrent distinct purchase spends against one protected balance under the target provider."
+    },
+    {
+      "stable_id":"sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+      "status":"SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature":"Falah.Infrastructure.Inventory.RecordCountAdjustmentHandler.HandleAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest, CancellationToken)",
+      "source":{"path":"src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs","span":[32,5,84,6],"sha256":"40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab","git_blob_sha256":"40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab"},
+      "existing_receipt":{"path":"Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs.json","author":"financial_integrity","sha256":"7d0f37e8a878d1864d50fba66d09e74be40bc0fb2a88a7f08e189007cc85431d"},
+      "source_reasoning_checked":"The author note accurately describes request-key replay before validation/authorization, positive quantity/reason checks, Enum.TryParse direction parsing, authorization, insertion of one CountAdjustment movement and audit, single SaveChanges, and unique-key replay after a database conflict. It correctly says a count adjustment is a stock fact rather than a treasury posting and avoids re-deriving a physical count.",
+      "call_chain_and_effects":[
+        {"path":"src/Falah.Domain/Inventory/InventoryRecords.cs","ranges":[[23,25]],"sha256":"52d7a39781b9d8a87828ed3d38193ecc8fc87b0a140e666c1df64a8ac66918af","effect":"StockDirection defines only In and Out."},
+        {"path":"src/Falah.Domain/Inventory/InventoryRules.cs","ranges":[[27,31],[50,52]],"sha256":"6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67","effect":"Shape validation requires positive quantity/reason; balance treats every direction other than In as Out."},
+        {"path":"src/Falah.Infrastructure/Reports/InventoryQueryService.cs","ranges":[[37,41],[216,222]],"sha256":"3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de","effect":"Persisted direction is parsed back to enum and then used in StockBalanceMilliUnits; DTO also exposes stored direction text."},
+        {"path":"src/Falah.Server/Program.cs","ranges":[[982,998]],"sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","effect":"Route delegates directly to handler; errors map to 409/422/404."}
+      ],
+      "counterevidence_and_limits":"There is no cash movement or treasury journal in this path; quantity changes are audit-backed and a physical count is intentionally not constrained by the existing balance. However, Enum.TryParse accepts numeric enum values unless the caller checks Enum.IsDefined, while the enum has only In/Out and the balance treats all non-In values as Out. This remains an unpromoted static input-shape lead; actual JSON binding/persistence/provider behavior and business contract are untested here.",
+      "existing_tests":"tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs:139-192 covers named In/Out count adjustment, missing reason, same-request replay and authorization; no numeric/undefined direction case. Tests/Falah.Domain.Tests/InventoryRulesTests.cs:27-31 covers positive quantity/reason, not direction parsing. Tests were not run.",
+      "remaining_action":"Keep the numeric direction concern as a bounded validation lead; decide whether input must be a defined enum name, then add API tests for numeric/undefined values and verify no movement/balance change on rejection."
+    }
+  ],
+  "batch_summary": {
+    "callables_checked": 6,
+    "status_counts": {"SUBSTANTIVE_REVIEW_VERIFIED":6,"EXISTING_REASONING_UNVERIFIED":0,"REVIEW_INCOMPLETE":0},
+    "primary_receipt_union_credit": false,
+    "substantive_coverage_claim": "None; this verifies the source grounding of six existing callable receipts only.",
+    "tests_executed": false,
+    "database_runtime_or_production_state_touched": false,
+    "shared_registry_or_canonical_report_changed": false,
+    "git_publication": false
+  }
+}

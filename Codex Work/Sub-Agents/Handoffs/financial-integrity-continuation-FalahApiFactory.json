@@ -1,0 +1,72 @@
+{
+  "artifact_kind": "financial_integrity_symbol_batch_handoff",
+  "batch": "FalahApiFactory",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:31:30.701Z",
+  "static_only": true,
+  "runtime_or_tests_executed": false,
+  "database_created_or_modified": false,
+  "source_or_database_modified": false,
+  "receipt": {
+    "symbols_reviewed": 21,
+    "ids": [
+      "sym-245abeb106392e4a84fc3fcd9139d5a4b252dfaa7f12a79d7c8b4b17c37af0e5",
+      "sym-b6106606088addabdef1ebf365ccbef0547c9d1ced093b75e434ec6cef37a1bc",
+      "sym-78f789d84a244c819d11031c2b7dfc2fe0f5deeb63f414c5719345e78dd5575e",
+      "sym-87c45f50a05d5960cf86219feb7d2049e7185bfdce922d948aeb18af69053887",
+      "sym-824f7c466a8bbea95ae8bc132bbc7f5a9dd5da69e7ac5b31dc2f2107fedc6eb2",
+      "sym-5ccc5d213bf65d00b573e95f803348e227f392bfcbdf258de271da59aee0e71e",
+      "sym-97517078b608cad509b80c252bba454b892a35d81ba125d59a518d8b7f34955f",
+      "sym-66af9c264cc99c4c89e5c5f06f82d6454b44dffdd88dd786241b02c47bef5f6b",
+      "sym-fb64fd5556313d40def85631182847d75a3e2d98810d495b7bb4fa1ec3e5c500",
+      "sym-d3cd31438b8d58939bc451c05a75799affc6fc12f77a1edce7cfe4a0ed276865",
+      "sym-cf54c34a2054b834e03827ab318c39b56164bf922b4d599af6c147d41a381c8d",
+      "sym-72008175cc0962248e2c5d84e208766386d43e90b416169490540611d629fce3",
+      "sym-eef59dc0985434c660d08a5f32fc2ca71fa812115cdc305844e868847476a04b",
+      "sym-c0e45b75327b5a464362feeeaf2cb994a3be108d5cc35255bc9b7bc0c3614add",
+      "sym-545283b50a07e95beac87887fcd8a770d12f257d148aacde6f6aba5b597b7dd0",
+      "sym-6d8bffd2ea21d3680850310169741a829f458a4b9390a1e0f946fdfdfd6d04c8",
+      "sym-f358e754c7de7ed3912405db6f83c3afa934b6327b99fa3888eaca7b29e49998",
+      "sym-f7d2f5879fdf0117f2e65e3b0642087211923ff1e71ea085a940b9f071b653d6",
+      "sym-876e9bb298629fddb9136086f4497ccc8c24907b58cb7c34a3c1455ce88b4e6e",
+      "sym-a6a50ef00d9c962b0bb00a4fe97e9775015b922902b566d1d30286286ab24841",
+      "sym-4de44689b8771752dc8faff6957e735c61d01623977b41a78182d0d9c16e9e22"
+    ],
+    "union_pending_matches": 21,
+    "coordinator_completed_matches": 0,
+    "outside_union": 0,
+    "authoritative_union_total": 7602,
+    "authoritative_remaining_total": 1202
+  },
+  "source_evidence": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/FalahApiFactory.cs",
+      "ranges": [
+        "14-57",
+        "59-69",
+        "71-104",
+        "110-184",
+        "186-258",
+        "261-318",
+        "320-336"
+      ],
+      "sha256": "FACB84FA0D81937E87988E95E7B960A0515240180FCE2403D445F5EE21D8574C",
+      "observations": [
+        "Test harness creates a per-instance SQL Server test database under E:\\SqlData\\Tests; constructor supports reusing another factory database and marks only the creator as owner.",
+        "Factory configures real server and EF connection string; test helper methods seed users, product/pricing/recipe and treasury/business-day rows, and provide query access.",
+        "TokenFor writes a session row when called; this is fixture behavior executed only by tests. Dispose drops only an owned test database. No financial business handler logic is implemented by this fixture."
+      ],
+      "risks_and_limits": [
+        "No SQL was executed and no test database was created or modified during this static review.",
+        "SQL Server path/permissions, database lifecycle, migrations, and seed behavior were not runtime-validated.",
+        "Reuse name and identifier interpolation are test-harness inputs, not production request paths; no claim of production SQL injection was made."
+      ]
+    }
+  ],
+  "assessment": {
+    "decision": "NO_NEW_PRODUCT_FINANCIAL_OR_DATABASE_INTEGRITY_FINDING",
+    "reason": "Reviewed fixture methods serve isolated test setup/authentication/seed/query/disposal. Source shows separate generated DB names and owner-aware cleanup, but execution was not tested. Not an application persistence path.",
+    "runtime": "NOT_EXECUTED",
+    "recommendation": "No change recommended from this file-only static pass."
+  }
+}

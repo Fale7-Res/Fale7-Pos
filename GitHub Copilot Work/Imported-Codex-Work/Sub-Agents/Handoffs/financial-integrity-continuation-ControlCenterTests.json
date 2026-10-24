@@ -1,0 +1,137 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:00:27.2565939Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/ControlCenterRulesTests.cs",
+  "symbol_count": 10,
+  "symbols": [
+    {
+      "stable_id": "sym-bc868fd6c933fd5d3765fc318011237b125f4dc8ee9ab8820d990bfb4b9bcf16",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.Clean()",
+      "span": [
+        8,
+        5,
+        14,
+        54
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1a499af38374b8ef1cfd3172a5dc47d89a8d020e4430653947a11c7737ebddbc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_clean_day_produces_no_exceptions()",
+      "span": [
+        16,
+        5,
+        20,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b3cf90c3db6d91b68df4ce3be7d90405913f81c279140494976e75abd44f2dfb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_shift_shortage_below_threshold_is_only_a_warning()",
+      "span": [
+        22,
+        5,
+        30,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-dd07d56dc1881412430d8379d8f48c124a0887bd0a6cb314547889371e4b77f5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_shift_shortage_at_or_beyond_threshold_is_critical()",
+      "span": [
+        32,
+        5,
+        38,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5e57e768183466c1e76e7df6b76ccc9aead0113c3bbf78b0d7cbf4148ea1cfca",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_shift_with_zero_difference_produces_no_exception()",
+      "span": [
+        40,
+        5,
+        45,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-050e32fbcdfd14f53aeb0f375306cd8ecdc516f050e1a7b69de1c9184064e9ec",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_refund_exactly_at_the_large_refund_threshold_is_flagged()",
+      "span": [
+        47,
+        5,
+        54,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-11b9092952022bfc35071980a5afd43b4949f1ecb790bf0c6ab42bbcb1fa1b2d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_refund_just_below_the_threshold_is_not_flagged()",
+      "span": [
+        56,
+        5,
+        61,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-750ed11dfc204d5347f1d0d7077bc3878b0f0dfee176402add68ce9beaaa5ce5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.A_large_expense_is_flagged()",
+      "span": [
+        63,
+        5,
+        69,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-cfcd79260a6f6a1146e1cacf7acdaf1abfb5d19e23f66314fec2d61476f1d0e1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.An_unsettled_custody_is_always_critical()",
+      "span": [
+        71,
+        5,
+        78,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6cfd82f64f737eb43115d179cbe5c1455f589457deaa6140236cfb6c43d76dc3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.ControlCenterRulesTests.An_incomplete_journal_entry_is_always_critical()",
+      "span": [
+        80,
+        5,
+        87,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers clean exception set, shift shortage severity boundaries including zero, large-refund threshold boundary, large expense, unsettled custody, and incomplete journal exception severity. It does not test the owner-dashboard inventory balance path or persistence. No test run.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/10 exact IDs present",
+    "financial_coordinator": "/10 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

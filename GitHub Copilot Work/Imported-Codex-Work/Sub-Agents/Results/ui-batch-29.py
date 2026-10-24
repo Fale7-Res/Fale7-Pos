@@ -1,0 +1,17 @@
+from ui_persistent import *
+record(P+'Views/MenuView.xaml','Menu availability read/write list with tax/offer summaries and nested editor.',[
+ ('CanOpenEditor','Editor button permission visibility, nested Editor DataContext declared last overlays page. Main availability toggles root row command; no explicit IsEnabled/visibility permission per row, model must guard.'),
+ ('Products','Name inside horizontal StackPanel with unavailable badge means TextWrapping may not get bounded width; fixed360 columns plus330 side panel and action column leaves name narrow. Native visual overflow unobserved.'),
+ ('TaxRules','Shows basis points and raw Mode; disabled badge explicit. This does not convert basis points to percent for operator. Side summaries remain when product loading/error overlay active.'),
+ ('PriceRules','Name and fixed price only, omits Active/days/time/product scope even though subtitle says current offers. A future/inactive rule can appear visually identical unless VM filters; verify actual query/filter contract before claiming wrong price.'),
+ ('ActionNote','Literalwhite text on TextPrimaryBrush repeats dark toast contrast risk; error independent. Parent editor may hide these beneath own overlay.'),
+ ('ZeroCountToVisibleConverter','Count-based empty tax/offer feedback re-evaluates reliably; no fake default rates or offers. No actual pricing change executed.')
+ ],'NOT_EXECUTED. Test permission denial, inactive/timed offers, availability ambiguous retry, large names and narrow layout, dark toast, editor focus. No callable declarations.', 'Label offer activity/scope and tax units clearly; keep availability authorization and exact retained write separate from editable pricing.')
+record(P+'Views/DeliveryView.xaml','Live dispatch board, driver roster and nested management overlays.',[
+ ('BoardSummary','Real board state summary and labeled refresh, directory permission visibility. Fixed320 driver panel plus board column widths leaves address star constrained at smaller screens.'),
+ ('Board','Rows show order/status, customer+phone/address, assigned driver, amount collection, payment warning and elapsed. Customer horizontal StackPanel can measure unbounded TextBlock despite Wrap, requiring native test.'),
+ ('MarkReadyCommand','Buttons strictly shown New→MarkReady, Ready→assign, OutForDelivery→outcome. No action for Preparing/Assigned/HandedToDriver in this markup. Whether these statuses reachable requires server path review, not inferred from comment that all legal transitions offered.'),
+ ('IsPaymentUnconfirmed','Textual PaymentStateLabel plus warning color avoids conflating collected with unconfirmed transfer. Collection amount remains server DTO display, not recalculated by XAML.'),
+ ('OpenDriverAccountCommand','Driver list buttons pass actual driver to root, async account/stat consistency must hold across rapid selection/close; prior VM generation candidate applies.'),
+ ('ActionNote','Success text unwrapped white on themedTextPrimary, so long notes and dark mode risk overflow/low contrast. Error wraps420. Dispatch modals then directory layered last, requiring VM mutual exclusion/focus control.')
+ ],'NOT_EXECUTED. Test actual server delivery states, reverse account/stat responses, pending mutation navigation, address wrapping and dark/narrow viewport. No callable declarations.', 'Validate state-action matrix against real backend and display coherent per-driver snapshot. Adapt board rather than assuming desktop density fits every terminal.')

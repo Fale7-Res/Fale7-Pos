@@ -1,0 +1,141 @@
+{
+  "artifact_kind": "coordinator_current_range_reconciliation",
+  "finding_id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "as_of_utc": "2026-10-21T07:46:33Z",
+  "prior_snapshot": "financial-payroll-overlap-range-and-residual-reconciliation.json reported 8 missing metadata ranges at its own snapshot.",
+  "current_gate": "Codex Work/Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json",
+  "current_gate_status": "PASS; current payroll candidate has no missing exact ranges and no source excerpt/range errors as part of 43 findings / 128 source paths.",
+  "current_source_references": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        [
+          732,
+          746
+        ],
+        [
+          812,
+          817
+        ],
+        [
+          841,
+          851
+        ]
+      ],
+      "git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+      "ranges": [
+        [
+          75,
+          118
+        ]
+      ],
+      "git_blob_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+      "worktree_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "ranges": [
+        [
+          227,
+          264
+        ],
+        [
+          331,
+          358
+        ]
+      ],
+      "git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "ranges": [
+        [
+          46,
+          154
+        ]
+      ],
+      "git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "ranges": [
+        [
+          29,
+          104
+        ]
+      ],
+      "git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878"
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "ranges": [
+        [
+          83,
+          110
+        ]
+      ],
+      "git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "ranges": [
+        [
+          39,
+          182
+        ]
+      ],
+      "git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+      "ranges": [
+        [
+          228,
+          240
+        ]
+      ],
+      "git_blob_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+      "worktree_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "ranges": [
+        [
+          93,
+          109
+        ],
+        [
+          188,
+          206
+        ]
+      ],
+      "git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8"
+    },
+    {
+      "path": "docs/IMPLEMENTATION_MATRIX.md",
+      "ranges": [
+        [
+          98,
+          99
+        ]
+      ],
+      "git_blob_sha256": "5873ea6890e641671dff2d60d47dc5b62a16f60375e8a2e0a6182fae2394f851",
+      "worktree_sha256": "28c1f130c8610878d5a08f08e6a024adae2e533e5fec258e70bfe5bbb2f1bc10"
+    }
+  ],
+  "disposition": "Source confirms separate standalone Settlement and frozen PayrollSettlement mechanics; exact source range metadata is now valid. It still does not prove duplicate payment. Owner accounting policy and same-period combined SQL/provider execution remain unresolved.",
+  "independent_challenge": "financial-payroll-candidate-independent-challenge-latest.json; static challenge, policy/runtime open. Coordinator source cross-check also saved in standalone-payroll-obligation-overlap-coordinator-cross-check.json.",
+  "runtime": "NOT_EXECUTED",
+  "next_required": "Owner confirms whether standalone settlement reduces same-period payroll liability; if yes/no, design isolated SQL integration interleaving tests accordingly. Do not promote the candidate to a confirmed duplicate-payment defect absent that requirement and evidence."
+}

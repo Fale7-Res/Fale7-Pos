@@ -1,0 +1,39 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:18:40.2312656Z",
+  "path": "tests/Falah.Domain.Tests/ShiftTests.cs",
+  "stable_ids": [
+    "sym-899979cac241f23ea2ca0ce4f14c44873378da51a8646bddecb618c03ff2e556",
+    "sym-06c8b549814f85f00a5915804a05572f86eb0bfa1a4c8496f31c572d6575a402",
+    "sym-120d20a46c22e020cbfe5efa925ebb82a36a1179b8b6a9f776f6c088e38f3dc8",
+    "sym-c5b4beb5daf672b449b3854867b8bac35336a053471d5b215637a4b70bf4bd79",
+    "sym-8f6dd14da04e59b1d417d088e1a8bc44028842ab3125e3e7ebb80015d29db75d",
+    "sym-1b327f96e25197e10385ebc70c0523e9167dc049053630558caca9a85e03a0c6",
+    "sym-2091cd750d74edfc1b999cdc3dfd87d927764dcb0c456e064cb68d30f355c0eb",
+    "sym-08eae58f6fc203a42812d2122fc11d08f90ee37005253cd47d147e39bc869579",
+    "sym-10cc80f97e5683bb2ddd895a41e7528721d8efb497d304319c865f2d8b5d3556",
+    "sym-2dc1b21739e5d32bc5d203382eba7792a40e4e9cf186d35e580b67d481f7f019",
+    "sym-3091c048f5b7283fc290716267b3da27c59580e8851c07d11bfd9ba14c37b2ac",
+    "sym-5e3509629215fb94763f71ce3c0c3590cbe231f15689bbecde10d9c0614c2a8d",
+    "sym-6e2b22f1ac9f569e1c639ade1f6a80cbe872e780425763bf305839dc778a983b"
+  ],
+  "queued_count": 13,
+  "reconciliation": {
+    "current_union_remaining": 13,
+    "coordinator_database_reports": 0,
+    "outside_union": 0,
+    "note": "Authoritative union confirms all callable IDs remain; coordinator report shard does not index this domain test file."
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/ShiftTests.cs": "B6330E6B8EF5B67E8CB1F60F47252ADE8E359375A9725BA12BEED8B45715E2F5",
+    "src/Falah.Domain/Shifts/Shift.cs": "E96A44389205732B3BB8A6C095D811BAE3C117B03A1EC82FC7B9CA3036756690"
+  },
+  "assessment": "Tests cover negative opening float, negative actual count, balanced close, variance inside/outside threshold, manager name/reason requirement, overage and double close. Static domain behavior agrees. Manager name in domain fixtures alone is not an authorization proof. Existing financial ledger links this test file to FIN-004; no new finding promoted.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static source review only; no tests, API calls or writes.",
+  "existing_findings": [
+    "FIN-004"
+  ],
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

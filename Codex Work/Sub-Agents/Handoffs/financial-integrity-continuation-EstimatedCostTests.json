@@ -1,0 +1,125 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:01:51.3280244Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/EstimatedCostTests.cs",
+  "symbol_count": 9,
+  "symbols": [
+    {
+      "stable_id": "sym-b8131629d37be467f02e5b4831ec37c6a6cd1423073546d45496b12f8ef232a7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.Ctx(params Falah.Domain.Inventory.StockMovementFacts[])",
+      "span": [
+        19,
+        5,
+        20,
+        112
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-98ca7b236c2694731d8e842af79b8fc12188c38ee6af1a5f6442b46c5544efd8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.Item(long?)",
+      "span": [
+        22,
+        5,
+        23,
+        65
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7377c6c1ad0dbe9dc9f8da97e4556a5513506449faad9db5907f4f780975675e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.Purchase(long)",
+      "span": [
+        25,
+        5,
+        26,
+        118
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5232bd990a2ffbeababde414c4bfaa486642898e67206200287667d1b462e470",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.With_no_purchase_and_no_estimate_the_cost_stays_unknown()",
+      "span": [
+        28,
+        5,
+        35,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-413564816035604ed7b71243d71b48f533137888eca4c47f60fa99e23dd9a58b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.An_estimate_is_used_only_while_no_purchase_exists_and_says_so()",
+      "span": [
+        37,
+        5,
+        46,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b43fe60766c81ccabafb91ff88a9532ed0ce435e75bede48929e7d1a11ed4663",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.A_real_purchase_overrides_the_estimate_completely()",
+      "span": [
+        48,
+        5,
+        55,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-da23205410cac6eee4734fc8a797710b5e4faae875ebcb8e57757d7cd6a1e7f2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.A_purchase_wins_even_when_it_is_far_cheaper_than_the_estimate()",
+      "span": [
+        57,
+        5,
+        66,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fa1cabde7ce51e307e614172c90214a1746df9610279a02b4e274b1a5c5af787",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.An_estimate_of_zero_is_not_a_cost()",
+      "span": [
+        68,
+        5,
+        76,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8bd7136c3a3326956af3b11c444a3738777c721d6c95d1f53614e19e0092c1c3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.EstimatedCostTests.A_recipe_priced_only_from_estimates_still_reports_complete_coverage()",
+      "span": [
+        78,
+        5,
+        94,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers estimate fallback only when no purchase exists, real purchase precedence regardless of estimate, treating zero estimate as unknown, and cost completeness when estimate prices all lines. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/9 exact IDs present",
+    "financial_coordinator": "/9 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

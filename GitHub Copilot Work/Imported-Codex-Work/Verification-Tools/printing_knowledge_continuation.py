@@ -1,0 +1,73 @@
+"""Owned audit evidence migration/reconciliation. Never runs application code."""
+from pathlib import Path
+import json
+from knowledge_store import WORK,load_symbols,save_review,atomic_json,now
+A='printing_workflows'
+ledger=json.loads((WORK/'Sub-Agents/Results/printing-ledger.json').read_text(encoding='utf-8-sig'))
+owned=[r['path'] for r in ledger['files']]
+
+def checkpoint(last,next_action):
+    remaining=[];done=[]
+    for p in owned:
+        m=load_symbols(p); rp=WORK/'Knowledge/Reviews'/A/(p+'.json')
+        j=json.loads(rp.read_text(encoding='utf-8')) if rp.exists() else {}
+        ds={r['stable_id'] for r in j.get('symbols',[]) if r.get('status')=='ANALYZED'}
+        done.extend(ds)
+        remaining.extend({'stable_id':s['stable_id'],'path':p,'line':s['startLine'],'kind':s['kind'],'name':s['name']} for s in m['symbols'] if s['isCallable'] and s['stable_id'] not in ds)
+    atomic_json(WORK/'Sub-Agents/Checkpoints'/f'{A}.json',{'reviewer':A,'updated_at_utc':now(),'state':'ACTIVE','baseline':ledger['baseline'],'last_completed':last,'current_partial':None,'analyzed_callable_count':len(done),'remaining_callable_count':len(remaining),'exact_remaining_ids_and_files':remaining,'evidence':['Sub-Agents/Results/program-endpoint-review.json','Sub-Agents/Handoffs/security-casing-challenge.md','Sub-Agents/Results/SEC001-printing-entrypoints.json'],'findings':['SEC001 independent source challenge; parent owns canonical flow/findings'],'pending_challenges':['Parent isolated MinimalAPI harness results; no actual DB exploit performed'],'blockers':[],'next_action':next_action,'constraints':'No application/DB/auth/runtime/printer changes. No commit/push authorized.'})
+
+def record(sym,reason,inputs,outputs,side,trust,db,ui,perf,conflicts,issues,tests,relations):
+    return {'stable_id':sym['stable_id'],'status':'ANALYZED','reasoning':reason,'inputs':inputs,'outputs':outputs,'side_effects':side,'trust_boundaries':trust,'database':db,'printing_ui':ui,'performance':perf,'duplicates_conflicts':conflicts,'issues_hypotheses':issues,'tests_missing':tests,'verified_callers_callees':relations,'evidence_source_span':[sym['startLine'],sym['endLine']],'review_method':'Actual source reasoning; no runtime verification'}
+
+def auth_review():
+    p='src/Falah.Server/AuthenticationMiddleware.cs'; sy=[s for s in load_symbols(p)['symbols'] if s['isCallable']];out=[]
+    for s in sy:
+        l=s['startLine']
+        if l==20:
+            args=('Stores exactly the supplied downstream RequestDelegate in _next; this constructor does not authenticate, rewrite a DTO or add a policy. Later InvokeAsync controls whether this delegate is reached. A null delegate would fail only on invocation, but ASP.NET middleware construction supplies it.','RequestDelegate next','Middleware instance retaining next delegate','Assigns private field only','Framework middleware composition, not caller JSON','NOT_APPLICABLE: no database operation','NOT_APPLICABLE: no UI/printer access','Constant time reference assignment','No duplicate registration enforced here','No constructor-specific vulnerability established; does not cure downstream actor trust','Framework composition/registration smoke test; no new test executed',['Program.cs:251 UseMiddleware registers this class','InvokeAsync calls retained _next'])
+        elif l==30:
+            args=('Separates anonymous/non-API paths from authenticated API; ResolveAsync supplies genuine user, then actor is stored in Items and body/query mismatch check controls403. It never overwrites body DTO actor. Therefore successful token resolution plus casing-skipped claim can reach a handler under a different body identity. Response401/403 returns before next; malformed body check is delegated.','HttpContext path, Authorization header, request body/query; injected SessionService','401 invalid session,403 mismatched recognized actor, or downstream pipeline continuation','Sets HttpContext.Items; writes error JSON; SessionService may update session LastSeen','Bearer->genuine principal is authoritative only inside this middleware; body identity is separately checked incompletely','ResolveAsync reads session/user and may SaveChanges for sliding expiry, so invoking this on live server would not be strictly read-only','All clients and print agents traverse this boundary; no physical print here','One session/user lookup plus buffered body parse; session write throttled by service','No endpoint-specific permission checks; bypassed request can later independently authorize wrong DB row','SEC001 source-traced parser differential; no real DB exploit executed','Compare exactcamel/Pascal/mixed duplicate actor keys; valid/invalid session; anonymous health/login; downstream DTO actor equality',['Program.cs:251 middleware registration','SessionService.ResolveAsync','FindActorMismatchAsync','_next(context)'])
+        elif l==36:
+            args=('For each constant AnonymousPaths entry this predicate compares request path with OrdinalIgnoreCase. Only exact path equality passes; it does not use prefix matching, so adding a suffix cannot become anonymous through this predicate. Non-API paths use the separate surrounding branch.','One anonymous path p captured request path','Boolean exact case-insensitive equality','None','Controls anonymous exception list only, not JSON actor names','NOT_APPLICABLE','Health/login exemption affects clients before auth; no hardware','At most two small string comparisons','No wildcard or startswith within this lambda','No bypass demonstrated for suffix paths; path normalization elsewhere not tested','Exactpaths, casing, trailing slash and suffix fixture tests',['AuthenticationMiddleware.InvokeAsync anonymous branch line36','AnonymousPaths constant array'])
+        elif l==91:
+            args=('Checks five actor aliases in query then parses JSON object and calls exact TryGetProperty for each camelCase alias. It compares only string/nonempty values and always rewinds buffered body. Alternate-cased JSON keys are not normalized, while default web DTO binding can accept them. ManagerApprover fields deliberately excluded; closedByUserId missing entirely is separate exposure. JsonException returns no mismatch rather than proving request valid.','HttpContext query/body/content type; genuine authenticatedUserId','First mismatched recognized field name or null','Enables buffering, consumes then resets body.Position; may spool large body through framework','Untrusted JSON syntax identity compared separately from downstream model binder; SEC001 central mismatch','NOT_APPLICABLE: no own DB calls','Authentication gateway for all API clients; no renderer/printer','Double JSON parse for writes; buffer allocation/disk threshold; no own size ceiling','Duplicate-case properties and last-value DTO semantics must be tested; query dictionary semantics differ','SEC001 alternate casing source trace. Missing closedByUserId not just casing; malformed/null actor cases need independent binder validation','Real Http.Json options harness; Pascal/uppercase/duplicate casing/null/missing actor; malformed JSON; nonJSON content',['InvokeAsync line69','JsonDocument.ParseAsync','JsonElement.TryGetProperty','request.Body.Position reset'])
+        elif l==140:
+            args=('Returns UserEntity from Items using exact ActorItemKey, or throws if missing/wrong type. This would provide authenticated identity if used, but repository search found no real endpoint/handler call sites. Its existence and XML comment do not establish bodyactor replacement.','HttpContext.Items','Genuine UserEntity or InvalidOperationException','None','Items set by middleware would be server-owned; unused at current sinks','NOT_APPLICABLE: returns entity reference but no query','NOT_APPLICABLE','Constant dictionary/type check','Method name Actor distinct from OrderMapper.ToActor; searched actual extension call sites','Unused authoritative extension leaves handlers body-authorized; SEC001 chain','Test present/missing/wrongtype Items; route integration proving commands actually derive it after future fix',['AuthenticationMiddleware.InvokeAsync sets Items line59','ActorId extension calls this method','No production consumer found by source search'])
+        elif l==144:
+            args=('Delegates to Actor(context).Id and therefore shares its throw behavior. It does not inspect request actor fields or rebind incoming DTOs. Search found no real command entrypoint invoking it, so it is not counterevidence to the casing vulnerability.','HttpContext','Authenticated user ID or propagated exception','None','Would cross authenticated context into command identity if actually used','NOT_APPLICABLE','NOT_APPLICABLE','Constant after Items lookup','No body identity overwrite by defining extension','Unused helper; source search scope src/**/*.cs','Test delegation and actual route use after remediation',['HttpContextActorExtensions.Actor','No endpoint production call found'])
+        else:raise ValueError(l)
+        out.append(record(s,*args))
+    save_review(A,p,{'scope':'All six actual callables individually reconciled; noncallable declarations remain indexed','symbols':out})
+    checkpoint(p+' six callables','Migrate 188 reviewed endpoint receipts plus four explicit helpers; then remaining stable IDs and SEC001 matrix')
+
+def program_migration():
+    p='src/Falah.Server/Program.cs';ss=load_symbols(p)['symbols'];rows=json.loads((WORK/'Sub-Agents/Results/program-endpoint-review.json').read_text());out=[]
+    for r in rows:
+        matches=[s for s in ss if s['isCallable'] and s['kind']=='ParenthesizedLambdaExpression' and s['startLine']==r['lines'][0]]
+        assert len(matches)==1,(r['path'],matches)
+        s=matches[0];method=r['method'];path=r['path'];body='\n'.join((WORK.parent/p).read_text(encoding='utf-8-sig').splitlines()[s['startLine']-1:s['endLine']])
+        calls=sorted(set(__import__('re').findall(r'\b(?:handler|query|reports|dashboard|statement|menu|sessions|autoPrint)\.(\w+)\(',body)))
+        relational=[f'MinimalAPI {method} {path} via Program registration']+calls
+        out.append(record(s,r['analysis']+' This receipt migrates the previously saved, actually source-reviewed route body; nested lambdas are NOT promoted by inclusion. No runtime proof.',
+            f'Bound parameters for {method} {path}; source span {s["startLine"]}-{s["endLine"]}; request body/query/path as declared in that source',
+            'HTTP result; locally translated errors '+(','.join(r['local_result_error_shapes']) or 'none explicit; framework/global handler applies'),
+            'GET is request read path (global session sliding may write); command delegates consequential writes to named handler; /auth/logout revokes session' if method=='GET' else 'Command route delegates state change to handler; inspect reasoning for print/auth/admin effect and replay conditions',
+            'Global bearer middleware except health/login; exact local gate indicators '+(','.join(r['local_gate_indicators']) or 'none')+'. Body-actor affected surface must be separately traced; GET query semantics are not proven by JSON casing.',
+            'Actual SQL and transaction boundary described in route reasoning when direct; downstream handler details are separate evidence, not inferred from HTTP success',
+            'Thermal/financial/management effect is route-specific per reasoning; no live client or print action executed',
+            'Route body queried for list cap/date/extra roundtrip and shared snapshot concerns; endpoint-specific details in reasoning; performance runtime UNKNOWN',
+            'No duplicate exact HTTP verb+path among188; nested/internal LINQ lambdas remain separate unreconciled callables',
+            r['analysis'],
+            'No tests executed for receipt migration; requires isolated invalid/auth/permission/idempotency/error/transaction contract cases relevant to this specific route',relational))
+    helperdata={2256:('Maps UserEntity to user summary with split/trimmed permission strings; exposes ID/name/role/permissions but no PIN hash/salt or session token. Called users listing and login response assembly.','UserEntity','UserSummaryDto','None',['GET /api/users','login-by-pin endpoint']),2270:('Filters treasury reference tuples to nonempty order IDs, deduplicates, returns empty without SQL for none, and issues one batched dictionary query. Separate label query has no shared snapshot with movement selection; no N+1 query loop.','Reference type/ID tuples and DbContext','ID-to-human-order-number dictionary','Read-only Orders query',['treasury movements endpoint','EF ToDictionaryAsync']),2282:('Reads actor DB row by supplied actorUserId, requires all/reports_view and returns denial result instead of throwing. This relies on query/body identity middleware matching actual caller; helper does not consult HttpContext Items.','actorUserId, DbContext, cancellation','null allow or404/422 denial','Read Users row',['Report endpoints','Users AsNoTracking']),2295:('Reads named actor and tests all/users_manage; permits management reads only for that row, not intrinsically token principal. No binding override within helper. Returned null indicates caller should continue,404/422 deny.','actorUserId, DbContext, cancellation','null allow or404/422 denial','Read Users row',['GET users all/detail','Users AsNoTracking'])}
+    for line,d in helperdata.items():
+        s=next(s for s in ss if s['isCallable'] and s['kind']=='LocalFunctionStatement' and s['startLine']==line)
+        reason,ins,outs,side,rel=d
+        out.append(record(s,reason,ins,outs,side,'Supplied actor query needs upstream identity consistency; summary output is not secret credential','Read-only EF except summary pure mapping','No printer; report/user metadata consumed by clients','Batching and empty fast path where applicable; no load test','Nested lambdas deliberately excluded from this helper receipt','No independent new finding beyond SEC001 context and report snapshot limits','No runtime tests; isolation permission/noactor/missingrow/cancellation fixtures required',rel))
+    assert len(out)==192
+    save_review(A,p,{'scope':'192 exact previously evidenced route/helper units reconciled; remaining49 Program nested/options callbacks stay unreviewed at stable-symbol level','symbols':out})
+    checkpoint(p+' 188 endpoint bodies +4 explicit helpers','Complete TicketElementMapping10 and AgentOptions42, then remaining print renderer/transport/journal callables; continueSEC001 handler tracing')
+
+if __name__=='__main__':
+    auth_review();program_migration()
+    print('Persisted six Auth and192 Program stable-symbol receipts, checkpoint exact remaining IDs saved')

@@ -1,0 +1,74 @@
+{
+  "artifact_kind": "independent_semantic_challenge",
+  "id": "SEM-MIRROR-021",
+  "candidate": "FIN-CAND-DASHBOARD-REOPENED-DAY-OMISSION-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:09:09.5652109Z",
+  "reviewer": "financial_integrity_continuation",
+  "decision": "SOURCE_CONFIRMED_LIMITED_DASHBOARD_PROJECTION_DIVERGENCE",
+  "assessment": "Confirmed that Reopened is persisted and treated as active by BusinessDayRules.IsActive and BusinessDayGate.TryGetActiveAsync; ReopenBusinessDayHandler sets Status=Reopened and resets the closing checklist; CloseBusinessDayHandler accepts Reopened→Closing and evaluates blockers. OwnerDashboardQueryService.LoadAttentionAsync separately selects only Status=Open for both age and blocker evaluation and emits HasOpenBusinessDay=false, OpenBusinessDayAgeDays=null, CloseBlockerCount=0 when no Open row is found. No source evidence establishes that Reopened should intentionally be excluded from close-attention indicators; the reopened checklist reset and allowed close transition support treating it as a day awaiting closure. However DTO naming/comments describe currently Open, and ControlCenter provides direct list/get/checklist/blocker-preview access for a specified reopened day, so the issue is limited to the owner-dashboard summary indicators rather than a global inability to inspect/close the day. Candidate is suitable only at low severity pending product intent; no financial-close blockage or lost data proven.",
+  "counterevidence": [
+    "AttentionDto names HasOpenBusinessDay/OpenBusinessDayAgeDays and documents the age for the currently open day, which could encode a strict Open-only presentation contract.",
+    "ControlCenterQueryService lists/get business days regardless of state and exposes blocker preview/checklist by explicit day ID, providing a separate inspection path.",
+    "Existing OwnerDashboardVerticalSliceTests assert ordinary Open behavior; no inspected dashboard test covers Reopened. BusinessDayCloseVerticalSliceTests proves reopen and checklist reset but not dashboard projections."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "sha256": "CDC3306873F2B6F46029186EC995B90415EDA247EE3EC5B7408A9285F390ED06",
+      "lines": "5-31",
+      "claim": "Active set includes Open, Closing, Reopened; Reopen requires no other active day and transitions Closed to Reopened."
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "sha256": "0271B40BE055FA7130067DBBE7368BC7A48A21EC65BFF8F05D47A0469B48C962",
+      "lines": "23-29",
+      "claim": "Active-day query includes Open, Closing, Reopened."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+      "sha256": "97E4427DED182F726E97ED7A1BC362CDAF4B94A3AB009635317FC36F0F9B0E57",
+      "lines": "29-111",
+      "claim": "Writes Reopened and removes closing checklist completions."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "sha256": "B33D64C048DB902BC7B9469787872EA70BE30659AB69A97486D9F95C98D46255",
+      "lines": "61-76",
+      "claim": "Accepts transition from current status to Closing; Reopened is legal by BusinessDayRules."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "sha256": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+      "lines": "235-243,265-294",
+      "claim": "Open-only queries drive age and blocker evaluation; absent Open day yields null/zero and HasOpenBusinessDay=false."
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "sha256": "0CBCEA3FCB9E03851FE45A316B0FDD6F2B2655F0B95795DB98EAC04137A822DA",
+      "lines": "110-130",
+      "claim": "DTO labels and age comment say currently open day, counterevidence to broader active-day intent."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "sha256": "2BA6E827C2DB885018094250FE907C5D78DD87C3D7112513D3624B92BCADFC15",
+      "lines": "17-43",
+      "claim": "All business day states are listed/gettable and blockers can be previewed by day ID."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "sha256": "66CC5719EC12A81881B02BA08468417F62E63B18E5FB63984FB79D2BFED06347",
+      "lines": "322-336",
+      "claim": "Reopen test asserts Reopened and reset closing checklist."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "sha256": "AC90773E9C322596DF77B62F2F257BE17F16C11B63D7AFB8AA9FAF76732ED0E6",
+      "lines": "183-192",
+      "claim": "Dashboard test covers Open only and checks blocker count >0."
+    }
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Read-only static source/test challenge; no API, database, UI or close workflow executed.",
+  "recommendation": "Keep as a bounded dashboard-summary divergence candidate. Clarify intended meaning of Open-only indicators; then either query the shared active-day status set for age/blockers or explicitly document/test that dashboard attention intentionally covers only Open status while Reopened day obligations appear only in Control Center."
+}

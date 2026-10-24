@@ -1,0 +1,121 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-036",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T07:46:11Z",
+  "scope": "Bounded parity check of persisted payroll-run projections: list endpoint projection versus CreatePayrollHandler.ToDto/GetRun, detail line projection, DTO fields, and nearby payroll write-path/tests. No live query or database execution.",
+  "decision": "PayrollQueryService.ListRunsAsync and CreatePayrollHandler.ToDto map the same persisted run properties in the same order; the only intended difference is WasReplayed=false for a read projection versus caller-supplied replay status on command results. GetRunAsync reuses ToDto. ListLinesAsync returns stored line snapshot fields and status rather than recalculating against current employee ledger, consistent with frozen-run semantics. PayPayrollHandler updates the persisted line status/paid time, which the query projects. No divergent monetary calculation or mirror defect was found. Query mapping is repeated field-by-field and could drift when DTO/entity fields evolve, but this is a maintainability/test gap, not a current accounting defect. Existing payroll integration tests exercise create/pay/replay and movements; this review did not find coverage asserting list/detail/line projection parity.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+      "worktree_sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "source_git_blob_sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "source_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "line_ranges": [
+        [
+          12,
+          15
+        ],
+        [
+          17,
+          20
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fb4cc47b917fa1478dd8469ceef861385b697d77577ff6308ad217f3f2acf893",
+          "signature": "Falah.Application.Employees.PayrollRunDto",
+          "span": [
+            12,
+            1,
+            15,
+            57
+          ]
+        },
+        {
+          "stable_id": "sym-106e145bef847e7a7b0aabb4b8a748f7626de80158bf9963d8b385838131382a",
+          "signature": "Falah.Application.Employees.PayrollLineDto",
+          "span": [
+            17,
+            1,
+            20,
+            72
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [],
+      "relevant_symbols": []
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "line_ranges": [
+        [
+          45,
+          80
+        ],
+        [
+          90,
+          110
+        ],
+        [
+          188,
+          222
+        ]
+      ],
+      "relevant_symbols": []
+    }
+  ],
+  "manual_reasoning": [
+    {
+      "question": "Do list and command paths disagree on payroll-run DTO fields?",
+      "result": "The list projection and ToDto include Id, Period, Status, CreatedBy, CreatedAtUtc, ApprovedBy, PaidAtUtc, ReviewedAtUtc, ReviewedBy, TreasuryMovementId, PaymentAccountId and WasReplayed. Values/order match; read list sets WasReplayed false while command result passes actual replay flag."
+    },
+    {
+      "question": "Does querying lines recompute historical pay from current ledger?",
+      "result": "No. ListLines projects persisted PayrollLine fields, including frozen component amounts, NetPayable, Status and PaidAtUtc. This protects historical run display from recalculation, though the accounting correctness of initial frozen amount belongs to the financial workflow review."
+    },
+    {
+      "question": "Is payment state reflected by query projection?",
+      "result": "PayPayrollHandler writes settlement/status timestamps in the run transaction; ListLines reads persisted status/time. The saved integration tests cover payment/replay and treasury movement but no explicit query-projection parity assertion was found in the reviewed test spans."
+    }
+  ],
+  "counterevidence": [
+    "The shared `CreatePayrollHandler.ToDto` already prevents duplicated projection logic for detail reads and command responses; list query is the only separate mapping identified.",
+    "Stored line projection is appropriate for an immutable/frozen payroll run and should not be changed to recalculate from live ledger without an explicit historical policy."
+  ],
+  "recommendation": "Keep reads based on the frozen persisted run. Consider using one shared projection/helper for list and ToDto, or add DTO parity assertions that fail when a new field is omitted; do not consolidate in a way that recalculates historical amounts.",
+  "required_regression_tests": [
+    "Create a run and assert ListRunsAsync and GetRunAsync expose identical persisted fields except WasReplayed.",
+    "After paying, assert ListLinesAsync shows persisted paid status/time and unchanged frozen amounts.",
+    "Add a DTO-field completeness test or shared projection contract test to catch field drift."
+  ],
+  "limitations": [
+    "No runtime/provider query executed.",
+    "Source mapping review is bounded to listed projection paths and does not certify payroll calculation correctness.",
+    "No independent reviewer was available; this is coordinator source comparison, not independent challenge."
+  ]
+}

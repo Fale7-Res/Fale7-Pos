@@ -1,0 +1,37 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.409906+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-edcade6fd5988cc39fbe25a64c44ab49280b92529aedd7a64147ab7122c2e1ca",
+      "status": "ANALYZED",
+      "signature": "Falah.Server.IntegrationTests.OwnerDashboardVerticalSliceTests.Today::get()",
+      "span": [
+        63,
+        5,
+        63,
+        101
+      ],
+      "reasoning": "Computes BusinessClock.Today().ToString(\"yyyy-MM-dd\") on each access; Cairo current date, not an injected frozen test clock. A test spanning Cairo midnight can observe different days; this is test determinism, not an observed production accounting defect.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Computes BusinessClock.Today().ToString(\"yyyy-MM-dd\") on each access; Cairo current date, not an injected frozen test clock. A test spanning Cairo midnight can observe different days; this is test determinism, not an observed production accounting defect.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "dafabe15f75a8e81a9095b9825896d0ce5c5e0c818aa7fd9736209f8671602e7",
+  "worktree_sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

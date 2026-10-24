@@ -1,0 +1,504 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-041",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T08:09:00.065029+00:00",
+  "scope": "Bounded comparison of inventory metadata CostSource changes, estimated-cost updates, cost resolution, exposed inventory detail/client surfaces, actual-purchase precedence, and existing recipe-cost integration-test source.",
+  "decision": "The implementations are distinct commands, not duplicate code. Create/update handlers maintain CostSource metadata and inventory identity/unit invariants; SetEstimatedCostHandler stores an audited estimate without stock, supplier or treasury postings; CostingRules uses an active prep recipe exclusively for Prep items, otherwise latest actual purchase before a strictly-positive estimate. This is coherent for priced non-prep ingredients. Two unresolved boundary questions are: setter accepts zero while resolver treats zero as unknown, and setter accepts estimates for Prep items while Prep resolution bypasses estimates and purchase fallback. These are policy questions, not confirmed defects: owner rules do not state whether zero is valid or Prep estimates are forbidden. Bounded client search found no Cashier WinUI call to this endpoint; route remains available to other consumers, so this does not prove dead code.",
+  "finding_candidate": null,
+  "related_existing_findings": [],
+  "severity": "No new finding assigned; unresolved behavior/policy ambiguity only, with no financial posting in estimate command.",
+  "confidence": "High for source behavior/data flow; undetermined for owner policy, actual deployment and runtime client use.",
+  "manual_reasoning": {
+    "metadata_path": "CreateInventoryItemHandler initializes CostSource but not estimated amount. UpdateInventoryItemHandler changes CostSource and metadata, refusing unit changes after any movement; it does not mutate estimate.",
+    "estimate_path": "Setter rejects negatives, authorizes inventory_manage, loads item, returns if unchanged, stores nullable estimated piastres, appends audit event and saves. It creates no stock movement, supplier balance, treasury movement or business-day dependency.",
+    "cost_selection": "Prep is checked first and uses an active prep recipe; absent recipe produces Unknown with no purchase/estimate fallback. Non-Prep uses latest purchase first, else estimate only when >0, else Unknown.",
+    "cross_layer": "Server route overwrites body item ID with route ID. Inventory DTO exposes nullable estimate. WinUI API exposes create/update methods but bounded search did not find estimated-cost request method or call. Detail VM loads item detail and labels CostSource.",
+    "test_evidence": "Existing Recipe_cost_detail_prices_every_line_and_says_where_each_price_came_from source sets a 5000-piaster estimate on a non-prep ingredient and expects Estimated. It does not test zero, clearing or Prep estimates. Test not run.",
+    "disposition": "No dangerous duplicate implementation found. Estimated values and invoices remain distinct. No finding ID. Decide whether zero means valid free cost or unknown, and whether estimates may be stored on Prep items. If zero is valid, resolver must distinguish it from unknown; if not, setter should reject it. If Prep estimates are forbidden, reject them; otherwise communicate that prep cost ignores them.",
+    "search_method": "Read exact handlers, domain resolver, request DTOs, route, inventory projection, detail ViewModel, API client declarations and existing integration-test source. rg search of Cashier WinUI, CallCenter WinUI and legacy Cashier for SetEstimatedCost, estimated-cost, EstimatedUnitCost found no match. Bounded negative evidence only.",
+    "counterevidence": "Comments describe estimates as placeholders and actual purchases as overriding facts. Prep items use recipe-derived cost. Zero may intentionally mean unknown; an estimate on Prep may be retained for later if CostSource changes. Both policies need owner confirmation.",
+    "runtime": "No test/build/API/database/UI operation executed."
+  },
+  "recommended_action": "No implementation recommendation without owner policy. Decide zero and Prep-source estimate semantics, then align setter validation, cost resolver, DTO and UI. Keep estimates separate from inventory/purchase/treasury ledger postings.",
+  "required_tests": [
+    "Zero estimate semantics match resolver and recipe completeness.",
+    "Prep estimate is either rejected or documented as retained-but-unused until CostSource changes.",
+    "A real purchase remains higher priority than estimate for non-Prep items.",
+    "Clearing estimate yields Unknown absent a purchase and preserves audit history.",
+    "Estimate updates never create stock movement, purchase, supplier payable or treasury movement.",
+    "Unit-change guard still checks historical stock movements."
+  ],
+  "acceptance_criteria": [
+    "No estimate-only action writes a financial/stock ledger or supplier obligation.",
+    "Zero and Prep estimate semantics are explicit and consistent.",
+    "No duplicate finding ID is created.",
+    "Actual purchase precedence and recipe-derived Prep costing remain intact."
+  ],
+  "runtime": "NOT_EXECUTED. Source inspection and test-source reading only.",
+  "limits": [
+    "No database/server execution.",
+    "No tests run.",
+    "No WinUI screen observation.",
+    "Client search excludes reflection/generated invocation and is not a dead-code proof.",
+    "Owner intent for zero and Prep estimates is unknown."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "source_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "source_git_blob_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          25,
+          55
+        ],
+        [
+          73,
+          101
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fbb6514eda5d15a7faebdc65a5019952060275ec98b229d279265de077a2f876",
+          "signature": "Falah.Infrastructure.Inventory.CreateInventoryItemHandler.HandleAsync(Falah.Application.Inventory.CreateInventoryItemRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            55,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2e2b5e95b71536d69b2ff31dbe0ff69c05cd8a375c19d1c2ed23d1957b80193a",
+          "signature": "Falah.Infrastructure.Inventory.UpdateInventoryItemHandler.HandleAsync(Falah.Application.Inventory.UpdateInventoryItemRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            73,
+            5,
+            101,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs",
+      "source_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "worktree_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "source_git_blob_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          40,
+          65
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d06aba080949e4a74a4c7a42d8aa375ca994cad9851dcb0309f9d937b18a9556",
+          "signature": "Falah.Infrastructure.Inventory.SetEstimatedCostHandler.HandleAsync(Falah.Application.Inventory.SetEstimatedCostRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            65,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "source_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          20,
+          56
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-176db03644bb706fafa9be43298cd41f4005b34a55b8ec9847e5738177ddc1f2",
+          "signature": "Falah.Domain.Inventory.CostingRules.IngredientUnitCost(Falah.Domain.Inventory.InventoryItem?, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            20,
+            5,
+            21,
+            59
+          ]
+        },
+        {
+          "stable_id": "sym-b43d69b3394282fe5cf2c2b2512f84b5f0685bdf7ccf6d33e5df792fa5aa1ceb",
+          "signature": "Falah.Domain.Inventory.CostingRules.IngredientUnitCost(Falah.Domain.Inventory.InventoryItem?, Falah.Domain.Inventory.CostingContext, HashSet<string>?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            28,
+            5,
+            56,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Inventory/InventoryItemRequests.cs",
+      "source_sha256": "1db9910fe257d0e653719898cf3ba32f622bdeafe7028fd62936e7ff26445992",
+      "worktree_sha256": "1db9910fe257d0e653719898cf3ba32f622bdeafe7028fd62936e7ff26445992",
+      "source_git_blob_sha256": "73b19c1ed74f1318815e794f065fe191ffe4cccfa801be9b4ff95f883189f317",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          8,
+          33
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d3cf4683aeb4fc50f792c813b8e84d707efc81c4aa850c0a4ec128e2cc9d3908",
+          "signature": "Falah.Application.Inventory.CreateInventoryItemRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            8,
+            1,
+            10,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-0972e256d7c923aae7903c2f6085fb4f18129022d0ec226b1ebd68662620bbe2",
+          "signature": "Falah.Application.Inventory.CreateInventoryItemResult",
+          "kind": "RecordDeclaration",
+          "span": [
+            12,
+            1,
+            12,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-872745d094a6507910fb4ba7a22bfa00c88b027ab19e357c580c82bd9ae4718d",
+          "signature": "Falah.Application.Inventory.UpdateInventoryItemRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            17,
+            1,
+            19,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-022d9693138b57822e9db2f5bdfe9421c04cddf622b8802f88a1d1063d7c1557",
+          "signature": "Falah.Application.Inventory.InventoryItemDto",
+          "kind": "RecordDeclaration",
+          "span": [
+            21,
+            1,
+            26,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-2c07c7ba70d0079e9b6f32bba46352cec523c0519f46300704b513c68fbbcbc6",
+          "signature": "Falah.Application.Inventory.SetEstimatedCostRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            32,
+            1,
+            33,
+            82
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          892,
+          947
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d7b0296c7f3199bbc9a70ade7bce8a3ff797c471864314fe9a5f421fa2fc7811",
+          "signature": "Falah.Application.Inventory.CreateInventoryItemRequest request",
+          "kind": "Parameter",
+          "span": [
+            892,
+            44,
+            892,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-df3b2c4a084cebdf697357964c41c7c3cffc104bcef6a0604767e34862a40492",
+          "signature": "Falah.Infrastructure.Inventory.CreateInventoryItemHandler handler",
+          "kind": "Parameter",
+          "span": [
+            892,
+            108,
+            892,
+            142
+          ]
+        },
+        {
+          "stable_id": "sym-dad01eb19875da23966795455138ee6d4a32a7a7593dcf50e2496a1cc215da7d",
+          "signature": "CancellationToken ct",
+          "kind": "Parameter",
+          "span": [
+            892,
+            144,
+            892,
+            164
+          ]
+        },
+        {
+          "stable_id": "sym-b5a69c21544b66b42e80b8ca00215c37169ff4d478acd28325bd60c505c1e5e5",
+          "signature": "string id",
+          "kind": "Parameter",
+          "span": [
+            909,
+            48,
+            909,
+            57
+          ]
+        },
+        {
+          "stable_id": "sym-c14a592357131ac009d913ef15da72bc68f4c570bbfe562052e66f229f8f21cd",
+          "signature": "Falah.Application.Inventory.UpdateInventoryItemRequest body",
+          "kind": "Parameter",
+          "span": [
+            909,
+            59,
+            909,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-bc0acc19ac14d82fda6099195c7af5b42aaf960c89015964cc40879d9bb91afb",
+          "signature": "Falah.Infrastructure.Inventory.UpdateInventoryItemHandler handler",
+          "kind": "Parameter",
+          "span": [
+            909,
+            120,
+            909,
+            154
+          ]
+        },
+        {
+          "stable_id": "sym-1f34f18608633e113a5684a4d57d74b86cc78605ef5af8d3b1399b7a04226f38",
+          "signature": "CancellationToken ct",
+          "kind": "Parameter",
+          "span": [
+            909,
+            156,
+            909,
+            176
+          ]
+        },
+        {
+          "stable_id": "sym-6545208cbcb39d0b72301e2fa5878d091f2090ca6deb6682f11c8ca5803006e8",
+          "signature": "string id",
+          "kind": "Parameter",
+          "span": [
+            934,
+            63,
+            934,
+            72
+          ]
+        },
+        {
+          "stable_id": "sym-53d7fc29bb1db4d4891536d063d906222bc7b9f9e6eabc99a3258298a1df165e",
+          "signature": "Falah.Application.Inventory.SetEstimatedCostRequest body",
+          "kind": "Parameter",
+          "span": [
+            934,
+            74,
+            934,
+            130
+          ]
+        },
+        {
+          "stable_id": "sym-f430136f57be6cb9bdea22f25e5bd297fbd4d2945871cbe49d2a91af73acba29",
+          "signature": "Falah.Infrastructure.Inventory.SetEstimatedCostHandler handler",
+          "kind": "Parameter",
+          "span": [
+            934,
+            132,
+            934,
+            163
+          ]
+        },
+        {
+          "stable_id": "sym-f2cef71c66953d3e0e6293f3d9c5dbbc6cbf55a3b67ee4b8d8df922b9faad5c0",
+          "signature": "CancellationToken ct",
+          "kind": "Parameter",
+          "span": [
+            934,
+            165,
+            934,
+            185
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "source_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          20,
+          35
+        ],
+        [
+          433,
+          460
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8db96d208b788eeb4c7c1b2f9f314e6bc9ebc69d3fdceaf0b10bb5642817b1f9",
+          "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.ListInventoryItemsAsync(CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            20,
+            5,
+            35,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-baad82c6c58d0dead3d50b926ba232d44f6afebb2fc938466178aaf8d5f81806",
+          "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.GetInventoryItemDetailAsync(string, DateTimeOffset?, DateTimeOffset?, int, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            433,
+            5,
+            460,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+      "source_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+      "worktree_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+      "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          245,
+          252
+        ],
+        [
+          279,
+          304
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2986a9c510aeff9580289f071df7775c99148dcb9ab77d9aa57796a0cb664067",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.DetailCostSourceLabel",
+          "kind": "PropertyDeclaration",
+          "span": [
+            245,
+            5,
+            252,
+            7
+          ]
+        },
+        {
+          "stable_id": "sym-82afb797748f0e05e349bb4e6c8f82a61979f05b9b088338a6d10ec2c44412ad",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.LoadDetailAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            279,
+            5,
+            304,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "source_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          528,
+          532
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-95ed1250ef82d92709c11da54e2e42002c8b8557c18c9f6b6fa715c69c3e32fc",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CreateInventoryItemAsync(Falah.Application.Inventory.CreateInventoryItemRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            528,
+            5,
+            529,
+            144
+          ]
+        },
+        {
+          "stable_id": "sym-04c9b7a45cbcd6c4f84a7f460879c4ea19af99fd64f2a9f4654974fe07e90e6a",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.UpdateInventoryItemAsync(Falah.Application.Inventory.UpdateInventoryItemRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            531,
+            5,
+            532,
+            129
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "source_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "baseline_identity": "indexed source hash matches; coordinator verified src/tests diff against baseline clean at latest checkpoint",
+      "line_ranges": [
+        [
+          559,
+          605
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e864c4f10f6f7d984eba4f8963298842c2ed2c95ef421ce812a4ad700c0401a4",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Recipe_cost_detail_prices_every_line_and_says_where_each_price_came_from()",
+          "kind": "MethodDeclaration",
+          "span": [
+            559,
+            5,
+            605,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "negative_search_method": "rg -n \"SetEstimatedCost|estimated-cost|EstimatedUnitCost\" across src/Falah.Client.CashierWinUI, src/Falah.Client.CallCenterWinUI, src/Falah.Client.Cashier; no match."
+}

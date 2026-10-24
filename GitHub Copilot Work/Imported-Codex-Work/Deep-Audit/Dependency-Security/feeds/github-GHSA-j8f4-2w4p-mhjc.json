@@ -1,0 +1,418 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-j8f4-2w4p-mhjc",
+  "retrieved_at_utc": "2026-10-17T01:52:55.436985+00:00",
+  "http_status": 200,
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 01:52:56 GMT",
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": "W/\"f8fe6fbb60a26e4f7195114df2e87f1e21636543d639a28f40f3035d77298d44\"",
+    "Last-Modified": "Wed, 01 Feb 2023 05:03:44 GMT"
+  },
+  "raw_body_utf8": "{\"ghsa_id\":\"GHSA-j8f4-2w4p-mhjc\",\"cve_id\":\"CVE-2017-0256\",\"url\":\"https://api.github.com/advisories/GHSA-j8f4-2w4p-mhjc\",\"html_url\":\"https://github.com/advisories/GHSA-j8f4-2w4p-mhjc\",\"summary\":\"Moderate severity vulnerability that affects Microsoft.AspNetCore.Mvc\",\"description\":\"A spoofing vulnerability exists when the ASP.NET Core fails to properly sanitize web requests.\",\"type\":\"reviewed\",\"severity\":\"medium\",\"repository_advisory_url\":null,\"source_code_location\":\"\",\"identifiers\":[{\"value\":\"GHSA-j8f4-2w4p-mhjc\",\"type\":\"GHSA\"},{\"value\":\"CVE-2017-0256\",\"type\":\"CVE\"}],\"references\":[\"https://nvd.nist.gov/vuln/detail/CVE-2017-0256\",\"https://github.com/aspnet/Announcements/issues/239\",\"https://github.com/advisories/GHSA-j8f4-2w4p-mhjc\"],\"published_at\":\"2018-10-16T19:57:48Z\",\"updated_at\":\"2023-02-01T05:03:44Z\",\"github_reviewed_at\":\"2020-06-16T21:42:43Z\",\"nvd_published_at\":\"2017-05-12T14:29:00Z\",\"withdrawn_at\":null,\"vulnerabilities\":[{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Core\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Core\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Http\"},\"vulnerable_version_range\":\"= 4.1.1\",\"first_patched_version\":\"4.1.2\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Http\"},\"vulnerable_version_range\":\"= 4.3.1\",\"first_patched_version\":\"4.3.2\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Text.Encodings.Web\"},\"vulnerable_version_range\":\"= 4.0.0\",\"first_patched_version\":\"4.0.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Text.Encodings.Web\"},\"vulnerable_version_range\":\"= 4.3.0\",\"first_patched_version\":\"4.3.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Http.WinHttpHandler\"},\"vulnerable_version_range\":\"= 4.0.0\",\"first_patched_version\":\"4.0.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Http.WinHttpHandler\"},\"vulnerable_version_range\":\"= 4.3.0\",\"first_patched_version\":\"4.3.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Security\"},\"vulnerable_version_range\":\"= 4.0.0\",\"first_patched_version\":\"4.0.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.Security\"},\"vulnerable_version_range\":\"= 4.3.0\",\"first_patched_version\":\"4.3.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.WebSockets.Client\"},\"vulnerable_version_range\":\"= 4.0.0\",\"first_patched_version\":\"4.0.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Net.WebSockets.Client\"},\"vulnerable_version_range\":\"= 4.3.0\",\"first_patched_version\":\"4.3.1\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Abstractions\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Abstractions\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.ApiExplorer\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.ApiExplorer\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Cors\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Cors\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.DataAnnotations\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.DataAnnotations\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Formatters.Json\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Formatters.Json\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Formatters.Xml\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Formatters.Xml\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Localization\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Localization\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Razor.Host\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Razor.Host\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Razor\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.Razor\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.TagHelpers\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.TagHelpers\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.ViewFeatures\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.ViewFeatures\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.WebApiCompatShim\"},\"vulnerable_version_range\":\">= 1.0.0, < 1.0.4\",\"first_patched_version\":\"1.0.4\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.AspNetCore.Mvc.WebApiCompatShim\"},\"vulnerable_version_range\":\">= 1.1.0, < 1.1.3\",\"first_patched_version\":\"1.1.3\",\"vulnerable_functions\":[]}],\"cvss_severities\":{\"cvss_v3\":{\"vector_string\":\"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N\",\"score\":5.3},\"cvss_v4\":{\"vector_string\":null,\"score\":0.0}},\"cwes\":[{\"cwe_id\":\"CWE-20\",\"name\":\"Improper Input Validation\"}],\"credits\":[],\"comments\":0,\"cvss\":{\"vector_string\":\"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N\",\"score\":5.3},\"epss\":{\"percentage\":0.03542,\"percentile\":0.8877}}",
+  "raw_bytes_sha256": "cedc0c0b3fe00866fc4552b95734dc7711e49804988fc33ebe566e0ee748987e",
+  "transport_bytes_sha256": "cedc0c0b3fe00866fc4552b95734dc7711e49804988fc33ebe566e0ee748987e",
+  "decompression": "none",
+  "data": {
+    "ghsa_id": "GHSA-j8f4-2w4p-mhjc",
+    "cve_id": "CVE-2017-0256",
+    "url": "https://api.github.com/advisories/GHSA-j8f4-2w4p-mhjc",
+    "html_url": "https://github.com/advisories/GHSA-j8f4-2w4p-mhjc",
+    "summary": "Moderate severity vulnerability that affects Microsoft.AspNetCore.Mvc",
+    "description": "A spoofing vulnerability exists when the ASP.NET Core fails to properly sanitize web requests.",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j8f4-2w4p-mhjc",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2017-0256",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2017-0256",
+      "https://github.com/aspnet/Announcements/issues/239",
+      "https://github.com/advisories/GHSA-j8f4-2w4p-mhjc"
+    ],
+    "published_at": "2018-10-16T19:57:48Z",
+    "updated_at": "2023-02-01T05:03:44Z",
+    "github_reviewed_at": "2020-06-16T21:42:43Z",
+    "nvd_published_at": "2017-05-12T14:29:00Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Core"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Core"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Http"
+        },
+        "vulnerable_version_range": "= 4.1.1",
+        "first_patched_version": "4.1.2",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Http"
+        },
+        "vulnerable_version_range": "= 4.3.1",
+        "first_patched_version": "4.3.2",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Text.Encodings.Web"
+        },
+        "vulnerable_version_range": "= 4.0.0",
+        "first_patched_version": "4.0.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Text.Encodings.Web"
+        },
+        "vulnerable_version_range": "= 4.3.0",
+        "first_patched_version": "4.3.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Http.WinHttpHandler"
+        },
+        "vulnerable_version_range": "= 4.0.0",
+        "first_patched_version": "4.0.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Http.WinHttpHandler"
+        },
+        "vulnerable_version_range": "= 4.3.0",
+        "first_patched_version": "4.3.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Security"
+        },
+        "vulnerable_version_range": "= 4.0.0",
+        "first_patched_version": "4.0.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.Security"
+        },
+        "vulnerable_version_range": "= 4.3.0",
+        "first_patched_version": "4.3.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.WebSockets.Client"
+        },
+        "vulnerable_version_range": "= 4.0.0",
+        "first_patched_version": "4.0.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Net.WebSockets.Client"
+        },
+        "vulnerable_version_range": "= 4.3.0",
+        "first_patched_version": "4.3.1",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Abstractions"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Abstractions"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.ApiExplorer"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.ApiExplorer"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Cors"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Cors"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.DataAnnotations"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.DataAnnotations"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Formatters.Json"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Formatters.Json"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Formatters.Xml"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Formatters.Xml"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Localization"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Localization"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Razor.Host"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Razor.Host"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Razor"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.Razor"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.TagHelpers"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.TagHelpers"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.ViewFeatures"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.ViewFeatures"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.WebApiCompatShim"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 1.0.4",
+        "first_patched_version": "1.0.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.AspNetCore.Mvc.WebApiCompatShim"
+        },
+        "vulnerable_version_range": ">= 1.1.0, < 1.1.3",
+        "first_patched_version": "1.1.3",
+        "vulnerable_functions": []
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+        "score": 5.3
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-20",
+        "name": "Improper Input Validation"
+      }
+    ],
+    "credits": [],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+      "score": 5.3
+    },
+    "epss": {
+      "percentage": 0.03542,
+      "percentile": 0.8877
+    }
+  },
+  "status": "RETRIEVED"
+}

@@ -1,0 +1,877 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-5962b2c1dfcac7a4ac3678b2d37b945d7254ddcd21e9978953771f7b7f014608",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Id.get",
+        "span": [
+          84,
+          24,
+          84,
+          28
+        ],
+        "reasoning": "Getter identifies prepared-batch recipe, distinct from produced inventory item; several row IDs can target same output absent unique output constraint.",
+        "inputs": "Configured entity containing string prep recipe PK.",
+        "outputs": "string prep recipe PK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-390128887cdd3b45cdea9324039b01ab634e7ef5c148f388e65adabc8aa236d0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Id.set",
+        "span": [
+          84,
+          29,
+          84,
+          33
+        ],
+        "reasoning": "Setter uses provided ID or prep-RequestId for replace-all save. Identity reuse is not an immutable receipt or payload fingerprint.",
+        "inputs": "string prep recipe PK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-efbab15fed5580a46e32136384e36c116f9062a9ac9d7d3ddcbdfd18ba248f82",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Name.get",
+        "span": [
+          85,
+          26,
+          85,
+          30
+        ],
+        "reasoning": "Getter exposes prepared-batch label for management/cost views rather than output item unit or identity.",
+        "inputs": "Configured entity containing string prep label.",
+        "outputs": "string prep label directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-6665e44d90469c20b29f883608be8929698da43c2ca1e2edf59219698c5930d6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Name.set",
+        "span": [
+          85,
+          31,
+          85,
+          35
+        ],
+        "reasoning": "Setter trims validated name; name change posts no batch production or stock facts.",
+        "inputs": "string prep label from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-e479c99252add7f9b36ad4588efc89ec1462677bd25ca2886afd7b45d854744d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.OutputInventoryItemId.get",
+        "span": [
+          86,
+          43,
+          86,
+          47
+        ],
+        "reasoning": "Getter identifies produced item for costing FirstOrDefault active producer search; it is not necessarily a purchased raw ingredient.",
+        "inputs": "Configured entity containing string produced item FK.",
+        "outputs": "string produced item FK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-34ed3fcd941c853cd11df1473bbcfd3020a0e5f6c1ab6d8dd2d84e72f677eff7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.OutputInventoryItemId.set",
+        "span": [
+          86,
+          48,
+          86,
+          52
+        ],
+        "reasoning": "Setter stores request output item reference. Restrict FK protects existence but does not enforce CostSource.Prep or one active producer; cycle census precedes transaction and existing graph candidate applies.",
+        "inputs": "string produced item FK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-3b3f31b08fc49cdd6542d2e6427da3175d04a54911bd680fc496f0b9499762bb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.OutputQuantityMilliUnits.get",
+        "span": [
+          87,
+          44,
+          87,
+          48
+        ],
+        "reasoning": "Getter supplies batch output divisor used to derive unit cost, not automatic stock receipt amount.",
+        "inputs": "Configured entity containing long batch output milliunits.",
+        "outputs": "long batch output milliunits directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-b346b152079d95c685a4f1ec7ba96b6222294f55c47366850e9318fd10fa65bd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.OutputQuantityMilliUnits.set",
+        "span": [
+          87,
+          49,
+          87,
+          53
+        ],
+        "reasoning": "Setter stores positive guarded output quantity. Property itself does not check overflow, matching item unit or production event consistency.",
+        "inputs": "long batch output milliunits from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-7cd4ca6acdb83cab16a3d82c5e5216c6ebd84b903af3edd36d860d72bdd7982a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Active.get",
+        "span": [
+          88,
+          26,
+          88,
+          30
+        ],
+        "reasoning": "Getter controls producer eligibility and other-producer graph census; inactive recipes remain stored without automatic deletion.",
+        "inputs": "Configured entity containing bool active producer.",
+        "outputs": "bool active producer directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-ba370791320762441e81d94964f6ff9cb894efe601cc816b013e50108e21865e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Active.set",
+        "span": [
+          88,
+          31,
+          88,
+          35
+        ],
+        "reasoning": "Setter stores requested flag after cycle check performed outside transaction. Active transitions across concurrent recipes need common graph admission, not isolated bool validation.",
+        "inputs": "bool active producer from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-ac9db8ec31f868e5158062d7023500d4668bbebf18224cc65a18b8ec6ac39001",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Lines.get",
+        "span": [
+          90,
+          47,
+          90,
+          51
+        ],
+        "reasoning": "Getter supplies mutable input recipe rows for costing/graph walk, not a live inventory balance or batch-consumption ledger.",
+        "inputs": "Configured entity containing List of PrepRecipeLineEntity.",
+        "outputs": "List of PrepRecipeLineEntity directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-e100773883b451c6ae646c751fc76a6cef4cb61bb0d173550eb6d296609d7c0a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity.Lines.set",
+        "span": [
+          90,
+          52,
+          90,
+          56
+        ],
+        "reasoning": "Setter replaces rows after RemoveRange old lines in transaction. Empty active input set is not rejected by shown request guard; no inferred complete cost from List type.",
+        "inputs": "List of PrepRecipeLineEntity from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-37999e4ab197431398641f69cac9eda17a3fec2e135894b915523c86e0523c71",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.Id.get",
+        "span": [
+          95,
+          21,
+          95,
+          25
+        ],
+        "reasoning": "Getter exposes generated integer input-row key; ingredient identity and parent recipe are separate fields.",
+        "inputs": "Configured entity containing int prep line PK.",
+        "outputs": "int prep line PK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-76d48b970a1929e61b5e9892d0fd6814043d877394a98e5d231c30f6960d85f9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.Id.set",
+        "span": [
+          95,
+          26,
+          95,
+          30
+        ],
+        "reasoning": "Setter is not assigned by normal replacement writer, leaving provider generation. Replacing whole line set creates new integer keys, not stable per-input identities.",
+        "inputs": "int prep line PK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-87bb7f01290cf50b4cb2fdc78c402fbdc844f55b0db5f335673b49fd772ab79a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.PrepRecipeId.get",
+        "span": [
+          96,
+          34,
+          96,
+          38
+        ],
+        "reasoning": "Getter associates input row with parent batch used by graph/cost query.",
+        "inputs": "Configured entity containing string prep parent FK.",
+        "outputs": "string prep parent FK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-4b2406b6b4afee8ffc9e3d3f73b96e33cbe558755c79a35f10e840e8c31f3948",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.PrepRecipeId.set",
+        "span": [
+          96,
+          39,
+          96,
+          43
+        ],
+        "reasoning": "Setter copies current prep recipe ID, with cascade parent relation governing deletion. It does not validate cycle or output quantity.",
+        "inputs": "string prep parent FK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-6b6d573ceb9010dd48918a58e2f9f9bd4d6bb706a8815474adc1353ec8f765bd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.InventoryItemId.get",
+        "span": [
+          97,
+          37,
+          97,
+          41
+        ],
+        "reasoning": "Getter identifies consumed ingredient, which may itself be a prepared item requiring recursive cost resolution.",
+        "inputs": "Configured entity containing string input item FK.",
+        "outputs": "string input item FK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-13effdeca46d482a75825c704f8098388ace84df6e8109064524a507f0a6840e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.InventoryItemId.set",
+        "span": [
+          97,
+          42,
+          97,
+          46
+        ],
+        "reasoning": "Setter copies request ingredient and FK validates existence at save; graph/rate policies and inactive item handling remain separate.",
+        "inputs": "string input item FK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-ece350cfdee6e988b6cc68e0eb6ee7332c6913256cb6f5431e10c1102fe662d5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.QuantityMilliUnits.get",
+        "span": [
+          98,
+          38,
+          98,
+          42
+        ],
+        "reasoning": "Getter supplies configured input amount per batch, distinct from output amount and sold-item recipe unit conversion.",
+        "inputs": "Configured entity containing long prep input milliunits.",
+        "outputs": "long prep input milliunits directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-9998add002c0185e4a8448ce3fa3d7e99c03c17fd7cb884a614999d714a50eb3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity.QuantityMilliUnits.set",
+        "span": [
+          98,
+          43,
+          98,
+          47
+        ],
+        "reasoning": "Setter copies positive guarded quantity without posting stock or supplier debt. Financial cost multiplication/rounding occurs in costing engine, not accessor.",
+        "inputs": "long prep input milliunits from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-805c6cf884a38dee1993056133e1132726692454977a8dd65e299962733cec2b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.Id.get",
+        "span": [
+          106,
+          24,
+          106,
+          28
+        ],
+        "reasoning": "Getter identifies packaging configuration upsert; deduction idempotency is packaging-orderId rather than this rule ID.",
+        "inputs": "Configured entity containing string packaging rule PK.",
+        "outputs": "string packaging rule PK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-d4545a6de3bb697a481dcd81e292f953bdb2516a6bea68073e9ea4322c06352d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.Id.set",
+        "span": [
+          106,
+          29,
+          106,
+          33
+        ],
+        "reasoning": "Setter stores supplied ID or pkg-rule-RequestId; PK does not enforce one active rule per order type.",
+        "inputs": "string packaging rule PK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-1da859a977a46d03f70387da9c9874a7c18b28090c684bec22043f52791b336c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.OrderType.get",
+        "span": [
+          107,
+          31,
+          107,
+          35
+        ],
+        "reasoning": "Getter supplies raw order-type match for active deduction query. Unknown spelling may select no rule, not a safe canonical enum conversion.",
+        "inputs": "Configured entity containing string order-type binding.",
+        "outputs": "string order-type binding directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-7d1bff74282358b6f908b5eaca947cbe8c1fa97763157aa28f00e4243d3ab2ce",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.OrderType.set",
+        "span": [
+          107,
+          36,
+          107,
+          40
+        ],
+        "reasoning": "Setter copies request OrderType without enum validation in inspected handler. Multiple active matching rows use FirstOrDefault with no explicit ordering in deduction.",
+        "inputs": "string order-type binding from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-550e19fa7bfa4ec80c4ebce1d2e8099579afb205b84bf2e4575aab743af3577d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.InventoryItemId.get",
+        "span": [
+          108,
+          37,
+          108,
+          41
+        ],
+        "reasoning": "Getter identifies item consumed once per qualifying order, separate from per-dish packaging recipe lines.",
+        "inputs": "Configured entity containing string packaging item FK.",
+        "outputs": "string packaging item FK directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-8a6cde90c48764c1e60c9bcf0c8671de02f5d99174f363a74dcf77d4d783abe3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.InventoryItemId.set",
+        "span": [
+          108,
+          42,
+          108,
+          46
+        ],
+        "reasoning": "Setter stores request item reference after nonempty guard; FK enforces existence, not IsPackaging=true or active item metadata in shown handler.",
+        "inputs": "string packaging item FK from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-d479bbe1d314449e71a9e62d28258c694c2480b960c1f3b375d3d329618be9c2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.QuantityMilliUnits.get",
+        "span": [
+          109,
+          38,
+          109,
+          42
+        ],
+        "reasoning": "Getter supplies amount once per order regardless number of sold lines; it must not be multiplied by cart line count.",
+        "inputs": "Configured entity containing long per-order packaging milliunits.",
+        "outputs": "long per-order packaging milliunits directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-e5a554994afd16ad08c9d0dfd877fe79cdb4ddaf4ecc9b5539887d3b7582018d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.QuantityMilliUnits.set",
+        "span": [
+          109,
+          43,
+          109,
+          47
+        ],
+        "reasoning": "Setter stores positive guarded request quantity. Deduction skips nonpositive persisted rows as countercontrol; no auto-property conversion/physical stock proof.",
+        "inputs": "long per-order packaging milliunits from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-fd7ec0612a6a8247b7764c22fe8a7e23331b260dcf3b7fd00edafa9bd5ecd150",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.Active.get",
+        "span": [
+          110,
+          26,
+          110,
+          30
+        ],
+        "reasoning": "Getter filters whether rule participates in packaging deduction; absence of active match posts no packaging movement, not proof cost known zero.",
+        "inputs": "Configured entity containing bool packaging rule active.",
+        "outputs": "bool packaging rule active directly returned.",
+        "side_effects": "No side effects or query; navigation list remains mutable.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      },
+      {
+        "stable_id": "sym-1cff84263983954d42caad5a6e50b86f94fe29f2345db916cf26bb74c1eaf572",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderPackagingRuleEntity.Active.set",
+        "span": [
+          110,
+          31,
+          110,
+          35
+        ],
+        "reasoning": "Setter stores activation without deactivating competing same-type rules. Existing packaging-completeness finding and first-match policy remain qualified, no new duplicate finding.",
+        "inputs": "bool packaging rule active from authorized prep/packaging save.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF configuration graph mutation only. No physical preparation, stock posting, cash or printer action inside property.",
+        "trust_boundaries": "menu_manage permission-or-approval authorizes writer; configuration fields do not prove physically produced batches, complete cost data, unit consistency or valid graph. No app/DB operation executed.",
+        "database": "DbContext257-273 prep PK/output Restrict FK/line cascade and ingredient Restrict FK; packaging PK/ingredient FK only. SavePrep49-71 replace transaction; graph check47 precedes transaction. SavePackaging44-56 upsert has no single-active-type unique constraint in inspected mapping.",
+        "printing_ui": "Config DTOs return scalar/line data; deduction77-97 consumes first active matching per-order packaging rule. No actual order, preparation or print run.",
+        "performance": "O(1) accessor. Prep cycle census and recursive costing occur in caller, no benchmark or provider lock-plan verification.",
+        "duplicates_conflicts": "Per-order packaging versus per-dish packaging intentionally different. Existing prep-graph/packaging-completeness candidates retain full source qualifications and are not closed by foreign keys.",
+        "issues_hypotheses": "No new accessor finding promoted. Missing canonical type/one-active producer assumptions are recorded as source behavior, not runtime configuration corruption proof.",
+        "tests_missing": "No tests executed. Need reciprocal concurrent prep graph admission, inactive activation, duplicate producer/order-type selection, nonpackaging item rejection policy and per-order versus per-item deduction regression.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs:25-113",
+          "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs:25-58",
+          "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs:77-97",
+          "src/Falah.Domain/Inventory/CostingRules.cs:28-45",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:257-273"
+        ]
+      }
+    ]
+  }
+]

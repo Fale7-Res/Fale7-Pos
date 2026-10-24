@@ -1,0 +1,41 @@
+{
+  "artifact_kind": "financial_callable_substantive_review_coordinator_validation",
+  "created_at_utc": "2026-10-24T11:49:16.638Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root coordinator",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-12-stock-and-range-crossref-2026-10-24.json",
+  "stable_id": "sym-d2884709cbea3a2b84342cb0d449f57930b897f0273d0ddf650d3c1ddb79cb6a",
+  "symbol": "OwnerDashboardQueryService.LoadStockAsync(CancellationToken)",
+  "lines": [
+    297,
+    315
+  ],
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "identity_matched": true,
+    "reasoning_quality": "partly contradicted: it says the dashboard uses the same stock-balance test as inventory overview, but it omits Direction"
+  },
+  "source_hashes": {
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "src/Falah.Domain/Inventory/InventoryRules.cs": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+    "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+    "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+    "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2"
+  },
+  "review": {
+    "status": "SUBSTANTIVE_REVIEW_VERIFIED",
+    "summary": "Dashboard sums positive QuantityMilliUnits without Direction. InventoryRules and GetInventoryOverviewAsync add In and subtract Out. RecordWasteHandler stores validated positive quantity with Direction=Out. Thus 10,000 In plus 2,000 Out yields dashboard 12,000 but inventory balance 8,000. Existing vertical slice test expects 8,000 after those directions; inspected, not executed. This is the existing FIN-013 defect, not a new finding.",
+    "root_cause": "Owner dashboard aggregate ignores signed movement direction.",
+    "impact": "The dashboard can suppress low-stock alerts when actual signed stock is at or below the configured minimum. No cash-loss or valuation claim.",
+    "counterevidence": "Existing FIN-013 covers the same root and fix. Existing test proves inventory overview expectation but does not exercise dashboard parity.",
+    "recommendation": "Keep FIN-013 canonical; calculate dashboard balance with the same signed direction rule as inventory overview. Verify low-stock behavior across Out movement types.",
+    "tests": [
+      "Compare dashboard and inventory balances after positive-quantity Out count adjustment and waste.",
+      "Set minimum between unsigned and signed totals and assert both views agree on low-stock state.",
+      "Cover waste, spoilage, breakage, usage and count-adjustment Out."
+    ],
+    "tests_executed": [],
+    "runtime_verification": false
+  }
+}

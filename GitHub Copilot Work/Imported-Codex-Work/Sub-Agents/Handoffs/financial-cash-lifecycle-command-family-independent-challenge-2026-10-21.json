@@ -1,0 +1,331 @@
+{
+  "artifact_kind": "independent_static_semantic_challenge",
+  "id": "financial-cash-lifecycle-command-family-independent-challenge-2026-10-21",
+  "created_utc": "2026-10-21",
+  "target": "SEM-MIRROR-028",
+  "source_comparison": "Codex Work/Deep-Audit/Duplication-and-Architecture/cash-lifecycle-command-family-semantic-comparison.json",
+  "decision": "PARTIAL_CORROBORATION_WITH_MATERIAL_QUALIFICATION",
+  "conclusion": "Corroborate shared source-level balance-lock helper, journal idempotency, movement factory and transaction/SaveChanges flow, plus the command policy distinctions. Add a materially relevant closed-shift attribution question: SafeDrop can post while its supplied shift is already closed, tags that old shift and the current open business day, and is later included in that shift’s recomputed cash reconciliation. This may revise historical shift attribution and cause a reprinted slip’s component breakdown to diverge from saved expected close. Intent is unknown; do not promote as confirmed defect absent owner policy on late safe drops.",
+  "shared_mechanics": {
+    "source_supported": "Each handler opens a transaction, locks posted account movement rows through TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync, asserts protected source balance, starts/completes an operation-specific EfFinancialJournal key, creates a posted movement, adds an audit event, saves and commits; conflict handling attempts durable receipt replay.",
+    "qualification": "Static control flow only; lock SQL provider semantics, concurrency outcomes and database atomicity were not executed. EF audit adapter is same-context; transfer CashHandover is same DbContext and included in SaveChanges."
+  },
+  "policy_differences": {
+    "safe_drop": "safe_drop permission; drawer to main; requires positive amount/reason, open business day and a shift row by ID, but no Open-status check; carries supplied ShiftId.",
+    "cashier_cash_in_out": "cash_drawer permission; cash_in main to drawer, cash_out drawer to main; requires shift Status=Open and business day open; operation key embeds movement type.",
+    "transfer": "treasury_manage; known distinct source/destination accounts; null ShiftId; records CashHandover alongside movement.",
+    "withdrawal": "treasury_manage; source constrained to ExternalCapitalAccounts; null destination and ShiftId; critical audit."
+  },
+  "missed_financially_relevant_divergence": {
+    "condition": "On an open business day, SafeDrop request can reference an existing closed shift. It is posted with current BusinessDayId and that historical ShiftId.",
+    "effect": "ShiftReconciliation.ComputeBreakdownAsync filters posted movement rows by ShiftId and includes safe_drop as cash outflow. Reprinting closed-shift slip keeps persisted expected/actual/difference but recomputes the breakdown, so a post-close safe drop can change reported components without changing saved expected close. Business-day and shift attribution can therefore differ.",
+    "evidence": [
+      "SafeDropHandler.cs:45-46 only requires shift existence; 58-59 open business day; 74-83 passes current day and request ShiftId.",
+      "ShiftReconciliation.cs:59-68 filters by shift and includes safe_drop.",
+      "PrintJobQueryService.cs:181-203 preserves stored expected/actual/difference but recomputes breakdown.",
+      "CashierCashMovementHandler.cs:56-59 explicitly requires open shift."
+    ],
+    "classification": "Owner-policy/attribution question with source-supported consequence; not a demonstrated loss or wrong posted balance.",
+    "counterevidence": "SafeDrop may intentionally record delayed custody transfer against the prior shift while the business day remains open; test only verifies open-shift direction. No policy evidence reviewed specifies whether a safe drop after cashier close is forbidden or belongs to the day instead."
+  },
+  "test_counterevidence": {
+    "cited_test_ranges": [
+      {
+        "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+        "ranges": [
+          [
+            123,
+            161
+          ],
+          [
+            163,
+            187
+          ],
+          [
+            204,
+            238
+          ],
+          [
+            306,
+            327
+          ]
+        ]
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+        "ranges": [
+          [
+            52,
+            72
+          ],
+          [
+            90,
+            105
+          ],
+          [
+            107,
+            132
+          ]
+        ]
+      }
+    ],
+    "found": "Treasury test asserts distinct-ID transfer/withdrawal overdraw protection and exact transfer handover; SafeDrop test uses an open shift and confirms drawer decrement/main increment. Cashier test asserts open-shift requirement and same-ID exact-once only. No cited test covers SafeDrop against closed shift, its historical-shift reconciliation effect, or cross-command distinct-ID spending against one source account.",
+    "runtime": "NOT_EXECUTED"
+  },
+  "disposition": {
+    "coordinator_comparison": "Mostly corroborated. Shared EF audit and transfer handover are transaction-scoped based on current adapter/change-tracker source. Add the SafeDrop closed-shift/reconciliation implication and qualify all concurrency claims as source-only.",
+    "owner_question": "Is SafeDrop allowed after shift close while the business day remains open? If yes, should it remain attributed to the closed shift or only the current business day? If no, enforce open-shift validation and cover it.",
+    "suggested_regression": "After owner policy is explicit, test safe drop against a closed shift while day is open; assert accepted/rejected status, movement ShiftId/BusinessDayId, saved closed expected, and subsequent handover-slip breakdown. Add cross-command distinct-ID source-account concurrency test on the intended SQL Server provider.",
+    "limits": [
+      "No tests run, no DB/provider/runtime access, no application edits.",
+      "Only cited command sources and directly relevant ShiftReconciliation/close-slip source plus cited integration-test source inspected.",
+      "No confirmation of deployed database/provider lock behavior or SafeDrop owner policy."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "Codex Work/Deep-Audit/Duplication-and-Architecture/cash-lifecycle-command-family-semantic-comparison.json",
+      "ranges": [],
+      "symbols": [
+        "SEM-MIRROR-028"
+      ],
+      "note": "Coordinator comparison reviewed as the prompt scope."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+      "sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+      "ranges": [
+        [
+          33,
+          59
+        ],
+        [
+          62,
+          83
+        ],
+        [
+          85,
+          97
+        ]
+      ],
+      "symbols": [
+        "SafeDropHandler.HandleAsync"
+      ],
+      "note": "Requires positive amount/reason, safe_drop authorization and open business day; queries Shift by ID existence only, then posts movement with current businessDayId and supplied ShiftId."
+    },
+    {
+      "path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+      "sha256": "ce1184171f64ce4ce1f8399d26b6228592ce0c6767aded0f4ff4140d35dbd6fd",
+      "ranges": [
+        [
+          40,
+          76
+        ],
+        [
+          80,
+          111
+        ]
+      ],
+      "symbols": [
+        "CashierCashMovementHandler.HandleAsync"
+      ],
+      "note": "Restricts cash_in/out, requires open shift and cash_drawer authorization; cash_in Main->Drawer, cash_out Drawer->Main; same lock/journal/movement/audit transaction flow."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+      "sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+      "ranges": [
+        [
+          29,
+          79
+        ],
+        [
+          81,
+          99
+        ]
+      ],
+      "symbols": [
+        "TransferHandler.HandleAsync"
+      ],
+      "note": "treasury_manage; known distinct accounts; null shift; adds CashHandover in same DbContext/transaction."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+      "sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+      "ranges": [
+        [
+          30,
+          79
+        ],
+        [
+          81,
+          89
+        ]
+      ],
+      "symbols": [
+        "WithdrawalHandler.HandleAsync"
+      ],
+      "note": "treasury_manage; external-capital-only source; null destination and shift; critical audit."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+      "sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+      "ranges": [
+        [
+          37,
+          46
+        ]
+      ],
+      "symbols": [
+        "TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync"
+      ],
+      "note": "All four handlers call the same SQL Server-style posted-movement query using UPDLOCK,HOLDLOCK before protected source balance assertion; source supports shared lock path, but SQL provider/runtime concurrency remains unverified."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+      "sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+      "ranges": [
+        [
+          22,
+          45
+        ]
+      ],
+      "symbols": [
+        "TryStart",
+        "Complete"
+      ],
+      "note": "Shared durable idempotency key journal entity; pending row created and completed before SaveChanges/commit."
+    },
+    {
+      "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+      "sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "ranges": [
+        [
+          83,
+          103
+        ]
+      ],
+      "symbols": [
+        "TreasuryMovementFactory.BuildCashLifecycleMovement"
+      ],
+      "note": "Shared movement factory assigns account, operation, business-day, shift, reference and Posted state; does not itself impose command policy."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Audit/EfAuditLog.cs",
+      "sha256": "9c85aef61a313dc4de40307ed367388ac4d6480921f11cdf3b45dc478e7bab22",
+      "ranges": [
+        [
+          7,
+          28
+        ]
+      ],
+      "symbols": [
+        "EfAuditLog.Append"
+      ],
+      "note": "Counterevidence to possible audit atomicity gap: EF audit adapter adds AuditEvent to the same DbContext/change tracker and does not save separately; append is included in business SaveChanges/transaction."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+      "sha256": "7494487952ecd877f4a3d1ec22b62d70227d623364a6cc28e023bf693e7a781a",
+      "ranges": [
+        [
+          52,
+          72
+        ],
+        [
+          90,
+          105
+        ],
+        [
+          107,
+          132
+        ]
+      ],
+      "symbols": [
+        "A_cash_in_moves_money_from_main_to_drawer",
+        "A_cash_out_moves_money_from_drawer_to_main",
+        "A_cash_movement_requires_the_shift_to_be_open",
+        "A_cash_out_larger_than_the_drawers_balance_is_rejected",
+        "Concurrent_cash_in_requests_with_the_same_request_id_post_exactly_once"
+      ],
+      "note": "Source tests cover cashier direction, open shift, balance rejection, same-ID replay; no distinct-ID or cross-command concurrency schedule in cited source."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+      "sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+      "ranges": [
+        [
+          123,
+          161
+        ],
+        [
+          163,
+          187
+        ],
+        [
+          204,
+          238
+        ],
+        [
+          306,
+          327
+        ]
+      ],
+      "symbols": [
+        "Different_concurrent_withdrawals_cannot_between_them_overdraw_the_account",
+        "Different_concurrent_transfers_cannot_between_them_overdraw_the_account",
+        "A_safe_drop_moves_the_cash_into_the_main_treasury_rather_than_out_of_the_books",
+        "same-id withdrawal/transfer replay",
+        "A_transfer_creates_exactly_one_cash_handover_record"
+      ],
+      "note": "Test source covers distinct-ID overdraft for transfer/withdrawal, SafeDrop direction with open shift, same-key replay and handover. Tests not run; no safe-drop closed-shift or cross-command concurrent case."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "ranges": [
+        [
+          59,
+          68
+        ]
+      ],
+      "symbols": [
+        "ShiftReconciliation.ComputeBreakdownAsync"
+      ],
+      "note": "A posted safe_drop tagged with the supplied ShiftId is included in that shift’s expected drawer reconciliation as a cash outflow."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "ranges": [
+        [
+          79,
+          84
+        ],
+        [
+          95,
+          98
+        ]
+      ],
+      "symbols": [
+        "CloseShiftHandler.HandleAsync"
+      ],
+      "note": "Shift close checks Open status, computes expected and persists a closed snapshot; comments indicate cash custody does not block shift close."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "ranges": [
+        [
+          181,
+          204
+        ]
+      ],
+      "symbols": [
+        "ComposeShiftCloseSlipAsync"
+      ],
+      "note": "Reprint loads saved expected/actual/difference but recomputes components, so a post-close SafeDrop attached to that shift can make component breakdown move while persisted expected close figure remains frozen."
+    }
+  ],
+  "reviewer": "financial_integrity_continuation"
+}

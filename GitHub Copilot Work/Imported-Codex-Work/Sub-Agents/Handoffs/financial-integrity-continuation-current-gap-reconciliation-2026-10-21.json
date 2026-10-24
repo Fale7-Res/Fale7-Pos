@@ -1,0 +1,159 @@
+{
+  "artifact_kind": "financial_continuation_gap_reconciliation",
+  "id": "financial-integrity-continuation-current-gap-reconciliation-2026-10-21",
+  "created_utc": "2026-10-21T06:25:13Z",
+  "session_identity": "/root/financial_integrity_continuation; existing replacement continuation, persisted evidence only",
+  "assignment_acknowledged": "Close finance gaps from the saved completion-quality review: reconcile 8,804 membership versus substantive callable review; assess residual 213 where finance relevant including shift-close printing; reconcile 327 file reports, payroll overlap ranges and implementation-readiness docs. No source/test/config/database/runtime changes; no tests; no shared report/registry writes.",
+  "decision": "NOT_COMPLETE; exact callable membership is reconciled, but exact current substantively reviewed callable count and exact remaining substantive-analysis queue are UNKNOWN. The 327-file ledger passes structural/source consistency checks but does not certify function-depth. The current canonical report is stale against newer registry and metadata-gate state.",
+  "latest_state_reconciled": {
+    "callable_universe": 8804,
+    "membership": {
+      "prior_union": 7602,
+      "continuation_exact_ids": 989,
+      "residual_exact_ids": 213,
+      "sum": 8804,
+      "qualification": "These are membership/disposition counts, not substantive analysis credit."
+    },
+    "substantive_callable_depth": {
+      "current_genuinely_analyzed_count": "UNKNOWN",
+      "exact_remaining_substantive_queue": "UNKNOWN",
+      "historical_manual_classification": 4102,
+      "historical_at_utc": "2026-10-17T21:55:54.210816+00:00",
+      "historical_index_analyzed_ids": 4253,
+      "historical_index_at_utc": "2026-10-17T22:08:06.215993+00:00",
+      "unresolved_difference": 151,
+      "stable_id_crosswalk": "UNAVAILABLE",
+      "continuation_reasoning_credit_from_bounded_scan": 0,
+      "reasoning_reconciliation": "Codex Work/Sub-Agents/Handoffs/financial-analyzed-callable-count-reconciliation-2026-10-21.json",
+      "reason": "4102 method categories lack stable-ID membership; 4253 analyzed IDs lack per-ID semantic evidence/crosswalk; 989 continuation IDs prove queue membership but most scanned rows are ID/status/span only; residual 213 are dispositions, not all full workflow analyses."
+    },
+    "residual_213": {
+      "status": "All 213 exact IDs are individually dispositioned with source-specific notes; targeted finance and printing paths are substantively checked, but this is not 213 accounting analyses.",
+      "batch_counts": [52,13,97,19,32],
+      "total": 213,
+      "exact_id_manifest": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json",
+      "batch_handoffs": [
+        "Codex Work/Sub-Agents/Handoffs/financial-residual-213-nonfinancial-tests-batch.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-job-creation-batch.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-query-and-rules-batch.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-result-reprint-station-batch.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-residual-213-renderer-layout-batch.json"
+      ],
+      "coordinator_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-residual-213-coordinator-quality-check.json",
+      "dispositions": {
+        "NOT_APPLICABLE_TO_FINANCE": 99,
+        "FINANCIAL_PRESENTATION": 45,
+        "FINANCIAL_PRESENTATION_SUPPORT": 5,
+        "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+        "FINANCIAL_PRESENTATION_WARNING": 5,
+        "PRESENTATION_ONLY_OR_INDIRECT": 28,
+        "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+        "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+        "FINANCIAL_PRESENTATION_AUDIT": 8
+      },
+      "financially_relevant_source_reasoning": [
+        {
+          "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+          "sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+          "ranges": [[181,204],[208,226],[228,250]],
+          "reasoning": "ShiftClose slip query uses persisted ExpectedCash/ActualCash/CashDifference when available, but recomputes breakdown from current order/refund/movement/expense rows. The warning query filters pending/unpaid orders by shift, but counts all open driver custodies and sums their expected amounts globally. Read/query only; no accounting mutation."
+        },
+        {
+          "path": "src/Falah.Domain/Printing/PrintRules.cs",
+          "sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+          "ranges": [[516,530],[532,598],[600,620],[636,637]],
+          "reasoning": "Pure presentation: close ticket lays out saved totals, calculated components, paid-from-drawer expense groups and warnings; expense print explicitly posts nothing. Difference label translates sign; does not recompute arithmetic."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+          "sha256": "CD1A406323EE3E43AC267321D1B9D8B42CC739FB7E18AD87FDC5CA9C2162F099",
+          "ranges": [[30,31],[33,80]],
+          "reasoning": "Close/preview filters orders, drawer expenses and posted movements by ShiftId; refunds are itemized without double subtraction. Reprint recomputes current breakdown; post-close immutability/revision policy determines whether frozen headline and detail can diverge."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "sha256": "58319FDF46C1A0F6181BABA6FF711129913FBF4C64E7A00923FA2862D0EA36DE",
+          "ranges": [[60,84],[95,98]],
+          "reasoning": "Closes a shift using reconciliation and cash count. Comments say unsettled custody is not a close blocker and is surfaced on dashboard and handover slip; this makes a global warning plausible but does not define whether slip scope is global."
+        },
+        {
+          "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+          "sha256": "CF4AB3BA7E243A1EF76BE56D3E5C4D0F5EFE0D9C6C17D49E6A08AD4D6716EEFA",
+          "ranges": [[90,104]],
+          "reasoning": "Named UnsettledCustodyForShift filters deliveries by shift and linked custody. This is counterevidence to assuming close-slip global warning is shift-scoped; tests apply to helper, not print query."
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+          "sha256": "C7720A63722934BAF1E3F3914054159C1E2810082451D3731A2F91D89472D918",
+          "ranges": [[115,130]],
+          "reasoning": "Test source demonstrates helper includes same-shift and excludes other-shift custody; does not exercise PrintJobQueryService cross-shift warning. Not executed."
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "sha256": "2CF833E812D290B7BFCB7C48307D02C36DAA9A072EA9394120A12C8690C8134F",
+          "ranges": [[825,860]],
+          "reasoning": "Test source closes a shift with same-shift open custody and checks warning persists on slip; no other-shift fixture. Not executed."
+        }
+      ],
+      "open_policy_or_behavior_questions": [
+        "Whether close-slip custody warning is intended as global/business-day handover context or shift-specific; no accounting effect established.",
+        "Whether order/refund/expense/movement detail can mutate after close; if it can, recomputed slip components may cease to reconcile to frozen headline. No source-complete post-close mutability audit performed."
+      ],
+      "scope_conclusion": "No residual 213 symbol was identified as a money-moving posting path in the saved review. Printing/reprint functions persist operational print/audit state, not sales/expense/cash/payroll/settlement/inventory/shift ledger effects."
+    },
+    "327_file_scope": {
+      "reported_files": 327,
+      "ledger_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-file-ledger-quality-gate.json",
+      "validated": "327 unique source paths; all 327 current hashes match; all 327 reviewed spans valid; no missing reasoning/method fields.",
+      "limit": "Ledger coverage_complete=false; nonempty file-level reasoning/significant_methods and hash/range consistency are not function-by-function independent semantic certification. Remaining substantive gap is not an exact recoverable file queue; it is broad depth validation and callable evidence crosswalk."
+    },
+    "canonical_payroll_overlap": {
+      "candidate": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+      "status": "Source-confirmed separate mechanics/overlap possibility; duplicate pay remains conditional on owner policy and actual same-period ordering; not runtime established.",
+      "source_refs": "Canonical master now contains exact ranges across 8 paths; payroll functions and tests are cited. Latest source/evidence metadata gate lists 42 FIN findings, 126 paths, 0 missing exact ranges and 0 errors.",
+      "gate": "Codex Work/Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json",
+      "gate_at": "2026-10-21T07:56:39.546468+03:00",
+      "counterevidence": "Standalone employee pay may represent a distinct any-time obligation; payroll freezes NetPayable and separate paths are atomic. No owner policy or combined same-period sequence test exists. Do not state a duplicate-pay defect."
+    },
+    "report_counts_and_readiness": {
+      "canonical_fin_records": 42,
+      "severity_counts": {"HIGH":16,"MEDIUM":23,"LOW":3},
+      "historical_alias": "FIN-013 aliases FIN-029; source record count and unique root count differ.",
+      "report_header_snapshot": "DATABASE_AND_FINANCIAL_INTEGRITY.md header dated 2026-10-21 04:43 UTC said 41 FIN records (16 HIGH, 23 MEDIUM, 2 LOW), 265 ranged refs, 119 paths.",
+      "latest_metadata_gate": "42 FIN findings, 126 source paths, 0 missing exact ranges/errors.",
+      "staleness": "Header and finding table predate current canonical WPF retry candidate and current 42/126 metadata gate; report is not synchronized to current registry/gate. Body explicitly labels older 7516/8804, 1288 pending and generated-context figures historical.",
+      "repair_readiness": "Prior coordinator inspection found impact/remediation/tests/acceptance/counterevidence fields present for 41 records; field presence does not certify semantic quality. Current 42nd record and complete text quality were not independently schema-reviewed in this continuation.",
+      "implementation_ready": false,
+      "reason": "Broad substantive callable depth remains UNKNOWN; report counts/headline stale; SQL/provider/runtime and policy questions remain unverified."
+    }
+  },
+  "exact_remaining_work": [
+    {
+      "id": "GLOBAL-CALLABLE-DEPTH-CROSSWALK",
+      "queue": "Unknown; cannot derive exact remaining substantive callable IDs from current artifacts.",
+      "blockers": ["4102 historical method-category receipts have no stable-ID mapping", "4253 historical indexed analyzed IDs have no per-ID reasoning mapping", "989 continuation exact IDs include status/identity-only receipt shapes", "213 residuals are disposition coverage and presentation-focused reviews, not full analyses"]
+    },
+    {
+      "id": "FINANCIAL-327-FILE-SEMANTIC-DEPTH",
+      "queue": "No exact uncovered-file list is derivable from the 327-entry ledger; all entries exist and pass structural/source checks.",
+      "remaining": "Independent workflow/function-depth substantiation and a stable-ID-to-reasoning-evidence crosswalk."
+    },
+    {
+      "id": "FINANCIAL-REPORT-CURRENT-SNAPSHOT",
+      "queue": "Canonical report update by authorized report owner; this continuation made no shared report changes.",
+      "remaining": "Reconcile 42/126 current canonical metadata state, findings/severity table, callable depth UNKNOWN wording and preserve prior metrics as history."
+    },
+    {
+      "id": "SHIFT-CLOSE-PRESENTATION-CONDITIONS",
+      "queue": "Policy/source audit only; no runtime finding promoted.",
+      "remaining": "Resolve warning scope and verify post-close row mutation/revision policy; tests should cover cross-shift custody only if intended scope is shift-specific, and frozen/recomputed detail after close if underlying rows can change."
+    },
+    {
+      "id": "PAYROLL-SETTLEMENT-POLICY",
+      "queue": "Owner policy and combined-sequence evidence.",
+      "remaining": "Determine whether Settlement prepays same-period earnings; test both payout orders after policy is explicit. Existing exact evidence ranges are now present; duplicate payout remains conditional."
+    }
+  ],
+  "tests_or_changes": "No tests run. No source, test, configuration, database, runtime, shared report, or registry changes.",
+  "next_action": "Build a stable-ID-to-substantive-reasoning evidence ledger before any global analyzed-count claim; authorized owner should refresh the canonical report to current 42-record/126-source-path metadata while keeping semantic completion INCOMPLETE; independently inspect only any newly identified material gaps."
+}

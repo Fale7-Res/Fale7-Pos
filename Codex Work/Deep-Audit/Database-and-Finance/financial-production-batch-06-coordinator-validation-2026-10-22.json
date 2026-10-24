@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_callable_quality_batch_coordinator_validation",
+  "validated_at_utc": "2026-10-22T04:02:57+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "agent_session": "/root/financial_integrity_continuation",
+  "agent_handoff": "Sub-Agents/Handoffs/financial-compensation-overlap-and-production-batch-06-2026-10-22.json",
+  "agent_handoff_sha256": "7fbf95a4c37e54b82e6f9384830392683a9de5a037b2a29f4741b9b41c9986f9",
+  "agent_batch_number": 6,
+  "overlay_sha256_before_validation": "6943b7474fe8358f1b9ecc8fc732624b4431bb0b24f03a069b14882e6a940faf",
+  "compensation_cross_challenge": {
+    "mirror_id": "SEM-MIRROR-057",
+    "mirror_path": "Codex Work/Deep-Audit/Duplication-and-Architecture/employee-compensation-client-server-validation-semantic-comparison.json",
+    "mirror_sha256": "98B8BF2F1A006C556D04C9D8E24CDCF3DEFE4903963A25B846DBF8BF2CA71B45",
+    "disposition": "CORROBORATED_SOURCE_VALIDATION_DIVERGENCE; NO AUTHORIZATION BYPASS OR RUNTIME LOSS CLAIM",
+    "canonical_overlap": {
+      "finding_id": "FIN-024",
+      "title": "Manual daily-wage and overtime commands admit negative earning credits",
+      "status": "INDEPENDENTLY_CORROBORATED_STATIC_FINDING_WITH_IMPACT_LIMITS",
+      "covered_source": "FIN-024 already cites RecordDailyWageHandlers.cs:33-60,77-108,125-156, including DailyWage, Overtime, and ExtraShift credit paths, plus PayrollRules.cs:95-109 and employee ledger paths. The root cause substantially overlaps signed earning admission; do not create a duplicate finding.",
+      "gap_in_canonical_crosswalk": "FIN-024 source map does not cite EmployeeManagementHandlers.cs or EmployeeEditorViewModel.cs. SEM-MIRROR-057 adds the profile-input client/server validation divergence and BiometricCheckIn path. Recommend coordinator cross-link/extend FIN-024 source map and tests; no canonical change made here. FIN-022 is separate compensation-type casing behavior."
+    },
+    "source_confirmed_behavior": [
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs",
+        "sha256": "0606CA2008DFE343A653116ED071834D760AA11695DF274B580C38A8E6CC59E7",
+        "lines": [
+          186,
+          225
+        ],
+        "behavior": "Cashier employee form rejects negative daily/shift and optional monthly/overtime money values; zero passes and optional blank remains null."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+        "sha256": "858ACB05B82B3958D2263C8D857D2384B4F5D786512BD5CB25C44A5CEBEAD191",
+        "lines": [
+          [
+            26,
+            63
+          ],
+          [
+            79,
+            115
+          ]
+        ],
+        "behavior": "Create/update require employees_manage and validate identity/CompensationType, then copy signed amount fields without amount guards."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+        "sha256": "8D091C8C2286EA8F8DB5FA0B2F2A4E520293FBD8559389DD3F953CD6860C6384",
+        "lines": [
+          [
+            33,
+            61
+          ],
+          [
+            77,
+            109
+          ],
+          [
+            125,
+            157
+          ]
+        ],
+        "behavior": "Manual daily wage accepts custom or stored signed value; overtime accepts nullable signed custom rate and multiplies by hours; extra-shift uses positive ShiftValue else stored DailyWage, then posts result as credit."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+        "sha256": "258FD52AF239FD06E3084242F71FD0CBFBBD0BAF1DCE78DD1DBE8498531BFFE6",
+        "lines": [
+          26,
+          99
+        ],
+        "behavior": "Daily-compensation biometric check-in posts stored DailyWage through EmployeeLedgerPoster without positivity guard. Late penalty separately requires DailyWagePiastres > 0."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+        "sha256": "56975F399D91381528C8AC72E93FF370D4E8063324F384CCA2648F198D1904A5",
+        "lines": [
+          15,
+          51
+        ],
+        "behavior": "Poster accepts signed Money credit/debit, calculates balance, and persists passed signed values."
+      },
+      {
+        "path": "src/Falah.Domain/Common/Money.cs",
+        "sha256": "DA6AA95727609EEF384A975CEFD4D124BF6F211F6A98A6A75828B42B414C5A5F",
+        "lines": [
+          10,
+          24
+        ],
+        "behavior": "FromPiastres preserves the signed long; signed deltas are a primitive capability, not an issue by itself."
+      },
+      {
+        "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "sha256": "4A2B2460A8E991C874A4965B244FFA4F36D229D6460897D54968B6C0047F0F86",
+        "lines": [
+          83,
+          112
+        ],
+        "behavior": "Payroll aggregates signed credit columns into category totals and floors only final net payable at zero. Inactive employee with no positive credit is omitted."
+      },
+      {
+        "path": "src/Falah.Server/Program.cs",
+        "sha256": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6",
+        "lines": [
+          [
+            667,
+            685
+          ],
+          [
+            748,
+            779
+          ]
+        ],
+        "behavior": "Profile and earning routes forward typed request values; handlers retain permission checks."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+        "sha256": "003AE8B1A74111162A17D6E3F532638C21898A2E4871ACE1D57F82DA2EB40A66",
+        "lines": [
+          113,
+          179
+        ],
+        "behavior": "Inspected tests cover ordinary valid wage/overtime/extra shift, permission and duplicate handling, not negative profile/custom values or negative stored fallback."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+        "sha256": "D3A8443936A34A414715A735AFEB02214DCAF8ED22D7CA9B5E9B0C3DD2BBA1D8",
+        "lines": [
+          14,
+          140
+        ],
+        "behavior": "Inspected tests cover ordinary positive payroll categories, not signed-negative credit aggregation or clamp behavior."
+      }
+    ],
+    "impact_and_policy": "Negative signed earning facts can lower ledger balance/category totals and may reduce positive net payable; the final payroll net cannot become negative. No employee was paid, no database call was made, and no realized loss is established. Normal WinUI blocks negative profiles; a privileged direct API caller remains required. Zero/null semantics are intentionally unresolved. Employee OvertimeRate is stored, but the reviewed RecordOvertime handler uses request CustomRate or global Settings; no claim that this field feeds that handler.",
+    "recommended_owner_action": "Keep FIN-024 canonical and cross-link SEM-MIRROR-057 as profile/biometric evidence. Confirm field-specific zero and negative policy. If negative earning values are disallowed, enforce server/domain constraints on profile and credit-producing commands with checked finite/range arithmetic, preserving legitimate null/zero. Do not globally ban signed Money or turn deductions into clamped zero credits.",
+    "required_tests_not_run": [
+      "Negative profile values across daily/shift/monthly/overtime create and update; preserve owner-approved zero/null semantics.",
+      "Negative custom/stored daily wage, negative overtime rate, negative extra-shift fallback and extreme supported products reject before ledger persistence if policy disallows.",
+      "Biometric daily wage with negative/zero profile value follows explicit policy; duplicate event idempotency remains.",
+      "PayrollRules signed DailyWage/Overtime/ExtraShift behavior, output buckets, final net floor and inactive negative-only behavior are explicit.",
+      "Verify explicit deductions remain valid debit entries."
+    ],
+    "tests_executed": []
+  },
+  "compensation_disposition": "CORROBORATED_AND_CROSS-LINKED_TO_EXISTING_FIN-024; no duplicate finding ID. SEM-MIRROR-057 supplements source map. No auth bypass, actual input, DB write, payroll loss or settlement shown.",
+  "manual_source_review": "Coordinator read the source bodies for all six listed callables and their directly relevant reporting/test/context references. Inventory and recipe handlers primarily write configuration; conditional financial effect depends on costing/report basis, policy or concurrent unit/recipe graph changes. Due-date update changes audited nullable aging metadata, not a payment. No runtime incident inferred.",
+  "validated_callables": [
+    {
+      "stable_id": "sym-fbb6514eda5d15a7faebdc65a5019952060275ec98b229d279265de077a2f876",
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "signature": "Falah.Infrastructure.Inventory.CreateInventoryItemHandler.HandleAsync(Falah.Application.Inventory.CreateInventoryItemRequest, CancellationToken)",
+      "line_range": [
+        25,
+        55
+      ],
+      "source_worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "baseline_git_content_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "source_index_match": true,
+      "source_index_span": [
+        25,
+        5,
+        55,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs.json",
+      "receipt_sha256": "EBBCFCA73A3F5FBE6F29A6EA74E66499D424F05C5EFCC0B855CE8FC2BC216206",
+      "receipt_author": "financial_integrity",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Request-derived inv-{RequestId} replay occurs before authorization; new create requires inventory_manage, checks only nonblank Name, copies cost source and numeric metadata, and creates no stock or payable. Downstream FoodCostReport parses stored CostSource with Enum.Parse at ReportingQueryService.cs:391-396; authorized unknown string can cause costing-report failure. This is availability/data hygiene, not a changed money amount.",
+      "counterevidence": "Normal UI may constrain the enum; request is permission-gated; no amount or stock is posted. InventoryVerticalSliceTests.cs:62-84 covers positive create, idempotent replay and permission, not invalid enum or negative thresholds.",
+      "remaining_action": "Validate supported CostSource and threshold contract, or make financial report parsing fail safely; add invalid input tests if required."
+    },
+    {
+      "stable_id": "sym-2e2b5e95b71536d69b2ff31dbe0ff69c05cd8a375c19d1c2ed23d1957b80193a",
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "signature": "Falah.Infrastructure.Inventory.UpdateInventoryItemHandler.HandleAsync(Falah.Application.Inventory.UpdateInventoryItemRequest, CancellationToken)",
+      "line_range": [
+        73,
+        101
+      ],
+      "source_worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "baseline_git_content_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "source_index_match": true,
+      "source_index_span": [
+        73,
+        5,
+        101,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs.json",
+      "receipt_sha256": "EBBCFCA73A3F5FBE6F29A6EA74E66499D424F05C5EFCC0B855CE8FC2BC216206",
+      "receipt_author": "financial_integrity",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Requires inventory_manage; unit change checks Any stock movement then rejects via InventoryRules.AssertUnitChangeAllowed; metadata then persists in SaveChanges. Sequential invariant is sound. There is no explicit transaction/version/conditional write between movement check and metadata save, so concurrent first movement vs unit update could reinterpret prior quantity under changed unit. No such interleaving is demonstrated.",
+      "counterevidence": "InventoryVerticalSliceTests.cs:90-116 verifies metadata save, unit change allowed before movements and rejected after purchase receipt. It does not test concurrency. Handler itself changes no stock balance.",
+      "remaining_action": "If invariant must hold under concurrency, serialize/check with a provider-backed guard and race-test first receipt against unit change."
+    },
+    {
+      "stable_id": "sym-4e3ec84e8dd264668bf899fddffc9a2e275c696d735e6d9725ce7b409a1a5523",
+      "path": "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs",
+      "signature": "Falah.Infrastructure.Inventory.SaveRecipeHandler.HandleAsync(Falah.Application.Inventory.SaveRecipeRequest, CancellationToken)",
+      "line_range": [
+        31,
+        100
+      ],
+      "source_worktree_sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "baseline_git_content_sha256": "b86797c7ddaf58100d4acd1f9872655204613e9791d356f2ce0083683918cf7b",
+      "source_index_match": true,
+      "source_index_span": [
+        31,
+        5,
+        100,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs.json",
+      "receipt_sha256": "3064653E3F51717AF024593AD0F58028D81445A1AC0D9A57CC5B17D5F5C091F2",
+      "receipt_author": "financial_integrity",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Validates positive lines/active nonempty recipe, requires menu_manage, transactionally replaces recipe lines, and sets requested Product.RecipeId if active. Retargeting an existing recipe to a different product does not clear the old product backlink; food-cost report resolves historical sold lines through current product/variant recipe links and current recipe contents. This can change report basis after retarget but the report docs explicitly use current recipes, not historical snapshots.",
+      "counterevidence": "Current-cost reporting is explicit; normal tests check creation/cost, line-set replacement and incomplete lines, not retarget/backlink uniqueness or historic-cost expectations. No stock/treasury posting.",
+      "remaining_action": "Confirm whether recipe retarget is supported and whether recipe links are exclusive. If exclusive, clear old backlink atomically; if historical reports must freeze, version recipe/cost basis."
+    },
+    {
+      "stable_id": "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6",
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "signature": "Falah.Infrastructure.Inventory.SavePrepRecipeHandler.HandleAsync(Falah.Application.Inventory.SavePrepRecipeRequest, CancellationToken)",
+      "line_range": [
+        25,
+        74
+      ],
+      "source_worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "baseline_git_content_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "source_index_match": true,
+      "source_index_span": [
+        25,
+        5,
+        74,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs.json",
+      "receipt_sha256": "D9EA225917B4472F6938F5726E1F04015F21ADE11B2F6DC4E97253768BAA6A78",
+      "receipt_author": "financial_coordinator",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Validates output and line quantities and menu_manage authorization, checks direct/transitive self-consumption, then atomically replaces recipe. CostingRules yields unknown unit cost for cycles/incomplete inputs. Graph check is before transaction, so concurrent edits might race; no source/test evidence proves that a cycle was created.",
+      "counterevidence": "InventoryVerticalSliceTests.cs:373-441 covers cost completeness, self-cycle, transitive cycle and shared-ingredient control. Atomic save protects a single recipe edit. Tests not executed.",
+      "remaining_action": "If cycle prevention must survive concurrent recipe graph edits, serialize graph validation or test concurrent opposing changes with provider-backed execution."
+    },
+    {
+      "stable_id": "sym-e2bc6fa50704fc084fd0cc23de60155ee9e8658c32f7a239f5474455658401ae",
+      "path": "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs",
+      "signature": "Falah.Infrastructure.Inventory.SaveOrderPackagingRuleHandler.HandleAsync(Falah.Application.Inventory.SaveOrderPackagingRuleRequest, CancellationToken)",
+      "line_range": [
+        25,
+        59
+      ],
+      "source_worktree_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "baseline_git_content_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "source_index_match": true,
+      "source_index_span": [
+        25,
+        5,
+        59,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs.json",
+      "receipt_sha256": "23EC470D5D110C4A6639748EF8624FA779497A42AA315943698CBE8B336BE490",
+      "receipt_author": "financial_integrity",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Requires menu_manage and positive quantity; upserts by RuleId/request-derived ID, but does not canonicalize order type, require the item IsPackaging, or enforce one active rule/order type. CostingRules.OrderPackagingCost picks FirstOrDefault active match from unsorted rules; report applies one current rule cost per sold order type in selected range.",
+      "counterevidence": "Duplicate rules do not multiply cost, but selected row may be unspecified. Existing test only saves/reads one delivery rule (InventoryVerticalSliceTests.cs:673-676); no duplicate-active test or confirmed one-rule policy. No stock or supplier posting here.",
+      "remaining_action": "Confirm uniqueness policy. If one active rule/type is intended, enforce canonical types and uniqueness/upsert with duplicate-active test; otherwise define deterministic priority."
+    },
+    {
+      "stable_id": "sym-896c7802be7a41934ae737a18259169cd6fa9432133f8a22e01fd6c34b0b0dea",
+      "path": "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs",
+      "signature": "Falah.Infrastructure.Purchasing.SetPurchaseDueDateHandler.HandleAsync(Falah.Application.Purchasing.SetPurchaseDueDateRequest, CancellationToken)",
+      "line_range": [
+        34,
+        60
+      ],
+      "source_worktree_sha256": "c7e87bed31cf3433267829e56a0713e72f7f972c9923e26040088f1491639c0f",
+      "baseline_git_content_sha256": "44455f4b2e62c51eb8a1d0ab188341d6849962aba501135bba43444a22523d09",
+      "source_index_match": true,
+      "source_index_span": [
+        34,
+        5,
+        60,
+        6
+      ],
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs.json",
+      "receipt_sha256": "C153C5CFB786AF1D668065028FA5FA3020E5D84FA610A64C729B4ED8E54BFD07",
+      "receipt_author": "financial_integrity",
+      "previous_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reviewed_source_reasoning": "Requires purchasing_manage, loads invoice/lines/payments, updates nullable agreed due date and audit event in one SaveChanges; same date is no-op. Changes payables-aging classification, not payment, supplier balance or stock. No settled/cancelled guard; handler alone does not establish wrong outstanding amount.",
+      "counterevidence": "PayablesAgingVerticalSliceTests.cs:150-202 covers adding date after receipt, clearing to unscheduled, already-expired terms and permission. Null/past due dates are intentional. No policy evidence that terms freeze upon payment/cancellation.",
+      "remaining_action": "No action absent owner policy that due date edits stop after settlement; if so enforce state and test audit behavior."
+    }
+  ],
+  "tests_executed": [],
+  "promotion_basis": "Agent reasoning was individually reviewed against method source; coordinator independently checked source worktree hash, raw baseline content hash, indexed symbol/signature/range and receipt SHA before promotion. This records callable-specific substantive static review only, not full-workflow or database certification.",
+  "status_counts_after": {
+    "SUBSTANTIVE_REVIEW_VERIFIED": 42,
+    "EXISTING_REASONING_UNVERIFIED": 7779,
+    "IDENTITY_ONLY": 983,
+    "REVIEW_INCOMPLETE": 0,
+    "OUT_OF_FINANCIAL_SCOPE_WITH_REASON": 0
+  },
+  "global_financial_completion": false,
+  "limitations": [
+    "No tests, SQL/provider/runtime/database or production operations executed.",
+    "Recipe retarget/backlink exclusivity and historical report basis remain policy questions.",
+    "Concurrent prep recipe graph edits and inventory unit change versus first stock movement were not executed.",
+    "Packaging-rule uniqueness/canonical order-type policy remains unspecified.",
+    "No purchase due-date freeze policy after settlement was established."
+  ]
+}

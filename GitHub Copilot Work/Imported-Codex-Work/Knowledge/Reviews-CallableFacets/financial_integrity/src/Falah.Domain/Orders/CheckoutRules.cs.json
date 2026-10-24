@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T22:05:30.928138+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+  "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-da6d6eb0f3a9ea553d400998c3eea6347309be146b7f97b1b4847882d014edf2",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positional CheckoutPlan record struct synthesizes value construction/init/equality/copy/deconstruction across fourteen supplied plan components. It does not re-run BuildPlan validation when copied or constructed directly. IReadOnlyList SplitPayments reference is copied shallowly and record equality compares collection reference, not deep payment-leg content; ElectronicPayment record value semantics differ. Consequently a with-copy can represent inconsistent payable/paid/deferral flags in trusted code; actual handler uses BuildPlan result, no external direct plan deserialization proved.",
+      "inputs": "Fourteen order/payment/pricing/tax/state values including nullable split list and electronic leg.",
+      "outputs": "Compiler value construction/copy/equality/deconstruction context.",
+      "side_effects": "Copies values/references; no DB or financial posting.",
+      "trust_boundaries": "Trusted code can construct plan without validation; request endpoint builds via Domain rules.",
+      "database": "No DB access; CheckoutHandler maps plan into Order entity later.",
+      "printing_ui": "Plan feeds order totals printed elsewhere; no hardware access.",
+      "performance": "Fixed component equality/hash, collection comparison is reference equality, not scan.",
+      "duplicates_conflicts": "Generated context distinct from11 authored method/lambda receipts; no generated-method count invented.",
+      "issues_hypotheses": "Shallow list aliasing concern, no proven concurrent mutation; FIN001/FIN016 are authored rule/handler defects.",
+      "tests_missing": "Copy retains list alias; equality two equivalent distinct lists; direct construction bypass not misclassified as public API.",
+      "verified_callers_callees": "BuildPlan113 constructs; CheckoutHandler142 obtains; Order.Create consumes plan. Record declaration16-30 inspected."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

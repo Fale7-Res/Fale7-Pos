@@ -1,0 +1,126 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:06:32.307537+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "6fa4b76e9a4abdce701c4db9571c19ab2bd3ff8694f64dff9aacc7e9745fadb5",
+  "worktree_sha256": "66cd885af3b6ddf84ea4a1629232490ba92e333be7626715be8614587b91dae1",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-2f1488f4e3d9042515bf66eb0b92f3b01c4c20f30a27a606cdd7836ddfc34fa4",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CheckoutItemRequest::record-generated-behavior",
+      "source_span": [
+        9,
+        10
+      ],
+      "reasoning": "CheckoutItemRequest is selection-only positional contract ProductId,optional VariantId,Quantity,requested offer and Notes;no name/unitprice/station copied from client. Generated constructor/with accepts any quantity or mismatched variant;MenuPricingService.ResolveAsync supplies server catalog/offer validation,so constructor is not financial boundary. Scalar/string record equality compares exact selected fields,including notes;it is not product-only cart grouping identity. Generated ToString exposes free-text notes.",
+      "inputs": "Product/variant IDs,int quantity,offer ID?,notes?.",
+      "outputs": "JSON selected line;not frozen priced OrderItem.",
+      "side_effects": "Allocation only,no menu lookup/stock deduction.",
+      "trust_boundaries": "Client-supplied selection authorized/validated server-side;record equality never authenticates product price.",
+      "database": "Checkout handler57 calls pricing before transaction;record no SQL.",
+      "printing_ui": "Notes reach kitchen/customer tickets after server composition;selection does not itself print.",
+      "performance": "Small value-reference record;no deep collections.",
+      "duplicates_conflicts": "with copy may alter quantity after request captured if caller replaces line;existing containing list alias separate concern.",
+      "issues_hypotheses": "No business invariant in record constructor.",
+      "tests_missing": [
+        "Invalid variant/product,quantity bounds,expired offer and note-bearing equality/copy fixtures"
+      ],
+      "verified_callers_callees": [
+        "CheckoutOrderRequest.cs9-10",
+        "CheckoutOrderHandler.cs57",
+        "MenuPricingService.ResolveAsync"
+      ]
+    },
+    {
+      "stable_id": "sym-000f2adee89c791949a7ed2be9843363c9ad2eaf6743587de730d994e99d7c8a",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CheckoutSplitRequest::record-generated-behavior",
+      "source_span": [
+        14,
+        14
+      ],
+      "reasoning": "CheckoutSplitRequest holds Method and AmountPiastres as plain string/long. Generated init/copy performs no whitelist,positive amount,sum-to-order or electronic-leg limit. Checkout maps each to concrete PaymentMethod/Money then domain split rules authorize shape;multi is not legitimate leg despite constructor accepting that text. Value equality compares one leg only and cannot prove whole payment balanced. No account/confirmation token included.",
+      "inputs": "Method string,long amount from client list.",
+      "outputs": "Serialized concrete payment leg selection.",
+      "side_effects": "No collection/ledger movement from construction.",
+      "trust_boundaries": "Untrusted method/amount boundary;real guards in mapping/domain not record.",
+      "database": "Checkout split mapping71+ then domain transaction;record no DB.",
+      "printing_ui": "Preview split not confirmed payment/physical cash.",
+      "performance": "Constant scalar copy/hash;arithmetic elsewhere.",
+      "duplicates_conflicts": "Duplicate equal legs not deduped by record or serializer;list semantics/domain decide.",
+      "issues_hypotheses": "Payload may contain negative/unknown method until handler rejects.",
+      "tests_missing": [
+        "multi/negative/duplicate legs,sum mismatch,pending electronic plus cash and roundtrip"
+      ],
+      "verified_callers_callees": [
+        "CheckoutOrderRequest.cs14",
+        "CheckoutOrderHandler.cs71+",
+        "Domain.Orders.CheckoutRules split validation"
+      ]
+    },
+    {
+      "stable_id": "sym-f16934cc27eaa159ca02feaffd567126dea1b715da18dbe5772f9588cf02418d",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CheckoutOrderRequest::record-generated-behavior",
+      "source_span": [
+        21,
+        71
+      ],
+      "reasoning": "CheckoutOrderRequest holds stable CheckoutRequestId,claimed cashier/shift/day,selection Items,discount/comp/payment,split-list,customer/address/service fields and optional print route/pickup time. Generated properties preserve readonly-interface list references without deep freeze;with-copy changes scalar request while retaining original Items/SplitPayments references. Handler independently resolves prices,composes structured address,checks actor/shift/day/payment/comp and uses ID for replay;record equality/list identity is not idempotency payload equivalence. Optional tail defaults preserve older JSON/callers but do not prove correct route/time. Generated ToString includes customer/address and approval IDs,so not sanitized logging.",
+      "inputs": "Full request fields21-71;Items required,SplitPayments nullable,delivery/comp/route/pickup optional.",
+      "outputs": "Checkout command JSON;not actual Order or committed state.",
+      "side_effects": "Allocation/copy only;handler can create sale/stock/treasury/print jobs separately.",
+      "trust_boundaries": "Body CashierId SEC001 sink remains;claim fields not authenticated by constructor. Structured delivery input must be validated server,raw DeliveryAddress compatibility not trusted persisted source.",
+      "database": "CheckoutOrderHandler transaction/replay and pricing source already accepted;DTO itself no SQL.",
+      "printing_ui": "CustomerPrintRoute limits validated in handler,not arbitrary printer send from generated property;pickup time nullable not unpaid pickup state.",
+      "performance": "Serialization proportional Items/Splits/notes;shallow equality not content hash or safe retained request snapshot.",
+      "duplicates_conflicts": "Same CheckoutRequestId with changed record fields remains server replay key;with-copy does not mint new operation. Mutable backing list can change captured payload if caller reuses it.",
+      "issues_hypotheses": [
+        "Deep immutability not guaranteed by record/IReadOnlyList",
+        "No current copying mutation reproduced"
+      ],
+      "tests_missing": [
+        "Serialize captured request then mutate list,with-copy key preservation,missing optional tail,crossfield/payment/comp guards and SEC001 casing isolated harness only"
+      ],
+      "verified_callers_callees": [
+        "CheckoutOrderRequest.cs21-71",
+        "CheckoutOrderHandler.HandleAsync",
+        "CashierViewModel.Checkout request construction/retention",
+        "accepted Program checkout route/FIN001+002 flows"
+      ]
+    },
+    {
+      "stable_id": "sym-9e67210b97cbac691b6eb58d7bcd6c8e65089fd9fd1b844b43671302fdd40d11",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Orders.CheckoutOrderResult::record-generated-behavior",
+      "source_span": [
+        73,
+        87
+      ],
+      "reasoning": "CheckoutOrderResult transports committed order identity/sequence,total,paid/change,status,IsPaid,electronic status,replay and PrintJobsQueued defaulttrue. Generated scalar constructor cannot enforce status-money consistency;with-copy can manufacture display states but does not alter sale. PrintJobsQueued distinguishes sale success from subsequent ticket enqueue failure,not paper output. Legacy omitted field defaults true,so backward compatibility is not independent evidence tickets exist. Value equality captures snapshot only while electronic status may later change.",
+      "inputs": "Eleven output fields,PrintJobsQueued optional defaulttrue.",
+      "outputs": "Serialized checkout acknowledgement.",
+      "side_effects": "No money/print side effect from result object.",
+      "trust_boundaries": "Server result should be trusted only through valid authenticated transport;public constructor not proof transaction committed.",
+      "database": "Handler builds after commit/replay;queue follow-up separate per source result contract.",
+      "printing_ui": "Success may need manual print recovery;WasReplayed not a second sale;IsPaid cannot be inferred from queued slip.",
+      "performance": "Constant scalar properties;no DB status refresh generated.",
+      "duplicates_conflicts": "Copy preserves orderID but can alter flags;must not use result record equality as durable operation ID.",
+      "issues_hypotheses": "Default true cannot prove queue status for stale backend response.",
+      "tests_missing": [
+        "PrintJobsQueued false sale remains committed,legacy missing true,confirmed later order differs snapshot,no physical print"
+      ],
+      "verified_callers_callees": [
+        "CheckoutOrderRequest.cs73-88",
+        "CheckoutOrderHandler result/replay and print enqueue",
+        "CashierViewModel.Checkout result display"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

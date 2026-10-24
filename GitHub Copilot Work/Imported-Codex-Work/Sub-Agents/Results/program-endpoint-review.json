@@ -1,0 +1,2867 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/shifts/open",
+    "lines": [
+      288,
+      310
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/shifts/current",
+    "lines": [
+      311,
+      319
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Reads first Open row and opener name; 404 distinguishes none. Shared system-wide shift assumption requires single-open enforcement elsewhere; no per-user filtering.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/shifts/prepare-close",
+    "lines": [
+      320,
+      336
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Read-only expected count preview returns sensitive drawer expectation; endpoint itself has no permission/actor parameter. Handler owns authorization; prepare must not be confused with committed close.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/shifts/close",
+    "lines": [
+      337,
+      357
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/business-day/open",
+    "lines": [
+      358,
+      375
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/current",
+    "lines": [
+      376,
+      383
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Uses BusinessDayGate authoritative active selection then query detail; no active404. Separate reads can race close, acceptable transient missing but not atomic snapshot.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-days",
+    "lines": [
+      384,
+      386
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}",
+    "lines": [
+      387,
+      392
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/close-blockers",
+    "lines": [
+      393,
+      398
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/business-day/{id}/close",
+    "lines": [
+      399,
+      420
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path ID wins. CloseBlocked returns422 with specific blockers; domain422/missing404. Snapshot/closure transaction belongs handler.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/close-snapshot",
+    "lines": [
+      421,
+      426
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/close-snapshots",
+    "lines": [
+      427,
+      429
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/business-day/{id}/reopen",
+    "lines": [
+      430,
+      447
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/checklist",
+    "lines": [
+      448,
+      450
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/business-day/{id}/checklist/{itemId}",
+    "lines": [
+      451,
+      468
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/settings",
+    "lines": [
+      469,
+      470
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct read; no endpoint-specific helper permission gate found. Read DTO/query service contract and missing/error behavior reviewed; no write occurs in this lambda. Detailed permission/data-volume verification belongs downstream/security analysis.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/settings",
+    "lines": [
+      471,
+      481
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/cash-count-denominations",
+    "lines": [
+      482,
+      484
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/cash-counts",
+    "lines": [
+      485,
+      487
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/business-day/{id}/cash-counts",
+    "lines": [
+      488,
+      499
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/business-day/{id}/exceptions",
+    "lines": [
+      500,
+      505
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/control-exceptions/{exceptionId}/status",
+    "lines": [
+      506,
+      523
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Administrative handler owns lifecycle permission, validation and persistence; no endpoint-specific policy metadata. IDs in body do not prove caller authority.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/control-center/audit-events",
+    "lines": [
+      524,
+      530
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated control read without explicit control_center/reports helper at endpoint. Snapshot/cash-count/exceptions can carry financial state; query authorization not established by absence of writes. Requested entity and optional limit passed as bound input.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/audit/events",
+    "lines": [
+      531,
+      541
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit audit_view OR control_center gate, passes filters and default200 to service. Sensitive event old/new fields require query redaction; gate itself actor-bound by middleware.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/treasury/deposit",
+    "lines": [
+      542,
+      562
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/treasury/withdraw",
+    "lines": [
+      563,
+      583
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/treasury/transfer",
+    "lines": [
+      584,
+      604
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/treasury/safe-drop",
+    "lines": [
+      605,
+      625
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/expenses",
+    "lines": [
+      626,
+      647
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/expenses",
+    "lines": [
+      648,
+      666
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct read; no endpoint-specific helper permission gate found. Read DTO/query service contract and missing/error behavior reviewed; no write occurs in this lambda. Detailed permission/data-volume verification belongs downstream/security analysis.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees",
+    "lines": [
+      667,
+      673
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/employees/{employeeId}",
+    "lines": [
+      674,
+      684
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/employees",
+    "lines": [
+      685,
+      686
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/employees/{employeeId}",
+    "lines": [
+      687,
+      692
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/employees/{employeeId}/ledger",
+    "lines": [
+      693,
+      695
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/employees/{employeeId}/balance",
+    "lines": [
+      696,
+      701
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/employees/financial-report",
+    "lines": [
+      702,
+      708
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/ledger-entries",
+    "lines": [
+      709,
+      719
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/cash-out",
+    "lines": [
+      720,
+      735
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/pay",
+    "lines": [
+      736,
+      747
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/daily-wage",
+    "lines": [
+      748,
+      758
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/overtime",
+    "lines": [
+      759,
+      769
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/employees/{employeeId}/extra-shift",
+    "lines": [
+      770,
+      782
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/attendance/check-in",
+    "lines": [
+      783,
+      788
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/attendance/check-out",
+    "lines": [
+      789,
+      795
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/attendance/{recordId}/correct",
+    "lines": [
+      796,
+      806
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns employee/attendance permissions, financial effect and replay. Endpoint cannot establish real biometric-device provenance.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/attendance",
+    "lines": [
+      807,
+      811
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/payroll-runs",
+    "lines": [
+      812,
+      818
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/payroll-runs",
+    "lines": [
+      819,
+      820
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/payroll-runs/{runId}",
+    "lines": [
+      821,
+      826
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/payroll-runs/{runId}/lines",
+    "lines": [
+      827,
+      829
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct employee/payroll read with no endpoint-level employees_manage/reports gate (except separately reviewed financial-report). May carry pay/attendance/identity details. Handler/query body must be challenged for data visibility; no DB mutation in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/payroll-runs/{runId}/transition",
+    "lines": [
+      830,
+      840
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path run wins over body, forwards unrestricted status. FIN-006 Approved->Paid bypass confirmed: only employees_manage in handler for Paid and no financial postings. UI normal transition stops at Approved; API remains reachable.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/payroll-runs/{runId}/pay",
+    "lines": [
+      841,
+      854
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Dedicated financial payroll handler exists; maps TreasuryConflict409. Existence does not close general transition bypass.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/backups",
+    "lines": [
+      855,
+      861
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "GET exposes backup record metadata including file paths to authenticated session; POST can create external disk backup via gated handler. Never invoke in audit; endpoint success is not restore proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/backups",
+    "lines": [
+      862,
+      863
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "GET exposes backup record metadata including file paths to authenticated session; POST can create external disk backup via gated handler. Never invoke in audit; endpoint success is not restore proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/backups/{id}",
+    "lines": [
+      864,
+      869
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct read; no endpoint-specific helper permission gate found. Read DTO/query service contract and missing/error behavior reviewed; no write occurs in this lambda. Detailed permission/data-volume verification belongs downstream/security analysis.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/backups/{id}/verify",
+    "lines": [
+      870,
+      880
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path record wins; VERIFYONLY operation is DB/server work despite name verify. Audit never executes; handler authorization required.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/backups/{id}/restore",
+    "lines": [
+      881,
+      891
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path record wins; handler performs destructive restore with explicit confirmation/operational gates. Do not invoke; control plane permissions and transaction consequences require independent financial/security review.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/inventory/items",
+    "lines": [
+      892,
+      908
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/inventory/items/{id}",
+    "lines": [
+      909,
+      926
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items",
+    "lines": [
+      927,
+      929
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items/{id}/balance",
+    "lines": [
+      930,
+      933
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/inventory/items/{id}/estimated-cost",
+    "lines": [
+      934,
+      944
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items/{id}/cost",
+    "lines": [
+      945,
+      947
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/movements",
+    "lines": [
+      948,
+      952
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/overview",
+    "lines": [
+      953,
+      959
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items/{id}/detail",
+    "lines": [
+      960,
+      967
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/loss-summary",
+    "lines": [
+      968,
+      970
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items/{id}/variance",
+    "lines": [
+      971,
+      973
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/inventory/items/{id}/shared-consumption",
+    "lines": [
+      974,
+      981
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/inventory/count-adjustments",
+    "lines": [
+      982,
+      1002
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/inventory/waste",
+    "lines": [
+      1003,
+      1023
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/recipes",
+    "lines": [
+      1024,
+      1040
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes",
+    "lines": [
+      1041,
+      1042
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/{id}",
+    "lines": [
+      1043,
+      1048
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/{id}/cost",
+    "lines": [
+      1049,
+      1058
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/{id}/profitability",
+    "lines": [
+      1059,
+      1069
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/cost-summary",
+    "lines": [
+      1070,
+      1076
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/cost-coverage",
+    "lines": [
+      1077,
+      1083
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/recipes/{id}/cost-detail",
+    "lines": [
+      1084,
+      1091
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/prep-recipes",
+    "lines": [
+      1092,
+      1108
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/prep-recipes",
+    "lines": [
+      1109,
+      1110
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No endpoint-specific reports/inventory gate; session authentication only at this layer. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/prep-recipes/{id}/cost",
+    "lines": [
+      1111,
+      1118
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate present. Read service projects inventory/recipe facts; bounds, null cost and historical/current meaning must be enforced downstream. No mutation here; query errors may reach global500 if uncaught.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/order-packaging-rules",
+    "lines": [
+      1119,
+      1135
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Stock/recipe handler owns permissions, quantity/unit validation and transaction; no endpoint-level amount limits. Client-provided count deltas remain untrusted.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/order-packaging-rules",
+    "lines": [
+      1136,
+      1137
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct read; no endpoint-specific helper permission gate found. Read DTO/query service contract and missing/error behavior reviewed; no write occurs in this lambda. Detailed permission/data-volume verification belongs downstream/security analysis.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/customers/upsert",
+    "lines": [
+      1138,
+      1152
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/customers/lookup",
+    "lines": [
+      1153,
+      1158
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated customer lookup returns personal contact/address data without per-user permission/filter at endpoint. Phone lookup may be enumerated; null404 is expected. No upsert on GET.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/customers/{id}",
+    "lines": [
+      1159,
+      1164
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated customer lookup returns personal contact/address data without per-user permission/filter at endpoint. Phone lookup may be enumerated; null404 is expected. No upsert on GET.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/drivers",
+    "lines": [
+      1165,
+      1181
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/drivers",
+    "lines": [
+      1182,
+      1184
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/drivers/all",
+    "lines": [
+      1185,
+      1187
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/services",
+    "lines": [
+      1188,
+      1190
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/services/all",
+    "lines": [
+      1191,
+      1193
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/services",
+    "lines": [
+      1194,
+      1200
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/delivery/services/{serviceId}",
+    "lines": [
+      1201,
+      1211
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/drivers/{driverId}/set-active",
+    "lines": [
+      1212,
+      1223
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/{id}/ready",
+    "lines": [
+      1224,
+      1241
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/{id}/assign",
+    "lines": [
+      1242,
+      1263
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/{id}/reassign",
+    "lines": [
+      1264,
+      1285
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/{id}/result",
+    "lines": [
+      1286,
+      1307
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/delivery/drivers/{driverId}/settle",
+    "lines": [
+      1308,
+      1331
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Delivery handler owns state transition, custody/payment gates and replay key; response is operational state, not payment/physical print proof.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/board",
+    "lines": [
+      1332,
+      1334
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/ready",
+    "lines": [
+      1335,
+      1337
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/drivers/{driverId}/active",
+    "lines": [
+      1338,
+      1340
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/drivers/{driverId}/account",
+    "lines": [
+      1341,
+      1348
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/drivers/{driverId}/statistics",
+    "lines": [
+      1349,
+      1354
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/{id}",
+    "lines": [
+      1355,
+      1366
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/delivery/{id}/timeline",
+    "lines": [
+      1367,
+      1369
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct delivery query; no reports_view/delivery_manage check in endpoint. Driver account/statistics expose financial/custody facts; dispatch reads expose customer address/phone. Read-only service call does not prove authorization. Parameter validation and list bounding delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/orders/checkout",
+    "lines": [
+      1370,
+      1394
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Calls transactional checkout then best-effort automatic print outside transaction. Correctly surfaces PrintJobsQueued false but no durable postcommit outbox; process cut can lose dispatch until manual repair. FLOW-001 pickup lifecycle and FIN-001 split confirmation remain.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/orders/refund",
+    "lines": [
+      1395,
+      1415
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/orders/confirm-electronic-payment",
+    "lines": [
+      1416,
+      1436
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Only confirms payment handler. No held preparation release, FLOW-002. HTTP maps confirm conflict409/domain422/missing404.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/orders/cancel-pending-electronic-payment",
+    "lines": [
+      1437,
+      1455
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Cancels through existing handler; does not itself post money reversal. FIN-002 mixed-paid-leg cancellation independently corroborated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/approvals/issue",
+    "lines": [
+      1456,
+      1479
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "PIN-taking authenticated approval endpoint is NOT decorated RequireRateLimiting despite nearby claim. Handler checks all active hashes; no own limiter found. Action scope handled downstream; do not expose PIN in logs.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/orders",
+    "lines": [
+      1480,
+      1497
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit orders_view_all policy else currently Open shift; includes all items and unbounded ordered list. Direct detail/lookup siblings do not repeat this visibility policy.",
+    "local_gate_indicators": [
+      "HasPermission"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/orders/{id}",
+    "lines": [
+      1498,
+      1505
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Direct by-ID read returns frozen order/customer/payment details to any authenticated session; no orders_view_all/current-shift check here. Read-only does not mean visibility-authorized.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/orders/lookup",
+    "lines": [
+      1506,
+      1511
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Lookup by human order number, no list visibility filter; static literal route takes precedence over generic id. Numbers are enumerable; security coordinator owns disclosure validation.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/menu",
+    "lines": [
+      1512,
+      1517
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/products/{id}/image",
+    "lines": [
+      1518,
+      1523
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "GET returns stored bytes/content type with no explicit version or cache headers despite version-segment comment. PUT path product wins and DELETE uses actor query; handler validation owns size/media type. DTO binding plus auth buffering doubles base64 parse work.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/products/{id}/image",
+    "lines": [
+      1524,
+      1533
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "GET returns stored bytes/content type with no explicit version or cache headers despite version-segment comment. PUT path product wins and DELETE uses actor query; handler validation owns size/media type. DTO binding plus auth buffering doubles base64 parse work.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/products/{id}/image",
+    "lines": [
+      1534,
+      1547
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "GET returns stored bytes/content type with no explicit version or cache headers despite version-segment comment. PUT path product wins and DELETE uses actor query; handler validation owns size/media type. DTO binding plus auth buffering doubles base64 parse work.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/products/{id}/preparation-station",
+    "lines": [
+      1548,
+      1566
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/categories/all",
+    "lines": [
+      1567,
+      1568
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/categories",
+    "lines": [
+      1569,
+      1579
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/categories/{id}",
+    "lines": [
+      1580,
+      1590
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/categories/{id}/active",
+    "lines": [
+      1591,
+      1601
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/products/all",
+    "lines": [
+      1602,
+      1603
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/products/{id}",
+    "lines": [
+      1604,
+      1609
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/products",
+    "lines": [
+      1610,
+      1620
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/products/{id}",
+    "lines": [
+      1621,
+      1631
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/products/{id}/availability",
+    "lines": [
+      1632,
+      1644
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/tax-rules",
+    "lines": [
+      1645,
+      1646
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/tax-rules",
+    "lines": [
+      1647,
+      1657
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tax-rules/{id}",
+    "lines": [
+      1658,
+      1672
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/cash-drawer/open",
+    "lines": [
+      1673,
+      1683
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/cash-drawer/report-result",
+    "lines": [
+      1684,
+      1694
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/cash-drawer/cash-movement",
+    "lines": [
+      1695,
+      1708
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/price-rules",
+    "lines": [
+      1709,
+      1710
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Catalog read forwards service data; all/retired management visibility not separately gated at endpoint. Checkout still resolves authoritative price server-side. No write here; errors/volume delegated.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/price-rules",
+    "lines": [
+      1711,
+      1723
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns permission and valid catalog replacement/soft activation; historical snapshots must remain isolated. No separate local transaction in endpoint.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/treasury/balance",
+    "lines": [
+      1724,
+      1739
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Checks fixed account catalog and returns404 for unknown, but omits reports_view check required by plural balances. Security coordinator owns read-gate gap.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/treasury/balances",
+    "lines": [
+      1740,
+      1762
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Reports gate exists, but five sequential ledger queries are NOT one atomic view. Concurrent transfer between account reads can temporarily create impossible aggregate; no snapshot transaction despite comment promising consistent picture.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/treasury/position",
+    "lines": [
+      1763,
+      1805
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Same five sequential account queries followed by pending electronic/custody reads. No common read snapshot; current exposure values can change mid-request. Pending status literal case depends SQL collation.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/treasury/movements",
+    "lines": [
+      1806,
+      1827
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Reports gate, optional account/day filters, max500 enforced with default100, batched order labels avoids N+1. Date is created-at Cairo window, not stored BusinessDayId; label query is separate snapshot.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/treasury/handovers",
+    "lines": [
+      1828,
+      1837
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No reports gate in endpoint; positive limit has no upper cap. Reads financial amounts and identities. Any authenticated session can reach handler direct query.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/users",
+    "lines": [
+      1838,
+      1852
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Active user summaries exclude PIN but expose role/permissions to any authenticated session. Comment calls this login picker although middleware blocks pre-login access. UI actual use requires peer crosscheck.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/login-by-pin",
+    "lines": [
+      1853,
+      1874
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Anonymous PIN login verifies against all active salted hashes, failed login writes audit event, success issues session. Fixed-window IP limiter applies. This is NOT read-only even for diagnostic script.",
+    "local_gate_indicators": [
+      "RequireRateLimiting"
+    ],
+    "local_result_error_shapes": [
+      "Unauthorized"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/logout",
+    "lines": [
+      1875,
+      1884
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Reads actual bearer token and revokes session. Authentication middleware already resolves it; never trusts supplied actor.",
+    "local_gate_indicators": [
+      "RequireUsersManageAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/all",
+    "lines": [
+      1885,
+      1887
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit users_manage read gate using actor query matched by middleware, then read-only list.",
+    "local_gate_indicators": [
+      "RequireUsersManageAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/{id}",
+    "lines": [
+      1888,
+      1895
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit users_manage gate then null404; privilege verification relies middleware actor consistency.",
+    "local_gate_indicators": [
+      "RequireUsersManageAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/permissions/catalog",
+    "lines": [
+      1896,
+      1897
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Read-only catalog exposes permission definitions to authenticated session. No permission gate; not equivalent to ability to grant them.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/users",
+    "lines": [
+      1898,
+      1914
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Active user summaries exclude PIN but expose role/permissions to any authenticated session. Comment calls this login picker although middleware blocks pre-login access. UI actual use requires peer crosscheck.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/users/{id}/active",
+    "lines": [
+      1915,
+      1932
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/users/{id}/change-pin",
+    "lines": [
+      1933,
+      1950
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path user ID overwrites body. Handler distinguishes self/admin and owner rules; endpoint uses login rate limiter. PIN must stay out of retained logs/reports.",
+    "local_gate_indicators": [
+      "RequireRateLimiting"
+    ],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/users/{id}/permissions",
+    "lines": [
+      1951,
+      1975
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/owner-dashboard",
+    "lines": [
+      1976,
+      1989
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate, resolves from/to/businessDate else Cairo today. Composes multiple queries; absence of snapshot can show moving figures under concurrent writes.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/daily-statement",
+    "lines": [
+      1990,
+      1996
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports gate, single Cairo business date. Current balances/health versus historical day figures intentionally mixed by DTO; UI must preserve labels.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/sales",
+    "lines": [
+      1997,
+      2000
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/tax",
+    "lines": [
+      2001,
+      2004
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/expenses",
+    "lines": [
+      2005,
+      2008
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/refunds",
+    "lines": [
+      2009,
+      2012
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/business-day/{id}",
+    "lines": [
+      2013,
+      2020
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/daily-summary/{id}",
+    "lines": [
+      2021,
+      2028
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/top-items",
+    "lines": [
+      2029,
+      2031
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/category-sales",
+    "lines": [
+      2032,
+      2034
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/product-hourly",
+    "lines": [
+      2035,
+      2037
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/food-cost",
+    "lines": [
+      2038,
+      2040
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/significant-actions",
+    "lines": [
+      2041,
+      2047
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/shifts",
+    "lines": [
+      2048,
+      2050
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/shifts/{id}",
+    "lines": [
+      2051,
+      2058
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/delivery-outcomes",
+    "lines": [
+      2059,
+      2067
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Explicit reports_view helper gate precedes query. Date/shift arguments are optional shape-bound values; underlying query owns valid range and historical/current semantics. No common read transaction at endpoint; large report range can cost memory/SQL. Missing-entity errors locally mapped only where shown.",
+    "local_gate_indicators": [
+      "RequireReportsAccessAsync"
+    ],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/print-jobs/reprint-document",
+    "lines": [
+      2068,
+      2089
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Reproduction of shift/expense document, not command replay. Handler owns kind/authorization; must not post money or stock.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/orders/{id}/print-jobs",
+    "lines": [
+      2090,
+      2111
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path order wins, arbitrary IncludeKitchenRoutes from caller, IsReprint does not suppress kitchen. UI CallCenter reprint omits flag false and queues preparation again; peer UI canonical finding.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/orders/{id}/print-jobs",
+    "lines": [
+      2112,
+      2114
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path order wins, arbitrary IncludeKitchenRoutes from caller, IsReprint does not suppress kitchen. UI CallCenter reprint omits flag false and queues preparation again; peer UI canonical finding.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/print-jobs/{id}/report-result",
+    "lines": [
+      2115,
+      2134
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path job wins over body; handler records boolean report with attempt key, no physical proof or station binding. Domain errors not caught locally (global500); conflict409/missing404.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/print-jobs/overview",
+    "lines": [
+      2135,
+      2137
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "No printing-specific permission check; service returns six routes/needs-attention. It reports transport outcome, not physical completion (PRT-002).",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/print-jobs/pending",
+    "lines": [
+      2138,
+      2140
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated read-only unclaimed snapshot. No station credential/lease/claim; PRT-001 duplicate machine dispatch. Route values not validated here; empty list can mask typo.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/print-jobs/{id}",
+    "lines": [
+      2141,
+      2146
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated direct read; no endpoint-specific helper permission gate found. Read DTO/query service contract and missing/error behavior reviewed; no write occurs in this lambda. Detailed permission/data-volume verification belongs downstream/security analysis.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/print-jobs/{id}/ticket",
+    "lines": [
+      2147,
+      2152
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Read-only composition, no dispatch or attempt write. Content reconstructs live settings/payment state with frozen items; suitable starting point for future read-only preview, not archived byte identity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/suppliers",
+    "lines": [
+      2153,
+      2169
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/suppliers",
+    "lines": [
+      2170,
+      2172
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/suppliers/{id}",
+    "lines": [
+      2173,
+      2178
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/suppliers/{id}/ledger",
+    "lines": [
+      2179,
+      2181
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/purchases",
+    "lines": [
+      2182,
+      2202
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Body DTO is forwarded without endpoint-side semantic validation. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/purchases",
+    "lines": [
+      2203,
+      2206
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/purchases/payables-aging",
+    "lines": [
+      2207,
+      2209
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/purchases/{id}",
+    "lines": [
+      2210,
+      2215
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Authenticated purchasing query without endpoint purchasing_manage/reports gate; ledger and invoice debts exposed from service. No pagination/maximum range declared here. Read-only does not prove low sensitivity.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "PUT",
+    "path": "/api/purchases/{id}/due-date",
+    "lines": [
+      2216,
+      2225
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/purchases/{id}/payments",
+    "lines": [
+      2226,
+      2250
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "Path IDs overwrite matching body IDs before handler call. Handler owns protected source account lock, positive amount and journal idempotency. Endpoint only binds/marshals request; inspect independent financial findings.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "Conflict",
+      "UnprocessableEntity",
+      "NotFound"
+    ],
+    "runtime_verified": false
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "lines": [
+      2251,
+      2253
+    ],
+    "review_status": "STATIC_BODY_REVIEWED",
+    "analysis": "CanConnectAsync verifies SQL availability only; does not verify expected database identity/schema, seed state, authenticated API, agent health or physical printer. Database exception may become 500 rather than 503. Anonymous by middleware.",
+    "local_gate_indicators": [],
+    "local_result_error_shapes": [
+      "StatusCode(503)"
+    ],
+    "runtime_verified": false
+  }
+]

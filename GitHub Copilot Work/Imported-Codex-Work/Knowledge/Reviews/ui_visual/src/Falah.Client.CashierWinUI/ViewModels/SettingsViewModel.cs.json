@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs",
+  "source_git_blob_sha256": "8781dfcd1df272ecb3032354fc07b8a999824a043591d0a49d1aeecddcea7f08",
+  "worktree_sha256": "f06eb43ddc17ea1ec982f536c2a6d8080e655430c3894f78ee70550181a6e8cf",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:53:31.116863+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "System settings absolute update source path; no source or settings changes.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-f40d19baf224f360a12fec42e84bdb5b503a48542f94f212c663ddf6ab690984",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SettingsViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        25,
+        5,
+        30,
+        6
+      ],
+      "reasoning": "Stores session/header and invokes appearance initialization from partial. Local theme is applied immediately independently from server-save gate.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Invalid persisted enum may make First throw in implementation; see separate appearance receipt.",
+      "tests_missing": "Invalid persisted enum may make First throw in implementation; see separate appearance receipt. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeAppearance"
+    },
+    {
+      "stable_id": "sym-9063064519d7569beeffcc91252c537a2791c33b9f2c9245b6a00cb34d04ea7e",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        34,
+        5,
+        34,
+        41
+      ],
+      "reasoning": "Partial method declaration has no executable body in this file; actual implementation resides SettingsViewModel.Appearance.cs28 and is separately analyzed.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Declaration counted by inventory but not claimed independent algorithm.",
+      "tests_missing": "Declaration counted by inventory but not claimed independent algorithm. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeAppearance implementation in partial file"
+    },
+    {
+      "stable_id": "sym-f361d086e62234a61daa97aba3abb7d380e87fe691f0870bc8edf5776d69507a",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.LoadAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        69,
+        5,
+        109,
+        6
+      ],
+      "reasoning": "Single-flight settings GET, on success caches DTO and populates identity/contact, money via CashInput, lock/copy integers and printing/payment flags, then notifies HasData/CanEdit. Finally clears loading. Does not coordinate IsSaving; overlapping refresh could replace fields while save pending.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Load/save overlap and failed load preserving prior data tests missing; no settings operation performed.",
+      "tests_missing": "Load/save overlap and failed load preserving prior data tests missing; no settings operation performed. NOT_EXECUTED.",
+      "verified_callers_callees": "GetSettingsAsync; CashInput.Format"
+    },
+    {
+      "stable_id": "sym-9c77bee2c4ef4ac1a85224a53642abc51db00781d8f4b87abb7758ac7b05c2d4",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SaveAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        111,
+        5,
+        175,
+        6
+      ],
+      "reasoning": "Guards saving/loaded but no explicit CanEdit check; UI gate and authoritative endpoint must enforce permission. Validates cash and integers then sends partial settings DTO with current fields, including explicit empty MenuUrl and printing options. Success caches returned DTO and updates header identity; unknown outcome ordinary error and later retry sends new current values without durable intent. This is absolute settings update, not duplicate money posting.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Server authorization/validation required; save/refresh race and unsaved in-flight edits may leave controls differing from acknowledged server DTO.",
+      "tests_missing": "Server authorization/validation required; save/refresh race and unsaved in-flight edits may leave controls differing from acknowledged server DTO. NOT_EXECUTED.",
+      "verified_callers_callees": "UpdateSettingsAsync; HeaderViewModel.SetIdentity"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

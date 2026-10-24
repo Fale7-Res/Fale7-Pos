@@ -1,0 +1,287 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-019",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T09:59:04.205Z",
+  "scope": "Targeted inventory balance mirror: owner-dashboard stock alert projection versus inventory overview/domain balance semantics and ordinary positive-quantity movement writers. Does not certify all inventory audit workflows.",
+  "decision": "The owner dashboard sums positive QuantityMilliUnits without Direction, while the inventory overview/domain balances sign Out as negative. Ordinary Out writers persist positive quantities, so dashboard stock can be overstated and low-stock alerts suppressed. Financial Integrity independently confirmed this static divergence and effect. Runtime/database verification remains unexecuted.",
+  "finding_candidate": "FIN-CAND-INVENTORY-DASHBOARD-UNSIGNED-BALANCE-001",
+  "severity": "MEDIUM",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          297,
+          315
+        ],
+        [
+          306,
+          311
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d2884709cbea3a2b84342cb0d449f57930b897f0273d0ddf650d3c1ddb79cb6a",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadStockAsync(CancellationToken)",
+          "span": [
+            297,
+            5,
+            315,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "line_ranges": [
+        [
+          388,
+          430
+        ],
+        [
+          412,
+          415
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cab777a5244823349b02bb866d9bf8139bc370fc7ae45f818788bd00488450b8",
+          "signature": "Falah.Infrastructure.Inventory.InventoryQueryService.GetInventoryOverviewAsync(CancellationToken)",
+          "span": [
+            388,
+            5,
+            430,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+      "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "source_git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "line_ranges": [
+        [
+          50,
+          52
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dc419832540b07e5ffee07f6e49f05a8675f980a9af1a66ebc1a3e4ee061ba21",
+          "signature": "Falah.Domain.Inventory.InventoryRules.StockBalanceMilliUnits(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)",
+          "span": [
+            50,
+            5,
+            52,
+            104
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+      "worktree_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "source_git_blob_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "line_ranges": [
+        [
+          32,
+          40
+        ],
+        [
+          59,
+          63
+        ],
+        [
+          106,
+          116
+        ],
+        [
+          142,
+          149
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+          "signature": "Falah.Infrastructure.Inventory.RecordCountAdjustmentHandler.HandleAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest, CancellationToken)",
+          "span": [
+            32,
+            5,
+            84,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d98954049c5db16e36f45f67c34dfbf08b8b2db79eca98864db370f2db670aa0",
+          "signature": "Falah.Infrastructure.Inventory.RecordWasteHandler.HandleAsync(Falah.Application.Inventory.RecordWasteRequest, CancellationToken)",
+          "span": [
+            106,
+            5,
+            171,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "line_ranges": [
+        [
+          48,
+          64
+        ],
+        [
+          84,
+          96
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+          "signature": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductForOrderAsync(string, string, IReadOnlyList<Falah.Infrastructure.Orders.MenuPricingService.ResolvedItem>, string, DateTimeOffset, CancellationToken)",
+          "span": [
+            21,
+            5,
+            67,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7cb1499dc461cea1564eb9848e4c5adcf3b24675b6b646b97ac3039d10c56048",
+          "signature": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductOrderPackagingAsync(string, string, string, DateTimeOffset, CancellationToken)",
+          "span": [
+            77,
+            5,
+            97,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "line_ranges": [
+        [
+          165,
+          175
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+          "signature": "Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)",
+          "span": [
+            36,
+            5,
+            229,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "line_ranges": [
+        [
+          123,
+          134
+        ],
+        [
+          138,
+          150
+        ],
+        [
+          532,
+          553
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6eb9073972cd56ffdb506ca4d5319a7281a8c0fd8647270282a5f7d812678fdc",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Listing_inventory_items_reports_the_derived_balance_and_low_stock_flag()",
+          "span": [
+            123,
+            5,
+            134,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e65f27cff70c7615e1a12a3db582ae7712a9ce5496941fd54e9c884d17bb0616",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Replaying_a_count_sheet_line_does_not_adjust_the_shelf_twice()",
+          "span": [
+            532,
+            5,
+            553,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+      "worktree_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+      "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+      "line_ranges": [
+        [
+          57,
+          69
+        ],
+        [
+          71,
+          71
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2103547ae7483cc208d31ceaa0c2629af31edc722dfbed205e7e137bec8e1263",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ApplyFilter()",
+          "span": [
+            57,
+            5,
+            69,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "divergence": "LoadStockAsync groups all stock rows by item and directly sums the unsigned QuantityMilliUnits field. In contrast, both GetInventoryOverviewAsync and the domain StockBalanceMilliUnits return +quantity only for In and -quantity otherwise.",
+    "writers": "RecordCountAdjustmentHandler accepts positive quantity, stores request direction separately, and saves the positive QuantityMilliUnits. RecordWasteHandler validates positive quantity and records Direction=Out. InventoryDeductionService records positive usage quantities with Direction=Out. ReceivePurchaseHandler records positive receipts with Direction=In. This establishes that sign is represented by Direction rather than the sign of quantity.",
+    "effect": "For an item with 5,000 milli-units received and 4,000 consumed, the true movement balance is 1,000; LoadStockAsync reports 9,000. The owner dashboard filters for Balance <= MinimumMilliUnits, so with a 2,000 minimum it can omit the low-stock row and understate its low-stock count.",
+    "counterevidence": "Inventory overview applies Direction and the existing InventoryVerticalSliceTests check derived inventory balance/low-stock behavior. This is a dashboard-specific duplicate implementation; the current dashboard test file has no stock low-balance assertion. No source behavior supporting signed QuantityMilliUnits was found in the inspected writers. Financial Integrity independently checked Out writers and existing countertests; it confirmed rather than contradicted this bounded comparison.",
+    "limitations": "Static code and writer comparison only. No integration test execution, SQL query execution, DB writes, or runtime UI observation.",
+    "secondary_difference": "Separate requirement question: OwnerDashboardQueryService flags low stock only when MinimumMilliUnits>0, while InventoryOverview sets IsLowStock whenever signed balance<=minimum (including a negative balance when minimum is zero), and InventoryViewModel counts active rows with IsLowStock. This changes low-stock presentation for zero-threshold items. Whether zero-minimum items should surface as low is a policy question; the independent challenge reviewed the direction-sign defect, not this threshold choice. Keep as an unverified requirements difference, not a confirmed defect.",
+    "tests": "undefined The independent reviewer additionally verified Replaying_a_count_sheet_line_does_not_adjust_the_shelf_twice: the test seeds 10,000 In, posts positive 2,000 Out, and asserts overview balance 8,000. This test is read only, not executed."
+  },
+  "recommendation": "Reuse the direction-aware inventory balance implementation for the dashboard stock projection (or a shared query helper), and add an integration test asserting dashboard stock/low-stock projection matches inventory overview after receipt plus outbound usage or count adjustment.",
+  "required_regression_tests": [
+    "Seed an active item with minimum 2,000; post In 5,000 and Out 4,000; verify dashboard and inventory overview both report 1,000 and low stock.",
+    "Post an outbound-only movement and verify the dashboard does not report it as positive stock.",
+    "Exercise positive In and Out count adjustments and ensure the dashboard signs both consistently with the inventory overview."
+  ],
+  "reviewer": "Main Codex coordinator; independent challenge by Financial Integrity continuation.",
+  "independent_challenge": {
+    "reviewer": "financial_integrity_continuation",
+    "artifact": "Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json",
+    "sha256": "4697d4ffe515c6f974b0e6257192d775c6eca95195e0b5639f634ebb496047f9",
+    "decision": "CONFIRMED_STATIC_BEHAVIORAL_DIVERGENCE",
+    "scope": "Independent static source and countertest challenge; runtime not executed."
+  }
+}

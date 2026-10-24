@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Orders/RefundOrderRequest.cs",
+  "source_git_blob_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+  "worktree_sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.556225+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-e2bf934c06d8471d0e2dd6028f2126eb3945350663c3fed6ac0512b525cfa1fd",
+      "status": "ANALYZED",
+      "reasoning": "RefundConflictException constructor forwards supplied message to Exception unchanged; it introduces no inner exception, HTTP status, identity validation or retry behavior. The distinct exception type selects refund409 in endpoint catches. Throwing it is not by itself proof a transaction rolled back or operation never committed.",
+      "inputs": "string message",
+      "outputs": "RefundConflictException instance",
+      "side_effects": "Exception message allocation only",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Operator message can carry caller/DB-derived details; callers must avoid secrets. The type does not make arbitrary retries safe.",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "refund409",
+        "System.Exception(message)",
+        "Program explicit typed catch when present"
+      ],
+      "evidence_source_span": [
+        25,
+        25
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

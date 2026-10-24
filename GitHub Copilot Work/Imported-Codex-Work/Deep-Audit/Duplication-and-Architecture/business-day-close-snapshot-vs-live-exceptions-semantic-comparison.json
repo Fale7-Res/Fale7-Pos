@@ -1,0 +1,159 @@
+{
+  "artifact_kind": "source_semantic_comparison",
+  "id": "SEM-MIRROR-059",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-22T04:12:46+00:00",
+  "reviewer": "/root main coordinator; bounded source-level behavior comparison; no runtime execution",
+  "title": "Frozen business-day close exceptions versus live control-center delivery exceptions",
+  "scope": "Targeted semantic comparison of CloseBusinessDayHandler.BuildDayExceptionsAsync and ControlCenterQueryService.GetExceptionsAsync, their shared ControlCenterRules.BuildExceptions routine and the two server routes. This is not an AST clone assertion. This is a narrowly additive extension to SEM-MIRROR-011, which compared live reconciliation with frozen close-snapshot/reopen behavior; it specifically compares the delivery-warning input sets and does not repeat the revision-race or reconciliation JSON questions.",
+  "decision": "SOURCE-CONFIRMED INPUT-DOMAIN DIVERGENCE: the live exception query supplies current delivery rows, so shared rules can emit delivery warnings; the frozen close snapshot omits Deliveries and therefore cannot capture those warning categories. Whether that omission is a defect depends on the intended close-snapshot contract: the code separately treats delivery warnings as live operational state and does not make these warnings close blockers. Record as a conditional documentation/contract gap, not a confirmed financial defect.",
+  "behavior": {
+    "common_rule": "Both paths call ControlCenterRules.BuildExceptions for the financial discrepancy/refund/expense/custody/journal categories.",
+    "live_query": "ControlCenterQueryService.GetExceptionsAsync loads the selected day; current delivery entities in Ready, OutForDelivery, Failed or Returned are mapped to inputs. Rules then emit ready-unassigned, failed/returned and aged-out-for-delivery warnings; states are overlaid by deterministic exception ID.",
+    "close_snapshot": "CloseBusinessDayHandler invokes blockers first, then BuildDayExceptionsAsync and serializes its result in ExceptionsJson. That method passes shifts/refunds/expenses/unsettled custody/incomplete journals but omits Deliveries. BusinessDayCloseEvaluator itself has no delivery-row warning input; it checks open shifts, unsettled custody, incomplete journal, pending electronic payment, checklist and reconciliation invariants.",
+    "time_semantics": "The OutForDelivery threshold is relative to current NowUtc when not explicitly supplied. Live queries recompute current warnings; a frozen close snapshot would need a deliberate as-of time if delivery warnings are added."
+  },
+  "cross_file_call_chain": [
+    "POST /api/business-day/{id}/close -> CloseBusinessDayHandler.HandleAsync -> BusinessDayCloseEvaluator.EvaluateAsync -> BuildDayExceptionsAsync -> ControlCenterRules.BuildExceptions -> serialized BusinessDayCloseSnapshot.ExceptionsJson",
+    "GET /api/business-day/{id}/exceptions -> ControlCenterQueryService.GetExceptionsAsync -> ControlCenterRules.BuildExceptions -> current exception DTOs/status overlay"
+  ],
+  "counterevidence_and_limits": [
+    "The live delivery exceptions are described as current per-delivery operations; a close snapshot may intentionally retain only day-close/financial exceptions.",
+    "The close evaluator does not block on the omitted warning categories, so omission does not bypass a documented close blocker based on the inspected code.",
+    "No actual closed-day snapshot or live delivery row was read; no route or database/runtime test was run.",
+    "An OutForDelivery warning changes with time, so snapshot and live results are not necessarily expected to remain equal.",
+    "Only this identified pair and shared rules were compared; no claim of repository-wide semantic completeness."
+  ],
+  "candidate_disposition": "No canonical defect finding. Track as a conditional contract/documentation question: should a frozen close snapshot include contemporaneous delivery operational warnings, or is ExceptionsJson intentionally limited to closeout/financial exceptions?",
+  "recommendation": "Document the snapshot contract. If delivery warnings belong in the close record, create a shared, explicit input builder/policy or pass a snapshot-time delivery projection (including NowUtc captured by the close command) and avoid replaying live time-dependent status as if historical. If snapshots are intentionally financial/closeout-only, name or document that scope clearly and keep live exception query current. Avoid consolidating the two queries without preserving their distinct time and scope semantics.",
+  "tests": [
+    "Unit test BuildExceptions with each delivery state and explicit NowUtc threshold boundary.",
+    "Integration test compares live exception response and close snapshot for Ready-without-driver, Failed/Returned, and OutForDelivery just below/above 90 minutes, asserting the owner-approved scope.",
+    "Snapshot test verifies later delivery status/time changes do not mutate already serialized snapshot.",
+    "Close blocker tests confirm these operational warnings are informational unless business policy explicitly changes."
+  ],
+  "limitations": [
+    "Static review only; no SQL Server or runtime tests.",
+    "Owner intent for close snapshot exception contents is not specified."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "line_ranges": [
+        [
+          39,
+          46
+        ],
+        [
+          87,
+          90
+        ],
+        [
+          136,
+          160
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+          "signature": "Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.CloseBusinessDayRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            129,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-be07b1c517c86ac6899cee2f13cb5696baced75bb15bf119ae6f509b1b6004d3",
+          "signature": "Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.BuildDayExceptionsAsync(Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            136,
+            5,
+            160,
+            6
+          ]
+        }
+      ],
+      "evidence": "Close command runs BusinessDayCloseEvaluator, then persists BuildDayExceptionsAsync output in the frozen snapshot. BuildDayExceptionsAsync gathers financial exceptions but does not pass Deliveries to BuildExceptions."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "source_git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "line_ranges": [
+        [
+          70,
+          107
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-428436e07762bde96fa0918de3bb0f04adfc5453518e5770ff071d325f05fe3e",
+          "signature": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.GetExceptionsAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            70,
+            5,
+            114,
+            6
+          ]
+        }
+      ],
+      "evidence": "Live day-exceptions endpoint loads current Ready/OutForDelivery/Failed/Returned delivery rows, maps them into the optional Deliveries input, calls the same rules, and overlays persisted exception status."
+    },
+    {
+      "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+      "worktree_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+      "source_git_blob_sha256": "01d20a713e2ef6020319d0f4341bee09d77b57711f4a51a7c9b8e78b5e847652",
+      "line_ranges": [
+        [
+          13,
+          20
+        ],
+        [
+          29,
+          85
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e2933fa4f3e34bbe3eb226c9e5fb4ae2a6326870c45d046d482976fead3c25b0",
+          "signature": "Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptionsInputs)",
+          "kind": "MethodDeclaration",
+          "span": [
+            39,
+            5,
+            85,
+            6
+          ]
+        }
+      ],
+      "evidence": "BuildExceptions emits warning records for Ready without driver, Failed/Returned, and OutForDelivery exceeding 90 minutes only when Deliveries input is supplied; other financial exceptions use the shared input fields."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          399,
+          419
+        ],
+        [
+          500,
+          505
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Close POST and live exceptions GET are separately routed to the close handler and query service."
+    }
+  ],
+  "related_prior_comparisons": [
+    "SEM-MIRROR-011"
+  ]
+}

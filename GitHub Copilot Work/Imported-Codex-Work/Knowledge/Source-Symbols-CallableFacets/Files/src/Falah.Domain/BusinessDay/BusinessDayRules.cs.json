@@ -1,0 +1,257 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.BusinessDay.BusinessDayRecord::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.BusinessDay.BusinessDayRecord::record-generated-behavior",
+      "startLine": 7,
+      "startColumn": 1,
+      "endLine": 9,
+      "endColumn": 107,
+      "origin_declaration_stable_id": "sym-22dbe223d6a2e0881e443294291b227812664df8b00b69934ebf21b7ac71abf1",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "BusinessDate",
+          "type": "DateOnly",
+          "modifiers": ""
+        },
+        {
+          "name": "OpenedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "OpenedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        },
+        {
+          "name": "Status",
+          "type": "BusinessDayStatus",
+          "modifiers": ""
+        },
+        {
+          "name": "CloseRevision",
+          "type": "int",
+          "modifiers": ""
+        },
+        {
+          "name": "SnapshotId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReopenReason",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReopenedBy",
+          "type": "string?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-aa8cc4380e62c2fddb279c51f9d6e04c26c584c4fad6173cfee2431e2c7ebdcb",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.BusinessDay.CloseBlocker::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.BusinessDay.CloseBlocker::record-generated-behavior",
+      "startLine": 14,
+      "startColumn": 1,
+      "endLine": 14,
+      "endColumn": 100,
+      "origin_declaration_stable_id": "sym-a3b4c63ff7f55328c057bf30ecf8bea6576e1c8e1d5dbad25b489f412dd9326c",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Code",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "EntityType",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "EntityId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Message",
+          "type": "string",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-1a5aab9c6e99eb65ab5ea6b3ceb925a5d5abebf3abf617740ad78dc50176a29e",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.BusinessDay.BusinessDayRules.CloseBlockerInputs::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.BusinessDay.BusinessDayRules.CloseBlockerInputs::record-generated-behavior",
+      "startLine": 58,
+      "startColumn": 5,
+      "endLine": 67,
+      "endColumn": 75,
+      "origin_declaration_stable_id": "sym-fd21d7990a223344233e297ed278fd9a981a12e6295b3aaeeb9292d3aa66f222",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Shifts",
+          "type": "IReadOnlyList<(string Id, bool Closed)>",
+          "modifiers": ""
+        },
+        {
+          "name": "DeliveryTrips",
+          "type": "IReadOnlyList<(string Id, bool Settled)>",
+          "modifiers": ""
+        },
+        {
+          "name": "DriverCustodies",
+          "type": "IReadOnlyList<(string Id, bool Settled)>",
+          "modifiers": ""
+        },
+        {
+          "name": "JournalEntries",
+          "type": "IReadOnlyList<(string OperationId, bool Complete)>",
+          "modifiers": ""
+        },
+        {
+          "name": "Orders",
+          "type": "IReadOnlyList<(string Id, bool ElectronicPaymentPending)>",
+          "modifiers": ""
+        },
+        {
+          "name": "PersistenceHealthy",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "WriterOwned",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "RequiredChecklist",
+          "type": "IReadOnlyList<(string Id, string Label, bool Completed)>",
+          "modifiers": ""
+        },
+        {
+          "name": "ReconciliationChecks",
+          "type": "IReadOnlyList<(string Code, bool Critical)>",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-8acaeee250aa7cb80c8f854566f77cc9bfadaac2f41ce71f3f58698574284f4e",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.BusinessDay.BusinessDayRules.DenominationRow::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.BusinessDay.BusinessDayRules.DenominationRow::record-generated-behavior",
+      "startLine": 118,
+      "startColumn": 5,
+      "endLine": 118,
+      "endColumn": 113,
+      "origin_declaration_stable_id": "sym-de5894f18acf24eb7d9620f3446bc6eb6abf028a1b83c1f3e889e129137f2b57",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "DenominationPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "Quantity",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-a8e6a42d6c24c9989aa43c7b27f412458a5f0aeb0a05e6563c02db9f519cc469",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.BusinessDay.BusinessDayRules.DenominationCountResult::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.BusinessDay.BusinessDayRules.DenominationCountResult::record-generated-behavior",
+      "startLine": 119,
+      "startColumn": 5,
+      "endLine": 120,
+      "endColumn": 114,
+      "origin_declaration_stable_id": "sym-ddd0b7df4a04c4776e64ff5f649b3780c33b869113ffe6d35a450c74a24fc079",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Rows",
+          "type": "IReadOnlyList<DenominationRow>",
+          "modifiers": ""
+        },
+        {
+          "name": "TotalPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "ExpectedPiastres",
+          "type": "long",
+          "modifiers": ""
+        },
+        {
+          "name": "DifferencePiastres",
+          "type": "long",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-113089befdbd54ad850ea09a24eafc7451fd7d190378e33c73e91432c48fd18d",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

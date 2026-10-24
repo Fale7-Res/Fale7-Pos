@@ -1,0 +1,102 @@
+{
+  "candidate_key": "SHIFT_CLOSE_APPROVER_ATTRIBUTION_FROM_UNVALIDATED_PRESENTATION",
+  "reviewer": "root independent of original financial originator",
+  "reviewed_utc": "2026-10-18T03:21:44.833831+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "classification": "SOURCE_CORROBORATED_MEDIUM_AUDIT_ATTRIBUTION_DEFECT",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "lines": [
+        86,
+        105
+      ],
+      "containing_symbols": [
+        "sym-18fc61878f50b3df31439bedaaccf8dd7120c80e922fc7c7ab7bce8c797d71fa",
+        "sym-f84fd3db2ebab8d53501c1890a5d01b572791bb0adda22c4dfb1de8bb0188530",
+        "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+        "sym-cdef85623866dc9e295e683a428badf0be98c64f70fa7bc0c3bcbf44680485e4"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "lines": [
+        113,
+        164
+      ],
+      "containing_symbols": [
+        "sym-18fc61878f50b3df31439bedaaccf8dd7120c80e922fc7c7ab7bce8c797d71fa",
+        "sym-f84fd3db2ebab8d53501c1890a5d01b572791bb0adda22c4dfb1de8bb0188530",
+        "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+        "sym-14d2ab5874f3e3d80662d75dde1233b84000000d32ec52a375dac9f008c8bd69"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "source_git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "lines": [
+        69,
+        111
+      ],
+      "containing_symbols": [
+        "sym-6b19acd6a53a1b6131beb9315aa0038d723cbc20da808fbabcf62452402fced3",
+        "sym-493f75a8038d71fff157bd24981b902d047de2e3c18b058ba55e7a83e37fc08b",
+        "sym-a055b6b0d90a103ea5bfd1ce6c0d941be413195b548ca13ad0fcc303f4862b79"
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Shifts/CloseShiftRequest.cs",
+      "source_git_blob_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "worktree_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "lines": [
+        10,
+        17
+      ],
+      "containing_symbols": [
+        "sym-1206348a2cb014b0d2a049259527703a1d2eefe4a8fe29d269cbeb5caede47e5"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "lines": [
+        103,
+        115
+      ],
+      "source_git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "containing_symbols": [
+        "sym-7b8155252898c8eeabc32cef851fe02eb3a7dfa7e90cdc12a1ca3e9df994d72c"
+      ]
+    }
+  ],
+  "evidence_chain": [
+    "Handler86-93 resolves existing supplied user and constructs presentation without registry validation.",
+    "AuthorizeShiftClose108 requires blind-close permission;109-110 checks elevated permission only for large difference. AuthorizeCommand73 immediately accepts own permission. Optional presentation is not validated in these direct branches.",
+    "Handler105 takes presentation ApproverName regardless of actual authorization provenance;120/132 movement authorizer,137/145 shift DifferenceAuthorizedBy,156 audit AuthorizedBy persisted163-164."
+  ],
+  "preconditions": "Legitimately authorized closer; existing other approver user; nonempty arbitrary approval ID; discrepancy below threshold OR own shifts_manage permission. Above-threshold direct-permission branch also requires nonblank reason and presented existing-user name, because Shift.Close106 requires both even after policy accepted direct permission.",
+  "counterevidence": [
+    "No privilege bypass: base close remains authorized. Existing real user ID needed; not arbitrary name injection.",
+    "Elevated discrepancy without own permission requires issued valid approval; candidate excludes that branch.",
+    "Permission OR approval policy is intentional; do not require unconditional second-person approval.",
+    "No SQL or UI reproduction executed.",
+    "Domain Shift.Close106 rejects above-threshold difference with missing authorizedBy name or reason. Therefore direct-permission close with no presentation does not silently persist null authorizer; it fails. Below-threshold unnecessary presentation still demonstrates source attribution defect; above-threshold presented-name branch needs nonblank reason."
+  ],
+  "impact": "False attribution to a person who did not issue approval; no money change or otherwise forbidden operation authorized by this defect alone.",
+  "root_cause": "Unvalidated presentation retained instead of validated authorization outcome.",
+  "recommendation": "Return validated provenance and record issued approver only if validated, otherwise actual actor/null according to policy.",
+  "tests": [
+    "Below threshold plus unissued presentation",
+    "Own elevated permission plus unissued presentation",
+    "Valid issued delegated approval; mismatched/consumed token"
+  ],
+  "runtime_test": "NOT_EXECUTED",
+  "uncertainty": "Owner may clarify field semantics; current names and explicit comp policy comments support approval-attribution defect.",
+  "revision_reason": "Additional actual Domain close guard read; narrows prerequisites and rejects speculative persisted-null authorization consequence.",
+  "updated_utc": "2026-10-18T03:50:12.089906+00:00"
+}

@@ -1,0 +1,36 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:22:48.9803253Z",
+  "path": "tests/Falah.Server.IntegrationTests/AuthenticationTests.cs",
+  "stable_ids": [
+    "sym-5fed89b798dd50c4e37330a9b00f73d15c95cf6640b3dc51c2423dd74dff96fe",
+    "sym-2e1c2a0d0198a0b5a5d5ca9dfa9ec94d51697bb5dc865e28d3f1641449998551",
+    "sym-6e43c6490054726948ff459e3bb77549d98c847b76b62cb724d901e2447265fb",
+    "sym-92b9cbf76f60dca0faf9f9a6d041465a3ad2f61fee77766e5f34538d05e11a25",
+    "sym-ff51ebc3e2a197673e6e3668ff5e01bd49c87ecf2c14b53d5da68c8e0e157761",
+    "sym-48f96538ebdff6a4f4d98349a02fdb6ae93a10be6c87b14a95acb5857f6a2bee",
+    "sym-d538f0649e3f3108d9fdeeedc6abef10ca9879eb7d1b610b30d475d2ce752fce",
+    "sym-7dc7919f4a425e9977ac16b7701e4bfae00507ae89d76054414b22b34cbb9132",
+    "sym-ee51c30fe2f8f6864ef26339f650c3d520b0316b9c22cd75d00be50a7a16ee09",
+    "sym-835a73191155146cb8fc963da6e486e86ae8198c5469933fef6ebf918fee84e7",
+    "sym-fb204aee8a0113def2ac8685d66d14332bb26c9bfe15e16d7fdc3fd9b9c76e5f",
+    "sym-504f608c18ded82fbfe382273d662836881dc4cad395f6a985c10e8baa3db33e"
+  ],
+  "queued_count": 12,
+  "reconciliation": {
+    "current_union_remaining": 12,
+    "coordinator_database_reports": 12,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/AuthenticationTests.cs": "D7BE257EEFC71CE6E5379302A13B1D79B6ADD5C60C6FD6F207B108335F1EDC58",
+    "src/Falah.Server/AuthenticationMiddleware.cs": "3E64AD8EF5324FE99AA19A0DEAD024A4AFE8F99E038F8E280631B2EB8EABC5EB",
+    "src/Falah.Infrastructure/Authorization/SessionService.cs": "EB65442B2F36E359DEE026D2988EF67DEF1B7484CA39FCA09A8DBEFF271CAB81"
+  },
+  "assessment": "This security test batch covers anonymous user listing and actor spoofing denial, forged/inactive session denial, logout revocation, self-permission rejection and manager approval via actual PIN. The money-moving treasury withdrawal with cashier token claiming manager is rejected by identity middleware before handler authorization. Test agrees with production middleware/session binding; no new financial integrity issue found.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only review; no integration tests or database access run.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

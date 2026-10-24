@@ -1,0 +1,301 @@
+{
+  "artifact_kind": "substantive_callable_review_batch",
+  "id": "financial-residual-213-substantive-batch-02",
+  "created_utc": "2026-10-21T06:44:13Z",
+  "assignment": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-02-assignment.json",
+  "decision": "10/10 next exact pending IDs reviewed from actual bodies and callers. 5 operate in print-query/close-slip assembly, 1 is the custody warning lambda, and 4 are layout/ESC-POS formatting. The ShiftClose global custody warning aligns explicit day-level comments and test documentation; no shift-scope defect is established. The close slip still has a conditional component-versus-frozen-headline consistency question if underlying rows can mutate after close. No accounting writes were found in these 10.",
+  "queue_order": "Exact next 10 IDs from batch-01 pending_relevant_ids; no skips.",
+  "source_files": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c"
+    },
+    {
+      "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+      "sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be"
+    },
+    {
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa"
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+      "sha256": "c7720a63722934baf1e3f3914054159c1e2810082451d3731a2f91d89472d918"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f"
+    }
+  ],
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-15e22c415f59e2e756c0fca35f40baec27fcabf8dc5bd6a3061d9f02832a6281",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "lambda expression",
+      "range": [
+        118,
+        95,
+        118,
+        119
+      ],
+      "caller": "PrintJobQueryService.ComposeTicketContentAsync at lines 99-140.",
+      "callee_or_dependency": "EF FirstOrDefaultAsync predicate over Orders.",
+      "actual_behavior": "Selects the order whose Id equals the current PrintJob.OrderId before composing an order ticket; the outer query is AsNoTracking.",
+      "inputs_outputs_side_effects": "Reads job.OrderId and order Id, yields the matching order row or no row. No mutation; ticket content then projects persisted fields.",
+      "financial_relevance": "FINANCIAL_PRESENTATION context selector only: chooses which stored financial snapshot will be printed. It does not calculate or post money.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    },
+    {
+      "stable_id": "sym-00759ae2c2172a131a01b2e5b318cbd84f0f1ea06d14969cc8a7024a5d9387b7",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.LoadShiftIdentityAsync(string, CancellationToken)",
+      "range": [
+        154,
+        162
+      ],
+      "caller": "ComposeShiftOpenSlipAsync lines 169-178 and ComposeShiftCloseSlipAsync lines 181-204, selected for ShiftOpen/ShiftClose in ComposeTicketContentAsync lines 105-115.",
+      "callees": "EF AsNoTracking lookups for Shift and opened-by User; settings lookup; ShiftReference.",
+      "actual_behavior": "Loads shift identity and opening time, resolves cashier name/settings, returns a ShiftSlipIdentity. It does not query or change money values.",
+      "inputs_outputs_side_effects": "shiftId -> shift/user/settings reads -> identity tuple; no writes.",
+      "financial_relevance": "FINANCIAL_PRESENTATION_SUPPORT: labels the shift/cashier on a later slip, but does not perform reconciliation or accounting.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    },
+    {
+      "stable_id": "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeShiftCloseSlipAsync(PrintJobEntity, CancellationToken)",
+      "range": [
+        181,
+        204
+      ],
+      "caller": "ComposeTicketContentAsync ShiftClose document-kind branch lines 105-115.",
+      "callees": "LoadShiftIdentityAsync; ShiftReconciliation.ComputeBreakdownAsync; Expenses AsNoTracking query/group; LoadCloseWarningsAsync; PrintRules.ComposeShiftCloseTicket.",
+      "actual_behavior": "Loads shift identity/opening cash; recomputes breakdown from current rows. It takes ActualCash from persisted shift, takes ExpectedCash and CashDifference from persisted close values when present (otherwise computes fallback), overwrites those headline fields into the recomputed breakdown, groups currently paid-from-drawer expenses by category and passes warnings/reason to a pure ticket composer.",
+      "inputs_outputs_side_effects": "Reads persisted shift totals and current order/refund/movement/expense rows; returns ticket. No SaveChanges or ledger write in this function.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: the printed breakdown/expense categories support close reconciliation. Conditional consistency concern exists only if related rows can change after close: headline totals may be frozen while explanatory breakdown is current. This pass did not establish post-close mutation policy or confirm an actual mismatch.",
+      "counterevidence": "ShiftReconciliation.ComputeBreakdownAsync is also used for close/preview, so reprint matches the same calculation method. Persisted close headline values are preferred when present.",
+      "disposition": "NO_CONFIRMED_DEFECT; retain conditional FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001 for mutability/revision-policy review."
+    },
+    {
+      "stable_id": "sym-0b6e3bbdb8f25d0f906213d9c5272cc5b9ad3b212d0555d2577998ed095da2c1",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "lambda expression",
+      "range": [
+        197,
+        25,
+        197,
+        66
+      ],
+      "caller": "ComposeShiftCloseSlipAsync expense projection, within lines 195-200.",
+      "callee_or_dependency": "Anonymous projection stored from the AsNoTracking Expenses query.",
+      "actual_behavior": "Projects each current drawer-paid expense into Category and AmountPiastres; downstream code groups by category, sums amounts and creates ExpenseSummaryLine values.",
+      "inputs_outputs_side_effects": "Expense row -> category/piastres projection; no mutation. Grouping and aggregation are subsequent lines 198-200.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: exposes expense composition for cash-close reconciliation; does not post or adjust expenses.",
+      "disposition": "NO_ACCOUNTING_MUTATION; subject to the same conditional post-close-detail consistency question as the containing slip method."
+    },
+    {
+      "stable_id": "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.LoadCloseWarningsAsync(ShiftEntity, CancellationToken)",
+      "range": [
+        208,
+        226
+      ],
+      "caller": "ComposeShiftCloseSlipAsync line 203.",
+      "callees": "AsNoTracking counts for pending electronic/unpaid orders and query for DriverCustodies with Status Open.",
+      "actual_behavior": "Counts pending-electronic and unpaid orders for this shift, but selects every Open DriverCustody without shift join and adds a count plus global ExpectedPiastres sum warning. It returns strings to the slip and does not block close or mutate custody.",
+      "inputs_outputs_side_effects": "Shift -> read-only warning list; no financial posting.",
+      "financial_relevance": "FINANCIAL_PRESENTATION_WARNING: global open-custody amount is shown alongside a particular shift close and may inform handover cash awareness.",
+      "counterevidence": "DeliveryRules comments at 90-97 say custody is a day-level obligation, should not hold a shift open, is a business-day close blocker, appears on dashboard, and is intentionally printed on shift handover slip. DeliveryVerticalSliceTests comments at 823-831 repeat the day-not-shift distinction. Thus all-open scope is source-consistent with stated intended handover context. DeliveryRules.UnsettledCustodyForShift filters by delivery shift, but rg found no production callers; it is exercised only by its helper test, so it does not establish this slip's scope.",
+      "test_source": "DeliveryRulesTests lines 115-130 validates the separate per-shift helper; DeliveryVerticalSliceTests lines 823-860 verifies a same-shift open custody appears on the slip and stays outstanding. Neither was executed; integration case does not include a second shift.",
+      "disposition": "SOURCE-INTENDED_GLOBAL_BUSINESS_DAY_WARNING; no scope defect established. Runtime and cross-shift integration behavior remain untested."
+    },
+    {
+      "stable_id": "sym-0e89a2f33ddd9bd0153d2c14c12a41fe40c961301e4915169dad8d5b7b9c69d3",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "signature": "lambda expression",
+      "range": [
+        213,
+        25,
+        213,
+        93
+      ],
+      "caller": "LoadCloseWarningsAsync pending-electronic count at lines 212-214.",
+      "callee_or_dependency": "EF CountAsync predicate.",
+      "actual_behavior": "Matches Orders whose ShiftId equals this shift and ElectronicPaymentStatus is pending; adds a warning count only when nonzero.",
+      "inputs_outputs_side_effects": "Read-only filter and count; no amount or posting.",
+      "financial_relevance": "FINANCIAL_PRESENTATION_WARNING: alerts the shift handover about pending electronic receipts; shift-scoped as intended by its explicit predicate.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    },
+    {
+      "stable_id": "sym-18cafeccb4e8b74540fe727ccfa17761c59f135c6f878d4e60ac65c9d649ba89",
+      "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+      "signature": "Falah.Domain.Printing.EscPosTicketRenderer.Bold(bool)",
+      "range": [
+        132,
+        132
+      ],
+      "caller": "EscPosTicketRenderer.Render lines 48-60 for TicketText; lines 68-74 for TicketRow; reset method lines 116-123.",
+      "actual_behavior": "Maps bool to ESC/POS ESC E n bytes, with n=1 for on and n=0 for off. Formatting state only.",
+      "inputs_outputs_side_effects": "bool -> three-byte formatting command; no financial values/state. PrintAgent.PrintJobProcessor chooses bitmap or ESC/POS renderer according to options at lines 100-103.",
+      "financial_relevance": "PRESENTATION_ONLY_OR_INDIRECT: bold can affect legibility/emphasis of printed amounts but cannot change amount, tender, custody or ledger.",
+      "counterevidence": "Renderer source lines 11-18 says physical text encoding/printer output is unverified; print agent can also use BitmapTicketRenderer. The existing renderer tests are source evidence only and were not run.",
+      "disposition": "NO_ACCOUNTING_MUTATION; physical rendering remains unverified."
+    },
+    {
+      "stable_id": "sym-0dea86126f84db914fae54490e34ffa959f8d0dc2dc99153512ad435929e6586",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "signature": "Falah.Domain.Printing.TicketLayout.CenteredLine(string, bool, TicketTextSize)",
+      "range": [
+        82,
+        83
+      ],
+      "caller": "PrintRules customer number/name/order-type and heading composition, e.g. lines 121-133 and 157-163; many nonfinancial labels too.",
+      "actual_behavior": "Wraps caller string in TicketText with requested bold, center alignment and size. Does not parse/format monetary values itself.",
+      "inputs_outputs_side_effects": "text/style -> TicketText value; no DB or accounting dependency.",
+      "financial_relevance": "PRESENTATION_ONLY_OR_INDIRECT: may center identifiers or captions adjacent to financial amounts; no financial calculation or mutation.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    },
+    {
+      "stable_id": "sym-0a2d46bfba857733a9fcc943ae9a973e55be1de2c9f3fcc2dd36f570816019d8",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "signature": "Falah.Domain.Printing.TicketLayout.Rule()",
+      "range": [
+        120,
+        120
+      ],
+      "caller": "PrintRules detailed-order/delivery/driver-ticket and total section separators, e.g. lines 271, 308, 348, 374, 394.",
+      "actual_behavior": "Returns a default TicketRule separator; no text, amount, or arithmetic.",
+      "inputs_outputs_side_effects": "No input -> formatting element; no accounting side effect.",
+      "financial_relevance": "PRESENTATION_ONLY_OR_INDIRECT: visually separates amounts but cannot change them.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    },
+    {
+      "stable_id": "sym-12caec188e668627d143f874382357cbd7e56d0a6454f43330866056ae3c5ebb",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "signature": "Falah.Domain.Printing.TicketLayout.Space()",
+      "range": [
+        122,
+        122
+      ],
+      "caller": "PrintRules receipt/customer/detail blocks and annotated item separators, e.g. lines 124, 159 and 191.",
+      "actual_behavior": "Returns a blank-style TicketRule; no text or data.",
+      "inputs_outputs_side_effects": "No input -> blank formatting element; no accounting side effect.",
+      "financial_relevance": "PRESENTATION_ONLY_OR_INDIRECT: spacing can affect legibility only.",
+      "disposition": "NO_ACCOUNTING_MUTATION; no defect found."
+    }
+  ],
+  "conditional_questions": [
+    {
+      "id": "FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001",
+      "status": "CONDITIONAL_ONLY",
+      "question": "Can order/refund/expense/movement rows contributing to the slip breakdown be changed after shift close?",
+      "source_fact": "Slip recomputes breakdown and expense categories from current rows but prefers persisted close headline values when present.",
+      "effect_if_true": "Printed current detail may fail to explain the frozen close headline even though no new accounting mutation occurs during printing.",
+      "evidence_needed": "Writer/mutability policy and a post-close data change/reprint test, if such mutation is supported."
+    },
+    {
+      "id": "FIN-PRINT-CLOSE-WARNING-SCOPE-001",
+      "status": "CHALLENGED_NO_DEFECT_ON_CURRENT_SOURCE",
+      "question": "Is a global open-custody warning on a shift slip an unintended scope leak?",
+      "answer": "Current evidence supports intended business-day/global context: domain and integration-test comments explicitly call custody a day obligation and say it should appear on shift handover slips. The per-shift helper is not used by the production print query. No accounting effect and no defect shown.",
+      "remaining_limit": "No cross-shift fixture in the cited integration test; test/runtime behavior unverified."
+    }
+  ],
+  "analyzed_ids": [
+    "sym-15e22c415f59e2e756c0fca35f40baec27fcabf8dc5bd6a3061d9f02832a6281",
+    "sym-00759ae2c2172a131a01b2e5b318cbd84f0f1ea06d14969cc8a7024a5d9387b7",
+    "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+    "sym-0b6e3bbdb8f25d0f906213d9c5272cc5b9ad3b212d0555d2577998ed095da2c1",
+    "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+    "sym-0e89a2f33ddd9bd0153d2c14c12a41fe40c961301e4915169dad8d5b7b9c69d3",
+    "sym-18cafeccb4e8b74540fe727ccfa17761c59f135c6f878d4e60ac65c9d649ba89",
+    "sym-0dea86126f84db914fae54490e34ffa959f8d0dc2dc99153512ad435929e6586",
+    "sym-0a2d46bfba857733a9fcc943ae9a973e55be1de2c9f3fcc2dd36f570816019d8",
+    "sym-12caec188e668627d143f874382357cbd7e56d0a6454f43330866056ae3c5ebb"
+  ],
+  "remaining_relevant_count_after_batch": 74,
+  "remaining_relevant_ids_source": "First 74 entries after the next ten in batch-01 pending_relevant_ids; exact array appended after derivation.",
+  "validation": "Source SHA-256 recomputed from current worktree and matched for PrintJobQueryService.cs, EscPosTicketRenderer.cs, TicketLayout.cs, DeliveryRules.cs, DeliveryRulesTests.cs and DeliveryVerticalSliceTests.cs. Handoff JSON read back and parsed successfully. Test files were read only; tests not run.",
+  "tests": "No tests executed; source/test comments inspected only.",
+  "remaining_relevant_ids": [
+    "sym-1abd25cadaf889820b2dce1949645e50b9bd4e0e25c88a819ff3bd8f761f6a88",
+    "sym-1aca6f097cfe49a340df18b29561a832e401f0aeda27e676b7d0b7138396ce3b",
+    "sym-1ecfc0a46a4ff535ede556b351019e7b251c05b1e9ac847bea69e42df5d65819",
+    "sym-1ee92b37b87b522d3b8dd50b289b3de1d4a01239f2914d353927979179ce1bd2",
+    "sym-23da0b45e4164917169060adc3329ed18c2adb008b6ca2486fc181f00c99d328",
+    "sym-25feaf1735a0ac547b0637b0715cf862f157b4fa5c98b9cea5c411b3512aecf9",
+    "sym-2679747f78547e6796b6ff1233c7d73cbd6d1a08195b62d2c2bbe6151a60b37b",
+    "sym-288709211262d2afcbb8d962725ae7d3c6c4a634ed55d610373c9da7305f1d1a",
+    "sym-2b4a41d6126cf616df59838f4a536165203b837c4931950b027d5ea7e3db6f96",
+    "sym-2ce2dc03ad514a699a680c72815c82e9c6946204d4169b1df9f81830c779ef18",
+    "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a",
+    "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed",
+    "sym-40dbc5c24a604b7b3ed6ef6749a13f0f652daaeb2db18ad9d7c9795d653eca3f",
+    "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9",
+    "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90",
+    "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245",
+    "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89",
+    "sym-5742b07959753ad1947e6783759d2e282c4a001f8c3289ec22a367b917ad6286",
+    "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168",
+    "sym-62de151e444df725435d1f41f8eb9f260b56f1f80bf7c1798ff12c1e063a078d",
+    "sym-6c03bda4a838e0362bc8222a32c318e754b31a776a565edfd0693c6c682815c1",
+    "sym-70de7a2711a7e070047f6fb39bff0debb9c322d2845bd5482de3326d54990dc4",
+    "sym-70fcf024ebcd66208c4d8e75c8f908d25e2c52ca06a7a07e335aafca03a2a50a",
+    "sym-7416f9be0e5e18e3f12dc9fe70291d6bcaad53a6ea21268b8ce5ac315f6ed313",
+    "sym-770982e2e7dac5b5bfbbb35322473d1acef9a103024becbc72aa19ef329bf387",
+    "sym-77865f1b79a9809e6659dc558788bcd8b94d3b0689553284c1d1af2cd1f20698",
+    "sym-791a215431df977b542324f1d6c30df66047064ec23e0550b44531e7f1853d0f",
+    "sym-7de267adc6d5ea614202a0ac280d89e3d7d92834416c422edff2b0dc40f0436c",
+    "sym-80371f8d36740fe7bf1eecd6b8a99d23056a55d12e24d0c385bfb20555d49875",
+    "sym-85f8c7eb34deca96a636dba2214a40c26ec2de23f993e175f91e420d08fca331",
+    "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+    "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+    "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+    "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+    "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d",
+    "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+    "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+    "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+    "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+    "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+    "sym-a57ae20ea32acb1cb86514516aea44b270cafec7c803b9e1c76c8f72455c07ca",
+    "sym-b0e426b0a9c2ffb3ec1e20a652d085e49e861a3112f2b069c4f9f76b36f05e33",
+    "sym-b38c92e2aa1cef5dc2976f7656370635af13578727943866471415a065f89f2c",
+    "sym-b407e27ee608a533415e75d0cf6ff371c1953ad8e832ed46648943aa63eaba94",
+    "sym-b5d02765cc73eb502bce00fe1d7fa69e5d505e4ab7d3528c6cbe64df1db3be99",
+    "sym-b72cee84fa9eb3496d45c0e7ea3ef2d3e77413091522986f2fe040b4a149bc11",
+    "sym-bc1982a176b054923f1a82a06a7f7fd41994f3b60f8a71cd9b7ffafb828d1e0b",
+    "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+    "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+    "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+    "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+    "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+    "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+    "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+    "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+    "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+    "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+    "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+    "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+    "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8",
+    "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+    "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+    "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+    "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+    "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+    "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+    "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+    "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+    "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+    "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+    "sym-f805f241abf3b0bf1b21618393033650c96e27a67a4a4aaebf7065a83890e0c0",
+    "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+    "sym-fed148bcba2be9afb960a340a25bf41eb48c4ed2acb6cc24138b8d16c79e4fab",
+    "sym-ffa25b5be7db6378758309023b1d9190ad95017c67dffcea4a6b0fea10d701a5"
+  ]
+}

@@ -1,0 +1,509 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-028",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T04:35:00Z",
+  "scope": "Bounded comparison of the four active server-side cash lifecycle handlers outside prior semantic-comparison inputs: safe drop, cashier drawer cash-in/out, inter-account treasury transfer, and owner withdrawal. Includes shared movement factory, protected-balance lock helper, durable idempotency journal, API result mapping, and existing source-level integration-test contracts. Not a repository-wide scan or runtime verification.",
+  "decision": "Four active handlers have distinct permission, account, shift and side-effect policies while sharing protected-source-balance, journal, movement-factory and transaction mechanics. The financial specialist independently identified that SafeDrop checks only that a supplied ShiftId exists; while a BusinessDay is open it can post with that current BusinessDayId and a possibly closed ShiftId. ShiftReconciliation later includes the posted safe_drop in that shift's breakdown, while shift-close reprint recomputes components but restores the persisted expected/actual/difference headline. Thus a closed-shift reprint can display changed components after a later SafeDrop without changing the stored headline. This is source-corroborated behavior and a requirements-dependent attribution risk; no monetary loss is demonstrated and owner intent is unresolved.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+      "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+      "source_git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+      "line_ranges": [
+        [
+          33,
+          117
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ea22fe8a1814d1a059857eaec1fad0fe6a8504dc715a25edfceb259854df435c",
+          "signature": "Falah.Infrastructure.Treasury.SafeDropHandler.HandleAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)",
+          "span": [
+            33,
+            5,
+            117,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+      "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+      "source_git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+      "line_ranges": [
+        [
+          29,
+          119
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f8a011d3fcef62980161367241b625088cc3ab4bdaebb6dd98bc5403e624acd6",
+          "signature": "Falah.Infrastructure.Treasury.TransferHandler.HandleAsync(Falah.Application.Treasury.TransferRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            119,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+      "worktree_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+      "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+      "line_ranges": [
+        [
+          30,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2cef0f36c5ee0ce1caeb34ca1615f0f4f2c830934c4816b208ac53a65f13eccb",
+          "signature": "Falah.Infrastructure.Treasury.WithdrawalHandler.HandleAsync(Falah.Application.Treasury.WithdrawalRequest, CancellationToken)",
+          "span": [
+            30,
+            5,
+            109,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+      "worktree_sha256": "ce1184171f64ce4ce1f8399d26b6228592ce0c6767aded0f4ff4140d35dbd6fd",
+      "source_git_blob_sha256": "3693c0da66e3187b850bbe00c9197aebf9705745b9beb2c48419f98a48067462",
+      "line_ranges": [
+        [
+          40,
+          132
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+          "signature": "Falah.Infrastructure.CashDrawer.CashierCashMovementHandler.HandleAsync(Falah.Application.CashDrawer.CashierCashMovementRequest, CancellationToken)",
+          "span": [
+            40,
+            5,
+            132,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+      "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "line_ranges": [
+        [
+          83,
+          103
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-95d2b4f02d7c04d8181bd86130950252fffd0493d559e1a4ff841b3a34685098",
+          "signature": "Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset)",
+          "span": [
+            83,
+            5,
+            103,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+      "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+      "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+      "line_ranges": [
+        [
+          37,
+          46
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dcf4f03b1d7e7f077cd54e46cd31fba4ecbfd39421bf16174a7d08bf0b50c402",
+          "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "span": [
+            37,
+            5,
+            46,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+      "worktree_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+      "source_git_blob_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+      "line_ranges": [
+        [
+          22,
+          36
+        ],
+        [
+          38,
+          45
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-40ef18bae8fe0c94a20fe757fd78bb3eb5e22a85e571c392e767e1900145fb2e",
+          "signature": "Falah.Infrastructure.Persistence.EfFinancialJournal.TryStart(string, string)",
+          "span": [
+            22,
+            5,
+            36,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f062344b98b89f12266a63d9b38ea9ea9888d47380b6008969fd4b4c899065da",
+          "signature": "Falah.Infrastructure.Persistence.EfFinancialJournal.Complete(string)",
+          "span": [
+            38,
+            5,
+            45,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          563,
+          582
+        ],
+        [
+          584,
+          603
+        ],
+        [
+          605,
+          624
+        ],
+        [
+          1695,
+          1704
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+      "worktree_sha256": "7494487952ecd877f4a3d1ec22b62d70227d623364a6cc28e023bf693e7a781a",
+      "source_git_blob_sha256": "37c82e519fcf2087a5dae55f94e696c7766c9fd3f22920c6cc92fed8b3b36243",
+      "line_ranges": [
+        [
+          52,
+          63
+        ],
+        [
+          65,
+          72
+        ],
+        [
+          90,
+          98
+        ],
+        [
+          100,
+          105
+        ],
+        [
+          122,
+          132
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-88bf491b5e88700f0f20aa96248d3b628e1dfec4af8ec7ecfd403f82cd1d37f0",
+          "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.A_cash_in_moves_money_from_main_to_drawer()",
+          "span": [
+            52,
+            5,
+            63,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6b8d8c459f91b0099fc5a1824e748b342106d73cf3bdda34da9e7dc6425707d7",
+          "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.A_cash_out_moves_money_from_drawer_to_main()",
+          "span": [
+            65,
+            5,
+            72,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-bc4e3c7d85db8873d4dcb97dbe5090022d1f6b8df8c2078ca96c958311d64a9f",
+          "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.A_cash_movement_requires_the_shift_to_be_open()",
+          "span": [
+            90,
+            5,
+            98,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f3d1a0510f31f8bc0720d8bbb85e6a36b94cf908faea4fa3a11e3224e3e68e77",
+          "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.A_cash_out_larger_than_the_drawers_balance_is_rejected()",
+          "span": [
+            100,
+            5,
+            105,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-62d724f243386ba6b94c1c53ddd2ca9956c541c9031a9ed8c2d8d190e9bea8b6",
+          "signature": "Falah.Server.IntegrationTests.CashierCashMovementVerticalSliceTests.Concurrent_cash_in_requests_with_the_same_request_id_post_exactly_once()",
+          "span": [
+            122,
+            5,
+            132,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+      "worktree_sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+      "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+      "line_ranges": [
+        [
+          163,
+          187
+        ],
+        [
+          204,
+          220
+        ],
+        [
+          222,
+          238
+        ],
+        [
+          123,
+          144
+        ],
+        [
+          146,
+          161
+        ],
+        [
+          306,
+          327
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-75a896ee7e857ed4795834b9e44496236dc2df90b953ab26e3805138ad7c5a1b",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.A_safe_drop_moves_the_cash_into_the_main_treasury_rather_than_out_of_the_books()",
+          "span": [
+            163,
+            5,
+            187,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f8604d1a7c6bbe6ad2a93755ca877e7491ca5f55c8a6a133440d5a6c7803b27b",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_withdrawals_with_the_same_request_id_post_exactly_once()",
+          "span": [
+            204,
+            5,
+            220,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-19ff41e3e64f32b1d131958b78ae5eccd97b5ae5858112f62acff1c485d32bb0",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_transfers_with_the_same_request_id_post_exactly_once()",
+          "span": [
+            222,
+            5,
+            238,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f449c0550bd7513cbf11e8252c330f7244b78e4af1c45e178ca3115398749f87",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Different_concurrent_withdrawals_cannot_between_them_overdraw_the_account()",
+          "span": [
+            123,
+            5,
+            144,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fba0b18d15d2bf329743c09084507e7e66b486c78e648689d6347c7110d08941",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Different_concurrent_transfers_cannot_between_them_overdraw_the_account()",
+          "span": [
+            146,
+            5,
+            161,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-24d150c20235ea802e0ea03bde537fafdb98183b9ad13175b1a20d0b067e627c",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.A_transfer_creates_exactly_one_cash_handover_record()",
+          "span": [
+            306,
+            5,
+            327,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "line_ranges": [
+        [
+          59,
+          68
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7ed2e0ab03eb8d7f4a2148489b9bde49f6c70d0185fbde5b6997ea0436403cce",
+          "signature": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeBreakdownAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+          "span": [
+            42,
+            5,
+            81,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "worktree_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "source_git_blob_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "line_ranges": [
+        [
+          181,
+          204
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+          "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeShiftCloseSlipAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, CancellationToken)",
+          "span": [
+            181,
+            5,
+            204,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "line_ranges": [
+        [
+          79,
+          84
+        ],
+        [
+          95,
+          98
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "actor_input": "Each handler reloads the request-supplied actor user and derives the domain actor; optional approval is constructed from request approval/approver IDs and authorized against operation-specific permission. This comparison does not replace the separate global auth/actor-identity findings.",
+    "common_posting_invariant": "Inside transaction each checks source balance using TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync, asserts protected balance, starts/completes an operation-specific EfFinancialJournal key, builds one movement, adds it, appends the audit event, saves and commits. The conflict catch rolls back, looks for an existing idempotent movement, awaits sibling on recognized balance-lock contention and returns replay/conflict. This is source evidence; production-provider locking is not tested here.",
+    "operation_differences": [
+      "SafeDrop: safe-drop-{DropRequestId}; permission safe_drop; Drawer -> Main; Shift FK existence check only (source comment explicitly says open status is not required); no CashHandover.",
+      "Cashier: movement type only cash_in or cash_out; key includes normalized type and RequestId; permission cash_drawer; open shift required; cash_in Main -> Drawer and cash_out Drawer -> Main.",
+      "Transfer: treasury-transfer-{TransferRequestId}; treasury_manage; source and destination must be different known accounts; no shift; one CashHandover tied to the movement within the same transaction.",
+      "Owner withdrawal: owner-withdrawal-{WithdrawalRequestId}; treasury_manage; source must belong to ExternalCapitalAccounts; destination and shift null; critical audit severity."
+    ],
+    "test_source_only": "Checked-in integration-test source has direction/rejection assertions for cashier movement, SafeDrop drawer decrement plus main increment, same-ID exactly-once cash-in/withdrawal/transfer requests, different-ID transfer/withdrawal overdraw attempts and single transfer handover. Tests were not executed in this comparison.",
+    "negative_evidence": "No separate cash balance table is written by this group; shared treasury movement and journal are the posting records. Transfer alone adds CashHandover. SafeDrop source and tests document movement direction and cashier movement tests document open-shift rule. No checked test cited here covers cross-command concurrent distinct-ID spending from the same drawer across SafeDrop and cash_out.",
+    "limitations": [
+      "No provider/runtime test, SQL Server test, or test-suite execution.",
+      "No claim of database locking success from source alone.",
+      "SafeDrop shift policy requires owner decision if open-only behavior is intended.",
+      "Existing integration-test source does not establish that its configured provider behaves like deployed SQL Server.",
+      "Independent financial challenge source-corroborated the closed-shift SafeDrop -> historical ShiftId reconciliation -> reprinted breakdown chain; policy intent and test outcome remain unverified.",
+      "Financial specialist independently corroborated the closed-shift attribution-to-reprint chain; policy and runtime effect remain unverified."
+    ],
+    "owner_policy_question": "Is SafeDrop allowed against a closed shift while the business day remains open? If yes, should the movement remain assigned to the closed shift and change the later reprint breakdown?",
+    "post_close_attribution_chain": "SafeDrop checks shift row existence at 45-46, obtains current open BusinessDayId at 58-59 and posts both current BusinessDayId plus request ShiftId at 74-83. ShiftReconciliation filters Posted movements by ShiftId and includes safe_drop at 59-68. ComposeShiftCloseSlipAsync recomputes components and then overwrites ExpectedCash/ActualCash/Difference with persisted close values at 181-204. This supports changed explanatory components after later postings, not changed stored close totals."
+  },
+  "recommendation": {
+    "classification": "Requirements-dependent reconciliation attribution risk; not a confirmed ledger or cash-loss defect.",
+    "preserve_policy": "Owner decision: reject late SafeDrop against a closed shift with a concurrency-safe status invariant, or allow late movement but represent it as a later adjustment/revision and distinguish it from the immutable close snapshot in reprints.",
+    "owner_question": "Is SafeDrop allowed against a closed shift while the business day remains open? If yes, should the movement remain assigned to the closed shift and change the later reprint breakdown?",
+    "refactoring_risk": "A generic posting helper could accidentally erase SafeDrop/cashier permission separation, transfer handover, withdrawal null destination, operation-specific idempotency namespaces, audit severity, or shift attribution. A mere pre-transaction Open-status check can race with CloseShift; if open-only is selected, a transactionally meaningful guard or concurrency invariant and provider test are needed. A pre-transaction Open-status query alone can race with CloseShift; any open-only policy needs a transactionally meaningful guard and provider validation.",
+    "acceptance": "Each operation preserves current owner-approved policy, protected balance and one posted movement; transfer movement/handover/journal/audit remain atomic; duplicate retries replay once; distinct requests cannot jointly overdraw a source account."
+  },
+  "required_regression_tests": [
+    "Using disposable production SQL Server provider: concurrent distinct-ID SafeDrop and cashier cash_out against Drawer never overdraws; final posted movements stay within available funds.",
+    "Concurrent distinct-ID Transfer and Withdrawal against Main preserve protected balance and movement conservation.",
+    "SafeDrop closed-shift test encodes the owner-selected policy; current source checks existence, not open state.",
+    "Same operation/request replay once; cross-operation same RequestId namespace behavior and differing-payload behavior explicitly documented/tested.",
+    "Injected failure during transfer proves movement, handover, journal and audit commit or roll back together.",
+    "Cashier open-shift, direction, authorization, balance rejection and shift reconciliation effects are asserted.",
+    "API route error mapping remains 409 conflict, 422 domain rejection and 404 missing entity across all four routes.",
+    "Policy acceptance test with an open business day and a previously closed shift: assert SafeDrop accepted/rejected, movement ShiftId/BusinessDayId, saved close snapshot, and subsequent printed/reprinted breakdown.",
+    "Concurrency test for SafeDrop versus CloseShift on the same shift; ensure the selected policy has a serializable/atomic outcome under the actual SQL Server provider.",
+    "If delayed SafeDrop remains allowed, test that the historical slip either remains an immutable snapshot with a clearly separate later adjustment or is explicitly versioned/revised; assert headline and component semantics are consistent.",
+    "Open BusinessDay + closed shift: assert owner-selected result, movement ShiftId/BusinessDayId, saved close totals and reprint components.",
+    "Race SafeDrop against CloseShift on the same shift under production SQL Server provider; assert selected policy.",
+    "If late SafeDrop is allowed, test that reprints distinguish immutable close-time values from later adjustments."
+  ],
+  "reviewer": "Main coordinator authored comparison; Financial Integrity continuation independently challenged source mechanics; static only.",
+  "independent_challenge": {
+    "path": "../../Sub-Agents/Handoffs/financial-cash-lifecycle-command-family-independent-challenge-2026-10-21.json",
+    "status": "PARTIAL_CORROBORATION_WITH_MATERIAL_QUALIFICATION",
+    "sha256": "6fbae5e3a84133f56d421dfae854287b1a80ccb285705933f1245b463fc3d0f9",
+    "conclusion": "Corroborate shared source-level balance-lock helper, journal idempotency, movement factory and transaction/SaveChanges flow, plus the command policy distinctions. Add a materially relevant closed-shift attribution question: SafeDrop can post while its supplied shift is already closed, tags that old shift and the current open business day, and is later included in that shift’s recomputed cash reconciliation. This may revise historical shift attribution and cause a reprinted slip’s component breakdown to diverge from saved expected close. Intent is unknown; do not promote as confirmed defect absent owner policy on late safe drops."
+  }
+}

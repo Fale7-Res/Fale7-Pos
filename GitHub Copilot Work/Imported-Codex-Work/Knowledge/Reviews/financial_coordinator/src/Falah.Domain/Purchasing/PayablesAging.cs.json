@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Purchasing/PayablesAging.cs",
+  "source_git_blob_sha256": "770c52e29caa0f74593eda34d7a82dcd27d8c35d33d0706444b7716c5d7fb87d",
+  "worktree_sha256": "1e5c3b20e445a616b5b6bbb38bd30f3c3132d377a1967c53ce4ad7ac048389b7",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:37:13.734394+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_CALLER_LIMITS",
+  "evidence": "Manual complete source read and per-function reasoning; no runtime execution for this batch. IsComplete getter remains additive scope.",
+  "symbols": [
+    {
+      "stable_id": "sym-22c5be758297643be09d268561d4a4d6e113b1f6a35a098159a1f95b67e17103",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Purchasing.PayablesAging.Label(Falah.Domain.Purchasing.PayablesAging.Bucket)",
+      "span": [
+        21,
+        5,
+        29,
+        7
+      ],
+      "reasoning": "Maps known aging buckets to Arabic labels, default no-due-date label also catches invalid enum. Classify creates known values; no amount mutation.",
+      "inputs": "Exact declared in-memory facts, amounts and context collections.",
+      "outputs": "Declared pure value/record, predicate, or exception; unknown is distinct from zero.",
+      "side_effects": "Local lists/sets only, no database/server/printer operation.",
+      "database": "None. Freshness, persisted units and command validation belong infrastructure callers.",
+      "trust_boundaries": "Pure calculation does not authenticate actor or authorize financial changes.",
+      "printing_ui": "No native UI/printing; no visual observation claimed.",
+      "performance": "Repeated LINQ scans/allocations and recursion noted per method; not benchmarked.",
+      "duplicates_conflicts": "Quantity conversion must match stock deduction. Structural cycle versus source-aware costing lead unverified.",
+      "issues_hypotheses": "Bounds/cycle/caller issues remain leads, not independently confirmed defects.",
+      "tests_missing": "Unknown/zero costs, circular and shared acyclic graphs, units/rounding/bounds, aging date boundaries.",
+      "verified_callers_callees": "Complete three source files and PurchasingRules read. Unread infrastructure caller contracts not independently certified."
+    },
+    {
+      "stable_id": "sym-bc862e2b5273401129d148def1011575aed48bcbeb357b97323cdd0790f93f0b",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Purchasing.PayablesAging.DaysOverdue(DateOnly?, DateOnly)",
+      "span": [
+        33,
+        5,
+        38,
+        6
+      ],
+      "reasoning": "Absent agreed due date stays null; due today/future gives zero; otherwise positive calendar-day difference. Does not invent overdue status for missing terms.",
+      "inputs": "Exact declared in-memory facts, amounts and context collections.",
+      "outputs": "Declared pure value/record, predicate, or exception; unknown is distinct from zero.",
+      "side_effects": "Local lists/sets only, no database/server/printer operation.",
+      "database": "None. Freshness, persisted units and command validation belong infrastructure callers.",
+      "trust_boundaries": "Pure calculation does not authenticate actor or authorize financial changes.",
+      "printing_ui": "No native UI/printing; no visual observation claimed.",
+      "performance": "Repeated LINQ scans/allocations and recursion noted per method; not benchmarked.",
+      "duplicates_conflicts": "Quantity conversion must match stock deduction. Structural cycle versus source-aware costing lead unverified.",
+      "issues_hypotheses": "Bounds/cycle/caller issues remain leads, not independently confirmed defects.",
+      "tests_missing": "Unknown/zero costs, circular and shared acyclic graphs, units/rounding/bounds, aging date boundaries.",
+      "verified_callers_callees": "Complete three source files and PurchasingRules read. Unread infrastructure caller contracts not independently certified."
+    },
+    {
+      "stable_id": "sym-6ece84b193607987a2d7f24e977ee4f6843c4055778f34c2bde6905d92f8b8f1",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Purchasing.PayablesAging.Classify(DateOnly?, DateOnly)",
+      "span": [
+        40,
+        5,
+        48,
+        7
+      ],
+      "reasoning": "Null classified NoDueDate, zero NotYetDue, positive intervals1-30/31-60/61-90/over90. Exact30/60/90 belongs lower bucket.",
+      "inputs": "Exact declared in-memory facts, amounts and context collections.",
+      "outputs": "Declared pure value/record, predicate, or exception; unknown is distinct from zero.",
+      "side_effects": "Local lists/sets only, no database/server/printer operation.",
+      "database": "None. Freshness, persisted units and command validation belong infrastructure callers.",
+      "trust_boundaries": "Pure calculation does not authenticate actor or authorize financial changes.",
+      "printing_ui": "No native UI/printing; no visual observation claimed.",
+      "performance": "Repeated LINQ scans/allocations and recursion noted per method; not benchmarked.",
+      "duplicates_conflicts": "Quantity conversion must match stock deduction. Structural cycle versus source-aware costing lead unverified.",
+      "issues_hypotheses": "Bounds/cycle/caller issues remain leads, not independently confirmed defects.",
+      "tests_missing": "Unknown/zero costs, circular and shared acyclic graphs, units/rounding/bounds, aging date boundaries.",
+      "verified_callers_callees": "Complete three source files and PurchasingRules read. Unread infrastructure caller contracts not independently certified."
+    },
+    {
+      "stable_id": "sym-fe3ca97abd99191a29c591ee5bee12e6e997a6ba4f8b900fae644f07043ea95a",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Purchasing.PayablesAging.AgeInDays(DateOnly, DateOnly)",
+      "span": [
+        52,
+        5,
+        53,
+        60
+      ],
+      "reasoning": "Calendar age from receipt floored zero for future receipts, independent of agreed due date; bounded DateOnly difference, no timezone or finance write.",
+      "inputs": "Exact declared in-memory facts, amounts and context collections.",
+      "outputs": "Declared pure value/record, predicate, or exception; unknown is distinct from zero.",
+      "side_effects": "Local lists/sets only, no database/server/printer operation.",
+      "database": "None. Freshness, persisted units and command validation belong infrastructure callers.",
+      "trust_boundaries": "Pure calculation does not authenticate actor or authorize financial changes.",
+      "printing_ui": "No native UI/printing; no visual observation claimed.",
+      "performance": "Repeated LINQ scans/allocations and recursion noted per method; not benchmarked.",
+      "duplicates_conflicts": "Quantity conversion must match stock deduction. Structural cycle versus source-aware costing lead unverified.",
+      "issues_hypotheses": "Bounds/cycle/caller issues remain leads, not independently confirmed defects.",
+      "tests_missing": "Unknown/zero costs, circular and shared acyclic graphs, units/rounding/bounds, aging date boundaries.",
+      "verified_callers_callees": "Complete three source files and PurchasingRules read. Unread infrastructure caller contracts not independently certified."
+    }
+  ],
+  "remaining_callable_ids": []
+}

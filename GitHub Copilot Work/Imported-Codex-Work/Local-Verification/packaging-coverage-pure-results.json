@@ -1,0 +1,54 @@
+{
+  "at_utc": "2026-10-18T04:18:47.082306+00:00",
+  "assertions": 4,
+  "packagingFailures": 0,
+  "cases": [
+    {
+      "name": "known dish, missing configured packaging",
+      "packaging_known": false,
+      "packaging_cost": 0,
+      "known_lines": 1,
+      "sold_lines": 1,
+      "accumulated_cost": 2000,
+      "gross_profit": 8000,
+      "is_complete": true,
+      "assertion_passed": true
+    },
+    {
+      "name": "known dish and known packaging",
+      "packaging_known": true,
+      "packaging_cost": 100,
+      "known_lines": 1,
+      "sold_lines": 1,
+      "accumulated_cost": 2100,
+      "gross_profit": 7900,
+      "is_complete": true,
+      "assertion_passed": true
+    },
+    {
+      "name": "no packaging rule intentionally optional",
+      "packaging_known": true,
+      "packaging_cost": 0,
+      "known_lines": 1,
+      "sold_lines": 1,
+      "accumulated_cost": 2000,
+      "gross_profit": 8000,
+      "is_complete": true,
+      "assertion_passed": true
+    },
+    {
+      "name": "unknown dish correctly incomplete",
+      "packaging_known": true,
+      "packaging_cost": 100,
+      "known_lines": 0,
+      "sold_lines": 1,
+      "accumulated_cost": 100,
+      "gross_profit": null,
+      "is_complete": false,
+      "assertion_passed": true
+    }
+  ],
+  "framework": ".NET 10.0.12",
+  "scope": "PACKAGING_PURE_COMPONENTS_ONLY",
+  "limits": "Actual linked baseline Domain component calls plus explicit synthetic accumulation matching source. ReportingQueryService/OwnerDashboard/DTO/UI/SQL not executed. Not independently reviewed and not full end-to-end financial reproduction."
+}

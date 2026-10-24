@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-10-18T03:43:52.003967+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+  "hash": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+  "reviewed_through": 239,
+  "saved_callable_receipts": 64,
+  "next_exact_operation": "ReportingQueryService.Range242 then remaining report query functions.",
+  "verified_contracts": [
+    "Sales/tax excludes Cancelled and uses half-open Cairo UTC range; null/empty shift ignored.",
+    "Refund activity actual event date/operational shift differs from sale report original-order date/lifetime refunds.",
+    "Reconciliation orders/expenses/treasury by day-ID; shifts/employees by calendar date.",
+    "Reconciliation Balance is day net flow; caller labels/close snapshot interpretation unverified."
+  ],
+  "runtime_executed": false,
+  "remaining": "Exact stable IDs in root shard remaining_callable_ids; file incomplete."
+}

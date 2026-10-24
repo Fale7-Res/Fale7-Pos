@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_identity_only_migration_source_quality_batch",
+  "created_at_utc": "2026-10-21T13:40:00Z",
+  "assignment": "Quality-check up to six materially financial production callables from IDENTITY_ONLY; exclude the six IDs in financial-six-callable-receipt-quality-check-2026-10-21.json; do not update shared ledger/report/master.",
+  "classification_artifact": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "37c9fd759fc4f8890dfe5f1d173b3c0d5d8624bda96a5715aa443cc70e7ac1d7",
+    "as_of_utc": "2026-10-21T13:11:00Z",
+    "counts": {
+      "all": 8804,
+      "identity_only": 989,
+      "existing_reasoning_unverified": 7809,
+      "substantive_review_verified": 6
+    },
+    "identity_only_source_partition": {
+      "src_nonmigration": 0,
+      "src_migration": 180,
+      "tests_or_other": 809
+    },
+    "source_migration_files": [
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+        "count": 50
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.cs",
+        "count": 25
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.cs",
+        "count": 15
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs",
+        "count": 9
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs",
+        "count": 9
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs",
+        "count": 22
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs",
+        "count": 18
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+        "count": 8
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+        "count": 5
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+        "count": 8
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs",
+        "count": 11
+      }
+    ]
+  },
+  "selection_disposition": "No ordinary production service/handler callable exists in IDENTITY_ONLY. To make a bounded source-backed quality pass without switching classes, the six closest materially financial schema Up methods were re-read. These are financially relevant persistence definitions, not live production business flows. They were previously analyzed in the linked continuation handoffs by the same continuation identity, so this pass verifies their existing source interpretation against current source but is not independent authorship and does not create primary receipt-union credit.",
+  "excluded_prior_six_ids": [
+    "sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+    "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+    "sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+    "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+    "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+    "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e"
+  ],
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+      "lines": [
+        12,
+        591
+      ],
+      "source_git_blob_sha256": "e3d26a30a2f726f543fa15a44ff3d7111753e9d4815536d91adcf52c6386885a",
+      "source_current_worktree_sha256": "5fe110d7121b655d758edfab04d72240aa80066214153c1af0eea54be6ea62e8",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-InitialCreate-Up.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "Up creates FinancialJournalEntries keyed by IdempotencyKey at lines 29-41 and foundational InventoryItems at 43-54, plus order/treasury/shift persistence elsewhere in this same method. This is schema capability for later financial flows; no handlers execute here.",
+      "counterevidence_and_limits": "Primary-key idempotency on journal entry key is real database enforcement, but this method alone does not establish all money movements are journaled or transactional. Existing migration handoff analyzed the full method. No migration applied and no runtime/database inspection.",
+      "remaining_action": "Treat as schema coverage only; runtime posting guarantees must be assessed from handlers and transaction tests, not this migration."
+    },
+    {
+      "stable_id": "sym-309b602105ce776e81f8c226164c17e6c334cb5599f19fbef2b4955ddb340ecf",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddInventoryManagement.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.cs",
+      "lines": [
+        11,
+        173
+      ],
+      "source_git_blob_sha256": "d8733059f4fc9926c75d6ffb724b2a9afe058545672ba46a8b41e1b7cd5c79ca",
+      "source_current_worktree_sha256": "0ce0b33d7b153a9dd56ada3bb579f9b86a05ef4214ae47596bd8f30c184c225f",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-AddInventoryManagement.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "Adds StockMovements.Direction as non-null default empty string and monetary cost/loss fields (lines 13-42), inventory configuration fields (44-83), packaging and prep recipe tables with Restrict/Cascade references (85-152), and indexes (154-173). This schema can influence stock sign interpretation and costing inputs; it does not define stock mutation workflow.",
+      "counterevidence_and_limits": "Default blank Direction on historical rows remains conditional on prior data existing; readers/handlers and current migration history determine impact. Prior handoff preserves this caveat. No deployed database inspected and no migration executed.",
+      "remaining_action": "Keep the historical-row Direction issue conditional; review runtime readers/writers for sign semantics separately."
+    },
+    {
+      "stable_id": "sym-0132fa8d6710c67d9b91badb754d0a43245667f0cc0ae572e62c9859c1846cb6",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPurchasingAndSuppliers.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs",
+      "lines": [
+        12,
+        211
+      ],
+      "source_git_blob_sha256": "bdaa9b385da8c5dff55f67097b1ac4f58a81cdd800a62aa98a847c63a8da81c8",
+      "source_current_worktree_sha256": "8b2347c5748e57a162b99a175d66e146a9972d1e904b5b7e20a5f4651e1a29d7",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-AddPurchasingSuppliers.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "Creates Purchases monetary state (Subtotal/Total/Paid/Remaining), PurchaseLines quantity/unit/line amounts, SupplierLedgerEntries debits/credits, and PurchasePayments, with idempotency keys and supplier/purchase/inventory relationships; relevant spans include purchases 37-69, supplier ledger 71-98, lines 100-127, payments 129 onward, and indexes/FKs through line 211. The schema establishes keys/references but leaves numeric balance invariants to application logic.",
+      "counterevidence_and_limits": "Unique idempotency constraints and FKs counter unsupported claims of wholly unconstrained records. Several monetary CHECK constraints and some cross-record FKs are absent, as the prior handoff states; that alone is not proof of handler bypass or invalid persisted data.",
+      "remaining_action": "Use purchase/ledger handlers and their transactional/idempotency tests to assess invariant enforcement; do not infer a posting defect from schema omission alone."
+    },
+    {
+      "stable_id": "sym-5a8e6ab40bdceff0f55770d2ca7f2c069ad744956ad10275018b93e9f14af4d2",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddBusinessDayCloseAndControlCenter.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs",
+      "lines": [
+        14,
+        187
+      ],
+      "source_git_blob_sha256": "4e589014a918616d7c9684e36866d1bc9b135c22a281fabb471ee4e33d71effa",
+      "source_current_worktree_sha256": "a58dcc1d19000077f1a337ea1d91a15768fb01d614784f55a417732312530685",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-BusinessDayCloseMigration.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "Adds business-day close/reopen metadata; close snapshots with BusinessDayId, CloseRevision, Authoritative, previous snapshot and reconciliation/exceptions/checklist JSON; checklist tables; and control audit data including optional AmountPiastres. Snapshot has only nonunique BusinessDayId index (178-186), not a unique day/revision or authoritative-row invariant. This is data model, while concurrency/commit semantics are application-owned.",
+      "counterevidence_and_limits": "A nonunique index does not rule out handler serialization or an application invariant; the previous handoff explicitly leaves concurrency behavior unresolved. Migration itself does not execute concurrent commits.",
+      "remaining_action": "Retain conditional uniqueness/concurrency question for handler/provider review; do not claim duplicate snapshots from schema alone."
+    },
+    {
+      "stable_id": "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashCountAndSettings.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+      "lines": [
+        12,
+        73
+      ],
+      "source_git_blob_sha256": "c8a2b6c99dd851ac28c59dfd2bd8d3882adbf49177ddb41e20c927e0df5dcaab",
+      "source_current_worktree_sha256": "68e8194ce95e0965f57bf9be97feca7c208daba51f4ff425574e24759d1ea64c",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-CashCountSettings.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "CashDenominationCounts stores BusinessDayId, optional ShiftId, serialized rows and Total/Expected/Difference piastres with no FK to BusinessDays or Shift; only a nonunique BusinessDayId index is created (14-32, 69-73). This supports cash-count storage but leaves relationships/admission to app logic.",
+      "counterevidence_and_limits": "Application handler validation/authorization may enforce link integrity and finalization; absent DB FK is not itself a confirmed defect. Settings are ordinary keyed rows; a singleton may be app-enforced. No current data tested.",
+      "remaining_action": "Keep application-level relationship/singleton behavior for handler review; do not assert orphan or duplicate settings incidence."
+    },
+    {
+      "stable_id": "sym-14dd0237e29c2d081fc44c8846313dcad27ba7bf41c22c57448d3be7180d22fd",
+      "quality_result": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPayrollAndBackup.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs",
+      "lines": [
+        12,
+        94
+      ],
+      "source_git_blob_sha256": "aba5bb45e24e4af31eeb2e8b4af855cac2af4da2499b918e6a0f7d2c6d2e7d14",
+      "source_current_worktree_sha256": "39b30ef5427bb0947417d9f749bcf2e14dca1210a905dc9d0e9e630905f759fe",
+      "existing_handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PayrollBackupMigration.json",
+      "existing_author": "financial_integrity_continuation (same continuation identity; not independent authorship)",
+      "source_reasoning_checked": "Defines PayrollLines amount/status/settlement references (37-58), PayrollRuns period/status/idempotency/payment account and treasury movement fields (60-81), and a nullable filtered unique IdempotencyKey index (88-93). It also creates backup metadata. Initial migration has no PayrollLine FK and does not uniquely constrain Period; later migration is relevant for period uniqueness.",
+      "counterevidence_and_limits": "The filtered idempotency uniqueness and subsequent migration are material counterevidence to reading this initial migration in isolation. Missing FKs/checks alone do not show broken handler invariants or duplicate pay; no DB state inspected.",
+      "remaining_action": "Keep payroll payment/overlap conclusions tied to source handlers and later migration, not this schema method alone."
+    }
+  ],
+  "batch_disposition": {
+    "reviewed_ids": [
+      "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+      "sym-309b602105ce776e81f8c226164c17e6c334cb5599f19fbef2b4955ddb340ecf",
+      "sym-0132fa8d6710c67d9b91badb754d0a43245667f0cc0ae572e62c9859c1846cb6",
+      "sym-5a8e6ab40bdceff0f55770d2ca7f2c069ad744956ad10275018b93e9f14af4d2",
+      "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+      "sym-14dd0237e29c2d081fc44c8846313dcad27ba7bf41c22c57448d3be7180d22fd"
+    ],
+    "identity_only_financial_production_callable_candidates_found": 0,
+    "identity_only_source_production_callable_candidates_found": 0,
+    "identity_only_migration_callables_reviewed": 6,
+    "primary_receipt_union_credit": false,
+    "tests_executed": false,
+    "source_or_database_changed": false,
+    "runtime_or_migration_executed": false,
+    "shared_registry_or_report_changed": false,
+    "git_publication": false
+  },
+  "limitations": [
+    "All checks were static source and saved-artifact reads at the existing worktree state; no DB/schema was inspected and no migrations, tests or runtime paths were executed.",
+    "The checked methods are EF migration Up methods, not production payment/payroll/treasury/purchase/inventory command handlers.",
+    "Prior handoffs were written by the same continuation agent. This batch verifies source claims but does not provide independent author corroboration.",
+    "No canonical evidence status was changed. Global substantive finance coverage remains unknown."
+  ],
+  "next_action": "No ordinary financially material production callable is present in IDENTITY_ONLY. Coordinator should select the next source callable from EXISTING_REASONING_UNVERIFIED only after filtering completed/recent handoffs and defining the quality-review queue; do not infer remaining work from identity membership alone."
+}

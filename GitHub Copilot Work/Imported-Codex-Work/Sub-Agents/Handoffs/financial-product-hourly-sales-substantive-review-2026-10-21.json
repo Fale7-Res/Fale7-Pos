@@ -1,0 +1,131 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-product-hourly-sales-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T08:50:00Z",
+  "assignment": "Review GetProductHourlySalesAsync against TopSelling/SoldProducts, trace its date/status filters, callers, DTO and tests. Determine whether it changes the conditional status/range assessment. Static only; no tests/runtime changes.",
+  "stable_id": "sym-239862d44490f5bff59178db495c11035116267e1e1652bea1e939ccecf307d2",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetProductHourlySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "299-322 (method comment and body)",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "current_receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "status": "ANALYZED",
+      "use": "Stable identity/status only; this handoff records source-specific review."
+    }
+  },
+  "source_reasoning": {
+    "behavior": "Calls the shared Range(from,to), selects OrderItems AsNoTracking joined to Orders by OrderId, filters Status != nameof(OrderStatus.Cancelled) plus optional CreatedAtUtc bounds, and materializes ProductName, Quantity, TotalPricePiastres and CreatedAtUtc. In memory it converts each timestamp to Cairo local time, groups by ProductName and 0-23 local hour, sums quantity and stored line total, and sorts by product then hour. Read-only, no accounting write or current-product/category lookup.",
+    "grouping_and_money": "The key is exactly the ProductName used by GetTopSellingItemsAsync and GetSoldProductsAsync; same-name product IDs coalesce by documented panel semantics. ProductHourlySalesDto.TotalPiastres sums order-line totals, not cash collected, refunds or order-level discount. DailyStatement UI shows quantity/hour; the API also carries the line amount. No net-accounting conclusion is drawn from this analytical slice.",
+    "date_behavior": "Same shared Range helper as the two preceding methods. Both bounds mean a Cairo business-date half-open interval. A lone from is open-ended into the future; lone to includes all earlier dates through that date; inverted ranges are not explicitly rejected. The direct `/api/reports/product-hourly` endpoint accepts optional bounds. The ReportsViewModel sends its resolved range bounds; DailyStatementQueryService passes businessDate as both from and to. Thus the one-sided discrepancy remains an API-contract ambiguity for direct callers but is not exercised by the inspected UI paths.",
+    "status_behavior": "Same `Status != nameof(OrderStatus.Cancelled)` predicate as TopSelling and SoldProducts. OrderEnumMapping persists `cancelled` lowercase, while nameof is `Cancelled`. Result therefore depends on SQL collation. The prior SoldProducts handoff's cancellation test source asserts sold products disappear, but does not assert ProductHourly rows after cancellation; the ProductHourly tests exercise normal orders only. This review does not run tests or establish actual production collation."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "span": "58-74",
+      "sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "behavior": "DailyStatement GetAsync receives one businessDate and passes it in both from and to positions to GetProductHourlySalesAsync."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "2035-2036, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/product-hourly accepts nullable from/to, applies RequireReportsAccessAsync, and returns the report list. Permission helper requires reports_view or all."
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "span": "57-63",
+      "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "behavior": "DTO describes Hour as 0-23 Cairo wall time and sparse active-hour rows; record fields are ProductName, Hour, Quantity and TotalPiastres."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "span": "47-54",
+      "sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "behavior": "OrderStatus.Cancelled maps to persisted lowercase `cancelled`."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "span": "583-585",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "behavior": "Client calls the direct product-hourly endpoint with actorUserId/from/to and deserializes rows."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "span": "90-107, 244-246, 276-278",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "behavior": "Reports screen resolves selected range, passes it to API, then BuildProductHours groups returned records by ProductName for UI display."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs",
+      "span": "162-194",
+      "sha256": "2c2fc4dfd881adbd4721f61726157e1441cc1bcbffd45377d657647220e48fc",
+      "behavior": "The daily-statement view groups rows by product name, totals quantity and presents peak label/hour cells; it ignores monetary TotalPiastres for this panel."
+    }
+  ],
+  "comparison_to_prior_handoffs": [
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-top-selling-items-substantive-review-2026-10-21.json",
+      "conclusion": "Confirms the identical status predicate, Range helper and ProductName key. It adds no contrary evidence on status collation; direct tests for top-items cancellation are absent."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-sold-products-substantive-review-2026-10-21.json",
+      "conclusion": "Confirms the same date/status/grouping semantics. SoldProducts has a test-source cancellation assertion; ProductHourly has no cancellation assertion after the cancel operation, so its test coverage is weaker. Its actual daily-statement caller still uses a single explicit day."
+    }
+  ],
+  "test_evidence": {
+    "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+    "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+    "tests": [
+      {
+        "span": "186-202",
+        "scenario": "Product_hourly_sales_put_a_sale_in_its_own_cairo_hour",
+        "coverage": "Normal sale has expected Cairo local hour, quantity one, hour within 0-23, and no duplicate (ProductName, Hour) keys."
+      },
+      {
+        "span": "206-222",
+        "scenario": "Product_hourly_sales_respect_the_requested_range",
+        "coverage": "Explicit two-date range includes today sale and a prior-day-only range is empty. Does not test one-sided dates, exact boundary instants, cancellation, refunds, discount, or DST transition."
+      },
+      {
+        "span": "526-548",
+        "scenario": "Report endpoint range regression case",
+        "coverage": "Normal two-bound day range returns hourly amount; sales endpoint shift filters are checked separately."
+      }
+    ],
+    "related_cancellation_test": {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "span": "232-249",
+      "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "coverage": "After cancellation, asserts SoldProducts excludes item but does not assert ProductHourly excludes it."
+    },
+    "execution": "No tests executed; source-only inspection."
+  },
+  "assessment": {
+    "disposition": "NO_CHANGE_TO_PRIOR_CONDITIONAL_STATUS_OR_RANGE_ASSESSMENT",
+    "findings": [],
+    "conditional_notes": [
+      "Case-sensitive SQL collation could include cancelled rows because persisted lowercase and query PascalCase differ. Existing SoldProducts test is relevant but not a ProductHourly assertion, and no collation/runtime evidence was checked. Keep conditional, not confirmed.",
+      "One-sided date behavior is unchanged. Current WPF ReportsViewModel passes both bounds and DailyStatement passes the same date twice, but endpoint contract remains open to partial queries.",
+      "Gross line TotalPiastres remains an analytical product/hour metric, not net cash; no defect follows absent a requirement that it be netted."
+    ],
+    "recommendations": [
+      "If hardening the shared filter, compare against the lowercase persisted wire value or centralize query-safe status values across all sibling report methods, and retain direct cancellation tests for top-items, sold-products, hourly and category reports.",
+      "Document or normalize partial date semantics and test one-sided/inverted requests if those are supported public API inputs."
+    ],
+    "runtime_limits": "Static review only; SQL collation and actual endpoint behavior are unverified."
+  },
+  "next_callable": {
+    "stable_id": "sym-42ede0a0661cfd895d08809ec61dcca1b382196251d3e21614fffcce439b6fa1",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetCategorySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "325-339"
+  },
+  "limitations": [
+    "No tests executed.",
+    "No source/database/runtime/shared-registry/report/Git changes.",
+    "This is supplemental evidence, not global financial coverage certification."
+  ]
+}

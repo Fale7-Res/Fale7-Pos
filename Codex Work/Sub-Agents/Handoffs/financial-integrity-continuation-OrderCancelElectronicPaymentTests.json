@@ -1,0 +1,141 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:05:22.3811931Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/OrderCancelElectronicPaymentTests.cs",
+  "symbol_count": 10,
+  "symbols": [
+    {
+      "stable_id": "sym-3772abcc9792ca6d471b52a16d26ffb94b4d48ac42375fde26e762ff622c0261",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.Item(decimal)",
+      "span": [
+        16,
+        5,
+        17,
+        170
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-214043ff7f9c565605cc3ccccf6b02528196bc004d9efb3bbbba286216e064b2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.InstaPayOrder()",
+      "span": [
+        19,
+        5,
+        25,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3244f63efbad2317e05925d2b5e2544a8dd9fadf326b0db136b942c54bf1faec",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.Cancelling_a_pending_electronic_order_marks_the_whole_order_cancelled()",
+      "span": [
+        27,
+        5,
+        38,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-246d9b6c2b7a197790e219e5472a7e1b558b6f7c088f1f657ff6945edd52f48f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.Cancelling_twice_is_idempotent_and_does_not_throw()",
+      "span": [
+        40,
+        5,
+        50,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8a66c7b398ba6de7c94ea16088a49c484a7df568b81b050c5fe2565f12733d83",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.A_confirmed_electronic_payment_cannot_be_cancelled_refund_must_be_used_instead()",
+      "span": [
+        52,
+        5,
+        58,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e6dad37d9b4f96e8a2aa5094f6561c451f462520037b9e26c983efddf50362c3",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        57,
+        40,
+        57,
+        95
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5bcd6a57d1e6dd4663bcb6f4f5e230726add7a9ae6354d25dc7d59ccf7baef43",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.An_order_with_no_electronic_leg_cannot_be_cancelled_through_this_path()",
+      "span": [
+        60,
+        5,
+        69,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9d51e3c6636272d5f33fba23b4aec7565a1d27ba3fa61470cc74aa8e6471965b",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        68,
+        40,
+        68,
+        99
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1957604fa0250159cf4b350a52b2e22fa932cdb877ec7127c903ef4f5214165f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.An_empty_reason_is_rejected()",
+      "span": [
+        71,
+        5,
+        76,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-84b8c9ff48ddd4a0469efddd5e85ad67c2d6cd8563ba5ae7472188784034e740",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        75,
+        40,
+        75,
+        95
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover construction of an InstaPay order, cancellation of a pending electronic payment (whole-order Cancelled and IsPaid=false), idempotent repeat cancellation, rejection after payment confirmation, rejection without an electronic leg, and required nonblank reason. Adjacent existing integration tests cover canceled result states, zero Treasury movements for the order, replay, confirmed-payment rejection, reason validation, and permissions. No assertion in this domain test covers inventory or other persistence effects. Source comment on Order.CancelElectronicPayment states checkout has already deducted inventory and cancellation deliberately does not reverse it; that behavior is adjacent to, but outside, this test’s verified contract. No independent defect established here.",
+  "source_ranges": "OrderCancelElectronicPaymentTests.cs: entire file (77 lines); Order.cs: 189-225; ConfirmElectronicPaymentTests.cs: 145-205 (read as counterevidence/context).",
+  "execution": "Read-only source/test review; no tests or runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/OrderCancelElectronicPaymentTests.cs": "57F89C0CF38259234EE8C147B372707B7726C5FC5F23F87BCC8B2107C9B90208",
+    "src/Falah.Domain/Orders/Order.cs": "4F93EBCBA865636BBD00A6D6EDBAAB1453F72ACB35D220DE129D3BA8F47B1C4B"
+  },
+  "shard_reconciliation": {
+    "financial_integrity": "/0 exact IDs present",
+    "financial_coordinator": "/0 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:19:05.3149382Z",
+  "path": "tests/Falah.Domain.Tests/TrendRulesTests.cs",
+  "stable_ids": [
+    "sym-650db45d02ff76210594173107048761bf13a48893a143fc48e7880c24264ec7",
+    "sym-233c5d4fa0492da4180aca5357a13d5eac4d6eb1ad7ae53273752640d396d046",
+    "sym-b8e70bbd2c147ad4491e91d0aca99593b0af730299ebd2116fece8cfb2f85afe",
+    "sym-0d4e80634d0448211fa5192da75b29ba59a286b0e6cc9aa2788f84de1947f322",
+    "sym-12a683c3690f5ed930f20b76dca739069636d7b913d8c4c18622ca718e3d4057",
+    "sym-259c98743ad3d67506b0b7862df084f87c1dd76b4c521169c3455b21c0d790c1",
+    "sym-0237b8af962c8f84593bade2deaa17fce4026216b8626c0a0abfcb8aad44d700",
+    "sym-8dfafc5d2dd0c086b30a5413acf0d0acfa4bed36c89657af8720d9451980b576"
+  ],
+  "queued_count": 8,
+  "reconciliation": {
+    "current_union_remaining": 8,
+    "coordinator_database_reports": 8,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/TrendRulesTests.cs": "49C6D56382AD7920FF68E0CA121ADF7B6B974A45480C85E41F1631D21CA79A54",
+    "src/Falah.Domain/Reports/TrendRules.cs": "F192A9A0C309EAA8710FE5C00DB307073E976AEABC87FE8299D33C22EB75E511"
+  },
+  "assessment": "Comparable periods are shifted by seven days, preserving equal span and weekdays. Percentage is undefined only when the prior amount is zero; otherwise signed delta divided by absolute prior amount is rounded to one decimal. Tests cover rise/fall, growth from zero, fall to zero, no change and both zero. No new financial integrity issue found in this bounded static review.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static only; no tests or runtime/database access.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

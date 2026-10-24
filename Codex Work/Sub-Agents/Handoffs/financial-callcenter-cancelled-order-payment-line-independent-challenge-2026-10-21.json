@@ -1,0 +1,35 @@
+{
+  "artifact_kind":"independent_static_semantic_challenge",
+  "id":"FIN-CHALLENGE-CALLCENTER-CANCELLED-PAYMENT-LINE-001",
+  "created_utc":"2026-10-21T06:51:12Z",
+  "scope":"Challenge whether CallCenterViewModel.LookedUpPaymentLine mislabels a cancelled electronic-payment order as collect-at-delivery and whether visible Cancelled status adequately counters it. Static source only; no tests executed and no shared registry updated.",
+  "decision":"SOURCE_CONFIRMED_CONTRADICTORY_PRESENTATION; OPERATIONAL_IMPACT_CONDITIONAL",
+  "source_confirmed_flow":{
+    "cancellation":"CancelPendingElectronicPaymentHandler loads and locks the order, invokes Order.CancelElectronicPayment, then persists Status, IsPaid and ElectronicPaymentStatus. The domain method sets Status=Cancelled, IsPaid=false, and the electronic leg status=Cancelled; it rejects confirmed legs. The handler returns those persisted status values.",
+    "lookup":"GET /api/orders/lookup selects by order number with AsNoTracking and maps any found OrderEntity to OrderDetailsDto without filtering cancelled status. DTO and OrderMapper expose Status, IsPaid, and ElectronicPaymentStatus. CallCenterViewModel.LookupOrderAsync assigns that returned DTO unchanged.",
+    "payment_line":"LookedUpPaymentLine has three branches: pending -> unconfirmed transfer; otherwise paid -> paid; all other states -> collect at delivery. It does not test Order.Status==cancelled or ElectronicPaymentStatus==cancelled. Therefore a cancelled electronic order with IsPaid=false reaches the collect-at-delivery branch.",
+    "display":"CallCenterView.xaml renders Order.Status through a converter mapping cancelled to Arabic 'ملغي' in a muted 12px text row, and renders LookedUpPaymentLine separately in a semi-bold 12px row. Both are visible, but they communicate conflicting information; cancelled status does not change the payment-line text."
+  },
+  "impact_assessment":"This is a real static semantic mismatch in a payment-status surface explicitly documented as needed by an operator taking a follow-up call. The line may lead an operator to tell a customer/driver that money should be collected for a cancelled order. The visible Cancelled status is material counterevidence and may prevent action by an attentive operator; source does not prove anyone acts on the line, that a driver is assigned/delivery proceeds, that cash is collected, or that ledger state changes. Treat as a conditional operational presentation defect, not duplicate payment or accounting mutation.",
+  "counterevidence":"The same result card visibly displays status 'ملغي'; the cancellation endpoint is specifically for pending electronic payment and rejects a confirmed leg; domain cancellation marks the whole order Cancelled and unpaid; no source evidence here connects this text line to a money-posting command. This lowers actual-loss confidence but does not make the conflicting instruction semantically correct.",
+  "recommended_disposition":"Separate low-to-medium conditional client presentation candidate; keep outside confirmed financial posting findings until workflow validation. Resolve by making cancellation status precedence explicit in LookedUpPaymentLine, for example a cancelled/no-collection message, and reserve 'collect at delivery' for active unpaid orders that satisfy the intended COD condition. Preserve normal pending, paid, and legitimate COD labels.",
+  "source_references":[
+    {"path":"src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs","sha256":"ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e","ranges":[[264,288],[312,334]],"symbols":["LookedUpPaymentLine","OnLookedUpOrderChanged","LookupOrderAsync"],"evidence":"Payment status selection omits cancelled state; lookup assigns API DTO to LookedUpOrder unchanged."},
+    {"path":"src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml","sha256":"67022609cfa8b4a82b59f2b225725d921e8596defeda694af4a1a47bfef79eea","ranges":[[143,171]],"evidence":"Cancelled order status is shown in muted 12px row; payment line is independently visible in semi-bold 12px row; total is prominent and reprint button always visible."},
+    {"path":"src/Falah.Client.CallCenterWinUI/Converters/Converters.cs","sha256":"926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1","ranges":[[11,22]],"symbol":"OrderStatusLabelConverter.Convert","evidence":"Maps wire value cancelled to Arabic 'ملغي'."},
+    {"path":"src/Falah.Domain/Orders/Order.cs","sha256":"4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b","ranges":[[196,214]],"symbol":"Order.CancelElectronicPayment","evidence":"No-op for already cancelled; rejects confirmed/no payment leg/empty reason; otherwise changes status to Cancelled, IsPaid=false and electronic-leg status Cancelled."},
+    {"path":"src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs","sha256":"c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7","ranges":[[31,73]],"symbol":"CancelPendingElectronicPaymentHandler.HandleAsync","evidence":"Calls domain cancellation under transaction and writes Status, IsPaid and ElectronicPaymentStatus; returns persisted values."},
+    {"path":"src/Falah.Server/Program.cs","sha256":"5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6","ranges":[[1506,1510]],"evidence":"Order-number lookup returns OrderMapper.ToDto(order) for any found order; no cancelled-status filter."},
+    {"path":"src/Falah.Infrastructure/Orders/OrderMapper.cs","sha256":"37619395348335292dd8dc7469e4f21488033d3816b097ad9b55451a6af20a9d","ranges":[[24,39]],"symbol":"OrderMapper.ToDto","evidence":"Copies persisted Status, IsPaid and ElectronicPaymentStatus into DTO."},
+    {"path":"src/Falah.Application/Orders/OrderDetailsDto.cs","sha256":"2c3fe061e51f9e6f3abce30fd44b33bfa78f94dab132d8df24ada8079ba7aeea","ranges":[[10,23]],"evidence":"DTO carries order status, paid flag, electronic-payment status, total and split payment amounts."}
+  ],
+  "validation_scenarios_to_add_or_run_later":[
+    "ViewModel/property test: cancelled + IsPaid=false + ElectronicPaymentStatus=cancelled yields explicit cancelled/no-collection wording, never 'collect at delivery'.",
+    "Lookup flow test: server returns a cancelled order with the persisted status fields and CallCenter card displays non-conflicting order/payment state.",
+    "Regression control: active cash-on-delivery order with no electronic pending state and IsPaid=false still says collect at delivery.",
+    "Regression control: pending electronic payment remains unconfirmed, not paid or COD.",
+    "Regression control: confirmed/paid order remains marked paid.",
+    "If cancellation makes the order operationally invalid, verify reprint/action controls do not imply the cancelled order is live; do not infer this from the payment-label defect alone."
+  ],
+  "limitations":["No tests run; proposed scenarios only.","No XAML/runtime visual inspection.","No API or delivery workflow executed.","No evidence that a physical collection or ledger movement results from this label."]
+}

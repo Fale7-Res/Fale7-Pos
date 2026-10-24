@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml",
+  "source_git_blob_sha256": "9cd690b909f3dcde298eea52fae41c5ff33ed4afe4b3ae0a7f82fe5078f3dc48",
+  "worktree_sha256": "8556d0c5e0e5b562b4550a9fff6684265f97a9da8905f50a3a0c0720183bcc3f",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:39:56.649912+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Management active shift, history, blind-close and open-shift UI.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CanSeeShiftTotals",
+      "reasoning": "Management-only live opening/sales/payment/expense/order cards; restricted notice for cashier. Seven horizontal min130 cards plus gaps require970px before darkcardpadding; no horizontal scrolling/wrapping on active card."
+    },
+    {
+      "anchor": "History",
+      "reasoning": "History explicitly horizontally scrollable, unlike many management tables. Ten fixed columns total1390px plus gaps/padding despite StackPanelMin1020; horizontal scroll accommodates. Closed/open states, actor/timestamps and deficit/surplus textual badges distinct."
+    },
+    {
+      "anchor": "ReprintShiftOpenCommand",
+      "reasoning": "Opening/handover reprint buttons have explicit automationIDs/names; close print only closed. These queue real output, no preview or physical print invoked by review."
+    },
+    {
+      "anchor": "IsCloseShiftModalOpen",
+      "reasoning": "Close overlay Grid has no Grid.Row or RowSpan although root has Auto header row and star body; therefore defaults to header row0, potentially grows/covers header instead of full workspace. Same open-shift overlay omission. Native layout not observed; source structural inconsistency against other Grid.RowSpan2 dialogs."
+    },
+    {
+      "anchor": "IsCloseShiftCounting",
+      "reasoning": "Blind first stage accepts counted amount before preview; second stage reveals expected/actual/difference, mandatory reason/managerapproval. Reason/PIN/count fields have no IsEnabled busy binding; commands must freeze unknown/inflight state. UI016 separate fresh request ID issue."
+    },
+    {
+      "anchor": "CancelCloseShiftModalCommand",
+      "reasoning": "Close/header/cancel/recount actions all remain in markup during busy. Must rely model guards; previous source observed unconditional cancel on some management flow. No actual shift mutated."
+    },
+    {
+      "anchor": "IsOpenShiftModalOpen",
+      "reasoning": "Open fixed440 unscrollable stack can overflow with treasurywarning/error. Shiftname/openingfloat fields, optional authorized mainbalance and emptytreasury0openinginstruction. Static submit caption gives no retained retry context."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need native row0 overlay geometry,7card width, blind count anti-leak, busy navigation/cancel and exact restart/retry. No callable declarations.",
+  "recommendations": "Constrain overlays to full root RowSpan2, adapt cards and coherent pending locks only under approved source fix. Preserve management-versus-cashier visibility and server blind-close enforcement.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

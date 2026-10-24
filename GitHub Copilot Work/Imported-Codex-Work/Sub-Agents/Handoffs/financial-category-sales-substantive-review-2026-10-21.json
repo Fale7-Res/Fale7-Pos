@@ -1,0 +1,133 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-category-sales-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T09:00:00Z",
+  "assignment": "Source-review GetCategorySalesAsync, tracing its caller, endpoint permission, DTO and existing tests; compare date/status behavior to adjacent reports. No test execution or DB/runtime changes.",
+  "stable_id": "sym-42ede0a0661cfd895d08809ec61dcca1b382196251d3e21614fffcce439b6fa1",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetCategorySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "325-339",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "status": "ANALYZED",
+      "note": "Receipt identity/status only; no review credit taken from it."
+    }
+  },
+  "source_reasoning": {
+    "behavior": "Calls the shared Range(from,to), then AsNoTracking-reads OrderItems joined to Orders by order ID with the same cancelled-status and CreatedAtUtc interval predicate used in TopSelling, SoldProducts and ProductHourly. It inner-joins each surviving order line to its current Product by ProductId and projects current CategoryId plus frozen line Quantity and TotalPricePiastres. It materializes rows, loads current Category names, groups by CategoryId, sums quantity and line totals, uses CategoryId as display fallback if no name is present, then sorts descending by line total. It performs no writes.",
+    "comparison_with_adjacent_methods": "Status predicate and Range behavior are identical to the prior TopSelling/SoldProducts/ProductHourly methods. Therefore the same conditional collation issue (lowercase persisted `cancelled` vs `nameof(OrderStatus.Cancelled)` = `Cancelled`) and one-sided date contract discrepancy are shared. This endpoint accepts nullable from/to. ReportsViewModel passes a resolved two-bound range; no caller passes a one-sided range in the inspected WPF path. Product grouping differs intentionally: category rows aggregate by current CategoryId, not ProductName; line amounts are gross frozen order-line totals, not net after discounts/refunds or collected cash.",
+    "category_basis": "Current Product.CategoryId is used rather than a checkout-time category snapshot. UpdateProductHandler explicitly changes CategoryId on existing products; therefore recategorizing a product moves its historical order-line amounts between category totals. This is source-confirmed current-classification behavior. Whether historical category-at-sale should be preserved is a reporting-policy question; no such requirement was found in the reviewed evidence. The inner join excludes an order item if its Product no longer exists, but FalahDbContext configures Product FK Restrict for order items and documents that sold products cannot be hard-deleted, so this is not considered reachable through the modeled database path."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "2032-2033, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/category-sales accepts nullable from/to, invokes RequireReportsAccessAsync, then calls GetCategorySalesAsync. reports_view or all is required."
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "span": "65",
+      "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "behavior": "CategorySalesDto carries CategoryId, CategoryName, Quantity and TotalPiastres without distinguishing gross line sales from net cash."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/MenuEntities.cs",
+      "span": "3-17",
+      "sha256": "93fb6d04445a3c79c5beec713cb79811bc36fa918b8eda32e3e320651ad007a5",
+      "behavior": "ProductEntity has mutable current CategoryId; CategoryEntity has current name and Active flag. The report lookup does not filter inactive categories."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "span": "82-120",
+      "sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247",
+      "behavior": "UpdateProductHandler validates target category and updates existing entity.CategoryId in a transaction; historical order-item rows keep their frozen line amounts/name but refer to this product ID."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "span": "100-108",
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "behavior": "OrderItem.ProductId foreign key uses DeleteBehavior.Restrict; adjacent source comment says a product that has ever been sold cannot be hard-deleted."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "span": "587-589",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "behavior": "The reports client sends actor and both resolved dates to category-sales endpoint."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "span": "90-107, 244-246, 280-285",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "behavior": "Reports view resolves the date range, fetches category rows and copies DTO values into CategorySales. No binding in the inspected ReportsView.xaml consumes that collection."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "span": "Entire ReportsView.xaml checked; no CategorySales binding found",
+      "sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "behavior": "The checked reports XAML contains no CategorySales binding/panel. ReportsViewModel fetches rows into its CategorySales collection, but this UI file does not present them. Therefore no user-facing category amount label was verified on this surface; the authenticated API response and integration test remain the observable contract checked here."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "span": "47-54",
+      "sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "behavior": "OrderStatus.Cancelled maps to lowercase `cancelled`, in contrast with the query's nameof value `Cancelled`."
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "span": "31-41, 67-80",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "behavior": "Date range boundaries are Cairo-local midnights converted to [start,end) UTC; BusinessDateRange.Resolve documents lone from as one day, unlike Range's open-ended behavior."
+    }
+  ],
+  "test_evidence": {
+    "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+    "span": "170-178",
+    "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+    "scenario": "Top_selling_items_and_category_sales_aggregate_across_orders",
+    "coverage": "Creates one normal cash order, asserts top-items contains its total, then category-sales contains a row whose TotalPiastres is at least that amount. It proves a basic current-category path but not exact category assignment, inactive category, status cancellation, date boundaries, historical recategorization, discounts/refunds, or missing product.",
+    "related_tests": [
+      {
+        "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+        "span": "186-222",
+        "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+        "coverage": "Tests ProductHourly hour/range semantics only; not category filter behavior."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+        "span": "232-249",
+        "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+        "coverage": "Exercises cancellation and SoldProducts removal in daily statement; does not call or assert category-sales output."
+      }
+    ],
+    "tests_executed": false
+  },
+  "assessment": {
+    "disposition": "NO_CONFIRMED_FINANCIAL_DEFECT; CONDITIONAL_SHARED_FILTER_RISK_AND_CURRENT_CATEGORY_SEMANTICS",
+    "findings": [],
+    "conditional_notes": [
+      "Same collation-dependent cancellation filter as three neighboring reports. No direct CategorySales cancellation test exists; no production collation/runtime evidence was checked. Keep prior conditional concern, no promotion.",
+      "Same one-sided date API ambiguity; this WPF caller sends both dates. The API itself accepts partial bounds.",
+      "Historical category totals change when Product.CategoryId is updated. Source explicitly reads current category, so this may be intended; no frozen-at-sale category policy was established. If historical category reporting is required, snapshot CategoryId/Name on OrderItem at checkout and aggregate from that snapshot. The current checked WPF reports XAML does not display CategorySales despite the viewmodel fetching it, so this scope concerns the API/report contract rather than a verified visible panel."
+    ],
+    "counterevidence": [
+      "The method is explicitly ported from the Sales by Category panel and uses current product category; product-update source makes the current classification observable rather than hidden.",
+      "SoldProducts and ProductHourly use the same name grouping; CategorySales answers a distinct question and therefore groups by CategoryId as expected.",
+      "FK restrict prevents hard deletion of a product referenced by order items in the modeled schema, countering a missing-product join-loss scenario."
+    ],
+    "runtime_limits": "Static review only. No SQL collation check, endpoint call, test run or DB mutation."
+  },
+  "next_callable": {
+    "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "349-423"
+  },
+  "limitations": [
+    "No tests executed.",
+    "No source, DB, runtime, shared registry/report, or Git changes.",
+    "Supplemental review does not certify global finance coverage."
+  ]
+}

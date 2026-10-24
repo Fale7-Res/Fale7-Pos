@@ -1,0 +1,406 @@
+{
+  "id": "financial-residual-213-print-result-reprint-station-batch",
+  "created_utc": "2026-10-21",
+  "input_queue": "Codex Work/Sub-Agents/Results/financial-residual-213-reconciliation-queue.json",
+  "batch": {
+    "reviewed": 19,
+    "by_file": {
+      "ReportPrintJobResultHandler": 7,
+      "ReprintDocumentHandler": 8,
+      "SetProductStationHandler": 4
+    },
+    "pending_before": 71,
+    "pending_after": 52
+  },
+  "entries": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-fbfca0b1d382b972792c4cabd0a21c98f5547f71b84137d537369b513ef3d43b",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.ReportPrintJobResultHandler.ReportPrintJobResultHandler(Falah.Infrastructure.Persistence.FalahDbContext)",
+      "span": [
+        20,
+        5,
+        20,
+        71
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-8f393c9d5e56862388266949c73ca92cbbb4bc76ff99497180d4cd2fabd64cdb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.ReportPrintJobResultHandler.HandleAsync(Falah.Application.Printing.ReportPrintJobResultRequest, CancellationToken)",
+      "span": [
+        22,
+        5,
+        72,
+        6
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-35988285440deccf3942f077a3aad0bcef1bd482342d5c4c3fcfe0680532d889",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        25,
+        93,
+        25,
+        132
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-d5a5dd66338e42a202a2e001a8e34b968f9095ec4d3ce7e9eea1caa8ef6c24b7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        86,
+        28,
+        117
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-d27c57d2a6f1506a9e6ff220c9f1d0b4bd9a1ced67489dd85fd2a73e477eb8eb",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        33,
+        81,
+        33,
+        118
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-bbb57b004ba5e092a9a485585e74e8733305b7a5922d4c359e0d2c7ca776b607",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        63,
+        88,
+        63,
+        127
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "stable_id": "sym-012ae37ffee0c4d7fc65e08e95eac94499228d3d29df091bb945e82415151484",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        66,
+        90,
+        66,
+        121
+      ],
+      "source_sha256": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+      "review": {
+        "flow": "print-attempt reporting",
+        "actual_control_data_flow": "Request idempotency key guards duplicate attempt; transaction locks job, updates attempt count/status/error, inserts attempt history and commits; order/payment/inventory untouched.",
+        "financial_relevance": "Financial document delivery tracking only; no underlying amount/account mutation.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCIAL_POSTING",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.ReprintDocumentHandler.ReprintDocumentHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        25,
+        5,
+        25,
+        109
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.ReprintDocumentHandler.HandleAsync(Falah.Application.Printing.ReprintDocumentRequest, CancellationToken)",
+      "span": [
+        27,
+        5,
+        74,
+        6
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-2679747f78547e6796b6ff1233c7d73cbd6d1a08195b62d2c2bbe6151a60b37b",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        65,
+        29,
+        108
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        37,
+        72,
+        37,
+        104
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        43,
+        58,
+        43,
+        89
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        45,
+        58,
+        45,
+        114
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        47,
+        60,
+        47,
+        91
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "stable_id": "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        67,
+        67,
+        67,
+        110
+      ],
+      "source_sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "review": {
+        "flow": "shift/expense reprint",
+        "actual_control_data_flow": "Validates persisted shift-close/expense, creates marked print job plus audit event, saves; same request replays prior job; no shift reopen or expense repost.",
+        "financial_relevance": "Financial document reproduction/auditability; no money posting.",
+        "disposition": "FINANCIAL_PRESENTATION_AUDIT",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs",
+      "stable_id": "sym-fff568457df2c4aa93c0d245993217356a11d05cac5ae79472402e6fe7bfb2e6",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.SetProductStationHandler.SetProductStationHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        21,
+        5,
+        25,
+        6
+      ],
+      "source_sha256": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C",
+      "review": {
+        "flow": "product station configuration",
+        "actual_control_data_flow": "Validates Charcoal/Grill route and updates product PreparationStation; future kitchen routing only, not financial data.",
+        "financial_relevance": "Menu/printing routing; no financial state.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs",
+      "stable_id": "sym-881e1cd0072459c3de8f96d7b2499f597d8c932867e1e7fb4a73ebbc736b9365",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.SetProductStationHandler.HandleAsync(string, Falah.Application.Printing.SetProductStationRequest, CancellationToken)",
+      "span": [
+        27,
+        5,
+        45,
+        6
+      ],
+      "source_sha256": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C",
+      "review": {
+        "flow": "product station configuration",
+        "actual_control_data_flow": "Validates Charcoal/Grill route and updates product PreparationStation; future kitchen routing only, not financial data.",
+        "financial_relevance": "Menu/printing routing; no financial state.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs",
+      "stable_id": "sym-1d3d153e66b595ab2ae4bd7a708bf8cd8c48051309e29b9b2cf9ca5d93d820c6",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        37,
+        76,
+        37,
+        108
+      ],
+      "source_sha256": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C",
+      "review": {
+        "flow": "product station configuration",
+        "actual_control_data_flow": "Validates Charcoal/Grill route and updates product PreparationStation; future kitchen routing only, not financial data.",
+        "financial_relevance": "Menu/printing routing; no financial state.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs",
+      "stable_id": "sym-75630d2661e8108e4df4654b3d22d447bd6bc9d0413e770020c120b2e627b9c4",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        41,
+        62,
+        41,
+        84
+      ],
+      "source_sha256": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C",
+      "review": {
+        "flow": "product station configuration",
+        "actual_control_data_flow": "Validates Charcoal/Grill route and updates product PreparationStation; future kitchen routing only, not financial data.",
+        "financial_relevance": "Menu/printing routing; no financial state.",
+        "disposition": "NOT_APPLICABLE_TO_FINANCE",
+        "static_only": true
+      }
+    }
+  ],
+  "source_hashes": {
+    "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+    "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+    "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C"
+  },
+  "limitations": [
+    "Static source review only.",
+    "Database transaction path not executed; no runtime behavior inferred."
+  ]
+}

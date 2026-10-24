@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs",
+  "source_git_blob_sha256": "137baa022eb1e158ae5ab7ae1b6e986cfe2bcd96853c091fd9d5d1d101db7929",
+  "worktree_sha256": "137baa022eb1e158ae5ab7ae1b6e986cfe2bcd96853c091fd9d5d1d101db7929",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:56:19.764961+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Legacy shift-open exact source body; no DB/runtime execution.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-0bcfba27cbaf30d48baa2176ac90e99264681cce083ed914bed9b70d353c488c",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.OpenShiftAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        13,
+        5,
+        49,
+        6
+      ],
+      "reasoning": "Parses opening cash current-culture decimal nonnegative, sets busy, generates fresh openID and machine-local hour-derived name, sends request, sets shared shiftID/name and header then loads menu. No permission or synchronous busy guard, existing-shift discovery or retained intent. Server unique-open and authorization remain essential.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Legacy crash/timeout/newkey and wrong workstation timezone tests missing; no shift opened.",
+      "tests_missing": "Legacy crash/timeout/newkey and wrong workstation timezone tests missing; no shift opened. NOT_EXECUTED.",
+      "verified_callers_callees": "OpenShiftAsync; Session.ShiftId/Name; Header.Refresh; LoadMenuAsync"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

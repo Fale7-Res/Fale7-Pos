@@ -1,0 +1,1056 @@
+{
+  "at_utc": "2026-10-18T09:00:25.451112+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root mirrored-code coordinator",
+  "batch": "Client identity, approval, clock and cart operation mirrors",
+  "comparisons": [
+    {
+      "group_prefix": "555fbe2c",
+      "reasoning": "Five approval helpers same bool short-circuit, min4inputlength, one server IssueManagerApproval call and returned issued token/approver IDs. No client-selected arbitrary authority accepted from successful result.",
+      "callers_context": "Cashier Operations345, ControlCenter136, Employees390, Inventory696,Purchasing604 bodies read; actual call sites pass operation-specific permission/reason and UI error callback.",
+      "financial_security_effects": "needsApproval is client UX only; false returns no token and server must still authorize. No live PIN values inspected or credentials saved. Different submitted action values, retry persistence and command writers remain outside helper.",
+      "recommendation": "Share a typed approval-prompt service preserving server authority, error callback and action-specific permission; never auto-send second issuing call for local validation.",
+      "tests": [
+        "Noapproval path no API",
+        "Short input failure",
+        "Server denied/null result",
+        "Issued IDs only",
+        "Command consumes matching action token"
+      ],
+      "group_id": "clone-555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+          "stable_id": "sym-90012514d66806f53d976f9b4e785c4d8eab86db7dfed03255ef7928da4597df",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+          "start_line": 345,
+          "end_line": 367,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ResolveManagerApprovalIfNeededAsync(bool, string, string, string, Action<string>)",
+          "symbol_span": [
+            345,
+            5,
+            367,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+          "stable_id": "sym-f1e498a7982711b20b4239d5042a1da97055507b4c9f4eed3504d5cac5b56f4b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+          "start_line": 136,
+          "end_line": 153,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)",
+          "symbol_span": [
+            136,
+            5,
+            153,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
+          "stable_id": "sym-7fd0ca6417ddba2ca34100adfbb8e14fb96fc78a4b48e11ec1a1836d386effd9",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "ab1cb0a573412633b4c33fce3282e37859163da8cecc156ff2df507fa8f468d8",
+          "start_line": 390,
+          "end_line": 410,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "04f70fc8f689932e34bc5cdf5f9ee1b5c04dbdb35a053f6ed2719a17cfd0eb7b",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)",
+          "symbol_span": [
+            390,
+            5,
+            410,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+          "stable_id": "sym-7294938e6572bbbfc2fb9ed85d8c8c42807fa63ae7613ac653ddb557b7fb011c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+          "start_line": 696,
+          "end_line": 716,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)",
+          "symbol_span": [
+            696,
+            5,
+            716,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+          "stable_id": "sym-2a932e99bd1ce32cb3a3d038da8916e1e0c2c305d0cec9e9818a0061b2d5655f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+          "start_line": 604,
+          "end_line": 624,
+          "token_count": 117,
+          "body_token_sha256": "555fbe2c37e690d90a8cbe08298b3f9a251dac8d584f40a48de4374b3488f7d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "f3757fffbad1e70c6b4669f50d50f696c0043aa305821a7a540330704594a21f",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PurchasingViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)",
+          "symbol_span": [
+            604,
+            5,
+            624,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "796544e8",
+      "reasoning": "Three login Submit bodies identical: busy/error, API LoginByPin, failure clears input, success assigns CurrentUser then clears and emits LoggedIn, exception shows message, finally clears busy.",
+      "callers_context": "CallCenter/legacyWPF/CashierWinUI exact bodies, CanSubmit guards length>=4,!IsBusy and Toolkit relay generation read. Prior API transport comparison retained.",
+      "financial_security_effects": "Same code does not prove same API type/session role acceptance. Token/session change can occur in API before subsequent shell role check (prior UI020), not a new mirrored finding. No authentication automated or account tested.",
+      "recommendation": "Common login orchestration with UI-framework facade, preserve role/session acceptance and bearer-clear on rejected role; no fix applied.",
+      "tests": [
+        "Login failure/success/exception",
+        "Busy reset on event error",
+        "Rejected client role clears token",
+        "Same current user and bearer state"
+      ],
+      "group_id": "clone-796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-ba38b81cd62887c2f8b0addf41b818b591cddd057f4193660e90f8abe3bafb7b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "start_line": 53,
+          "end_line": 80,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.LoginViewModel.SubmitAsync()",
+          "symbol_span": [
+            53,
+            5,
+            80,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-73e7a2ae21b0edb639b5f016295d335deca836c1290642f25bf419ddcb034b44",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "start_line": 51,
+          "end_line": 78,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "signature": "Falah.Client.Cashier.ViewModels.LoginViewModel.SubmitAsync()",
+          "symbol_span": [
+            51,
+            5,
+            78,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-108d6c6a3e8c2bc0d5baf81dd3f7f5dcafd08f9ef2783f81dae2b8e8f500a27d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "start_line": 53,
+          "end_line": 80,
+          "token_count": 99,
+          "body_token_sha256": "796544e815d150707ccd43041c9e4da8db1caf39b62eec1b72004b6911af18c2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.LoginViewModel.SubmitAsync()",
+          "symbol_span": [
+            53,
+            5,
+            80,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "17b6a81a",
+      "reasoning": "Three UpdateClock methods use DateTime.Now and ar-EG clock/day formatting, independent server Cairo BusinessClock. Identical output logic.",
+      "callers_context": "Headers timer Tick and constructor UpdateClock call, WinUI versus WPF framework types differ.",
+      "financial_security_effects": "Workstation timezone display can differ backend restaurant date; same source body not a durable business-day policy. No malicious timer inferred from visible clock update.",
+      "recommendation": "Shared pure date formatting with explicit clock/zone input while keeping platform timer adapters.",
+      "tests": [
+        "Cairo and other host timezone",
+        "Midnight date rollover",
+        "Locale formatting",
+        "Clock survives header reuse"
+      ],
+      "group_id": "clone-17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-7fdc8dfbca09224924cd5c576f52daf79a63c6757706e4e0dedd22ba7ed523c7",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 38,
+          "end_line": 44,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.UpdateClock()",
+          "symbol_span": [
+            38,
+            5,
+            44,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-77ae9e2cfbbbfac27f25af32222b373bf211b0f2d0f9e267f9456a2b295eaafb",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "signature": "Falah.Client.Cashier.ViewModels.HeaderViewModel.UpdateClock()",
+          "symbol_span": [
+            34,
+            5,
+            40,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-5ef7aeba3ded90f70b4787ccedda481042b28adf2083d7bbd1c2c106124316e0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "start_line": 39,
+          "end_line": 45,
+          "token_count": 40,
+          "body_token_sha256": "17b6a81a222d1c783df1a2de6e6c830f07750790cb1d88c4d83db7d747a4a92c",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.UpdateClock()",
+          "symbol_span": [
+            39,
+            5,
+            45,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "3f2c2c91",
+      "reasoning": "Two WinUI Header.Refresh methods notify same6computed properties, no fetch or mutation. Captured AppSession differs by client capability.",
+      "callers_context": "Header getters and Cashier ctor OperationStateChanged subscription; CallCenter explicit Refresh callers versus main session lifecycle separate.",
+      "financial_security_effects": "Notification equality does not mean all triggering events subscribed equally. No permission enforced by visibility update.",
+      "recommendation": "Share computed-header notification helper only with explicit lifecycle/subscription policy.",
+      "tests": [
+        "User/shift change refresh",
+        "Pending operation CanLock state",
+        "No stale badge after session switch"
+      ],
+      "group_id": "clone-3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-a0dbfc42d4d5cdee7b6baca10496fdcb1a4568769775ac0e66742343c30d694c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 61,
+          "end_line": 69,
+          "token_count": 50,
+          "body_token_sha256": "3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Refresh()",
+          "symbol_span": [
+            61,
+            5,
+            69,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-8c8d6b588da227e85c13b87ba9fcafd6cd9cf4b9ecb1c3ebea0d85feb054843a",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "start_line": 62,
+          "end_line": 70,
+          "token_count": 50,
+          "body_token_sha256": "3f2c2c91c4e2930bea38cc6f0eabb3e71a961ad4031526331835ece2309d2d5d",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh()",
+          "symbol_span": [
+            62,
+            5,
+            70,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "7eca7aff",
+      "reasoning": "CallCenterWinUI and legacyWPF constructors same session assignment, initial clock update,30sDispatcherTimer tick/start. DispatcherTimer symbols bind different UI frameworks. CashierWinUI near-copy adds OperationStateChanged subscription.",
+      "callers_context": "Full Header ctor context and CashierWinUI20-29 Stop method read; main shell Stop calls Header.Stop.",
+      "financial_security_effects": "Intentional platform adapters; timer only clock text, not financial posting. No actual leak proven merely live timer. Merging bodies across platform assemblies not directly drop-in.",
+      "recommendation": "Common clock presentation logic with platform-owned timer/dispose adapters and explicit unsubscribe lifecycle.",
+      "tests": [
+        "Stop called on application close",
+        "No multiple timer after repeated screen creation",
+        "Platform dispatcher affinity"
+      ],
+      "group_id": "clone-7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-0256d90127a005b855d82349300c430671c0bbfbb4ad1da5f9c8117e6aa4d839",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "start_line": 20,
+          "end_line": 27,
+          "token_count": 45,
+          "body_token_sha256": "7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CallCenterWinUI.Services.AppSession)",
+          "symbol_span": [
+            20,
+            5,
+            27,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+          "stable_id": "sym-acd8b8139bc324e6276dc4ee4e1962476c463888d5735deb9f3af350df6cbc73",
+          "kind": "ConstructorDeclaration",
+          "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "start_line": 19,
+          "end_line": 26,
+          "token_count": 45,
+          "body_token_sha256": "7eca7afff42b62350fe41400f29e76da81861f07d239ec7405af1a4933ed1b19",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "signature": "Falah.Client.Cashier.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.Cashier.Services.AppSession)",
+          "symbol_span": [
+            19,
+            5,
+            26,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "faeee31a",
+      "reasoning": "Three AppSession.HasPermission bodies check nonnull CurrentUser and exact permission/all membership. They do not check Active, refresh/revoke token or validate issued server role.",
+      "callers_context": "Actual session code and counterpart declarations read; Cashier session draft/management unresolved-operation state differs CallCenter/legacy.",
+      "financial_security_effects": "Advisory client command availability only, server Actor policy includes active identity. Do not claim missing Active check automatically bypasses actual server authorization.",
+      "recommendation": "Share permission-view helper using common user contract, retain server as authority and per-client operation lifecycle state.",
+      "tests": [
+        "all permission",
+        "Missing/current user",
+        "Permission revocation server-side",
+        "Client-specific role/session acceptance"
+      ],
+      "group_id": "clone-faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+          "stable_id": "sym-44b3fc159498b85ba8b163964e2264b85f2bb0add8d519f70401c1cdabb7ea10",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+          "start_line": 40,
+          "end_line": 41,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+          "signature": "Falah.Client.CallCenterWinUI.Services.AppSession.HasPermission(string)",
+          "symbol_span": [
+            40,
+            5,
+            41,
+            126
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/AppSession.cs",
+          "stable_id": "sym-d9647144ec8d4c36e597aef56f7958247082c519a5264d97b1188639e0c57530",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+          "start_line": 15,
+          "end_line": 16,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+          "signature": "Falah.Client.Cashier.Services.AppSession.HasPermission(string)",
+          "symbol_span": [
+            15,
+            5,
+            16,
+            126
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+          "stable_id": "sym-ebe9c8514f3bb69a36cd840ed97ebe3b879820994ed3a5955057258d7bfe4873",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+          "start_line": 33,
+          "end_line": 34,
+          "token_count": 24,
+          "body_token_sha256": "faeee31a83ac98630345df2ecb26df30756b488fbe24f0d2285a895f6e70ec33",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.HasPermission(string)",
+          "symbol_span": [
+            33,
+            5,
+            34,
+            126
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "3590c2e2",
+      "reasoning": "AppendNoteText same CanEditOperation guard and comma-separated appended line Notes. Captured CartLine and root operation predicates belong separate clients.",
+      "callers_context": "Cashier/CallCenter bodies and State CanEditOperation definitions read; cart-note UI routes call this direct helper.",
+      "financial_security_effects": "Cashier guard includes many retained financial operations, CallCenter includes checkout/print. Same body correct abstraction only with caller operation policy; note mutation not financial authorization.",
+      "recommendation": "Shared line-note formatting/command helper parameterized edit eligibility; keep notes in server CheckoutItem request.",
+      "tests": [
+        "Blank/existing note",
+        "Unresolved request blocks editing",
+        "Correct note copied at checkout"
+      ],
+      "group_id": "clone-3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-065f27a05bf2a8bb953208a62e192b5cf141846e14f15f80d834c80f85dd701b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 292,
+          "end_line": 296,
+          "token_count": 36,
+          "body_token_sha256": "3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.AppendNoteText(Falah.Client.CallCenterWinUI.Models.CartLine, string)",
+          "symbol_span": [
+            292,
+            5,
+            296,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-bfa65a47cdb0a933af11f73e0015930e62a3f7a28fbea445201e41b9467cc9b1",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 280,
+          "end_line": 284,
+          "token_count": 36,
+          "body_token_sha256": "3590c2e27fd1e8dec97ecbbdbd03ea44ba7885ee3127ca3f012c43f24f4eff78",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.AppendNoteText(Falah.Client.CashierWinUI.Models.CartLine, string)",
+          "symbol_span": [
+            280,
+            5,
+            284,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "599e0e29",
+      "reasoning": "Three checkout item selectors serialize ProductId/VariantId/Quantity/AppliedOfferId/Notes into same shared Application CheckoutItemRequest. No client unit price included.",
+      "callers_context": "CallCenterCheckout142, legacy102,CashierWinUI353; surrounding requests differ split method and DiscountPiastres0versusactive discount.",
+      "financial_security_effects": "Intentional shared line contract, server revalidates effective offer/product amounts. Identical selector does not make complete order payment/tax/discount payload equal.",
+      "recommendation": "One mapper for cart-line contract preserving station-specific checkout envelope.",
+      "tests": [
+        "Offer expiry revalidated server",
+        "Notes/variant/quantity preserved",
+        "Cashier multi/discount separate",
+        "No client price accepted"
+      ],
+      "group_id": "clone-599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "stable_id": "sym-e67a8e78cf6248a4bc5530b9fccd7f48fae7ea08625e4894677f6929083a406e",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+          "start_line": 142,
+          "end_line": 142,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+          "signature": "lambda expression",
+          "symbol_span": [
+            142,
+            36,
+            142,
+            129
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-ac068985fe1f63f1b67e0480bb8da5498bc8abacd2dbdf722fe7d6eb37b8a8f0",
+            "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SubmitOrderAsync()",
+            "lines": [
+              98,
+              176
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+          "stable_id": "sym-764d6887bda145fac5ab58d00d6bf360b9d686ef5679cf7a10636601b7a73e47",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "515219765f36ce15d4c0470c3f1272a191da27af2cc4508d8ce8bcaaec21bd33",
+          "start_line": 102,
+          "end_line": 102,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "abe203792ef03f7e0562f6f1029dbaba99cda77914f7f220d16893b9dd2b9373",
+          "signature": "lambda expression",
+          "symbol_span": [
+            102,
+            36,
+            102,
+            129
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-9dd8d9e1a27d3b535c1c54f45da533bfbbe014924b0e4a9e8ff2cb728aff048d",
+            "signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.SubmitPaymentAsync()",
+            "lines": [
+              82,
+              140
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "stable_id": "sym-14bf76bd9847ff238d5f50860e9d891e48d3bbb178a36fef8121c0367815717a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+          "start_line": 353,
+          "end_line": 353,
+          "token_count": 23,
+          "body_token_sha256": "599e0e297912f4fdfaa5b89472b0b2a04754d3456a4f162cb49815644b9fd544",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+          "signature": "lambda expression",
+          "symbol_span": [
+            353,
+            36,
+            353,
+            129
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-b1120789b8bc6b6ea02dd8875339559db53320d8b1699bcafb74e6adea8d5999",
+            "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitPaymentAsync()",
+            "lines": [
+              289,
+              389
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "f58ed9b4",
+      "reasoning": "Two DecreaseQuantity handlers guard CanEditOperation, decrement above1 else remove, then recompute local totals. Different parent subtotal/tax/comp capability intentionally remains.",
+      "callers_context": "Cashier/CallCenter bodies, parent RecomputeCartTotals and state predicates read; Cashier NotifyTotals extra notifications.",
+      "financial_security_effects": "UI estimates not authoritative server totals; subtotal-sum same, Cashier subtracts discount/tax+fee-comp while CallCenter plain tax+delivery (no comp/discount). Domain CheckoutRules93-97 agrees shared order of operations for supported inputs; not all client feature parity.",
+      "recommendation": "Share cart-line mutation while keeping specialized financial estimate policy and server authority.",
+      "tests": [
+        "Qty1removes",
+        "Qty2decrements",
+        "Retained request prohibits edits",
+        "Client estimate/server result contract"
+      ],
+      "group_id": "clone-f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-ce9cd176617dfc342486eb35b9182133fda3c443ca04892ff3d11f1538348cf2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 281,
+          "end_line": 287,
+          "token_count": 34,
+          "body_token_sha256": "f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.DecreaseQuantity(Falah.Client.CallCenterWinUI.Models.CartLine)",
+          "symbol_span": [
+            281,
+            5,
+            287,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-651bf1a1219f3ccad1b548a999e36012c40ae9268958791b6d71a52648a16a5c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 266,
+          "end_line": 272,
+          "token_count": 34,
+          "body_token_sha256": "f58ed9b43aeb1873328b44059bdd8c63d64cc73b0d92afb4775becd222a0ffdf",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.DecreaseQuantity(Falah.Client.CashierWinUI.Models.CartLine)",
+          "symbol_span": [
+            266,
+            5,
+            272,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "80afc368",
+      "reasoning": "Three digit-entry handlers guard EXISTING Pin.Length>=6, then append provided digit string and clear error. Does not validate parameter is one digit; normal keypad binding constrains it.",
+      "callers_context": "Login CanSubmit length>=4,!busy plus command declarations; WPF and WinUI wrappers share rule.",
+      "financial_security_effects": "Multi-character programmatic parameter can exceed6; no server PIN bypass inferred from UI parameter contract. No actual PIN literal or login operation used.",
+      "recommendation": "Share input normalization with explicit one-digit contract if desired; preserve server independent validation.",
+      "tests": [
+        "4-6digit keypad",
+        "Append after6blocked",
+        "Unexpected command parameter",
+        "Backspace/error state"
+      ],
+      "group_id": "clone-80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-3b4bc077ea119300c3add796a85b5cf3820766350cf33bed1f5888e25e2f35de",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "70dc69c12cf0df77ee7ddb3ac1b9ab151649d8fde1f111326435f6ce6c1b1e48",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.LoginViewModel.PressDigit(string)",
+          "symbol_span": [
+            34,
+            5,
+            40,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-d9375b6b489e13c6c13a6890d5b60ab321f97a56041a3ff23a840999b6df2f54",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "start_line": 32,
+          "end_line": 38,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "fb8cda0af18c3b5073826704d1b72243fd196e6ddc084070a7a7b1e139791105",
+          "signature": "Falah.Client.Cashier.ViewModels.LoginViewModel.PressDigit(string)",
+          "symbol_span": [
+            32,
+            5,
+            38,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs",
+          "stable_id": "sym-830c12a5038cad5828d36b2e014878452602500445e1180efad6e13a8ab865df",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "start_line": 34,
+          "end_line": 40,
+          "token_count": 20,
+          "body_token_sha256": "80afc3681eccaf9cf4d3f850448d2909897de7d8e00b2a0cedf0e95e7297a078",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "dece8eb51b3c8db5f1767395d8992eff8756afe3ee4c2c0b57c83b813ab7e8a1",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.LoginViewModel.PressDigit(string)",
+          "symbol_span": [
+            34,
+            5,
+            40,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "8dd7e39d",
+      "reasoning": "Three OnIsBusyChanged hooks notify CanEditAction and register !CanEditAction in shared session. Captured predicates differ Delivery(assign/outcome/settle),Inventory(count/waste),Purchasing(supplier/receive/pay).",
+      "callers_context": "Actual predicate lines before each hook and AppSession.SetManagementOperationPending identity-set implementation read.",
+      "financial_security_effects": "Shared busy callback is global close/lock coordination, not only animation. Pending request transitions must also refresh registration even without busy change; no complete lifecycle correctness inferred.",
+      "recommendation": "Shared operation-state adapter parameterized actual pending predicate, preserve register/unregister owner lifetime.",
+      "tests": [
+        "Busy start/finish",
+        "Pendingunknown with busyfalse",
+        "No lock/close while financial outcome unknown",
+        "Owner cleanup on screen disposal"
+      ],
+      "group_id": "clone-8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
+          "stable_id": "sym-373a29a69e1d15ee091dac4c040dcafd8b6adca93a6bebce17b6720b4cdf596d",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "c9e49112b32f8415f630a9f885695186d2b7bcc37ad2e7017d77315a6bed6792",
+          "start_line": 23,
+          "end_line": 27,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "27b80026d0447e03faf17e6eaad32fe5fde3ee3cd004f9503d561dfd6adc6822",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnIsBusyChanged(bool)",
+          "symbol_span": [
+            23,
+            5,
+            27,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+          "stable_id": "sym-f80285991fca8ef57c851039cb6cd9661e1366af275018dcc08697470728ad0f",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+          "start_line": 32,
+          "end_line": 36,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnIsBusyChanged(bool)",
+          "symbol_span": [
+            32,
+            5,
+            36,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+          "stable_id": "sym-610123616afc79fdf3df690617ce4d21a10c4ecc4574f238f361ecec6cbf22a2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+          "start_line": 29,
+          "end_line": 33,
+          "token_count": 20,
+          "body_token_sha256": "8dd7e39dd5a0a073c5ba3be466e6fa905f97c86404f966994ffc7a1932ada49b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "f3757fffbad1e70c6b4669f50d50f696c0043aa305821a7a540330704594a21f",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.PurchasingViewModel.OnIsBusyChanged(bool)",
+          "symbol_span": [
+            29,
+            5,
+            33,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "6bfa9f72",
+      "reasoning": "Two selected-category hooks refresh catalogue then mark tile selected by object ReferenceEquals, not ID string. Same instance assumption in each client.",
+      "callers_context": "RefreshVisibleProducts bodies route current category or search-across-categories with icon-by-product lookup, read bounded context.",
+      "financial_security_effects": "Reload producing new DTO instances must rebuild selection references, else highlight can differ; not a proven runtime defect. No financial product validation via tile identity.",
+      "recommendation": "Shared catalogue presentation state with explicit selected identity policy and separate station actions.",
+      "tests": [
+        "Reload DTO instances",
+        "Cross-category search",
+        "Null category",
+        "Only one tile selected"
+      ],
+      "group_id": "clone-6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-6263df38e8814523c4f5f3d8ae998e4bc41b5e6e552b917faf557a86269f95bc",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 83,
+          "end_line": 87,
+          "token_count": 26,
+          "body_token_sha256": "6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnSelectedCategoryChanged(Falah.Application.Menu.MenuCategoryDto?)",
+          "symbol_span": [
+            83,
+            5,
+            87,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-15bceeb4fa912523bbcd28af88ec46a6f2a24bd3bd631a83aa4644bbb8213fbe",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 50,
+          "end_line": 54,
+          "token_count": 26,
+          "body_token_sha256": "6bfa9f72a968e92f692ab2e22dc3a505fe535ef2b813d389fc075e0040aee665",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedCategoryChanged(Falah.Application.Menu.MenuCategoryDto?)",
+          "symbol_span": [
+            50,
+            5,
+            54,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "faae7d7a",
+      "reasoning": "Two health checks await PingHealth then update IsOnline only if not stopped. Full root shells use5sDispatcherTimer and initial fire-and-forget check; Cashier adds recovered-operation notice.",
+      "callers_context": "CallCenter constructor/Stop37-54 and Cashier constructor/CheckHealth contexts read.",
+      "financial_security_effects": "No serialization/cancellation token here, so overlapping pings can complete out of order if duration>interval; indicator is endpoint availability, not proven database/financial readiness. No live ping executed.",
+      "recommendation": "Shared cancellable/singleflight health observer with UI adapters; keep unrelated operation-close guards distinct.",
+      "tests": [
+        "Stop while ping in flight",
+        "Out-of-order responses",
+        "Long request overlap",
+        "Endpoint healthy but DB failure separately"
+      ],
+      "group_id": "clone-faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+          "stable_id": "sym-56a639d2763c9f6be3d5a642eff0b969a6aa3d837562a54f11b1438b15ad56f5",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+          "start_line": 37,
+          "end_line": 41,
+          "token_count": 23,
+          "body_token_sha256": "faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()",
+          "symbol_span": [
+            37,
+            5,
+            41,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+          "stable_id": "sym-1aa79084616853def877bf9e0dbae950903b15b1fd9cdcab4ee9b9ea8946d0be",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+          "start_line": 59,
+          "end_line": 63,
+          "token_count": 23,
+          "body_token_sha256": "faae7d7af68905fd614e6b582a8005fc53209298b648de2559b0f59b36d67b84",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()",
+          "symbol_span": [
+            59,
+            5,
+            63,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "dd536477",
+      "reasoning": "Two RemoveLine handlers guard CanEditOperation then remove item and recompute totals. Same mutation body, separate CartLine classes and specialized pending-operation guards.",
+      "callers_context": "Cashier274-275/CallCenter289-290 plus RecomputeCartTotals and State definitions inspected.",
+      "financial_security_effects": "Cannot remove line while unresolved checkout per UI predicate; server retains final request authority. No financial write in these handlers.",
+      "recommendation": "Shared cart command behavior if preserving station estimate and edit-state policy.",
+      "tests": [
+        "Existing/nonmember line",
+        "Unresolved command editblocked",
+        "Subtotal/itemcount notifications"
+      ],
+      "group_id": "clone-dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs",
+          "stable_id": "sym-5933ae06808eb3a72fbd81ec9cdac3f936043fc0e743b3ab5adbfeeb017d2a20",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "6f96cfc61418e8146cf90abfcf8803f97a97ee211e4d918618f3c0f8f867fd06",
+          "start_line": 289,
+          "end_line": 290,
+          "token_count": 20,
+          "body_token_sha256": "dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "75ca06ba893a7b302d51a828fe590119039f6fd1bab1a33f4e9702e9dba4339c",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.RemoveLine(Falah.Client.CallCenterWinUI.Models.CartLine)",
+          "symbol_span": [
+            289,
+            5,
+            290,
+            120
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+          "stable_id": "sym-1f7d041cf06300d707e38109fb9011618cc2b69495415f460fcd40bd9296eb6e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+          "start_line": 274,
+          "end_line": 275,
+          "token_count": 20,
+          "body_token_sha256": "dd536477203dde72cd9da09de18402b02bef1bcf8dccad25ccec10bb2668a41f",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RemoveLine(Falah.Client.CashierWinUI.Models.CartLine)",
+          "symbol_span": [
+            274,
+            5,
+            275,
+            120
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    }
+  ],
+  "limits": "Source comparison, not runtime acceptance, financial function receipt increment, or exhaustive semantic duplication proof. No code/DB/printing/Git changes."
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Independent bounded review of PayrollRules.PayrollReport: verify identity/status, source and receipt semantics, source/test callers, gross-versus-net interpretation, boolean payment classification and numeric limits. Static only; tests not executed.",
+  "stable_id": "sym-8719cc9ed97b8fd6f6cf0036f03f556504a686e5dc6c2ab50d660eb77d46b593",
+  "signature": "Falah.Domain.Payroll.PayrollRules.PayrollReport(IEnumerable<(Money Base, Money Overtime, Money ExtraShifts, Money Bonuses, Money NetPayable, bool IsPaid)>)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [116, 125],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "assignment_status_at_selection": "EXISTING_REASONING_UNVERIFIED; stable ID, signature, source span and hashes verified against current overlay/index and receipt before review. No shared status promotion made.",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "reasoning_summary": "Sums gross base/overtime/extra-shifts/bonus, and separately sums NetPayable into Paid or Outstanding based on IsPaid. Gross can exceed the sum of net buckets because deductions are not included in Earned. Long accumulators have no explicit overflow guard. No production report caller had been verified by the author."
+  },
+  "source_semantics": {
+    "earned": "For every tuple, adds Base.Piastres + Overtime.Piastres + ExtraShifts.Piastres + Bonuses.Piastres, irrespective of IsPaid. This is gross earning-component sum, not net payroll liability or net cash paid.",
+    "paid": "Adds NetPayable.Piastres only when IsPaid is true.",
+    "outstanding": "Adds NetPayable.Piastres only when IsPaid is false. Each row enters exactly one of Paid/Outstanding buckets.",
+    "rounding_and_floor": "No rounding or zero-floor occurs in this helper; inputs are long-piastres Money values. Caller-supplied negative NetPayable would flow through as a negative paid/outstanding amount. The intended PayrollLine producer CalculatePayrollLines floors ordinary negative net to zero, but no current production caller of PayrollReport was found.",
+    "numeric_limits": "The per-line gross sum and aggregate accumulators are long arithmetic with no explicit checked block or overflow guard in this method. Extreme-value behavior was not executed or asserted."
+  },
+  "callers_tests_and_cross_evidence": [
+    {
+      "search_scope": "Repository-wide textual search for PayrollReport( in src and tests",
+      "result": "Only PayrollReportResult declaration and PayrollRules.PayrollReport definition matched; no production caller or test caller exists in current source/tests.",
+      "implication": "The helper currently has no demonstrated runtime/reporting effect. IsPaid provenance and any status mapping cannot be verified from a caller."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "CalculatePayrollLines",
+      "lines": [83, 112],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "effect": "Its net is clamped at zero for ordinary inputs and payroll lines contain gross components, deductions and NetPayable. This supports interpreting a difference between gross Earned and net Paid+Outstanding as expected when deductions exist; it is not evidence of an arithmetic mismatch in PayrollReport."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "No PayrollReport invocation was found. Existing tests cover CalculatePayrollLines categories and net values but do not test gross/net report buckets, mixed paid/unpaid flags, negative inputs or long-range behavior. Tests were read/search-checked, not executed."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "symbol": "PayPayrollHandler.HandleAsync",
+      "lines": [136, 153],
+      "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "effect": "Source-backed payout writer uses each saved NetPayable value, but no call to PayrollReport was found; this is context only, not proof this helper drives the paid flag."
+    }
+  ],
+  "counterevidence_and_limits": [
+    "Gross earnings are intentionally distinct from net payout: deductions reduce NetPayable but are not a negative earnings component. A gross-to-net difference is therefore expected and not itself a reconciliation defect.",
+    "The helper receives IsPaid as an input boolean and cannot independently validate payroll run status. No caller exists to establish how the boolean would be derived; the receipt's FIN006 note remains hypothetical for this helper.",
+    "No tests or runtime data demonstrate overflow, incorrect status mapping or an incorrect aggregate."
+  ],
+  "verdict": "The authored aggregation semantics are source-corroborated. The helper is currently unused in src/tests, so no current production reporting or settlement impact is established. No new finding recommended. A future caller should pass net line values and a status-derived IsPaid value deliberately, and test gross versus net plus mixed paid/unpaid lines.",
+  "recommendation": "If this helper is wired into a production report, add caller-level verification for the IsPaid status mapping and tests proving Earned is gross while Paid+Outstanding splits net. Consider long-range overflow bounds only if supported by monetary limits/policy.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_action": "No further PayrollRules callable follows this method in this source file. Obtain the coordinator's next exact queue item rather than infer a global queue order."
+}

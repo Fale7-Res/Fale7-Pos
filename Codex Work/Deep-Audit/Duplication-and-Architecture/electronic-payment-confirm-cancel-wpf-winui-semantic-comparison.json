@@ -1,0 +1,359 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-032",
+  "created_at_utc": "2026-10-21T07:02:27Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "scope": "Bounded comparison of the legacy WPF and active WinUI cashier paths for confirming/cancelling pending electronic payment claims, their API result semantics, retained-request recovery, shared infrastructure/domain transition logic, and checked-in confirm/cancel test source. Does not establish legacy WPF deployment or execute any tests.",
+  "decision": "WPF and WinUI share the same confirm API endpoint and shared request/result contract. WPF sends the confirm command once per invocation and its ApiClient ReadResultAsync maps HTTP responses but does not convert transport exceptions into OutcomeUnknown; it exposes no pending-electronic-cancel method or ViewModel cancel command in the inspected cashier files. WinUI exposes both confirm and cancel commands, routes writes through SendAsync (transport failures become OutcomeUnknown), and RetainedRequest.SendAsync saves the immutable command before send and preserves it when outcome is unknown, so an operator retry can re-send the same request. For confirmation, the server’s persisted order ElectronicPaymentStatus is itself the idempotency marker: it checks confirmed before and under an order UPDLOCK/HOLDLOCK, and BuildReplayResultAsync returns the existing sale movement. Thus the WPF retry/recovery difference does not show duplicate collection under a confirmed lost response. For cancellation, the server locks the order, domain rejects confirmed/no-leg/empty-reason cases, already-cancelled is a no-op, and audit append is gated on first cancellation. WPF’s lack of a cancel UI is a capability/parity difference only if that client is still supported; its deployment is unknown. No new financial ledger defect established.",
+  "finding_candidate": "Conditional client capability/recovery divergence only if legacy WPF cashier remains supported; no duplicate posting or accounting defect established.",
+  "severity": "LOW_CONDITIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs",
+      "worktree_sha256": "58e69111af7c64b7209f88701f235788a6eb6b0cf600cf2e4a4ba54b1810219c",
+      "source_git_blob_sha256": "58e69111af7c64b7209f88701f235788a6eb6b0cf600cf2e4a4ba54b1810219c",
+      "line_ranges": [
+        [
+          12,
+          41
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-96db2bf10eb1558df0816c7b0d2be31d2282f3f24bf4ce439d24e4d9d999664e",
+          "signature": "Falah.Client.Cashier.ViewModels.CashierViewModel.ConfirmElectronicPaymentAsync()",
+          "span": [
+            15,
+            5,
+            41,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+      "worktree_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+      "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+      "line_ranges": [
+        [
+          42,
+          67
+        ],
+        [
+          101,
+          105
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1f86e3b0451a2a14149f5585ec52285a66976e2659b8ce1def1d7d0444afeb67",
+          "signature": "Falah.Client.Cashier.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)",
+          "span": [
+            42,
+            5,
+            67,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9cd71873700e9753caf829fefa2d7b577b69c7eb0117d9c4f1dd3c1469840f0e",
+          "signature": "Falah.Client.Cashier.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            101,
+            5,
+            105,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "line_ranges": [
+        [
+          113,
+          174
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f143aa8605bba0c1e00cbefffc5e7c61a4b5aad2c7f3837c42757deb80dc5089",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ConfirmElectronicPaymentAsync()",
+          "span": [
+            121,
+            5,
+            144,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c39027be784e98d705949c830536a2310ab095d0ae50f694b0f7bbf0ac2ec8f7",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CancelPendingElectronicPaymentAsync()",
+          "span": [
+            146,
+            5,
+            174,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "line_ranges": [
+        [
+          34,
+          55
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37892f3ec3dce1068241cae171cddc43d5d5d9cc6777030fcb21780eb68d88fd",
+          "signature": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)",
+          "span": [
+            34,
+            5,
+            51,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          92,
+          123
+        ],
+        [
+          214,
+          222
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+          "span": [
+            112,
+            5,
+            123,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-65fb04a10341c3000ee7669291ddb18ef15eeb3567ee25c68325056b388f5834",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            214,
+            5,
+            217,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3fa28c5b3069f7f395814c68a37bb507e50bb9b7493f2819767cd7add61d22bd",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CancelPendingElectronicPaymentAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            219,
+            5,
+            222,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+      "worktree_sha256": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b",
+      "source_git_blob_sha256": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b",
+      "line_ranges": [
+        [
+          24,
+          105
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+          "signature": "Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            24,
+            5,
+            97,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-048cb00a03f46abf69c29666c965ae701da7580b27cbf74e89d8e48ba9c4082d",
+          "signature": "Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.BuildReplayResultAsync(Falah.Infrastructure.Persistence.Entities.OrderEntity, CancellationToken)",
+          "span": [
+            99,
+            5,
+            105,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+      "worktree_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "source_git_blob_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "line_ranges": [
+        [
+          31,
+          73
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+          "signature": "Falah.Infrastructure.Orders.CancelPendingElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            31,
+            5,
+            73,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "line_ranges": [
+        [
+          200,
+          214
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ef81f7d92aa9f70da5294f622e8a1d04296d541608a4bded139916238b25beba",
+          "signature": "Falah.Domain.Orders.Order.CancelElectronicPayment(string, string, DateTimeOffset)",
+          "span": [
+            200,
+            5,
+            214,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs",
+      "worktree_sha256": "02835cdfbfd3b8f9b02340e8ebc0bbc556d1229cb05df953611fe5ae21595695",
+      "source_git_blob_sha256": "fd65f4bbdb0dd0a538e7249ee13d1f47787f32f5741a9f77a233a0c5d1d8ad77",
+      "line_ranges": [
+        [
+          47,
+          91
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d0a36ca64cf9f6a440fbe1673889ddca45b675a9c0775e22abe8b3d26a552c7a",
+          "signature": "Falah.Server.IntegrationTests.ConfirmElectronicPaymentTests.Retrying_confirm_sequentially_never_posts_a_second_movement()",
+          "span": [
+            63,
+            5,
+            76,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4076a1d57743637719d6e9a04508ad0ca7dfddc67904b88eeb6a9e659d368e70",
+          "signature": "Falah.Server.IntegrationTests.ConfirmElectronicPaymentTests.Concurrent_confirm_requests_on_the_same_order_post_exactly_one_movement()",
+          "span": [
+            78,
+            5,
+            91,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/OrderCancelElectronicPaymentTests.cs",
+      "worktree_sha256": "57f89c0cf38259234ee8c147b372707b7726c5fc5f23f87bcc8b2107c9b90208",
+      "source_git_blob_sha256": "57f89c0cf38259234ee8c147b372707b7726c5fc5f23f87bcc8b2107c9b90208",
+      "line_ranges": [
+        [
+          27,
+          58
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3244f63efbad2317e05925d2b5e2544a8dd9fadf326b0db136b942c54bf1faec",
+          "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.Cancelling_a_pending_electronic_order_marks_the_whole_order_cancelled()",
+          "span": [
+            27,
+            5,
+            38,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8a66c7b398ba6de7c94ea16088a49c484a7df568b81b050c5fe2565f12733d83",
+          "signature": "Falah.Domain.Tests.OrderCancelElectronicPaymentTests.A_confirmed_electronic_payment_cannot_be_cancelled_refund_must_be_used_instead()",
+          "span": [
+            52,
+            5,
+            58,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "WPF_confirm": "CashierViewModel.ConfirmElectronicPaymentAsync exits only when LastCheckoutResult is null, sets the busy flag, sends ConfirmElectronicPaymentRequest(OrderId, current user ID), then either shows error or updates local paid/status fields. The WPF client has no retained command key; its ApiClient posts to the same endpoint and ReadResultAsync does not catch send exceptions. It also has no CancelPendingElectronicPaymentAsync in the inspected WPF cashier API/view model.",
+    "WinUI_confirm_cancel": "The WinUI view model exposes CanConfirm/CanCancel gates, protects against simultaneous confirm/cancel pending state, requires a reason for a fresh cancellation, and retains both requests. RetainedRequest.SendAsync stores before network send and clears only on success or a known failure on an initial attempt; an outcome-unknown result remains pending for same-request retry. The pending state is request-level and its persistence depends on the configured retained request store; this comparison only establishes the request helper behavior and viewmodel wiring, not runtime store installation/restart recovery.",
+    "server_confirm": "ConfirmElectronicPaymentHandler performs a pre-read replay check, then authorization/open-shift gates, opens a read-committed transaction, takes an update/row/hold lock on the order, rechecks confirmed, updates order state, starts the stable sale-{CheckoutRequestId} journal key, adds the deferred sale_collection movement, completes journal and saves/commits atomically. Duplicate confirmed calls return the existing sale movement ID. Source includes SQL Server-specific lock hints; actual provider behavior remains runtime-unverified.",
+    "server_cancel": "CancelPendingElectronicPaymentHandler derives actor from the supplied existing user, checks POS/cash-drawer-sale permission, begins a transaction, locks the order, records whether it was already cancelled, invokes domain CancelElectronicPayment, persists cancellation fields and increments version; audit append is only performed on the first cancellation; then saves/commits. Domain tests state confirmed payment cannot be cancelled and pending cancellation marks whole order cancelled. Full endpoint/database behavior was not executed.",
+    "test_source": "Checked-in ConfirmElectronicPaymentTests source covers first confirmation with one movement, sequential retry replay returning the same movement, and concurrent same-order requests posting exactly one movement. OrderCancelElectronicPaymentTests source covers pending cancellation, repeat cancellation no-op preserving first reason/actor, and rejection after confirmation. Tests were inspected only and not run.",
+    "negative_evidence": "Bounded search of legacy WPF cashier ViewModels, Views and ApiClient found no cancel-pending endpoint/command; analogous WinUI API/viewmodel methods are present. This does not exclude another legacy screen, a remote deployment wrapper, or external orchestration.",
+    "behavior_classification": "Cross-client recovery/capability divergence; server confirmation idempotency is order-state based and same endpoint for both clients. No evidence of duplicate treasury posting caused by WPF retry. No proof WPF is deployed or should retain feature parity."
+  },
+  "recommendation": {
+    "classification": "Conditional LOW compatibility concern, requirements question; not a confirmed accounting defect.",
+    "action": "Confirm whether the legacy WPF cashier is supported or deployed. If supported, expose an explicit cancellation flow consistent with server role/reason gates and make transport uncertainty visible; for confirm retry, retain or reconcile the order identity/status rather than issuing a new order. If retired, document retirement and do not invest in parity repair. Keep the server’s status-based confirmation replay and locked cancellation transitions as the money-authoritative layer.",
+    "required_tests": [
+      "Confirm response loss after server commit followed by WPF retry for the same order returns the existing sale movement, with one total movement.",
+      "WinUI ambiguous confirm retries the retained same order/request without a second movement; cancellation is not enabled concurrently with confirm.",
+      "Cancellation of pending order transitions once, repeat returns replay/no-op and preserves first audit/cancel attribution; confirmed order requires refund.",
+      "If WPF is supported, its cancel flow requires a reason, surfaces known versus unknown outcome, and reflects server status after retry."
+    ],
+    "acceptance": [
+      "Owner documents WPF support/deployment status.",
+      "A lost confirm response cannot lead to a second sale_collection movement for one order.",
+      "A supported cashier client can cancel a pending electronic claim through the authoritative server policy, or retired clients are explicitly excluded.",
+      "Tests cover status replay and cancellation terminal-state behavior without physical payment."
+    ],
+    "counterevidence": [
+      "The current active cashier was previously identified as WinUI; WPF deployment/use remains unknown.",
+      "ConfirmElectronicPaymentHandler’s confirmed-state checks and locked order path are designed to replay success rather than post again.",
+      "WinUI retained requests do not automatically retry; recovery is user-triggered.",
+      "Cancellation is a user capability/parity question, and server API exists for WinUI."
+    ],
+    "limitations": [
+      "No HTTP fault injection or server/database tests executed.",
+      "No deployment configuration proving WPF usage/retirement inspected.",
+      "No real payment, database mutation, or runtime operation performed."
+    ]
+  },
+  "reviewer": "Main coordinator bounded source comparison; not independently challenged at creation; static only."
+}

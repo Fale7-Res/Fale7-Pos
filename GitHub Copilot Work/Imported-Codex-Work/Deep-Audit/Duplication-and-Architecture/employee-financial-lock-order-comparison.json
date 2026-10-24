@@ -1,0 +1,384 @@
+{
+  "at_utc": "2026-10-19T09:30:08.050Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-010",
+  "title": "Financial employee and treasury lock-order/retry contracts",
+  "status": "BOUNDED_SOURCE_COMPARISON_COMPLETE_NO_NEW_DEADLOCK_FINDING",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          75,
+          107
+        ],
+        [
+          138,
+          152
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+          "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+          "span": [
+            46,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+          "signature": "lambda expression",
+          "span": [
+            83,
+            25,
+            83,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            87,
+            89,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            25,
+            101,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+          "signature": "lambda expression",
+          "span": [
+            103,
+            71,
+            103,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "worktree_sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+      "source_git_blob_sha256": "7238391cfaa2eff9365366d4217d107559d0f5b307c428b5270e73a72db66729",
+      "line_ranges": [
+        [
+          59,
+          104
+        ],
+        [
+          139,
+          159
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+          "signature": "Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.HandleAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest, CancellationToken)",
+          "span": [
+            38,
+            5,
+            161,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e0a9198c600392c91fd5a16f7efc2f21d23ddbaf9c1cd761174969feba8135de",
+          "signature": "lambda expression",
+          "span": [
+            67,
+            25,
+            67,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-64af0bdc9a1d35fa1fcf2e8b072c3a50f90a9d56a90e5fb8796f3dd25e33bab6",
+          "signature": "lambda expression",
+          "span": [
+            69,
+            38,
+            69,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-c808d119f017816afa515dfbf1d9ee663d92a7ce4deb11292a68ca993081e896",
+          "signature": "lambda expression",
+          "span": [
+            73,
+            77,
+            73,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-374b93474d04228fbfa7b54544c9f3031d9e34fe799ccb925df2ca973e446b36",
+          "signature": "lambda expression",
+          "span": [
+            81,
+            87,
+            81,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-f1e1f2ef0eabf62c125a1419e13528c6640a13ecbcb8eb7198e401d665677de2",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            25,
+            100,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-fc1096eff1061417f85a37af7c4d2d57606a6d647a83cd0585d01a1504370a2c",
+          "signature": "lambda expression",
+          "span": [
+            102,
+            71,
+            102,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-3c7db4dc863bb45138e3d00a1550fe84593891f20fb6771f7d31d6c93bfc9eb2",
+          "signature": "lambda expression",
+          "span": [
+            147,
+            93,
+            147,
+            132
+          ]
+        },
+        {
+          "stable_id": "sym-0dd8da7814dc996a2874a2c9dd77dabd1a9a898e7fe8934707b710c0c8ceebb4",
+          "signature": "lambda expression",
+          "span": [
+            153,
+            21,
+            153,
+            144
+          ]
+        },
+        {
+          "stable_id": "sym-fe6ffc6c6489b8e23e9879c149404afe30afe9f516577d15469f964ffe3e2147",
+          "signature": "lambda expression",
+          "span": [
+            153,
+            100,
+            153,
+            139
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "line_ranges": [
+        [
+          39,
+          51
+        ],
+        [
+          66,
+          89
+        ],
+        [
+          121,
+          132
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+          "signature": "Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)",
+          "span": [
+            30,
+            5,
+            131,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            81,
+            45,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-9e7789621ff8134f5987aaf1a277391eb4809926e38cd26509c0da5644615f6a",
+          "signature": "lambda expression",
+          "span": [
+            68,
+            79,
+            68,
+            109
+          ]
+        },
+        {
+          "stable_id": "sym-a955844a5268ea19910739dabf781d5874a1710ff17416b643f44b6fb1009b34",
+          "signature": "lambda expression",
+          "span": [
+            88,
+            25,
+            88,
+            34
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+      "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+      "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+      "line_ranges": [
+        [
+          37,
+          46
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dcf4f03b1d7e7f077cd54e46cd31fba4ecbfd39421bf16174a7d08bf0b50c402",
+          "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "span": [
+            37,
+            5,
+            46,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+      "worktree_sha256": "d982d3fadbec4f7dd42d41465f63c8c9f41fe25cf112374025bc450c3183d690",
+      "source_git_blob_sha256": "a480d0b55f892a72df9ce61870b446281c962351a1b4b1fed51e077de393807a",
+      "line_ranges": [
+        [
+          27,
+          61
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ee1b89d59f9bc882ddd96a2ee856cb530b89ff7569b735ff4c9e60602da8053",
+          "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(Exception)",
+          "span": [
+            29,
+            5,
+            30,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-05c3938d6831d0d82f4fb2ea4cb4694e6e848cb182c77f8105750d75cf94153e",
+          "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.Sql(Exception?)",
+          "span": [
+            32,
+            5,
+            37,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-536e9d6eaa0396e47b562660ee268bdaf2ea43aba34d78495e67cc2e97c8bbea",
+          "signature": "Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync<T>(Func<Task<T?>>, CancellationToken)",
+          "span": [
+            46,
+            5,
+            54,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "acquisition_order": [
+        "Employees(employeeId) UPDLOCK/HOLDLOCK",
+        "EmployeeLedgerEntries(employeeId) range UPDLOCK/HOLDLOCK",
+        "TreasuryMovements(paymentAccount) UPDLOCK/HOLDLOCK"
+      ],
+      "scope": "ExplicitTx75 throughcommit139; accountvalidation excludesdrawer; actor/approval and funds stillrequired."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "acquisition_order": [
+        "Employees(employeeId) UPDLOCK/HOLDLOCK",
+        "TreasuryMovements(drawer) UPDLOCK/HOLDLOCK",
+        "EmployeeLedgerEntries(employeeId) range UPDLOCK/HOLDLOCK"
+      ],
+      "scope": "ExplicitTx59 throughcommit140, drawer/openshift scope, withdrawalbalance vsadvancepolicy distinct."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "acquisition_order": [
+        "AttendanceRecords(recordId) UPDLOCK/HOLDLOCK",
+        "EmployeeLedgerEntries(employeeId) range UPDLOCK/HOLDLOCK"
+      ],
+      "scope": "ExplicitReadCommitted39; immutableauditreplay; no employeeanchor acquired after ledger in this handler. Does not spend treasury."
+    }
+  ],
+  "comparisons": [
+    {
+      "question": "Does opposite Treasury/Ledger order alone prove payout-versus-cashout deadlock?",
+      "answer": "NO. Same employee requests acquire common employeeanchor first, preventing both from progressing into these inner opposite orders simultaneously. Different employees do not share same logical ledger resource. This defeats simple alleged two-node same-employee cycle.",
+      "counter_limits": "Physical SQLrange overlap, ORpredicate plans, lock escalation and other workflows may still deadlock; no actual provider lock graph or global absence claim."
+    },
+    {
+      "question": "Does correction taking ledger without employeeanchor prove reverse anchor cycle?",
+      "answer": "NO immediate reverse acquisition in inspected handler: correction takes Attendance then Ledger but never later acquires employee UPDLOCK. Payout does not acquire Attendance. Crosshandler/commonactualSQLplan analysis and checkout EFwrite order are not certified here."
+    },
+    {
+      "question": "Does treasury balance helper enforce caller transaction?",
+      "answer": "No explicit guard; actual two compared payout callers invoke inside explicit transactions. Preserve FIN011 known beforeTxcallers rather than blanketclaim allhelperssafe."
+    },
+    {
+      "question": "Does lock-contention recovery rerun financial writes?",
+      "answer": "No. These twohandlers rollback before replaylookup; recognized1205/1222 contention may trigger five delayed readlookups (40,80,120,160,200ms), then conflict/retrymessage if no durable sibling. This is not autonomous wholecommandretry or proof of zero possible failures.",
+      "counter_limits": "Helpercomment says sameID bydefinition, but distinctIDs can also contend; code safely permits notfound and asksretry.600ms nominaldelays exclude querytime, not measured responsiveness."
+    }
+  ],
+  "finding_links": [
+    "FIN-011",
+    "FIN-026",
+    "FIN-CAND-CORRECTION-BASIS-001"
+  ],
+  "recommendations": [
+    "Document and preserve outeremployee anchor and consistent lockorder when refactoring similar payout code; do not treat innersequence difference as proven deadlock.",
+    "Use authorized disposable provider tests with barriers/actualplans/deadlockgraphs for same/different employees, accountintersection and emptyledger ranges before changing lockstrategy.",
+    "Preserve rollback-before-lookup, deterministic receipt identity and bounded lookup-only recovery; clarify distinctrequest contention comment."
+  ],
+  "runtime_tests": "NOT_EXECUTED; no SQLlocks/deadlock/rate/performance probe or financial mutation",
+  "new_financial_callable_receipts": 0,
+  "scope_limits": [
+    "Targeted employee/correction/treasury contracts only, not global lockgraph or allSQLconcurrency clearance.",
+    "Existing source findings qualified independently; no new High/Critical deadlock defect inferred from syntax."
+  ]
+}

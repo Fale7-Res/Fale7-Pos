@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Independent source-quality review of PayrollRules.CalculatePayrollLines(inputs): validate stable ID/status, source against authored receipt, categories/signs/net floor, caller mapping, Adjustment credit behavior and tests. Static only; tests not executed.",
+  "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+  "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [83, 112],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "assignment_status_at_selection": "EXISTING_REASONING_UNVERIFIED; stable ID, signature, range and source hashes verified against the live overlay and receipt before review. No shared promotion made.",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "receipt_claims_checked": "Include active employees or employees with any positive period credit; monthly base from salary snapshot, hourly base from DailyWage/Salary credits; sum overtime/extra shift/bonus/other earning credits; sum Deduction/Adjustment debits; ignore Adjustment credits (FIN012); validate requested advance deduction against nonnegative and available; calculate net and floor at zero."
+  },
+  "source_behavior": {
+    "eligibility": "For each PayrollLineInput, hasCredit means any PeriodEntries Credit.IsPositive, regardless of Type. Inactive employee with no positive credit is skipped; active employees receive a line even without period entries.",
+    "base": "Monthly employee uses MonthlySalary or Money.Zero, not period Salary/DailyWage entries. Non-monthly employee sums Credit.Piastres for exact Type strings DailyWage or Salary.",
+    "earnings": "Overtime sums Overtime credits; extra shifts sum ExtraShift credits; bonuses sum Bonus or OtherEarning credits.",
+    "deductions": "Deductions sum Debit.Piastres for Deduction or Adjustment only. Adjustment Credit values are not included in any component and do not reduce deductions.",
+    "advance_deduction": "Throws if RequestedAdvanceDeduction is negative or exceeds AvailableAdvance. Otherwise subtracts it as a separate value. The function does not compute AvailableAdvance itself.",
+    "net_invariant": "net = base + overtime + extra shifts + bonuses - deductions - requested advance deduction; if net.IsNegative, replaces it with Money.Zero. No rounding is performed in this method; all components are integer piastres. The floor protects ordinary negative net values, subject to extreme long-arithmetic overflow not validated here.",
+    "money_arithmetic": "Money operators store long piastres and use ordinary long addition/subtraction without explicit checked blocks (Money.cs:23-27); no extreme-value runtime case was executed."
+  },
+  "callers_and_cross_file_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "symbol": "CreatePayrollHandler.HandleAsync",
+      "lines": [42, 89],
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "effect": "Loads period EmployeeLedgerEntries by CreatedAtUtc year/month, groups them by employee and maps raw Type/Credit/Debit into PayrollLineInput. Calls CalculatePayrollLines and persists component values and NetPayable to PayrollLineEntity. It explicitly supplies Money.Zero for both AvailableAdvance and RequestedAdvanceDeduction; comment says advance deductions are deliberately not wired through payroll yet."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "symbol": "RecordManualLedgerEntryHandler.HandleAsync",
+      "lines": [28, 75],
+      "sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "effect": "Parses ledger Type case-insensitively and stores entryType.ToString() canonical PascalCase. Positive manual credit/debit amount is separated into Credit or Debit. This supports CalculatePayrollLines' exact PascalCase category matching for actual user-entered types."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "symbol": "CorrectAttendanceHandler.HandleAsync Adjustment write",
+      "lines": [92, 105],
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "effect": "Posts a reduced late penalty as Adjustment Credit. CalculatePayrollLines currently sums only Adjustment Debit, so this credit is ignored in payroll line net; this is the existing FIN-012 issue, independently corroborated by this review. No duplicate finding recommended."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "symbol": "PayPayrollHandler.HandleAsync settlement consumer",
+      "lines": [136, 153],
+      "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "effect": "Pays saved lines with NetPayablePiastres>0; posts each payroll settlement as Debit=NetPayable and Credit=zero. Thus the calculated net is the actual employee payout amount. No re-review of its already validated concurrency/idempotency behavior."
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "symbol": "Money arithmetic operators",
+      "lines": [23, 27],
+      "sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "effect": "Money is integer piastres; plus/minus operators use long arithmetic without explicit checked context. This method itself performs no rounding."
+    }
+  ],
+  "tests_reviewed_static_only": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "covered_lines": [113, 175],
+      "coverage": "Tests sum of daily wage/overtime/extra-shift/bonus/deduction and resulting net; monthly salary instead of period earnings; inactive/no-earning exclusion; inactive with credit inclusion; requested advance above available rejection; and nonnegative net floor. Does not test Adjustment Credit restoration, monthly salary null, inactive-only-credit category effects, nonzero wired advance deduction, or extreme long overflow."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "covered_lines": [94, 130],
+      "coverage": "Integration source checks daily wage plus overtime become a 26,000 piastre payroll line, and a lowercase bonus request is canonically accepted and paid as 5,000 bonus. These countersupport the normal persisted category mapping, but do not test Adjustment Credit, payroll advance deductions, or malformed extremes. Tests were read, not run."
+    }
+  ],
+  "counterevidence_and_limits": [
+    "RecordManualLedgerEntryHandler normalizes the enum name before persistence, and the integration test covers lowercase bonus input still becoming paid bonus; this counters an apparent request-case mismatch in ordinary use.",
+    "CreatePayrollHandler currently supplies zero available/requested advance deduction, so the helper's requested advance path is not exercised by the current payroll command.",
+    "Net floor means ordinary deductions cannot produce a negative saved payout line; this is counterevidence to an overpayment claim based only on deductions exceeding earnings.",
+    "Adjustment Credit omission is confirmed source behavior but is already canonical FIN-012; this review does not duplicate or broaden that issue.",
+    "No runtime data, test execution, or extreme long arithmetic was assessed."
+  ],
+  "verdict": "The authored reasoning is corroborated. This is a financially material pure calculation because CreatePayrollHandler persists its net and PayPayrollHandler settles that amount. FIN-012 remains the sole finding for omitted Adjustment credits. Net is floored at zero for ordinary inputs; advance deduction is currently wired as zero. No new finding recommended from this review.",
+  "recommended_followup": "Keep FIN-012 as the canonical Adjustment-credit issue. If advance deduction wiring is added, supply a validated AvailableAdvance and explicit requested amount with integration coverage. Add an Adjustment Credit restoration test if FIN-012 repair work is undertaken. Extreme long arithmetic remains a separate hardening question only if supported by monetary bounds/policy.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_exact_candidate": {
+    "stable_id": "sym-8719cc9ed97b8fd6f6cf0036f03f556504a686e5dc6c2ab50d660eb77d46b593",
+    "signature": "Falah.Domain.Payroll.PayrollRules.PayrollReport(IEnumerable<(Money Base, Money Overtime, Money ExtraShifts, Money Bonuses, Money NetPayable, bool IsPaid)>)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "line_range": [116, 125],
+    "live_overlay_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Next source-order callable recorded in existing receipt and confirmed against the live overlay; proceed only if coordinator still selects it."
+  }
+}

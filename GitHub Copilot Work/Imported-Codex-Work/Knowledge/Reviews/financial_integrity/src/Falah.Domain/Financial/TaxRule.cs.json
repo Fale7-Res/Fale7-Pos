@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Financial/TaxRule.cs",
+  "source_git_blob_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+  "worktree_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:04:35.347739+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-b5838f0bc3dbc8f1e4a53c7d0a4a74b7965315052fd33bfa4578e9b3bfc6b619",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Financial.TaxEngine.Calculate(Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?)",
+      "span": [
+        14,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "Null/disabled/nonpositive-rate rule returns amountunchangedzeroTax. Inclusive taxroundsamount*bp/(10000+bp) ToEven andsubtractsfromtaxablewhileFinalsame; Exclusive roundsamount*bp/10000 thenFinalamount+tax. UndefinedMode treatedExclusive elsebranch. Decimalmultiplicationreduceslongoverflowbut finalMoneyadditioncanwrap at extremes; negativeamount/rateboundsnotvalidatedhere. Checkoutclampstaxable>=0butconfigurationratevalidationexternal.",
+      "inputs": "Money amount/nullableTaxRule",
+      "outputs": "TaxCalculation",
+      "side_effects": "Purecalculation only.",
+      "database": "NoDB.",
+      "trust_boundaries": "Callertrustsenabledpersistedrule andbounds, noactorpolicy.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constantdecimalarithmetic.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN016 checkedmonetaryboundsdesign relevant; no secondoverflowfindingpromoted.",
+      "tests_missing": "Inclusive/exclusivehalfpiastre,disabled/null, rate0/negative/extreme, undefinedMode, taxfinalidentity.",
+      "verified_callers_callees": "CheckoutRules95 calls; handlerTaxRule60-63 parsesentityMode onlyInclusivevselseExclusive; Moneyaddition31."
+    }
+  ],
+  "remaining_callable_ids": []
+}

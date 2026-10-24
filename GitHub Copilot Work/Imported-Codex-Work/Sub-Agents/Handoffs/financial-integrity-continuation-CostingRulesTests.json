@@ -1,0 +1,185 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:00:44.2036278Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/CostingRulesTests.cs",
+  "symbol_count": 14,
+  "symbols": [
+    {
+      "stable_id": "sym-1b2d85e6cf86b85b89fa577959a30ec85b8f40f86ff88306f3aa08e922be8e31",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.EmptyContext(IReadOnlyList<Falah.Domain.Inventory.InventoryItem>?, IReadOnlyList<Falah.Domain.Inventory.StockMovementFacts>?, IReadOnlyList<Falah.Domain.Inventory.PrepRecipe>?, IReadOnlyList<Falah.Domain.Inventory.PrepRecipeLine>?)",
+      "span": [
+        11,
+        5,
+        13,
+        186
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3ca45e31b591a79e5a0eab51281e13dc02cf2710e32dcbabffff2fec10eea9a6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.An_ingredient_with_no_purchase_history_has_an_unknown_cost_not_a_zero_cost()",
+      "span": [
+        15,
+        5,
+        23,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-817e0d1d4d466dc225eb62265a74a655389f68d228c3112ecc272bc787ce36f5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.Ingredient_cost_comes_from_the_most_recent_purchase()",
+      "span": [
+        25,
+        5,
+        38,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-be6c5d2dac23c24f487313ae47283a982d31f720be3d56bf781ad637528bd70f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_prep_recipe_missing_one_input_costs_unknown_even_though_90_percent_is_known()",
+      "span": [
+        40,
+        5,
+        60,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fee30967ce9b1fe41e8fbaec697104baffdc612aeb042d8de4133226dab0ea2f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_fully_known_prep_recipe_resolves_to_a_per_unit_cost()",
+      "span": [
+        62,
+        5,
+        75,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-4436fa65b1b8f2b5f06d9723143179e424aadeb4fcf6aaae7cf2d8f57b0750b0",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_yield_line_without_its_conversion_ratio_is_incomplete_not_a_math_error()",
+      "span": [
+        77,
+        5,
+        82,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-af61288c462eb168ef183fc659b90832802cad18248468e350bf1e37562eec06",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_yield_line_converts_a_piece_count_back_to_raw_weight()",
+      "span": [
+        84,
+        5,
+        90,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-293ce04f2b3853e7c4ac4f24ffc740efd4b29345391910b2c60236d041b520e8",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.Recipe_cost_splits_food_and_packaging_separately()",
+      "span": [
+        92,
+        5,
+        114,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-af81a80b5b9fa07b5af86a99bfff85795359c4db916ed0059cda5ffce0346fa5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.Menu_item_profitability_is_null_for_a_free_or_zero_priced_item()",
+      "span": [
+        116,
+        5,
+        121,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c035cc19d505228b4f00e2e56c036ad93c9c7acd1be5a110243f79ca269f36a7",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.Menu_item_profitability_computes_food_cost_and_contribution_percent()",
+      "span": [
+        123,
+        5,
+        130,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-29bfc5002d19d3db92dd02442e5025241de92608639a86bcdaadc8e897809789",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_batch_that_lists_its_own_output_costs_unknown_instead_of_ending_the_process()",
+      "span": [
+        136,
+        5,
+        158,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d9a9453309e948e7f92ed204ee51194373daae9a85ceb219d750ebba7e6b28b8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        157,
+        41,
+        157,
+        89
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-737800f7e84b17c022d8e7ba7ff63c1cbdbd279f45456f0178d12440108bd913",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_loop_that_runs_through_a_second_batch_is_caught_the_same_way()",
+      "span": [
+        160,
+        5,
+        180,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c656f030df48d0eb4de36016efa3263f067af82a8f56ad08d31c9eb7f7e9c4af",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CostingRulesTests.A_dish_using_a_circular_batch_is_uncostable_rather_than_cheap()",
+      "span": [
+        182,
+        5,
+        197,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers unknown purchase cost, last-purchase valuation, incomplete/complete prep recipe costs, yield conversion, separate packaging/food cost, menu contribution, and self/multi-node circular prep recipe rejection. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/14 exact IDs present",
+    "financial_coordinator": "/14 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

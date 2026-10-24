@@ -1,0 +1,17 @@
+from ui_persistent import *
+record(P+'Views/OrdersView.xaml','Read-only searchable order list and detailed item overlay.',[
+ ('SearchQuery','Immediate query text promises number/name/phone; no date or paging controls visible. Actual API cap/filter reviewed in VM independently; UI should disclose truncated history if backend bounded.'),
+ ('OpenOrderCommand','Nested rows pass real order to root command; header refresh icon unnamed. List type/total/status consistent server strings through converters, customer name wraps, fixed columns leave star narrow.'),
+ ('SelectedOrder.Items','Detail scroll includes product/variant/notes/quantity/line total and customer address. Boundaries620wide max700height/margin24 require native smaller-screen check.'),
+ ('SelectedOrder.PaymentMethod','Footer gives total and method only, no IsPaid/pending confirmation status, no split amount legs, refund/cancellation or pending-payment reconciliation command in this view. Thus dashboard orders navigation alone does not expose full pending electronic action; primary cashier lookup separate.'),
+ ('IsDetailOpen','Header close + scroll + pinned footer, no full receipt rendering or print action. This provides item inspection without physical printer but not faithful receipt preview.'),
+ ('HasNoOrders','Error/loading/no matching list overlays independent. No detail-specific loading/error region here; VM must delay open or surface detail read failure elsewhere.')
+ ],'NOT_EXECUTED. Native item viewing, stale detail responses, pending electronic visibility, bounded history search and screenreader refresh naming need tests. No callable declarations.', 'Clearly show payment confirmation and split legs for financial follow-up; add separate receipt preview later only if authorized.')
+record(P+'Views/DeliveryDirectoryView.xaml','Driver and delivery service add/edit/retire overlay.',[
+ ('SetTabCommand','Drivers/services segmented tabs pass explicit keys. Selected white/brand versus neutral/muted; converter theme refresh risk UI004 shared. CanAct guards input/actions, tab command must preserve unresolved state.'),
+ ('ToggleDriverCommand','Driver name add and active toggle, no harddelete. Text+pill shows active/inactive. Actual relationship to Employee/CanDeliver must be verified backend; this markup alone does not prove duplicate identity model.'),
+ ('SelectServiceCommand','Service list shows nullable fee as unvalued rather than0, selected root command target explicit; empty Count updates bound correctly. Fixed330px form beside list may constrain narrow viewport.'),
+ ('ServiceFeeText','Fee optional and active only existing service, two-way fields gatedCanAct. Note promises old orders retain snapshot name/fee; backend transaction/domain review determines truth.'),
+ ('ManagerPin','Conditional manager approval PasswordBox6, footer errors/success/load-retry. No actual PIN read. Retry-aware SaveLabel for service, but driveradd/toggle labels remain static even if retained outcome unknown.'),
+ ('CloseCommand','Max980x860 stretched margin24, body lists/form scroll independently, footer outside. No loading spinner despite LoadError; no generic recovered action panel in markup.')
+ ],'NOT_EXECUTED. Test nullfee versus0, old order snapshots, active driver links, permission approval and fresh-process retained action UI. XAML has no callable declarations.', 'Expose explicit retry context for every retained action, maintain historical snapshot contract, verify focus and narrow viewports.')

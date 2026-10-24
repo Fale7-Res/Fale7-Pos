@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs",
+  "source_git_blob_sha256": "3019f6a0484cce30ba52d22fc784451075fd7bb985af7375b91d4a1ff57af04d",
+  "worktree_sha256": "3019f6a0484cce30ba52d22fc784451075fd7bb985af7375b91d4a1ff57af04d",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:36:14.201075+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Isolated opt-in footer geometry and screenshot probe using real views with fake API.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "Start(Window window)",
+      "reasoning": "Replaces window content with white host, subscribes Loaded and activates native window. This must run in isolated opt-in build, not current operator window. Constructs no real user session here."
+    },
+    {
+      "anchor": "ParenthesizedLambdaExpression",
+      "reasoning": "Once-only closure sets started before awaiting RunAsync, preventing repeatedLoaded duplicate probe runs. Async event exception propagation is native context; RunAsync catches its main body exceptions."
+    },
+    {
+      "anchor": "RunAsync(Window window, Grid host)",
+      "reasoning": "Loops6 nominal size/scale conditions and8 cart states with fake GET menu/tax. Real CartPanelVM populated with empty/small60line/highquantity/discount/comp/split variants. Measures RTL label/amount gutter, row separation, CTA/total gap, footer viewport and scroll independence. Captures PNG only3 states, records capture errors separately, writes results/error then closes. Scaling adjusts DIP geometry and capture raster but does not change OS DPI. Does not test delivery row, busy/pending or theme states."
+    },
+    {
+      "anchor": "Bounds(string name)",
+      "reasoning": "Finds named FrameworkElement and transforms its actual rectangle into host coordinates, allowing footer/cart comparisons across scroll. Missing name/null throws to enclosing catch; does not measure actual glyph bounds or contrast."
+    },
+    {
+      "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+      "reasoning": "Rejects every nonGET and unknown path; returns only synthetic empty menu and configured14percent inclusive/exclusive tax. Strict route fixture prevents accidental network/write. Cancellation token ignored, no physical printing."
+    }
+  ],
+  "tests_and_limits": "SOURCE_REVIEW_ONLY. All5 callable spans explicitly reviewed, not executed. Source comment saying no live API is corroborated by strict fixture; native output availability not claimed.",
+  "recommendations": "Interpret nominal DPI sizing and raw result records conservatively. Add absent delivery/pending/theme states only under authorized verification.",
+  "symbols": [
+    {
+      "stable_id": "sym-7306a9bcff6bd4f4cd65de24369368d9958147dfe01444c733ace685d755037a",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Start(Window)",
+      "exact_span": [
+        24,
+        5,
+        31,
+        6
+      ],
+      "reasoning": "Replaces window content with white host, subscribes Loaded and activates native window. This must run in isolated opt-in build, not current operator window. Constructs no real user session here.",
+      "inputs": "Window",
+      "outputs": "activated host; Loaded subscription",
+      "side_effects": "Native probe would mutate isolated window/output files if run; reviewer did not execute",
+      "trust_boundaries": "Synthetic fixture not real authentication; env output path user-controlled",
+      "database": "NOT_APPLICABLE; fake GET only",
+      "printing_ui": "Real XAML measurement/capture code; NOT_EXECUTED, no physical printer",
+      "performance": "48 view states, eager60line carts; actual timing/memory not measured",
+      "duplicates_conflicts": "Separate native geometry evidence from screenshots and business runtime; each exact span inspected",
+      "issues_hypotheses": "Startup failure/close before Loaded not tested.",
+      "tests_missing": "Startup failure/close before Loaded not tested.",
+      "verified_callers_callees": "RunAsync via Loaded callback"
+    },
+    {
+      "stable_id": "sym-9f3dae963a90eb23d37a1c7010002b8f8cfa09147b421572508758dd786be0f9",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        29,
+        24,
+        29,
+        110
+      ],
+      "reasoning": "Once-only closure sets started before awaiting RunAsync, preventing repeatedLoaded duplicate probe runs. Async event exception propagation is native context; RunAsync catches its main body exceptions.",
+      "inputs": "Loaded sender/event; captured window/host/flag",
+      "outputs": "one probe invocation",
+      "side_effects": "Native probe would mutate isolated window/output files if run; reviewer did not execute",
+      "trust_boundaries": "Synthetic fixture not real authentication; env output path user-controlled",
+      "database": "NOT_APPLICABLE; fake GET only",
+      "printing_ui": "Real XAML measurement/capture code; NOT_EXECUTED, no physical printer",
+      "performance": "48 view states, eager60line carts; actual timing/memory not measured",
+      "duplicates_conflicts": "Separate native geometry evidence from screenshots and business runtime; each exact span inspected",
+      "issues_hypotheses": "Host unloaded/reloaded while run pending not separately handled.",
+      "tests_missing": "Host unloaded/reloaded while run pending not separately handled.",
+      "verified_callers_callees": "host.Loaded→RunAsync"
+    },
+    {
+      "stable_id": "sym-eaadb1d18c4ceb8018919a983c04ee470876e5849f7ffdfde21e20f655273e81",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.RunAsync(Window, Grid)",
+      "exact_span": [
+        33,
+        5,
+        126,
+        6
+      ],
+      "reasoning": "Loops6 nominal size/scale conditions and8 cart states with fake GET menu/tax. Real CartPanelVM populated with empty/small60line/highquantity/discount/comp/split variants. Measures RTL label/amount gutter, row separation, CTA/total gap, footer viewport and scroll independence. Captures PNG only3 states, records capture errors separately, writes results/error then closes. Scaling adjusts DIP geometry and capture raster but does not change OS DPI. Does not test delivery row, busy/pending or theme states.",
+      "inputs": "isolated Window/Grid; env output path",
+      "outputs": "results JSON, optional PNG, error.txt; window closes",
+      "side_effects": "Native probe would mutate isolated window/output files if run; reviewer did not execute",
+      "trust_boundaries": "Synthetic fixture not real authentication; env output path user-controlled",
+      "database": "NOT_APPLICABLE; fake GET only",
+      "printing_ui": "Real XAML measurement/capture code; NOT_EXECUTED, no physical printer",
+      "performance": "48 view states, eager60line carts; actual timing/memory not measured",
+      "duplicates_conflicts": "Separate native geometry evidence from screenshots and business runtime; each exact span inspected",
+      "issues_hypotheses": "No native execution by reviewer; returned errors need external fail assertion; filenames default culture may differ. Output path env can target anywhere if user runs it, not executed here.",
+      "tests_missing": "No native execution by reviewer; returned errors need external fail assertion; filenames default culture may differ. Output path env can target anywhere if user runs it, not executed here.",
+      "verified_callers_callees": "Fixtures.SendAsync; session.GetCashier; LoadMenuAsync; Bounds; RenderTargetBitmap"
+    },
+    {
+      "stable_id": "sym-1109977b6233a650e77fff20b1bdcdafeecf8aac3238ce408012c0c0e3272d0c",
+      "status": "ANALYZED",
+      "exact_signature": "Bounds(string)",
+      "exact_span": [
+        70,
+        17,
+        74,
+        18
+      ],
+      "reasoning": "Finds named FrameworkElement and transforms its actual rectangle into host coordinates, allowing footer/cart comparisons across scroll. Missing name/null throws to enclosing catch; does not measure actual glyph bounds or contrast.",
+      "inputs": "element name",
+      "outputs": "Rect in host DIP coordinates",
+      "side_effects": "Native probe would mutate isolated window/output files if run; reviewer did not execute",
+      "trust_boundaries": "Synthetic fixture not real authentication; env output path user-controlled",
+      "database": "NOT_APPLICABLE; fake GET only",
+      "printing_ui": "Real XAML measurement/capture code; NOT_EXECUTED, no physical printer",
+      "performance": "48 view states, eager60line carts; actual timing/memory not measured",
+      "duplicates_conflicts": "Separate native geometry evidence from screenshots and business runtime; each exact span inspected",
+      "issues_hypotheses": "Text overflow/focus/occlusion not measured.",
+      "tests_missing": "Text overflow/focus/occlusion not measured.",
+      "verified_callers_callees": "RunAsync→FindName/TransformToVisual"
+    },
+    {
+      "stable_id": "sym-0cbc1228974903eac21f2e90fff469d63fd4325bc39e4b9a7062a5c7173e3960",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Fixtures.SendAsync(System.Net.Http.HttpRequestMessage, CancellationToken)",
+      "exact_span": [
+        130,
+        9,
+        138,
+        10
+      ],
+      "reasoning": "Rejects every nonGET and unknown path; returns only synthetic empty menu and configured14percent inclusive/exclusive tax. Strict route fixture prevents accidental network/write. Cancellation token ignored, no physical printing.",
+      "inputs": "request and captured tax/inclusive flags",
+      "outputs": "completed fake200 JSON or throws",
+      "side_effects": "Native probe would mutate isolated window/output files if run; reviewer did not execute",
+      "trust_boundaries": "Synthetic fixture not real authentication; env output path user-controlled",
+      "database": "NOT_APPLICABLE; fake GET only",
+      "printing_ui": "Real XAML measurement/capture code; NOT_EXECUTED, no physical printer",
+      "performance": "48 view states, eager60line carts; actual timing/memory not measured",
+      "duplicates_conflicts": "Separate native geometry evidence from screenshots and business runtime; each exact span inspected",
+      "issues_hypotheses": "Cannot establish real server auth/tax persistence/transport failure behavior.",
+      "tests_missing": "Cannot establish real server auth/tax persistence/transport failure behavior.",
+      "verified_callers_callees": "HttpClient from RunAsync→Fixtures"
+    }
+  ],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

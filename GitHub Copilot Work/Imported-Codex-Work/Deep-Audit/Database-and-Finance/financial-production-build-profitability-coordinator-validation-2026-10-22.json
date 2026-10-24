@@ -1,0 +1,133 @@
+{
+  "artifact_kind": "financial_callable_coordinator_source_quality_review",
+  "created_at_utc": "2026-10-22T05:10:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "main_coordinator",
+  "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+  "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+  "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+  "source_line_range": [
+    205,
+    224
+  ],
+  "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:205:5:MethodDeclaration",
+  "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+  "source_git_blob_sha256_from_symbol_map": null,
+  "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+  "receipt_sha256_observed": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+  "receipt_author": "financial_coordinator",
+  "receipt_identity_reasoning_match": true,
+  "classification_before": "EXISTING_REASONING_UNVERIFIED",
+  "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+  "coordinator_reasoning": "BuildProfitability passes only SoldLineCount/KnownLineCount to ComputeGrossProfit and ComputeOperatingMargin, while forwarding FoodCostReportDto.Missing separately. ReportingQueryService increments those counters only for dish lines; unknown active order packaging is appended to Missing and skipped without changing the counters. If all dish costs are known but an applicable packaging cost is unknown, domain completeness can still be true and numeric gross/operating results are produced. This is the existing FIN-CAND-PACKAGING-COVERAGE-001; no duplicate finding is created. The source behavior is confirmed, but active configuration incidence, owner policy for optional packaging, UI treatment and end-to-end report behavior were not executed.",
+  "related_existing_finding": "FIN-CAND-PACKAGING-COVERAGE-001",
+  "related_semantic_comparison": "SEM-MIRROR-060 order-packaging-completeness-cross-layer-semantic-comparison.json is an existing artifact but not registered as a group yet; do not count until reconciled",
+  "source_cross_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "lines": [
+        413,
+        423
+      ],
+      "symbol": "GetFoodCostReportAsync",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": [
+        35,
+        59
+      ],
+      "symbol": "ComputeGrossProfit",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": [
+        84,
+        105
+      ],
+      "symbol": "ComputeOperatingMargin",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "lines": [
+        181,
+        190
+      ],
+      "symbol": "OrderPackagingCost",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "lines": [
+        91,
+        108
+      ],
+      "symbol": "ProfitabilityDto",
+      "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da"
+    }
+  ],
+  "counterevidence_and_limits": [
+    "Unknown package name remains in Missing/ItemsWithUnknownCost; issue is conflicting completeness signal, not loss of warning text.",
+    "No configured packaging rule can be intentional known-zero under current rules; active unknown-cost precondition required.",
+    "Existing independent static challenges and partial pure component probe do not constitute full owner-dashboard or SQL runtime reproduction."
+  ],
+  "recommended_future_action": "Use an aggregate known-cost completeness state that incorporates dish and applicable per-order packaging costs while preserving dish line counts, missing names, and once-per-order cardinality. Confirm optional packaging policy before implementation.",
+  "tests_required": [
+    "Known dish plus active unknown-cost packaging must surface aggregate incomplete state.",
+    "Known packaging contributes once per order and retains complete state.",
+    "No active packaging rule follows confirmed optional-known-zero policy.",
+    "DTO/UI warning aligns with profitability completeness."
+  ],
+  "tests_executed": false,
+  "source_refs": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "lines": [
+        413,
+        423
+      ],
+      "symbol": "GetFoodCostReportAsync",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": [
+        35,
+        59
+      ],
+      "symbol": "ComputeGrossProfit",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": [
+        84,
+        105
+      ],
+      "symbol": "ComputeOperatingMargin",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "lines": [
+        181,
+        190
+      ],
+      "symbol": "OrderPackagingCost",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "lines": [
+        91,
+        108
+      ],
+      "symbol": "ProfitabilityDto",
+      "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da"
+    }
+  ],
+  "runtime_limit": "No test, SQL query, dashboard/API or UI execution."
+}

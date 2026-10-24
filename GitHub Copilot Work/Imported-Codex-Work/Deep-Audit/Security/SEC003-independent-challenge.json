@@ -1,0 +1,993 @@
+{
+  "schema_version": 1,
+  "finding_id": "SEC-003",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "performance_reviewer independent of originating printing route reviewer and parent",
+  "reviewed_utc": "2026-10-17T07:25:07.185653+00:00",
+  "method": "STATIC_SOURCE_CHALLENGE_ONLY",
+  "skill": "codex-security:validation; explicit owner output paths override plugin managed artifact defaults; no scan ID or plugin scan result claimed",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_WITH_POLICY_AND_DEPLOYMENT_QUALIFICATIONS",
+  "severity_assessment": {
+    "proposed": "HIGH",
+    "challenge": "HIGH is defensible for confidential full HR/national-ID/compensation data exposed to legitimate station users lacking HR rights. Do not present HIGH as an unconditional measured production impact. If all deployed accounts are equally HR-authorized or fields/data are absent, deployment impact differs; missing field/read boundary still exists in source.",
+    "confidence": "HIGH for absent source gate and projected fields; policy-specific and deployed exposure remain unverified",
+    "not_claimed": [
+      "anonymous access",
+      "PIN/password leakage through EmployeeDto",
+      "raw fingerprint templates",
+      "financial mutation",
+      "SQL injection",
+      "remote code execution",
+      "successful live extraction"
+    ]
+  },
+  "source_to_sink_chain": [
+    "Reachable /api/employees route receives valid session via AuthenticationMiddleware.InvokeAsync",
+    "ResolveAsync requires nonrevoked/nonexpired session and active user",
+    "Actor mismatch check only validates explicitly named actor fields; path employeeId denotes target, not actor; no actor field is required on these GET wrappers",
+    "Employee list/detail wrappers invoke query directly, with no permission/self field projection",
+    "ListAsync selects all entities; GetAsync selects supplied primary key; ToDto includes private HR and compensation fields",
+    "Results.Ok serializes returned EmployeeDto; no DTO JsonIgnore/custom field projection or row-level query filter found in examined application startup/model/DTO paths"
+  ],
+  "employee_dto_fields": [
+    "Id",
+    "Name",
+    "EmployeeNumber",
+    "JobTitle",
+    "Phone",
+    "HireDate",
+    "CompensationType",
+    "DailyWagePiastres",
+    "ShiftValuePiastres",
+    "MonthlySalaryPiastres",
+    "UserId",
+    "CanDeliver",
+    "Role",
+    "IsActive",
+    "Notes",
+    "Address",
+    "NationalId",
+    "Department",
+    "EmploymentArrangement",
+    "FingerprintId",
+    "LifecycleStatus",
+    "OvertimeRatePiastres"
+  ],
+  "policy_evidence": {
+    "source_supported": [
+      "Distinct employees_manage/employees_ledger/attendance_manage/payroll permissions exist in catalog",
+      "Shell hides employee navigation without employees_manage; attendance and payroll have separate gates",
+      "Employee financial-report has reports_view/all server gate",
+      "General audit/events has audit_view/control_center/all server gate"
+    ],
+    "requires_owner_decision": [
+      "Exact employee picker fields, if roster visibility is intentionally broad",
+      "Self-service visibility and relation between user account and EmployeeEntity.UserId",
+      "Whether attendance and limited payroll status metadata should be broadly visible",
+      "Whether reports_view alone grants complete private HR profile access; do not assume it does"
+    ],
+    "SECURITY_md": "No root SECURITY.md found by attempted read; no standalone HR privacy policy established"
+  },
+  "related_read_matrix": [
+    {
+      "route": "GET /api/employees",
+      "lines": [
+        685,
+        685
+      ],
+      "callee": "EmployeeQueryService.ListAsync -> ToDto",
+      "scope": "All employee entities, including inactive; no self/permission filter",
+      "fields": "Complete EmployeeDto profile"
+    },
+    {
+      "route": "GET /api/employees/{employeeId}",
+      "lines": [
+        687,
+        691
+      ],
+      "callee": "EmployeeQueryService.GetAsync -> ToDto",
+      "scope": "Path employee identity; no link to authenticated UserId; unknown ID404",
+      "fields": "Complete EmployeeDto profile"
+    },
+    {
+      "route": "GET /api/employees/{employeeId}/ledger",
+      "lines": [
+        693,
+        694
+      ],
+      "callee": "ListLedgerEntriesAsync -> ToLedgerDto",
+      "scope": "All ledger rows for supplied employee, no employee permission/self gate",
+      "fields": "Description, credits/debits/running balance, actor/approver, shift/reference, hours/rate/value/payroll metadata"
+    },
+    {
+      "route": "GET /api/employees/{employeeId}/balance",
+      "lines": [
+        696,
+        697
+      ],
+      "callee": "GetBalanceAsync",
+      "scope": "Supplied employee ID; aggregates all-time credit minus debit; missing employee can yield0",
+      "fields": "EmployeeId and balancePiastres"
+    },
+    {
+      "route": "GET /api/attendance",
+      "lines": [
+        807,
+        808
+      ],
+      "callee": "ListAttendanceAsync -> ToAttendanceDto",
+      "scope": "Optional employee/date; omitted means all records, no self or attendance permission gate",
+      "fields": "Employee name, checkin/out, lateness, hours/overtime, corrections, reason and source"
+    },
+    {
+      "route": "GET /api/payroll-runs",
+      "lines": [
+        819,
+        819
+      ],
+      "callee": "PayrollQueryService.ListRunsAsync",
+      "scope": "All runs with no payroll read permission",
+      "fields": "Period/status, creator/approver/reviewer, timestamps, treasury/payment-account references"
+    },
+    {
+      "route": "GET /api/payroll-runs/{runId}",
+      "lines": [
+        821,
+        825
+      ],
+      "callee": "PayrollQueryService.GetRunAsync -> CreatePayrollHandler.ToDto",
+      "scope": "Supplied run ID; missing404; no read permission; helper body not revalidated in this challenge",
+      "fields": "PayrollRunDto type; list path confirms run metadata independently"
+    },
+    {
+      "route": "GET /api/payroll-runs/{runId}/lines",
+      "lines": [
+        827,
+        828
+      ],
+      "callee": "PayrollQueryService.ListLinesAsync",
+      "scope": "Every line in supplied run, no per-employee self filter",
+      "fields": "EmployeeId, base/overtime/extra/bonus/deduction/advance/net amounts, status/paid timestamp"
+    },
+    {
+      "route": "GET /api/control-center/audit-events",
+      "lines": [
+        524,
+        525
+      ],
+      "callee": "ControlCenterQueryService.ListAuditEventsAsync",
+      "scope": "Newest limit or100, optional date bounds are not exposed by this wrapper; no audit/control permission",
+      "fields": "Action/actor/entity/amount/operation/approver/reason/blocker codes/time"
+    }
+  ],
+  "safe_sibling_counterexamples": [
+    {
+      "route": "GET /api/employees/financial-report",
+      "lines": [
+        702,
+        707
+      ],
+      "guard": "RequireReportsAccessAsync -> all or reports_view; absent actor query binds400, mismatched standard actor rejected by middleware; denied permission returns422",
+      "qualification": "Literal route is not equivalent to arbitrary employeeId lookup; this safe route does not protect sibling endpoints"
+    },
+    {
+      "route": "GET /api/audit/events",
+      "lines": [
+        531,
+        541
+      ],
+      "guard": "all or audit_view or control_center; requires actor query",
+      "qualification": "Different general audit table/projection from control-center trail; no claim that every general event leaks through narrow trail"
+    }
+  ],
+  "counterevidence": [
+    "All identified endpoints are /api/ and protected by registered AuthenticationMiddleware",
+    "Invalid/missing bearer session is rejected401; deactivated/revoked/expired accounts cannot resolve",
+    "Missing profile/run detail returns404; route path validation and model binding can reject malformed requests",
+    "Client nav limits casual UI reachability but is not an API read authorization boundary",
+    "EmployeeDto includes no PIN/hash/password/token or fingerprint-template bytes",
+    "No route metadata/global endpoint filter/authorization fallback/query filter defeating this instance was found in examined sources",
+    "Loopback default binding or a private LAN limits reachability but does not enforce employee confidentiality between users of an accessible server",
+    "No live server, accounts, sessions, employee values, logs or database contents accessed"
+  ],
+  "verification_levels": {
+    "source_behavior": "CONFIRMED_BY_INDEPENDENT_STATIC_TRACE",
+    "isolated_reproduction": "NOT_EXECUTED",
+    "live_end_to_end": "NOT_EXECUTED",
+    "deployed_sensitive_data_presence": "UNKNOWN",
+    "owner_policy": "INFERRED_FROM_PERMISSION_AND_UI_CONTRACT; EXACT FIELD POLICY NEEDS_CONFIRMATION"
+  },
+  "related_scope_disposition": "Ledger/balance/payroll lines corroborate same confidentiality-boundary family; attendance/control-audit are source-confirmed ungated reads with policy-specific impact. Parent should normalize IDs or expand scope without deleting original narrower SEC-003 evidence. Do not auto-assign every sibling HIGH.",
+  "recommended_solution": [
+    "Define private HR/profile, minimal picker and self-service contracts separately",
+    "Enforce server read permission and subject scope before query/projection; derive authenticated identity server-side",
+    "Do not blanket grant reports_view full profile access without explicit policy",
+    "Preserve legitimate attendance/driver/payroll pickers using minimal DTOs",
+    "Protect related financial and audit reads according to actual distinct roles"
+  ],
+  "required_tests": [
+    "Anonymous/invalid/revoked/expired sessions remain401",
+    "Legitimate pos-only session cannot enumerate/read sensitive profiles or other employees ledger/payroll details under the adopted policy",
+    "Authorized manager/payroll and explicit self-service cases return only approved fields",
+    "Minimal picker can still function without compensation/address/nationalID/fingerprint identifier",
+    "Unknown details404; static financial-report route still requires reports rights",
+    "General audit and control trail each enforce chosen audit policy; validate denial status contract",
+    "DTO regression assertions enumerate forbidden fields; list/detail/related routes tested separately"
+  ],
+  "execution_limitations": "No dynamic test attempted because task explicitly forbids live API/auth/DB access; existing server starts migrations/seeding and integration fixtures may create databases. Static trace is proportionate and strong for missing checks, but not a live extraction proof.",
+  "evidence": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "baseline_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "inspected_line_ranges": [
+        [
+          251,
+          251
+        ],
+        [
+          524,
+          541
+        ],
+        [
+          685,
+          707
+        ],
+        [
+          807,
+          828
+        ],
+        [
+          1853,
+          1870
+        ],
+        [
+          2282,
+          2290
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-b1171ce940c099c4d482acb862c4e44aa2e697e4bb5a8e91f45008203d997fdc",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 524,
+          "endLine": 525
+        },
+        {
+          "stable_id": "sym-0ec4f39fc62be108a988b48408b1353013fec56b7a999d366460c66c1972c86d",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 531,
+          "endLine": 540
+        },
+        {
+          "stable_id": "sym-b50cc28874c781e64b81114a518e28edc651b34cfe1d2710350fb559c2db037b",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 534,
+          "endLine": 534
+        },
+        {
+          "stable_id": "sym-c53adea023c0f1ae87a336958b503194f2311bff07a093aecb5779f836a64ff7",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 685,
+          "endLine": 685
+        },
+        {
+          "stable_id": "sym-8cf19fe0b2930ec82f3c89250da790f15dbe06edb1e1954c2bdf6a9e58bc43fb",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 687,
+          "endLine": 691
+        },
+        {
+          "stable_id": "sym-f743f1e44daff02b442c208ceb7924ca05288c13c46943d1552b582d5cc69e73",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 693,
+          "endLine": 694
+        },
+        {
+          "stable_id": "sym-b87aeb4ef75e79dce12941c52820f1b8213057ca74ac3c7b9a637cfd70deee58",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 696,
+          "endLine": 697
+        },
+        {
+          "stable_id": "sym-e9c2904a8cb9713eb901056516a9f6b49b741a6ce56e0788cc6eaa42445dbf32",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 702,
+          "endLine": 707
+        },
+        {
+          "stable_id": "sym-51ccec7f3f4aa8b34b1e51cb55a140c42d1b310e82dc9354521a47a2941ab4e2",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 807,
+          "endLine": 808
+        },
+        {
+          "stable_id": "sym-39087865c2bf5b1972694eb10d9f7271e1b9ad53a7059c6a37b6393695f9de96",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 812,
+          "endLine": 817
+        },
+        {
+          "stable_id": "sym-8a78af3a35f11a48b4f88b26990375fca69ffb7acdee6e47cadd6326be7b64ec",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 819,
+          "endLine": 819
+        },
+        {
+          "stable_id": "sym-4b05c6154fdd79542bad07316db0e865cd7ead5d21fb8d433a3a11a897bf3dad",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 821,
+          "endLine": 825
+        },
+        {
+          "stable_id": "sym-d8d372d2164952dab7c985df2f323a4b3c3cc67e597c485c6e3f443fb98f6182",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 827,
+          "endLine": 828
+        },
+        {
+          "stable_id": "sym-01b50b0ef12246af57a420e3dd7e943ed8611c48b0a76e8f7f1bbe1d93839c2b",
+          "kind": "ParenthesizedLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "ParenthesizedLambdaExpression",
+          "startLine": 1853,
+          "endLine": 1871
+        },
+        {
+          "stable_id": "sym-8e4ce188d3b4825df696e0bd5084e926cd00a29f0afab0110eaf782fcb61cff8",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 1855,
+          "endLine": 1855
+        },
+        {
+          "stable_id": "sym-979e69d0db448a1584fb4f073f173fc143bbaea8d29fc47c115198f6aef0c18b",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 1856,
+          "endLine": 1856
+        },
+        {
+          "stable_id": "sym-c5ef6984ff177df2d8e64c494e693585e2e87dd0e0cf3a450c4ac8aa67be157b",
+          "kind": "LocalFunctionStatement",
+          "qualifiedSymbol": "RequireReportsAccessAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "name": "RequireReportsAccessAsync(FalahDbContext db, string actorUserId, CancellationToken ct)",
+          "startLine": 2282,
+          "endLine": 2290
+        },
+        {
+          "stable_id": "sym-06c3373aaaed682227c3d5265bb76dc40f94440581c5f3d4872b4dabb31dc2e7",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 2284,
+          "endLine": 2284
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "baseline_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+      "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "inspected_line_ranges": [
+        [
+          31,
+          81
+        ],
+        [
+          87,
+          137
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Server.AuthenticationMiddleware.InvokeAsync(HttpContext, Falah.Infrastructure.Authorization.SessionService)",
+          "name": "InvokeAsync(HttpContext context, SessionService sessions)",
+          "startLine": 30,
+          "endLine": 82
+        },
+        {
+          "stable_id": "sym-0f9ed05c595e559bcd74e7f95ddd900021d7c02ee3b647dca160bff19200bf76",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 36,
+          "endLine": 36
+        },
+        {
+          "stable_id": "sym-c2203c2325345c8a3ae81ec81d90d07ed4ff5b2a0369643f51a2c6065761c4a8",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Server.AuthenticationMiddleware.FindActorMismatchAsync(HttpContext, string)",
+          "name": "FindActorMismatchAsync(HttpContext context, string authenticatedUserId)",
+          "startLine": 91,
+          "endLine": 133
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Authorization/SessionService.cs",
+      "baseline_git_blob_sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "worktree_sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "inspected_line_ranges": [
+        [
+          46,
+          73
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-6b58fba3d6909a61439e856a4b7d7f88a6dab6d962b2d11914df6045e737e30a",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Authorization.SessionService.ResolveAsync(string?, CancellationToken)",
+          "name": "ResolveAsync(string? token, CancellationToken ct = default)",
+          "startLine": 42,
+          "endLine": 67
+        },
+        {
+          "stable_id": "sym-60f0808dffee674df5ee9758c7839abc176928de885814998e76fbf718ee0cdd",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 47,
+          "endLine": 47
+        },
+        {
+          "stable_id": "sym-6f7fa8d7f78a5f25a3c83b18f42d3fd255c3a32acc1747cabd3a0b7c7cb93578",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 53,
+          "endLine": 53
+        },
+        {
+          "stable_id": "sym-86b5c0bc29341fe19e000b09b8fe9d49150d47149ad9e1524e2cdb918adc702c",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Authorization.SessionService.RevokeAsync(string?, CancellationToken)",
+          "name": "RevokeAsync(string? token, CancellationToken ct = default)",
+          "startLine": 69,
+          "endLine": 77
+        },
+        {
+          "stable_id": "sym-c9f607cf924f0c5038b74d42ff24940774973eb111c171ad8d8af210cd8e7776",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 73,
+          "endLine": 73
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "baseline_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "inspected_line_ranges": [
+        [
+          61,
+          103
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-7ea60776c9dbda429987d1e76c88ce80ffe64bbdd8f79d723388d7c6aefbaf28",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ListAsync(CancellationToken)",
+          "name": "ListAsync(CancellationToken ct = default)",
+          "startLine": 61,
+          "endLine": 62
+        },
+        {
+          "stable_id": "sym-6f5a795851b5af215df79445ff9cd154c04109e435656ca678015eef103c38cb",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 62,
+          "endLine": 62
+        },
+        {
+          "stable_id": "sym-ef545a9a367eaf74e83ed7efcd12eb01597a76785996aa17c94854910c12d847",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.GetAsync(string, CancellationToken)",
+          "name": "GetAsync(string employeeId, CancellationToken ct = default)",
+          "startLine": 64,
+          "endLine": 66
+        },
+        {
+          "stable_id": "sym-2ed121f00f80838ebeec6c4b890351d41ab519c1583d7bf72953c7f9e8bb064e",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 65,
+          "endLine": 65
+        },
+        {
+          "stable_id": "sym-51e2a3491a05b4d9f8bfc1164c6b115f541c3bd3c3dd4b92d662a9b244b2da0c",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ListLedgerEntriesAsync(string, CancellationToken)",
+          "name": "ListLedgerEntriesAsync(string employeeId, CancellationToken ct = default)",
+          "startLine": 68,
+          "endLine": 70
+        },
+        {
+          "stable_id": "sym-eebf19554e2d9a1b6a63637f922795c457391603d835317f571f4f494c72b83e",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 69,
+          "endLine": 69
+        },
+        {
+          "stable_id": "sym-6c0ba966915bb6731eef7c6adb90f7165737a0dae672ef4eedaf06e8ae7c79f3",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 70,
+          "endLine": 70
+        },
+        {
+          "stable_id": "sym-c94d422d246f92c086fe4e4e4868be5892484dc98eef9bff68b7e340b82cb4ee",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 70,
+          "endLine": 70
+        },
+        {
+          "stable_id": "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.GetBalanceAsync(string, CancellationToken)",
+          "name": "GetBalanceAsync(string employeeId, CancellationToken ct = default)",
+          "startLine": 74,
+          "endLine": 79
+        },
+        {
+          "stable_id": "sym-fd3d8002e8e0765471429f929e7c8f5a4d2cca3d48a115c16707cb570134d411",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 76,
+          "endLine": 76
+        },
+        {
+          "stable_id": "sym-d1b9816437ee9f0f9603081f22eaa00e6f9a6d3d57c07747657195b4ad115235",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 77,
+          "endLine": 77
+        },
+        {
+          "stable_id": "sym-77a2e0bbad83d36c690a02cfcd5c5ebe07bd07d3c1f380c0fb82c200103ceb7c",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 78,
+          "endLine": 78
+        },
+        {
+          "stable_id": "sym-cb36ca91e25953caff451fbdaa5cda4411cff1147d4b113579d67824eaba53b9",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 78,
+          "endLine": 78
+        },
+        {
+          "stable_id": "sym-993092d097bb197edfec9996c12e929dff5cd9c63c0b09c76a7d4850137fa8b2",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.EmployeeEntity)",
+          "name": "ToDto(EmployeeEntity e)",
+          "startLine": 81,
+          "endLine": 85
+        },
+        {
+          "stable_id": "sym-201d7b2ef8478bb6c261d88ac2d9992a42aa187508077edda0f9fe83fb008471",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ToLedgerDto(Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity)",
+          "name": "ToLedgerDto(EmployeeLedgerEntryEntity e)",
+          "startLine": 87,
+          "endLine": 90
+        },
+        {
+          "stable_id": "sym-c37863789f44cd3f347bcb6e3b7a38092671ff6ca30caa9c86d9c7f43707b6f8",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ListAttendanceAsync(string?, DateOnly?, CancellationToken)",
+          "name": "ListAttendanceAsync(string? employeeId, DateOnly? date, CancellationToken ct = default)",
+          "startLine": 92,
+          "endLine": 98
+        },
+        {
+          "stable_id": "sym-2a2364452bcb61001aba207fb3d60872eabeea01d957d4c3ac0715f2fbdadb15",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 95,
+          "endLine": 95
+        },
+        {
+          "stable_id": "sym-d257f16fb54add7b7bcb6f2c1b559ce9c41398595eca8365a9132b8a3e925bfa",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 96,
+          "endLine": 96
+        },
+        {
+          "stable_id": "sym-31bcdf4dc1865cfb6967d0c0661f3c7f9a469cf6993b2836c3ae887e9e064904",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 97,
+          "endLine": 97
+        },
+        {
+          "stable_id": "sym-1c8db0b39920869f8e8319fcbe55acf1202736042aec5097ed52f8d46e5f31d4",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 97,
+          "endLine": 97
+        },
+        {
+          "stable_id": "sym-f9188ec8de3df4c3a40b08aa7518b6d3f9603aa2b4102b1b284078e141d6c781",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeQueryService.ToAttendanceDto(Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity)",
+          "name": "ToAttendanceDto(AttendanceRecordEntity a)",
+          "startLine": 100,
+          "endLine": 102
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "baseline_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "inspected_line_ranges": [
+        [
+          24,
+          34
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-f4ee7bb7f704a79b1fc5bfcaaaaa574cca4a93d648f2a9e61e020b606f49eb95",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.Employees.EmployeeDto",
+          "name": "EmployeeDto",
+          "startLine": 23,
+          "endLine": 28
+        },
+        {
+          "stable_id": "sym-38dea0bd18289f7e69a7a5e2d342a0a6d94bea9bccfd4ebf102c23d2d5dad5fe",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.Employees.EmployeeLedgerEntryDto",
+          "name": "EmployeeLedgerEntryDto",
+          "startLine": 30,
+          "endLine": 33
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/AttendanceRequests.cs",
+      "baseline_git_blob_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "worktree_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "inspected_line_ranges": [
+        [
+          12,
+          15
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-a8603c531e8ca55bbe1512c46e37e05fcac3d5115bac52601953fd3f00536ab7",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.Employees.AttendanceRecordDto",
+          "name": "AttendanceRecordDto",
+          "startLine": 12,
+          "endLine": 15
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+      "baseline_git_blob_sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "worktree_sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "inspected_line_ranges": [
+        [
+          12,
+          30
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-a774e9fb7f18730ab662f8db9b359ac092adcc22cec64788edb19f96af63b713",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.PayrollQueryService.ListRunsAsync(CancellationToken)",
+          "name": "ListRunsAsync(CancellationToken ct = default)",
+          "startLine": 12,
+          "endLine": 16
+        },
+        {
+          "stable_id": "sym-af59b71cdf8827eea559f9ccd86fdfc99335d4621d42d1509cf21239229e8823",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 13,
+          "endLine": 13
+        },
+        {
+          "stable_id": "sym-a24db1eb64f12d8fdfc0365fccc38e0edc21d5f97112f6ae39322182e860170d",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 14,
+          "endLine": 15
+        },
+        {
+          "stable_id": "sym-ed3f44daff65a2f917220b0c9deaff1ddeffae745ef637490d724569615959ac",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.PayrollQueryService.GetRunAsync(string, CancellationToken)",
+          "name": "GetRunAsync(string runId, CancellationToken ct = default)",
+          "startLine": 18,
+          "endLine": 23
+        },
+        {
+          "stable_id": "sym-c9651892ec227a85ff8a7e1832e9b09f805538d5eee44a89849cae6962794e81",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 20,
+          "endLine": 20
+        },
+        {
+          "stable_id": "sym-89d5017e1c16f6c50b500d012941167dbf5b4432403cd4914261516ec791508f",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.PayrollQueryService.ListLinesAsync(string, CancellationToken)",
+          "name": "ListLinesAsync(string runId, CancellationToken ct = default)",
+          "startLine": 25,
+          "endLine": 30
+        },
+        {
+          "stable_id": "sym-5575a99fc4d2c72753bcee1e41ba1b36ebc0a6b0086d6e8d36ea011d3dbfd83b",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 26,
+          "endLine": 26
+        },
+        {
+          "stable_id": "sym-9364d456e7fcbd50906e609f711e86863709d142f19045b44e7e47df51ede828",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 27,
+          "endLine": 29
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/PayrollRequests.cs",
+      "baseline_git_blob_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "worktree_sha256": "8f229e3600888b01eb00735c83baf400be80501f8958b4d3deddf9bbc2d204dd",
+      "inspected_line_ranges": [
+        [
+          12,
+          19
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-fb4cc47b917fa1478dd8469ceef861385b697d77577ff6308ad217f3f2acf893",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.Employees.PayrollRunDto",
+          "name": "PayrollRunDto",
+          "startLine": 12,
+          "endLine": 15
+        },
+        {
+          "stable_id": "sym-106e145bef847e7a7b0aabb4b8a748f7626de80158bf9963d8b385838131382a",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.Employees.PayrollLineDto",
+          "name": "PayrollLineDto",
+          "startLine": 17,
+          "endLine": 20
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "baseline_git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "inspected_line_ranges": [
+        [
+          122,
+          132
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-cec01f9780b88bb3389dde3c1c932cb0a91bc8725fab859bc512a45891eaabb1",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.ListAuditEventsAsync(int, DateTimeOffset?, DateTimeOffset?, CancellationToken)",
+          "name": "ListAuditEventsAsync(int limit = 100, DateTimeOffset? from = null, DateTimeOffset? to = null, CancellationToken ct = default)",
+          "startLine": 122,
+          "endLine": 132
+        },
+        {
+          "stable_id": "sym-95f994e7f6428f36fdd522ff2df5867047633b02cc913b2b54a5a7c411b85493",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 126,
+          "endLine": 126
+        },
+        {
+          "stable_id": "sym-043c11ff916d5a3c8953a1539aad14c1f670f93267dbca38b399b22e4b23e646",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 127,
+          "endLine": 127
+        },
+        {
+          "stable_id": "sym-24e9029276ca4fe56d411012fd90658d6832e54aa8d78d1d8a85a17dab242883",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 128,
+          "endLine": 128
+        },
+        {
+          "stable_id": "sym-af64778b8cd98d141ed8da24ede44e1116d23453b0ecde6395f5aaad60f69daa",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 129,
+          "endLine": 130
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+      "baseline_git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+      "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+      "inspected_line_ranges": [
+        [
+          38,
+          40
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-4d0760d7d8901dd64c1ac7be69aae0156a5804f932b955614342744bcc219b2f",
+          "kind": "RecordDeclaration",
+          "qualifiedSymbol": "Falah.Application.BusinessDay.ControlAuditEventDto",
+          "name": "ControlAuditEventDto",
+          "startLine": 38,
+          "endLine": 40
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+      "baseline_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+      "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9",
+      "inspected_line_ranges": [
+        [
+          35,
+          47
+        ],
+        [
+          132,
+          137
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-5a7b69c8189af571f029ca4a40f4e984099aba617c814a8f5c9521d5a6ae4a56",
+          "kind": "ConstructorDeclaration",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.ShellViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)",
+          "name": "ShellViewModel(AppSession session, HeaderViewModel header)",
+          "startLine": 35,
+          "endLine": 53
+        },
+        {
+          "stable_id": "sym-ebce8e5da6d790eec15c551af989b0308e8a776278908165e8924f9ce71f53c2",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.AllCandidates()",
+          "name": "AllCandidates()",
+          "startLine": 102,
+          "endLine": 142
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/PermissionCatalog.cs",
+      "baseline_git_blob_sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69",
+      "worktree_sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69",
+      "inspected_line_ranges": [
+        [
+          45,
+          53
+        ]
+      ],
+      "overlapping_source_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "baseline_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "inspected_line_ranges": [
+        [
+          441,
+          445
+        ]
+      ],
+      "overlapping_source_symbols": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "kind": "MethodDeclaration",
+          "qualifiedSymbol": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "name": "OnModelCreating(ModelBuilder modelBuilder)",
+          "startLine": 76,
+          "endLine": 480
+        },
+        {
+          "stable_id": "sym-8b6669e600e09695914b6c922674ced54e4edfff3707856279695ed29fcb9130",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 441,
+          "endLine": 445
+        },
+        {
+          "stable_id": "sym-6e0fd8462276ea45881cd41cee6c65e2e0b09509836c2d77d172a9cfb4e41bc1",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 443,
+          "endLine": 443
+        },
+        {
+          "stable_id": "sym-db70b42d1e12c324a826647d9480294058ac04de1d1cc1e3a4f9760b064bcd5a",
+          "kind": "SimpleLambdaExpression",
+          "qualifiedSymbol": "lambda expression",
+          "name": "SimpleLambdaExpression",
+          "startLine": 444,
+          "endLine": 444
+        }
+      ]
+    }
+  ],
+  "writes": "Only specified audit artifacts/checkpoints/tool source; no POS/runtime/database/Git change"
+}

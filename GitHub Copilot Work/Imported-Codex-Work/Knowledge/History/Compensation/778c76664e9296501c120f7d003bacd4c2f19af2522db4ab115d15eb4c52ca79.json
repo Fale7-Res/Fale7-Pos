@@ -1,0 +1,556 @@
+{
+  "id": "FIN-LEAD-COMPENSATION-CASING-001",
+  "semantic_group": "SEM-MIRROR-008",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-19T09:03:34.555Z",
+  "originator": "/root continuation of existing saved attendance financial source lead",
+  "title": "Accepted case-insensitive compensation type is stored raw but wage/payroll consumers require canonical names",
+  "status": "SOURCE_CHAIN_COMPLETE_PENDING_INDEPENDENT_FINANCIAL_CHALLENGE",
+  "severity_proposed": "MEDIUM",
+  "confidence": "HIGH_STATIC_CHAIN_NO_RUNTIME",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "worktree_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "source_git_blob_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "line_ranges": [
+        [
+          26,
+          49
+        ],
+        [
+          79,
+          100
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+          "signature": "Falah.Infrastructure.Employees.CreateEmployeeHandler.HandleAsync(Falah.Application.Employees.CreateEmployeeRequest, CancellationToken)",
+          "span": [
+            26,
+            5,
+            63,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-39ffbfdbd5f67aff54ce3d162dbcc75197fb085cf8d02fe504ca45ba03e6fe9d",
+          "signature": "lambda expression",
+          "span": [
+            29,
+            79,
+            29,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-ab1cab4e8c36c99831f19baf51f59c8d156c6cc383cb897f617c5e1be9eddc72",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            76,
+            36,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+          "signature": "Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken)",
+          "span": [
+            79,
+            5,
+            115,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b93d59351b0ef702ad543f8a7bfc6f7341781b48ad6088aa47262ca8802012a5",
+          "signature": "lambda expression",
+          "span": [
+            85,
+            76,
+            85,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-47579c71f92ccf23c3734cf72f132bb852022cff3919120ab89619ca5ae00ba7",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            62,
+            89,
+            93
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          26,
+          34
+        ],
+        [
+          72,
+          98
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+          "signature": "Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken)",
+          "span": [
+            26,
+            5,
+            99,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d415975fcdd222571155193b1b0c4bcb64d55de10e15f16bb4f7215915314aad",
+          "signature": "lambda expression",
+          "span": [
+            28,
+            79,
+            28,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "line_ranges": [
+        [
+          54,
+          65
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+          "signature": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            104,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-17a63eacca5de5a61fdfc231e5b887b260a4b9e7d9e401cb7439a5f5db3e42ac",
+          "signature": "lambda expression",
+          "span": [
+            54,
+            43,
+            63,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b0e5eac49582c0788a267876bf5deede5cec1ce9bfa065e8577b49f3854a6c8c",
+          "signature": "lambda expression",
+          "span": [
+            56,
+            50,
+            56,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-de9e43eacc05dbfa2072b8418d775374227dad8d4c6efa3bba196e67381ee111",
+          "signature": "lambda expression",
+          "span": [
+            57,
+            25,
+            57,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          83,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+          "span": [
+            83,
+            5,
+            112,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fb6e06c94ed98882fd223b075315e64ea785607dd4fc9ead89e76b8bf161dd11",
+          "signature": "lambda expression",
+          "span": [
+            88,
+            51,
+            88,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-5c54e9ee3a705e9926060f72df563e5c19dc0239cdbc90519b5ab7cb3667b0d4",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            62,
+            97,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-87f6f012e75f4ceba9a9b9f25a4ada25083ece3b18eb241a301ff5b2f6c0ca7b",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            106,
+            97,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-c88242c0c88b12e693a5cd1e86059e585d5a190698448c6c91fb05c01cea56cd",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            71,
+            98,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-aa49efb2be6439fd698d692a1b232ec88d58b38bb0b96b57268c9ffdf54b5faa",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            102,
+            98,
+            124
+          ]
+        },
+        {
+          "stable_id": "sym-ae42b9392712dd4b24684dbdeffe96476fd168b45936231b1acdd759bd0f7313",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            74,
+            99,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-ec12fc9b089e55273554965f0cf22e4d0e93aaae7a4f21aa3243a6f3e4e8f62f",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            107,
+            99,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-97a1c09544dab50238f260b23e0a62832c2dfa5aaf7ada402e3742683f0136a2",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            70,
+            100,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-25025ec4c7c0577967b58ed456ff0a55139cdcc7d4a7f2619ad6f77a856c7a17",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            116,
+            100,
+            138
+          ]
+        },
+        {
+          "stable_id": "sym-e275b089567793bca24444064ad55f1ef63eed026ecf642c2e9fabe4c14ffc3e",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            73,
+            101,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-8e097b381da5228f3dd076e77d3fa589a6c9b8008c21128032e5f09af0389a84",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            121,
+            101,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "worktree_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "source_git_blob_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "line_ranges": [
+        [
+          5,
+          7
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "worktree_sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "source_git_blob_sha256": "0aaa061bb34735cb398e7022e910874ec5176262ec71b40ecb4c1f61593220bf",
+      "line_ranges": [
+        [
+          28,
+          39
+        ],
+        [
+          66,
+          70
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+          "signature": "Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.HandleAsync(Falah.Application.Employees.RecordManualLedgerEntryRequest, CancellationToken)",
+          "span": [
+            28,
+            5,
+            76,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "line_ranges": [
+        [
+          5,
+          20
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          667,
+          681
+        ],
+        [
+          783,
+          786
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-491cae6d6e9bcbc671013e28f59a3c26c474e1f996d675ba1025f36b814c648c",
+          "signature": "lambda expression",
+          "span": [
+            667,
+            31,
+            672,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-cf913a13eee9b02630fb1db82f0848a774bc9c4980c395dd857a9f3f295c18be",
+          "signature": "lambda expression",
+          "span": [
+            674,
+            43,
+            683,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-591bd3d5b61d846668ed1ab0ca5fef1a93db42829f1dbcb5b5e525ccf6683efd",
+          "signature": "lambda expression",
+          "span": [
+            783,
+            41,
+            787,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs",
+      "worktree_sha256": "0606ca2008dfe343a653116ed071834d760aa11695df274b580c38a8e6cc59e7",
+      "source_git_blob_sha256": "37beafea4cb892e939a39905e7c7b9d30ed52acc2507e25079e0d2a244ec1c5e",
+      "line_ranges": [
+        [
+          38,
+          43
+        ],
+        [
+          146,
+          151
+        ],
+        [
+          199,
+          225
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d9741d8c5a52f30e3f9a06e6a880cb5a4cda3bbfb0aaaf89ba94e8e631084690",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeeEditorViewModel.CompensationTypes.get",
+          "span": [
+            38,
+            54,
+            38,
+            58
+          ]
+        },
+        {
+          "stable_id": "sym-95444488a02d9f0123a32c2c35780092e5fdb0f6b6176c7982d5757baf6c2bfa",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeeEditorViewModel.Select(Falah.Application.Employees.EmployeeDto)",
+          "span": [
+            138,
+            5,
+            166,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-226a018861013713236e2ad907f8e96def98b97c900d77f590bd3e90390aa010",
+          "signature": "lambda expression",
+          "span": [
+            149,
+            61,
+            149,
+            148
+          ]
+        },
+        {
+          "stable_id": "sym-e96800657a34d5be78605890b80da512dab9b10708fd38d2b7b9fc7e9cb14466",
+          "signature": "lambda expression",
+          "span": [
+            150,
+            51,
+            150,
+            143
+          ]
+        },
+        {
+          "stable_id": "sym-ac473f2bd59646102df2072666a26f0ae39ddf7f4ae940fb1938530b97d0148b",
+          "signature": "lambda expression",
+          "span": [
+            151,
+            60,
+            151,
+            146
+          ]
+        },
+        {
+          "stable_id": "sym-47c603b34b0318bcd71627f1cb1a7a2a05c324d5b26290f471179f93745b6914",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeeEditorViewModel.CreateRequest()",
+          "span": [
+            199,
+            5,
+            226,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b9c166adca9141f7bfe36b2ca2852736278c477e78b21415cc327757c3cff883",
+          "signature": "Optional(string)",
+          "span": [
+            215,
+            9,
+            215,
+            95
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "line_ranges": [
+        [
+          81,
+          85
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-993092d097bb197edfec9996c12e929dff5cd9c63c0b09c76a7d4850137fa8b2",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.EmployeeEntity)",
+          "span": [
+            81,
+            5,
+            85,
+            69
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence_chain": [
+    "Create33/Update82 parseCompensationType ignoreCase then discard enum; rawrequest stored43/97. Validlowercase daily/monthly therefore survives documentedshape validation.",
+    "CheckIn74 exactDaily gates deterministic wage credit78-79. Validlowercase daily misses entitlement branch, while attendance stillSave97; manual wage path can separately compensate, not automatic equivalence.",
+    "CreatePayroll60 exactMonthly setsflag. PayrollRules95-97 usesmonthlysalary only fortrueflag, otherwise sumsDailyWage/Salarycredits. Active employee storedmonthly withpositivemonthlysalary and no such credits receiveszeroBase ratherthanmonthlysalary in modeled calculation; actualpayrollrecords/payment not executed.",
+    "EmployeeEditor emitscanonicalChoice.Id fromDaily/Monthly/Hourly38-43, selects caseinsensitively149 and sendscanonical219/223. This limits ordinaryUItrigger and cannormalizeuponresave; APIconsumer stillacceptslowercase.",
+    "Manual ledger counterpart explicitly parsesignoreCase and persistsentryType.ToString35-37/68, positivecontrol against blanketallfinancialenumsunsafe; defined and undefinednumeric policy remains separately qualified."
+  ],
+  "preconditions": [
+    "Legitimate employees_manage actor, otherwisevalid fresh profile/create or update, rawcasevariant daily/monthly, positive relevant wage/salary.",
+    "Subsequent daily checkin or valid selectedpayrollperiod foractive monthlyemployee with noDailyWage/Salarycredits. No useofrealaccount or endpoint request performed."
+  ],
+  "counterevidence": [
+    "Canonicalnames work; current editor sendscanonicalnames and resavecanrepairrepresentation. No ordinaryUIreproductionclaimed.",
+    "Manual daily-wage posting and existing earnings canmitigateDaily/Monthly undercount; do notclaim everyemployee alwaysunpaid.",
+    "No lowercase-bonus regressionclaimed: manualledgeralreadycanonicalizes.",
+    "Existing hourly/overtime policy not redefined; no permissionbypass or actualmonetaryloss measured."
+  ],
+  "root_cause": "Shared compensation enum validation accepts multiple spellings but persistence retainsrawstring, while two financial consumers use exactname comparison instead of the parsedmeaning.",
+  "recommended_solution": "PersistvalidatedcanonicalCompensationType or useoneexplicit supported parser in all consumers. Defineundefinednumeric policy, migrateexistingnoncanonicalmetadata onlyafterapproval and assess financial histories separately; do not silently mint retroactive wages.",
+  "regression_risks": "Blanketbackfill can double-accrue previously manually compensated days; changingmonthlyclassification can restate draftpayroll unexpectedly. Preserve deterministic wage keys, actualpostedfacts, canonicalUIchoices and historical frozenpaidruns.",
+  "required_tests": [
+    "Create/updatecanonical/mixed/lowercaseDaily andMonthly yieldequivalentacceptedmeaning, orrejectnoncanonicalbeforewrite underexplicitpolicy.",
+    "DailyCheckIn producesoneexpectedwage undernormal/repeatedevents; monthly positiveSalary/noDailyCredits producesexpectedbase ratherthanzero.",
+    "Manualcompensationcounterexamples, existingnoncanonicalprofilesresave, frozenpaidpayroll and no retroactiveduplicateaccrual."
+  ],
+  "independent_verification": "PENDING_FINANCIAL_SPECIALIST; original lead and current extension authoredroot, do not self-certify independent.",
+  "runtime": "NOT_EXECUTED; no API/DB/payroll/biometric/wage changes",
+  "new_financial_callable_receipts": 0,
+  "new_canonical_findings": 0,
+  "original_lead_artifact": "Deep-Audit/Database-and-Finance/attendance-financial-boundary-source-leads.json",
+  "deduplication": "Related normalization patternFIN021 but different compensation/earning consequences; different from FIN012 already-postedAdjustmentcredit classification."
+}

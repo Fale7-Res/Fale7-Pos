@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Bounded source-only review of UpdateSettingsHandler request/API validation for LateGraceMinutes, MaxLatePenaltyHours and LatePenaltyMultiplier, with the effect of malformed values on CorrectAttendanceHandler signed ledger delta. No tests executed and no shared registry edited.",
+  "scope": "Update settings command/request/route and current client request construction; correction handler plus PayrollRules calculation boundary; existing test source coverage.",
+  "reviewed_sources": [
+    {
+      "path": "src/Falah.Application/Settings/SettingsRequests.cs",
+      "symbol": "UpdateSettingsRequest",
+      "lines": [32, 42],
+      "sha256": "07a9b6aebd5f131a91d8d367c684c288def590106472c548026883b86e47e790",
+      "evidence": "The three payroll setting properties are nullable int/int/double request fields with no range/validation attributes or validation method shown in the record."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "symbol": "PUT /api/settings route",
+      "lines": [471, 480],
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "evidence": "Route passes the deserialized request to UpdateSettingsHandler.HandleAsync and returns its result; it translates DomainException/InvalidOperationException but adds no setting range check itself."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
+      "symbol": "UpdateSettingsHandler.HandleAsync",
+      "lines": [45, 128],
+      "sha256": "fcbeb3b2a7895001c185355dc1d9551d5efd4256d3b89a8805328e2a83eab79f",
+      "evidence": "At lines 52-62, any non-sound-only settings command is authorized with settings_manage. Settings initialization uses SettingsQueryService defaults (75-86). The payroll fields are directly assigned when non-null at lines 104-108 and SaveChangesAsync persists the entity at line 126. This method validates negative DefaultOpeningCashPiastres but has no analogous bounds for penalty grace/max/multiplier."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs",
+      "symbol": "SettingsViewModel.SaveAsync",
+      "lines": [140, 160],
+      "sha256": "f06eb43ddc17ea1ec982f536c2a6d8080e655430c3894f78ee70550181a6e8cf",
+      "evidence": "The current settings view model constructs UpdateSettingsRequest without LateGraceMinutes, MaxLatePenaltyHours or LatePenaltyMultiplier; a whole-file search found no references to these names in this view model. The examined UI save path therefore does not modify these settings, but an authorized request can still carry them directly."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "symbol": "SettingsQueryService.Defaults",
+      "lines": [20, 30],
+      "sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "evidence": "Default grace=15, max penalty hours=2 and multiplier=2.0. Defaults do not exhibit the negative-value behavior."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "symbol": "CorrectAttendanceHandler.HandleAsync",
+      "lines": [25, 121],
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "evidence": "Authorization for attendance_manage plus required approval and correction reason occurs before updating. The handler reads current settings, computes old/new late deduction amounts using those same settings, subtracts old from new, then posts signed Adjustment debit for positive delta or credit for negative delta at lines 82-105, all within transaction and audit workflow."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "CalculateLatePenaltyHours / CalculateLateDeduction",
+      "lines": [36, 51],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "evidence": "The hours function returns zero for late<=grace, otherwise min(1,max) through minute 60 and max thereafter. CalculateLateDeduction multiplies rate*hours*multiplier then rounds to signed piastres; no validation/floor occurs here."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "symbol": "BiometricCheckInHandler.HandleAsync",
+      "lines": [82, 97],
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "evidence": "Automatic check-in penalty is posted only when computed amount is positive. Thus negative configured max/multiplier does not create an automatic credit through this specific path; it suppresses the deduction."
+    }
+  ],
+  "tests_reviewed": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "lines": [11, 45],
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "Unit test source covers ordinary grace and 60/61-minute boundaries plus standard positive-config deduction. It contains no negative grace/max/multiplier cases."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "lines": [528, 543],
+      "sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+      "coverage": "Contains settings authorization and an ordinary setting update case, but no penalty-setting bounds or correction-delta assertions."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs",
+      "lines": [778, 797],
+      "sha256": "1fc09dadf93db845d38d53eec0b08ff8abcb7e40bc98dc94957a66b6f8a3782c",
+      "coverage": "Contains menu URL validation and ordinary setting updates; no payroll penalty configuration cases were found by searching tests for LateGrace, MaxLate, PenaltyMultiplier or LatePenalty."
+    }
+  ],
+  "source_confirmed_behavior": [
+    "The settings API itself has no route-level range validation; the handler's settings_manage check is the authorization control, and the handler directly persists the nullable payroll fields.",
+    "The current cashier settings UI omits all three fields, which narrows routine UI exposure but does not constrain authorized API callers or other internal callers.",
+    "If MaxLatePenaltyHours is negative, CalculateLatePenaltyHours can return negative hours and CalculateLateDeduction can return a negative amount when rate/multiplier are positive. If LatePenaltyMultiplier is negative, a positive penalty-hours value likewise produces a negative amount.",
+    "For correction, penaltyDelta is newAmount-oldAmount. With ordinary attendance values and negative max or multiplier, increasing recorded lateness can make the computed amount more negative, causing the correction path to classify the negative delta as a credit. Reducing lateness can conversely yield a debit. This is an arithmetic consequence, not evidence that the configuration has been set or that product policy forbids it.",
+    "Negative LateGraceMinutes makes any nonnegative computed lateMinutes exceed grace; the biometric check-in path can therefore enter its penalty branch even at zero late minutes. A very large positive grace suppresses otherwise late attendance."
+  ],
+  "counterevidence_and_limits": [
+    "The defaults are grace 15/max 2/multiplier 2.0, and no bad setting or payroll incident was inspected.",
+    "The current settings view does not expose these values, so ordinary UI users do not set them through this screen.",
+    "The settings handler requires settings_manage for these fields; this is not an authorization bypass. The review does not establish whether a manager is intentionally permitted to choose negative values.",
+    "Attendance correction requires attendance_manage and manager approval per the handler, and ledger writes are transactional/idempotency-keyed; this protects the write workflow but does not define whether the resulting sign is correct under malformed payroll policy.",
+    "No application policy, documentation, validation contract, or owner directive was found in the bounded source/tests reviewed that defines allowed numeric bounds. Do not promote the behavior to a confirmed defect until policy is established."
+  ],
+  "disposition": "CONDITIONAL_SOURCE_CONFIRMED_BEHAVIOR; no new finding recommended without payroll-policy confirmation. Source proves the write path accepts the values and downstream signed arithmetic; intent/allowed range and actual incidence remain unknown.",
+  "recommended_followup": "Ask payroll policy owner to define permissible ranges (including whether grace>60 is allowed, whether max penalty may be zero, and whether multiplier must be finite and nonnegative). If policy requires nonnegative values, add server-side validation in UpdateSettingsHandler before persistence and regression tests for negative grace/max/multiplier plus correction increase/decrease signed deltas and automatic check-in suppression behavior.",
+  "tests_executed": false,
+  "runtime_or_database_used": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false
+}

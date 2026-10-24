@@ -1,0 +1,133 @@
+{
+  "artifact_kind": "coordinator_independent_cross_validation",
+  "finding_id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at": "2026-10-21",
+  "reviewer": "main coordinator (separate from financial continuation agent)",
+  "method": "Read-only direct source inspection of the standalone settlement handler, payroll run calculation, payroll rule, and payroll payout transaction; no tests or runtime operation executed.",
+  "references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "ranges": [
+        [
+          94,
+          104
+        ],
+        [
+          125,
+          139
+        ]
+      ],
+      "symbols": [
+        "PayEmployeeHandler.HandleAsync(PayEmployeeRequest,CancellationToken)"
+      ],
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "ranges": [
+        [
+          45,
+          65
+        ],
+        [
+          75,
+          88
+        ]
+      ],
+      "symbols": [
+        "CreatePayrollHandler.HandleAsync(CreatePayrollRequest,CancellationToken)"
+      ],
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878"
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "ranges": [
+        [
+          83,
+          110
+        ]
+      ],
+      "symbols": [
+        "PayrollRules.CalculatePayrollLines(IEnumerable<PayrollLineInput>)"
+      ],
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "ranges": [
+        [
+          110,
+          163
+        ]
+      ],
+      "symbols": [
+        "PayPayrollHandler.HandleAsync(PayPayrollRequest,CancellationToken)"
+      ],
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+    }
+  ],
+  "reasoning": [
+    {
+      "source": "PayEmployeeHandler.HandleAsync",
+      "lines": [
+        94,
+        104
+      ],
+      "observation": "Standalone employee payment enforces employees_ledger and bounds the amount against the employee ledger balance; it classifies its debit as Settlement and posts a treasury movement plus ledger entry in one DB transaction."
+    },
+    {
+      "source": "PayEmployeeHandler.HandleAsync",
+      "lines": [
+        125,
+        139
+      ],
+      "observation": "The Settlement debit and treasury movement commit atomically, so a completed standalone payment is a real persisted outflow rather than only a UI balance change."
+    },
+    {
+      "source": "CreatePayrollHandler.HandleAsync",
+      "lines": [
+        45,
+        65
+      ],
+      "observation": "Payroll gathers all ledger entries created in the requested calendar month and passes them to CalculatePayrollLines; the input does not classify or net Settlement debits."
+    },
+    {
+      "source": "PayrollRules.CalculatePayrollLines",
+      "lines": [
+        95,
+        106
+      ],
+      "observation": "The calculation counts named earning credits, selected Deduction/Adjustment debits, and requested advance deductions. It does not subtract Settlement entries from net payable."
+    },
+    {
+      "source": "PayPayrollHandler.HandleAsync",
+      "lines": [
+        110,
+        163
+      ],
+      "observation": "Payment checks protected treasury funds and writes PayrollSettlement debits and treasury movement in one transaction, but the shown path pays the frozen NetPayable values without re-reading employee current balance or subtracting prior standalone Settlement."
+    }
+  ],
+  "disposition": "SOURCE-CORROBORATED CROSS-FLOW MECHANISM; duplicate payment is conditional on business policy and actual sequence. Do not claim an observed duplicate payment.",
+  "counterevidence_and_limits": [
+    "Code comments explicitly describe PayEmployee as a separate any-time payment mode, so owner intent may be that standalone settlement is intentionally independent of payroll runs.",
+    "No source exclusivity or explicit per-period netting rule was found in the reviewed paths; absence in these paths does not establish complete system-wide absence.",
+    "No SQL Server integration test, endpoint request, real payment, or live account mutation was executed.",
+    "Existing per-flow tests do not establish the combined same-period sequence from this review."
+  ],
+  "owner_decision": "Confirm whether standalone Settlement is intended as a prepayment against earnings included in the same period payroll, or a distinct payable obligation. Do not assume either policy.",
+  "remediation_options": [
+    "If Settlement prepays the same period earnings, calculate remaining liability from an explicit period/earning obligation ledger and account for settlements both before payroll creation and after a run is frozen.",
+    "If standalone payment and period payroll are mutually exclusive, enforce the exclusion consistently on both paths and make the state transition atomic.",
+    "Preserve per-operation idempotency, protected account checks, audit attribution, frozen-run semantics, and legacy historical payroll records."
+  ],
+  "required_regression_scenarios": [
+    "Create earnings, settle the same earnings standalone, then create/approve/pay the period payroll; total disbursement must obey owner-confirmed invariant.",
+    "Create/approve payroll, apply standalone settlement, then pay frozen payroll; verify the same obligation cannot be paid twice if owner confirms shared liability.",
+    "Use unrelated-period settlements and verify no cross-period netting.",
+    "Repeat each request ID and use concurrent different request IDs; validate exactly-once ledger/treasury invariants in a disposable SQL Server integration database."
+  ],
+  "runtime_status": "NOT_EXECUTED",
+  "result": "Coordinator source reading corroborates the mechanical overlap described by the existing candidate. The decisive accounting requirement remains unresolved; the candidate is not a confirmed duplicate-payment defect. Independent review does not close financial completion."
+}

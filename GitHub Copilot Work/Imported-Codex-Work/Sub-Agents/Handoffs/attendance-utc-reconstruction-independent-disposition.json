@@ -1,0 +1,149 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_key": "ATTENDANCE_UTC_DATE_RECONSTRUCTION",
+  "original_lead": "FIN-LEAD-ATTENDANCE-UTC-001",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T09:12:08.348Z",
+  "status": "SOURCE_CONFIRMED_CANDIDATE_PENDING_ROOT_INDEPENDENT_CHALLENGE",
+  "severity_proposed": "MEDIUM",
+  "confidence": "HIGH_STATIC_TRACE_CONDITIONAL_ZONE_EXAMPLE_NO_RUNTIME",
+  "source_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          26,
+          34
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          110,
+          151
+        ]
+      ],
+      "source_excerpts": [
+        "    public async Task<AttendanceRecordDto?> HandleAsync(BiometricCheckInRequest request, CancellationToken ct = default)\r\n    {\r\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct);\r\n        if (employee is null) return null;\r\n\r\n        var now = DateTimeOffset.UtcNow;\r\n        var date = BusinessClock.Today();\r\n        var timeStr = now.ToString(\"HH:mm\");\r\n        var settings = await new SettingsQueryService(_db).GetAsync(ct);\r",
+        "        var existing = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct);\r\n        AttendanceRecordEntity entity;\r\n        if (existing is not null)\r\n        {\r\n            existing.CheckIn = timeStr;\r\n            existing.Status = status.ToString();\r\n            existing.LateMinutes = lateMinutes;\r\n            existing.LastCheckInEventId = request.BiometricEventId;\r\n            existing.Source = \"biometric\";\r\n            entity = existing;\r\n        }\r\n        else\r\n        {\r\n            entity = new AttendanceRecordEntity\r\n            {\r\n                Id = $\"att-{Guid.NewGuid():N}\", EmployeeId = request.EmployeeId, EmployeeName = employee.Name, Date = date,\r\n                CheckIn = timeStr, ShiftName = activeShift?.ShiftName ?? \"وردية صباحية\", Status = status.ToString(),\r\n                LateMinutes = lateMinutes, WorkHours = 0, OvertimeHours = 0, TatbiqCount = 0, IsManualCorrection = false,\r\n                LastCheckInEventId = request.BiometricEventId, Source = \"biometric\", CreatedAtUtc = now,\r\n            };\r\n            _db.AttendanceRecords.Add(entity);\r\n        }\r\n\r\n        // Daily wage entitlement - created exactly once per employee/date/shift (see\r\n        // RecordDailyWageHandler's own deterministic id scheme, reused here verbatim).\r\n        if (employee.CompensationType == nameof(CompensationType.Daily))\r\n        {\r\n            var wage = Money.FromPiastres(employee.DailyWagePiastres);\r\n            var wageId = $\"led-daily-wage-{request.EmployeeId}-{date:yyyy-MM-dd}-{activeShift?.Id ?? \"no-shift\"}\";\r\n            await EmployeeLedgerPoster.PostIfNewAsync(_db, wageId, request.EmployeeId, nameof(LedgerEntryType.DailyWage),\r\n                $\"تسجيل يومية عمل ({wage.Piastres} قرش)\", Money.Zero, wage, employee.Name, null, activeShift?.Id, null, null, null, wage.Piastres, ct);\r",
+        "    public async Task<AttendanceRecordDto> HandleAsync(BiometricCheckOutRequest request, CancellationToken ct = default)\r\n    {\r\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)\r\n            ?? throw new InvalidOperationException(\"الموظف غير موجود.\");\r\n\r\n        var now = DateTimeOffset.UtcNow;\r\n        var date = BusinessClock.Today();\r\n        var timeStr = now.ToString(\"HH:mm\");\r\n        var settings = await new SettingsQueryService(_db).GetAsync(ct);\r\n\r\n        var record = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct)\r\n            ?? throw new DomainException(\"لا يوجد تسجيل حضور لهذا الموظف اليوم - لا يمكن تسجيل انصراف بدون حضور.\");\r\n        var activeShiftId = await _db.Shifts.AsNoTracking().Where(s => s.Status == nameof(ShiftStatus.Open)).Select(s => s.Id).FirstOrDefaultAsync(ct);\r\n\r\n        double workHours = 0, overtimeHours = 0;\r\n        if (!string.IsNullOrEmpty(record.CheckIn) && TimeOnly.TryParse(record.CheckIn, out var checkInTime))\r\n        {\r\n            var checkInAt = now.Date.Add(checkInTime.ToTimeSpan());\r\n            var workedMinutes = Math.Max(0, (now.UtcDateTime - checkInAt).TotalMinutes);\r\n            workHours = Math.Round(workedMinutes / 60.0, 2);\r\n            overtimeHours = Math.Max(0, Math.Round(workHours - settings.StandardWorkdayHours, 2));\r\n        }\r\n\r\n        record.CheckOut = timeStr;\r\n        record.WorkHours = workHours;\r\n        record.OvertimeHours = overtimeHours;\r\n        record.LastCheckOutEventId = request.BiometricEventId;\r\n\r\n        if (overtimeHours > 0 && employee.DailyWagePiastres > 0)\r\n        {\r\n            var overtimeResult = PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(employee.DailyWagePiastres),\r\n                settings.StandardWorkdayHours, overtimeHours, settings.OvertimeMultiplier);\r\n            if (overtimeResult.Amount.IsPositive)\r\n            {\r\n                var overtimeId = $\"led-overtime-auto-{request.EmployeeId}-{date:yyyy-MM-dd}\";\r\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, overtimeId, request.EmployeeId, nameof(LedgerEntryType.Overtime),\r\n                    $\"ساعات إضافية تلقائية من البصمة ({overtimeHours} ساعة × {overtimeResult.Rate.Piastres} قرش/ساعة × {Math.Round(settings.OvertimeMultiplier * 100)}%)\",\r\n                    Money.Zero, overtimeResult.Amount, employee.Name, null, activeShiftId, null, overtimeHours, overtimeResult.Rate.Piastres, null, ct);\r\n            }\r\n        }\r\n\r\n        await _db.SaveChangesAsync(ct);\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "line_ranges": [
+        [
+          23,
+          29
+        ]
+      ],
+      "source_excerpts": [
+        "    public static DateOnly BusinessDate(DateTimeOffset instantUtc)\r\n    {\r\n        var local = TimeZoneInfo.ConvertTime(instantUtc, CairoTimeZone);\r\n        return DateOnly.FromDateTime(local.DateTime);\r\n    }\r\n\r\n    public static DateOnly Today() => BusinessDate(DateTimeOffset.UtcNow);\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          55,
+          60
+        ]
+      ],
+      "source_excerpts": [
+        "    public static OvertimeAmountResult CalculateOvertimeAmount(Money dailyWage, int workdayHours, double overtimeHours, double overtimeMultiplier)\n    {\n        var rate = NormalHourlyRate(dailyWage, workdayHours);\n        if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);\n        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));\n        return new OvertimeAmountResult(rate, amount);"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "worktree_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "source_git_blob_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "line_ranges": [
+        [
+          59,
+          80
+        ]
+      ],
+      "source_excerpts": [
+        "public class AttendanceRecordEntity\n{\n    public string Id { get; set; } = default!;\n    public string EmployeeId { get; set; } = default!;\n    public string EmployeeName { get; set; } = default!;\n    public DateOnly Date { get; set; }\n    public string? CheckIn { get; set; }\n    public string? CheckOut { get; set; }\n    public string ShiftName { get; set; } = default!;\n    public string Status { get; set; } = default!;\n    public int LateMinutes { get; set; }\n    public double WorkHours { get; set; }\n    public double OvertimeHours { get; set; }\n    public int TatbiqCount { get; set; }\n    public bool IsManualCorrection { get; set; }\n    public string? CorrectedBy { get; set; }\n    public string? CorrectionReason { get; set; }\n    public string? LastCheckInEventId { get; set; }\n    public string? LastCheckOutEventId { get; set; }\n    public string? Source { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "worktree_sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "source_git_blob_sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "line_ranges": [
+        [
+          21,
+          30
+        ]
+      ],
+      "source_excerpts": [
+        "        OvertimeHourlyRatePiastres: 2500, DeliveryFeePiastres: 2000, Currency: \"ج.م\",\n        CashDiscrepancyThresholdPiastres: 5000, AutoLockMinutes: 10, ActiveShiftName: \"وردية صباحية\",\n        PrinterWidth: \"80mm\", AutoPrintReceipt: true, AutoPrintPreparationTicket: true, NumberOfReceiptCopies: 1,\n        GrillScreenSoundAlert: true, StandardWorkdayHours: 10, LateGraceMinutes: 15, MaxLatePenaltyHours: 2,\n        LatePenaltyMultiplier: 2.0, OvertimeMultiplier: 1.5,\n        // What this system has always done. Changing the default would change how every restaurant\n        // running it behaves, without anyone asking for it.\n        HoldPreparationUntilPaymentConfirmed: false,\n        // 1000 ج - what the restaurant actually puts in the drawer to start a shift.\n        DefaultOpeningCashPiastres: 100_000);"
+      ]
+    }
+  ],
+  "trigger": "Valid employee check-in and checkout belong to same BusinessClock Cairo calendar date but occur on opposite UTC dates; no intervening check-in overwrite, stored CheckIn parses. Positive wage/multiplier and elapsed hours above configured workday needed for missed overtime consequence.",
+  "evidence_chain": [
+    "CheckIn31-33 stores current UTC HH:mm while date uses BusinessClock.Today; entity only stringCheckIn and separate Cairo Date, not a stable check-in instant.",
+    "CheckOut120 finds that same Cairo-date record. CheckOut127 attaches HH:mm to checkout now.Date (UTC calendar date), not original UTC date. For a previous-UTC-day checkin, reconstructed time can lie later than checkout;128 floors negative elapsed minutes to0.",
+    "WorkHours and OverTimeHours written134-135, and automatic overtime branch138 skipped when0. This can understate elapsed hours and omit otherwise positive eligible overtime. No actual salary/wage loss or persisted record created during audit."
+  ],
+  "synthetic_source_example": {
+    "assumption": "Both events map to same Cairo date, e.g. an ordinary fixed+02 or+03 offset date; actual host time-zone rules not executed or externally verified in this challenge.",
+    "check_in": "D-1 at23:30UTC",
+    "check_out": "D at12:30UTC",
+    "true_elapsed_hours": 13,
+    "reconstructed_check_in": "D at23:30UTC clock fields",
+    "derived_elapsed_before_clamp_hours": -11,
+    "handler_work_hours": 0,
+    "with_standard_workday_hours": 10,
+    "correct_eligible_overtime_hours_if_other_guards_pass": 3,
+    "handler_overtime_hours": 0
+  },
+  "counterevidence": [
+    {
+      "control": "Same UTC date",
+      "result": "Ordinary same-date elapsed calculation not affected."
+    },
+    {
+      "control": "Different Cairo dates",
+      "result": "Checkout does not select previousday attendance, throwsmissing today record; that separate crossbusiness-day policy not this candidate."
+    },
+    {
+      "control": "Repeated checkin",
+      "result": "CheckIn overwrites stored time; selected example excludes it. Fix must define first/last punch policy, not blindly CreatedAt use."
+    },
+    {
+      "control": "Invalid/null time string",
+      "result": "Guard leaveshours0, but candidate uses handler-produced validHH:mm, not corruption."
+    },
+    {
+      "control": "No overtime entitlement",
+      "result": "Elapsed hours <=standard or nonpositive storedwage suppress financial consequence; WorkHours can still wrong. Existing manualcorrection/credit may mitigate."
+    },
+    {
+      "control": "CreatedAtUtc field",
+      "result": "Initial creation stores fulltimestamp67 but subsequent checkin overwrites CheckIn without CreatedAt update, so CreatedAt not reliable generalcheckin substitute."
+    },
+    {
+      "control": "Stale shift lateness guard",
+      "result": "CheckIn45 requires activeShift.BusinessDate==date beforelate baseline; this legitimateguarddoesnot repaircheckoutdate reconstruction. No multi-daylate allegation."
+    }
+  ],
+  "root_cause": "Loss of check-in UTC date, followed by reconstruction from checkout UTC date despite selecting attendance by Cairo date.",
+  "correction_design": "Persist complete check-in/out instants with explicit zone-aware local display and defined repeated-punch policy. Compute elapsed from instants, keep business-date attribution separate. Legacy string migration/reconstruction ambiguous, needs approved policy and no silent ledger minting.",
+  "regression_tests": [
+    "Same Cairo day crossing UTCmidnight13hour control, sameUTCday control, zone/DST transition selected from actualhosttimezone rules.",
+    "Correct positive overtime branch and exactly-one deterministic credit; repeatedcheckout response-loss, repeatedcheckin policy, missingtodayrecord controls.",
+    "Existing manually corrected/paid periods must not receive automatic duplicate retrospective earnings."
+  ],
+  "runtime": "NOT_EXECUTED: no time-zone probe, handler, biometric, API or SQL test",
+  "next_action": "Root independently challenge dates/calculation/callers; no canonicalID or duplicate receipt promotion by this artifact."
+}

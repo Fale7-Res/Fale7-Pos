@@ -1,0 +1,94 @@
+{
+  "id": "UI-003",
+  "disposition": "SURVIVES_BOUNDED_ACTIVE_CLIENT_REQUIREMENT_GAP_NOT_GLOBAL_BACKEND_ABSENCE_PROOF",
+  "severity_assessment": "HIGH owner-required workflow gap; not a security exploit or fraudulent accounting claim.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs",
+      "startLine": 39,
+      "endLine": 42,
+      "source_git_blob_sha256": "56b96463748c0aa592df53edf2104e7044b20c56f8ff75379c147d7ed0c1cd0d",
+      "worktree_sha256": "006643e346cc5e43ced82b22140a80be53e648bc4b9e5ee35b43aec9f5da82f9",
+      "symbol": {
+        "stable_id": "sym-bd4848a2c9cf02ddc00c0b4e831639bd75ccfee5ed4f36acb28c61894be00d02",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Views.CartPanelView.ApplyFooterDensity(double)",
+        "startLine": 28,
+        "endLine": 48,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Primary cart action label is payment in both layouts."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "startLine": 229,
+      "endLine": 248,
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "symbol": {
+        "stable_id": "sym-bcceb720876b47f60be68061ff8f521a603c50727f6b018a5736c8087518f784",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenCheckout()",
+        "startLine": 228,
+        "endLine": 248,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Pickup identity validation then common tender screen; no persisted kitchen-first operation here."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs",
+      "startLine": 77,
+      "endLine": 106,
+      "source_git_blob_sha256": "33ad90d64c3e48e372d9b8a0580d4071b98b79c5a8849e8de96828e848ebd22a",
+      "worktree_sha256": "7799e030dd8ac3693288cc2cfd82163ef3cb7eb4846033f30eadaddc724e09e7",
+      "symbol": {
+        "stable_id": "sym-180dfa38c601566b7933b18e5d040757c4d254f664582d24718539db74d4765b",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SavePickupDetails()",
+        "startLine": 76,
+        "endLine": 106,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Pickup save validates/normalizes local customer/schedule state and closes editor only; no API order creation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "startLine": 347,
+      "endLine": 383,
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "symbol": {
+        "stable_id": "sym-b1120789b8bc6b6ea02dd8875339559db53320d8b1699bcafb74e6adea8d5999",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitPaymentAsync()",
+        "startLine": 289,
+        "endLine": 389,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Common checkout request combines items, tender, pickup metadata and receipt route in one dispatch; this path does not expose stage-A prepare-only identity."
+    }
+  ],
+  "preconditions": [
+    "Owner requires branch pickup preparation/kitchen ticket before later payment on same persisted order."
+  ],
+  "counterevidence": [
+    "This independently challenged scope is active client entry paths, not a proof every backend endpoint lacks possible building blocks.",
+    "Electronic pending can defer confirmation and automatic preparation can be held by setting, but is a different payment claim workflow from explicit preparation-first pickup.",
+    "Unseen alternative app/workflow cannot be ruled out by these client spans alone."
+  ],
+  "recommended_remediation": "Specify and validate explicit persisted pickup preparation/payment lifecycle using existing backend capabilities where suitable; architecture-wide implementation plan requires completed backend synthesis.",
+  "required_tests": [
+    "Trace stage-A persisted order ID/no payment and stage-B same-ID payment; kitchen ticket exactly once and final receipt after money.",
+    "Evaluate all pickup UI entry points and backend state transitions before declaring global architecture absence."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:48:29.451040+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source-only challenge; no application or service execution",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local challenge only"
+}

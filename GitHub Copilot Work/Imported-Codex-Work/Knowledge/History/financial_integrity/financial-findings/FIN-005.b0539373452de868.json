@@ -1,0 +1,50 @@
+{
+  "original_document": "Sub-Agents\\Results\\financial-findings.json",
+  "finding": {
+    "id": "FIN-005",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+    "severity": "HIGH",
+    "confidence": "HIGH",
+    "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+    "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 36,
+        "end": 44,
+        "source_excerpt": "        var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)\n            .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)\n            ?? throw new InvalidOperationException(\"فاتورة الشراء غير موجودة.\");\n        if (purchase.Status == \"cancelled\") throw new DomainException(\"فاتورة الشراء غير متاحة للسداد.\");\n\n        var idempotencyKey = $\"purchase-payment-{purchase.Id}-{request.RequestId}\";\n        var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);\n        if (existingPayment is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 59,
+        "end": 80,
+        "source_excerpt": "        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()\n            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);\n        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(\n            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),\n            purchase.SupplierId, purchase.Id);\n\n        var amount = Money.FromPiastres(request.AmountPiastres);\n        PurchasingRules.AssertPurchasePayment(amount, outstanding);\n        if (!amount.IsPositive) throw new DomainException(\"مبلغ السداد يجب أن يكون أكبر من صفر.\");\n\n        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)\n            ?? throw new DomainException(\"يجب تحديد حساب دفع فعلي.\");\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Read under a lock, inside the transaction, immediately before spending.\n            // Outside it, concurrent commands each read the same balance, each decide it covers\n            // them, and each write - which is how an account holding 30 paid out three separate\n            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+        "start": 95,
+        "end": 115,
+        "source_excerpt": "            var remaining = outstanding - amount;\n            purchase.PaidPiastres += amount.Piastres;\n            purchase.RemainingAmountPiastres = remaining.Piastres;\n            purchase.PaymentStatus = remaining.Piastres == 0 ? \"paid\" : \"partially_paid\";\n            purchase.Status = purchase.PaymentStatus;\n            purchase.Payments.Add(new PurchasePaymentEntity\n            {\n                Id = $\"payment-{request.RequestId}\", IdempotencyKey = idempotencyKey, PurchaseId = purchase.Id,\n                SupplierId = purchase.SupplierId, AmountPiastres = amount.Piastres, PaymentAccountId = accountId,\n                TreasuryMovementId = movement.Id, OperationId = operationId, CreatedBy = actorUser.Name,\n                ApprovedBy = authorization.Approver?.ApproverName, CreatedAtUtc = now,\n            });\n\n            _db.SupplierLedgerEntries.Add(new SupplierLedgerEntryEntity\n            {\n                Id = $\"ledger-{idempotencyKey}\", IdempotencyKey = idempotencyKey, SupplierId = purchase.SupplierId,\n                Type = \"supplier_payment\", DebitPiastres = 0, CreditPiastres = amount.Piastres, PurchaseId = purchase.Id,\n                ReferenceId = purchase.Id, Reason = \"سداد لاحق لفاتورة مشتريات\", CreatedBy = actorUser.Name,\n                OperationId = operationId, TreasuryMovementId = movement.Id, CreatedAtUtc = now,\n            });\n"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "start": 309,
+        "end": 328,
+        "source_excerpt": "            b.HasKey(c => c.Id);\n            // Phone is the identity - never looked up or merged by name (CustomerRules' own doc\n            // comment). The database itself, not just an application-level check, refuses a second\n            // customer row for the same normalized phone number.\n            b.HasIndex(c => c.Phone).IsUnique();\n            b.HasMany(c => c.Addresses).WithOne().HasForeignKey(a => a.CustomerId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<CustomerAddressEntity>(b => b.HasKey(a => a.Id));\n\n        modelBuilder.Entity<DriverEntity>(b => b.HasKey(d => d.Id));\n        modelBuilder.Entity<DeliveryServiceEntity>(b => b.HasKey(d => d.Id));\n\n        modelBuilder.Entity<DeliveryEntity>(b =>\n        {\n            b.HasKey(d => d.Id);\n            // One delivery row per order, ever - this is what makes checkout's auto-creation\n            // idempotent by construction on retry, the same way CheckoutRequestId protects Orders.\n            b.HasIndex(d => d.OrderId).IsUnique();\n            b.HasOne<OrderEntity>().WithMany().HasForeignKey(d => d.OrderId).OnDelete(DeleteBehavior.Restrict);\n            b.HasOne<ShiftEntity>().WithMany().HasForeignKey(d => d.ShiftId).OnDelete(DeleteBehavior.Restrict);"
+      }
+    ],
+    "trigger_and_safe_repro_design": "Disposable DB invoice outstanding 100 EGP, source account 1000. Two requests different RequestIds both pre-read 100, each pays 80. Account lock serializes account only; second never refreshes invoice. Ledger receives total160 while invoice stale Paid80/Remaining20.",
+    "root_cause": "Business invariant checked outside transaction and unrelated account lock; purchase has no concurrency token or invoice row lock.",
+    "correction_design": "Acquire invoice UPDLOCK/HOLDLOCK in transaction before reading outstanding and tracked state; requery supplier invoice ledger under protection, validate then post/cache. Stable lock ordering relative to account and approvals; unique keys remain for replay.",
+    "regression_tests": "Barrier-controlled two distinct 80 payments against 100 from same and different accounts: one succeeds, one rejects, total <=100, caches equal ledger; same-request retry replays.",
+    "counterevidence_and_limits": "Treasury lock protects account from negative pooled balance but cannot make stale outstanding fresh. Different IDs legitimately bypass idempotency. No runtime reproduction performed.",
+    "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+    "related_paths": [
+      "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "src/Falah.Infrastructure/Persistence/FalahDbContext.cs"
+    ]
+  },
+  "preservation_reason": "Incorrect legacy model reference309-328 retained verbatim before active correction.",
+  "archived_at_utc": "2026-10-19T01:36:41.623036+00:00"
+}

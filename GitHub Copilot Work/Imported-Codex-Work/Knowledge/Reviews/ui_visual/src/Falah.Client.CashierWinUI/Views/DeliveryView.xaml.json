@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml",
+  "source_git_blob_sha256": "bf3d1a1236572fc2994741d53ff3ca0c719485f487840402232f260b459bd578",
+  "worktree_sha256": "1800c3471c45c7b83b202ef9db923007b2df099aa894dbbb5b2f8a1b7d772a1b",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:36:57.542296+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Live dispatch board, driver roster and nested management overlays.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BoardSummary",
+      "reasoning": "Real board state summary and labeled refresh, directory permission visibility. Fixed320 driver panel plus board column widths leaves address star constrained at smaller screens."
+    },
+    {
+      "anchor": "Board",
+      "reasoning": "Rows show order/status, customer+phone/address, assigned driver, amount collection, payment warning and elapsed. Customer horizontal StackPanel can measure unbounded TextBlock despite Wrap, requiring native test."
+    },
+    {
+      "anchor": "MarkReadyCommand",
+      "reasoning": "Buttons strictly shown New→MarkReady, Ready→assign, OutForDelivery→outcome. No action for Preparing/Assigned/HandedToDriver in this markup. Whether these statuses reachable requires server path review, not inferred from comment that all legal transitions offered."
+    },
+    {
+      "anchor": "IsPaymentUnconfirmed",
+      "reasoning": "Textual PaymentStateLabel plus warning color avoids conflating collected with unconfirmed transfer. Collection amount remains server DTO display, not recalculated by XAML."
+    },
+    {
+      "anchor": "OpenDriverAccountCommand",
+      "reasoning": "Driver list buttons pass actual driver to root, async account/stat consistency must hold across rapid selection/close; prior VM generation candidate applies."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "Success text unwrapped white on themedTextPrimary, so long notes and dark mode risk overflow/low contrast. Error wraps420. Dispatch modals then directory layered last, requiring VM mutual exclusion/focus control."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test actual server delivery states, reverse account/stat responses, pending mutation navigation, address wrapping and dark/narrow viewport. No callable declarations.",
+  "recommendations": "Validate state-action matrix against real backend and display coherent per-driver snapshot. Adapt board rather than assuming desktop density fits every terminal.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/Program.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:02:28.130335+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "3d2abe5009bb8b4de474f8d85d90bbc30e23d80874d947feee45b76e6cb249da",
+  "worktree_sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-eb8dbc20477e7635deee5009a57ed8a86fad3f2ef9acf111969156a650680b92",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "src/Falah.PrintAgent/Program.cs::<top-level-entry-point>",
+      "source_span": [
+        5,
+        158
+      ],
+      "reasoning": "Compiler top-level entrypoint wraps agent configuration/early exits,test-print branch and normal async polling lifetime,not another copy of every helper/handler method. args --test-print selects an actual one-shot Send through configured transport BEFORE normal per-route mutex/authentication;therefore merely invoking this executable with that flag can produce physical output and is never a read-only preview. Normal path validates options,acquires route machine mutex,authenticates once,constructs processor and drains until Ctrl+C cancels. Top-level await plus int returns gives generated async entrypoint exit status;compiler wrapper does not add retry,permission or safety guards beyond source.",
+      "inputs": "Process args,selected config JSON/environment/base directory,transport destination and credentials from options;no secrets copied into review.",
+      "outputs": "Exit1 invalid configuration,2 failed test send,3 login failure,4 duplicate route process,0 successful test or graceful polling stop.",
+      "side_effects": "Actual execution may read config,create files,journal attempts,authenticate/poll/report and send physical bytes;none executed in audit.",
+      "trust_boundaries": "Process/config boundary determines route/server/transport. Test-print bypasses server authentication by design because it is direct hardware test;do not expose it as safe receipt preview.",
+      "database": "No direct SQL;normal API actions indirectly touch session/print records.",
+      "printing_ui": "File transport explicit no-paper message;network/spooler/serial accepted status not paper proof. One route mutex only same machine,PRT001 multi-machine queue remains.",
+      "performance": "Serial drain then delay PollSeconds;busy job duration adds to poll cadence,blocking transport may delay cancellation. async Main does not guarantee all I/O cancellable.",
+      "duplicates_conflicts": "Generated entrypoint is one behavior context,not counted as route/explicit methods. Mutex release follows process disposal;crash journal affects restart behavior.",
+      "issues_hypotheses": [
+        "One-shot flag performs physical side effects and lacks normal route mutex;requires explicit authorized hardware testing",
+        "No production invocation in audit"
+      ],
+      "tests_missing": [
+        "Pure argument/exit-code composition in isolated fake transport;test-print versus normal mutex path;cancel while blocking send;no physical printer"
+      ],
+      "verified_callers_callees": [
+        "PrintAgent/Program.cs5-158",
+        "AgentOptions.Load/Validate/CreateTransport",
+        "PrintJobProcessor.DrainAsync/ProcessAsync",
+        "UnreportedAttemptStore.ForRoute",
+        "Transports.SendAsync implementations"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

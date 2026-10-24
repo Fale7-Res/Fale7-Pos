@@ -1,0 +1,155 @@
+{
+  "name": "First12test fixture/assertion context comparisons",
+  "comparisons": [
+    {
+      "group_prefix": "d9a43647",
+      "reasoning": "Two employee-create test helper bodies identical, but default name/employee-number signatures DIFFER. Both create Daily staff via actual API using captured HR actor and fixed test compensation.",
+      "callers_context": "EmployeeVerticalSlice41-49 versusPayEmployee36-44; method declarations/default arguments inspected, no literal private/test contact copied.",
+      "financial_security_effects": "Do not collapse default parameters accidentally: employee-number uniqueness test isolation depends per-suite values. This helper performs DB-backed setup if run, NOT executed.",
+      "recommendation": "Shared fixture builder with explicit defaults supplied suite; keep synthetic identities and database lifecycle isolated.",
+      "tests": [
+        "Separate fixture employee numbers",
+        "Same HR permission context",
+        "API success checked",
+        "No shared mutable factory state"
+      ]
+    },
+    {
+      "group_prefix": "334c1355",
+      "reasoning": "Delivery intake and pricing inventory InitializeAsync setup bodies identical: new API factory, authenticated client, seeded pos/open-own cashier, funded active day and opening shift.",
+      "callers_context": "Whole methods25-35/18-27 read; intended scenarios differ after setup.",
+      "financial_security_effects": "Real state-writing integration setup, not a safe read-only test execution. Sharing factory INSTANCE across suites would create cross-test cash/day interference despite same body.",
+      "recommendation": "Reusable per-test setup routine or fixture builder, never implicitly global mutable DB/shift.",
+      "tests": [
+        "Isolated database/day per test",
+        "Shift opening funds",
+        "Explicit actor permissions",
+        "Cleanup lifecycle"
+      ]
+    },
+    {
+      "group_prefix": "d683c075",
+      "reasoning": "Six captured delivery-ID lookup lambdas identical Orders->Delivery unique identity query. Capture order from different scenario workflows: audit, unsettled custody, ready exception, assigned control, daily/report outcomes.",
+      "callers_context": "Each enclosing test name and immediate checkout/result/ready/driver action source read.",
+      "financial_security_effects": "A shared lookup helper is intentional fixture convenience, not duplicate scenario coverage. FirstAsync requires real delivery row; same body does not test delivery construction or auth by itself.",
+      "recommendation": "Shared GetDeliveryIdForOrder helper parameter order ID/context without merging scenario assertions.",
+      "tests": [
+        "One delivery per order",
+        "Absent row failure explicit",
+        "Audit/control/report scenarios retained"
+      ]
+    },
+    {
+      "group_prefix": "01fde709",
+      "reasoning": "Two identical direct purchase stock seed lambdas add same positive receipt facts and SaveChanges, but capture separate inventory identity and surrounding product prices differ.",
+      "callers_context": "Reporting tests food-cost230-240 and panel-cohort499-509 fully reread after truncated first output.",
+      "financial_security_effects": "Fixture bypasses receiving command validation/accounting; valid for costing-fact setup, cannot demonstrate purchase money integrity or negative-input rejection. No seed executed.",
+      "recommendation": "Shared explicitly named seed-receipt-fact helper, preserve distinct prices and scenario assertions.",
+      "tests": [
+        "No duplicate seed request IDs",
+        "Receipt cost context correct",
+        "Do not replace purchasing workflow integration test"
+      ]
+    },
+    {
+      "group_prefix": "2fdd8ea2",
+      "reasoning": "Three Domain test Item helper bodies identical build one fixed quantity1 OrderItem with same list/effective/total Money.FromEgp price and no discounts/notes.",
+      "callers_context": "OrderPaymentQueries/OrderReconstitute/OrderRefund helper bodies and signatures read.",
+      "financial_security_effects": "Single-item fixture convenience, does not cover quantity, offers, taxable fees, multi-payment or refund collection eligibility. No tests executed.",
+      "recommendation": "Shared immutable builder with explicit optional values, keep defaults readable and scenario intent.",
+      "tests": [
+        "Quantity>1 and price snapshot variants",
+        "No cross-test shared mutable aggregate",
+        "Decimal boundary conversion covered separately"
+      ]
+    },
+    {
+      "group_prefix": "6681a2c8",
+      "reasoning": "OrderHistory/ShiftClose test initialization identical factory+authenticated client, cashier pos/open/blind-close, manager all and funded active day.",
+      "callers_context": "Whole setup19-26/24-31 read; unlike334c1355 no immediate open shift in same setup.",
+      "financial_security_effects": "Do not merge with other setup that opens shift or weaker permissions; test assumptions and cash state differ. Real setup writes if run, not invoked.",
+      "recommendation": "Reusable scenario setup variants with explicit open-shift choice and actor permissions.",
+      "tests": [
+        "No unintended open shift",
+        "Exact cashier versus manager permissions",
+        "Per-test state cleanup"
+      ]
+    },
+    {
+      "group_prefix": "2170c880",
+      "reasoning": "Five order-row NoTracking exact-ID reload lambdas identical, assertions differ frozen price8000, offer6000, print financial immutability and concurrent/refused refund state.",
+      "callers_context": "Immediate assertions203/243,Printing411 andRefund146/236 plus enclosing test names inspected.",
+      "financial_security_effects": "Duplicated read helper is not duplicated test scenario or production logic. Printing fixture query does not execute physical printer here; no tests run.",
+      "recommendation": "Shared reload helper safe if preserving exact identity and not masking missing row; keep independent assertions.",
+      "tests": [
+        "Frozen historical price",
+        "No financial change when queue jobs created",
+        "Concurrent refund totals",
+        "No partial rollback"
+      ]
+    },
+    {
+      "group_prefix": "b63fa2c7",
+      "reasoning": "Two PrintRules TextOf overloads use identical TicketText/TicketRow flattening, unsupported elements empty. One receives ComposedTicket.Lines, one IEnumerable elements.",
+      "callers_context": "Both overload declarations23-29/157-163 read.",
+      "financial_security_effects": "Intentional text-only assertion helper hides layout/image/font/cut/feed behavior by design; does not prove true-to-paper/Arabic rendering. No printer or new printing specialist work.",
+      "recommendation": "Delegate one overload to other to avoid drift after approved change; preserve return order/cell flattening.",
+      "tests": [
+        "Text/row order",
+        "Unknown element exclusion",
+        "Layout and raster tests separate"
+      ]
+    },
+    {
+      "group_prefix": "2eb704cf",
+      "reasoning": "Two OpenShiftAsync test helpers same HTTP request, parameterized opening cash and captured cashier, deserialize ShiftId without explicit status assertion.",
+      "callers_context": "Delivery41-44/ShiftClose35-38 whole methods read; captured factory setup not assumed identical permissions beyond prior fixture evidence.",
+      "financial_security_effects": "Shared setup can mask response failure as parse/null exception rather than direct status diagnostic; not production money defect or executed test failure.",
+      "recommendation": "Shared helper with explicit response success and typed value diagnostics, preserve test-specific starting cash.",
+      "tests": [
+        "Error response diagnostic",
+        "Parameter opening amount",
+        "No hidden shared shift state"
+      ]
+    },
+    {
+      "group_prefix": "21f7b599",
+      "reasoning": "Two IssueApprovalAsync fixture helpers use seeded-manager PIN from factory, supplied action, API issued ApprovalId; helper bodies same, action passed caller varies.",
+      "callers_context": "BusinessDay82-84/Delivery94-96 exact methods. Only source identifiers, no PIN values read into evidence.",
+      "financial_security_effects": "Stateful one-time approval setup cannot be cached/reused across commands; same body not proof multiple actions share authority. No auth request executed.",
+      "recommendation": "Shared helper issuing fresh action-specific approval per call, never persist credentials in audit artifacts.",
+      "tests": [
+        "Matching action",
+        "Fresh approval single-use",
+        "Failure status diagnostics",
+        "No literal secret reports"
+      ]
+    },
+    {
+      "group_prefix": "419455ea",
+      "reasoning": "Two fake HTTP callbacks collect RequestUri then return path-matched JSON fixture; captures different requests lists/scenario VM.",
+      "callers_context": "FinalVerification110-113 day-switch versus136-139 week-range tests, exact parent names read.",
+      "financial_security_effects": "Only request-shape/UI fixture behavior; mocked fixture responses cannot certify real backend report financial consistency. No tests executed, no fabricated runtime pass.",
+      "recommendation": "Shared fake transport builder preserving per-test observed URI list; keep assertions about different date spans.",
+      "tests": [
+        "Date and week query values",
+        "Requests list isolation",
+        "Integration report values independently tested"
+      ]
+    },
+    {
+      "group_prefix": "403e7bd9",
+      "reasoning": "Two refund movement-sum lambdas same order-ID/type filter and Amount Sum. One scenario over-request clamp, other concurrent different amount refunds.",
+      "callers_context": "RefundVerticalSlice91/145 surrounding assertions and order-row reload read.",
+      "financial_security_effects": "Aggregates actually posted refund movements for target order; duplicate helper not duplicate concurrency coverage. Does not verify whether original order was collected (FIN003), independent missing scenario.",
+      "recommendation": "Shared sum helper without weakening separate serial/concurrent assertions.",
+      "tests": [
+        "Clamp cap",
+        "Concurrent sum<=order total",
+        "No partial refund state",
+        "Unpaid order eligibility separately"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-tests-a-evidence.json"
+}

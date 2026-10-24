@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+  "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+  "worktree_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:55:23.412395+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Legacy header clock and explicit session-notification review.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-acd8b8139bc324e6276dc4ee4e1962476c463888d5735deb9f3af350df6cbc73",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.Cashier.Services.AppSession)",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        19,
+        5,
+        26,
+        6
+      ],
+      "reasoning": "Stores session, immediately formats machine-local clock, creates30-second DispatcherTimer, subscribes clock update lambda and starts. No Stop/dispose method, so timer can retain header for application lifetime; root creates one header.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Legacy header differs active Cairo clock; OS timezone dependency explicit.",
+      "tests_missing": "Legacy header differs active Cairo clock; OS timezone dependency explicit. NOT_EXECUTED.",
+      "verified_callers_callees": "UpdateClock; DispatcherTimer.Start"
+    },
+    {
+      "stable_id": "sym-902c39036fdb79a086dac530b9b4e1f56a37a89a012e257917709cb0251905a9",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "ParenthesizedLambdaExpression",
+      "exact_span": [
+        24,
+        29,
+        24,
+        52
+      ],
+      "reasoning": "Each timer tick refreshes clock synchronously using local DateTime.Now; no network and no financial effect.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "App lifetime timer subscription not detached; singleton ownership mitigates.",
+      "tests_missing": "App lifetime timer subscription not detached; singleton ownership mitigates. NOT_EXECUTED.",
+      "verified_callers_callees": "UpdateClock"
+    },
+    {
+      "stable_id": "sym-77ae9e2cfbbbfac27f25af32222b373bf211b0f2d0f9e267f9456a2b295eaafb",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.HeaderViewModel.UpdateClock()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        34,
+        5,
+        40,
+        6
+      ],
+      "reasoning": "Formats DateTime.Now with ar-EG into12-hour time and weekday/date; uses machine timezone, not BusinessClock Cairo or authoritative business date.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Wrong workstation timezone can mislabel legacy header; native not observed.",
+      "tests_missing": "Wrong workstation timezone can mislabel legacy header; native not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "DateTime.Now; CultureInfo(ar-EG)"
+    },
+    {
+      "stable_id": "sym-dbc0028931e330e69a9be4e145306c7b87f635f03e13eccdb23be6c921c41920",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.ViewModels.HeaderViewModel.Refresh()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        55,
+        5,
+        61,
+        6
+      ],
+      "reasoning": "Notifies shift-open/label and current user/role derived properties after caller changes session; does not query shift or sync settings identity.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Hardcoded restaurant name and explicit refresh call ownership documented.",
+      "tests_missing": "Hardcoded restaurant name and explicit refresh call ownership documented. NOT_EXECUTED.",
+      "verified_callers_callees": "OnPropertyChanged"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,1033 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "scope": "UI client static review; no screenshot/runtime claims",
+  "findings": [
+    {
+      "id": "UI-001",
+      "title": "Primary cashier and treasury money requests lose original retry identity on process loss",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_RECOVERY_GAP",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 401,
+          "endLine": 426,
+          "explanation": "Exact checkout retained only in private field; no journal save/recover."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs",
+          "startLine": 104,
+          "endLine": 124,
+          "explanation": "Drawer expense private pending field and rotating ID."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+          "startLine": 16,
+          "endLine": 18,
+          "explanation": "Refund request and identity stored only in memory."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+          "startLine": 162,
+          "endLine": 164,
+          "explanation": "Treasury deposit/withdraw/transfer retained as in-memory delegate."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+          "startLine": 29,
+          "endLine": 56,
+          "explanation": "Durable helper exists but these money operations do not use it."
+        }
+      ],
+      "trigger": "Server may commit request, response is lost, cashier process is terminated or power is lost before outcome resolved; operator reconstructs same operation after restart.",
+      "rootCause": "Normal close/edit gates and same-process fixed keys cannot preserve immutable submitted DTO/key across forced termination. Primary financial partials bypass existing durable helper.",
+      "impact": "No reliable station-owned recovery question for original checkout/refund/expense/treasury action; manually repeating with new key can create duplicate real operations. Actual duplicate ledger writes NOT tested.",
+      "counterarguments": [
+        "Server idempotency prevents repeat of SAME request ID, but restarted UI mints a new ID.",
+        "Normal close gate is present; it cannot intercept power loss.",
+        "CallCenter checkout already persists operator-scoped DTO, so finding does not apply to its normal write path."
+      ],
+      "regressionTests": [
+        "Simulate committed-but-lost-response with fake transport, reconstruct actual cashier VM/session with store, assert exact request ID/payload recovered before any new action.",
+        "Repeat for refund, expense, safe drop, drawer transfer, shift open/close and treasury operations; assert server ledger unaffected on replay in isolated integration fixture."
+      ],
+      "recommendation": "Persist exact versioned typed financial request and owner before dispatch; expose recovery by original identity, block replacement until outcome known; no fixes performed.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-002",
+      "title": "Unselected expense and payment buttons combine literal white with dark-theme pale text",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_THEME_PAIR_DEFECT",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml",
+          "startLine": 313,
+          "endLine": 340,
+          "explanation": "All seven expense category buttons use WhiteBrush background when unselected and TextPrimaryBrush foreground."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml",
+          "startLine": 31,
+          "endLine": 42,
+          "explanation": "Four payment buttons repeat same unselected pair."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Styles/Colors.xaml",
+          "startLine": 235,
+          "endLine": 235,
+          "explanation": "Dark TextPrimaryColor #E6E9EE; precise line automatically verified in source snippets accompanying per-file report."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ThemeResources.cs",
+          "startLine": 18,
+          "endLine": 35,
+          "explanation": "Converter brush resolution depends on current root/fallback resources; live resolution and theme transition separate UI-004."
+        }
+      ],
+      "trigger": "Resolve these unselected-state bindings in Dark with TextPrimaryBrush=#E6E9EE.",
+      "rootCause": "Instance background bindings override correctly-themed SecondaryButtonStyle/PaymentMethodButtonStyle with WhiteBrush; text continues themed.",
+      "impact": "Near-white labels on white surface, computed source-token contrast ~1.22:1, makes unselected choices hard to distinguish. User visual symptom consistent; reviewer has no actual screenshot and does not claim rendered pixel measurement.",
+      "counterarguments": [
+        "Light theme has dark TextPrimary and does not reproduce this token-pair defect.",
+        "Exact live brush lookup may be affected by merged resource fallback (UI-004).",
+        "Do not globally recolor WhiteBrush; genuine paper/on-accent uses require literal white."
+      ],
+      "regressionTests": [
+        "Render all expense categories and all four payment methods selected/unselected in Light/Dark/System, unchanged and after live toggle; assert resolved text/background luminance and readable native screenshot.",
+        "Check disabled/hover/pressed states separately, preserving stored category values."
+      ],
+      "recommendation": "Use coherent semantic card/neutral background with themed primary text for unselected state, direct ThemeResource/visual states for live updates; selected accent uses suitable contrast foreground.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-003",
+      "title": "Requested pickup kitchen-before-payment stage is absent from active client workflow",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_CLIENT_WORKFLOW_GAP",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs",
+          "startLine": 39,
+          "endLine": 42,
+          "explanation": "Primary button label always payment in both density modes."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 223,
+          "endLine": 246,
+          "explanation": "OpenCheckout validates pickup identity then opens tender; no preparation persistence."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 337,
+          "endLine": 383,
+          "explanation": "Checkout request combines payment and order creation, customer route Receipt."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs",
+          "startLine": 78,
+          "endLine": 107,
+          "explanation": "Pickup editor saves only customer/schedule fields, not kitchen stage/order ID."
+        }
+      ],
+      "trigger": "Operator selects pickup and wants kitchen preparation before collecting final payment.",
+      "rootCause": "Pickup is a detail variant of common checkout, not separate persisted preparation/awaiting-payment state with stage-aware primary command.",
+      "impact": "Client cannot perform owner-requested Stage A kitchen ticket then later Stage B checkout on same persisted unpaid pickup. Server/Domain end-to-end corroboration required before claiming global architecture absence.",
+      "counterarguments": [
+        "Electronic pending and cash-on-delivery defer money for other semantics, but they do not expose intended pickup Stage A.",
+        "Reprint existing paid order is not initial prepayment preparation.",
+        "This is requirement gap, not evidence hidden deletion or fraudulent accounting."
+      ],
+      "regressionTests": [
+        "Create pickup preparation without payment in isolated backend test; stable ID and no payment movement; initial kitchen exactly once.",
+        "Resume same order, collect final money, receipt once; operational pending list hides terminal paid/completed while history remains.",
+        "Concurrent stage clicks and ambiguous print/payment responses retain stable identities."
+      ],
+      "recommendation": "Design explicit persisted pickup preparation/payment lifecycle using existing backend/domain capabilities where possible; implementation requires separate authorization.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-004",
+      "title": "Imperative/converter brush results do not track live per-window theme reliably",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_WIRING_RISK_RUNTIME_UNVERIFIED",
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ThemeResources.cs",
+          "startLine": 18,
+          "endLine": 35,
+          "explanation": "Only direct app.ThemeDictionaries checked; actual Colors dictionary is merged."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/App.xaml",
+          "startLine": 8,
+          "endLine": 16,
+          "explanation": "Colors.xaml merged below Application resource dictionary."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/MainWindow.xaml.cs",
+          "startLine": 61,
+          "endLine": 62,
+          "explanation": "Theme change only assigns root RequestedTheme; no converter input invalidation."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs",
+          "startLine": 22,
+          "endLine": 30,
+          "explanation": "Imperative status background recomputed only on Text DP change."
+        }
+      ],
+      "trigger": "Switch root RequestedTheme Light/Dark while selected category/payment/status bound input remains unchanged, or app theme differs from system theme.",
+      "rootCause": "Converter returns concrete Brush object; unlike ThemeResource expression, no dependency informs it theme changed. Explicit dictionary lookup also does not traverse merged dictionaries.",
+      "impact": "Selected/unselected/status colors can remain from previous or system theme, inconsistent with other surface/text resources. Exact WinUI fallback lookup result not runtime-proved.",
+      "counterarguments": [
+        "WinUI resource fallback may resolve some merged keys correctly for application/system theme.",
+        "Recreating/rebinding views may refresh some converters, masking defect.",
+        "Root ThemeResource expressions themselves are live; issue limited to returned/imperatively assigned brushes."
+      ],
+      "regressionTests": [
+        "Use real WinUI root RequestedTheme opposite system theme, compare ThemeResources.Get colors to descendant ThemeResource references.",
+        "Toggle repeatedly without changing Text/ExpenseCategory/PaymentMethod; compare same realized objects and brushes."
+      ],
+      "recommendation": "Prefer theme-bound visual states/resources; explicitly observe ActualThemeChanged and traverse actual dictionary topology if imperative lookup retained.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-005",
+      "title": "Recovered electronic confirmation/cancellation has no reachable cashier retry context",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_RECOVERY_DEAD_END",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 113,
+          "endLine": 125,
+          "explanation": "Durable requests recovered by field initializers; availability requires transient LastCheckoutResult electronic pending; command returns if null."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 149,
+          "endLine": 150,
+          "explanation": "Cancellation also requires absent result."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs",
+          "startLine": 22,
+          "endLine": 25,
+          "explanation": "Either durable pending disables CanEditOperation."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+          "startLine": 262,
+          "endLine": 271,
+          "explanation": "OpenOrderLookup guarded by CanEditOperation; cannot reconstruct result through normal UI."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml",
+          "startLine": 164,
+          "endLine": 205,
+          "explanation": "Confirmation/cancel controls live inside HasCheckoutResult overlay, hidden when result null."
+        }
+      ],
+      "trigger": "Electronic confirm/cancel request persisted, outcome unresolved, process restarts, user opens cashier.",
+      "rootCause": "Retained DTO loads but transient LastCheckoutResult does not; all retry reachability assumes that result. Main session sees unresolved op and blocks lock/navigation/normal close.",
+      "impact": "Cashier can become frozen after restart even though retained original order ID exists. Correct production reconciliation must not simply delete journal. Potential cross-user context confusion because keys are station-global.",
+      "counterarguments": [
+        "Normal same-process ambiguous retry keeps result and works.",
+        "Manual externally restoring result or modifying journal is not an implemented recovery flow.",
+        "Opening different management page before cashier construction can temporarily avoid gate, not resolve financial outcome."
+      ],
+      "regressionTests": [
+        "Seed fake store with actual ConfirmElectronicPaymentRequest/CancelPendingElectronicPaymentRequest, create fresh AppSession/current user/Cashier VM, assert reachable retry command and UI visible; retry exact order identity.",
+        "Confirm no new checkout, result discard or owner change until original outcome resolved; test another operator sees appropriate recovery ownership."
+      ],
+      "recommendation": "Recover operation order context from persisted request or present a standalone pending-action recovery panel independent of transient checkout result.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-006",
+      "title": "A new pickup inherits previous order optional collection schedule",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_STATE_LIFECYCLE_DEFECT",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs",
+          "startLine": 45,
+          "endLine": 49,
+          "explanation": "Schedule clear helper resets both fields."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+          "startLine": 48,
+          "endLine": 52,
+          "explanation": "Only changing order type away from pickup invokes schedule clear."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+          "startLine": 131,
+          "endLine": 138,
+          "explanation": "ResetDelivery clears customer/address/service only, omits pickup date/time."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+          "startLine": 132,
+          "endLine": 139,
+          "explanation": "Normal dismiss checkout resets delivery; leaves same order type pickup."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 364,
+          "endLine": 364,
+          "explanation": "Next pickup request includes surviving RequestedPickupAtUtc."
+        }
+      ],
+      "trigger": "Finish scheduled pickup, dismiss result/start next order while order type remains pickup, enter new customer without changing pickers.",
+      "rootCause": "Order reset named ResetDelivery also owns shared pickup customer fields but omits pickup-specific schedule.",
+      "impact": "New customer order carries previous collection appointment or later fails past-time validation, unless operator notices and clears/changes type.",
+      "counterarguments": [
+        "Switching away from pickup clears schedule, so only consecutive same-type lifecycle affected.",
+        "Schedule is displayed in summary, allowing attentive user correction."
+      ],
+      "regressionTests": [
+        "Complete scheduled pickup using fake API, dismiss result, add next pickup; date/time and RequestedPickupAtUtc must be null until explicitly selected.",
+        "Repeat ClearCart/StartNewOrder and historic pending-order review to ensure intentional preserved live draft schedule is not erased."
+      ],
+      "recommendation": "Reset optional schedule with resolved new-order lifecycle and explicit cart cancellation; keep historic order review separate.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-007",
+      "title": "Late CallCenter customer lookup can overwrite a different phone/new order",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_ASYNC_RACE",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+          "startLine": 35,
+          "endLine": 43,
+          "explanation": "Phone changes start lookups fire-and-forget without generation."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+          "startLine": 51,
+          "endLine": 77,
+          "explanation": "Awaits phone lookup then unconditionally assigns name/ID/saved addresses."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+          "startLine": 217,
+          "endLine": 231,
+          "explanation": "Clear/reset invalidates no pending lookup task/generation."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "startLine": 217,
+          "endLine": 220,
+          "explanation": "Successful checkout upserts captured phone/name/address, persisting inconsistent pairing if operator accepts stale form."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+          "startLine": 96,
+          "endLine": 102,
+          "explanation": "Cashier counterpart correctly snapshots phone and discards changed-phone response."
+        }
+      ],
+      "trigger": "Phone A lookup slow; user replaces with phone B or clears order, B responds first, A responds later.",
+      "rootCause": "No requested-phone equality/epoch check after await; async lookup completion mutates latest mutable form regardless of source identity.",
+      "impact": "Wrong customer name/address offered under another phone; operator may dispatch wrong destination and upsert mismatched customer data. No real PII or DB writes used to reproduce.",
+      "counterarguments": [
+        "Operator may notice mismatched details and correct them; not guaranteed silent harm.",
+        "Same phone concurrent requests usually equivalent; important trigger is different current phone or cleared/new order.",
+        "Checkout request is immutable once built, so late response after capture does not rewrite already-sent DTO, but can corrupt form before capture."
+      ],
+      "regressionTests": [
+        "Deterministic fake HTTP delayed A/B in reverse completion order; assert final name/addresses match B.",
+        "Begin lookup then ClearOrder, release response; new form stays blank.",
+        "Lookup failure 404 vs timeout must show correct status; changing phone should invalidate old customer/address selections."
+      ],
+      "recommendation": "Snapshot normalized phone and monotonic form generation; discard stale responses/cancel on change/reset; clear incompatible resolved fields safely.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-009",
+      "title": "Printer status UI exposes only four of six implemented routes",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_UI_ROUTE_OMISSION_BACKEND_CROSSCHECK_PENDING",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs",
+          "startLine": 118,
+          "endLine": 124,
+          "explanation": "Queue/filter Routes contains Receipt, CallCenter, Charcoal,Grill only."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs",
+          "startLine": 77,
+          "endLine": 86,
+          "explanation": "Job labels already recognize DeliveryOrder and DriverDispatch."
+        }
+      ],
+      "trigger": "Delivery/dispatch routes have pending or failed jobs and operator opens Printing page.",
+      "rootCause": "Hardcoded status-route list lags shared print route vocabulary.",
+      "impact": "No dedicated queue summary/filter for two routes; attention aggregate may still surface failed jobs. Not total invisibility claim.",
+      "counterarguments": [
+        "Server overview NeedsAttention may include omitted routes globally, so some failures remain visible.",
+        "Actual route usage cross-check delegated to printing reviewer."
+      ],
+      "regressionTests": [
+        "Provide overview with six routes and each pending/failed/stuck; assert all selectable and counts true."
+      ],
+      "recommendation": "Derive displayed route options from complete shared contract plus localized labels.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-010",
+      "title": "Workspace shortcut guard omits most open operational modals",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_GUARD_OMISSION_NATIVE_TRIGGER_UNVERIFIED",
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs",
+          "startLine": 27,
+          "endLine": 29,
+          "explanation": "Interactive predicate omits expense/refund/delivery/pickup/shift/lookup/open operation dialogs."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs",
+          "startLine": 31,
+          "endLine": 54,
+          "explanation": "F2/F3/F12 act on underlying workspace when predicate passes."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml",
+          "startLine": 43,
+          "endLine": 48,
+          "explanation": "Accelerators registered at workspace while custom modal grids are sibling overlays."
+        }
+      ],
+      "trigger": "Native accelerator routing reaches workspace while expense or other omitted modal open; no money command in flight yet.",
+      "rootCause": "Custom overlays do not centralize modal state and shortcut predicate only checks variant/payment/result.",
+      "impact": "Potential underlying focus change, extra flyout or checkout sheet while another form open, risking confused data entry. Runtime keyboard reachability/focus path not executed.",
+      "counterarguments": [
+        "WinUI accelerator scope/focus routing may prevent some combinations; source predicate omission alone not proof key delivered.",
+        "Busy/unresolved write guard still prevents many changes during actual sends."
+      ],
+      "regressionTests": [
+        "Actual WinUI keyboard F2/F3/F12 + Tab/ShiftTab/Escape for every modal, assert no background focus/action and only one modal active."
+      ],
+      "recommendation": "Centralize IsAnyModalOpen plus accessible focus isolation and apply to all shortcuts.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-011",
+      "title": "Discarded definitively rejected CallCenter reprint survives in journal",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_JOURNAL_CLEAR_OMISSION",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "startLine": 359,
+          "endLine": 378,
+          "explanation": "Every manual print request persisted; definite failure retained with _hasUnresolvedPrint false."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "startLine": 384,
+          "endLine": 392,
+          "explanation": "ClearResolvedPrint nulls memory but never clears PrintOwnerKey journal."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "startLine": 86,
+          "endLine": 91,
+          "explanation": "Next launch restores file and marks _hasUnresolvedPrint true regardless of original definite rejection."
+        }
+      ],
+      "trigger": "Manual reprint receives definite first rejection, operator clears lookup/new order, restarts later.",
+      "rootCause": "Safe discard memory path omits corresponding persistent store clear.",
+      "impact": "Old rejected request reappears as ambiguous unresolved, can block fresh operation or queue an old reprint on retry when permissions/preconditions change. Does not prove duplicate sale.",
+      "counterarguments": [
+        "Known successful print clears file correctly.",
+        "Unknown print intentionally cannot be cleared; recommendation applies only safe definite rejection discard."
+      ],
+      "regressionTests": [
+        "Persist definite rejected print, clear through actual UI VM, reconstruct operator desk and assert no pending print/file.",
+        "Ambiguous failure must continue surviving same clear attempt."
+      ],
+      "recommendation": "Clear disk atomically when explicitly discarding known-rejected print; preserve unknown state separately.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-012",
+      "title": "CallCenter customer-copy reprint requests kitchen preparation routes again",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_CLIENT_FLAG_BACKEND_PEER_CORROBORATED",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+          "startLine": 337,
+          "endLine": 343,
+          "explanation": "Customer follow-up reprint uses DTO default IncludeKitchenRoutes."
+        },
+        {
+          "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+          "startLine": 12,
+          "endLine": 17,
+          "explanation": "IncludeKitchenRoutes defaults true."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+          "startLine": 316,
+          "endLine": 322,
+          "explanation": "Cashier explicitly false and comments warn duplicate kitchen ticket means cook twice."
+        }
+      ],
+      "trigger": "CallCenter operator looks up existing delivery order and requests customer confirmation copy reprint, with kitchen-routed products.",
+      "rootCause": "CallCenter omitted explicit false flag added to corresponding cashier reprint path.",
+      "impact": "Potential duplicate charcoal/grill preparation work and food waste, in addition to requested customer copy. Backend route suppression cross-checked by printing peer as parent reports; parent should attach final handler evidence.",
+      "counterarguments": [
+        "A deliberate full kitchen reprint may be legitimate if explicitly requested, but current action is customer follow-up copy.",
+        "Settings may globally disable preparation tickets; then duplicate prep not emitted.",
+        "Print jobs can remain queued/failed; no claim actual printer ran."
+      ],
+      "regressionTests": [
+        "CallCenter reprint fake API asserts IncludeKitchenRoutes false.",
+        "Isolated print-job handler fixture with grill/charcoal items asserts customer copy only for follow-up; explicit kitchen reprint separate labeled action."
+      ],
+      "recommendation": "Send false for customer-only reprint; expose explicit separately confirmed kitchen reprint only if requirement exists.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-013",
+      "title": "Legacy WPF change display parses EGP tender as integer piastres",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_LEGACY_CLIENT_DEFECT",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 29,
+          "endLine": 37,
+          "explanation": "ChangeDue subtracts total piastres from unscaled long text."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 44,
+          "endLine": 46,
+          "explanation": "Tender initialized as two-decimal EGP string."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs",
+          "startLine": 93,
+          "endLine": 95,
+          "explanation": "Actual send correctly parses decimal then *100, exposing display/send disagreement."
+        }
+      ],
+      "trigger": "Run older WPF cashier and tender 100 EGP for 90 EGP order.",
+      "rootCause": "Display parses 100 as100 piastres or fails for100.00 while authoritative send converts to10000.",
+      "impact": "Displayed change zero instead of10 EGP; server-recorded tender may still correct. Does not affect active WinUI CashInput change implementation.",
+      "counterarguments": [
+        "WPF is technical-reference client, not currently active production executable.",
+        "Backend recomputes change; screen can still mislead operator before/after tender."
+      ],
+      "regressionTests": [
+        "WPF ChangeDue test 90 EGP total with100 and100.00 tender both returns1000 piastres; Arabic/current-culture formats reviewed separately."
+      ],
+      "recommendation": "If WPF remains supported, use same tested CashInput units and notifications; otherwise prevent accidental deployment.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-014",
+      "title": "Successful restore is reported incomplete because UI expects Completed instead of Succeeded",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_CROSS_LAYER_STATUS_MISMATCH",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs",
+          "startLine": 262,
+          "endLine": 282,
+          "explanation": "CompleteRestore success comparison expects Completed."
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "startLine": 168,
+          "endLine": 168,
+          "explanation": "Actual successful restore record status Succeeded."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs",
+          "startLine": 84,
+          "endLine": 93,
+          "explanation": "Same VM LastRestoreLine recognizes Succeeded, inconsistent local vocabulary."
+        }
+      ],
+      "trigger": "An authorized real restore succeeds and returns its success record.",
+      "rootCause": "UI compares result status to wrong literal Completed; server stores enum Succeeded.",
+      "impact": "UI tells operator restore did not complete after database already replaced, leaves restore target shown and can invite repeating dangerous operation. No restore executed by reviewer.",
+      "counterarguments": [
+        "History reload can show success through LastRestoreLine, partially exposing correct outcome.",
+        "Retained helper clears successful HTTP result so this is not indefinite unknown-state recovery; repeated fresh restore still dangerous."
+      ],
+      "regressionTests": [
+        "Fake API returns successful DTO Status Succeeded; assert success note, target closed and no false RestoreError.",
+        "Blocked/Failed records must remain reported non-success; no production DB restore needed for client contract test."
+      ],
+      "recommendation": "Use shared enum/contract success vocabulary and avoid treating generic HTTP success as outcome proof; maintain strict restore controls.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Pending parent incorporation; prior printing peer source corroboration reported for UI-001/UI-005",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-015",
+      "title": "CallCenter lock/unlock retains old order-panel visual trees through cart subscription",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs",
+          "startLine": 16,
+          "endLine": 21,
+          "explanation": "Adds vm.Cart.CollectionChanged, no previous/unloaded detach."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs",
+          "startLine": 67,
+          "endLine": 67,
+          "explanation": "New view for same retained draft on unlock."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+          "startLine": 23,
+          "endLine": 23,
+          "explanation": "Session caches drafts across locks."
+        }
+      ],
+      "trigger": "Repeatedly lock/unlock same operator while CallCenter process remains open.",
+      "rootCause": "Long-lived cached VM Cart event holds every prior UserControl handler; subscriptions never removed on unload or DataContext replacement.",
+      "impact": "Memory/native visual resource growth and repeated invisible callbacks over long shift; actual memory growth not measured.",
+      "counterarguments": [
+        "Process exit releases memory.",
+        "UserControl own local events are not the issue; external cached Cart event is strong root.",
+        "Cashier CartPanel correctly unsubscribes and is not affected."
+      ],
+      "regressionTests": [
+        "Native repeated lock/unlock, weak-reference old panel and force test GC; only current panel should remain.",
+        "DataContext A->B->A event subscription counts exactly1 and no callbacks on detached view."
+      ],
+      "recommendation": "Track subscribed VM, detach on change/unload, reattach once Loaded.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-016",
+      "title": "Management shift actions abandon unknown outcomes and generate a new request identity per retry",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+          "startLine": 88,
+          "endLine": 91,
+          "explanation": "Fresh Guid built each ConfirmOpenShift invocation."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+          "startLine": 71,
+          "endLine": 71,
+          "explanation": "Unconditional modal close while request possible."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs",
+          "startLine": 126,
+          "endLine": 129,
+          "explanation": "Fresh close ID every attempted confirmation."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs",
+          "startLine": 33,
+          "endLine": 33,
+          "explanation": "Whole3partial class lacks pending-operation/session registration; anchored declaration for scope."
+        }
+      ],
+      "trigger": "Management opens/closes shift, backend response lost/5xx, user retries or navigates/locks while write in flight.",
+      "rootCause": "Separate management presentation did not adopt cashier immutable pending/outcomeUnknown protocol; only own busy booleans, no session registration or retained key.",
+      "impact": "Cannot safely reconcile original shift operation; new attempt may be rejected by single-open/already-closed server guards or mislead state, and user can abandon in-flight money context. Actual duplicate server shift transaction not claimed.",
+      "counterarguments": [
+        "Backend constraints/idempotent status checks can limit duplicate financial writes, but cannot reconstruct original exact request using newly minted key.",
+        "Primary cashier same-process pending flow is better; this is management-specific."
+      ],
+      "regressionTests": [
+        "Fake commit-lost-response, retry asserts identical typed DTO/key and immutable counted/opening cash.",
+        "Root TryClose/Lock/Shell.Navigate blocked while management open/close busy or unresolved.",
+        "First definite rejection permits correction/new attempt, unknown requires same attempt reconciliation."
+      ],
+      "recommendation": "Share durable operation coordination between both shift presentations and register global pending before dispatch.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-017",
+      "title": "Recovered payroll transition or payment cannot reach its retry command",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+          "startLine": 23,
+          "endLine": 24,
+          "explanation": "Transition and pay recover before constructor, without SelectedRun/context."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+          "startLine": 154,
+          "endLine": 154,
+          "explanation": "Load refuses when retained request exists, leaves SelectedRun null."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+          "startLine": 129,
+          "endLine": 129,
+          "explanation": "Requires NextStatus from transient selected run."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+          "startLine": 334,
+          "endLine": 334,
+          "explanation": "Pay retry refuses before inspecting recovered DTO unless transient IsPayOpen."
+        }
+      ],
+      "trigger": "Restart after unknown payroll transition/pay and reopen Payroll module.",
+      "rootCause": "Durable DTO recovery is not accompanied by run selection/pay-dialog reconstruction; all routes to restore context blocked by same pending state.",
+      "impact": "Retained financial operation stranded; ordinary page cannot reconcile original status/payment. Unlike create-run retained branch, no standalone retry in this VM.",
+      "counterarguments": [
+        "Same-process retry has current context and generally works.",
+        "Calling private APIs externally/erasing journal is not implemented UI recovery.",
+        "Server payment idempotency remains separate; no duplicate payout claimed."
+      ],
+      "regressionTests": [
+        "Fake retained transition/pay DTO, construct fresh VM/session, assert explicit retry available without selecting new run/account.",
+        "Read original target by stored identity and show original intended action; exact DTO resends; no new payment until resolved."
+      ],
+      "recommendation": "Recover run/visible action from stored request or expose generic pending-action verification independent of transient selection.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-018",
+      "title": "Late recipe-detail response can replace another recipe selection before editing",
+      "severity": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 299,
+          "endLine": 305,
+          "explanation": "Each selection launches LoadDetailAsync without cancellation/epoch."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 384,
+          "endLine": 407,
+          "explanation": "Snapshots row but no identity check after await; assigns Detail directly."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 473,
+          "endLine": 482,
+          "explanation": "Copies currently published Detail, not validated against selected row."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 579,
+          "endLine": 581,
+          "explanation": "Save target read from Detail RecipeId, so pane/selection mismatch can update wrong recipe."
+        }
+      ],
+      "trigger": "Select A then B while A detail response slower; A arrives last, then operator edits believing selected B.",
+      "rootCause": "No version/selected-ID validation around asynchronous recipe detail publishing.",
+      "impact": "Wrong ingredient list/recipe identity can be edited and saved, affecting future inventory consumption/costing. Server authorizes a valid recipe update but cannot infer operator intended different selected row. Runtime write not tested.",
+      "counterarguments": [
+        "Attentive operator may notice name/ingredient mismatch.",
+        "If native selection disabled during detail load in actual XAML some route may be mitigated; source VM direct selection has no guard, native test pending."
+      ],
+      "regressionTests": [
+        "Fake delayed A/B reverse completion asserts Detail.RecipeId equals SelectedRecipe key and StartEdit uses B.",
+        "Close/change selection while reading must invalidate old response/finally flags."
+      ],
+      "recommendation": "Use monotonic detail generation and validate again after every await; freeze target identity across edit/save.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-019",
+      "title": "Recipe yield conversion silently truncates fractional pieces-per-base-unit",
+      "severity": "MEDIUM",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 557,
+          "endLine": 564,
+          "explanation": "Accepts3decimal fractional input."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 562,
+          "endLine": 568,
+          "explanation": "Integer division truncates1.5to1and only rejects<=0."
+        }
+      ],
+      "trigger": "Enter yield ratio1.5or2.9pieces per base unit in recipe editor.",
+      "rootCause": "MilliUnits parser accepts fractional unit then conversion to integer floor without checking remainder.",
+      "impact": "Stored recipe ratio differs from typed value and changes ingredient usage/cost calculation on future sales. No real recipe updated.",
+      "counterarguments": [
+        "Backend expects integer and may reject other invalid values, but receives already-truncated valid integer.",
+        "Values<1truncate0and are rejected; fractional>1is problematic."
+      ],
+      "regressionTests": [
+        "Enter1.5,2.999Arabic١٫٥; must reject with explicit integer requirement before HTTP, not send1/2.",
+        "Whole numbers1,2and textual2.000 accepted exactly, enforce overflow bound."
+      ],
+      "recommendation": "Validate integer divisibility before division or use dedicated localized positive-integer parser.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-020",
+      "title": "PIN-change retry proof replaces shared bearer despite preserving visible user identity",
+      "severity": "HIGH",
+      "status": "SECURITY_COORDINATOR_CHALLENGE_REQUIRED",
+      "confidence": "HIGH",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+          "startLine": 170,
+          "endLine": 172,
+          "explanation": "Uses session-mutating login for proof during retained self-change retry."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 164,
+          "endLine": 167,
+          "explanation": "Successful login replaces shared bearer token."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+          "startLine": 14,
+          "endLine": 14,
+          "explanation": "Journal key station-global, no user ownership suffix."
+        }
+      ],
+      "trigger": "Self PIN change response unknown, retry uses new-PIN proof; especially restart/recovery under another authorized operator or proof PIN matches different user.",
+      "rootCause": "LoginByPinAsync has bearer installation side effect, but proof caller assumes read-only credential test and does not reconcile session.CurrentUser.",
+      "impact": "HTTP authenticated identity may diverge from UI/current actor; subsequent requests can fail or run under unintended principal depending server actor enforcement. Parent security reviewer owns final exploitability/severity validation; no real login performed.",
+      "counterarguments": [
+        "Same original user successful proof leaves same principal, mainly rotates token.",
+        "Server bound actor/session checks can reject mismatched operations and prevent privilege gain.",
+        "On wrong-user successful proof, header already replaced even if caller declines proof then retries original change."
+      ],
+      "regressionTests": [
+        "Fake login proof changes token identity tootheruser, assert root session and bearer remain original after failed proof.",
+        "Recovered self-PIN request owned by another actor must be visibly routed/blocked; no session switch as side effect."
+      ],
+      "recommendation": "Use isolated non-session-mutating proof client/endpoint and explicit owner context; coordinate with security report to avoid duplicate final finding.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf"
+    },
+    {
+      "id": "UI-021",
+      "title": "Late product-image completion changes save target beneath another product form",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "startLine": 86,
+          "endLine": 87,
+          "explanation": "Browse and edit ignore IsImageBusy."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "startLine": 200,
+          "endLine": 215,
+          "explanation": "Select allowed while image request awaits; changes editing identity and visible form."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "startLine": 257,
+          "endLine": 286,
+          "explanation": "Captures product before picker/upload awaits; no identity generation recheck."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "startLine": 301,
+          "endLine": 304,
+          "explanation": "Remove has same stale identity overwrite."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+          "startLine": 337,
+          "endLine": 339,
+          "explanation": "Save request combines editing.Id with current form fields."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml",
+          "startLine": 91,
+          "endLine": 92,
+          "explanation": "Native catalogue selection command remains reachable."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml",
+          "startLine": 376,
+          "endLine": 376,
+          "explanation": "Save enabled by CanEdit, not image busy."
+        }
+      ],
+      "trigger": "Select product A; start delayed upload/delete; select B while request pending. A response restores _editing=A, while visible Name/Price/Variants remain B. After ReloadAsync finishes, save B-looking form.",
+      "rootCause": "Image completion unconditionally overwrites shared editor identity captured before await. IsImageBusy only disables image controls; ReloadAsync reloads catalogs but does not reset/rebind visible form or editing identity.",
+      "impact": "Save targets product A with B field values/variants. Can corrupt menu pricing, preparation route and recipe association despite valid authorized backend request. No product mutation executed by reviewer.",
+      "counterarguments": [
+        "Native file picker may prevent interaction while open; upload/delete await after picker is still vulnerable.",
+        "ReloadAsync temporarily disables form through IsLoading but leaves mismatched editor identity/form when complete.",
+        "Server can reject foreign variant IDs, reducing some cases; products without variants or compatible fields remain at risk.",
+        "Careful operator might notice photo mismatch; that does not restore correct target."
+      ],
+      "regressionTests": [
+        "Controlled image TaskCompletionSource: A upload pending, SelectRow(B), complete A; editor target and form must remain B, A image catalog updated separately.",
+        "Repeat with delete, New, SetKind and Close/reopen; no stale completion alters current draft.",
+        "Assert saved product ID matches displayed selected item after every async completion."
+      ],
+      "recommendation": "Keep immutable operation target independent from current editor; only update visible state when selection generation still matches. Coordinate browse/save with image busy and invalidate late completions on close/kind/new.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer challenge requested; not yet incorporated"
+    },
+    {
+      "id": "UI-022",
+      "title": "Recipe ingredient picker truncates to60 choices without exposing its search input",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "status": "SOURCE_CONFIRMED_STATIC_REASONING",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 443,
+          "endLine": 453,
+          "explanation": "Active unchosen ingredient choices filtered by IngredientSearchText then Take60."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+          "startLine": 441,
+          "endLine": 441,
+          "explanation": "Only search setter hook refreshes predicate; repositorysearch found no UI binding/writer except resetempty afteradd."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+          "startLine": 341,
+          "endLine": 343,
+          "explanation": "Picker binds cappedIngredients andIngredientToAdd; editor has noIngredientSearchText field."
+        }
+      ],
+      "trigger": "Have more than60 active ingredients not already selected in recipe; try directly adding one after first60 returned items.",
+      "rootCause": "VM implemented bounded searchable choices but XAML exposes only ComboBox over current60 and no search binding to query full cached ingredients.",
+      "impact": "Operator cannot directly find later ingredients through normal picker. Recipe may remain incomplete or user may choose wrong similar item; no actual recipe mutation tested.",
+      "counterarguments": [
+        "Adding temporary earlier ingredients locally can move later ones into first60, then temporary lines can be removed; this workaround limits absolute-unreachability claim but is undisclosed and error-prone.",
+        "Existing recipe lines still display ingredients outside60; problem is directaddition, not loss of stored lines.",
+        "NativeComboBox textsearch, if available, searches current ItemsSource; no source path populates uncapped matches from it. Native behavior not observed."
+      ],
+      "regressionTests": [
+        "Load61+ active ingredients with nonechosen; entering target61 search should exposeit without adding unrelated ingredients.",
+        "Exclude chosenIDs while searching fullcached inventory; clearing search should preserve selected choice and exact recipe lines."
+      ],
+      "recommendation": "Bind explicit ingredient search to IngredientSearchText or provide searchable full-list picker; disclose bounds only as presentation optimization.",
+      "runtimeReproduction": "NOT_EXECUTED",
+      "screenshotEvidence": "NOT_OBSERVED",
+      "independentChallenge": "Parent/peer source challenge requested; no canonical master mutation"
+    }
+  ],
+  "rejectedCandidates": [
+    {
+      "candidate": "All order reprints inherently duplicate kitchen",
+      "reason": "Cashier reprint explicitly IncludeKitchenRoutes false; defect specific to CallCenter omission."
+    },
+    {
+      "candidate": "Any DateTime.Now/timer constitutes hidden time bomb",
+      "reason": "Observed timers update health/clock and shift naming, legitimate purposes; no malicious trigger proved."
+    },
+    {
+      "candidate": "Every pending-request test proves app durability",
+      "reason": "Helper tests do not prove adoption or reachable recovery in concrete screens."
+    }
+  ]
+}

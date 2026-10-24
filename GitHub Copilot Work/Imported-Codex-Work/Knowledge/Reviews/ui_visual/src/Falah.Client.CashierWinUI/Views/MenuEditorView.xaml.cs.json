@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml.cs",
+  "source_git_blob_sha256": "9a0e7d32263c86100f86c35caa592ddd523ce6ee3c70c77ed5a4d38bcd07aa71",
+  "worktree_sha256": "040f05bae1a12ccc88d85558040e7a255883eb9724186d493636a8b3462c0d9e",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:41:30.408175+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "View-to-platform image capability injection exact lambda/body review.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-0b884e4e5895c230052bdd4c0077d2dd31f26e06e939044946b64cad8b3c6890",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Views.MenuEditorView.MenuEditorView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        9,
+        5,
+        19,
+        6
+      ],
+      "reasoning": "Initializes editor and subscribes DataContextChanged to inject platform image picker delegate; does not automatically open a picker or upload image.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "UI021 async selected-target race belongs to VM body, injection itself does not resolve it.",
+      "tests_missing": "UI021 async selected-target race belongs to VM body, injection itself does not resolve it. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent; DataContextChanged"
+    },
+    {
+      "stable_id": "sym-846957aa237b29995eb59f766c4d87d233fe6100beb3e48df6dbce09c967e71b",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_kind": "ParenthesizedLambdaExpression",
+      "exact_span": [
+        15,
+        31,
+        18,
+        10
+      ],
+      "reasoning": "If new DataContext is MenuEditorViewModel assigns ImageFilePicker.PickAsync method group; delegate is static and does not capture this view, reducing view-retention concern. Old VM retains picker ability but no per-view instance state.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Native picker lifecycle and cancellation tests missing; no picker executed.",
+      "tests_missing": "Native picker lifecycle and cancellation tests missing; no picker executed. NOT_EXECUTED.",
+      "verified_callers_callees": "MenuEditorViewModel.PickImageAsync = ImageFilePicker.PickAsync"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

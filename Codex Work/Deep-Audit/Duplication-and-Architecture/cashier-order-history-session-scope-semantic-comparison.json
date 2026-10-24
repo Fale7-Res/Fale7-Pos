@@ -1,0 +1,255 @@
+{
+  "artifact_kind": "bounded_semantic_comparison",
+  "id": "SEM-MIRROR-061",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-24T11:43:23.190Z",
+  "reviewer": "main coordinator; source-level client/server trust-boundary comparison; no runtime execution",
+  "title": "Cashier order-history scope delegates to a session-bound server permission check",
+  "scope": "Targeted review of the active Cashier WinUI order-history client, API request construction, server authentication middleware and list endpoint. This is a cross-layer behavior comparison, not code duplication or exhaustive authentication review.",
+  "decision": "NO DIVERGENCE IN THE REVIEWED QUERY PATH: the cashier sends the current session user ID; the server middleware resolves bearer identity and rejects a mismatching actorUserId before the endpoint runs; the endpoint then checks orders_view_all and otherwise limits results to the currently open shift. The client performs only local search over the returned authorized collection. The server route also loads user by the query ID, but the pipeline guard binds that ID to the bearer actor for this route. No separate finding is created. This does not clear SEC-001 JSON-body casing behavior or other routes.",
+  "behavior": {
+    "client": "OrdersViewModel.LoadAsync passes CurrentUser.Id to ApiClient.GetOrdersAsync. Search operates only on returned DTOs; it does not replace server scoping.",
+    "transport": "ApiClient encodes actorUserId in the /api/orders query string.",
+    "trust_boundary": "AuthenticationMiddleware runs before endpoint dispatch; it resolves the bearer session, records authenticated actor and rejects a nonempty actorUserId that differs from that actor.",
+    "server_scope": "Program GET /api/orders loads the query actor record, applies orders_view_all; absent permission, it selects only orders for the currently open shift (or no rows if no open shift); authorized full-history users receive all rows."
+  },
+  "counterevidence_and_limits": [
+    "This comparison covers the active Cashier WinUI list path only; Call Center and other API routes are outside this item.",
+    "The middleware actor mismatch parser has a separate JSON property casing issue already tracked in SEC-001; this comparison concerns the exact query parameter shape used by the client and confirms the query guard branch, not JSON body fields.",
+    "The fallback scope is the currently open shift, not only orders created by this cashier. The server comment explicitly documents that as legacy reference behavior; owner policy has not been re-evaluated here.",
+    "No HTTP/authentication integration tests or runtime requests were executed; middleware ordering and branches were read statically.",
+    "No legacy lib/store.tsx source is present in the repository despite the Program.cs port comment, so historical implementation parity itself is not independently checked."
+  ],
+  "candidate_disposition": "Intentional division of responsibility: client supplies its session identity and provides presentation search; middleware binds the identity to the bearer session; server owns permission-based result scope. No behavioral divergence observed for the reviewed exact query path.",
+  "recommendation": "Keep result scoping server-authoritative and ensure future order-history routes remain behind AuthenticationMiddleware. Add/retain integration tests for matching bearer/query actor, mismatched query actor returning 403, orders_view_all returning full history, and a cashier without it receiving only active-shift orders. Do not duplicate the server filter in the client as an authorization control.",
+  "required_tests": [
+    "Authenticated matching query actor: verify normal report permission and expected current-shift order list.",
+    "Authenticated user A with query actorUserId B: expect 403 before route data selection.",
+    "orders_view_all actor: full order history; non-holder: active shift only; no open shift: empty list.",
+    "Confirm client search narrows only the authorized response and does not change server query scope."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OrdersViewModel.cs",
+      "ranges": [
+        [
+          53,
+          76
+        ]
+      ],
+      "ids": [
+        "sym-a33e63258991c4fd80ffb26283b06ea692b64a4a02298106e367dac092db6b8d"
+      ],
+      "evidence": "LoadAsync passes the logged-in session user ID to ApiClient; filters only the returned collection locally by order number/name/phone.",
+      "sha256": "f5423f850838c567c7e347cc2e54100bd8ac7c873349f712d297c4d214af596c",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-a33e63258991c4fd80ffb26283b06ea692b64a4a02298106e367dac092db6b8d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.LoadAsync()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            53,
+            76
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          53,
+          76
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a33e63258991c4fd80ffb26283b06ea692b64a4a02298106e367dac092db6b8d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.LoadAsync()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            53,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "ranges": [
+        [
+          229,
+          233
+        ]
+      ],
+      "ids": [
+        "sym-5b7989571355871b5331c3e3c255bb5a8cf66820ca32a256134edb8d23292ff6"
+      ],
+      "evidence": "GetOrdersAsync URL-escapes actorUserId into the query string; client does not request an unscoped list without that identity.",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-5b7989571355871b5331c3e3c255bb5a8cf66820ca32a256134edb8d23292ff6",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetOrdersAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            231,
+            233
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          229,
+          233
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b7989571355871b5331c3e3c255bb5a8cf66820ca32a256134edb8d23292ff6",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetOrdersAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            231,
+            233
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "ranges": [
+        [
+          30,
+          82
+        ],
+        [
+          91,
+          133
+        ]
+      ],
+      "ids": [
+        "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+        "sym-c2203c2325345c8a3ae81ec81d90d07ed4ff5b2a0369643f51a2c6065761c4a8"
+      ],
+      "evidence": "Global API middleware resolves the bearer session, stores its user as actor, compares supplied actorUserId query value to authenticated user ID, returns 403 on mismatch, and only then invokes the endpoint.",
+      "sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+          "signature": "Falah.Server.AuthenticationMiddleware.InvokeAsync(HttpContext, Falah.Infrastructure.Authorization.SessionService)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            30,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-c2203c2325345c8a3ae81ec81d90d07ed4ff5b2a0369643f51a2c6065761c4a8",
+          "signature": "Falah.Server.AuthenticationMiddleware.FindActorMismatchAsync(HttpContext, string)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            91,
+            133
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          30,
+          82
+        ],
+        [
+          91,
+          133
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+          "signature": "Falah.Server.AuthenticationMiddleware.InvokeAsync(HttpContext, Falah.Infrastructure.Authorization.SessionService)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            30,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-c2203c2325345c8a3ae81ec81d90d07ed4ff5b2a0369643f51a2c6065761c4a8",
+          "signature": "Falah.Server.AuthenticationMiddleware.FindActorMismatchAsync(HttpContext, string)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            91,
+            133
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        [
+          251,
+          251
+        ],
+        [
+          1480,
+          1494
+        ],
+        [
+          1976,
+          1983
+        ]
+      ],
+      "ids": [
+        "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e"
+      ],
+      "evidence": "Middleware is registered in app pipeline before route handling. GET /api/orders loads the supplied actor row, checks orders_view_all, otherwise restricts to currently open shift, then maps rows.",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "line_range": [
+            1976,
+            1983
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          251,
+          251
+        ],
+        [
+          1480,
+          1494
+        ],
+        [
+          1976,
+          1983
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "line_range": [
+            1976,
+            1983
+          ]
+        }
+      ]
+    }
+  ],
+  "related_findings": [
+    "SEC-001 (adjacent global actor identity issue; this query path reads the actorUserId mismatch guard and does not resolve the JSON body case-sensitivity issue)."
+  ],
+  "limits": [
+    "Static source comparison only; no tests or runtime authorization probes.",
+    "Not a comprehensive security audit or Phase 3 clearance."
+  ]
+}

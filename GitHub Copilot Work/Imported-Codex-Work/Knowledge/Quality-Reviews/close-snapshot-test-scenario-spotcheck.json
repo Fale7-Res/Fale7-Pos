@@ -1,0 +1,102 @@
+{
+  "at_utc": "2026-10-19T21:59:27.962Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+  "worktree_sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+  "scope": "Four targeted test-method contexts read for SEM011 findings, not fullfile/primaryreceipt completion",
+  "line_ranges": [
+    [
+      233,
+      290
+    ],
+    [
+      353,
+      368
+    ]
+  ],
+  "symbols": [
+    {
+      "stable_id": "sym-653cc1c819c34463bbfdd1c9dca7bf757e45a1d0325b3eecb60d1d04382b613d",
+      "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.A_fully_clean_day_closes_and_produces_a_reproducible_snapshot()",
+      "span": [
+        233,
+        5,
+        256,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-66547f9a0fecd38001c79209b6e151af60b9e62c8f22104988b012235efdc585",
+      "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.Retrying_the_same_close_request_id_replays_the_same_snapshot_not_a_second_one()",
+      "span": [
+        258,
+        5,
+        272,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-71a732573244b0725cb8c9d7521ed3646aa4672fa0d3f98a2bc0a0749bc21815",
+      "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.Concurrent_close_requests_with_the_same_request_id_produce_exactly_one_snapshot()",
+      "span": [
+        274,
+        5,
+        290,
+        6
+      ]
+    },
+    {
+      "stable_id": "sym-1a6cd20ec363d192c37d8828655856918d1f29ff8c3a63db6533616e78237224",
+      "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.Closing_again_after_a_reopen_produces_a_new_higher_revision_snapshot()",
+      "span": [
+        353,
+        5,
+        368,
+        6
+      ]
+    }
+  ],
+  "findings": [
+    "FIN-027",
+    "FIN-CAND-CLOSE-SNAPSHOT-REVISION-001"
+  ],
+  "reasoning": [
+    {
+      "lines": [
+        234,
+        256
+      ],
+      "conclusion": "Clean close checks firstrevision/Authoritative, same fetchedID and unchangedTreasuryMovementcount. Positive archive/no-moneywrite control, no denied-report-permission account or mixedprivilegeassertion in thismethod."
+    },
+    {
+      "lines": [
+        259,
+        272
+      ],
+      "conclusion": "Sequential sameRequestId retries assert sameID/replay and rowcount1; distinct newclose identifiers are outside thisscenario."
+    },
+    {
+      "lines": [
+        275,
+        290
+      ],
+      "conclusion": "All6concurrent tasks explicitly capture one sharedrequestId278/280. Same-key PK/replay guarantee tested bysourceintent; doesnot establish distinct-key oneAuthoritative invariant or force proposedCount/demotion schedule."
+    },
+    {
+      "lines": [
+        354,
+        368
+      ],
+      "conclusion": "Sequential close/reopen/reclose checks revision2, historycount2 and latestrevisionAuthoritative. It doesnot assert previoussnapshotAuthoritativefalse in the readmethod or contend differentclose IDs."
+    }
+  ],
+  "required_followups": [
+    "Disposableprovider barriers fordistinct closeRequestIds and actualEF/SQLlockoutcomes; retain same-keypositivecontrols.",
+    "Explicit denied/allowed financialreport viewers across frozenlatest/history and live endpoint; do not use actualstaff/accounts/data.",
+    "Assert exactlyoneAuthoritative, perdayrevision uniqueness and daypointer afterreopen/close; retain nofinancialmovementonclose."
+  ],
+  "runtime": "NOT_EXECUTED; no testfactory/SQL/server/close/reopen invoked",
+  "new_author_receipts": 0,
+  "limits": "Targeted methodcontexts only, not a claim no relevant tests elsewhere or proof tests pass."
+}

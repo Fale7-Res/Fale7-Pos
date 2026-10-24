@@ -1,0 +1,41 @@
+{
+  "artifact_kind": "financial_continuation_receipt_manifest_independent_validation",
+  "id": "FIN-CONTINUATION-RECEIPTS-QC-2026-10-20",
+  "at_utc": "2026-10-20T11:04:17Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "source_manifest": {
+    "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-receipt-manifest-reconciliation.json",
+    "sha256": "34a46194d235f9bc8ec23fb699473a665976fa39ca2f4a9ff6a6d783e095b6a1",
+    "records": 989
+  },
+  "authority": {
+    "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json",
+    "sha256": "30560e0b7b7e170bf9d8a99b508af1fce3f74dbbb438b5ba9aeeefeb53cef240",
+    "union_count": 7602,
+    "pending_count": 1202
+  },
+  "independent_checks": {
+    "unique_receipt_ids": 989,
+    "matched_pending_authority_ids": 989,
+    "overlap_completed": 0,
+    "unknown_or_disjoint": 0,
+    "handoff_paths_hashes_and_json_line_pointers_verified": true,
+    "errors": 0
+  },
+  "derived_combined_coverage": {
+    "basis": "Exact continuation IDs are all inside the current authority's remaining IDs; arithmetic union only, canonical shared union file intentionally not edited.",
+    "receipts": 8591,
+    "denominator": 8804,
+    "remaining": 213,
+    "remaining_classification_from_continuation_scope": {
+      "direct /Printing/ symbols": 161,
+      "EscPosTicketRendererTests": 10,
+      "MenuQrRenderingTests": 10,
+      "TicketDtoText": 2,
+      "CustomerRulesTests": 12,
+      "ProductImageRulesTests": 18
+    },
+    "all_213_outside_this_financial_continuation_scope": true
+  },
+  "completion_limit": "This verifies receipt identity and membership in the pending queue only; it does not independently re-review prior analysis depth or complete the global financial/audit requirements. Global completion gate remains open; no runtime/DB/source work was done."
+}

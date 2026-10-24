@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Authorization/PermissionCatalog.cs",
+  "source_git_blob_sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69",
+  "worktree_sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:55:16.243167+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-194462c3dd3dcb9426b0d25d7b06a6f2872cdc811081ad310fefc514dc732e60",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        57,
+        67,
+        57,
+        77
+      ],
+      "reasoning": "Projects each PermissionDefinition Key into HashSet using default string equality; catalog initial list unique byinspection. Category doesnotaffect permissionmembership, and Set defaultcase-sensitive. Public IReadOnlyList/Set expose mutable concrete List/HashSet aliases totrustedcode, but no API castmutation proved. This projection alone grantsnoactor authority.",
+      "inputs": "PermissionDefinition",
+      "outputs": "String key",
+      "side_effects": "Static initialization builds keyset; no persistence.",
+      "database": "No DB.",
+      "trust_boundaries": "Permission names are systemmetadata, not actorclaims.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "One fixed catalogscan at static initialization.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new securityscan or exploitfinding; original catalog completeness comment not independently certified.",
+      "tests_missing": "Case and duplicatekeys; ensure allcheckedpermissions represented through parent policyreview.",
+      "verified_callers_callees": "All catalog17-54; Keys57; AuthorizationPolicy consumers separately reviewed."
+    }
+  ],
+  "remaining_callable_ids": []
+}

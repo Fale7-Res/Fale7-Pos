@@ -1,0 +1,123 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-054",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21T10:58:53Z",
+  "reviewer": "/root coordinator",
+  "title": "Checkout shift-open admission versus transactional shift close",
+  "scope": "Bounded server-side interleaving comparison of CheckoutOrderHandler shift admission and CloseShiftHandler serialization/close. Cross-references existing FIN-015. Does not claim provider-level race reproduction.",
+  "decision": "SOURCE_CORROBORATES_FIN-015; CHECKOUT_SHIFT_STATUS_READ_IS_UNTRANSACTIONAL_AND_NOT_RECHECKED_UNDER_THE_CLOSE_SHIFT_ROW_LOCK",
+  "behavior": {
+    "checkout": "Checkout reads the requested Shift row AsNoTracking and rejects if status is not Open. Later it begins a transaction, obtains the active business day and writes order/payment/journal effects. The cited path has no second shift-status read under lock.",
+    "close": "CloseShift starts a ReadCommitted transaction before acquiring an update/hold lock on the shift row; it verifies the row is Open, recomputes expected cash, writes close movements and state, and commits.",
+    "interleaving": "A source-supported schedule is: checkout reads Open; close obtains its row lock, computes and commits handover/Closed; checkout then proceeds based on its stale precheck and writes the sale with the closed ShiftId. Another relevant schedule is checkout passing the precheck while close computes cash before checkout commits, making close totals sensitive to provider ordering. The exact outcome and lock interactions require SQL Server integration testing."
+  },
+  "cross_file_call_chain": [
+    "Cashier checkout request -> CheckoutOrderHandler pre-transaction shift status read -> later transaction and order/tender journal writes; concurrently CloseShiftHandler -> transaction-held update lock -> expected-cash calculation -> handover and Shift.Status=Closed -> commit."
+  ],
+  "existing_finding": "FIN-015",
+  "new_finding_created": false,
+  "counterevidence_and_limits": [
+    "Checkout requires an existing Open shift at its initial read and persists ShiftId for reconciliation.",
+    "CloseShift serializes its own close attempts and recomputes expected cash under a transaction-held row lock.",
+    "These controls do not themselves recheck/serialize checkout against close.",
+    "Source establishes the gap in ordering/guard placement; no SQL Server interleaving test or real transaction was executed.",
+    "The cited checkout test file has no specific controlled concurrent-close case; no claim is made about every test fixture in the repository."
+  ],
+  "recommendation": "Align checkout admission with shift close serialization. Within the checkout transaction, lock/re-read the selected shift and require Open before posting, using a lock ordering compatible with CloseShift to avoid deadlocks. Ensure the close cash query and checkout commit are ordered so each sale is either included in the closing expected cash or rejected after close. Retain checkout idempotency and current business-day gate.",
+  "tests": {
+    "executed": "NONE",
+    "needed": [
+      "SQL Server integration test with a barrier after checkout admission but before transaction/posting; close the shift, resume checkout, assert checkout is rejected and no order/tender/journal rows exist.",
+      "Opposite schedule: checkout owns the shared shift lock and posts first; close must include its cash effect in expected balance.",
+      "Repeat with split cash/electronic and an unknown checkout response; assert one order and correct drawer totals.",
+      "Run deadlock/interleaving tests with two cashiers and close, preserving idempotent replay."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "line_ranges": [
+        [
+          43,
+          52
+        ],
+        [
+          140,
+          175
+        ],
+        [
+          250,
+          280
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        }
+      ],
+      "evidence": "Checkout checks Shift.Status with AsNoTracking before the transaction; then later begins the transaction and writes order/payment/journal side effects without a second locked shift-status check in the examined ranges."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "line_ranges": [
+        [
+          47,
+          80
+        ],
+        [
+          90,
+          106
+        ],
+        [
+          130,
+          165
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        }
+      ],
+      "evidence": "Close begins a ReadCommitted transaction, reads the shift row using UPDLOCK/ROWLOCK/HOLDLOCK, rejects non-open status, computes expected cash, marks closed, writes handover/reconciliation/print job and commits."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CheckoutVerticalSliceTests.cs",
+      "worktree_sha256": "5b33be2a2aa866d704a0d89fa1e0b3c9bef9a0d3f8ac3bf37a5fe50261571e44",
+      "source_git_blob_sha256": "9c7cec64a70c1fac53f18abb1fedc922ee862009ba504eae2c5252f3c89db47a",
+      "line_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Inspected checkout vertical-slice test file for an interleaved checkout-versus-close test; its current test source covers ordinary checkout cases but no controlled close/checkout race. This range is a bounded search scope, not proof across every test file."
+    }
+  ],
+  "limitations": [
+    "Static source reasoning only; no database provider test executed.",
+    "Final behavior depends on SQL Server isolation/locking and application transaction schedule.",
+    "FIN-015 remains the canonical finding."
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Printing/ComposedTicketDto.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:08:06.283617+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "c5ba69716c9e9f44a21d732295b2ac9b9bb682c12a122c006a7b16bc19dbb168",
+  "worktree_sha256": "0d7923d24b034f9c7f651a8830f7694a060a413f181a5588e9cbe1a86139875c",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-d83a0b5b7b59a3e005b80441132a377583dc0e53b06119978ed4f7332fc88448",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.TicketCellDto::record-generated-behavior",
+      "source_span": [
+        5,
+        5
+      ],
+      "reasoning": "TicketCellDto holds Text,WidthPercent,intended Align defaultstart and Boldfalse. Generated constructor accepts negative/oversized width or unknown alignment;TicketElementMapping maps align defaultstart and Bitmap renderer clamps computed cell width>=1. Scalar equality compares complete cell text/layout inputs,not rendered glyphs/fonts. Text is user/menu/order-derived and should remain literal.",
+      "inputs": "Text,widthpercentage,Align?,Bold optional.",
+      "outputs": "Flat JSON row cell.",
+      "side_effects": "No drawing until mapping/render.",
+      "trust_boundaries": "Server-to-agent layout input;record not unit/width validation.",
+      "database": "No persistence.",
+      "printing_ui": "WidthPercent means paper proportion,not chars;invalid widths can mislayout rather than reject.",
+      "performance": "Small record,textlength impacts renderer not constructor.",
+      "duplicates_conflicts": "with-copy may alter width independent row totals;record equality not visual equality.",
+      "issues_hypotheses": "No sum-of-percent invariant here.",
+      "tests_missing": [
+        "Negative/zero/>100 width,unknownalign,long Arabic text,roundtrip default and software raster only"
+      ],
+      "verified_callers_callees": [
+        "ComposedTicketDto.cs5",
+        "TicketElementMapping.ToDomain37-49",
+        "BitmapTicketRenderer.CellWidth495-496"
+      ]
+    },
+    {
+      "stable_id": "sym-7f5b0d2e5fbb7672237c1d2b5c5bdb8dfc39bf2ddaeb8a6493f51b8a9c35dc55",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.TicketElementDto::record-generated-behavior",
+      "source_span": [
+        20,
+        32
+      ],
+      "reasoning": "TicketElementDto flat discriminated record combines Kind,Text?,Bold,Align,Size,Cells?,Rule and appended Inverted/Boxed/Continuation flags. Generated constructor enforces no discriminated-union invariants,so contradictory fields accepted;TicketElementMapping decides actual meaning per kind and falls unknown kinds to text. qr uses Text payload despite older doc list omitting qr. with-copy shallow aliases Cells;generated equality reference-based for celllist,not equivalent rendered paper. Defaults preserve old agents plainer output but no guarantee feature parity.",
+      "inputs": "Ten fields with optional defaults;Kind requiredstring.",
+      "outputs": "Cross-process layout element JSON.",
+      "side_effects": "No cut/draw until renderer maps;Kind=cut data not immediate hardware command by construction.",
+      "trust_boundaries": "Wire layout boundary;unrecognized strings degrade via mapping,not polymorphic arbitrary type loading.",
+      "database": "No DB.",
+      "printing_ui": "qr/text,row,rule,cut each interpreted;UI preview must use same mapper/render to claim same bits.",
+      "performance": "Cells/text can grow,whole ticket memory;generated record no length bound.",
+      "duplicates_conflicts": "with Cells shares mutable backing list;Kind changed without clearing unrelated fields preserved though ignored.",
+      "issues_hypotheses": "Invalid/unknown shape may lose intended formatting rather than fail loud.",
+      "tests_missing": [
+        "All kinds+qr,unknownkind fallback,missingcells,rowflags,old JSON defaults and alias tests"
+      ],
+      "verified_callers_callees": [
+        "ComposedTicketDto.cs20-32",
+        "TicketElementMapping.cs17-49",
+        "PrintJobProcessor.ToDomain"
+      ]
+    },
+    {
+      "stable_id": "sym-011b6b555f4457be422e0decf82c5127db85b234d5bc2649f00b22070626d657",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.ComposedTicketDto::record-generated-behavior",
+      "source_span": [
+        34,
+        34
+      ],
+      "reasoning": "ComposedTicketDto stores Route,OrderId,OrderNumber and IReadOnlyList TicketElementDto Lines. Generated init/copy preserves element list references and does not validate Route enum;PrintJobProcessor.ToDomain parses Route then maps lines,so unknownroute throws rather than TicketElement unknown-kind fallback. Generated equality cannot verify actual renderer output because lines compare by list identity;no byte payload/hash or physical result present.",
+      "inputs": "Route/order identity and line-list reference.",
+      "outputs": "API ticket content consumed renderer.",
+      "side_effects": "No printer output until agent pipeline.",
+      "trust_boundaries": "Authenticated server-to-agent composition,not arbitrary plugin/class deserialize;identities not self-authenticating.",
+      "database": "ComposeTicketContentAsync reads order/doc/settings;DTO no SQL.",
+      "printing_ui": "Ticket content is logical layout,not finalESC/POS bytes or paper;QR and cuts require render semantics.",
+      "performance": "Memory scales lines/text/cells;record allocation shallow only.",
+      "duplicates_conflicts": "with shares lines+cells,not frozen render snapshot;same OrderNumber can produce changed ticket due settings/time/reprint metadata.",
+      "issues_hypotheses": "Route parse strict versus element fallback distinction.",
+      "tests_missing": [
+        "Unknownroute failure,unknownkind fallback,line alias,QR/cut roundtrip and bytecompare with no transport"
+      ],
+      "verified_callers_callees": [
+        "ComposedTicketDto.cs34",
+        "PrintJobQueryService.ComposeTicketContentAsync",
+        "PrintJobProcessor.ToDomain175+",
+        "TicketElementMapping"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

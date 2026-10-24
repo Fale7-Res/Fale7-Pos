@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CategoryStripView.xaml.cs",
+  "source_git_blob_sha256": "9813f953ffe567e932bc5a2a37dc458437cd8433c49c533651072ab72b4d2a9c",
+  "worktree_sha256": "9813f953ffe567e932bc5a2a37dc458437cd8433c49c533651072ab72b4d2a9c",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:39:16.845736+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "CallCenter view event/constructor exact-body review with source-only state, command and lifetime reasoning.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CategoryStripView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-76afcd2ddadcfec6f01fb929f041cda1cd6463e1af6f9bc17ec94177369b2681",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.CategoryStripView.CategoryStripView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        11,
+        5,
+        11,
+        58
+      ],
+      "reasoning": "Initializes category strip XAML without loading menu or mutating selection itself.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Native category strip overflow/RTL not observed.",
+      "tests_missing": "Native category strip overflow/RTL not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    },
+    {
+      "stable_id": "sym-b4fe7260c9a0591e4ac46bee7babe293f0f79d17bf60d2e2e8d4cb40d83da88b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        13,
+        5,
+        17,
+        6
+      ],
+      "reasoning": "For CategoryTile clicked item and valid CallCenter VM executes SelectCategoryCommand with tile; handler does not explicitly call CanExecute, relying on command implementation guards.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Verify busy/pending selection guard through command body.",
+      "tests_missing": "Verify busy/pending selection guard through command body. NOT_EXECUTED.",
+      "verified_callers_callees": "SelectCategoryCommand.Execute(tile)"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

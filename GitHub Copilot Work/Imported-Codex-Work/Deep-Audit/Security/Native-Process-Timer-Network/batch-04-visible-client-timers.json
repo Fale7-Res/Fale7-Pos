@@ -1,0 +1,255 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T21:54:31.443079+00:00",
+  "records": [
+    {
+      "id": "TMR-BOUNDARY-012",
+      "category": "Health DispatcherTimer in three clients",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+          "startLine": 25,
+          "endLine": 36,
+          "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+          "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+          "symbol": {
+            "stable_id": "sym-1d824b12404a1df25abe76718b6627a10d6f4d73240eb39da9b798327afe3456",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CashierWinUI.Services.AppSession?)",
+            "startLine": 25,
+            "endLine": 37,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Five-second health timer, immediate initial probe."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+          "startLine": 59,
+          "endLine": 75,
+          "source_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+          "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+          "symbol": {
+            "stable_id": "sym-1aa79084616853def877bf9e0dbae950903b15b1fd9cdcab4ee9b9ea8946d0be",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()",
+            "startLine": 59,
+            "endLine": 63,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Probe only changes IsOnline unless stopped; Stop stops timer/header."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+          "startLine": 25,
+          "endLine": 53,
+          "source_git_blob_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+          "worktree_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+          "symbol": {
+            "stable_id": "sym-6d4ee9f812848c497872db96216f46cd00b898d7ec16c34e2d5fcab119022639",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CallCenterWinUI.Services.AppSession?)",
+            "startLine": 25,
+            "endLine": 35,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Same five-second timer/immediate probe, stopped-state output guard and timer/header Stop."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/MainViewModel.cs",
+          "startLine": 23,
+          "endLine": 35,
+          "source_git_blob_sha256": "df67ef07edbc787c31f367396f0a511105278abab0a5d8b5da8c71d49c0bce37",
+          "worktree_sha256": "df67ef07edbc787c31f367396f0a511105278abab0a5d8b5da8c71d49c0bce37",
+          "symbol": {
+            "stable_id": "sym-fb56c396bfe662bbc73c508760d8f95e0e8248621da2c6324278e6aeeacbc0f1",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.ViewModels.MainViewModel.MainViewModel()",
+            "startLine": 23,
+            "endLine": 33,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Legacy WPF five-second timer/immediate health; no Stop method in this entire59-line file."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+          "startLine": 43,
+          "endLine": 53,
+          "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+          "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+          "symbol": {
+            "stable_id": "sym-4fed0daeb772351dd8f2fed528f03df5659b2b061764216eb9c74fe11446980a",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.PingHealthAsync(CancellationToken)",
+            "startLine": 43,
+            "endLine": 54,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Health reads fixed /health on configured authority, returns status only."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+          "startLine": 41,
+          "endLine": 51,
+          "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+          "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+          "symbol": {
+            "stable_id": "sym-2b1fa437886c834801dd0d8bd4616b476eae6883d3add3569ee2e16eaa06e46f",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.Services.ApiClient.PingHealthAsync(CancellationToken)",
+            "startLine": 41,
+            "endLine": 52,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "CallCenter same health transport."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+          "startLine": 27,
+          "endLine": 38,
+          "source_git_blob_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "worktree_sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+          "symbol": {
+            "stable_id": "sym-ab2de77f11f098c5d869437600356d4d0dca7f8cc306df0a66c7094221500ad8",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.Services.ApiClient.PingHealthAsync(CancellationToken)",
+            "startLine": 27,
+            "endLine": 38,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Legacy same configured /health, response not disposed here."
+        }
+      ],
+      "inputs": "Fixed5s interval and API base authority from trusted local config/default.",
+      "outputs_side_effects": "Connectivity HTTP GET and online indicator; no financial, filesystem or hidden command action in callback.",
+      "legitimate_purpose": "Visible Online/Offline state.",
+      "trust_boundaries": "Same configured network authority as normal station API.",
+      "counterevidence_limitations": [
+        "Async ticks lack in-flight guard;10s HTTP timeout permits overlapping probes under latency. Performance/reentrancy risk, not evidence malicious periodic behavior.",
+        "Stop suppresses late IsOnline assignment but does not cancel in-flight HTTP. Legacy noStop lifetime differs.",
+        "Anonymous /health bypasses session Resolve, so health alone is not evidence session idle refresh."
+      ],
+      "classification": "INTENTIONAL_VISIBLE_HEALTH_TIMER_NOT_BACKDOOR_PROOF"
+    },
+    {
+      "id": "TMR-BOUNDARY-013",
+      "category": "Header clock DispatcherTimer in three clients",
+      "evidence": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "startLine": 16,
+          "endLine": 27,
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "worktree_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "symbol": {
+            "stable_id": "sym-dcf64319514fa3322a4a3ed54608db71d9f1ab28b0ca49fa4492275c466e947c",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop()",
+            "startLine": 16,
+            "endLine": 16,
+            "startColumn": 5,
+            "endColumn": 46,
+            "isCallable": true
+          },
+          "evidence": "Thirty-second timer calls UpdateClock, Stop available."
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+          "startLine": 39,
+          "endLine": 45,
+          "source_git_blob_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "worktree_sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+          "symbol": {
+            "stable_id": "sym-5ef7aeba3ded90f70b4787ccedda481042b28adf2083d7bbd1c2c106124316e0",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.UpdateClock()",
+            "startLine": 39,
+            "endLine": 45,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "DateTime.Now formatted ar-EG to TimeText/DateText only."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "startLine": 16,
+          "endLine": 26,
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "worktree_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "symbol": {
+            "stable_id": "sym-4925bf8a534b3d185fa9baa44ca6e22cb2a0b008d93c227ac88b988c564a0316",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Stop()",
+            "startLine": 16,
+            "endLine": 16,
+            "startColumn": 5,
+            "endColumn": 46,
+            "isCallable": true
+          },
+          "evidence": "Thirty-second timer and Stop."
+        },
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+          "startLine": 38,
+          "endLine": 44,
+          "source_git_blob_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "worktree_sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+          "symbol": {
+            "stable_id": "sym-7fdc8dfbca09224924cd5c576f52daf79a63c6757706e4e0dedd22ba7ed523c7",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.UpdateClock()",
+            "startLine": 38,
+            "endLine": 44,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Only current date/time formatting."
+        },
+        {
+          "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+          "startLine": 19,
+          "endLine": 40,
+          "source_git_blob_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "worktree_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+          "symbol": {
+            "stable_id": "sym-acd8b8139bc324e6276dc4ee4e1962476c463888d5735deb9f3af350df6cbc73",
+            "kind": "ConstructorDeclaration",
+            "qualifiedSymbol": "Falah.Client.Cashier.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.Cashier.Services.AppSession)",
+            "startLine": 19,
+            "endLine": 26,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Legacy same formatting/timer, noStop in full62-line source."
+        }
+      ],
+      "inputs": "OS local time/culture; fixed30s.",
+      "outputs_side_effects": "Observable clock text notifications only.",
+      "legitimate_purpose": "Displayed cashier header date/time.",
+      "trust_boundaries": "No network/native/process/DB side effects from inspected callbacks.",
+      "counterevidence_limitations": [
+        "Local time can differ from Cairo business clock if station timezone misconfigured; operational display consistency issue.",
+        "No fixed calendar date hidden destructive branch seen in these callback bodies; not blanket repository assurance."
+      ],
+      "classification": "INTENTIONAL_DISPLAY_CLOCK_ONLY"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

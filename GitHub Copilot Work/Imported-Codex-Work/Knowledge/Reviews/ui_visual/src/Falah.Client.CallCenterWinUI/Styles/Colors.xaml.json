@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Styles/Colors.xaml",
+  "source_git_blob_sha256": "b692d3809bffa3943d834fdbc11a65e14cdeeb28a3ee256d0c1b3adda2cbfe91",
+  "worktree_sha256": "155d8d02b6154f775b185637791b04ee4621a964b1781fa19a7ed89766a17e5d",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.295079+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter static light green palette and utility/status brushes.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "BrandPrimaryColor",
+      "reasoning": "Actual primary#156B5A and action#146C59 green contradict old blue comment. Follow actual values, not documentation. Utility WhiteBrush literalwhite valid selected brand foreground; not proof global replace is safe."
+    },
+    {
+      "anchor": "CartBackgroundColor",
+      "reasoning": "Cart/header/item arewhite and footer#F9FAF7 despite dark-cart comments. TextPrimary#25342E and muted#66756C intended light surfaces. No ThemeDictionaries or high contrast override in file."
+    },
+    {
+      "anchor": "SuccessPillBrush",
+      "reasoning": "Semantic pills use saturated success/danger/warning/neutral backgrounds, typography StatusPillText white11px. Warning#D97706 white pairing requires contrast validation; semantics not color-only when label retained."
+    },
+    {
+      "anchor": "ShellNavSelectedColor",
+      "reasoning": "Management shell retains older blue selection while brand green; stylistic inconsistency not functional defect without rendered evidence."
+    },
+    {
+      "anchor": "ProductImageGrillGradientBrush",
+      "reasoning": "Two abstract gradients remain defined despite comment claiming no photo pipeline; actual catalogue supports ImageUri. Treat stale comment, not missing feature."
+    },
+    {
+      "anchor": "CategoryBadgeBrush",
+      "reasoning": "Light green#EAF2EC badge separate category glyph. All brushes resolve preceding Color static resource; this file stores no secrets/data/writes."
+    }
+  ],
+  "tests_and_limits": "Source resource review; no native/high contrast screenshots. No callable symbols. Need actual states/brush consumers before contrast finding severity.",
+  "recommendations": "Maintain semantic foreground/background pairs and remove stale palette/pipeline comments only in approved future change.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

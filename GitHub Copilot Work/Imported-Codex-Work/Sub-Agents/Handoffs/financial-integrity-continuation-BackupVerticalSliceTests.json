@@ -1,0 +1,63 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:23:21.7606737Z",
+  "path": "tests/Falah.Server.IntegrationTests/BackupVerticalSliceTests.cs",
+  "stable_ids": [
+    "sym-0a509c23c22a83360632a8165b589a0c28c8f1fa9af9fa7c07bd1385f93a5664",
+    "sym-d2a86fc3b312d5f8d206bbd50c52fb371f1522ed948440b7a9d3227b4559b763",
+    "sym-aeafd19660b438fedc7481f9b41d66ed3f8c8f5eb46cbdc35c5ae9b0909529f4",
+    "sym-fb525ea2ce94f14250c71b067f028e10a034f3ddad405d8ea747b4430b81089b",
+    "sym-b2c0460935bd8ad5dab48aa65e74e45d6019bb3f2edb3fefaa56c0b29b00f389",
+    "sym-f77b65211aa3620e3835c94bcbabf1c02a4f0ab59d3ba94fd8ea1ac2ed1206c5",
+    "sym-5079521b7b0b0c9ac65eb0c794018da0d49e2842ea20ef69a226c199452509ee",
+    "sym-d1a0c0c2cf4d75fc86b1543a65be613a1ccae97215f53ee68744c94cd10bc316",
+    "sym-d6ca877b6d598f52318650325e051928b7f4af1cfb3e0fd0725241e01e03628a",
+    "sym-5f83ae108cd77adc73f5d84df78a1e1955cf973fcd792bd132a2de57ee01bb83",
+    "sym-ce37fb4931912feb1356c7a693d4e4b02cd82771655db6db33cf7afed3097752",
+    "sym-ad101b3ced5b180897bcdcbb50aa6dfc8769b847579fa210972e4111031ce00f",
+    "sym-169f2eed6344cbfe62e11f0aac1369b38a2e5aad535b1bcadc5bd72a2a4849c0"
+  ],
+  "queued_count": 13,
+  "reconciliation": {
+    "current_union_remaining": 13,
+    "coordinator_database_reports": 13,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/BackupVerticalSliceTests.cs": "DC41E89B45F84CDAF6EE2EFF37D3940C3EDC914B78875245681A3A1DFD2D04B2",
+    "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs": "DF823C1D419205A70FE7BD80900C16137DD07E5A7C77A82F768B988A94C17EA1",
+    "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs": "A9504298519BD4709D18777B5343536894DA4238272EEA65B4AC704C9E1B61C6"
+  },
+  "assessment": "Backup tests cover permission gates, actual create/verify paths, filename separation after an explicit 1.1-second delay, restore permission/phrase/reason gates, and critical audit for a rejected request. They do not test same-second path collision, and do not invoke the actual restore sequence or exercise a concurrent active financial operation. Those exact residuals are already tracked by FIN-007 and FIN-008. Test source states its SQL effects but nothing was executed. No duplicate candidate promoted.",
+  "source_references": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BackupVerticalSliceTests.cs",
+      "lines": "45-84",
+      "claim": "Create and verify tests; filename test delays 1100ms and misses same-second overlap."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BackupVerticalSliceTests.cs",
+      "lines": "98-149",
+      "claim": "Restore tests stop at permission/confirmation/reason/audit gates; no actual restore or pending-operation race."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+      "lines": "44-65",
+      "claim": "Timestamp filename and BACKUP WITH FORMAT create potential same-path overwrite tracked by FIN-007."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "lines": "65-165",
+      "claim": "Pending journal census, safety backup and actual restore sequence; admission race tracked by FIN-008."
+    }
+  ],
+  "existing_findings": [
+    "FIN-007",
+    "FIN-008"
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only; no backup, verification, restore, DB connection or file creation performed.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

@@ -1,0 +1,257 @@
+{
+  "artifact_kind": "financial_callable_coordinator_validation",
+  "batch": "Batch16",
+  "at_utc": "2026-10-24T12:21:36Z",
+  "baseline": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-16-update-delivery-service-2026-10-24.json",
+  "agent_handoff_sha256": "765e85c300da44346f64a645e7458dea5f290e0fae8c9aa33490267bbd78d872",
+  "reviewer_independence": "Coordinator independently reopened callable, API/UI/query/checkout/rules/request/test source and checked source hashes, callable index identity/span, receipt hash and evidence ranges; distinct reviewer from agent-authored review. Static/documentation only; no tests run.",
+  "callable": {
+    "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+    "signature": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+    "lines": [
+      89,
+      122
+    ],
+    "source_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+    "symbol_index": {
+      "found": true,
+      "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+      "qualified_symbol": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+      "span": [
+        89,
+        5,
+        122,
+        6
+      ]
+    },
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs.json",
+      "expected_sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+      "actual_sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+      "hash_matches": true,
+      "reviewer": "financial_integrity",
+      "callable_reasoning": "Authorizes actor then loads service. Optional Name normalized, rejects blank and detects other-ID name clash before Save. Updates fee only when nonnull, so nullable fee cannot be cleared to null through this request; Active optionally toggles. No monetary sign/max validation, no row concurrency token/name-admission lock, no historical order rewrite. Concurrent updates can be last-writer-wins and name predicate races; no live DB acceptance claimed."
+    }
+  },
+  "related_sources": [
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "lines": [
+        89,
+        122
+      ],
+      "expected_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "actual_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "lines": [
+        1201,
+        1209
+      ],
+      "expected_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "actual_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryDirectoryViewModel.cs",
+      "lines": [
+        180,
+        208
+      ],
+      "expected_sha256": "32572081689e600ee9740614b02ea4b1d75573739357c1c6a39ac0dc83049c31",
+      "actual_sha256": "32572081689e600ee9740614b02ea4b1d75573739357c1c6a39ac0dc83049c31",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+      "lines": [
+        24,
+        30
+      ],
+      "expected_sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+      "actual_sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "lines": [
+        80,
+        93
+      ],
+      "expected_sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "actual_sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "lines": [
+        348,
+        361
+      ],
+      "expected_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "actual_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "lines": [
+        65,
+        73
+      ],
+      "expected_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "actual_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "lines": [
+        142,
+        143
+      ],
+      "expected_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "actual_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "lines": [
+        35,
+        39
+      ],
+      "expected_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "actual_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Application/Delivery/DeliveryServiceRequests.cs",
+      "lines": [
+        3,
+        15
+      ],
+      "expected_sha256": "4ba55a39d229b6c4ae2ac34f03a94122ddb5ae3e066c1320cdac129071ecee59",
+      "actual_sha256": "4ba55a39d229b6c4ae2ac34f03a94122ddb5ae3e066c1320cdac129071ecee59",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+      "lines": [
+        7,
+        18
+      ],
+      "expected_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "actual_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "lines": [
+        318,
+        320
+      ],
+      "expected_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "actual_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+      "lines": [
+        39,
+        53
+      ],
+      "expected_sha256": "b1cef59c4078965490fe0405705c5305dd6ca8f66227f3a34ac07bdf3de37feb",
+      "actual_sha256": "b1cef59c4078965490fe0405705c5305dd6ca8f66227f3a34ac07bdf3de37feb",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "lines": [
+        982,
+        1033
+      ],
+      "expected_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "actual_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "hash_matches": true,
+      "range_within_file": true
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "lines": [
+        982,
+        1033
+      ],
+      "expected_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "actual_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "hash_matches": true,
+      "range_within_file": true
+    }
+  ],
+  "reasoning_verified": true,
+  "conclusion": "The exact receipt reasoning is supported by current baseline source: authorization and optional approval precede target lookup; optional name is normalized/nonblank and collision-checked by read-before-save; supplied FeePiastres is assigned raw without a sign/magnitude bound; null is treated as no-op; Active is optional; handler saves configuration only. Active query returns stored fee, Cashier can place selected fee in checkout request, checkout converts to Money, and CheckoutRules adds signed fee then clamps payable below zero. Ordinary management UI rejects negative fee, so this is an API validation gap conditional on owner-confirmed fee policy, and it overlaps FIN-016; no separate finding. The test titled frozen-order snapshot changes a different service and checks DeliveryServiceId only; it does not prove the same-service numeric fee snapshot. No runtime effect, duplicate payment, or concurrency outcome established.",
+  "test_source": {
+    "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+    "lines": [
+      982,
+      1033
+    ],
+    "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+    "existing_scenarios": [
+      {
+        "lines": [
+          999,
+          1016
+        ],
+        "scenario": "Positive-fee update request is sent; asserted result is only that a different order's DeliveryServiceId remains svc-1. It does not assert updated fee or same-service historical fee snapshot."
+      },
+      {
+        "lines": [
+          1018,
+          1033
+        ],
+        "scenario": "Deactivation removes the service from active query and retains it in all-services query."
+      }
+    ],
+    "missing_scenarios": [
+      "Negative and extreme update fee rejected server-side.",
+      "Null versus omitted fee semantics and clearing behavior.",
+      "Same-service old-order numeric fee remains frozen while subsequent new order receives changed fee.",
+      "Concurrent conflicting rename and same-row overlapping updates."
+    ],
+    "execution": "NOT_RUN"
+  },
+  "runtime_executed": false,
+  "financial_policy": "Owner decision required: nonnegative/upper bound and explicit null/clear semantics.",
+  "limitations": [
+    "Static source/test-source review only; no tests run.",
+    "No HTTP, SQL, database, concurrency, checkout, cash, inventory, or journal execution.",
+    "Provider collation/isolation and external schema constraints were not inspected at runtime.",
+    "This reviewer-owned receipt does not edit shared overlay, master, or report."
+  ],
+  "remaining": [
+    "Owner: confirm nonnegative fee and any upper-bound policy; UI currently assumes fee >= 0 but policy artifact not independently re-read in this bounded task.",
+    "If confirmed, validate sign/range at the server update boundary, keep zero/positive cases, and test rejection without config mutation.",
+    "Owner/API contract: decide if fee can be cleared. Current nullable DTO treats null as no-op; add explicit tri-state patch if clearing is required.",
+    "Add same-service order snapshot assertions and, if duplicate rename prevention is a requirement, enforce/test it under the deployed provider including concurrent conflicting names."
+  ],
+  "classification": {
+    "previous": "EXISTING_REASONING_UNVERIFIED",
+    "new": "SUBSTANTIVE_REVIEW_VERIFIED",
+    "scope": "Single callable source reasoning corroborated independently; does not certify sibling/create handler, full workflow, runtime behavior or financial workstream."
+  }
+}

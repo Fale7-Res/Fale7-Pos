@@ -1,0 +1,22 @@
+{
+  "artifact_kind": "financial_integrity_continuation_checkpoint",
+  "created_at_utc": "2026-10-24T12:01:08Z",
+  "reviewer": "financial_integrity_continuation",
+  "prior_checkpoint_preserved": "Codex Work/Sub-Agents/Checkpoints/financial-integrity-continuation.json",
+  "assignment": "Continue Batch13 session; acknowledge Batch13 coordinator validation; complete one material callable quality review from live EXISTING_REASONING_UNVERIFIED, without shared overlay/report/source/test/runtime/DB changes.",
+  "batch14_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-14-apply-refund-2026-10-24.json",
+  "batch14_handoff_sha256": "494170caf7917ac9d71389071d4c93761bcef8fecea89c64e336dd26fb2d6fe5",
+  "reviewed_stable_ids": ["sym-b90e1805757f7674b897ad8aa3ea2233c933d06f04534c70530022d4d1107f12"],
+  "reviewed_callable": "Falah.Domain.Orders.Order.ApplyRefund(Falah.Domain.Orders.OrderRefund)",
+  "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED in reviewer-owned evidence; corroborates existing FIN-003 and does not create a duplicate finding or promote shared overlay.",
+  "live_overlay_at_selection": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "8e3d080eb2893bd3129b3106fab273dbf1040a2beac3d46ce5e59b085049554e",
+    "counts": {"SUBSTANTIVE_REVIEW_VERIFIED": 63, "EXISTING_REASONING_UNVERIFIED": 7758, "IDENTITY_ONLY": 983, "total": 8804}
+  },
+  "batch13_validation_read": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-13-coordinator-validation-2026-10-24.json (LoadPeopleAsync independently validated/promoted; reversed-range extends FIN-CAND-REPORT-RANGE-001).",
+  "next_exact_operation": "Coordinator reconcile FIN-003 source hash provenance and owner-policy/acceptance fields from Batch14 evidence, then choose a different material callable from the live EXISTING_REASONING_UNVERIFIED overlay; do not repeat ApplyRefund absent new code/policy/test evidence.",
+  "tests_executed": [],
+  "application_source_or_runtime_mutated": false,
+  "shared_overlay_master_report_mutated": false
+}

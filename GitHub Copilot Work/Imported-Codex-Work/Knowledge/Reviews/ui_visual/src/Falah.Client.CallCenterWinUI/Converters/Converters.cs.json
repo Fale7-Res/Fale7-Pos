@@ -1,0 +1,1092 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+  "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+  "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:38:04.856225+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "CallCenter shared display converters with exact forward/reverse contracts.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "OrderStatusLabelConverter",
+      "reasoning": "Lowercases six known order states and preserves unknown source text; null/nonstring becomes empty. Localizes display only, never writes wire state."
+    },
+    {
+      "anchor": "BoolToVisibleConverter",
+      "reasoning": "Only boxed true becomes Visible; false/null/wrong type collapses. Useful positive guard, not permission enforcement."
+    },
+    {
+      "anchor": "InverseBoolToVisibleConverter",
+      "reasoning": "Only true collapses; null/false/wrong type visible, so unset loading flag may reveal content. This is exact inverse of positive converter."
+    },
+    {
+      "anchor": "NullToCollapsedConverter",
+      "reasoning": "Null and empty string collapse, whitespace and all other objects visible. Whitespace errors can reserve empty-looking panel; no trim."
+    },
+    {
+      "anchor": "EmptyStringToVisibleConverter",
+      "reasoning": "Null/empty visible for placeholder; whitespace nonempty collapses placeholder. Counterpart of null display converter."
+    },
+    {
+      "anchor": "ShiftDotBrushConverter",
+      "reasoning": "True maps shared emerald brush, otherwise slate. Static brushes ignore theme changes; textual ShiftLabel must carry non-color meaning."
+    },
+    {
+      "anchor": "BoolToBrushConverter",
+      "reasoning": "Required string parameter split two keys, true selects first; direct Application.Resources lookup. Invalid arity/key throws and concrete brush does not auto-reevaluate theme. CallCenter uses static light palette unlike cashier ThemeResources helper."
+    },
+    {
+      "anchor": "StringEqualsToBrushConverter",
+      "reasoning": "Ordinal value versus first parameter segment picks second/third app brush key. No parameter length/type validation; wrong case unselected. No UI mutation beyond returned brush."
+    },
+    {
+      "anchor": "StringEqualsToVisibleConverter",
+      "reasoning": "Ordinal string equality yields visibility. Two nonstrings cast null and compare equal if parameter null; actual callers use explicit strings."
+    },
+    {
+      "anchor": "CountGreaterThanOneToVisibleConverter",
+      "reasoning": "Requires non-generic ICollection Count>1; DTO variants exposing collection satisfy, arbitrary IEnumerable does not. Bound collection mutation will not itself reevaluate unless binding notified."
+    },
+    {
+      "anchor": "PiastresToDisplayConverter",
+      "reasoning": "Accepts long/int using decimal money format; null em dash, wrong numeric type0.00 can hide schema mismatch. No arithmetic authority, display only."
+    },
+    {
+      "anchor": "InverseBoolConverter",
+      "reasoning": "Both forward and reverse return value is not true. Symmetric bool inversion for well-typed inputs; null/wrongtype becomes true. Reverse is implemented unlike other converters."
+    },
+    {
+      "anchor": "EmptyCollectionToVisibleConverter",
+      "reasoning": "Null or ICollection Count0 visible; wrong type hidden. Changes require source notification; Count-based converter is safer for observable collection updates."
+    },
+    {
+      "anchor": "NonEmptyCollectionToVisibleConverter",
+      "reasoning": "ICollection Count>0 visible, null/wrong type collapsed. Complement only for supported collection contract; not for arbitrary IEnumerable."
+    },
+    {
+      "anchor": "CairoBusinessDateConverter",
+      "reasoning": "Extracts supplied calendar date from DateOnly/DateTime/DateTimeOffset or culture-parsed string; does not convert instant to Cairo despite name. Correct when caller supplies business-date carrier; arbitraryUTCnear-midnight can display wrong Cairo day."
+    },
+    {
+      "anchor": "TimeOfDayConverter",
+      "reasoning": "DateTimeOffset converted machine local and ar-EG time; DateTime used as supplied. Not pinned Cairo, so remote station displays its clock zone. Unsupported em dash."
+    },
+    {
+      "anchor": "NavKeyToGlyphConverter",
+      "reasoning": "Known module-key dictionary to Fluent private-use glyph; unknown/nonstring generic fallback. Textual navigation label needed for accessibility, no new screen construction."
+    },
+    {
+      "anchor": "StatusToPillBrushConverter",
+      "reasoning": "Lowercase substring bucket tests success before failure/warning. Future unpaid/inactive could match paid/active; current emitted vocabulary not verified for those strings, candidate only. Direct app resources, neutral fallback."
+    },
+    {
+      "anchor": "ImageUriToSourceConverter",
+      "reasoning": "Absolute Uri key cached in static locked dictionary, BitmapImage decodewidth320. Relative URI AbsoluteUri throws; no eviction/download-failure retry invalidation. Version URLs accumulate process lifetime. No physical printing or database call."
+    },
+    {
+      "anchor": "ZeroCountToVisibleConverter",
+      "reasoning": "Only int0 visible; Count-property binding receives changes unlike collection object. Negative/wrongtype collapses; actual Count cannot negative."
+    },
+    {
+      "anchor": "CountToVisibleConverter",
+      "reasoning": "Only positive int visible. Zero/null/wrongtype collapsed, matching saved-address count UI. No side effects or enumeration."
+    }
+  ],
+  "tests_and_limits": "SOURCE_REVIEW_ONLY. All43 callable stable spans individually reconciled, including21 forward/reverse pairs and Format. No native runtime tests; no blanket migration from legacy headings.",
+  "recommendations": "Test required parameter arity, display types, absolute image URLs, bounded cache and timestamp semantics; keep unknown state neutral.",
+  "symbols": [
+    {
+      "stable_id": "sym-2280d8e35332729545b4e3a55b8121a31660ce61f56e478bcec8331490c1c9e0",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.OrderStatusLabelConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        13,
+        5,
+        22,
+        7
+      ],
+      "reasoning": "Lowercases six known order states and preserves unknown source text; null/nonstring becomes empty. Localizes display only, never writes wire state.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Lowercases six known order states and preserves unknown source text; null/nonstring becomes empty. Localizes display only, never writes wire state.",
+      "tests_missing": "Table-driven OrderStatusLabelConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-38e8ec801eba7aeeccaff9d891df4a724ed6e20f6ba5f404c3b4cccb698602e1",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.OrderStatusLabelConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        24,
+        5,
+        25,
+        43
+      ],
+      "reasoning": "OrderStatusLabelConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven OrderStatusLabelConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-be7ecd149c2fac6199ed1cc9e101d80ce53312dc0f4b9e955d6a3c12961531db",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.BoolToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        30,
+        5,
+        31,
+        67
+      ],
+      "reasoning": "Only boxed true becomes Visible; false/null/wrong type collapses. Useful positive guard, not permission enforcement.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Only boxed true becomes Visible; false/null/wrong type collapses. Useful positive guard, not permission enforcement.",
+      "tests_missing": "Table-driven BoolToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-ba094ced05a9964ee5b003cd0322ef3e353641b7109f1fbfcaebabe6eadbba6f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.BoolToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        33,
+        5,
+        34,
+        43
+      ],
+      "reasoning": "BoolToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven BoolToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-ce82f7258fb1045f1f2ffb1d1c91cea64ef6e078eac004c472ce6c1032f1b78f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.InverseBoolToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        39,
+        5,
+        40,
+        67
+      ],
+      "reasoning": "Only true collapses; null/false/wrong type visible, so unset loading flag may reveal content. This is exact inverse of positive converter.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Only true collapses; null/false/wrong type visible, so unset loading flag may reveal content. This is exact inverse of positive converter.",
+      "tests_missing": "Table-driven InverseBoolToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-e6002387164ea832ad18e54b704381923b28b6b8a52f0eac3919c135ff31b5c5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.InverseBoolToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        42,
+        5,
+        43,
+        43
+      ],
+      "reasoning": "InverseBoolToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven InverseBoolToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-f5396444cd2294f5057e7764ad755aa267d4d9e3ec9509937698a29ab96f7361",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NullToCollapsedConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        50,
+        5,
+        51,
+        86
+      ],
+      "reasoning": "Null and empty string collapse, whitespace and all other objects visible. Whitespace errors can reserve empty-looking panel; no trim.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Null and empty string collapse, whitespace and all other objects visible. Whitespace errors can reserve empty-looking panel; no trim.",
+      "tests_missing": "Table-driven NullToCollapsedConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-5029254fc58c2a372c5b72e8068289ccc9868b0a7656603e8b6ac3f247cb7acf",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NullToCollapsedConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        53,
+        5,
+        54,
+        43
+      ],
+      "reasoning": "NullToCollapsedConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven NullToCollapsedConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-b21841e5e08274b9c29a0c1b43d58887c357766b97372c0d3fabdc4ff85416ec",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.EmptyStringToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        62,
+        5,
+        63,
+        86
+      ],
+      "reasoning": "Null/empty visible for placeholder; whitespace nonempty collapses placeholder. Counterpart of null display converter.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Null/empty visible for placeholder; whitespace nonempty collapses placeholder. Counterpart of null display converter.",
+      "tests_missing": "Table-driven EmptyStringToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-020041866ee58da75a37771ba7373fda2fc46094062673d8557cbcba17b034f2",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.EmptyStringToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        65,
+        5,
+        66,
+        43
+      ],
+      "reasoning": "EmptyStringToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven EmptyStringToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-3a1c7aa0d93cde787e554033217ea4239a326b02ff1af96a8acffd7ac319b1f6",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ShiftDotBrushConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        76,
+        5,
+        77,
+        39
+      ],
+      "reasoning": "True maps shared emerald brush, otherwise slate. Static brushes ignore theme changes; textual ShiftLabel must carry non-color meaning.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "True maps shared emerald brush, otherwise slate. Static brushes ignore theme changes; textual ShiftLabel must carry non-color meaning.",
+      "tests_missing": "Table-driven ShiftDotBrushConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-c65bdf11d446f5e91ad33e9f838b41b6072afc882c76b7d0f5d63540ee19efe4",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ShiftDotBrushConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        79,
+        5,
+        80,
+        43
+      ],
+      "reasoning": "ShiftDotBrushConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven ShiftDotBrushConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-94c65d153711d0b7fb6d8039a068b00dcf78b83dc796986b0de5cc679bb1d498",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.BoolToBrushConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        92,
+        5,
+        97,
+        6
+      ],
+      "reasoning": "Required string parameter split two keys, true selects first; direct Application.Resources lookup. Invalid arity/key throws and concrete brush does not auto-reevaluate theme. CallCenter uses static light palette unlike cashier ThemeResources helper.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Required string parameter split two keys, true selects first; direct Application.Resources lookup. Invalid arity/key throws and concrete brush does not auto-reevaluate theme. CallCenter uses static light palette unlike cashier ThemeResources helper.",
+      "tests_missing": "Table-driven BoolToBrushConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-d6907ec5c4793c2b2e7323fc4a401843dfae178a7e06bae5ee1e84696909f026",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.BoolToBrushConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        99,
+        5,
+        100,
+        43
+      ],
+      "reasoning": "BoolToBrushConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven BoolToBrushConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-f2845fa63e0120648c4c5f7b67db6916178c4a95146ac99f54b1aac084d7c5a2",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StringEqualsToBrushConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        108,
+        5,
+        113,
+        6
+      ],
+      "reasoning": "Ordinal value versus first parameter segment picks second/third app brush key. No parameter length/type validation; wrong case unselected. No UI mutation beyond returned brush.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Ordinal value versus first parameter segment picks second/third app brush key. No parameter length/type validation; wrong case unselected. No UI mutation beyond returned brush.",
+      "tests_missing": "Table-driven StringEqualsToBrushConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-7100b5981959d2f60be5cb68a2b9d91f678c1e145ed96834ebb1787c2660ec60",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StringEqualsToBrushConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        115,
+        5,
+        116,
+        43
+      ],
+      "reasoning": "StringEqualsToBrushConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven StringEqualsToBrushConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-c560a32c40ec9323ab430a0a00f8831e4bcf4d99477ed9f99b03dc1344401f06",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StringEqualsToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        123,
+        5,
+        124,
+        131
+      ],
+      "reasoning": "Ordinal string equality yields visibility. Two nonstrings cast null and compare equal if parameter null; actual callers use explicit strings.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Ordinal string equality yields visibility. Two nonstrings cast null and compare equal if parameter null; actual callers use explicit strings.",
+      "tests_missing": "Table-driven StringEqualsToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-d2d6c9a84aa219619bf42392a8a21edb302e19c2747dc0a744ba51a5bbd0a1c5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StringEqualsToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        126,
+        5,
+        127,
+        43
+      ],
+      "reasoning": "StringEqualsToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven StringEqualsToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-62fb40753c04f9fc7c99c69254f2f9591495e77cbe22d335c6f1fd3862034c38",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CountGreaterThanOneToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        133,
+        5,
+        134,
+        108
+      ],
+      "reasoning": "Requires non-generic ICollection Count>1; DTO variants exposing collection satisfy, arbitrary IEnumerable does not. Bound collection mutation will not itself reevaluate unless binding notified.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Requires non-generic ICollection Count>1; DTO variants exposing collection satisfy, arbitrary IEnumerable does not. Bound collection mutation will not itself reevaluate unless binding notified.",
+      "tests_missing": "Table-driven CountGreaterThanOneToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-23222a547d01b7816b2382219f556b1d44d1265d2740c123b02c016839ce494f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CountGreaterThanOneToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        136,
+        5,
+        137,
+        43
+      ],
+      "reasoning": "CountGreaterThanOneToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven CountGreaterThanOneToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-2a477e13600d3f95272144d21388daef760f2ef8fe746c340480f03f77d2d97b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.PiastresToDisplayConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        145,
+        5,
+        151,
+        7
+      ],
+      "reasoning": "Accepts long/int using decimal money format; null em dash, wrong numeric type0.00 can hide schema mismatch. No arithmetic authority, display only.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Accepts long/int using decimal money format; null em dash, wrong numeric type0.00 can hide schema mismatch. No arithmetic authority, display only.",
+      "tests_missing": "Table-driven PiastresToDisplayConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-8b120ad23f3322f3b2d2c4cfdf358581ebe3648ed9a95b0d84902e4b9c506772",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.PiastresToDisplayConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        155,
+        5,
+        156,
+        43
+      ],
+      "reasoning": "PiastresToDisplayConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven PiastresToDisplayConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-9a7d4e336b77973cdd369596c68ddfa015f831c65fe8d618ef32318ca363fa25",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.InverseBoolConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        164,
+        5,
+        164,
+        114
+      ],
+      "reasoning": "Both forward and reverse return value is not true. Symmetric bool inversion for well-typed inputs; null/wrongtype becomes true. Reverse is implemented unlike other converters.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Both forward and reverse return value is not true. Symmetric bool inversion for well-typed inputs; null/wrongtype becomes true. Reverse is implemented unlike other converters.",
+      "tests_missing": "Table-driven InverseBoolConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-fd47daf3a6ddbebc3d260ae40154159011c98944093a744412759462006fd88f",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.InverseBoolConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        165,
+        5,
+        165,
+        118
+      ],
+      "reasoning": "Symmetric reverse bool negation: value is not true, preserving real bool inversion but coercing wrong/null values to true.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven InverseBoolConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-6e10cdff103c0b008d96d6ac688fda84cd065211c2b4273dd1497aaf0a3aad7e",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.EmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        172,
+        5,
+        173,
+        114
+      ],
+      "reasoning": "Null or ICollection Count0 visible; wrong type hidden. Changes require source notification; Count-based converter is safer for observable collection updates.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Null or ICollection Count0 visible; wrong type hidden. Changes require source notification; Count-based converter is safer for observable collection updates.",
+      "tests_missing": "Table-driven EmptyCollectionToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-2d8cdf28694c1bfcbaa062eea835b084386ac3254d34696fe87d814408937f56",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.EmptyCollectionToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        175,
+        5,
+        176,
+        43
+      ],
+      "reasoning": "EmptyCollectionToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven EmptyCollectionToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-673d96a8fa31adc15863e9fa93e29b2c7421470257335b94d2c50df779543fd9",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NonEmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        183,
+        5,
+        184,
+        108
+      ],
+      "reasoning": "ICollection Count>0 visible, null/wrong type collapsed. Complement only for supported collection contract; not for arbitrary IEnumerable.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "ICollection Count>0 visible, null/wrong type collapsed. Complement only for supported collection contract; not for arbitrary IEnumerable.",
+      "tests_missing": "Table-driven NonEmptyCollectionToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-3300c6869eafc5280f2c9821f9a3f6f58bbb44c5c21f5b471ed08cf42b64e625",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NonEmptyCollectionToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        186,
+        5,
+        187,
+        43
+      ],
+      "reasoning": "NonEmptyCollectionToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven NonEmptyCollectionToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-8f8b8c4190d3816926115630c9df176269090fa4a1b9b6eb6c65abd0d220efed",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CairoBusinessDateConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        201,
+        5,
+        214,
+        6
+      ],
+      "reasoning": "Extracts supplied calendar date from DateOnly/DateTime/DateTimeOffset or culture-parsed string; does not convert instant to Cairo despite name. Correct when caller supplies business-date carrier; arbitraryUTCnear-midnight can display wrong Cairo day.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Extracts supplied calendar date from DateOnly/DateTime/DateTimeOffset or culture-parsed string; does not convert instant to Cairo despite name. Correct when caller supplies business-date carrier; arbitraryUTCnear-midnight can display wrong Cairo day.",
+      "tests_missing": "Table-driven CairoBusinessDateConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-4928a5a8dab7d38b50c216b7fec3130b664de012589c73e85fd333a262399305",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CairoBusinessDateConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        216,
+        5,
+        217,
+        43
+      ],
+      "reasoning": "CairoBusinessDateConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven CairoBusinessDateConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-939ba342066b8db5a0e240e3067f59c7a01a94756227094956abd41ea156ade2",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.TimeOfDayConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        225,
+        5,
+        230,
+        7
+      ],
+      "reasoning": "DateTimeOffset converted machine local and ar-EG time; DateTime used as supplied. Not pinned Cairo, so remote station displays its clock zone. Unsupported em dash.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "DateTimeOffset converted machine local and ar-EG time; DateTime used as supplied. Not pinned Cairo, so remote station displays its clock zone. Unsupported em dash.",
+      "tests_missing": "Table-driven TimeOfDayConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-629e7c0e841ccb26a844391b99745265c1da061bdc2285467e3a642c2d5793f8",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.TimeOfDayConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        232,
+        5,
+        233,
+        43
+      ],
+      "reasoning": "TimeOfDayConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven TimeOfDayConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-25e32421462a258534746b53fa54477701aab433a9edeb25440435b4f0b77c5e",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NavKeyToGlyphConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        265,
+        5,
+        266,
+        85
+      ],
+      "reasoning": "Known module-key dictionary to Fluent private-use glyph; unknown/nonstring generic fallback. Textual navigation label needed for accessibility, no new screen construction.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Known module-key dictionary to Fluent private-use glyph; unknown/nonstring generic fallback. Textual navigation label needed for accessibility, no new screen construction.",
+      "tests_missing": "Table-driven NavKeyToGlyphConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-bc31f1251902f364b5900e1890d18d179130a473392a331028462f0354938d37",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.NavKeyToGlyphConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        268,
+        5,
+        269,
+        43
+      ],
+      "reasoning": "NavKeyToGlyphConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven NavKeyToGlyphConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-0bdc2586c3249ef535defe4937819123895749b1ebc42b33450f3d6bf56a4cbc",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StatusToPillBrushConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        279,
+        5,
+        293,
+        6
+      ],
+      "reasoning": "Lowercase substring bucket tests success before failure/warning. Future unpaid/inactive could match paid/active; current emitted vocabulary not verified for those strings, candidate only. Direct app resources, neutral fallback.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Lowercase substring bucket tests success before failure/warning. Future unpaid/inactive could match paid/active; current emitted vocabulary not verified for those strings, candidate only. Direct app resources, neutral fallback.",
+      "tests_missing": "Table-driven StatusToPillBrushConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-e369d695b5ee6325598ae67cb372aba12a073846d529338a1b48e5c78218dc27",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.StatusToPillBrushConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        295,
+        5,
+        296,
+        43
+      ],
+      "reasoning": "StatusToPillBrushConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven StatusToPillBrushConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-64349009d470a7f6478ad43aba0419c10d60bba2e4973f8603c36594d17e4a64",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        314,
+        5,
+        325,
+        6
+      ],
+      "reasoning": "Absolute Uri key cached in static locked dictionary, BitmapImage decodewidth320. Relative URI AbsoluteUri throws; no eviction/download-failure retry invalidation. Version URLs accumulate process lifetime. No physical printing or database call.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Absolute Uri key cached in static locked dictionary, BitmapImage decodewidth320. Relative URI AbsoluteUri throws; no eviction/download-failure retry invalidation. Version URLs accumulate process lifetime. No physical printing or database call.",
+      "tests_missing": "Table-driven ImageUriToSourceConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-884e46c18f0b903e5ea1aa5471d94354eca190b119d6fc90fcdb316a3d24855a",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ImageUriToSourceConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        327,
+        5,
+        328,
+        43
+      ],
+      "reasoning": "ImageUriToSourceConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven ImageUriToSourceConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-a60e7f81c08209f7d76dcc39efbd4333d06a4f52c8e24e0cb66a89103d896605",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ZeroCountToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        337,
+        5,
+        338,
+        72
+      ],
+      "reasoning": "Only int0 visible; Count-property binding receives changes unlike collection object. Negative/wrongtype collapses; actual Count cannot negative.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Only int0 visible; Count-property binding receives changes unlike collection object. Negative/wrongtype collapses; actual Count cannot negative.",
+      "tests_missing": "Table-driven ZeroCountToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-f0d1974f3ef9f560ce725c7055e0b70f7490018cd4c0a4c18c391275a441d7d4",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.ZeroCountToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        340,
+        5,
+        341,
+        43
+      ],
+      "reasoning": "ZeroCountToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven ZeroCountToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-466f1596ce22da0d203442c8f534971100a415546cab0d1bedc6bfb711da65db",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CountToVisibleConverter.Convert(object, Type, object, string)",
+      "exact_span": [
+        348,
+        5,
+        349,
+        85
+      ],
+      "reasoning": "Only positive int visible. Zero/null/wrongtype collapsed, matching saved-address count UI. No side effects or enumeration.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "Converted UI display object described in reasoning",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "Only positive int visible. Zero/null/wrongtype collapsed, matching saved-address count UI. No side effects or enumeration.",
+      "tests_missing": "Table-driven CountToVisibleConverter.Convert null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-d54f23ee2f192b69dacebf25f18c5d545e0b8cab35072cc281761e9140effe61",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.CountToVisibleConverter.ConvertBack(object, Type, object, string)",
+      "exact_span": [
+        351,
+        5,
+        352,
+        43
+      ],
+      "reasoning": "CountToVisibleConverter reverse path explicitly throws NotSupportedException; it is a display-only mapping and a TwoWay binding would fail rather than silently fabricate original input. Exact throw body inspected at this span.",
+      "inputs": "value,targetType,parameter,language; unused arguments ignored as shown",
+      "outputs": "NotSupportedException",
+      "side_effects": "Image converter forward allocates/reuses process cache; other paths return value/resource or throw. No runtime calls executed.",
+      "trust_boundaries": "Untrusted DTO/value/resource parameter enters presentation, no authorization authority",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Display semantics above; physical printing NOT_APPLICABLE; native rendering NOT_OBSERVED",
+      "performance": "Constant conversion except bounded dictionary lookup/cache growth as noted; no measurement",
+      "duplicates_conflicts": "Cashier similar converter independently read; exact CallCenter signature and syntax span verified here",
+      "issues_hypotheses": "TwoWay misuse requires caller search; no known current misuse established",
+      "tests_missing": "Table-driven CountToVisibleConverter.ConvertBack null/wrongtype and stated boundary cases; native theme/binding tests not run",
+      "verified_callers_callees": "XAML IValueConverter binding contract; exact runtime binding subscribers UNKNOWN. Source callees only those explicitly described."
+    },
+    {
+      "stable_id": "sym-46dc4858a103325911c59500ffc9289e0f2c4607a6130c660f033ad630b2c249",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Converters.PiastresToDisplayConverter.Format(long)",
+      "exact_span": [
+        153,
+        5,
+        153,
+        80
+      ],
+      "reasoning": "Divides integer piastres by decimal100m and formats two decimals with currency suffix, avoiding integer truncation and binary float. Uses current culture rather than invariant; display should remain local, not reparsed for financial input.",
+      "inputs": "long piastres",
+      "outputs": "formatted string",
+      "side_effects": "None",
+      "trust_boundaries": "Numeric DTO→localized UI text; do not parse back",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Called by same-class Convert for int/long; no physical output",
+      "performance": "Constant time decimal formatting",
+      "duplicates_conflicts": "Cashier equivalent separately reviewed; no consolidation implemented",
+      "issues_hypotheses": "Unsupported numeric DTO type handled by caller as0.00 rather than this method",
+      "tests_missing": "longMin/Max,1piastre,negative and alternate display cultures",
+      "verified_callers_callees": "PiastresToDisplayConverter.Convert→Format; interpolation decimal formatter"
+    }
+  ],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

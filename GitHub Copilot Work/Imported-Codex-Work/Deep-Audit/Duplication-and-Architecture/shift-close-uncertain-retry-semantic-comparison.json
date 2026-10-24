@@ -1,0 +1,319 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-034",
+  "created_at_utc": "2026-10-21T07:33:54Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "scope": "Compare the two active CashierWinUI shift-close entry points and server close endpoint for counted amount, approval, uncertain-response recovery, idempotency, and financial side effects.",
+  "decision": "Both flows submit the server-computed preview amount, require approval above threshold, and reach the same CloseShiftHandler. They differ after uncertain transport: POS-embedded CashierViewModel stores the exact CloseShiftRequest in _pendingCloseShift, retries the same payload/request ID, blocks cancelling while unresolved, and clears it only on determinate result. ShiftsViewModel calls CloseShiftAsync directly with a newly generated ID each confirm and retains no pending request. The common API wrapper marks transport/serialization failures OutcomeUnknown and says retry same data. Server row lock and CloseRequestId replay return a committed result only for the same key; after close, a new key hits the closed-state guard before producing another movement. Duplicate treasury posting is NOT established, but the dedicated screen can leave an ambiguous modal/error after committed close and a second fresh-key attempt is rejected. This is a source-confirmed recovery-resilience divergence; runtime impact not tested. Additional call-chain inspection verifies a second guard divergence: the cashier POS close modal refuses to open when its persistent per-user cart contains items; the shell can navigate from that same cached CashierViewModel to a separately created ShiftsViewModel, whose close action has no cart check. That screen can therefore close the shift while an unsubmitted cart remains in session. Success clears AppSession.ShiftId; checkout reads that value, so the retained draft cannot be submitted until a shift is reopened/reconciled. This is a source-confirmed UI precondition bypass with workflow/attribution impact conditional on intended policy; it does not prove a sale or cash misposting.",
+  "finding_candidate": "Conditional recovery/resilience concern, not a duplicate-payment or double-handover finding; no new canonical financial defect ID assigned. A separate conditional workflow guard gap exists for closing with a nonempty retained cart through the Shifts screen; owner policy/expected draft behavior should be confirmed.",
+  "severity": "LOW_CONDITIONAL_RELIABILITY",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.ShiftClose.cs",
+      "worktree_sha256": "06cd84179290763e76ed175c2d91f6cdddcb2d6ad4b95503bc5f24386a631a82",
+      "source_git_blob_sha256": "f3e4f93a1a8c5fd1a0f03a27b9ef20fcb111b7b2b30cdbcd016b95cb092778fe",
+      "line_ranges": [
+        [
+          35,
+          47
+        ],
+        [
+          91,
+          163
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6b2907c61ebda64d0c6c42c4e0c885b5aa21494c7b8115de041fcc1fde82e94d",
+          "signature": "CashierViewModel.ConfirmCloseShiftAsync()",
+          "span": [
+            91,
+            5,
+            140,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0d42973d6a6b14d28b580e75706533997167738c5f4361679ff129c49643c4a8",
+          "signature": "CashierViewModel.CompleteCloseShiftAsync(CloseShiftRequest)",
+          "span": [
+            143,
+            5,
+            163,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8fec9685fa6347fb3a2d8760f915aae3ab5d0e6a3025c6fe2a0373a9d29939d3",
+          "signature": "CashierViewModel.OpenCloseShift()",
+          "span": [
+            35,
+            5,
+            47,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs",
+      "worktree_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "source_git_blob_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "line_ranges": [
+        [
+          90,
+          146
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-28411fed2c72f7ff3021a1122c9bb5552aa5d7d655698ed6f66031890ba17388",
+          "signature": "ShiftsViewModel.ConfirmCloseShiftAsync()",
+          "span": [
+            90,
+            5,
+            146,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          112,
+          123
+        ],
+        [
+          199,
+          202
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "signature": "ApiClient.SendAsync<T>(Func<Task<HttpResponseMessage>>, CancellationToken)",
+          "span": [
+            112,
+            5,
+            123,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-986adbe8f7a6339fc12009c13d1712d77268746095650729023a87f2fa10a44b",
+          "signature": "ApiClient.CloseShiftAsync(CloseShiftRequest, CancellationToken)",
+          "span": [
+            199,
+            5,
+            202,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "line_ranges": [
+        [
+          47,
+          82
+        ],
+        [
+          95,
+          175
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "CloseShiftHandler.HandleAsync(CloseShiftRequest, CancellationToken)",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          337,
+          356
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6ddc0569a6defbdfdb7668effd54dc449e6789d9e7bae6a2c196e6ffff720046",
+          "signature": "POST /api/shifts/close endpoint lambda",
+          "span": [
+            337,
+            34,
+            356,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Shifts/CloseShiftRequest.cs",
+      "worktree_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "source_git_blob_sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "line_ranges": [
+        [
+          15,
+          17
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4ee0dbb85eba790fde145dfdd3fcaad6e34e1b6145e5c0d515b3ddf283e0a4c6",
+          "signature": "CloseShiftRequest",
+          "span": [
+            15,
+            1,
+            17,
+            63
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "line_ranges": [
+        [
+          22,
+          28
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a45243af95943991f8d38374fd292d1a60c7f9edf12df1ce79a5739afeb56fb2",
+          "signature": "AppSession.GetCashier(HeaderViewModel)",
+          "span": [
+            22,
+            5,
+            28,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+      "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9",
+      "source_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+      "line_ranges": [
+        [
+          144,
+          177
+        ],
+        [
+          286,
+          291
+        ],
+        [
+          343,
+          348
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-09a0e32ea2c7ff21cd12c5a1ccfcba5578526b138290fab900f1a88bb9960673",
+          "signature": "ShellViewModel.Navigate(ShellNavItem)",
+          "span": [
+            144,
+            5,
+            177,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c5b76ea93415a27b3366ead7e29acf8696fc0537d11d20dfa427eec57318a916",
+          "signature": "ShellViewModel.CreateShifts()",
+          "span": [
+            286,
+            5,
+            291,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d789403de60c80102824d378d315dcb4252291893f7da6e99b8f0140df881518",
+          "signature": "ShellViewModel.CreateCashier()",
+          "span": [
+            343,
+            5,
+            348,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+      "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+      "source_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+      "line_ranges": [
+        [
+          230,
+          230
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6c3b06246f4c230ae391e8cafd2ad75dc94a0832de1d0ff974a29150f6eeb6c0",
+          "signature": "CashierViewModel.Cart",
+          "span": [
+            230,
+            5,
+            230,
+            65
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "embedded": "Retains the exact request and ID when outcome is unknown, retries the same payload, blocks cancel, and clears only after determinate result.",
+    "dedicated": "Sends a newly generated shift-close ID each confirmation and does not retain/retry unknown request; failure message leaves modal open.",
+    "server": "Handler locks the shift row, replays only when stored CloseRequestId equals request ID, rejects non-open shift before creating movements, and persists shift, reconciliation/handover movements, audit and print job in one transaction. This counters duplicate-post inference but a different request ID does not replay the committed result.",
+    "counterevidence": "Both flows converge on the same transactional handler. Per-shift movement keys and closed-state guard prevent a second successful close in the ordinary sequential retry. Source does not establish duplicate money movement. User may refresh/reopen to see closed state; exact screen behavior and approval token handling need isolated tests. The cart is only an unsubmitted draft, remains stored in the per-user cashier VM, and no financial posting occurs when closing. A new/open shift can make it submit-able; product policy may permit carrying drafts across shifts. Thus classify as a workflow consistency/usability concern until owner defines draft-on-close policy.",
+    "recommendation": "Align the dedicated Shifts screen with retained-request recovery: preserve exact CloseShiftRequest while outcome is unknown and retry same ID/payload, or explicitly reload authoritative shift state and surface resolved completion before allowing another request. Keep server lock/state protection. Also align close eligibility across navigation surfaces if owner requires no active cashier draft at handover; either share a draft-state guard or explicitly preserve and label the draft for a later shift. Do not discard or automatically submit it.",
+    "tests": [
+      "Simulate committed close with lost response from both entry points; retry same ID and assert WasReplayed and exactly one reconciliation/handover movement, audit event and print job.",
+      "Simulate pre-receive transport failure then same-ID retry; assert one close.",
+      "Dedicated screen must not silently mint a new ID while previous outcome is unresolved.",
+      "Repeat with and without discrepancy approval; preserve threshold and authorization.",
+      "With shell permission, populate a cashier cart, navigate to Shifts, attempt close; verify agreed policy. If allowed, verify draft persists and is explicitly associated with the next open shift; if forbidden, every close entry point blocks consistently."
+    ],
+    "acceptance": [
+      "Both UIs resolve to persisted closed shift after uncertain response.",
+      "At most one close and associated movement/job set per shift.",
+      "Operator receives definite success or remains clearly unresolved with same idempotency key.",
+      "Valid count, threshold and approval behavior unchanged.",
+      "No active draft is silently discarded or misattributed; behavior across POS and Shifts close entry points matches owner-approved policy."
+    ],
+    "cart_guard": "The POS-embedded OpenCloseShift rejects Cart.Count > 0. AppSession.GetCashier caches one CashierViewModel per logged-in user. Shell navigation can switch to the Shifts screen and creates a separate ShiftsViewModel that checks permission and ActiveShift but has no reference to the cached cart. On successful close it clears session ShiftId. Returning to cashier leaves the draft in that cached VM; checkout later places _session.ShiftId into the request. This establishes reachable path and the UI guard asymmetry, not that the user loses data or that any ledger changes."
+  },
+  "reviewer": "Main coordinator source comparison only; no independent challenge",
+  "limitations": [
+    "Static source analysis only; no HTTP/SQL/concurrency/UI test executed.",
+    "Stale-modal outcome is an inference from branches; reproduce safely before treating as confirmed user defect.",
+    "No duplicate financial posting demonstrated."
+  ]
+}

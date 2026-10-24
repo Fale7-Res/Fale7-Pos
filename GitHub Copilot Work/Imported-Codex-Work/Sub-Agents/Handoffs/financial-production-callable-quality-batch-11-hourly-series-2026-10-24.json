@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_batch_11",
+  "created_at_utc": "2026-10-24T11:39:48.986804+00:00",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Review exact next callable LoadHourlySeriesAsync after Batch10; exclude prior reviews/promotions. Batch10 status was independently reconciled and did not alter the shared overlay.",
+  "live_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "41c4c42aa74ef7400a26c3a6af916b9932881936623094f088170c0afbeedc24",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7762,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 59
+    },
+    "target_status": "EXISTING_REASONING_UNVERIFIED",
+    "shared_overlay_edited": false
+  },
+  "review": {
+    "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+    "status_at_selection": "EXISTING_REASONING_UNVERIFIED",
+    "status_after_review": "EXISTING_REASONING_UNVERIFIED",
+    "verdict": "EXISTING_REASONING_CORROBORATED; no class promotion by this reviewer",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_lines": [
+      134,
+      154
+    ],
+    "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+    "source_index_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "receipt_author": "financial_coordinator",
+    "receipt_symbol_status": "ANALYZED",
+    "receipt_reasoning": "Loads normalized interval noncancelled orders then buckets Cairo wall-clock hour; returns24fixed buckets. DST repeated hours merge and skipped hour gets0, intentional display decision requiring documented test. Cash collection may differ from order net.",
+    "source_evidence": [
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          93,
+          107
+        ],
+        "symbol": "LoadTrendAsync",
+        "behavior": "For single-day range, chooses `LoadHourlySeriesAsync`; other date ranges use daily buckets. Returns granularity label with a 24-point series."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          134,
+          154
+        ],
+        "symbol": "LoadHourlySeriesAsync",
+        "behavior": "Uses BusinessDateRange.ToUtcRange; loads noncancelled orders created in [start,end), selecting CreatedAtUtc, TotalPiastres and cumulative RefundAmountPiastres. Converts timestamp to Cairo timezone, groups on wall-clock Hour (0..23), sums Total-Refund and order count, then emits exactly 24 labeled buckets and fills absent hours with zero."
+      },
+      {
+        "path": "src/Falah.Domain/Common/BusinessClock.cs",
+        "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+        "lines": [
+          23,
+          27,
+          35,
+          52
+        ],
+        "symbol": "BusinessClock.BusinessDate / UtcRangeForBusinessDate(s)",
+        "behavior": "Defines business date as Cairo local date and converts Cairo-midnight boundaries into UTC. Single-day hourly query thereby uses that business-day interval."
+      },
+      {
+        "path": "src/Falah.Domain/Common/BusinessClock.cs",
+        "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+        "lines": [
+          58,
+          77
+        ],
+        "symbol": "BusinessDateRange.ToUtcRange",
+        "behavior": "Range method delegates to `UtcRangeForBusinessDates`, which normalizes reversed endpoints; the hourly series caller is single-day only through LoadTrendAsync."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          87,
+          106
+        ],
+        "symbol": "LoadTrendAsync.Change and DashboardTrendDto construction",
+        "behavior": "Hourly series is part of trend DTO; headline comparisons use shared sales/expense report methods. Trend is a read aggregation, no write."
+      },
+      {
+        "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+        "sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+        "lines": [
+          36,
+          46,
+          52
+        ],
+        "symbol": "DashboardTrendDto / TrendPointDto",
+        "behavior": "Series conveys label, NetSalesPiastres and OrderCount; it has no payment-channel or refund-event timestamp field."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+        "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+        "lines": [
+          138,
+          149
+        ],
+        "symbol": "A_single_business_date_is_charted_by_the_hour",
+        "behavior": "Integration test asserts 24 hour points and that point net sums to cash headline NetSalesPiastres after one cash sale. Static test evidence only; not run."
+      }
+    ],
+    "substantive_assessment": "The source confirms the receipt’s key claims: a one-business-day chart uses Cairo wall-clock hour, not UTC hour; cancelled orders are excluded; each bucket contains order count and order-level net after cumulative refunds; zero-activity hours remain visible. Its use of order creation time means refunds remain attached to the original sale hour rather than the hour processed, consistent with an order-date net-sales chart, but not equivalent to refund-date cash activity. It is a read-only aggregation and does not change financial state.",
+    "counterevidence_and_limits": [
+      "The integration test explicitly validates 24 points and reconciliation of point totals to the dashboard sales headline for a forward single-day case.",
+      "BusinessClock defines Cairo business-date windows, and shared SalesReport uses the same order created-at interval and canceled-state exclusion.",
+      "No explicit DST test found. The implementation intentionally emits 24 wall-clock labels; if Cairo’s offset transition produces a 23- or 25-hour UTC interval, any repeated local hour is combined and an absent hour remains a zero bucket. Whether this is desired visualization semantics needs a product/report contract; static sources do not establish deployment dates or actual visual outcome.",
+      "No test in reviewed dashboard class covers mixed payment types, refunds processed at a different time from sale, cancelled orders in hourly buckets, or DST boundary. No runtime/provider behavior verified."
+    ],
+    "remaining_actions": [
+      "Add integration coverage with orders on multiple Cairo hours, a cancelled order, and a refund to establish expected bucket net and counts.",
+      "Confirm the report contract uses order-creation-hour net sales; if the user needs refund processing-hour activity, expose a distinct series based on refund event timestamps rather than changing this net sales series silently.",
+      "Decide whether 24 wall-clock labels with DST repeated/missing hours is the intended business display, and add timezone transition tests if relevant.",
+      "No correctness fix or finding is recommended from static review absent changed reporting requirements."
+    ],
+    "tests_executed": false,
+    "review_provenance": "Independent source check against current source and financial_coordinator receipt; no status overlay or shared report edit."
+  },
+  "next_exact_candidate": {
+    "stable_id": "sym-d2884709cbea3a2b84342cb0d449f57930b897f0273d0ddf650d3c1ddb79cb6a",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadStockAsync(CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "line_range": [
+      297,
+      315
+    ],
+    "status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "limits": [
+    "Static source/test source review only; no tests executed.",
+    "No source/runtime/database/config/shared registry/report/Git changes.",
+    "This one-method review does not certify dashboard reporting as a whole."
+  ]
+}

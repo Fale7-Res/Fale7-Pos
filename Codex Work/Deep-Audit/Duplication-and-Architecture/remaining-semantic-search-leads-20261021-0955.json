@@ -1,0 +1,1287 @@
+{
+  "artifact_kind": "bounded_semantic_search_remaining_leads_manifest",
+  "as_of_utc": "2026-10-21T09:55:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": {
+    "tracked_scope": "git ls-files src/**/*.cs",
+    "tracked_source_files": 468,
+    "regex": "\\b(?:Total|Amount|Price|Cost|Refund|Paid|Payment|Balance|Profit|Revenue|Expense|Settlement|Movement|Journal|BusinessDay|Shift|Close|Reopen|Snapshot|RequireOpen|Idempotency|RequestId|Retry|Replay|Duplicate|Authorize|Permission|Actor|Approval|Role)\\w*\\b",
+    "case_insensitive": true,
+    "excluded": [
+      "tests",
+      "untracked files",
+      "non-C# files"
+    ],
+    "covered_reference_scope": "Paths present as source_references/sources in 29 current bounded semantic comparison artifacts",
+    "limitations": "Keyword occurrence is a search lead, not evidence of duplicated semantics. A file absent from the bounded comparison artifacts may still have an individual file report. Generated migrations, DTOs and unrelated terms produce false positives. Does not establish call reachability or dead code."
+  },
+  "counts": {
+    "tracked_cs_files": 468,
+    "files_with_any_keyword_hit": 360,
+    "source_paths_in_semantic_artifact_inputs": 145,
+    "keyword_hit_paths_without_semantic_artifact_reference": 246,
+    "leads_by_top_directory": {
+      "src/Falah.Application": 33,
+      "src/Falah.Client.CallCenterWinUI": 14,
+      "src/Falah.Client.Cashier": 5,
+      "src/Falah.Client.CashierWinUI": 46,
+      "src/Falah.Domain": 32,
+      "src/Falah.Infrastructure": 116,
+      "src/Falah.PrintAgent": 5
+    },
+    "remaining_leads_by_project": {
+      "Falah.Application": 33,
+      "Falah.Client.CallCenterWinUI": 11,
+      "Falah.Client.Cashier": 5,
+      "Falah.Client.CashierWinUI": 46,
+      "Falah.Domain": 31,
+      "Falah.Infrastructure": 115,
+      "Falah.PrintAgent": 5
+    }
+  },
+  "queue_status": "LEAD_INVENTORY_ONLY_NOT_MANUALLY_COMPARED",
+  "remaining_leads": [
+    {
+      "path": "src/Falah.Application/Approvals/IssueManagerApprovalRequest.cs",
+      "sha256": "0e09a943a6383f4b9f8d0c20555a0df5444fe136f43ba81074afaaa14cf5baa7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Audit/AuditEventDto.cs",
+      "sha256": "a64ead29501f69803e7f23a1be61a9611f2cbdcfb13c9f9eb65e081396b77f4a",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Backup/BackupRequests.cs",
+      "sha256": "b54085cdb58c4f33e9cfcaae987c1351c223d0eadf5892796aaf0f64479a8d4e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/BusinessDay/OpenBusinessDayRequest.cs",
+      "sha256": "c31ea5e804c08f8d4326394f5cc096e33661b722f859c4d8793b39484d85882d",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/CashDrawer/CashDrawerRequests.cs",
+      "sha256": "2017b7d096025be994e729fd69cf9446b30775b4aabaafa99b965bc49c08b157",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Customers/CustomerRequests.cs",
+      "sha256": "e4472a17671db5cb1c78c870a16848d65399766dffb63d38270121c3f54454a7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Delivery/DeliveryServiceRequests.cs",
+      "sha256": "4ba55a39d229b6c4ae2ac34f03a94122ddb5ae3e066c1320cdac129071ecee59",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Expenses/ExpenseRequests.cs",
+      "sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Inventory/CostingDtos.cs",
+      "sha256": "fc2b3cd97e9a0e7058dba345a68ed7f3cb10a36f75c4dbcc2a7c14f2da0fcbda",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Inventory/InventoryItemRequests.cs",
+      "sha256": "1db9910fe257d0e653719898cf3ba32f622bdeafe7028fd62936e7ff26445992",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Inventory/InventoryOverviewDtos.cs",
+      "sha256": "d610a40ad83dfa0a5babf782f05730015cd25def8bc025bc4a39eecc46746a93",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Inventory/RecipeRequests.cs",
+      "sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Inventory/StockMovementRequests.cs",
+      "sha256": "7b0a7cea219d68cf44f1c34e7d998226805dff9a7bad1591633d0d7b46d8af63",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Menu/MenuManagementRequests.cs",
+      "sha256": "398de8204e5ef0ccc50008587189be6047a811d07769ec458f1e585f9d363280",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Menu/MenuResponse.cs",
+      "sha256": "499f509a1b7d9b7b262f14208e132cff996a751a0d87a25c327846826daa1858",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Menu/ProductImageRequests.cs",
+      "sha256": "32f0ccacf4f828651adabe03277176df07dfc7bdfee36bbb3249ada114790ef2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Orders/CancelPendingElectronicPaymentRequest.cs",
+      "sha256": "7a7b7485b4ea1de6125622683f6e75bb0865dd54337f307c73f494d4d22505e9",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+      "sha256": "66cd885af3b6ddf84ea4a1629232490ba92e333be7626715be8614587b91dae1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Orders/ConfirmElectronicPaymentRequest.cs",
+      "sha256": "68e0c3ba5b014d60604f18bc199befd9e4210ef7f6b858fdbfbf73dd03849747",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Orders/OrderDetailsDto.cs",
+      "sha256": "2c3fe061e51f9e6f3abce30fd44b33bfa78f94dab132d8df24ada8079ba7aeea",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Orders/RefundOrderRequest.cs",
+      "sha256": "31ccd7179a21eb71ed5208ea6f04056eaf6518d75da1c408d2cf7dd22a028d10",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Pricing/PriceRuleRequests.cs",
+      "sha256": "0b43050f59d43e7766aff8404ae48344f1d7e5f8d6247b79a1fadc1f94f6ec97",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Printing/ProductStationRequests.cs",
+      "sha256": "640ebb48c65fb395976807001487d5a2d5e6984f8effef341063955e39a021f6",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Printing/TicketElementMapping.cs",
+      "sha256": "1f465ebdd0d8275f7d51b24f3603fa9042f70aad6b1fe3c1bb92910a6e39eef3",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+      "sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Settings/SettingsRequests.cs",
+      "sha256": "07a9b6aebd5f131a91d8d367c684c288def590106472c548026883b86e47e790",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Shifts/CloseShiftRequest.cs",
+      "sha256": "69006fb2c4bbe317d32b5a544d9e07e272ef5bf7e1b71a3fbf6c1d2baa8ff932",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Shifts/OpenShiftRequest.cs",
+      "sha256": "8c4a6da228e3ffed2e762157d7d035cf9c87f825be0e53049068aa861edcd8f7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+      "sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+      "sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Application/Users/UserSummaryDto.cs",
+      "sha256": "ccd44316d3741e88dbdb98bff379ae22d6bb626e4c9331153b2c22fe83ecfafd",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Controls/ErrorStateView.xaml.cs",
+      "sha256": "346a67e823479beef52f24957533b6585794c40deaeddbfbe9f16019f8051daf",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Controls/ModalHeaderView.xaml.cs",
+      "sha256": "28bacf2ea9d1c40ea3ad4d6feaf99485cb100dd47ea9d08f9240c1ae730929f5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Controls/PermissionDeniedStateView.xaml.cs",
+      "sha256": "5c25986077eee8621869212367667a8c7adfe2a4e9f681a80d8b69a185538a3b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs",
+      "sha256": "d075891fc1aace2363fa85196441f2b4a0a5afa089ff32a49124795bb9787f87",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs",
+      "sha256": "d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+      "sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "sha256": "f6ec8fbc23f9bb8d797c74ceecc74d23b4644c406a48a3d87715dbc78eb0b2df",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.State.cs",
+      "sha256": "d19dc93f79fad66bcf8d817971d1e0b7712b5b75fa98ce6f6386324a76647897",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+      "sha256": "cc13f51634b4bd08e2fe3408b841cdfda634b1cf70b3da00b99d24270f8d3f86",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+      "sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Converters/Converters.cs",
+      "sha256": "74073cc5fad0043260fb5b682404e13b1518216fa99ed221bad513f910703372",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Services/AppSession.cs",
+      "sha256": "78f3827a4f5eed2126bef903204824b8bc3973aca3da12b079a30695c65e1d37",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.cs",
+      "sha256": "cc623befa8992fab4643823c395240e76cd3966508683e0dd9df2055ced33290",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+      "sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/MainViewModel.cs",
+      "sha256": "df67ef07edbc787c31f367396f0a511105278abab0a5d8b5da8c71d49c0bce37",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Controls/ErrorStateView.xaml.cs",
+      "sha256": "9541e97c6c46392dd01a4e918088f04a0b17fa18a152fded206656076fea8037",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Controls/ModalHeaderView.xaml.cs",
+      "sha256": "77396fd63e05f090a77d2d8239c7049bbbdb5526dc8f549f1b05aacf7ddd2dd2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Controls/PermissionDeniedStateView.xaml.cs",
+      "sha256": "77d0fb69d75c99765e0ccfaf3a0fbae2be6f45e83d46c73109115e33a419d541",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Controls/SparklineView.xaml.cs",
+      "sha256": "92cf3353db34eff4e028bce981ccc5eee98a0d05b5351bdbec44137ff4991493",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+      "sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/MainWindow.xaml.cs",
+      "sha256": "42992f5b0c16a801fa6671035e2600a5ec3abf06c48c7b836b30f68cf03c4558",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Models/ProductTile.cs",
+      "sha256": "30e90ebda4f5752fd379f168be17c6541753fa7988ef6b14c316ce22cc9658ac",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.Menu.cs",
+      "sha256": "f7993cc650a8a21a7316e759e1c2ce4d8632a608ed4ad0e58160607cb6f268f5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.People.cs",
+      "sha256": "001422f6a5bcc160cbd831b67346ae58ae93f3e54f3874a0a451ec59d43f4630",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/AttendanceViewModel.cs",
+      "sha256": "984380332116f705c592b3be9713191d47f6e42d53453604e0877fe5ccc0b0b1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/AuditViewModel.cs",
+      "sha256": "385a1783a3f55cb890a61ec79b0c7ccc4467ceed1b9f5beace22ddf8bdf7c29e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs",
+      "sha256": "5c77ce94f6fefe0cbfeaca0fcb9b1be9e983694af4eee50dd564666e56fe24a5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs",
+      "sha256": "124a969a63f823004a0b4ee64ef499842ad61128518dc236124f122ed8a8deb9",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+      "sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs",
+      "sha256": "7799e030dd8ac3693288cc2cfd82163ef3cb7eb4846033f30eadaddc724e09e7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs",
+      "sha256": "9826b8fc7ac4c90e688e59bccf35b9b47ec0d9eeca8e79db22aed5c47bf6675d",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Operations.cs",
+      "sha256": "c15784c1887efa81f6fa2310c3d2a6f8061b609a7a4b76abb8a8e1663e8d8583",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs",
+      "sha256": "2c2fc4dfd881adbd4721f61726157e1441cc1bcbbffd45377d657647220e48fc",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs",
+      "sha256": "b4951f4250aece845c172b95f03ff3e8c4b7f96cb41d53827bb9b158f96cd3e3",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.Statistics.cs",
+      "sha256": "c733c76299e43f14180ad5498feacf350f9b5ce5cffd5d0ecfc1400664dacd20",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Report.cs",
+      "sha256": "0bee0c4affb97767885d4c3d6483263af7c66ee4e4ea203da9c3495ba91f45d4",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+      "sha256": "73c2dcc59a4523395f1b203cecfefdc486fb79eb1a39645166f83585f3e45b98",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+      "sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuViewModel.cs",
+      "sha256": "40be2325e93ca488b4883896691482c0fdeb201daefef203c876af40bd3e3069",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OrdersViewModel.cs",
+      "sha256": "f5423f850838c567c7e347cc2e54100bd8ac7c873349f712d297c4d214af596c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs",
+      "sha256": "a2b18699b786109662a0fd23e8660bb2a56b015e0c2f5582db14b9dbf4f06aad",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs",
+      "sha256": "f06eb43ddc17ea1ec982f536c2a6d8080e655430c3894f78ee70550181a6e8cf",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellNavItem.cs",
+      "sha256": "3c290ee3ffd372cdd77f9c1e9663a7d9fb6995d775ff1ff3b3817ee6d36f0506",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+      "sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+      "sha256": "10e6ac543011f2b5cae23d8aaad9ebed7e82e66514301050037f460c82e09b46",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs",
+      "sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+      "sha256": "7e6c0ca570caeb79efabacf0a0b381ac5e7e3a3a364fea390c7155c11d909158",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+      "sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs",
+      "sha256": "df821afd3d2a61ce1b6e7fbf7fcd52c6ddd12ccb2f6a215ee611c17684e571bc",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/WasteViewModel.cs",
+      "sha256": "328fe06abd957b62551b342bb112b16248e5f289feece90b233b09b4706aa069",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs",
+      "sha256": "e5de23e3dbcf7056ebaac0efbd4a65cdb7755e0fb48b3e58e46461eebac3f7d0",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/RefundView.xaml.cs",
+      "sha256": "56f04ef805decf3b95c1e9d129298d4951e8b458a8fa937728228ca1334ed728",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ShellView.xaml.cs",
+      "sha256": "733cc83e3e7a09cdf3b08309922b01a27bcb0e4d8d0efdaf4de7bf073a787e51",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml.cs",
+      "sha256": "ee1cfe077f946f081965e7ab354ed23c2033557eb37ac81ff569f343d955b7cf",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Audit/AuditEvent.cs",
+      "sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/Actor.cs",
+      "sha256": "bd3c6edcf6f3dd8ab4f27d0d8890f0c15f278c2aa3420c5570ebf928a4f4203c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ManagerApproval.cs",
+      "sha256": "dcd86fa2a536f88cde67e01c8163cb6a27c3fc7de1201c21f5fde6261fd870a2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/PermissionCatalog.cs",
+      "sha256": "53b0897f59c3278e3fcc261d7da88592ecfc14977bfa8dba9679569805571a69",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/SessionToken.cs",
+      "sha256": "356e4dcde7e8778421f240589c9f00791d583700266d9b1d548ffc380e6d2668",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/UserManagementRules.cs",
+      "sha256": "3a72ee5f6b79d83b6364bf22d8150b39b2a13211fa2db392f13b90c5b10c32fe",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Backup/BackupRules.cs",
+      "sha256": "daf5a6e64cf4e36df55f29a82f7beb91610a3190901adcbadca3b9f60661242e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Customers/Customer.cs",
+      "sha256": "1cd133bfadd3dec6e841be4aa37526162b63d1591a35fbb083c8e7c4c5c3ec63",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+      "sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Attendance.cs",
+      "sha256": "dd1e762019008a9e1c10d88accd40342aa0dd56bd836f032e689447e0d9f00fc",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+      "sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Financial/FinancialRules.cs",
+      "sha256": "0c48f0fef3792f1bd9e85023ad85978ae8583f9f7d2e2bcaa65f3159aef1b926",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Financial/PaymentMethod.cs",
+      "sha256": "075abd460e3510501379b2e6d0a316980d8decf4421a343fdd61863702dd1e8e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Idempotency/FinancialJournal.cs",
+      "sha256": "9db76c8c0bbc5ef0940184d880643e05cee17a6dd85cb7656703fe6bb5cf1295",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRecords.cs",
+      "sha256": "52d7a39781b9d8a87828ed3d38193ecc8fc87b0a140e666c1df64a8ac66918af",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PrepRecipeLine.cs",
+      "sha256": "a1309574f1717ceda4e508e0c694472e28e3d7ae7f18a97af9a5ba6c1596fb15",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Orders/ElectronicPayment.cs",
+      "sha256": "9b3fd7b69233fff187b40ac34b92851de557f38e6a8c8c641cd25c7add0efbd7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderEnums.cs",
+      "sha256": "017b0a0657846aae726cb0b7762fd9d31ccef5b0e60a902584b0aafbbee7eecc",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderItem.cs",
+      "sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderRefund.cs",
+      "sha256": "dfb3e496413d4e770c0961e421a663262f1a9a612b017616120807ebdaf89a33",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderValueBreakdown.cs",
+      "sha256": "4c7f490f4226a5b1e431a26a065ec2a84b283e7b4ee0f2e1232f1ae3dfb5a6b9",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+      "sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/PriceRule.cs",
+      "sha256": "96af5115cb582e129e04140cd81ca97555e80a548078202f69693e5348cac826",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/PricingRules.cs",
+      "sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRecords.cs",
+      "sha256": "3f47e0d211c4eb59acc9245104c68220198105e97971b7f9604d31074855ac18",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Reports/TrendRules.cs",
+      "sha256": "f192a9a0c309eaa8710fe5c00db307073e976aeabc87fe8299d33c22eb75e511",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs",
+      "sha256": "a934e9e87f27da2f2e7a40000685a8806b4239f73c99f500953360132ee9117c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Audit/AuditQueryService.cs",
+      "sha256": "fd93e6d34676e8703206f9fa881b3a7acd5319023743f29441bac26ea7c6a146",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Audit/EfAuditLog.cs",
+      "sha256": "9c85aef61a313dc4de40307ed367388ac4d6480921f11cdf3b45dc478e7bab22",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Authorization/SessionService.cs",
+      "sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/BackupActor.cs",
+      "sha256": "91a18a8b32a3acb28474d820446e49680fc6f9a309ac6cc5e1b92a57bb152d21",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+      "sha256": "df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+      "sha256": "2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/VerifyBackupHandler.cs",
+      "sha256": "61137b752cd98b90fb46121335d443070dcd8d1be48d95c418cef0931eaa9548",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs",
+      "sha256": "e894c1a9e72507c94ebfc8406bd8168753b460ab29aa5234dd345ec74eadf993",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs",
+      "sha256": "37961059653dc7c24ff65684d8cec113ef0423d7486953bf808ed6e767762df3",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs",
+      "sha256": "74e7f34ada9071173b7fb70e809496ba8b3826a5b638856eaf634e53c04779ac",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs",
+      "sha256": "641dc1b6d8190581fb934883b31131f99c989422b73957b3e2713a7507f7bd06",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs",
+      "sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "sha256": "adf3fa04c4e79acd26d25fdf5d2010b55397638a7f4b9405617d690c81050a1f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+      "sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs",
+      "sha256": "02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/ExpenseQueryService.cs",
+      "sha256": "a77a348c179416b551b4bbf173398f29c8b2430244609f3fcc23d52d0ac1bd13",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs",
+      "sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs",
+      "sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs",
+      "sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/CategoryHandlers.cs",
+      "sha256": "877b470c2d48e38599adaa44ea9f3ee7d2ed80bfa8917379496cd75ee55c8a39",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/MenuQueryService.cs",
+      "sha256": "90e1091a22eb19c817a9c4192644246980105aa1839fbd386827f01d48655608",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs",
+      "sha256": "df11a7fbe032346749a66c1bcc0c80f0cff455c88b1e2833a483506df5db01e5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+      "sha256": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+      "sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/DemoDataSeeder.cs",
+      "sha256": "60e04791dc8f76993d9dd871bd997b702d18aedfd6570af01e73634e86dea1c2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/AuditEntities.cs",
+      "sha256": "1a7a0e6f138143b321924cb3185833297a6c4a2f4e38d8ed1d159d0b5f4a8001",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/CashDrawerEntities.cs",
+      "sha256": "79f14c0077947638c9129b34d842568f07021f92e85c98f1c75a2ce3bf29ba26",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/ControlCenterEntities.cs",
+      "sha256": "343aa348cbbdc5fa31f6aeae70ccce0cba1dace0ec0c020151a937a609c7f8af",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/CustomerEntities.cs",
+      "sha256": "24bd166d0a15afe13faf2d4d167029c7abf2c9f146250bda9ac8582f68c7e3f6",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+      "sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/ManagerApprovalEntity.cs",
+      "sha256": "67944030da63cc24cfb6bb4004d888379a1a3c6e6b14a4ad9821eeaafc88d0c8",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/MenuEntities.cs",
+      "sha256": "93fb6d04445a3c79c5bebc713cb79811bc36fa918b8eda32e3e320651ad007a5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/OrderEntity.cs",
+      "sha256": "ba6c9d14be3afbfc4edbc48185619506d82c6db595324a2db198b9c4e3f093ab",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+      "sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PricingEntities.cs",
+      "sha256": "cef7ef0c0d3daa6a59754bac354c738c0cf108739bc4c4ac05bd3ce0cae579bf",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PrintEntities.cs",
+      "sha256": "b7bc9f20a28e2486a23f47d8094c1d44dc666998bb0f664cd9ce7aef810e4f4c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+      "sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/SettingsEntity.cs",
+      "sha256": "ffa6cf363527ff9f4cb38563ed7e10caf8f5695d21987b025f962846275eef2c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+      "sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.Designer.cs",
+      "sha256": "4f6ae5c93e030c2ddbab9e3201e10fa9fb45d75b0bb6e76497a4cead6132620f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+      "sha256": "5fe110d7121b655d758edfab04d72240aa80066214153c1af0eea54be6ea62e8",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs",
+      "sha256": "48c5d95700004c77b95e1206c642d18356a5dfa0161d4cf755901c714c3daed2",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs",
+      "sha256": "706b113b8bdd32af04959e0e8035ca49914e6396e129506dcf1e0ca3ad6d5be5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs",
+      "sha256": "bf258381d959f7b11fae703f3601a33f58b174bbc5cfeea5946a306ff163d524",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs",
+      "sha256": "53ccc194b0a477d89149acb63f9d40d991844e9841306e7446fbd424578025bb",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs",
+      "sha256": "aca9d8bb983db0a698ccb6a18ef0e992f2853484e7f42ebcc421fcdce77358c1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs",
+      "sha256": "5345226e6cc6c9c9a210ef617e33b6f73a9aa09278b4b34278b86c7e9208b78b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.cs",
+      "sha256": "b3da548ba9823579ab7c80d97efe9186bae0a367821d3a994c654a7753d44d3e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs",
+      "sha256": "8c04b2380c616947f972290907014f7480aa0ff1de2cfaa853997c7336dadb6a",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs",
+      "sha256": "1fd2cd955c8dd57d876bd151b58f0429ac358c7c023e88b2821854150770dcca",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs",
+      "sha256": "cb5a87888005ec1e51221f85077402a68b501708bdac9f7203284a6cc0e4d608",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs",
+      "sha256": "c60d31246e4db3f5160e4e0d265d9cde5a367d6a8b4ee5affa61af13c36e7f00",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs",
+      "sha256": "a1bf8f8436a475941e9a3faf095f146b30d26e86d95e4a65336efc5bd8b1fb09",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs",
+      "sha256": "dc989b4bace8a81cd57b4986c22430dae47fa2b0ed08c02c5f598310d85e3860",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs",
+      "sha256": "c46f1c8ce348152f376497a867f175a774fa3dabb32ff20fe7a7a9c7674c4e0a",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs",
+      "sha256": "d3057cf53a763b01727390fdebf2624d556d42010b8c80371acc652aa41b378b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs",
+      "sha256": "8b2347c5748e57a162b99a175d66e146a9972d1e904b5b7e20a5f4651e1a29d7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs",
+      "sha256": "7ea5f57e48b9b5c5b8e846d916550e1681dfad1f327bbcd73a83e90e20575505",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs",
+      "sha256": "a58dcc1d19000077f1a337ea1d91a15768fb01d614784f55a417732312530685",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs",
+      "sha256": "753bb76c2c5de269cbe191a144cfa85b34b0d78ed8340c5d153fa8ca1f177c1b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs",
+      "sha256": "2bca4fea7f61c61133c19b92e6098d34901400492a5e7e1873cb517be9c7317b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs",
+      "sha256": "b765fd34687b532d77466eb677dc482b09f901204c4ce781e0c5ea37f20a8847",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.cs",
+      "sha256": "0fe11a59d6b2fb3dfd25673bb61fc0f0be1d93a6d4eab6ea833ca71efe02c09f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs",
+      "sha256": "612c356e319cb3c63fc2a6b6aca3967d349d8173eb1867bc435e6fc0d2b3fb15",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs",
+      "sha256": "0fbef2cb8121d1d15de4c69b0f37cd31c105e14879a69fbd0c174ed048e93805",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs",
+      "sha256": "a8a19d6cd0ae1994fe3230386768d0031f58f7dba7cbc14bafb01cb730145b9b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+      "sha256": "68e8194ce95e0965f57bf9be97feca7c208daba51f4ff425574e24759d1ea64c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs",
+      "sha256": "99cb8a98160a204cbd00fc6ac66334a7b41c4e7d209e8b8570874eecd00c5837",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs",
+      "sha256": "3baf46d4eb2075dec74cb9fb3d7b7c6280a63f93cff4074b521902b4566e3628",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.cs",
+      "sha256": "22f7f5f68e4810bf5d71ef5c4bf820469d7700a8cefd57fd00527cb1897d667c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs",
+      "sha256": "9dcc1ff3c4956f1e52c2c70b517dbff86d3380a5c5a49b9f63881b7003ce2f86",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+      "sha256": "9be2994552c7d502c1dde718147ff6948f5d92d825fe6a20d2a0e6f9ae67f416",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs",
+      "sha256": "4c2aa5848c02d243d487ea6f457946aa9d65aaf6221276fe2f86065cd277f6be",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.cs",
+      "sha256": "07f242cb95a5a260a38e5215ba489e4dd0db2823d24b5829bb03522a166795ce",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs",
+      "sha256": "d5007d2c08fc3799c7755a638f513e39fb7307746bf077363867f15e54c02063",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs",
+      "sha256": "39b30ef5427bb0947417d9f749bcf2e14dca1210a905dc9d0e9e630905f759fe",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs",
+      "sha256": "087ba3340a3e21e8a91cb7db1d862743b9d5a8cea4044f50e5d81bcada2013b5",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs",
+      "sha256": "f5196e3b5572715efa5cdc437c6876847859f8c934508653aff42dcb93fbe4da",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs",
+      "sha256": "ab5d0ef68b6c8b103fb5d257087d84ef62e2d4c1621d6ce2f090797a38f278fb",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs",
+      "sha256": "7f473a9dff7066c05819bed202371000a7528a3c0d42f3744a7782a339689dae",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs",
+      "sha256": "f64431efb76c8ed11d1967119e7dbf3953af2ada1c171189e1a8d18879d1478e",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.cs",
+      "sha256": "d96ce29ca70892d1d1c7e0e386e29a8c7702fc75c8489d3ee9f537be8e87bb13",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs",
+      "sha256": "b9c0d02487159027d11c4c28a72737b3037bb525903d421d262061223f6a4466",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs",
+      "sha256": "1b4fdaa29a43b8f773e5b1e832d4d65e16d5498fd06a91309f0dd1f2fa6760d3",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs",
+      "sha256": "ba660aaf1cce2028eeb04e01626a73cd25fa8fd16bee40a64d81c18e0d0abb2b",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs",
+      "sha256": "481c572ba7e33ee13af7521cc0fbfaab925c4bdaec5c06493446098e8998df33",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs",
+      "sha256": "50ef974c7b9784596517838b3d8e4a2af16bc591ddab0122ea0024ceb41a4678",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs",
+      "sha256": "d5921f9235d9680a773a2bd73f35b2ffdcefb7756a337abfee593d8c4100e387",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs",
+      "sha256": "68b1c1bf6b69150abb661b48044cc178a28d1c65359e8246a198d744e8daae95",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.cs",
+      "sha256": "37716c0cdfd79f1d4be37d046bee9f01591f6645cfa075d4b970afb801db1d5f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs",
+      "sha256": "8f7ac5174b9572d5ed3f3c1093b5e41ae4f5c8c8c37a086a0cfee71aed033ce6",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "sha256": "ac7a5a9aefba464dfb2444c86d6a5bb22149455b2f82856f3fea4971931ff941",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs",
+      "sha256": "dade9cff80994f1cbfc9885f07fd45acea492d31f2d2068c1dde1097c11db772",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "sha256": "0a7282c6766d2a7b446739d56984950d87ab69f52f88dd3be88f27609484a542",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs",
+      "sha256": "c8de0c41178f19beb9c9d523cbeb79d12b8959e566d901b003d1849cc8176115",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "sha256": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs",
+      "sha256": "67287a9765bf24109b657a00102b36d54ca5b4e42a3180b49acb9d3562dbe33c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs",
+      "sha256": "26347f4197448f39f6801e3e4a5ffae64ac1611b578e9d091542099e23cfa825",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs",
+      "sha256": "c7e87bed31cf3433267829e56a0713e72f7f972c9923e26040088f1491639c0f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
+      "sha256": "fcbeb3b2a7895001c185355dc1d9551d5efd4256d3b89a8805328e2a83eab79f",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs",
+      "sha256": "23708a94b842bf26ec37bcf66b389996174e229caff9651f6c86b4ec6170b16c",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/ChangePinHandler.cs",
+      "sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/CreateUserHandler.cs",
+      "sha256": "a8f333191ce7b9c9c3365b3046dccaac141e8415b1d5dc1145a509e511eb785d",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs",
+      "sha256": "a8e7093c5b410adee29d6fece0c4f15cc532cf10cb686a37dc05e79aba80d9e7",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+      "sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/UserManagementQueryService.cs",
+      "sha256": "703985d05102060061f17385f5dc50c04ebf6e97d6c5eef8668d32fd647691e8",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+      "sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+      "sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.PrintAgent/Transports.cs",
+      "sha256": "2d4e75988715b1e930cdccd7f79532f16f8333ec74a4b850a187d3b9da800fa1",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+      "sha256": "2b3ff93246988ba9678861786ed944d73402944e2edc7f49b942b35c3be3ce62",
+      "semantic_artifact_source_ref_present": false
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5",
+      "semantic_artifact_source_ref_present": false
+    }
+  ],
+  "negative_evidence": [
+    "All 218 identified AST candidate groups are separately dispositioned by clone-review ledger and validator.",
+    "30 bounded semantic comparison groups have source identity/range validation.",
+    "The scan did not find proof that the remaining lead paths contain semantic duplicates."
+  ],
+  "next_bounded_action": "Prioritize remaining paths by operation/callable context and compare concrete call chains; do not bulk-promote keyword hits or claim complete semantic/dead-code/reachability coverage.",
+  "registry_snapshot": {
+    "semantic_groups": 31,
+    "artifact_inputs": 30,
+    "covered_source_paths": 145,
+    "registry_path": "Deep-Audit/Duplication-and-Architecture/semantic-comparison-registry.json"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "at_utc": "2026-10-18T04:38:35.9353001+00:00",
+  "assertions": 8,
+  "failures": 0,
+  "cases": [
+    {
+      "label": "ordered two days",
+      "from": "2026-10-17",
+      "to": "2026-10-18",
+      "DayCount": 2,
+      "series_count": 2,
+      "normalized_sales_contains_sample": true,
+      "simulated_raw_cost_contains_sample": true,
+      "gross_profit": 7500,
+      "IsComplete": true,
+      "range_assertion_passed": true,
+      "profit_component_assertion_passed": true
+    },
+    {
+      "label": "same day",
+      "from": "2026-10-17",
+      "to": "2026-10-17",
+      "DayCount": 1,
+      "series_count": 1,
+      "normalized_sales_contains_sample": true,
+      "simulated_raw_cost_contains_sample": true,
+      "gross_profit": 7500,
+      "IsComplete": true,
+      "range_assertion_passed": true,
+      "profit_component_assertion_passed": true
+    },
+    {
+      "label": "reversed adjacent",
+      "from": "2026-10-18",
+      "to": "2026-10-17",
+      "DayCount": 0,
+      "series_count": 0,
+      "normalized_sales_contains_sample": true,
+      "simulated_raw_cost_contains_sample": false,
+      "gross_profit": 10000,
+      "IsComplete": true,
+      "range_assertion_passed": true,
+      "profit_component_assertion_passed": true
+    },
+    {
+      "label": "reversed separated",
+      "from": "2026-10-19",
+      "to": "2026-10-17",
+      "DayCount": -1,
+      "series_count": 0,
+      "normalized_sales_contains_sample": true,
+      "simulated_raw_cost_contains_sample": false,
+      "gross_profit": 10000,
+      "IsComplete": true,
+      "range_assertion_passed": true,
+      "profit_component_assertion_passed": true
+    }
+  ],
+  "framework": ".NET 10.0.12",
+  "scope": "PURE_DOMAIN_AND_EXPLICIT_RANGE_SIMULATION_ONLY",
+  "limits": "Actual linked baseline BusinessDateRange/BusinessClock/ProfitabilityRules, plus explicit synthetic raw-date cost predicate. No ReportingQueryService, OwnerDashboard DTO, HTTP endpoint, database, financial record or native UI executed. Not an independent review or full end-to-end reproduction."
+}

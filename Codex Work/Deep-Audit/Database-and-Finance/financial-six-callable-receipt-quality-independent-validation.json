@@ -1,0 +1,85 @@
+{
+  "artifact_kind": "financial_callable_quality_sample_independent_metadata_validation",
+  "at_utc": "2026-10-21T13:20:00Z",
+  "baseline": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b",
+  "reviewed_handoff": "Sub-Agents/Handoffs/financial-six-callable-receipt-quality-check-2026-10-21.json",
+  "reviewer": "/root coordinator",
+  "records_checked": 6,
+  "checks": [
+    {
+      "stable_id": "sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+      "source_path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    },
+    {
+      "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+      "source_path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    },
+    {
+      "stable_id": "sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+      "source_path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    },
+    {
+      "stable_id": "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    },
+    {
+      "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+      "source_path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    },
+    {
+      "stable_id": "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+      "source_path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+      "source_hash_matches_review": true,
+      "index_baseline_hash_matches_review": true,
+      "source_index_symbol_exists": true,
+      "index_line_span_matches_review": true,
+      "receipt_exists": true,
+      "receipt_hash_matches_review": true,
+      "in_quality_scope": true,
+      "review_status": "SUBSTANTIVE_REVIEW_VERIFIED"
+    }
+  ],
+  "errors": [],
+  "semantic_scope_note": "Coordinator independently validated source hashes, indexed stable IDs/spans, receipt hashes and quality-ledger membership. The six substantive source analyses were authored by the continuation reviewer; this metadata check does not make the coordinator their independent semantic author. A separate coordinator source challenge for payroll pay/cancel is recorded in its own artifact.",
+  "gate": "PASS_METADATA_AND_IDENTITY"
+}

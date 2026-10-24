@@ -1,0 +1,104 @@
+{
+  "artifact_kind": "coordinator_validation_financial_batches_10_11",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T11:41:33.876Z",
+  "results": [
+    {
+      "batch": "batch-10",
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-10-daily-series-2026-10-22.json",
+      "handoff_sha256": "e1355ab78e9a0e267631a936a3542ad0db5dac41d1c05a3fa80bfac2f2d0fc9d",
+      "coordinator_validation": {
+        "reviewer": "main coordinator",
+        "at_local_date": "2026-10-24",
+        "status": "SUBSTANTIVE_REVIEW_VERIFIED",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "source_line_range": [
+          111,
+          132
+        ],
+        "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+        "checks": {
+          "source_hash_matches": true,
+          "original_baseline_normalized_text_matches": true,
+          "source_map_identity_and_range_match": true,
+          "receipt_hash_matches": true,
+          "receipt_symbol_matches": true,
+          "test_source_hashes_match": true
+        },
+        "substantive_reasoning": "Verified read-only daily aggregation: normalized UTC date interval for query, excludes cancelled orders, groups order-created timestamps by Cairo business date, sums order total minus cumulative refund, zero-fills range.Days(). BusinessDateRange.UtcRangeForBusinessDates swaps reversed endpoints but Days() preserves original From/To; route resolves without validating order, so an allowed reversed multi-day request can produce normalized headline data and an empty chart. The integration test covers only forward ranges. Refund date-vs-order date is a reporting-contract question.",
+        "counterevidence_and_limits": [
+          "Forward-range dashboard test verifies series sum equals headline.",
+          "Reversed range policy may be rejection or normalization; source accepts it and current code produces empty Days enumeration.",
+          "No test/provider/runtime run."
+        ],
+        "tests_executed": false,
+        "worktree_or_runtime_changes": false
+      },
+      "test_checks": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+          "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+          "matches": true,
+          "executed": false
+        }
+      ]
+    },
+    {
+      "batch": "batch-11",
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-11-hourly-series-2026-10-24.json",
+      "handoff_sha256": "37bf3f25626f0d7e7f47c52b20e21af225248e63232f44fc820d0f4ac8c090e4",
+      "coordinator_validation": {
+        "reviewer": "main coordinator",
+        "at_local_date": "2026-10-24",
+        "status": "SUBSTANTIVE_REVIEW_VERIFIED",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "source_line_range": [
+          134,
+          154
+        ],
+        "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+        "checks": {
+          "source_hash_matches": true,
+          "original_baseline_normalized_text_matches": true,
+          "source_map_identity_and_range_match": true,
+          "receipt_hash_matches": true,
+          "receipt_symbol_matches": true,
+          "test_source_hashes_match": true
+        },
+        "substantive_reasoning": "Verified read-only hourly aggregation: single-day Cairo interval; excludes cancelled orders; converts each order-created timestamp to Cairo local hour, sums order total minus cumulative refund and count, returns 24 zero-filled wall-clock buckets. Existing test asserts 24 points and sum equals headline for a cash sale. Refund processing-hour and DST semantics remain contract/test questions.",
+        "counterevidence_and_limits": [
+          "Same order-date cohort and net formula as sales headline.",
+          "24 fixed local-hour labels intentionally combine/omit DST repeated/missing intervals; no DST test.",
+          "No test/provider/runtime run."
+        ],
+        "tests_executed": false,
+        "worktree_or_runtime_changes": false
+      },
+      "test_checks": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+          "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+          "matches": true,
+          "executed": false
+        }
+      ]
+    }
+  ],
+  "overlay_counts": {
+    "SUBSTANTIVE_REVIEW_VERIFIED": 61,
+    "EXISTING_REASONING_UNVERIFIED": 7760,
+    "IDENTITY_ONLY": 983,
+    "REVIEW_INCOMPLETE": 0,
+    "OUT_OF_FINANCIAL_SCOPE_WITH_REASON": 0,
+    "total": 8804
+  },
+  "limits": [
+    "Source/report verification only. Tests not executed.",
+    "No DB/runtime/data changes.",
+    "SUBSTANTIVE_REVIEW_VERIFIED means this callable reasoning was checked; it does not certify the full financial workflow or dashboard."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "artifact_kind": "financial_integrity_bounded_challenge",
+  "id": "FIN-CAND-PURCHASE-LINE-SIGNED-INPUT-001",
+  "created_at_utc": "2026-10-20T10:38:26.014Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "SOURCE_CONFIRMED_PURCHASE_LINE_SIGN_VALIDATION_GAP",
+  "title": "Purchase intake accepts signed quantity and unit cost, allowing a positive payable with negative stock receipt",
+  "scope": "Bounded static challenge of PurchaseLineRequest validation, PurchaseLineTotal, ReceivePurchaseHandler posting, and stock-balance direction calculation. No source edits or runtime tests.",
+  "assessment": {
+    "source_confirmed_mechanics": "ReceivePurchaseHandler maps every request line directly through PurchasingRules.PurchaseLineTotal(quantity, Money.FromPiastres(unitCost)); it only rejects an empty list or unknown item, then checks paid amount against the summed line total. Neither PurchasingRules.PurchaseLineTotal nor the handler rejects negative quantity or negative unit cost. The handler stores the submitted quantity/cost and creates a StockMovement with Direction=In and the same QuantityMilliUnits.",
+    "concrete_static_case": "One line with QuantityMilliUnits=-10000 and UnitCostPiastres=-500 yields PurchaseLineTotal=+5000 piastres. With PaidPiastres=0, payment validation accepts a 5000-piastres credit invoice. The supplier ledger receives a +5000 debit liability. The stock writer persists Direction=In with QuantityMilliUnits=-10000, while inventory balance computes In as +Quantity, so the balance falls by 10000 milli-units. This records a payable invoice while decreasing stock.",
+    "impact": "Source-level inventory and supplier-ledger divergence; an authorized purchasing caller can create a liability without receiving stock, or manipulate stock via invalid signed lines. No realized DB state or live use is claimed.",
+    "counterevidence_and_limits": "The route requires purchasing_manage or manager approval, and later treasury payment is guarded by outstanding balance and account funds. Those protect authorization and payment, not received-line signs. No schema HasCheckConstraint was found in FalahDbContext for purchase quantity/cost; no runtime schema migration inspection was executed. Business policy for a zero unit cost is not established, so the recommendation focuses on rejecting negative quantity and negative unit cost and explicitly defining zero behavior.",
+    "test_gap": "PurchasingVerticalSliceTests covers empty lines, overpayment, unknown supplier, treasury balance, replay, and payment boundaries, but no negative quantity or negative unit cost case. PurchasingRulesTests checks negative paid amount, not negative purchase line values.",
+    "classification": {
+      "invalid_line_acceptance": "SOURCE_CONFIRMED",
+      "effect": "STATIC_ARITHMETIC_AND_SOURCE_FLOW_ONLY",
+      "runtime_or_database_state": "NOT_TESTED",
+      "source_or_database_modified": false
+    },
+    "recommendation": "Validate every received line before summing or opening the financial journal: require positive quantity; reject negative unit cost and decide whether zero cost is allowed. Add integration tests for negative quantity, negative cost, mixed-sign lines, and verify rejected requests write no purchase, supplier ledger, stock movement, or treasury movement."
+  },
+  "evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "ranges": [
+        "56-78",
+        "121-175"
+      ],
+      "sha256": "70287AC1D6A6D089586A8843B0472ABD2DBA4D0F1182E19563A9FD309FA11795",
+      "observation": "No sign validation before line calculation; positive total controls supplier debit, and submitted signed quantity is persisted in an In receipt."
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "ranges": [
+        "8-11",
+        "77-82"
+      ],
+      "sha256": "E11CCC80B8FB47C7D534BB3595E4553FBFDE47EAE93EB0EB6BA007F1C7ED2524",
+      "observation": "Line total is signed decimal multiplication; AssertPurchasePayment rejects only negative paid amount or paid greater than total."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "ranges": [
+        "20-33",
+        "387-410"
+      ],
+      "sha256": "3FF16EC5EB50957C11AD1BA39ED5E45CD8F29B972674D49B4E3448E0E3AEE6DE",
+      "observation": "Inventory balance adds Quantity for In, so a negative quantity on an In purchase movement reduces stock."
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "ranges": [
+        "8-18"
+      ],
+      "sha256": "DF5E41E3BDF5FFA195D24C3802D58D24795EECCE197195F3E87EC308D208567B",
+      "observation": "PurchaseLineRequest exposes long quantity and unit cost without type-level sign constraints."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs",
+      "ranges": [
+        "106-235"
+      ],
+      "sha256": "746E08316D0A3933F38E1DE46A2FA31E2CF9EB829C03A05AD9DBB50DD8B973DD",
+      "observation": "Purchase receiving tests cover empty lines and payment validation but do not test negative quantity or unit cost."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PurchasingRulesTests.cs",
+      "ranges": [
+        "12-54"
+      ],
+      "sha256": "CF9C5244C2BDA72D0D9021368974D7ADB85B1A0D0DCE2E5F69D0564C77760496",
+      "observation": "Pure rule tests exercise rounding and negative paid amount, not purchase line signs."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "ranges": [
+        "PurchaseLines and StockMovements entity mappings"
+      ],
+      "sha256": "7FDA50AC64F49021D17D7EA9636456DD15556C6D8D4A76F5E553BE0A42F88D3C",
+      "observation": "No HasCheckConstraint declaration exists in the inspected DbContext source; database constraints/runtime schema were not otherwise executed or inspected."
+    }
+  ]
+}

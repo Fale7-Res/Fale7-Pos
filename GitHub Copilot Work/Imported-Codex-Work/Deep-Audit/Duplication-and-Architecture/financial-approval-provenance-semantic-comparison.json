@@ -1,0 +1,231 @@
+{
+  "at_utc": "2026-10-19T22:10:43.174Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-014",
+  "title": "Financial gate success versus validated approver provenance",
+  "status": "BOUNDED_SOURCE_COMPARISON_COMPLETE_FIN017_RELATED_VARIANT_EXTENSION",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+      "worktree_sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "source_git_blob_sha256": "9d73b7f839304f8bd8a88300579e900569067df432ed41f1cb2b9edbed69ae5e",
+      "line_ranges": [
+        [
+          44,
+          57
+        ],
+        [
+          90,
+          102
+        ],
+        [
+          116,
+          120
+        ],
+        [
+          147,
+          173
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-63ceba156fff98e827071190da20bf3a5aaa1ff87517d8a555b1685825cda38c",
+          "signature": "Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.HandleAsync(Falah.Application.Delivery.SettleDriverCustodyRequest, CancellationToken)",
+          "span": [
+            36,
+            5,
+            194,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-640617736c2652783d8bdab8837fa91111d0ef21d78f0629746b4acc0c353512",
+          "signature": "lambda expression",
+          "span": [
+            44,
+            76,
+            44,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-d9971fb0fb47324dc115e2c2d4fa14b9e0b2a0c2d6b3c31df206fa7626eefa76",
+          "signature": "lambda expression",
+          "span": [
+            51,
+            83,
+            51,
+            125
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
+      "worktree_sha256": "27b80026d0447e03faf17e6eaad32fe5fde3ee3cd004f9503d561dfd6adc6822",
+      "source_git_blob_sha256": "c9e49112b32f8415f630a9f885695186d2b7bcc37ad2e7017d77315a6bed6792",
+      "line_ranges": [
+        [
+          386,
+          389
+        ],
+        [
+          444,
+          496
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7c6c8b327aa295038fcd78fd5cb4cd634fa1aa81fc0b0665f8fc0a13b10b628e",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.SettleDriverAsync()",
+          "span": [
+            443,
+            5,
+            499,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "source_git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "line_ranges": [
+        [
+          69,
+          97
+        ],
+        [
+          106,
+          111
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a055b6b0d90a103ea5bfd1ce6c0d941be413195b548ca13ad0fcc303f4862b79",
+          "signature": "Falah.Domain.Authorization.AuthorizationPolicy.AuthorizeCommand(Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Authorization.Actor, string, Falah.Domain.Authorization.ManagerApproval?, bool, bool)",
+          "span": [
+            69,
+            5,
+            78,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fc42a360a3b7ebc48ef2859f0f1a370f5c6a4bfd1766922ba7fd27e69e82b628",
+          "signature": "Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(Falah.Domain.Authorization.IApprovalRegistry, string, Falah.Domain.Authorization.ManagerApproval, bool)",
+          "span": [
+            89,
+            5,
+            97,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4d2006f2fa823c8a5047b6171720c4576e8f6134f3bdac7f8238df980c94f603",
+          "signature": "Falah.Domain.Authorization.AuthorizationPolicy.AuthorizeShiftClose(Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Authorization.Actor, Falah.Domain.Authorization.ManagerApproval?, bool)",
+          "span": [
+            105,
+            5,
+            111,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "line_ranges": [
+        [
+          86,
+          105
+        ],
+        [
+          113,
+          156
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6f97c680c5124527e9f88156f37b1509bc18fe2774c2b87568a2b3116d058bf3",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            87,
+            89,
+            129
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3",
+      "line_ranges": [
+        [
+          756,
+          777
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4df7bdeff5ad648e64308a1c64f128ee4bd15581dec77c850038354f7764e5d3",
+          "signature": "Falah.Server.IntegrationTests.DeliveryVerticalSliceTests.A_settlement_difference_requires_a_reason_and_delivery_settlement_approve_on_top_of_delivery_manage()",
+          "span": [
+            755,
+            5,
+            777,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "contract": "Shift presenter is not necessarily validated authorizer",
+      "evidence": "CloseShift104 invokes void AuthorizeShiftClose then105 takes approval?.ApproverName from locally reconstructed presentation. Ownpermission/underthreshold paths can skip token validation.",
+      "conclusion": "Original FIN017 scope retained, not newlydiscovered or counted."
+    },
+    {
+      "contract": "Driver strict verified authorizer is discarded",
+      "evidence": "SettleDriver56 base gate then57 caches base actualactor fallback. For nonzero variance strict gate102 validates manager token but discards AuthorizationResult; earlier name reused120/150/161/169.",
+      "conclusion": "Related financial-provenance defect variant. Actor owns delivery_manage but not delivery_settlement_approve/all, nonzero reasoned variance + validstrictmanager approval; actual verified manager replaced by actor in financialrows. No actual permission bypass or duplicatefunds."
+    },
+    {
+      "contract": "Permission-or-approval countercontrols",
+      "evidence": "AuthorizationPolicy73 intentionally ownpermission bypasses delegated approval; actual issued action and consumedstate validated91-95. Client389/473-490 requests strictapproval and sends bothIDs493-496.",
+      "conclusion": "Do not force secondmanager where owner alreadydelegated strictpermission. Registry retains issuedmanager record; current settlementhas no storedapprovalid link, so nameprovenance onfinancialrows inaccurate even ifforensicrecoverypossible."
+    },
+    {
+      "contract": "Existing gate test is not attribution test",
+      "evidence": "DeliveryVerticalSlice756-777 rejects missingreason/missingapproval and successfuldelegated variance assertsdifference -1000; methoddoesnot assertApprovedBy/AuthorizedBy ormovement/eventmanager identity.",
+      "conclusion": "Testsource inspected, notexecuted; do notclaim existingtestproves orreproduces provenancecorrectness."
+    }
+  ],
+  "finding_links": [
+    "FIN-017"
+  ],
+  "deduplication": "One financial approval-provenance family. Preserve original shift variant separately and append driver strict-result-discard variant; no extra findingID/count.",
+  "independent_challenge": "Sub-Agents/Handoffs/financial-driver-variance-approver-independent-challenge.json",
+  "recommendations": [
+    "Carry explicit verified actor, authorization source and issued approver identity through each financial gate. Capture strict gate result for variance and preserve accurate ownpermission actorfallback.",
+    "Keep invalid/wrongaction/consumedapproval denial and atomic settlementfacts. Regressiontests must assert manageridentity separately from actor across movement/event/settlement/audit, positivecash andzeroactual."
+  ],
+  "runtime_tests": "NOT_EXECUTED; no approval, financial, UI, SQL or physical printer operation",
+  "new_financial_callable_receipts": 0
+}

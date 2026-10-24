@@ -1,0 +1,164 @@
+{
+  "id": "UI-021",
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:45:58.847878+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source/XAML image completion and backend update boundary challenge",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_VARIANT_REJECTION_COUNTERCLAIM_REJECTED",
+  "severity_assessment": "HIGH conditional authorized menu-integrity risk, native ComboBox reload behavior untested.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 86,
+      "endLine": 87,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": null,
+      "evidence": "CanBrowse/CanEdit omit IsImageBusy; selection/new/save can remain enabled during image HTTP wait."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 200,
+      "endLine": 223,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": {
+        "stable_id": "sym-994eb6461813002479bb542ab2c27d47b95697e6da9cca1bcc05d5673aada553",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.SelectRow(Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.CatalogRow)",
+        "startLine": 200,
+        "endLine": 223,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Selecting B resets/populates form fields and _editing=B while image request for captured A still pending."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 257,
+      "endLine": 288,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": {
+        "stable_id": "sym-53f441189097f243947bcf3b9947ced13195c33bcc0bede2ddde24f33ea27b6d",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.ChooseImageAsync()",
+        "startLine": 257,
+        "endLine": 289,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "ChooseImageAsync captures product A before picker/upload awaits then sets _editing=A on success without generation check."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 291,
+      "endLine": 306,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": {
+        "stable_id": "sym-e5358b3e800b94591f47d3898aa90a5464ff4a48234674c22fc247f70c8a4b05",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.RemoveImageAsync()",
+        "startLine": 291,
+        "endLine": 307,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "RemoveImageAsync has same unconditional captured-product restore after network await."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 127,
+      "endLine": 151,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": {
+        "stable_id": "sym-c9a28057b0c497e15fb4825a7bc1bd27e56024327253ef283dc9dc69d93f915d",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.ReloadAsync()",
+        "startLine": 127,
+        "endLine": 152,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "ReloadAsync rebuilds categories/recipes/catalogue but never resets visible Name/Price/Variants or _editing. CategoryChoices clear/rebuild may affect native bound selection and must be tested."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "startLine": 317,
+      "endLine": 339,
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "symbol": {
+        "stable_id": "sym-77e147bdc08bdade74a3c1729f06e69111c970f5bf34b2ad37d53179f65b40bb",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.CreateRequest()",
+        "startLine": 317,
+        "endLine": 352,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Validated mutable form fields are combined with _editing ProductDetailsDto.Id; category membership and station gates still must pass."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml",
+      "startLine": 88,
+      "endLine": 92,
+      "source_git_blob_sha256": "2e2c0737ca5ba81716a108b3f323e865b6c540825c9ed5368bc887bfc06e884a",
+      "worktree_sha256": "eb56e6edfc726a96d63207e7c41035e80dce3838591a9e11ed936be978ed73be",
+      "symbol": null,
+      "evidence": "Catalogue row command remains available; no image-busy parent exclusion shown."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml",
+      "startLine": 240,
+      "endLine": 246,
+      "source_git_blob_sha256": "2e2c0737ca5ba81716a108b3f323e865b6c540825c9ed5368bc887bfc06e884a",
+      "worktree_sha256": "eb56e6edfc726a96d63207e7c41035e80dce3838591a9e11ed936be978ed73be",
+      "symbol": null,
+      "evidence": "Only image buttons use CanEditImage/IsImageBusy; save binds CanEdit at376."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "startLine": 95,
+      "endLine": 151,
+      "source_git_blob_sha256": "72586c396821ff033030936f49f62c5dee957038d129fac80a11040cb88706a3",
+      "worktree_sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247",
+      "symbol": {
+        "stable_id": "sym-702e575782de19835ecd36815c853525b4b4242cbe21167d1a99350151abaea0",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Menu.UpdateProductHandler.HandleAsync(Falah.Application.Menu.UpdateProductRequest, CancellationToken)",
+        "startLine": 95,
+        "endLine": 152,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Actual authorized backend updates requested product identity. Foreign variant ID is NOT rejected: if not found among target variants it creates a new variant, and removes target old variants not in keepIds."
+    }
+  ],
+  "supported_interleaving": [
+    "A image upload/delete pending; select B; A success sets _editing back to A and invokes reload; B mutable Name/Price/Variants remain; after required category/station validation passes, Save constructs UpdateProductRequest targeting A with current B-derived fields."
+  ],
+  "preconditions": [
+    "Authorized menu manager opens existing product A image action and switches to B during network await.",
+    "Image operation succeeds and operator later submits current form with valid category/station; native choice reset may require explicitly reselecting a category.",
+    "Real backend accepts otherwise valid request; no bypass of menu_manage required."
+  ],
+  "counterevidence": [
+    "Native file picker may prevent interaction while open; upload/delete HTTP await remains an independent window.",
+    "Reload IsLoading temporarily disables CanBrowse/CanEdit. It does not itself restore form-target coherence.",
+    "Native ComboBox clearing CategoryChoices may reset Category, causing validation rejection until corrected; no native control observation executed.",
+    "Careful operator may notice image change.",
+    "Original report suggestion that foreign variant IDs may be rejected is contradicted by actual ProductHandlers.cs129-142 fallback creation; do not retain that as verified mitigation."
+  ],
+  "recommended_remediation": "Keep immutable image target separate from current editor, and publish only when selection generation still matches; maintain coherent form identity through reload and coordinate image action with browse/save.",
+  "required_tests": [
+    "Controlled upload/delete A completion after selecting B must not replace B editor identity.",
+    "Assert native CategoryChoices refresh behavior and correct saved target after any required reselect.",
+    "Backend fixture verifies foreign-variant fallback behavior separately; no production mutations needed.",
+    "Repeat New/SetKind/Close/reopen while image response delayed."
+  ],
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "UI-021 only, no exhaustive callable certification"
+}

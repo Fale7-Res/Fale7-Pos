@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-10-18T03:53:31.705206+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "comparisons": [
+    {
+      "paths": [
+        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+        "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+        "src/Falah.Infrastructure/Treasury/DepositHandler.cs"
+      ],
+      "behavior": "Optional approval presentation resolved similarly; Deposit/Reopen persist validated Approver name, while CloseShift persists presented name (FIN017). Reopen separately stores raw optional approval ID even when direct authorization ignored it; metadata policy lead, not privilege bypass."
+    },
+    {
+      "paths": [
+        "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+        "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+        "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs"
+      ],
+      "behavior": "No-active-day predicate shared between open and reopen but both evaluate snapshots without serialized global invariant. Current status sets agree; distinct concurrency needs unified invariant enforcement rather than merely copying helper."
+    }
+  ],
+  "recommended_tests": [
+    "Direct permission plus unused presentation must not fabricate approval provenance",
+    "Valid delegation consumes issued token and stores issued identity",
+    "Distinct open/reopen interleavings cannot yield two active days",
+    "Rejected reopen audit must follow explicit approval-token-consumption policy"
+  ],
+  "runtime_executed": false,
+  "source_identities": "Per-source raw/git hashes and exact callable IDs in Knowledge/Reviews/financial_coordinator shards; original baseline maps retained."
+}

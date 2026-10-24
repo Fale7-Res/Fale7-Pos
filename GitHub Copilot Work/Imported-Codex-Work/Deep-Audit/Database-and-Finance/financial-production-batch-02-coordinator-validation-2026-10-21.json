@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_validation_of_financial_production_callable_quality_batch",
+  "at_utc": "2026-10-21T10:55:33Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-02-2026-10-21.json",
+  "checks": {
+    "six_ids_unique_and_in_prior_quality_class": true,
+    "stable_id_path_signature_and_range_match_per_file_symbol_index": true,
+    "source_sha256_matches_current_file": true,
+    "linked_receipt_sha256_matches": true,
+    "agent_saved_source_behavior_side_effects_counterevidence_and_remaining_actions": true,
+    "tests_or_runtime_executed": false
+  },
+  "reviewer_independence": "Continuation reviewer was distinct from original receipt author financial_integrity. Coordinator performed metadata/hash/index validation and checked batch conclusions against existing source-backed findings FIN005/FIN006. No SQL Server interleaving was executed.",
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+      "source_path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "signature": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+      "line_range": [
+        29,
+        104
+      ],
+      "source_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "receipt_sha256": "80ffed6f86616a6e855e4dc479094a8686e5c9cf33d74d19a574e57a267cb2ff"
+    },
+    {
+      "stable_id": "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+      "source_path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)",
+      "line_range": [
+        24,
+        61
+      ],
+      "source_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "receipt_sha256": "b6ae173dfd353d858e113c5e7bae05bb2ec004256f4b84144990da78f7a959c2"
+    },
+    {
+      "stable_id": "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5",
+      "source_path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "signature": "Falah.Infrastructure.Treasury.DepositHandler.HandleAsync(Falah.Application.Treasury.DepositRequest, CancellationToken)",
+      "line_range": [
+        31,
+        106
+      ],
+      "source_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+      "receipt_sha256": "afd7b280a446871fd25d6de107b093089e1c6c4ee22f5ee4e17091f6fa1b502b"
+    },
+    {
+      "stable_id": "sym-2cef0f36c5ee0ce1caeb34ca1615f0f4f2c830934c4816b208ac53a65f13eccb",
+      "source_path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+      "signature": "Falah.Infrastructure.Treasury.WithdrawalHandler.HandleAsync(Falah.Application.Treasury.WithdrawalRequest, CancellationToken)",
+      "line_range": [
+        30,
+        109
+      ],
+      "source_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+      "receipt_sha256": "39caffe68f1921252b89e6a0b9eabd35a968c22a4eb4c06e1efe06690748e3b4"
+    },
+    {
+      "stable_id": "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+      "source_path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "signature": "Falah.Infrastructure.Purchasing.PayPurchaseHandler.HandleAsync(Falah.Application.Purchasing.PayPurchaseRequest, CancellationToken)",
+      "line_range": [
+        34,
+        149
+      ],
+      "source_sha256": "34ed4f90f854e21b20c18b1c708754d010dc9b3313c648c5b29be1af08844306",
+      "receipt_sha256": "8bdecfe470a18fa58f94f51d72f9b825aae4f71b4ab8037e883509b5ef114a4f"
+    },
+    {
+      "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+      "source_path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+      "line_range": [
+        47,
+        175
+      ],
+      "source_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "receipt_sha256": "d93cc4a48f93ee7c250d5167c90ab3c8fcb1d1778bc36e8f5a9456bdc275bedc"
+    }
+  ],
+  "finding_reconciliation": [
+    "FIN005: stale invoice entitlement/payment cap is a source-supported conditional distinct-request race mechanism; occurrence and provider outcome unverified.",
+    "FIN006: generic Approved-to-Paid transition changes payroll status without settlement side effects in that handler; PayPayrollHandler is the separate actual payment path. No claim that a user executed the unsupported transition."
+  ],
+  "result": "SIX EXISTING REASONING RECORDS ACCEPTED AS SUBSTANTIVE STATIC SOURCE REVIEWS; runtime limits preserved.",
+  "global_financial_gate": "OPEN"
+}

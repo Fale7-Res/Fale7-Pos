@@ -1,0 +1,162 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-daily-summary-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T08:11:02.9196148Z",
+  "assignment": "Source review of ReportingQueryService.GetDailySummaryAsync including financial/business-day helpers, endpoint permission, DTO and test evidence. Do not count existing receipt text as substantive review.",
+  "stable_id_reconciliation": {
+    "assigned_id": "sym-8e7d2d3022c4e54a707da81cfbed1f2b7649a5c8349ec0d39552c5ae760f702",
+    "source_index_id": "sym-bf1df41ee193bb6b847776835fda72073efd3772c8a000ebe5b1cab5f4b2f83b",
+    "receipt_id": "sym-bf1df41ee193bb6b847776835fda72073efd3772c8a000ebe5b1cab5f4b2f83b",
+    "conclusion": "Use BF1 as the callable stable ID: it matches the exact method signature/path/span in the 2026-10-17 financial-symbol-remaining index, current per-callable receipt, and recovery queues. The assigned 8e7d ID is not found for this signature in those ledgers.",
+    "ledgers_checked": [
+      {
+        "path": "Codex Work/Sub-Agents/Results/financial-symbol-remaining.json",
+        "sha256": "57b704de88a1444979ec0d235df0022721a929aa27001afc47389ef943e8219",
+        "result": "Contains BF1 with matching signature/path/span at array row around file line 45911."
+      },
+      {
+        "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+        "sha256": "fe05e42d2d07c073c0448e752e44fd61612247c4725b523e40f0650dc8b8d112d",
+        "result": "Contains BF1, status ANALYZED, matching method signature and span 215:5-239:6."
+      },
+      {
+        "path": "Codex Work/Conversation-Recovery/remaining-audit-queue.json",
+        "result": "Contains BF1 for this method."
+      },
+      {
+        "path": "Codex Work/Conversation-Recovery/PAUSED_AUDIT_BACKLOG.json",
+        "result": "Contains BF1 for this method."
+      },
+      {
+        "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json",
+        "result": "Neither ID hit in bounded string search; artifact is membership aggregate/pending list."
+      },
+      {
+        "path": "Codex Work/Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json",
+        "result": "Neither ID hit in bounded string search; artifact is structural aggregate."
+      }
+    ],
+    "stale_references_needing_coordinator_attention": [
+      {
+        "path": "Codex Work/Conversation-Recovery/NEXT_ACTION.md",
+        "location": "line 4",
+        "value": "Contains assigned 8e7d ID; should be reconciled to source-index/receipt BF1."
+      },
+      {
+        "path": "Codex Work/Sub-Agents/Handoffs/financial-business-day-reconciliation-substantive-review-2026-10-21.json",
+        "location": "next_queue",
+        "value": "My previous handoff recorded 8e7d as next callable; this is stale and was not overwritten so the discrepancy remains auditable."
+      },
+      {
+        "path": "Codex Work/Sub-Agents/Checkpoints/financial-integrity-continuation.json",
+        "location": "next_reporting_queue",
+        "value": "Contained 8e7d before this batch; checkpoint is corrected below to BF1."
+      }
+    ]
+  },
+  "callable": {
+    "stable_id": "sym-bf1df41ee193bb6b847776835fda72073efd3772c8a000ebe5b1cab5f4b2f83b",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetDailySummaryAsync(string, CancellationToken)",
+    "span": "215-239",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+  },
+  "behavior": "The callable first invokes GetBusinessDayReconciliationAsync for sales, expenses and shift discrepancy, then reloads BusinessDay by ID. It obtains the Cairo [start,end) UTC interval for that day, selects EmployeeLedgerEntries by CreatedAtUtc only, and sums DailyWage/Overtime credits and Advance/Withdrawal debits across all employees. It separately selects shifts by BusinessDate and distinct OpenedByUserId names. It returns a read-only DailySummaryDto containing day ID/date, sales, expenses, shortage/overage, the four ledger totals, and cashier names. There is no per-request transaction or snapshot across the reconciliation, business-day reload, ledger and shift/name reads.",
+  "helpers_and_writer_trace": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "span": "164-208",
+      "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "role": "GetBusinessDayReconciliationAsync child result; this was source-reviewed in prior handoff, whose field cohort semantics remain conditional."
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "span": "31-41",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "role": "BusinessDate to Cairo-midnight half-open UTC range for timestamped ledger entries."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+      "span": "63-64",
+      "sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e",
+      "role": "EmployeeLedgerEntryEntity includes CreatedAtUtc and ShiftId but no BusinessDayId."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "span": "31-50",
+      "sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "role": "Shared wage/overtime/attendance ledger writer sets CreatedAtUtc=UtcNow; its entity has no day ID."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "span": "50-60,77-108",
+      "sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "role": "Manual daily wage and overtime append credits using EmployeeLedgerPoster; manual daily wage key uses BusinessClock.Today."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "span": "31-33,72-80,116-147",
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "role": "Biometric attendance computes Cairo date and appends daily-wage/overtime credit entries through the same poster."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "span": "110-130",
+      "sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+      "role": "Advance/withdrawal writer records debit ledger type, CreatedAtUtc, and separately posts the treasury movement under active businessDayId."
+    }
+  ],
+  "endpoint": {
+    "path": "src/Falah.Server/Program.cs",
+    "span": "2021-2027",
+    "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+    "behavior": "GET /api/reports/daily-summary/{id} checks RequireReportsAccessAsync, returns DTO, maps missing day InvalidOperationException to 404.",
+    "permission_helper": "Same Program.cs helper lines 2282-2290 requires reports_view or all."
+  },
+  "dto": {
+    "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+    "span": "38-51",
+    "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+    "behavior": "DailySummaryDto is intentionally narrower than full employee payroll: its EmployeeLedgerTotalsDto documents DailyWage/Overtime as credited obligations and Advance/Withdrawal as debits already paid out."
+  },
+  "test_evidence": {
+    "direct_test_search": "No test source matching DailySummaryDto, DailySummary, or /api/reports/daily-summary was found under tests.",
+    "adjacent_ledger_test": {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "span": "166-189",
+      "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "coverage": "Tests Employee day totals and all-time running balance through the separate daily-statement endpoint; not DailySummary endpoint totals."
+    },
+    "businessday_test": {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "span": "145-165",
+      "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "coverage": "Tests reconciliation sales, expense, shift count and missing-day 404; no daily-summary endpoint or employee-ledger totals."
+    },
+    "tests_executed": false
+  },
+  "conclusions": [
+    "No independent material calculation defect identified in the four ledger totals: selected types, credit/debit sides, and Cairo timestamp range match the DTO contract and current writers inspected.",
+    "The query is calendar-date scoped rather than businessDayId scoped because EmployeeLedgerEntryEntity has no BusinessDayId; current writer timestamps and comments support that date-based contract. If multiple distinct BusinessDay IDs for one date are allowed and expected to have separate ledger summaries, each summary will repeat same-day employee entries and cashier names. This reuses the prior conditional date-vs-ID cohort observation; not a new finding.",
+    "The report reads are non-snapshot and could combine values across concurrent updates; no database isolation/outcome is established. Existing source comments describe a printable end-of-day sheet, but no direct endpoint test exists.",
+    "The DTO intentionally omits Salary, ExtraShift, Settlement and PayrollSettlement; this is a scoped daily summary, not a total employee-obligation/payroll report. No owner-policy gap is asserted."
+  ],
+  "current_receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+    "sha256": "fe05e42d2d07c073c0448e752e44fd61612247c4725b523e40f0650dc8b8d112d",
+    "status": "ANALYZED",
+    "note": "Existing receipt read for identity and comparison only; this handoff records actual source reasoning."
+  },
+  "next_callable": {
+    "stable_id": "sym-2ef0b6c617019b77da486f78b5f323f3d23e99481f4282ad6ca9adaab7c5f06b",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetTopSellingItemsAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "251-263",
+    "caution": "Existing receipt status is ANALYZED; require source-specific review before credit."
+  },
+  "limitations": [
+    "Static source review only; no tests executed.",
+    "No source/DB/runtime mutation, shared report/registry, or Git change.",
+    "This supplement is not a global coverage certification."
+  ]
+}

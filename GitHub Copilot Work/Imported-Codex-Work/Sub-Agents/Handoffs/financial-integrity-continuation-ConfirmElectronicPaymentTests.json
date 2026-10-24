@@ -1,0 +1,59 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:25:14.3259199Z",
+  "path": "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs",
+  "stable_ids": [
+    "sym-08b042aaae12e9566bb372beb2c0676685e23b03cb932c6a0933467e8bbc0847",
+    "sym-cb61190edb1ac17e6217b1201a8f38dbcd8ffeba50b811017ed8599ece3161c2",
+    "sym-19b5891fbe47224bc0f35af49570bd45b67a626a3488faf8e09d829774522b69",
+    "sym-1ea986293b53a7477c753c2bf67fb88fc35941d6b469f855044c5ca75f7a654d",
+    "sym-caa9b92712ea6ea69ac426e0c553ac6eaf475295734bf3b759a720ab592be752",
+    "sym-f614465bfd20cece404e7e51e453045eeef096a77d131dffbe094be72c7248bf",
+    "sym-d0a36ca64cf9f6a440fbe1673889ddca45b675a9c0775e22abe8b3d26a552c7a",
+    "sym-cb638c2d096ba44cf0a7046bd81a7f27f7ae6a4e4e3ca0054aed25ad00403e81",
+    "sym-527f9835be9dabd29619f93e349f7c28383e733f2c9525553f8ee467b2bfa6ce",
+    "sym-4076a1d57743637719d6e9a04508ad0ca7dfddc67904b88eeb6a9e659d368e70",
+    "sym-21a042b7161c716afd60ac85d0d64cb1682c8d76f700de3a849c312574e3b526",
+    "sym-1547efaad902f1822b34f89470be7ab141526f5ef4821c48e48c19373443d09c",
+    "sym-e3395d6efb11d7fa729558274d7b8e8e6e6b652f53ab47538f8a58c6eb0ef569",
+    "sym-06f76953c49720d390cb95828daf7c33fbf4a40698c66144f459b49d3b3e4459",
+    "sym-40e7580c856fb33029eb7dd0f73d6910b92364a37f31384e980bf356435e69f9",
+    "sym-09b5ce8a32d08bc0a71c1785d93aca195e5ef6304a360ae9459b0ee17aa124d3",
+    "sym-8c03ebce4fefcbd909cd663296492a1e854ca87ef42cbf8a9f83abcc8fac10eb",
+    "sym-0ddb1aa56c06ca11bd2e6b29d8e55039411bde0205cdbd2183ed3f289b748f79",
+    "sym-f3edc933b608fb2c5f37917da4bb2ba1e0921c6f74e7a796631a2b3f6e6bb687",
+    "sym-87f757e06575213a41e1a3dfde5c0df0a3f6ea5bfcf20661aff17feb0aa9ad0a",
+    "sym-393b1fe58a7079f2a9458c3a9a74bfc40d2f64091ec3076ae603bbdf321e091c",
+    "sym-d5bf71a33f0c07f2c9842214f851d841e02755a1f6ccac007073e059c7cbfbbd",
+    "sym-81b3a33d5913041a847f515e9a93b7899d7789981c325ca933c98e18d23683bf",
+    "sym-72538c56fbdbd9e7c1653535686d63fdaaa08d837fae7e0b88d8e94a95390dfc",
+    "sym-d99f143b2f55ef7c5b1b67187cb3c05b3d6bc5d8e3a7f6d1137e389f0cb80af5",
+    "sym-81a4aecd16cd5ee516af12495b155c4a55b98b782d9aa8f44f3e1c37f0976118",
+    "sym-ebe03e52292ac5f7852fd926ab3c1c90c4263b8b00fca3311ad37988845c0240",
+    "sym-2f61cf7b5547b5202b7c26b0d01fa648cb2e1fe52497c04ab7baeba33ec42460",
+    "sym-345d749d99b6b39bc5dabfaf7999bad55c35e64350947cf84f90f76703b06141",
+    "sym-1f648655a43605d47666a24f8f41dd0b932246172e7e715c14c2ffead612f99b"
+  ],
+  "queued_count": 30,
+  "reconciliation": {
+    "current_union_remaining": 30,
+    "coordinator_database_reports": 0,
+    "outside_union": 0,
+    "note": "All callable symbols remain in current union; coordinator report shard has no IDs for this test path."
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs": "02835CDFBFD3B8F9B02340E8EBC0BBC556D1229CB05DF953611FE5AE21595695",
+    "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs": "CAC1F0A97612EFB966710E6A47E323C2FFF06B342C688F419298E34E18C34A0B",
+    "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs": "C12B0DA939A0A82F907BFA1F0CE32B58F686D4F60D01B637CF1054A30D2D1BC7"
+  },
+  "assessment": "Tests cover pure InstaPay confirm/cancel, per-order same-key sequential and concurrent replay, permission and open-shift gates. Helper always builds a single-method InstaPay order. Therefore these tests do not counter existing mixed-tender defects FIN-001 (confirmation collides with checkout journal) and FIN-002 (cancellation hides immediate cash/card without reversal); they also do not establish refund eligibility under FIN-003. No duplicate candidate promoted.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static only; test code includes disposable SQL setup but no tests, database calls, transactions or writes were run.",
+  "existing_findings": [
+    "FIN-001",
+    "FIN-002",
+    "FIN-003"
+  ],
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

@@ -1,0 +1,78 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-reporting-expense-refund-activity-substantive-batch-2026-10-21",
+  "created_utc": "2026-10-21T08:03:29.6896950Z",
+  "scope": "Small supplemental source review following GetCategorySalesAsync. Read ReportingQueryService expense/refund report bodies, endpoint dispatch, DTO contracts, write-side date/shift provenance, and existing integration-test source. No execution or shared report/registry edits.",
+  "reviews": [
+    {
+      "stable_id": "sym-b4d22c4845847274e4f4b51ec6cba17dbdd9ff6e1c06333b5ccd6365971917e0",
+      "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetExpenseReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "span": "124-136",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "behavior": "AsNoTracking expense query; optional inclusive BusinessDate lower/upper bounds; optional shift filter applies only when nonempty; newest-first rows become ExpenseDto; TotalPiastres is sum of every filtered expense, regardless of drawer vs non-drawer source. The matching DateOnly overload delegates to a one-day BusinessDateRange (stable ID sym-add2d7f4da7babd1aef0de58f1af1f0850e7d939b890f480478c54f6c52e7c98, lines 121-122).",
+      "caller": "GET /api/reports/expenses resolves businessDate/from/to and applies RequireReportsAccessAsync before service call (src/Falah.Server/Program.cs:2005-2007).",
+      "dto": "ExpenseReportDto is TotalPiastres plus ExpenseDto list (src/Falah.Application/Reports/ReportingDtos.cs:18); ExpenseDto preserves amount, category, shift, PaidFromDrawer, payment account, creator, BusinessDate and CreatedAtUtc (src/Falah.Application/Expenses/ExpenseRequests.cs:16-18).",
+      "writer_crosscheck": "AddExpenseHandler validates positive amount, requires existing open shift and open business day, builds protected-account movement, and stamps BusinessDate from BusinessClock.BusinessDate(now) while persisting the expense (src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:36-47,53-55,69-90,94-104). This supports use of expense BusinessDate instead of deriving report day from CreatedAtUtc.",
+      "test_evidence": "ReportingVerticalSliceTests.Expense_report_totals_and_lists_every_expense_for_the_shift posts two drawer expenses and expects 5000 piastres and two rows (tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs:111-121). BusinessDay_reconciliation_reflects_sales_expenses... also checks 3000 (lines 144-158). Tests do not cover non-drawer expenses, inclusive date bounds, empty shift ID, or sort order.",
+      "test_source_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "conclusion": "No material defect identified statically. The report is an all-source management expense total, while DTO fields preserve source distinctions. A reader must not interpret TotalPiastres as drawer-only; existing endpoint name/report and DTO make no such narrowing claim.",
+      "counterevidence_and_gaps": "The only dedicated report test uses drawer expenses; there is no direct assertion that a main-treasury expense is included. Source query does include it because no source predicate narrows rows. No runtime/database behavior was executed."
+    },
+    {
+      "stable_id": "sym-c77c82b5d36fdf7804b1dfab15a35a56a5701515075450fee3001d1916fd1e57",
+      "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetRefundActivityAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "span": "144-158",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "behavior": "Converts optional business-date range to half-open UTC start/end; filters OrderRefund rows by CreatedAtUtc and OperationalShiftId when nonempty; joins the original Order for its number; returns amount/method/reason/actors/time and both OriginalShiftId and OperationalShiftId. DateOnly overload delegates single-day range (stable ID sym-d2f903e8b1a107f7c66046b49015f8b0bd60a6665ccce0193cef2001587abcb9, lines 141-142).",
+      "caller": "GET /api/reports/refunds resolves businessDate/from/to and applies RequireReportsAccessAsync before the service call (src/Falah.Server/Program.cs:2009-2011).",
+      "dto": "RefundActivityDto explicitly carries original and processing shifts separately (src/Falah.Application/Reports/ReportingDtos.cs:22-24).",
+      "writer_crosscheck": "RefundOrderHandler resolves an operational shift, uses it on the refund treasury movement, and persists OrderRefund with original order ShiftId plus operational shift ID (src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:95-110). This matches the report event-time and processing-shift filter semantics.",
+      "test_evidence": "ReportingVerticalSliceTests.Refund_activity_reports_the_refund_with_its_order_and_shift_context posts a 5000-piastre refund, filters by the current shift, and asserts order ID and amount (tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs:125-140). It does not test closed-original-shift/current-processing-shift split or event date differing from sale date.",
+      "test_source_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "conclusion": "No material defect identified statically. Report correctly attributes the refund event to its processing shift and event time while retaining the original sale shift for audit context. Filtering by original-sale date/shift would misstate refund activity; source avoids that.",
+      "counterevidence_and_gaps": "The integration test uses same original and operational shift, so it does not prove the cross-shift distinction. The report inner-join omits orphan refund rows; whether an orphan can exist depends on persistence constraints and was not investigated in this bounded batch. No runtime/database behavior was executed."
+    }
+  ],
+  "dto_source": {
+    "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+    "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+    "ranges": "18,22-24"
+  },
+  "expense_dto_source": {
+    "path": "src/Falah.Application/Expenses/ExpenseRequests.cs",
+    "sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+    "ranges": "16-18"
+  },
+  "server_source": {
+    "path": "src/Falah.Server/Program.cs",
+    "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+    "ranges": "2005-2011"
+  },
+  "expense_writer": {
+    "path": "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs",
+    "sha256": "02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1",
+    "ranges": "36-47,53-55,69-90,94-104"
+  },
+  "refund_writer": {
+    "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+    "sha256": "ca7d3922495ad8ed8f9979feece461f3fca0aa150fde7790714e29046e32d085",
+    "ranges": "95-110"
+  },
+  "tests_executed": false,
+  "findings": [],
+  "next_queue": {
+    "stable_id": "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetBusinessDayReconciliationAsync(string, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "164-208",
+    "existing_receipt_status": "ANALYZED",
+    "instruction": "Do not credit receipt status alone; next substantive source pass should verify reconciliation read graph, calculation delegates, and tests."
+  },
+  "limitations": [
+    "Static source review only; tests not executed.",
+    "Supplemental reasoning is not an original author receipt, a global coverage claim, or independent validation of the canonical finance report.",
+    "No source, test, configuration, database/runtime, shared registry/report or Git changes."
+  ]
+}

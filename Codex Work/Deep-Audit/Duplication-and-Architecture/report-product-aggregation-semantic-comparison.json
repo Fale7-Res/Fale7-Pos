@@ -1,0 +1,345 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-043",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T08:31:20.016396+00:00",
+  "scope": "Coordinator cross-comparison of four product/category report projections, their common inclusion predicate and actual daily-statement/API callers, incorporating but not replacing the Financial Integrity callable handoffs.",
+  "decision": "The four reports intentionally present different projections over a shared order-line cohort. All four use the same half-open date helper and same cancellation predicate; TopSelling, SoldProducts, and ProductHourly group by frozen ProductName, while CategorySales joins current Product rows and groups by current CategoryId. DailyStatement pairs SoldProducts and ProductHourly with explicit same-day endpoints. No semantic divergence in shared predicates was found. The cancelled casing remains one conditional collation risk across this family, not four confirmed defects.",
+  "related_existing_findings": [
+    "No new canonical finding created; cross-reference the pending conditional report-casing concern only if already registered. Do not duplicate it."
+  ],
+  "finding_candidate": null,
+  "severity": "No new finding assigned; shared casing concern remains conditional pending provider collation/runtime verification.",
+  "confidence": "High for source-level predicate/grouping/caller comparison; runtime status filtering, DB collation, and historical category impact are not runtime verified.",
+  "manual_reasoning": {
+    "shared_cohort": "GetTopSellingItemsAsync, GetSoldProductsAsync, GetProductHourlySalesAsync, and GetCategorySalesAsync all call Range(from,to), filter Order.Status against nameof(OrderStatus.Cancelled), and use [start,end) comparisons on Orders.CreatedAtUtc before joining order lines. Their common status/date cohort is source-confirmed.",
+    "projection_differences": "TopSelling aggregates quantity and frozen line total by frozen ProductName and orders by quantity. SoldProducts aggregates by the same frozen name and adds quantity, distinct order count, line amount and peak Cairo hour; its caller in DailyStatementQueryService passes businessDate twice. ProductHourly groups frozen ProductName plus Cairo local hour and aggregates quantity/line amount. CategorySales instead inner-joins current Products and groups by current CategoryId/current category name, so deletion can omit historical product lines and recategorization can move historical totals between categories; current-category semantics are reflected in the source projection but sale-time category is not preserved here.",
+    "client_server_and_api": "The server exposes top-items, category-sales, and product-hourly routes under reports access; daily statement composes SoldProducts and ProductHourly with the same date at both bounds. Existing integration tests separately assert top/category totals, Cairo hourly grouping/range, product/order aggregation, and pending electronic cancellation removal from daily SoldProducts. Test source was inspected only. The Cashier WinUI ApiClient has a category-sales GET wrapper and ReportsViewModel.LoadAsync fetches the result into its CategorySales collection; a bounded literal search of ReportsView.xaml found no CategorySales binding. This view-level non-consumption is source-confirmed for that XAML, but whether category sales are intended to be visibly rendered is unverified and belongs to the paused UI requirement review; no UI defect is promoted.",
+    "conditional_cancellation": "All four methods compare the persisted status value to the enum identifier string Cancelled. OrderEnumMapping maps Cancelled to lowercase cancelled, and OrderMapper persists that wire value. A case-sensitive SQL collation could retain cancelled rows, but actual SQL Server collation/provider execution was not queried or run. The daily-statement cancellation test is counterevidence in its documented test environment if executed, but it was not run here and does not prove deployment collation. A bounded source search across src/ and tests/ found no explicit UseCollation/Collate configuration; this absence does not identify the deployed database collation.",
+    "date_contract": "Range permits from-only open-ended and to-only upper-bounded periods; BusinessDateRange.Resolve documents a from-only single-day contract. This comparison found no applicable production caller mismatch in the inspected DailyStatement path (both bounds supplied), and distinct endpoint contracts may be intentional. No behavior change recommendation absent API requirement.",
+    "recommendation": "Keep the report methods distinct because their grouping keys and outputs serve different views. If collation-independent cancellation exclusion is required, centralize the wire-state comparison and cover every endpoint under relevant collations. Document/report-test partial-bound semantics. If category totals must preserve sale-time category, persist and query a sale-time category snapshot; that is a product/data-model decision, not a confirmed defect.",
+    "runtime": "No tests, endpoint calls, SQL queries, or database collation inspection executed."
+  },
+  "required_tests": [
+    "Run existing category/top-items integration case on disposable SQL Server configured with intended production collation.",
+    "Add/retain cancelled-order exclusion assertions for top-items, category-sales, hourly rows, and daily SoldProducts under supported relevant collations.",
+    "Test category recategorization/deletion history behavior against an owner-approved requirement (current-category versus sale-time category).",
+    "Test from-only and to-only API date-range behavior for each public report route and document the contract.",
+    "Assert the same fixed cohort sums to expected projections while allowing each report’s documented grouping key."
+  ],
+  "acceptance_criteria": [
+    "All four report methods and callers retain their documented distinct grouping/output contracts.",
+    "Cancelled orders are excluded independent of database collation if the shared filter is changed in future implementation.",
+    "Daily statement rows continue to use an explicit single-day range.",
+    "Category-history semantics are explicitly decided before any snapshot/schema proposal."
+  ],
+  "runtime": "NOT_EXECUTED; source and test-source inspection only.",
+  "limits": [
+    "Coordinator static comparison; the financial continuation reviewer separately supplied substantive handoffs for three report methods and owns subsequent GetCategorySalesAsync review.",
+    "No SQL Server collation or live database inspected.",
+    "No test executed.",
+    "Bounded report-family comparison, not repository-wide semantic duplication completion.",
+    "Cashier ReportsView.xaml has no literal CategorySales reference; this is bounded negative evidence for that view only, not proof that no alternate renderer or product requirement exists."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          241,
+          263
+        ],
+        [
+          265,
+          297
+        ],
+        [
+          299,
+          322
+        ],
+        [
+          324,
+          339
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2ef0b6c617019b77da486f78b5f323f3d23e99481f4282ad6ca9adaab7c5f06b",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetTopSellingItemsAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            251,
+            5,
+            263,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a888476d680eb31b8afc8d6b17ee1dadf32426a83f8f4d4fbb4067fcb15ebf84",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSoldProductsAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            272,
+            5,
+            297,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-239862d44490f5bff59178db495c11035116267e1e1652bea1e939ccecf307d2",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetProductHourlySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            307,
+            5,
+            322,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-42ede0a0661cfd895d08809ec61dcca1b382196251d3e21614fffcce439b6fa1",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetCategorySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            325,
+            5,
+            339,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          60,
+          74
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0debe5a77f4ef4f5426a52025c203952db3a716ea3d073617739930d00911478",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.GetAsync(DateOnly, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            60,
+            5,
+            90,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+      "worktree_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "source_git_blob_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          42,
+          49
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f94741150462639c22ff9a4bbe636c54ada09c3bbbe988f9d3e7c4f8f45a4883",
+          "signature": "Falah.Application.Reports.SoldProductLineDto",
+          "kind": "RecordDeclaration",
+          "span": [
+            45,
+            1,
+            47,
+            69
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "worktree_sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "source_git_blob_sha256": "2b8b7326e580341dee9b67975c4edd735541f3f015a9c4c6a161e2425185c6c8",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          47,
+          56
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-70d86ed215d60b54af652294af9d1ed0e4ea6852ea2db5a3183cac4246fd840f",
+          "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderStatus)",
+          "kind": "MethodDeclaration",
+          "span": [
+            47,
+            5,
+            56,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "worktree_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "source_git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          84,
+          98
+        ],
+        [
+          232,
+          249
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "worktree_sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "source_git_blob_sha256": "49e54fce7eef21d7e7f3b2102bd6b0f2c032041936c651c2897ddf23bfff4a38",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          169,
+          201
+        ],
+        [
+          203,
+          222
+        ],
+        [
+          520,
+          545
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          2029,
+          2036
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          587,
+          589
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2e96569c4452c415f26abed047e9588a6d87501e4f0ae0154df85addf804eab1",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetCategorySalesAsync(string, DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            587,
+            5,
+            589,
+            132
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "worktree_sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "source_git_blob_sha256": "ebf6a9f85068ce2a86d389e35c3f08646e0e4b11a44f699e2d8f09ab9a989dab",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          141,
+          141
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-efe6c034facd8faa266fb6b6e0be8309e2fa4ab53f6666518c192d00ad6ad4e2",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.CategorySales",
+          "kind": "PropertyDeclaration",
+          "span": [
+            141,
+            5,
+            141,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-7ec9af3b33d2274f00bcb544eb1b46a9dae77ad92d94c736084a7e74060030d2",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.LoadAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            237,
+            5,
+            320,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "worktree_sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "source_git_blob_sha256": "c651254a3cf46fde7d9b8337061f87603c0d54e06dc2e7d20c3392bd94e0e99a",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          1,
+          453
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderMapper.cs",
+      "worktree_sha256": "37619395348335292dd8dc7469e4f21488033d3816b097ad9b55451a6af20a9d",
+      "source_git_blob_sha256": "5c422ab8a49ac985c1100ef28c17d38529ae973a4df1bd215025e461e9ba2f8c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          84,
+          144
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37e36207f2bbeeb19cdc3671900aa7a5c797a678ca631e1dc066901329c69d4c",
+          "signature": "Falah.Infrastructure.Orders.OrderMapper.ToEntity(Falah.Domain.Orders.Order)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            144,
+            7
+          ]
+        }
+      ]
+    }
+  ]
+}

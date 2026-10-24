@@ -1,0 +1,154 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-020",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:05:00Z",
+  "scope": "Targeted semantic comparison of dashboard day/hour trend buckets to the period sales headline and shared SalesRules/report source filtering. This is a bounded report-projection review, not a general sales accounting audit.",
+  "decision": "The dashboard headline obtains its sales rows through ReportingQueryService.LoadSalesOrdersAsync and then SalesRules.ComputeSalesReport, which excludes Cancelled orders, applies the BusinessDateRange UTC interval, and computes net sales as gross total less each order refund. Both dashboard series queries use the same UTC interval and non-Cancelled predicate, then sum TotalPiastres minus RefundAmountPiastres. The daily series groups by Cairo business date and fills all requested dates with zero; the single-day series groups by Cairo wall-clock hour and emits 24 buckets. The value cohort and net formula match the headline, with grouping and zero-fill intentionally different. Existing integration tests assert both hourly and daily series sums equal Cash.NetSalesPiastres and that single-day output has 24 buckets. No current formula divergence found in this bounded comparison.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Reports/SalesRules.cs",
+      "worktree_sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9",
+      "source_git_blob_sha256": "7a52c3e29e9185471415dadfd81a28ee329811c653974a31a314f9baed147737",
+      "line_ranges": [
+        [
+          34,
+          85
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7d7698043ffceaa924a6de50e9895269872cfd1788ed61046b8457d6a6377ee4",
+          "signature": "Falah.Domain.Reports.SalesRules.ComputeSalesReport(IReadOnlyList<Falah.Domain.Orders.Order>, IReadOnlySet<string>)",
+          "span": [
+            34,
+            5,
+            85,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          35,
+          52
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "span": [
+            35,
+            5,
+            52,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          38,
+          74
+        ],
+        [
+          84,
+          109
+        ],
+        [
+          111,
+          154
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "span": [
+            111,
+            5,
+            132,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "span": [
+            134,
+            5,
+            154,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "worktree_sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "source_git_blob_sha256": "dafabe15f75a8e81a9095b9825896d0ce5c5e0c818aa7fd9736209f8671602e7",
+      "line_ranges": [
+        [
+          138,
+          149
+        ],
+        [
+          151,
+          165
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9afbe58d8890d2e10fe3cf92220ea055d6a5e6fd55c144210a3ae31b237d0694",
+          "signature": "Falah.Server.IntegrationTests.OwnerDashboardVerticalSliceTests.A_single_business_date_is_charted_by_the_hour()",
+          "span": [
+            138,
+            5,
+            149,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f24ac499bcb49ac8f3826ac9f3572e5f6821a73535bee735015d1f65139d482c",
+          "signature": "Falah.Server.IntegrationTests.OwnerDashboardVerticalSliceTests.A_span_of_days_is_charted_by_day_and_closed_days_are_zero_not_missing()",
+          "span": [
+            151,
+            5,
+            165,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "headline": "OwnerDashboardQueryService.GetAsync(range) delegates current sales headline to ReportingQueryService.GetSalesReportAsync(range,null). ReportingQueryService.LoadSalesOrdersAsync filters status != Cancelled, uses range.ToUtcRange() with inclusive start/exclusive end, and hydrates items. SalesRules.ComputeSalesReport computes gross as sum Total, refunds as sum RefundAmount, and net as gross-refunds.",
+    "daily_series": "LoadDailySeriesAsync uses the same BusinessDateRange.ToUtcRange() and non-Cancelled status predicate, projects CreatedAtUtc, TotalPiastres and RefundAmountPiastres, then groups by BusinessClock.BusinessDate. It adds every requested date with zero values when no order exists.",
+    "hourly_series": "LoadHourlySeriesAsync uses the same range helper and status predicate, projects the same financial fields, groups by Cairo timezone hour and emits labels 00 through 23. Repeated local wall-clock hour values are merged by GroupBy; absent hour labels are zero-filled. This is not a per-instant timeline and should remain an explicit chart contract.",
+    "comparison": "The row inclusion rule and per-row net formula align across headline and series. The test suite explicitly asserts sum(series.NetSalesPiastres) equals dashboard.Cash.NetSalesPiastres for both single-day and date-span modes, so existing test coverage guards the aggregate identity. Grouping differs by chart granularity only.",
+    "counterevidence": "No current code-level divergence was established. Existing headline and series are separate database reads during dashboard assembly; concurrent writes can produce a transient sum mismatch without snapshot isolation. This is a consistency/transaction policy concern, not evidence of a formula mirror defect. An order created/updated between those reads could make the live response internally inconsistent.",
+    "limitations": "Static code/test inspection only. Tests were read but not executed; no provider query, concurrent write, Cairo DST runtime, or native dashboard observation occurred."
+  },
+  "recommendation": "Keep the shared UTC range and net formula contract explicit. Add a refund/cancelled-order series test and define whether the whole dashboard response must be snapshot-consistent under concurrent checkout/refund writes. Preserve Cairo business-date grouping and the documented 24-hour wall-clock output semantics.",
+  "required_regression_tests": [
+    "Seed a partially refunded order and a cancelled order; assert hourly and daily series sums equal the sales headline and canceled sales are excluded.",
+    "For a span containing a closed day, preserve a zero bucket while preserving total equality.",
+    "If dashboard-wide snapshot consistency is required, update an order between headline and series reads in a provider-backed test and assert the intended snapshot policy.",
+    "Document/test 24 fixed Cairo wall-clock bucket behavior on applicable timezone transition dates."
+  ],
+  "reviewer": "Main Codex coordinator; bounded manual semantic comparison; no separate reviewer was assigned."
+}

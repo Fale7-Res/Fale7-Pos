@@ -1,0 +1,88 @@
+{
+  "artifact_kind": "financial_indexed_count_crosswalk_reconciliation",
+  "id": "financial-indexed-count-crosswalk-reconciliation-2026-10-21",
+  "created_utc": "2026-10-21T07:59:29.8190671Z",
+  "status": "4253_RECEIPT_MEMBERSHIP_CROSSWALKED_4102_CATEGORY_MEMBERSHIP_UNKNOWN",
+  "assignment": "Reconcile existing financial callable inventory, reviewer receipts, and historical count snapshots without generating or inferring substantive review.",
+  "conclusion": "All 4253 stable IDs in the 2026-10-17 financial-symbol-remaining analyzed_ids list have an exact stable-ID match in current financial_integrity/financial_coordinator per-callable receipt symbol rows, and each matched row has nonempty reasoning text. This resolves an identity crosswalk for the 4253 indexed set to current receipt entries. It does not establish that each reasoning field is adequate, independently validated, or equivalent to a category in the 4102 historical method-count snapshot.",
+  "counts": {
+    "historical_method_categories": {
+      "total": 4102,
+      "manual_source_reasoning": 1456,
+      "changed_block_current_context": 114,
+      "source_equivalence_plus_manual_model_context": 2456,
+      "field_specific_accessors": 76,
+      "stable_id_membership_file_present": false
+    },
+    "indexed_snapshot": {
+      "analyzed_ids": 4253,
+      "missing_receipt_ids": 0,
+      "remaining_symbols": 4551,
+      "scope_files": 327
+    },
+    "current_receipt_scan": {
+      "files": 239,
+      "symbol_rows": 7664,
+      "unique_stable_ids": 7602,
+      "rows_with_nonempty_reasoning": 7664,
+      "note": "Includes 62 repeated symbol-row occurrences; current reason-bearing per-ID receipt set overlaps indexed analyzed_ids in exactly 4253 IDs."
+    },
+    "continuation": {
+      "exact_ids": 989,
+      "overlap_with_authority_pending": 989,
+      "per_symbol_reasoning_not_uniform": true
+    },
+    "residual": {
+      "ids": 213,
+      "dispositioned": true,
+      "count_as_genuine_review": false
+    }
+  },
+  "findings": [
+    "The indexed 4253 analyzed_ids are each found in one or more current receipt symbol rows; the generated crosswalk records exact stable_id, receipt path, source path, reviewer, source hashes, signature, span, and a bounded reasoning excerpt.",
+    "The 4102 historical category totals have no per-ID list/category map. Their 151 difference from 4253 cannot be assigned to additions, reclassification, overlap, or drift.",
+    "The current 7602 union is structural receipt membership. The 989 exact continuation tokens and 213 residual dispositions also do not establish semantic depth across their members.",
+    "No defensible exact current genuinely analyzed count or remaining genuine-analysis queue can be derived from these artifacts. Do not sum 4102, 4253, 7602, 989, or 213 for semantic coverage."
+  ],
+  "next_candidate": {
+    "status": "NOT_SELECTED",
+    "reason": "No candidate can be asserted absent genuine reasoning based solely on membership: the 4253 crosswalk maps to nonempty per-callable reasoning rows, while the 4102 category IDs are unavailable and the 989/213 classes have uneven evidence shapes. The remaining 1202 authority IDs include paused printing/migration and tests; selecting one as genuinely unreasoned requires per-ID evidence-class adjudication, not membership."
+  },
+  "required_reconciliation": [
+    "Obtain or reconstruct an evidence-backed stable-ID manifest for the 4102 category assignments without recreating reviews.",
+    "For all 8804 IDs, classify evidence as substantive per-callable reasoning, file-level reasoning only, identity/disposition only, or absent, with an exact evidence pointer and independent quality status.",
+    "Only after that classification derive the exact remaining production-source queue; respect the paused general-printing scope."
+  ],
+  "artifacts": [
+    {
+      "sha256": "d3e5ff3f41a0ee0689c46a3aa8b64f418414bbcfe92b1c88918659aa82739845",
+      "role": "Historical 4102 method counts, no ID membership.",
+      "path": "Codex Work/Sub-Agents/Results/financial-coverage-methods.json"
+    },
+    {
+      "sha256": "57b704de88a1444979ec0d235df0022721a929aa27001afac47389ef943e8219",
+      "role": "Indexed 4253 analyzed IDs and 4551 remaining IDs.",
+      "path": "Codex Work/Sub-Agents/Results/financial-symbol-remaining.json"
+    },
+    {
+      "sha256": "5c57c79c232bce9bcc5cac0137b17888d8babad6ea74426b02b50af433f1808d",
+      "role": "Current structural receipt accounting and quality qualification.",
+      "path": "Codex Work/Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json"
+    },
+    {
+      "sha256": "30560e0b7b7e170bf9d8a99b508af1fce3f74dbbb438b5ba9aeeefeb53cef240",
+      "role": "Latest 7602 union and 1202 authority pending IDs.",
+      "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json"
+    },
+    {
+      "sha256": "34a46194d235f9bc8ec23fb699473a665976fa39ca2f4a9ff6a6d783e095b6a1",
+      "role": "Exact 989 continuation membership; uneven reasoning shapes.",
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-receipt-manifest-reconciliation.json"
+    },
+    {
+      "sha256": "04f375155883d34fdb9e18a9178e354f5e6bd21fa9619f26b16ada0364c346dd",
+      "role": "Exact 4253 stable-ID-to-current-receipt crosswalk with bounded evidence pointers.",
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-indexed-4253-receipt-crosswalk-2026-10-21.json"
+    }
+  ]
+}

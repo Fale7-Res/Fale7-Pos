@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.cs",
+  "source_git_blob_sha256": "7a16956d135f5187660a00edd21e51748adf4dac2e01ea932e7671a7a2387564",
+  "worktree_sha256": "1aac3a40f5c10c837ad11971f75b3816a515a0ac8be123ba9c15258dce6953f2",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:09:38.791370+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-94e1126e27f29842401a4155d136012807074484964928d4d25a03b930bbd4c9",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderRequestedPickupTime.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        19,
+        10
+      ],
+      "reasoning": "Up adds nullable datetimeoffset RequestedPickupAtUtc to Orders with no backfill/default. Existing pickup orders keep unknown requested time, other types legitimately null. Column does not schedule background work or confirm fulfilment; checkout directly snapshots request only for Pickup.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-a7dc02150b318ad93b3c258b2da2b64601d7e02a96f889d520ebbb7fb0b59c6b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderRequestedPickupTime.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        22,
+        9,
+        27,
+        10
+      ],
+      "reasoning": "Down drops stored requested pickup times, losing scheduling metadata while order price/payment/stock facts remain. It does not cancel accepted pickup orders or restore original table semantics; application compatibility must be considered before downgrade.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit schema/index/data-update migration operations; no financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Pickup/menu/slip discriminator affects stored consumer contracts; physical UI/QR/printing not run. Data-only type relabeling is explicitly identified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Non-lossless classification downgrade, pending document compatibility and failed duplicate-index upgrade are migration planning facts, not destructive tests or deployed corruption proof.",
+      "tests_missing": "No tests executed. Disposable SQL upgrade/downgrade should cover legacy/new pickup origin, absent times/URL/kind, pending slip compatibility, nonzero float defaults and duplicate/cancelled/paid payroll periods.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

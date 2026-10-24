@@ -1,0 +1,32 @@
+$ErrorActionPreference='Stop'
+$repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$runtime=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'runtime-verification.json') -Raw|ConvertFrom-Json
+if($runtime.Database -ne 'Fale7CSharp_Test' -or $runtime.Instance -ne 'Fale7CSharpDev'){throw 'Unexpected verification target.'}
+foreach($route in @('Receipt','CallCenter')){
+    $options=Get-Content -LiteralPath (Join-Path $PSScriptRoot "printagent-file-$route.json") -Raw|ConvertFrom-Json
+    if($options.Transport -ne 'file' -or $options.ServerBaseAddress -ne 'http://localhost:5151' -or $options.WindowsPrinterName -or $options.PrinterHost -or $options.SerialPort){throw 'Unsafe print worker configuration.'}
+}
+$backendIds=@(Get-NetTCPConnection -LocalPort 5151 -State Listen|Select-Object -ExpandProperty OwningProcess -Unique)
+if($backendIds.Count -ne 1){throw 'Backend identity cannot be verified.'}
+$backend=Get-Process -Id $backendIds[0]
+if($backend.Path -ne (Join-Path $repoRoot 'src\Falah.Server\bin\Release\net8.0\Falah.Server.exe')){throw 'Unexpected backend process.'}
+& (Get-Command sqlcmd.exe).Source -S '(localdb)\Fale7CSharpDev' -E -d Fale7CSharp_Test -l 15 -b -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE host_process_id = $($backend.Id) AND database_id = DB_ID(N'Fale7CSharp_Test')) THROW 51000, 'Wrong SQL target.', 1;"
+if($LASTEXITCODE -ne 0){throw 'Test database identity check failed.'}
+$seedText=[IO.File]::ReadAllText((Join-Path $repoRoot 'src\Falah.Infrastructure\Persistence\DemoDataSeeder.cs'))
+$pin=[regex]::Match($seedText,'var managerPin = PinHasher\.Hash\("(?<pin>\d+)"\)').Groups['pin'].Value
+$login=Invoke-RestMethod 'http://localhost:5151/api/auth/login-by-pin' -Method Post -ContentType application/json -Body (@{pin=$pin}|ConvertTo-Json) -TimeoutSec 30
+$headers=@{Authorization="Bearer $($login.token)"}
+try{
+    if($login.id -ne 'user-demo-manager'){throw 'Unexpected print-test account.'}
+    $body=@{requestId='fale7csharp-localtest-callcenter-reprint';orderId=$runtime.TestOrderId;customerRoute='CallCenter';isReprint=$true;actorUserId=$login.id;includeKitchenRoutes=$false;reason='Isolated file-transport verification only'}
+    $created=Invoke-RestMethod "http://localhost:5151/api/orders/$($runtime.TestOrderId)/print-jobs" -Headers $headers -Method Post -ContentType application/json -Body ($body|ConvertTo-Json) -TimeoutSec 30
+    for($attempt=0;$attempt -lt 15;$attempt++){
+        $jobsResponse=Invoke-RestMethod "http://localhost:5151/api/orders/$($runtime.TestOrderId)/print-jobs" -Headers $headers -TimeoutSec 15
+        $jobs=@($jobsResponse)
+        if(@($jobs|Where-Object{$_.status -ne 'Succeeded'}).Count -eq 0 -and @($jobs|Where-Object route -eq 'CallCenter').Count -eq 1){break}
+        Start-Sleep -Seconds 1
+    }
+    if($jobs.Count -ne 2 -or @($jobs|Where-Object{!$_.id -or $_.status -ne 'Succeeded'}).Count -gt 0){throw 'The expected two test order print jobs did not succeed.'}
+    $report=[ordered]@{Database='Fale7CSharp_Test';Transport='file';OrderNumber=$runtime.TestOrderNumber;Jobs=@($jobs|Select-Object id,route,status,attemptCount);ReceiptFiles=@(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'live-print-output\Receipt') -File|Select-Object Name,Length);CallCenterFiles=@(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'live-print-output\CallCenter') -File|Select-Object Name,Length);ExtraTestWrites='One CallCenter reprint job, its reprint audit record and print-attempt records; no additional sale.';PhysicalPrinting='Never started';VerifiedAtUtc=[DateTimeOffset]::UtcNow.ToString('O')}
+    $report|ConvertTo-Json -Depth 6|Tee-Object -FilePath (Join-Path $PSScriptRoot 'print-flow-verification.json')
+}finally{Invoke-RestMethod 'http://localhost:5151/api/auth/logout' -Headers $headers -Method Post -TimeoutSec 10|Out-Null;$pin=$null;$login=$null}

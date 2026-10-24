@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs",
+  "source_git_blob_sha256": "84de1f12888af627788f39f23c286c13cff4e0e92383497e7b04767630427b84",
+  "worktree_sha256": "0a30e86649956f194452d079243b5ce105ba4a43c288af4f670ccb807ff4377f",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:08:25.139154+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-13635503f19c38d6136b062765630370d4804ef0d37d3cc9546821eadcfdae0f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderItemPreparationStationSnapshot.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        11,
+        9,
+        18,
+        10
+      ],
+      "reasoning": "Up adds nullable nvarchar(max) PreparationStation to historical OrderItems without backfill from current Product. Null legacy values are representable; migration itself cannot prove original sale-time route. Future mapper freezes station, but historical print correctness must preserve documented null/fallback policy rather than falsely infer recovered routing.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+      "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs:11-18",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-48ed8e0bfb214333642b5fe5897db155ae95a6f711a78b39536dfe4449e8d9fa",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderItemPreparationStationSnapshot.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        21,
+        9,
+        26,
+        10
+      ],
+      "reasoning": "Down drops frozen PreparationStation from sold lines, erasing historical kitchen-routing evidence while leaving live product configuration and financial facts. It does not undo a printed ticket or restore the original route by catalog join. No physical transport or destructive migration executed.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+      "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs:21-26",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

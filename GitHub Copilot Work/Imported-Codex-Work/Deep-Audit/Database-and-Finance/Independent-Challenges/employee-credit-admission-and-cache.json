@@ -1,0 +1,1144 @@
+{
+  "at_utc": "2026-10-19T09:18:40.285Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "primary_reviewer": "financial_integrity",
+  "source_artifact": "Sub-Agents/Handoffs/employee-credit-completion-dispositions.json",
+  "source_artifact_sha256": "b3a7487bff1d98b624b7c3221c3a2ab74c826e6af22338ec4af36b9f835bd479",
+  "classification": "INDEPENDENT_STATIC_CHALLENGE_WITH_PROVIDER_ACCEPTANCE_AND_IMPACT_LIMITS",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "source_git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "line_ranges": [
+        [
+          33,
+          60
+        ],
+        [
+          77,
+          108
+        ],
+        [
+          125,
+          156
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+          "signature": "Falah.Infrastructure.Employees.RecordDailyWageHandler.HandleAsync(Falah.Application.Employees.RecordDailyWageRequest, CancellationToken)",
+          "span": [
+            33,
+            5,
+            61,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f6b854abc816089d41d34cbfc17182264c8c639e6efc19f2ac641d17aed65624",
+          "signature": "lambda expression",
+          "span": [
+            35,
+            76,
+            35,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-52bd0334e2639edc092ff2afa559d4b3a7289fc3c0bfdd9f0c0293754395d500",
+          "signature": "lambda expression",
+          "span": [
+            40,
+            83,
+            40,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-1f3ed6312b3bacaff4c2630cc648b7faf1dd571777e0fe49e1c3721b372f4621",
+          "signature": "lambda expression",
+          "span": [
+            47,
+            79,
+            47,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+          "signature": "Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken)",
+          "span": [
+            77,
+            5,
+            109,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ec4cf635fecbae7453d93d752e82cf9ce6e5556d419d76c9a11086348b961114",
+          "signature": "lambda expression",
+          "span": [
+            80,
+            76,
+            80,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-c790689aac664ac8ea11bc749b33eccdf605e165baad9ac3c03f76935787b7b2",
+          "signature": "lambda expression",
+          "span": [
+            85,
+            83,
+            85,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-2c03f4417755e84f424cef62cbb7abad483ee56d656973d52822c4d662769e8a",
+          "signature": "lambda expression",
+          "span": [
+            104,
+            84,
+            104,
+            99
+          ]
+        },
+        {
+          "stable_id": "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+          "signature": "Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken)",
+          "span": [
+            125,
+            5,
+            157,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7d6184eec380a3e07bbee6236241f597533047bebdc7def72fe80b4558679671",
+          "signature": "lambda expression",
+          "span": [
+            128,
+            76,
+            128,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-8602dd808d98a3ee57b31b1453f261ff6cc9abf35466c575f6d980d2b4c480c0",
+          "signature": "lambda expression",
+          "span": [
+            133,
+            83,
+            133,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-243201f28cb1b7b0feb7f4bb9222489c193fc1064526b19bf892e55c02ece0e0",
+          "signature": "lambda expression",
+          "span": [
+            140,
+            79,
+            140,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-1303d2da04bec22ef9a551b2402b37f8d7b5a9a621a971eb4ddb2baad45fd5eb",
+          "signature": "lambda expression",
+          "span": [
+            152,
+            84,
+            152,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "worktree_sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "source_git_blob_sha256": "0aaa061bb34735cb398e7022e910874ec5176262ec71b40ecb4c1f61593220bf",
+      "line_ranges": [
+        [
+          28,
+          40
+        ],
+        [
+          57,
+          75
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+          "signature": "Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.HandleAsync(Falah.Application.Employees.RecordManualLedgerEntryRequest, CancellationToken)",
+          "span": [
+            28,
+            5,
+            76,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-77a0b2c85038a76a7ce76ef7a93ea409d8ddadb3c18ea65c43cb1fec753d070b",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            20,
+            60,
+            59
+          ]
+        },
+        {
+          "stable_id": "sym-581bc8acdbbbe2896ff3c87704ee598215c42ad6d9ce76b9497b8a95c19bc9cc",
+          "signature": "lambda expression",
+          "span": [
+            61,
+            21,
+            61,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          15,
+          49
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+          "signature": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.GetCurrentBalanceAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "span": [
+            15,
+            5,
+            26,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d2494e7315c7ef33464eb4be4beacd1f745d1370ef236964062221f2f0120e70",
+          "signature": "lambda expression",
+          "span": [
+            17,
+            75,
+            17,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-a651e4115cc0e5219b295a50d762e47a4bd3c97cded8915f0b4fd3e10c78d8dc",
+          "signature": "lambda expression",
+          "span": [
+            18,
+            21,
+            18,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-53f3b26f360799aa2198d76cf17db55dd97adb08847174b0a1456986545aeac8",
+          "signature": "lambda expression",
+          "span": [
+            23,
+            20,
+            23,
+            90
+          ]
+        },
+        {
+          "stable_id": "sym-8529d16da96926ba1068a539f89e965450946936a05ac3e9fd9986d545db3bbc",
+          "signature": "lambda expression",
+          "span": [
+            24,
+            18,
+            24,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-5cf0107ecab22e8934446507430c23ad09e826b3c09fe522d6cc1781f8aaef01",
+          "signature": "lambda expression",
+          "span": [
+            25,
+            47,
+            25,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+          "signature": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)",
+          "span": [
+            31,
+            5,
+            51,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            48,
+            36,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            71,
+            37,
+            86
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "worktree_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "source_git_blob_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "line_ranges": [
+        [
+          17,
+          22
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+      "worktree_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "source_git_blob_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "line_ranges": [
+        [
+          30,
+          33
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9fa15a3f54a928ceb1359c280f335ab3677320fae74edba8ccd9e12c3a98884e",
+          "signature": "Falah.Domain.Employees.EmployeeRules.AssertLedgerAmount(Falah.Domain.Common.Money)",
+          "span": [
+            30,
+            5,
+            33,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Employees/AttendanceRequests.cs",
+      "worktree_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "source_git_blob_sha256": "1e68615e544b3f852296dd0923218c6839a80a1a96beb69d4c56de3c6b550419",
+      "line_ranges": [
+        [
+          29,
+          47
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "line_ranges": [
+        [
+          35,
+          45
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          709,
+          718
+        ],
+        [
+          748,
+          778
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b8e0d4991ae1e00ce5900b1b1596b934683fe020c307493752850e8d2c3e65e",
+          "signature": "lambda expression",
+          "span": [
+            709,
+            59,
+            718,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-1c5a67f73a12da6d4c855e812e29e7a74875dc9fb4d2c2ae0d4d337c0a2853df",
+          "signature": "lambda expression",
+          "span": [
+            748,
+            55,
+            757,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-a1bdc409ba817758fab925ee661c7fd3a234d33a7af6de51f9539e82df16a3bb",
+          "signature": "lambda expression",
+          "span": [
+            759,
+            53,
+            768,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-e07003fb34db50b5e55dc41f3070cbb4ca92b81ef4c95635ebc1dcbf439957ee",
+          "signature": "lambda expression",
+          "span": [
+            770,
+            56,
+            779,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
+      "worktree_sha256": "04f70fc8f689932e34bc5cdf5f9ee1b5c04dbdb35a053f6ed2719a17cfd0eb7b",
+      "source_git_blob_sha256": "ab1cb0a573412633b4c33fce3282e37859163da8cecc156ff2df507fa8f468d8",
+      "line_ranges": [
+        [
+          319,
+          333
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9109ee87b4327194d7644902de04d9909a6bcd908c466561728c52dfc9598cb9",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SubmitCashOutAsync()",
+          "span": [
+            289,
+            5,
+            344,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-bd568b8e1e35d1abc0e40937f0746724fe9715bf815b46b823970448e52dfa57",
+          "signature": "lambda expression",
+          "span": [
+            310,
+            28,
+            343,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "line_ranges": [
+        [
+          37,
+          56
+        ],
+        [
+          68,
+          90
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3689200e3441f8f78fb46ebc7cc4cd8a35092a1591d917f5bfcd026b9b2da1e2",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.GetFinancialReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "span": [
+            25,
+            5,
+            59,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-438aafc0b8e8e6b8febaf94e50d7fd0094df4450308305838154e02a347179d5",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            51,
+            45,
+            83
+          ]
+        },
+        {
+          "stable_id": "sym-65ac087a3ee68135e8a15b8cfd9359c36a42fa59ed54416e680f2e277282cea2",
+          "signature": "lambda expression",
+          "span": [
+            46,
+            48,
+            47,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-1df593f957fdb0353e1da8259d3dc9f248df25382647f36e1b4f6273795727c5",
+          "signature": "SumCredit(IEnumerable<string>)",
+          "span": [
+            49,
+            13,
+            49,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-bdae50df4bf92e785b316f91b6c90f42824e402fa5814bc544d75d93b384af7e",
+          "signature": "lambda expression",
+          "span": [
+            49,
+            72,
+            49,
+            99
+          ]
+        },
+        {
+          "stable_id": "sym-a8d96f26597f61f6cb42544b887194e902a1d8058475f406bb2a929f6eacd8dc",
+          "signature": "lambda expression",
+          "span": [
+            49,
+            105,
+            49,
+            126
+          ]
+        },
+        {
+          "stable_id": "sym-165649a87da37bfb47f2aae6175a15f069c7490e012ac363a0f6a234a29d6fe9",
+          "signature": "SumDebit(IEnumerable<string>)",
+          "span": [
+            50,
+            13,
+            50,
+            126
+          ]
+        },
+        {
+          "stable_id": "sym-077ffd751542261e7be70b70e31fa2cada2cdce879948da408bdd95d252414ba",
+          "signature": "lambda expression",
+          "span": [
+            50,
+            71,
+            50,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-b30e3d446de5d31e70d48cdb418eec34e7be2987daae246ba8051fd2359995ff",
+          "signature": "lambda expression",
+          "span": [
+            50,
+            104,
+            50,
+            124
+          ]
+        },
+        {
+          "stable_id": "sym-94c59d5c0dd8a29578e0da981baa5d780ef35eedbaddac5129305ee96c36973b",
+          "signature": "lambda expression",
+          "span": [
+            51,
+            46,
+            51,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-b3b275269579a178781fe1660f966f15d83ff04a7094c4d3115f57b4f1fdce38",
+          "signature": "lambda expression",
+          "span": [
+            51,
+            90,
+            51,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-51e2a3491a05b4d9f8bfc1164c6b115f541c3bd3c3dd4b92d662a9b244b2da0c",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.ListLedgerEntriesAsync(string, CancellationToken)",
+          "span": [
+            68,
+            5,
+            70,
+            97
+          ]
+        },
+        {
+          "stable_id": "sym-eebf19554e2d9a1b6a63637f922795c457391603d835317f571f4f494c72b83e",
+          "signature": "lambda expression",
+          "span": [
+            69,
+            56,
+            69,
+            87
+          ]
+        },
+        {
+          "stable_id": "sym-6c0ba966915bb6731eef7c6adb90f7165737a0dae672ef4eedaf06e8ae7c79f3",
+          "signature": "lambda expression",
+          "span": [
+            70,
+            32,
+            70,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-c94d422d246f92c086fe4e4e4868be5892484dc98eef9bff68b7e340b82cb4ee",
+          "signature": "lambda expression",
+          "span": [
+            70,
+            60,
+            70,
+            79
+          ]
+        },
+        {
+          "stable_id": "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.GetBalanceAsync(string, CancellationToken)",
+          "span": [
+            74,
+            5,
+            79,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fd3d8002e8e0765471429f929e7c8f5a4d2cca3d48a115c16707cb570134d411",
+          "signature": "lambda expression",
+          "span": [
+            76,
+            76,
+            76,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-d1b9816437ee9f0f9603081f22eaa00e6f9a6d3d57c07747657195b4ad115235",
+          "signature": "lambda expression",
+          "span": [
+            77,
+            21,
+            77,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-77a2e0bbad83d36c690a02cfcd5c5ebe07bd07d3c1f380c0fb82c200103ceb7c",
+          "signature": "lambda expression",
+          "span": [
+            78,
+            28,
+            78,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-cb36ca91e25953caff451fbdaa5cda4411cff1147d4b113579d67824eaba53b9",
+          "signature": "lambda expression",
+          "span": [
+            78,
+            65,
+            78,
+            85
+          ]
+        },
+        {
+          "stable_id": "sym-993092d097bb197edfec9996c12e929dff5cd9c63c0b09c76a7d4850137fa8b2",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.EmployeeEntity)",
+          "span": [
+            81,
+            5,
+            85,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-201d7b2ef8478bb6c261d88ac2d9992a42aa187508077edda0f9fe83fb008471",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.ToLedgerDto(Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity)",
+          "span": [
+            87,
+            5,
+            90,
+            66
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml",
+      "worktree_sha256": "049e44a2eab52ee2cb47c91f052debbd00ff3e5c8b704c1a8d242f75926ee8ee",
+      "source_git_blob_sha256": "17bf5f2d9ca55948e1ef9b4d8c80f1910d23b0eea65316dcee5144065e7b04b2",
+      "line_ranges": [
+        [
+          179,
+          187
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          75,
+          104
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+          "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+          "span": [
+            46,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+          "signature": "lambda expression",
+          "span": [
+            83,
+            25,
+            83,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            87,
+            89,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            25,
+            101,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+          "signature": "lambda expression",
+          "span": [
+            103,
+            71,
+            103,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          447,
+          452
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1720ad252086f7d710a5f730c38d6e1e6bd1d27b334a19c62986339f10168403",
+          "signature": "lambda expression",
+          "span": [
+            447,
+            56,
+            452,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-6182b1197fc094a54116d0e1aaf58fe2c53acb50ea0c9488c6c96b2a0351af12",
+          "signature": "lambda expression",
+          "span": [
+            449,
+            22,
+            449,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-74b58db5436a1b62ce471ab95800799ee002e724269deb916832d9873736d8c3",
+          "signature": "lambda expression",
+          "span": [
+            450,
+            24,
+            450,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-0448f88711ad06cb3151be685d7ceb556c891d1056eb3418e2b85f13b0f8fcd2",
+          "signature": "lambda expression",
+          "span": [
+            451,
+            24,
+            451,
+            45
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          95,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+          "span": [
+            83,
+            5,
+            112,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5c54e9ee3a705e9926060f72df563e5c19dc0239cdbc90519b5ab7cb3667b0d4",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            62,
+            97,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-87f6f012e75f4ceba9a9b9f25a4ada25083ece3b18eb241a301ff5b2f6c0ca7b",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            106,
+            97,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-c88242c0c88b12e693a5cd1e86059e585d5a190698448c6c91fb05c01cea56cd",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            71,
+            98,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-aa49efb2be6439fd698d692a1b232ec88d58b38bb0b96b57268c9ffdf54b5faa",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            102,
+            98,
+            124
+          ]
+        },
+        {
+          "stable_id": "sym-ae42b9392712dd4b24684dbdeffe96476fd168b45936231b1acdd759bd0f7313",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            74,
+            99,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-ec12fc9b089e55273554965f0cf22e4d0e93aaae7a4f21aa3243a6f3e4e8f62f",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            107,
+            99,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-97a1c09544dab50238f260b23e0a62832c2dfa5aaf7ada402e3742683f0136a2",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            70,
+            100,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-25025ec4c7c0577967b58ed456ff0a55139cdcc7d4a7f2619ad6f77a856c7a17",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            116,
+            100,
+            138
+          ]
+        },
+        {
+          "stable_id": "sym-e275b089567793bca24444064ad55f1ef63eed026ecf642c2e9fabe4c14ffc3e",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            73,
+            101,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-8e097b381da5228f3dd076e77d3fa589a6c9b8008c21128032e5f09af0389a84",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            121,
+            101,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+      "worktree_sha256": "9be2994552c7d502c1dde718147ff6948f5d92d825fe6a20d2a0e6f9ae67f416",
+      "source_git_blob_sha256": "dae7749584b14b17ba8302da08b855f9de121bb60552caa1f9ff32e4268952df",
+      "line_ranges": [
+        [
+          12,
+          40
+        ],
+        [
+          75,
+          86
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4969c4b3c5d2e8b273c936a5130912be4d3da2f9c0e02bfc04469fb0c9d2d4da",
+          "signature": "Falah.Infrastructure.Persistence.Migrations.AddEmployees.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+          "span": [
+            12,
+            9,
+            92,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-8a711fa4d95c12cd75e3faa3590094e231b5d9885fbfcc92ae670716c4c235fb",
+          "signature": "lambda expression",
+          "span": [
+            16,
+            26,
+            36,
+            18
+          ]
+        },
+        {
+          "stable_id": "sym-7ed0dc1d65dfe4e70762be327cff7ef3e2f09d4894ff08e2406152cbef129cd1",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            30,
+            40,
+            18
+          ]
+        },
+        {
+          "stable_id": "sym-0ca142ed9d153d6eebadb50d0711805106d18d4a7a165e288b11dd71f58f95f8",
+          "signature": "lambda expression",
+          "span": [
+            39,
+            66,
+            39,
+            75
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "worktree_sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917",
+      "source_git_blob_sha256": "45caa6a4242ae5749072b14d761a5a58039322b638574d8767270540512d9bd9",
+      "line_ranges": [
+        [
+          1173,
+          1242
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-db829ec829e7f6d77ab44e9557c77c1132875f0aef1c7257b9ab6829b1f6680c",
+          "signature": "Falah.Infrastructure.Persistence.Migrations.FalahDbContextModelSnapshot.BuildModel(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "span": [
+            16,
+            9,
+            3207,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-ad2c79f8e5c87a7a9fb06011e642bdef298a2e7e0af66b98ecf2d3121c3c0543",
+          "signature": "lambda expression",
+          "span": [
+            1173,
+            104,
+            1242,
+            18
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "key": "SIGNED_EARNING_INPUT_ADMISSION",
+      "status": "SURVIVES_COMMAND_BOUNDARY_CHALLENGE_MEDIUM",
+      "reasoning": "Actual daily handler accepts signed custom long as Credit without amountguard; actual overtime accepts finiteHours1 and negative customrate, computesnegativecredit. Money.FromPiastres does not enforce sign. ManualLedger AssertLedgerAmount is a positivecountercontrol. No unauthorized authority or JSONnonfinite behavior claimed.",
+      "qualification": "Current UI rejects nonpositive daily wage and suppliesnull customOT rate; accepted direct APIshape required. Database schema/provider acceptance not executed; currentEFmodel has no nonnegative ledger CHECK, historicalmigration/snapshot source checked; actual deployedSQL constraints UNKNOWN."
+    },
+    {
+      "key": "UNDEFINED_NUMERIC_MANUAL_LEDGER_TYPE",
+      "status": "SURVIVES_SOURCE_ENUM_VALIDATION_CHALLENGE_MEDIUM",
+      "reasoning": "Enum.TryParse can represent undefined underlying integer999; ToString staysnumeric, so canonicalization is insufficient domain validation. Ledger query/payroll explicitnamedgroups do not include999, while allfactbalance includesitsamount. This differs from legitimate namedAdvance/Adjustment policy and is not lowercaseBonus regression.",
+      "qualification": "Numericstring in typedstring field, not numericJSONtoken. Legitimate employees_ledger authority/positiveamount/knownemployee required; no actual API/SQLacceptance or ordinaryUItrigger."
+    },
+    {
+      "key": "DISTINCT_CREDIT_CACHED_BALANCE_AFTER",
+      "status": "SURVIVES_STATIC_DISPLAY_CACHE_RACE_CHALLENGE_MEDIUM",
+      "reasoning": "Different-key commands can complete their sumreads before eitherSave. They thenstore independent computedBalanceAfter; EFimplicitSaveTx cannot retroactively protect priorread. SharedPoster pendingDelta includesowncontextonly. Actual DTO87-90 carriescache and XAML187bindsit, so not merelyunusedmetadata.",
+      "qualification": "Underlying credit/debitfacts remainadditive and GetBalance recomputesfacts; no unauthorizedwithdrawal/moneyloss/actualconcurrentSQLclaimed. PayEmployee usesactualemployeeanchor+range lock and is explicitcountercontrol. EqualCreatedAttieorder needsseparate deterministicstatementpolicy."
+    },
+    {
+      "key": "MANUAL_GUID_NO_REQUEST_ID_REPLAY",
+      "status": "AGREE_REJECT_HIDDEN_PROMISE_RETAIN_REQUIREMENTS_RECOVERY_GAP",
+      "reasoning": "Explicit requestdocumentation discloses noRequestId/randommanualentries. Two submissionsmaycreate tworecords but no promisedidempotentmanualcontract. Treat as ownerreliabilityrequirement/operationalgap, not new automaticconfirmeddefect. Other keyedcommands do not prove manualcommand has samecontract.",
+      "qualification": "No clientautomaticretry path or runtime duplicate executed. Do not recommend routingbonus throughwithdrawal merelytoobtain akey."
+    }
+  ],
+  "counterevidence": [
+    "Authority required; authorized ledger actor can also post explicit deductions, so not unauthorized payroll manipulation.",
+    "Current ordinary cashier daily UI319-323 demands positive amount, overtime327 sends nullCustomRate, extraShift332 count1. Direct accepted API caller or negativeconfiguration needed; no ordinaryUIrepro.",
+    "ManualLedgerEntry calls AssertLedgerAmount>0 and explicitDebit/Credit choice, positivecontrol; do not globally prohibit signedMoney/deltas.",
+    "JSON nonfiniteHours behavior not probed; finiteHours1 sufficient, no NaN/Infinity HTTPclaim.",
+    "Zero/freewage policy needs explicit decision; request only rejects unsupportednegativeearning semantics, not blanketallzero invalid.",
+    "Namedcasevariants alreadycanonicalized, actualfixedbonuscommentpositivecontrol; numericdefinedvalues0..11 canonicalizeToString properly.",
+    "No unauthorizedactor/no claimallledgercreditsmustbePayrollbase: legitimateAdvance/Adjustment requireseparatepolicy.",
+    "DefaultJSONMode typedstring meansnumericstring accepted, not numericJSONtokenbinding claim.",
+    "No runtime/SQL acceptance test; current UI typechoices may avoidunsupportedvalue.",
+    "PayEmployee75-104 realemployeeanchor+ledgerlocks andactualbalancecheck; notsameunprotectedpayoutclaim.",
+    "Manual/Posterpendinglocalrowscontrols prevent some intra-commandcacheomission.",
+    "Read-onlysource schedule, no concurrentSQLreproduction or runtimeUItest.",
+    "Even serializingcachedrowstore must define totalorder/timestamps; equalCreatedAt tieorder couldstillmislead statement.",
+    "Overtime/ExtraShift explicitRequestId anddeterministicPosterIDs haveexistingreplaycontract; directdailyduplicate deliberatelythrows, despite its older requestcommentcallingnoop.",
+    "No automaticclient/network retryexecution inspected inthisboundedfollowup; do notclaimactualdoublepost."
+  ],
+  "runtime": "NOT_EXECUTED; no HTTP/SQL/concurrency/UI tests",
+  "new_author_receipts": 0,
+  "next_action": "Three source findings now qualify for canonical reconciliation; actual deployed provider constraints/SQL acceptance remain unknown, not a runtime finding.",
+  "additional_source_control": {
+    "path": "src/Falah.Domain/Common/Money.cs",
+    "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+    "line_ranges": [
+      [
+        17,
+        17
+      ],
+      [
+        31,
+        35
+      ]
+    ],
+    "meaning": "Money signed representation intentional; validation belongs commandboundary, not blanketMoneychange."
+  },
+  "schema_counterevidence": {
+    "artifact": "Sub-Agents/Handoffs/employee-ledger-schema-constraint-counterevidence.json",
+    "status": "SOURCE_SCHEMA_COUNTEREVIDENCE_SEARCH_COMPLETE_NO_LEDGER_AMOUNT_OR_TYPE_CHECK_FOUND",
+    "conclusion": "Actual AddEmployees CreateTable declares Debit/Credit bigint and Type nvarchar(max), only ledgerPK in tableconstraints. Current snapshot fullledger block1173-1242 repeats scalarcolumns/PK/indexes, no CHECK. Current DbContext447-452 onlyPK/EmployeeId andnullableuniqueIdempotencyKey. Full migrations/designer/snapshot source search found no CHECK/CheckConstraint/createTrigger or direct nonnegativeCredit/Debit constraint hook. Thus no source-defined DB sign/category guard counters signed/undefinedType admission candidate.",
+    "limitations": [
+      "Actual deployedSQL constraints/triggers orout-of-repository provisioning UNKNOWN; no database connected or read.",
+      "No migration/schema executed, no SQLnegativeinsert tested.",
+      "Search inventory is mechanical coverage only;69 filehashes do not mean69files/callables newly analyzed.",
+      "Provider native bigint accepts signedvalues bytype, but this artifact claims source schemaabsence, not measured SQLacceptance."
+    ],
+    "root_independent_blocks_read": [
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+        "line_ranges": [
+          [
+            12,
+            40
+          ],
+          [
+            75,
+            86
+          ]
+        ]
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+        "line_ranges": [
+          [
+            1173,
+            1242
+          ]
+        ]
+      }
+    ]
+  }
+}

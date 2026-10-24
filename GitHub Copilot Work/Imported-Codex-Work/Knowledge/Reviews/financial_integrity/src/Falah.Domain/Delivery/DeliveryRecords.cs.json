@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Delivery/DeliveryRecords.cs",
+  "source_git_blob_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+  "worktree_sha256": "ad4806bf4f232a5a9eb9b7bb5d681720fb865c939e492cf7a0d8e676037ae20e",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:58:29.223963+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-1fe95c20184dbced39e0f06ca12453e295e22f24a45fa3eef925ac67fcb4bfb6",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Delivery.DeliveryTrip.Create(string, string, IReadOnlyList<string>, string, DateTimeOffset)",
+      "span": [
+        12,
+        5,
+        19,
+        6
+      ],
+      "reasoning": "Rejectsemptydriver orzeroorders andduplicateorderIDs thenconstructstripwithsame suppliedIReadOnlyListreference, no defensivecopy. Nullorderlistthrows; blankdriverwhitespace acceptedbecauseIsNullOrEmpty. Doesnotvalidate eachorderID ordrivercapability, callerassignabilityguard separate. Currentinfrastructure perordertripnotpersisted asstandaloneentity, so puretripAPI notproofliveoperationaltripfeature.",
+      "inputs": "trip/driver/orderIDs/actor/time",
+      "outputs": "DeliveryTrip",
+      "side_effects": "Constructs record only; noDBorprinting.",
+      "database": "NoDB; no FKvalidation.",
+      "trust_boundaries": "CallertrustedIDs; noactorpolicy here.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Distinct O(n) plusretainedlistreference.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newpromotedfinding; documentation/perorder model distinction preserved.",
+      "tests_missing": "Null/empty/duplicateorderlist, whitespace driver, listalias afterconstruction.",
+      "verified_callers_callees": "Create validation14-17; constructor18; Infrastructure modelhas no DeliveryTripDbSet inDbContextread."
+    },
+    {
+      "stable_id": "sym-e023d3575b7d6e7aaf95874bc93a122c06821c9a8b87571bd0c67aae0f2f7211",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Delivery.DriverCustody.ReassignTo(string)",
+      "span": [
+        28,
+        5,
+        29,
+        87
+      ],
+      "reasoning": "IfSettledreturns same recordreference withoutdriverchange; otherwise returnswithcopy newDriverID, retainingcustodyID/order/amounts/status. No nonemptydriver/capabilitycheck. Enumundefinedstatus treatednotSettled, so changes; normalproducer controlsstatus. Reassignment doesnotcreate secondrowortransfermoney itself.",
+      "inputs": "DriverCustody/newdriverID",
+      "outputs": "SameorcopiedDriverCustody",
+      "side_effects": "Copy/referencevalue only.",
+      "database": "NoDB; persistencehandler mustupdateexistingrow atomically.",
+      "trust_boundaries": "Dispatchhandlermustauthorize andvalidate newdriver.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedrecordcopy.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No directcustodydoublecountfrompurecopy; concurrentpersistentpathneedsowntrace.",
+      "tests_missing": "Settlednochange, Openretainsfinancialfields, emptydriverrejectedupstream, concurrentsettle/reassign.",
+      "verified_callers_callees": "DeliveryRules28 selects ReassignTo; handlerReassign sourcepriorfullfilereview notfreshsymbols."
+    }
+  ],
+  "remaining_callable_ids": []
+}

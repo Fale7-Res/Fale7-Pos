@@ -1,0 +1,128 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-significant-actions-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T09:25:00Z",
+  "assignment": "Review GetSignificantActionsAsync's financial/business-day relevance, source rows, endpoint and tests; identify material gaps or duplicate representations without changing shared registry. Static only.",
+  "stable_id": "sym-0da894fa646b4e4680a9479fe10eaec5c02e94bafb3a54be07569a23a40fef8b",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSignificantActionsAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "428-464",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "status": "ANALYZED",
+      "note": "Identity only; the source behavior and callers below were directly checked."
+    }
+  },
+  "source_reasoning": {
+    "behavior": "Uses shared Range(from,to) for an optional Cairo business-date interval. Independently reads four AsNoTracking sources, retaining rows with non-null approver and timestamp in range: TreasuryMovements, Expenses, StockMovements, DeliveryEvents. Maps each row into SignificantActionDto with source-specific category/type/amount/actor/approver/reason/time/reference. Expense creator IDs are batch-resolved to names, falling back to ID when missing. It unions the four lists in memory and sorts descending by CreatedAtUtc. No writes, balance calculations, or movement posting occur.",
+    "financial_and_control_relevance": "The DTO is a trace/read surface for manager-approved treasury movements/expenses/inventory movements/delivery events, intended to show who approved what amount and why. It can aid detection/review of spending, transfers, loss and delivery settlement events, but does not reconcile, authorize, or change balances. It is not a complete audit log: source selection is conditional on ApprovedBy/Approver != null and only four tables are included. The unapproved-expense test confirms this gate is deliberate for at least expense rows.",
+    "business_date": "All four sources are filtered by CreatedAtUtc against shared Cairo range bounds rather than BusinessDayId. Both WPF ReportsViewModel and OwnerDashboardQueryService pass both range endpoints. Partial direct API parameters inherit the shared helper's open-ended semantics; one-sided-range ambiguity is unchanged from prior reporting handoffs.",
+    "duplicate_representation": "A manager-approved drawer expense is represented in both Expenses and its linked TreasuryMovement. AddExpenseHandler writes both with the same amount, creator display name, approver and timestamp; the movement's ReferenceId is the expense ID and the Expense row uses its own identical ID. This method independently adds one `treasury` row and one `expense` row without event-level deduplication, so a single approved expense may appear twice in the list with two source labels. This is source-confirmed duplicate representation, not duplicate posting or double-counted report totals. Whether two source-specific rows are desired audit detail or confusing duplicate action display is a presentation/policy decision; existing tests assert presence, not cardinality."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "2041-2042, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/significant-actions accepts optional from/to and is gated by reports_view or all before returning list."
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "span": "75-77",
+      "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "behavior": "DTO contains Category, Type, nullable AmountPiastres, Actor, nullable Approver/Reason, CreatedAtUtc and ReferenceId; it does not claim row uniqueness or total a balance."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs",
+      "span": "61-111",
+      "sha256": "02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1",
+      "behavior": "For authorized drawer expense, authorization approver is passed to a treasury movement of type expense_payment with ReferenceType `expense`, ReferenceId expenseId, amount and timestamp. ExpenseEntity is separately persisted with the same amount, Approver, CreatedAtUtc, ID, and TreasuryMovementId; financial journal and transaction govern posting."
+    },
+    {
+      "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+      "span": "30-50, 83-103",
+      "sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "behavior": "CashLifecycleMovement carries ApprovedBy, amount, reference type/ID, created time and posted status; AddExpenseHandler passes those values into the movement."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "span": "35-65",
+      "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "behavior": "Dashboard calls this method for the selected From/To and places significantActions.Count in OwnerDashboardDto; count therefore counts source rows, including both representations when present."
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "span": "20-31",
+      "sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "behavior": "OwnerDashboardDto exposes SignificantActionCount as an integer; it is a row count, not a distinct action count."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "span": "595-597",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "behavior": "Reports client calls significant-actions with actor/from/to and deserializes list."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "span": "143-146, 304-308",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "behavior": "Viewmodel fetches rows into SignificantActions and uses list count to show/hide the panel."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "span": "396-424",
+      "sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "behavior": "Displays each source row with action label, actor, nullable amount, reason and approver; two rows for one expense would be visible as separate action items."
+    }
+  ],
+  "test_evidence": {
+    "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+    "span": "311-334",
+    "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+    "tests": [
+      {
+        "span": "311-323",
+        "scenario": "Significant_actions_lists_a_manager_approved_drawer_expense",
+        "coverage": "Creates a manager-approved drawer expense and asserts an expense row has approver/name/amount. Does not assert whether the same operation also appears as treasury row, nor unique operation/reference count."
+      },
+      {
+        "span": "325-334",
+        "scenario": "An_unapproved_expense_never_appears_in_significant_actions",
+        "coverage": "Confirms unapproved expense omitted from this list."
+      }
+    ],
+    "execution": "No tests executed."
+  },
+  "assessment": {
+    "disposition": "SOURCE_CONFIRMED_READ_ONLY_AGGREGATION; CONDITIONAL_DUPLICATE_PRESENTATION",
+    "findings": [],
+    "conditional_notes": [
+      "Expense and linked treasury movement are both persisted under one approved expense operation and independently projected; a single expense can create two visually separate rows and increment dashboard SignificantActionCount by two. This does not affect cash balance or financial ledger totals. Keep as presentation/counting concern unless product owner expects distinct business-action counts.",
+      "ApprovedBy-null rows are intentionally excluded per existing test; the report is an approved/noteworthy-action summary, not a complete audit trail. The method comment's breadth should not be interpreted as all financial events.",
+      "The shared Range helper retains previously documented one-sided API semantics; current WPF/OwnerDashboard callers provide both dates."
+    ],
+    "counterevidence": [
+      "Showing both the categorized expense record and its posted treasury payment may be intentional because they are different source facts; no source contract requires one row per operation ID.",
+      "The query never sums amounts or mutates state, so duplicate display is not a duplicate financial posting."
+    ],
+    "recommendation": "If the user-facing contract is distinct business actions, deduplicate linked Expense/TreasuryMovement by shared reference/operation and keep both source details on one row; otherwise label/source-type rows clearly and call the dashboard field a record count. Add an integration assertion for expected cardinality before changing semantics.",
+    "runtime_limits": "Static source review only; no test run, API call, DB state or runtime inspection."
+  },
+  "coordinator_cross_finding_to_preserve": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/packaging-completeness-coordinator-independent-challenge-2026-10-21.json",
+    "disposition": "Coordinator independently corroborated FIN-CAND-PACKAGING-COVERAGE-001 as conditional static completeness defect; no live incidence or runtime test claim. Include this evidence and prior counterevidence in eventual finance report/certificate; this agent did not edit shared report/registry."
+  },
+  "next_callable": {
+    "stable_id": "sym-b4af0c2c9d385afc28aae9abc20e1316a573d33bcfd2674a74fd164f75074c6b",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetShiftSummaryAsync(string, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "470-477"
+  },
+  "limitations": [
+    "No tests executed.",
+    "No source, DB, runtime, shared report/registry, or Git changes.",
+    "Static evidence does not certify global financial coverage."
+  ]
+}

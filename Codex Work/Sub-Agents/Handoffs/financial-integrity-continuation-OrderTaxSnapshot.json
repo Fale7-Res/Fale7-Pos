@@ -1,0 +1,77 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:56:50.7055885Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+  "symbol_count": 5,
+  "symbols": [
+    {
+      "stable_id": "sym-b454eb52bda0aa350f7c001ea14b3e0b7fe658d0ddd0e67706ddcc52c20a71b1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderTaxSnapshotAndDeliveryServices.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        54,
+        10
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-eec5c0e7401b1832944b2119a63618c40ce45bbfeca013cacdf6a6806712fc0e",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        41,
+        26,
+        49,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1ef8194f2d6a1aaa5f9d0267ef480297fb15ceae5acf5afa213efa60791be5d3",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        50,
+        30,
+        53,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c6d2d06f5d5545173981f628267558578fb29ccea88fea4a7d3c37a59a945f8b",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        52,
+        61,
+        52,
+        70
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-61b00b96e2f0b73ffa37f9f2e2501b23e31e15bbe6409a8a452bc1f1a17e75e3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderTaxSnapshotAndDeliveryServices.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        57,
+        9,
+        77,
+        10
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Adds optional TaxMode/TaxRateBasisPoints/TaxRuleName to existing Orders and nonnull TaxableBasePiastres with default 0; creates DeliveryServices. No backfill derives tax bases for rows predating the migration. The tax-report endpoint loads orders and sums their frozen TaxableBase (ReportingQueryService.cs:103-110; SalesRules.cs:100-110), while initial Orders schema already stores TaxAmount and existing TaxRules. Thus any pre-migration taxed orders are included in reports with TaxableBase=0, leaving historical tax base unreconstructed. This is a concrete conditional historical-report integrity gap if prior taxed orders exist; migration chain has no data backfill, while live row population is unverified. Preserve as a conditional candidate; no canonical promotion.",
+  "source_ranges": "Entire source read: Up 12-54, Down 57-77. Cross-reference read-only to initial Orders schema, ReportingQueryService.cs:103-110 and SalesRules.ComputeTaxReport.",
+  "execution": "Read-only source review; no database/provider/migration/tests.",
+  "shard_reconciliation": {
+    "financial_integrity": "/5 exact IDs present",
+    "financial_coordinator": "/5 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

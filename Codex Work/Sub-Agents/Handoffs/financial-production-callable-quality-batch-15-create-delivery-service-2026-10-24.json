@@ -1,0 +1,172 @@
+{
+  "artifact_kind": "financial_callable_quality_review",
+  "batch": "Batch15",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Independently compare one materially financial production callable marked EXISTING_REASONING_UNVERIFIED against its current source and author receipt; cross-reference existing findings without changing shared records.",
+  "reviewed_at_utc_date": "2026-10-24",
+  "live_overlay_snapshot": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "b8e7d74004a2fded858333c91e81a0e64f588eaf420e9434983e0274311b614a",
+    "counts": {
+      "SUBSTANTIVE_REVIEW_VERIFIED": 64,
+      "EXISTING_REASONING_UNVERIFIED": 7757,
+      "IDENTITY_ONLY": 983,
+      "total": 8804
+    },
+    "selected_entry_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Counts describe evidence classes, not percent complete. This reviewer did not alter the overlay."
+  },
+  "review": {
+    "stable_id": "sym-53a00725ff81292645cec917408084bf4115513a8aae64e79bd7d3326cd75638",
+    "signature": "Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.CreateDeliveryServiceRequest, CancellationToken)",
+    "source": {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "lines": [26, 66],
+      "current_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "baseline_git_blob_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01"
+    },
+    "author_receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs.json",
+      "sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+      "author": "financial_integrity",
+      "status": "ANALYZED",
+      "recorded_span": [26, 5, 66, 6],
+      "receipt_reasoning": "Authorizes actor/optional approval, normalizes and requires name, returns an existing case-insensitive normalized name even when the request has a different fee, otherwise inserts request-key ID with raw nullable fee; same-ID DB conflict replays by ID. Read-by-name has no transaction-held name lock or shown uniqueness guard. Negative/large fee accepted locally; order fee is frozen at checkout. Same-name/different-fee, concurrent distinct IDs and negative/extreme fee tests absent."
+    },
+    "independent_source_reasoning": {
+      "authorization_and_input": "The handler loads the request's ActorUserId and derives the actor from the persisted user, optionally resolves manager approval, then calls AuthorizationPolicy.AuthorizeCommand for delivery_manage (DeliveryServiceHandlers.cs:28-40; ApprovalRegistry.cs:69-78). Name is normalized and empty name rejected (42-43). No fee sign or magnitude validation occurs in this method.",
+      "deduplication_and_write": "It queries for matching normalized name and returns that existing DTO before considering the new request fee (45-47). Otherwise the database entity uses ID delivery-service-{RequestId} and copies FeePiastres directly (49-53), then saves (54-57). A DbUpdateException only replays by entity ID (59-64). The app model shown for DeliveryServices configures only the primary key (FalahDbContext.cs:318-320); migration creates Name as nvarchar(max), nullable FeePiastres as bigint and only a primary key on Id (20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs:39-53). No normalized-name uniqueness or fee check constraint is present in those examined model/migration sections. Thus distinct request IDs can conditionally insert duplicate normalized names under a read-then-insert race; whether deployment adds an external constraint was not tested.",
+      "money_workflow": "This handler changes service configuration, not an order, cash drawer, treasury journal, or stock row. The active-service query returns FeePiastres unchanged (DeliveryQueryService.cs:24-26). CashierViewModel loads that list and passes the selected FeePiastres into CheckoutOrderRequest (CashierViewModel.Delivery.cs:80-93; CashierViewModel.Checkout.cs:348-361). CheckoutOrderHandler converts request.DeliveryFeePiastres directly to Money and carries it into the checkout plan (CheckoutOrderHandler.cs:65-73, 142-143); CheckoutRules.ComputePayableTotal adds fee and subtracts comp, then floors a negative result at zero (CheckoutRules.cs:35-39). Accordingly a negative stored service fee can flow through the ordinary cashier selection path unless rejected elsewhere; the inspected creation handler does not reject it. This is a configuration-entry path into the already-recorded checkout fee issue, not evidence that this configuration operation itself posts money.",
+      "counterevidence_and_limits": "DeliveryDirectoryViewModel.SaveServiceAsync uses CashInput.TryParse and explicitly rejects parsed values below zero before creating/updating through that UI (DeliveryDirectoryViewModel.cs:180-208). That is useful for ordinary UI use but does not constrain direct authorized API requests or other clients. Handler authorization still gates delivery_manage or valid approval; this is not an authorization bypass. Order fee/total are handled from the checkout request and order data, so editing service configuration does not retroactively alter already-created orders (DeliveryServiceRequests.cs:3-10; source semantics in CheckoutOrderHandler). No live request, database, concurrent race or customer sale was executed.",
+      "finding_overlap": "FIN-016 in Codex Work/Deep-Audit/MASTER_FINDINGS.json already covers the signed checkout delivery-fee path and its conditional payable/comp consequences. This review supports a catalog-ingress path into that same issue and the receipt's unconfirmed duplicate-name race lead; it does not create or recommend a separate duplicate FIN finding. FIN-003 concerns refunds and has no new counterevidence from this review; no disposition change is proposed.",
+      "receipt_accuracy": "Source matches the receipt's core claims: actor/approval gate, name normalization/replay, raw nullable fee persistence, replay by same ID, and absence of displayed normalized-name uniqueness guard. The caller trace strengthens the financial relevance. The race consequence remains conditional and unexecuted."
+    },
+    "related_source_references": [
+      {
+        "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+        "lines": [24, 30],
+        "sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+        "behavior": "Returns active/all service DTOs with stored FeePiastres unchanged."
+      },
+      {
+        "path": "src/Falah.Server/Program.cs",
+        "lines": [1188, 1199],
+        "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+        "behavior": "Maps active-service GET and create-service POST to the query/handler. The route span itself does not show a dedicated authorization attribute; handler performs the command permission check."
+      },
+      {
+        "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+        "lines": [69, 78],
+        "sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+        "behavior": "Allows the actor's permission or requires/validates an approval when requireApproval is true."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+        "lines": [80, 93],
+        "sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+        "behavior": "Loads active services and selects by ID."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+        "lines": [348, 361],
+        "sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+        "behavior": "Copies the selected service fee to the checkout request for delivery orders."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryDirectoryViewModel.cs",
+        "lines": [180, 208],
+        "sha256": "32572081689e600ee9740614b02ea4b1d75573739357c1c6a39ac0dc83049c31",
+        "behavior": "Ordinary service-management UI rejects negative parsed fee but API handler lacks the same condition."
+      },
+      {
+        "path": "src/Falah.Application/Delivery/DeliveryServiceRequests.cs",
+        "lines": [3, 15],
+        "sha256": "4ba55a39d229b6c4ae2ac34f03a94122ddb5ae3e066c1320cdac129071ecee59",
+        "behavior": "Request and DTO accept nullable long fee; comments state historical orders freeze service data."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+        "lines": [7, 18],
+        "sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+        "behavior": "Service entity stores nullable long FeePiastres; Active=false retires the service from new-order picker."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "lines": [318, 320],
+        "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+        "behavior": "Examined model config shows only the service primary key."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+        "lines": [39, 53],
+        "sha256": "b1cef59c4078965490fe0405705c5305dd6ca8f66227f3a34ac07bdf3de37feb",
+        "behavior": "Examined migration defines fee as nullable bigint and only ID primary key."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "lines": [65, 73],
+        "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+        "behavior": "Converts request delivery fee directly into domain Money."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+        "lines": [142, 143],
+        "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+        "behavior": "Builds the checkout plan with the converted delivery fee."
+      },
+      {
+        "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+        "lines": [35, 39],
+        "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+        "behavior": "Adds delivery fee, subtracts comp, and floors negative payable at zero."
+      }
+    ],
+    "test_source": {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "lines": [982, 1033],
+      "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "covered": [
+        "Creating a positive-fee service over HTTP and repeating the same RequestId returns the same ID (987-997).",
+        "Create then update/deactivate service flows are exercised (999-1033)."
+      ],
+      "gaps": [
+        "No negative, extreme, or nullable fee boundary assertion for the service POST.",
+        "No same normalized name with different RequestId/fee assertion.",
+        "No concurrent distinct-RequestId service-creation race test.",
+        "The historical snapshot test at 1000-1016 uses a different service ID and asserts ID, not the fee value; it is not direct proof of the fee snapshot behavior claimed in its title."
+      ],
+      "execution": "NOT_RUN"
+    },
+    "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED_IN_REVIEWER_OWNED_EVIDENCE; receipt reasoning corroborated with caller/migration/test cross-check. No shared class promotion performed.",
+    "finding_disposition": "OVERLAP_WITH_FIN-016; configuration ingestion expands the same signed-fee path, not a separate finding. Retain the receipt's distinct-name concurrent create lead as a conditional configuration-integrity hypothesis pending policy/deployment and concurrency verification.",
+    "risk": "If nonnegative delivery fees are intended, a delivery_manage-authorized direct API request can persist a negative service fee despite the cashier's ordinary management UI preventing it; the active fee is exposed unchanged and the cashier copies it into checkout. Financial effect depends on using that service and checkout request flow; no actual order or drawer/ledger movement was observed.",
+    "remaining_actions": [
+      "Owner/product policy: confirm whether delivery service fee must be nonnegative and whether upper bounds are required.",
+      "If policy confirmed, add server-side sign/range validation to create and update handlers and regression tests for negative, extreme and nullable fee semantics; preserve valid zero/positive behavior.",
+      "Test same normalized name with different request IDs and fees and decide whether first-writer return or uniqueness/rejection is intended; if uniqueness is required, enforce it in persistent storage and test concurrent inserts.",
+      "Add end-to-end checkout test demonstrating service fee snapshot amount; current service tests do not assert it."
+    ],
+    "runtime_limitations": [
+      "Static source and test-source review only; no test execution.",
+      "No SQL/provider collation or live DB constraint inspection; examined model and migration only.",
+      "No concurrent execution, HTTP request, customer order, cash, journal, inventory or financial runtime effect was produced."
+    ]
+  },
+  "fin003_reconciliation": "No new refund/policy counterevidence found. FIN-003 unchanged.",
+  "coordinator_cross_references": [
+    {
+      "artifact_path": null,
+      "coordinator_label": "SEM-MIRROR-065",
+      "disposition": "Not relevant counterevidence to the Batch15 delivery-fee configuration path: that comparison concerns attendance numeric admission and concludes malformed attendance persistence without increased payroll payout. It does not alter the delivery fee source trace or FIN-016 overlap. No duplicate review performed."
+    }
+  ],
+  "next_exact_queue_item": {
+    "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+    "signature": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+    "line_range": [89, 122],
+    "live_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Next adjacent financially relevant configuration writer suggested by live overlay; not reviewed in this batch."
+  },
+  "limitations": "This handoff is reviewer-owned evidence only. It does not change shared overlay, master findings, or canonical report and does not count as a primary author receipt."
+}

@@ -1,0 +1,587 @@
+{
+  "at_utc": "2026-10-19T22:12:18.382Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-015",
+  "title": "Supplier ledger, per-invoice admission and cached payable ageing",
+  "status": "BOUNDED_SOURCE_COMPARISON_COMPLETE_EXISTING_FIN005_COUNTERCONTROLS_PRESERVED",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "line_ranges": [
+        [
+          77,
+          98
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fe2f5a4666db2ef9e2420389e5c48495bd0e63834623e55d5a026f72d7b70147",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.AssertPurchasePayment(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "span": [
+            77,
+            5,
+            81,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-58bcc9b2e6d79258a33c14daa4d11edced47a8d3e660ff107533854ef4c78940",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.PurchasePaymentAccountFor(string)",
+          "span": [
+            86,
+            5,
+            93,
+            7
+          ]
+        },
+        {
+          "stable_id": "sym-1443f95fd6d2e7b3a37300059d8b9c5f4ecd423e04ad30c1f0b3b9bed00c92b4",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.SupplierOutstandingFromLedger(IEnumerable<Falah.Domain.Inventory.SupplierLedgerEntry>, string, string?)",
+          "span": [
+            95,
+            5,
+            98,
+            62
+          ]
+        },
+        {
+          "stable_id": "sym-475cbf3c16cc63c665c8187c95daf4ad101dc8bbafc79b81f5ac9e965d28e5f1",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            20,
+            97,
+            136
+          ]
+        },
+        {
+          "stable_id": "sym-4ba98ab74b7a1adf24da961bfdc3a12a82550543b6fab7478f1acb3e2ec90c84",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            18,
+            98,
+            59
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "worktree_sha256": "34ed4f90f854e21b20c18b1c708754d010dc9b3313c648c5b29be1af08844306",
+      "source_git_blob_sha256": "be370184f006f531f6e35a30c4bfe6c8ab03cea1f55db268a0148dfbc22f9ba2",
+      "line_ranges": [
+        [
+          36,
+          43
+        ],
+        [
+          59,
+          81
+        ],
+        [
+          95,
+          123
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+          "signature": "Falah.Infrastructure.Purchasing.PayPurchaseHandler.HandleAsync(Falah.Application.Purchasing.PayPurchaseRequest, CancellationToken)",
+          "span": [
+            34,
+            5,
+            149,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-96bb62d46b55e676bafefc69b465092c0eb5f80d3a251f2cd944a809e5c56ab7",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            52,
+            36,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-9993c3438ad02c1474bcb92b9256465fe98d22f3263ef8903623508c518ba055",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            74,
+            36,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-2bb387f8130c35a9434214b403861b7814267136992081f28803ea9b3b3e58d3",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            34,
+            37,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-f4edf0d5b004ef355b050520aebe97b04b7af31b1ba2ac072fd4cf2def27d592",
+          "signature": "lambda expression",
+          "span": [
+            42,
+            93,
+            42,
+            132
+          ]
+        },
+        {
+          "stable_id": "sym-e1ecfa460ff16580fc3854d7f043e5133c513197ee8c5bebb489bac331292ad6",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            20,
+            60,
+            60
+          ]
+        },
+        {
+          "stable_id": "sym-8e4a0c1cc7d6fe1cd5b00333a40ef37495e27fa88d667bacc293e915b854e897",
+          "signature": "lambda expression",
+          "span": [
+            62,
+            34,
+            62,
+            180
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs",
+      "worktree_sha256": "3e4bf1de133d15b4a412d5c8201a5738595bb8a8afe397ceb063eb7288ba259a",
+      "source_git_blob_sha256": "ca1e51967c73370d615d94e05387deee20ef1fe77ace6b02b63305f8adf62b42",
+      "line_ranges": [
+        [
+          49,
+          60
+        ],
+        [
+          66,
+          98
+        ],
+        [
+          101,
+          107
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dc58904cf7f76b8bf64bc46e37eb75e9303e65b90310898a6818c5389849fcf4",
+          "signature": "Falah.Infrastructure.Purchasing.PurchasingQueryService.GetPayablesAgingAsync(CancellationToken)",
+          "span": [
+            56,
+            5,
+            99,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-dd47acd6c40409906e107cd5741323e2614ddaec0f2dcb42a18f2b0eebb97191",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            20,
+            60,
+            81
+          ]
+        },
+        {
+          "stable_id": "sym-e852f137f7b2cf6228809f60b138db0cd1ab3a734a244e4235b665364be46daf",
+          "signature": "lambda expression",
+          "span": [
+            66,
+            36,
+            76,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-d0b168a64f4b09356e20930ae8a08b7cb2ccffec8ea6eb607836f1379e48adf7",
+          "signature": "lambda expression",
+          "span": [
+            78,
+            28,
+            78,
+            52
+          ]
+        },
+        {
+          "stable_id": "sym-341af346c97d357ed527bb855d263530b8698f39bbdb34f0921411bbdbc772b0",
+          "signature": "lambda expression",
+          "span": [
+            78,
+            71,
+            78,
+            87
+          ]
+        },
+        {
+          "stable_id": "sym-3ac08ac950ecd9b8845c8f99187b8ffea9fe7efe3891fbc2164e3cec642b2963",
+          "signature": "lambda expression",
+          "span": [
+            84,
+            21,
+            87,
+            93
+          ]
+        },
+        {
+          "stable_id": "sym-ebcce3fbe18b9562237ca17d7d73bb074821c016b7c6128cb400e3e27258be2b",
+          "signature": "lambda expression",
+          "span": [
+            86,
+            32,
+            86,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-94d3b8ac79f06e9ab5caf4d21fb41bb2ace97d023c603d4e57043254219de61d",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            32,
+            87,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-ffcfd3d3d2edbc5f444d70d65133a6d978120e0005d7d94c22de299eb18736d1",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            67,
+            87,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-ba8cede073c911cb0edcc43a336ee3e96761a3ed074f43e500fb7bfb351f5b5b",
+          "signature": "lambda expression",
+          "span": [
+            90,
+            38,
+            90,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-8443c1e44acd879b1800d59bd80bab0a4bbb26f2dedb1949886539622c9e0f86",
+          "signature": "lambda expression",
+          "span": [
+            91,
+            42,
+            91,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-6b71ca83c5e4c0bb9797ad6a32668e025fb85304a0b33dd0c46e612fb35f3712",
+          "signature": "lambda expression",
+          "span": [
+            95,
+            26,
+            95,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-ce025ae838221020f7d0e743be6b3045dc1a8a0a1b6e17ba79068e8fad7f8b58",
+          "signature": "lambda expression",
+          "span": [
+            96,
+            25,
+            96,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-3d65ee208540a3702c72400d2ce9b55d1c5e87e7d9bfacc68b40e86e9d955b0c",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            29,
+            97,
+            53
+          ]
+        },
+        {
+          "stable_id": "sym-a2f6dc391725180e02848703d10011a8de9c535a3752468a738b8b740cbc1da5",
+          "signature": "Falah.Infrastructure.Purchasing.PurchasingQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.SupplierEntity, IEnumerable<Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity>)",
+          "span": [
+            101,
+            5,
+            108,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6f34f36f30050c14cee823983a28b828099ce7f8e5cf214bfddc7360851e35eb",
+          "signature": "lambda expression",
+          "span": [
+            104,
+            43,
+            104,
+            76
+          ]
+        },
+        {
+          "stable_id": "sym-f794f0586751f711875d176d863d9ccf355a87adc84836c015f9c7092d975a80",
+          "signature": "lambda expression",
+          "span": [
+            104,
+            82,
+            104,
+            102
+          ]
+        },
+        {
+          "stable_id": "sym-b02cee77c0a03204f2ea24663c7b1dfafb17df92dffb33917e7801406a8bae17",
+          "signature": "lambda expression",
+          "span": [
+            105,
+            39,
+            105,
+            72
+          ]
+        },
+        {
+          "stable_id": "sym-c971eed246c645d29141fbf7555e8d80c05a467b5defc996a27ef3a85cb15447",
+          "signature": "lambda expression",
+          "span": [
+            105,
+            78,
+            105,
+            99
+          ]
+        },
+        {
+          "stable_id": "sym-85afbf9487b23f08039c2fa59c2d1443a06c285a78acb7f5bcedbd219f8dc220",
+          "signature": "lambda expression",
+          "span": [
+            106,
+            39,
+            106,
+            78
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "line_ranges": [
+        [
+          118,
+          128
+        ],
+        [
+          147,
+          162
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+          "signature": "Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)",
+          "span": [
+            36,
+            5,
+            229,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/PurchasingRulesTests.cs",
+      "worktree_sha256": "cf9c5244c2bda72d0d9021368974d7adb85b1a0d0dce2e5f69d0564c77760496",
+      "source_git_blob_sha256": "cf9c5244c2bda72d0d9021368974d7adb85b1a0d0dce2e5f69d0564c77760496",
+      "line_ranges": [
+        [
+          78,
+          88
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0920f0b041137f213b4158430b3d1ad0e96e8c289c3806dc296c20e71df6d26f",
+          "signature": "Falah.Domain.Tests.PurchasingRulesTests.Supplier_outstanding_nets_every_ledger_entry_for_that_supplier_and_purchase()",
+          "span": [
+            77,
+            5,
+            88,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs",
+      "worktree_sha256": "746e08316d0a3933f38e1de46a2fa31e2cf9eb829c03a05ad9dbb50dd8b973dd",
+      "source_git_blob_sha256": "d791cb571e6bd5fceecc25764a39ba83f2474476f831d3f130c8612846298113",
+      "line_ranges": [
+        [
+          260,
+          279
+        ],
+        [
+          322,
+          337
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2d7ddada0a744dd3a84ec1fa674ee0980bba8f1033358179ff8e3d89dde2285e",
+          "signature": "Falah.Server.IntegrationTests.PurchasingVerticalSliceTests.Paying_off_a_credit_purchase_later_settles_it_and_posts_a_treasury_movement()",
+          "span": [
+            259,
+            5,
+            279,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-560c38179506d4741c374ce6d2a57b090e320165d741948c5cd0c8603f57658a",
+          "signature": "lambda expression",
+          "span": [
+            274,
+            58,
+            274,
+            162
+          ]
+        },
+        {
+          "stable_id": "sym-10faa9b4e827a3357757bacff9785c0e7823071282bf6e5ce102aa6a846a0fed",
+          "signature": "lambda expression",
+          "span": [
+            274,
+            96,
+            274,
+            161
+          ]
+        },
+        {
+          "stable_id": "sym-b006f1c17947c52784d427f7922cb863eaf8b6eefff11bc62b2193d4c1df651b",
+          "signature": "Falah.Server.IntegrationTests.PurchasingVerticalSliceTests.Concurrent_payment_requests_with_the_same_request_id_pay_exactly_once()",
+          "span": [
+            321,
+            5,
+            337,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4ae77c51e202857fced931c3977cdd5c42f34bf749da77aae20546c9f602879b",
+          "signature": "lambda expression",
+          "span": [
+            329,
+            51,
+            329,
+            103
+          ]
+        },
+        {
+          "stable_id": "sym-6cfaa092d82e2026c073081237e388257e7569707f2ebae56691329efd2e1aa0",
+          "signature": "lambda expression",
+          "span": [
+            332,
+            31,
+            332,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-96a23d306cd6f1d4bab6e046fb86ddfbb58b0b1162ac231cd27279a80f25f18d",
+          "signature": "lambda expression",
+          "span": [
+            333,
+            59,
+            333,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-833578e723cbfab60758689a97097d02fd6b687d113b494c1b17e895781d6f7c",
+          "signature": "lambda expression",
+          "span": [
+            334,
+            29,
+            334,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-97cb76ae7d3ae7643c4cc5e823d1560e7237ade63a74b8c4547275c7d2131a2b",
+          "signature": "lambda expression",
+          "span": [
+            335,
+            55,
+            335,
+            160
+          ]
+        },
+        {
+          "stable_id": "sym-67771c5c083e56d489bfa4e280e6fa25ed3196a6b7292612d9a7b44eaaad508e",
+          "signature": "lambda expression",
+          "span": [
+            335,
+            93,
+            335,
+            159
+          ]
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "contract": "Signed supplier/invoice debit-credit formula",
+      "evidence": "PurchasingRules95-98 filters SupplierId and optional PurchaseId OR ReferenceId. Query ToDto101-107 already receives supplier-filtered rows and computes all debit-credit. Type-specific invoiced/paid columns104-105 have narrower categories than overall outstanding106.",
+      "decision": "Related arithmetic has distinct population/filter contracts, not one blindly interchangeable helper. Actual per-invoice filter disproves ageing comment53 that ledger cannot attribute invoices. OR predicate is one inclusion test, not duplicate summing same entry when bothIDs match."
+    },
+    {
+      "contract": "Cached invoice remaining and ageing",
+      "evidence": "Receive118-128 initializes total-paid and147-162 records invoice/payment ledger rows. Pay95-99 updates cached remaining from pre-read ledger outstanding minus this payment and increments tracked paid. Ageing60/72/95 reads positive uncancelled cached amounts.",
+      "decision": "Sequential intended consistency does not prove concurrent consistency. Existing FIN005 stale pretransaction invoice admission can yield divergence between append-only supplier facts and cached invoice/ageing. Ledger read59-66 precedesTx73; correct sourcecash lock80 protects different invariant. No new race claimed or provider schedule run."
+    },
+    {
+      "contract": "Same-key payment versus distinct request overlap",
+      "evidence": "Idempotency key Pay41 includes purchase and request; journal83-85 dedupes thatkey. Integration322-337 captures one requestId327 and issues six repeats329, asserts one movement335-336. Domain78-88 checks invoice versus supplier total.",
+      "decision": "Existing same-key test is genuine source countercontrol to duplicate retries, not evidence against distinct-key concurrent invoice overpayment or lost cachedPaid update. Existing normal credit settlement260-279 verifies expected sequential projection in testsource only."
+    }
+  ],
+  "comment_dispositions": [
+    "PurchasingQueryService7-10 claim every balance neverstored is too broad for its own cached ageing method.",
+    "Ageing51-55 says ledger lacks invoice attribution and guaranteed agreement; actual rule97 and Pay61-63 disprove first claim; preTx/concurrent gap qualifies guarantee.",
+    "PayPurchase17-19 fresh-ledger claim does not establish serialized invoice admission; sourcefunds lock correctly insideTx is retained counterevidence."
+  ],
+  "finding_links": [
+    "FIN-005"
+  ],
+  "recommendations": [
+    "Define source-of-truth and per-invoice projection invariants explicitly; any shared balance helper must retain supplier/invoice filters, signed advance/credit semantics and row-population scope.",
+    "Future FIN005 fix coordinates invoice admission and cached updates inside shared critical section while retaining atomic append facts and samekey replay. Reconcile ageing against underlying facts with authorised diagnostic tests, not a silent rewrite/backfill.",
+    "Add distinct-key same-invoice concurrent payments across same/different treasuryaccounts with ledger/cache/ageing reconciliation; keep existing sequential/same-key tests."
+  ],
+  "runtime_tests": "NOT_EXECUTED; no invoice, payment, DB or query operation",
+  "new_financial_callable_receipts": 0,
+  "scope_limits": [
+    "Targeted formulas/projections and existing testcontext only, not complete purchasing rereview or guarantee all ledger types map to existing invoice.",
+    "Unknown external data or provider-specific schedule acceptance not presumed."
+  ]
+}

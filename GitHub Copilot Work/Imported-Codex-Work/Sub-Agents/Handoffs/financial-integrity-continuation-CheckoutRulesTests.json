@@ -1,0 +1,305 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:59:15.6474366Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/CheckoutRulesTests.cs",
+  "symbol_count": 24,
+  "symbols": [
+    {
+      "stable_id": "sym-18586c9f0b7776b0585845ee745c5d3a1fb65db483e8d5d3b1524289368d7f51",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Item(decimal, int)",
+      "span": [
+        10,
+        5,
+        12,
+        70
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c6745f8659d0d1a93ee042047fed4e1b33a8439f615f6a004f8179e515198ea5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Plain_cash_order_is_paid_immediately_and_defers_nothing()",
+      "span": [
+        14,
+        5,
+        25,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-cfc81209458a51b319e3ee053ec2b53cd98998aa9d788592f31bdb645a7f25bf",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Cash_on_delivery_defers_the_money_and_is_not_marked_paid()",
+      "span": [
+        27,
+        5,
+        37,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-43628ca84c5e50b22ef0999ecb1eaf80861924a2905aafad317de24df1bdd3b1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_fully_comped_delivery_is_not_treated_as_cash_on_delivery()",
+      "span": [
+        39,
+        5,
+        50,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-35735ddd33ba8571cc95733b42eff9a6c6174b3a27020ddc33c42836d64ef785",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.InstaPay_payment_is_pending_and_defers_money_until_confirmed()",
+      "span": [
+        52,
+        5,
+        63,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5838388ac7f95fdc048ef6adbe4e34fa27c88606166e7ad81a7d5e472fa39cb2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Comp_reduces_payable_total_but_never_below_zero()",
+      "span": [
+        65,
+        5,
+        73,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-744c7898dd215d1af68b3595ba144b1f883d8fec69d0cb038729f4f1ab6ce09d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Insufficient_cash_payment_is_rejected()",
+      "span": [
+        75,
+        5,
+        82,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-37e6893df51934e03a7ac5a5a3942b675d9c0dda0a6ce1142111183b0a6d0e08",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        79,
+        40,
+        81,
+        99
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-330e2cd2fce971077b89125d2c702807fe8983ac9a51a776632e72a0c6a1f216",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Multi_payment_without_split_details_is_rejected()",
+      "span": [
+        84,
+        5,
+        91,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-42c6889a91ed09c06171c879377af35d204a0068b4d17909651bdcb6aec7ee5f",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        88,
+        40,
+        90,
+        100
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8c6ab6b535bdc63734ee2829e7a761eb7bf0c1b68ac19aafe64f28dde6856561",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Multi_payment_split_must_sum_to_exactly_the_payable_total()",
+      "span": [
+        93,
+        5,
+        101,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0600784937d5200094ad9f224aa0f6384cf15e3cdb604f2a4cd6a64f49cd1ad8",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        98,
+        40,
+        100,
+        102
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a4002dcfbd3df892d8b3f9083781e86d08ffe15514fa783b7e0b6e4093baa6e3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Multi_payment_split_summing_exactly_succeeds_and_selects_the_electronic_leg()",
+      "span": [
+        103,
+        5,
+        116,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-bae213bd7b8feff736e86d67bd4d72b72469e43221b98a35a7e12857a4d4fd68",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.Discount_reduces_the_taxable_base_before_tax_is_applied()",
+      "span": [
+        118,
+        5,
+        128,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9488911ea5c307c40fd28831da6962df5bf61a7335d5060135ffbfa52fc4255d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.No_requested_time_is_the_normal_case_and_always_accepted()",
+      "span": [
+        134,
+        5,
+        141,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a874e1300d2b1b8b83c02cdfc9a7eebb81aaa247d61202e1ad213c3e5c77a0a2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_time_in_the_past_is_refused()",
+      "span": [
+        143,
+        5,
+        148,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-af5e25de9e7e1a2ef0236360e247f28c08fb6de665d4bd6ff0c521707485172b",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        146,
+        40,
+        147,
+        105
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-ed31b0415fb9457bd97d3ca66731ed3aea4e497659688f4f4bfd0e74315aa298",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_time_that_went_stale_while_the_cashier_worked_is_still_accepted()",
+      "span": [
+        150,
+        5,
+        155,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-ba3f7b3c97d3eb57f593522c013760ae2ed4d22e46652aecbee0cad9e97e7679",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_time_absurdly_far_ahead_is_refused_as_a_typo()",
+      "span": [
+        157,
+        5,
+        164,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-612f4e5344fe5e03ad86edcbcd7ea49d804366e510e3e8165bc6018f104028a4",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        162,
+        40,
+        163,
+        105
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9970a6b0f440ae2fb214c5572929e3643c4d49e33ae6449d8f62e9da5f5f50a5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_time_later_today_or_next_week_is_accepted()",
+      "span": [
+        166,
+        5,
+        171,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-580b99cb17aa8198d4b234d8906602012eabbce6b3bb22d21d701f246e7b52e5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.CheckoutRulesTests.A_collection_time_belongs_to_a_pickup_and_to_nothing_else()",
+      "span": [
+        173,
+        5,
+        180,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-820bbf3f6ccd1c9dc05fe236cd43dfec041903809a4c5c786578358b9f4a0497",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        176,
+        40,
+        177,
+        106
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-24d5dee4b8ce876817376198fa27ab6abc2756c4e0988d1e49dddebce2293f72",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        178,
+        40,
+        179,
+        106
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers immediate cash, cash-on-delivery deferral, fully comped delivery, pending electronic leg, comp floor at zero, cash sufficiency, split payment requirements/exact sum, taxable base after discount for one exclusive tax example, and requested pickup-time boundaries/order-type restrictions. Coverage notes only; no tests executed. No new issue inferred from this test file alone.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/24 exact IDs present",
+    "financial_coordinator": "/24 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

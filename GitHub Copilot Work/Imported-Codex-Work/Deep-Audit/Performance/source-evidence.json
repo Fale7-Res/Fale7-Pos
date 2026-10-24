@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "updated_utc": "2026-10-17T07:19:49.509384+00:00",
+  "author": "performance_reviewer",
+  "records": [
+    {
+      "candidate_id": "PERF-CAND-01",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Menu/MenuQueryService.cs",
+      "baseline_git_blob_sha256": "90e1091a22eb19c817a9c4192644246980105aa1839fbd386827f01d48655608",
+      "worktree_sha256": "90e1091a22eb19c817a9c4192644246980105aa1839fbd386827f01d48655608",
+      "source_symbols": [
+        {
+          "stable_id": "sym-6f866fbaa7f066f456e16b484653bbd541f585a20ee694d8f9d63d863ec4631c",
+          "kind": "MethodDeclaration",
+          "name": "GetMenuAsync(CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Menu.MenuQueryService.GetMenuAsync(CancellationToken)",
+          "startLine": 17,
+          "startColumn": 5,
+          "endLine": 43,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-e576d1e42b247c1b86e5508052983101e742f203a47368e101e9e7b151731cdf",
+          "kind": "MethodDeclaration",
+          "name": "LoadProductsInMenuOrderAsync(bool availableOnly, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Menu.MenuQueryService.LoadProductsInMenuOrderAsync(bool, CancellationToken)",
+          "startLine": 57,
+          "startColumn": 5,
+          "endLine": 74,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-ad43a96e2713e6e39ebb3c32452f9ff002348d525331d0778c1eccc477586bfa",
+          "kind": "MethodDeclaration",
+          "name": "LoadBestSellerIdsAsync(HashSet<string> sellableProductIds, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Menu.MenuQueryService.LoadBestSellerIdsAsync(HashSet<string>, CancellationToken)",
+          "startLine": 85,
+          "startColumn": 5,
+          "endLine": 106,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Menu reads narrow sorted IDs separately from full rows and variants; categories/rules/image version stamps are batched, not image blobs. Best-seller query materializes every matching order-item pair since a 14-business-date lower bound before in-memory GroupBy/Sum/Take(12). Take does not bound transferred sales rows. Catalog construction filters products per category and applicable rules per product.",
+      "risk_and_counterevidence": "Transfer/group cost scales with recent item volume; menu latency and allocation remain unmeasured. Existing comment about a historical 25-second memory-grant wait is developer testimony, not a reproduced benchmark. Multiple independent catalog reads can observe updates at different instants; display prices remain nonauthoritative.",
+      "recommendation_and_tests": "Benchmark server-side grouping/projection while preserving cancellation, cancelled-order exclusion, available-product filtering, deterministic ties and Cairo window semantics. Do not cache checkout price authority or merely increase HTTP timeout.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-02",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+      "baseline_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+      "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+      "source_symbols": [
+        {
+          "stable_id": "sym-740d606d1733794dc2bd9d1484035cc306146b34f475cbafbf192b011e84c3d1",
+          "kind": "MethodDeclaration",
+          "name": "Convert(object value, Type targetType, object parameter, string language)",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+          "startLine": 807,
+          "startColumn": 5,
+          "endLine": 818,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Static Dictionary retains a BitmapImage per absolute versioned URL for process lifetime; cache hit prevents allocation/refetch on every tile rebuild. DecodePixelWidth=320 limits requested decode width. No eviction or replaced-version removal appears in converter.",
+      "risk_and_counterevidence": "Retention grows with unique products/photo revisions/server URLs. A lock protects dictionary access but does not itself establish cross-thread XAML object safety. This is source-confirmed strong retention, not a measured leak or proof all images download simultaneously.",
+      "recommendation_and_tests": "Profile native/managed image memory across repeated revisions. Consider bounded LRU or explicit obsolete-version eviction on UI thread with active tile references retained. Test fast typing, reload and failed decode; preserve existing photo reuse.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-03",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs",
+      "baseline_git_blob_sha256": "adc1659f1ba8076b0ec32f59e2773df69471d50d7200079097470a0a063cc77c",
+      "worktree_sha256": "ec9eeab0b553ea327798f673e9c077892d38fc2676492b183cca1678622488ac",
+      "source_symbols": [
+        {
+          "stable_id": "sym-6bd6c3075eb0a6fa14390672d7ef4cbc3c1c59a152807faa2973b16cd2dd73f1",
+          "kind": "MethodDeclaration",
+          "name": "OnSearchQueryChanged(string value)",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSearchQueryChanged(string)",
+          "startLine": 56,
+          "startColumn": 5,
+          "endLine": 56,
+          "endColumn": 81
+        },
+        {
+          "stable_id": "sym-9e137d06d2074de62baa8e60029c6b965af6acc466ba6188e7a526039793f539",
+          "kind": "MethodDeclaration",
+          "name": "RefreshVisibleProducts()",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RefreshVisibleProducts()",
+          "startLine": 80,
+          "startColumn": 5,
+          "endLine": 100,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-f9ae5ca995af295cfca777bf8fbc3942420591e57b4bd9e34ff8c0d9930b5505",
+          "kind": "MethodDeclaration",
+          "name": "RetryLoadMenuAsync()",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RetryLoadMenuAsync()",
+          "startLine": 106,
+          "startColumn": 5,
+          "endLine": 107,
+          "endColumn": 58
+        },
+        {
+          "stable_id": "sym-7efca71b933058a8f89628285fadc885018633c1c2ed5d6801c0bc96905feb76",
+          "kind": "MethodDeclaration",
+          "name": "LoadMenuAsync()",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadMenuAsync()",
+          "startLine": 109,
+          "startColumn": 5,
+          "endLine": 152,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Each search change synchronously clears VisibleProducts, flattens categories, builds product-icon grouping dictionary, allocates ProductTile and OfferChoice lists, and emits ObservableCollection additions. Menu and tax requests await sequentially; loading guard sets state but has no cancellation token for search rebuild.",
+      "risk_and_counterevidence": "UI-thread work scales with catalog/matches and typing frequency. Does not establish that GridView virtualization is disabled, or that current small catalog is slow. Price calculation and checkout are separate and must remain authoritative.",
+      "recommendation_and_tests": "Measure dispatcher input delay and allocations at realistic catalog sizes. Precompute icon mapping on menu refresh and debounce/cancel only search presentation. Preserve best-seller de-duplication, RTL/search culture and item selection under refresh.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-04",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+      "baseline_git_blob_sha256": "fc52f6a6c70d81be46c2e9c771131ecbc5d41a8afc7b0be69654000ed29020b1",
+      "worktree_sha256": "baee478e8a47af1722c65a058d327a2c26a50278d08b1c445008e249b7baa2b7",
+      "source_symbols": [
+        {
+          "stable_id": "sym-1d824b12404a1df25abe76718b6627a10d6f4d73240eb39da9b798327afe3456",
+          "kind": "ConstructorDeclaration",
+          "name": "MainViewModel(AppSession? session = null)",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CashierWinUI.Services.AppSession?)",
+          "startLine": 25,
+          "startColumn": 5,
+          "endLine": 37,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-1aa79084616853def877bf9e0dbae950903b15b1fd9cdcab4ee9b9ea8946d0be",
+          "kind": "MethodDeclaration",
+          "name": "CheckHealthNowAsync()",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()",
+          "startLine": 59,
+          "startColumn": 5,
+          "endLine": 63,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-33134863a01283efb097fa6db7ff5fbb2b8e8bc4498ad8f8297de8f736de319b",
+          "kind": "MethodDeclaration",
+          "name": "Stop()",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.MainViewModel.Stop()",
+          "startLine": 71,
+          "startColumn": 5,
+          "endLine": 76,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "DispatcherTimer ticks every five seconds with async event callback plus immediate startup health call. CheckHealthNowAsync awaits ping without an in-flight gate. Stop halts future ticks and clock, and _stopped prevents later online-state update; it does not cancel already started request.",
+      "risk_and_counterevidence": "With ten-second shared HTTP timeout a sufficiently slow health call can overlap another tick; precise overlap count depends on scheduling/network. Idle healthy request cadence about 12/minute per station is a formula, not measured traffic.",
+      "recommendation_and_tests": "Add single-flight probe/cancellable lifecycle as future proposal; keep DB readiness distinction, offline visibility and financial mutation retry semantics. Test slow/down server, closing mid-ping and recovery; do not blindly cache readiness as proof of connectivity.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-04B",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+      "baseline_git_blob_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+      "worktree_sha256": "013787b64dabe18c525420c1ffc1d925149183a5ae04f0f9863ae2c4d49bc483",
+      "source_symbols": [
+        {
+          "stable_id": "sym-6d4ee9f812848c497872db96216f46cd00b898d7ec16c34e2d5fcab119022639",
+          "kind": "ConstructorDeclaration",
+          "name": "MainViewModel(AppSession? session = null)",
+          "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CallCenterWinUI.Services.AppSession?)",
+          "startLine": 25,
+          "startColumn": 5,
+          "endLine": 35,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-56a639d2763c9f6be3d5a642eff0b969a6aa3d837562a54f11b1438b15ad56f5",
+          "kind": "MethodDeclaration",
+          "name": "CheckHealthNowAsync()",
+          "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()",
+          "startLine": 37,
+          "startColumn": 5,
+          "endLine": 41,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-95529f4b1a5eb562ca4b2e8fa743637405eca0dda03dc6f90997fe2b602ee1e9",
+          "kind": "MethodDeclaration",
+          "name": "Stop()",
+          "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.MainViewModel.Stop()",
+          "startLine": 49,
+          "startColumn": 5,
+          "endLine": 54,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Call Center independently implements the same five-second async health tick and immediate probe, with _stopped guard only after await and no in-flight gate.",
+      "risk_and_counterevidence": "Running both station programs on one machine intentionally duplicates their health polling and process/UI footprint. It is not proof the Call Center is mandatory on a cashier-only station.",
+      "recommendation_and_tests": "Apply the same lifecycle/single-flight validation independently; share tested behavior in a later approved refactor without coupling optional station deployment.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-05",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "baseline_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_symbols": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "kind": "MethodDeclaration",
+          "name": "LoadSalesOrdersAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "startLine": 35,
+          "startColumn": 5,
+          "endLine": 52,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-8b0fd51eb0b00bb6b1e0bd5f2adb2c6c5d278faced1b9c17959b22c125e25f81",
+          "kind": "MethodDeclaration",
+          "name": "GetSalesReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.ReportingQueryService.GetSalesReportAsync(DateOnly?, string?, CancellationToken)",
+          "startLine": 85,
+          "startColumn": 5,
+          "endLine": 86,
+          "endColumn": 105
+        },
+        {
+          "stable_id": "sym-36e001dc1cc77647c350f1028bc5ba7bca6054b45b387f698bfd726673352c1c",
+          "kind": "MethodDeclaration",
+          "name": "GetSalesReportAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.ReportingQueryService.GetSalesReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "startLine": 88,
+          "startColumn": 5,
+          "endLine": 94,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-684a5efcfebe296ecf8c8537039c22eff90ef48f34acbdf7477e1ca918c7a85e",
+          "kind": "MethodDeclaration",
+          "name": "GetTaxReportAsync(DateOnly? businessDate, string? shiftId, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.ReportingQueryService.GetTaxReportAsync(DateOnly?, string?, CancellationToken)",
+          "startLine": 100,
+          "startColumn": 5,
+          "endLine": 101,
+          "endColumn": 103
+        },
+        {
+          "stable_id": "sym-fd35b63a58423b6b082ed2c8bbbdc8aabaf28021e2257bb96ff5ef3e0b911fd7",
+          "kind": "MethodDeclaration",
+          "name": "GetTaxReportAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.ReportingQueryService.GetTaxReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "startLine": 103,
+          "startColumn": 5,
+          "endLine": 110,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "LoadSalesOrdersAsync filters noncancelled orders plus optional date/shift then Includes Items and materializes all rows. Sales and tax map all resulting entities into domain objects for rules. With null range and no shift, no date/pagination boundary applies here.",
+      "risk_and_counterevidence": "Long history can allocate many entities/domain items and SQL join rows; no actual query plan, logical reads or observed timeout collected. Existing financial formulas are not replaceable by naive SQL SUM because refund, COD and mixed-payment semantics matter.",
+      "recommendation_and_tests": "Establish reconciled golden datasets before projections/aggregates; bound interactive periods or page detailed views without truncating financial totals. Test joins, refund attribution, pending electronic amounts, COD custody and Cairo date boundaries.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-06",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "baseline_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_symbols": [
+        {
+          "stable_id": "sym-f1cd0367dabee2120fb8b6decacc71c478e43c45962970eb10a46f9bb3eb2581",
+          "kind": "MethodDeclaration",
+          "name": "GetAsync(BusinessDateRange range, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.GetAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "startLine": 38,
+          "startColumn": 5,
+          "endLine": 71,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-87ff726983ccf1260d431494400dc422d419011458032064d0d7244e609170da",
+          "kind": "MethodDeclaration",
+          "name": "LoadTrendAsync(BusinessDateRange range, SalesReportDto sales, long expensesTotal, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadTrendAsync(Falah.Domain.Common.BusinessDateRange, Falah.Application.Reports.SalesReportDto, long, CancellationToken)",
+          "startLine": 76,
+          "startColumn": 5,
+          "endLine": 107,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+          "kind": "MethodDeclaration",
+          "name": "LoadDailySeriesAsync(BusinessDateRange range, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "startLine": 111,
+          "startColumn": 5,
+          "endLine": 132,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-5ed8d95b5b0c0fbf789d51f6c46886086b70cb627222bd447a0116b07da1e01f",
+          "kind": "MethodDeclaration",
+          "name": "LoadHourlySeriesAsync(BusinessDateRange range, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHourlySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "startLine": 134,
+          "startColumn": 5,
+          "endLine": 154,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "GetAsync sequentially invokes multiple reports, treasury/attention/stock/obligation/people/health reads and trend; trend repeats prior-period sales/expense reads, then materializes rows for date/hour grouping.",
+      "risk_and_counterevidence": "Many round trips and repeated materialization can accumulate latency. It is not safe simply to Task.WhenAll calls on this shared scoped DbContext. Source does not prove an N+1 per-row SQL defect in this examined entry path.",
+      "recommendation_and_tests": "Trace executed SQL/request and then coalesce compatible snapshot projections. Preserve independent financial interpretation and avoid unapproved dashboard caches serving stale balances. Test current/prior comparison agreement and concurrent checkout.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-07",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "baseline_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_symbols": [
+        {
+          "stable_id": "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+          "kind": "MethodDeclaration",
+          "name": "GetCurrentBalanceAsync(FalahDbContext db, string employeeId, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.GetCurrentBalanceAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "startLine": 15,
+          "startColumn": 5,
+          "endLine": 26,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+          "kind": "MethodDeclaration",
+          "name": "PostIfNewAsync(FalahDbContext db, string id, string employeeId, string type, string description, Money debit, Money credit,\n        string recordedBy, string? authorizedBy, string? shiftId, string? referenceId, double? hours,\n        long? rateSnapshotPiastres, long? valueSnapshotPiastres, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)",
+          "startLine": 31,
+          "startColumn": 5,
+          "endLine": 51,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "GetCurrentBalanceAsync projects credit/debit for all stored employee ledger rows into memory, sums them and adds not-yet-saved ChangeTracker Added entries. PostIfNewAsync checks local IDs then DB IDs, calls that balance method and stages one row.",
+      "risk_and_counterevidence": "Repeated posting over growing employee history repeatedly transfers all deltas. Removing pending ChangeTracker delta in optimization would corrupt displayed running balances; this review does not certify concurrency correctness.",
+      "recommendation_and_tests": "Evaluate database aggregate plus same pending delta, overflow/domain rules and serialization guarantees. Test two staged rows, idempotent replay and concurrent postings with independent finance reviewer.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-08",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "baseline_git_blob_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "worktree_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "source_symbols": [
+        {
+          "stable_id": "sym-d82b38fb0a9ee15ede41c3ac50a02fa13727977ad4f6b810db0c5b2b4d1454ae",
+          "kind": "MethodDeclaration",
+          "name": "ListPendingJobsForRouteAsync(string route, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Printing.PrintJobQueryService.ListPendingJobsForRouteAsync(string, CancellationToken)",
+          "startLine": 37,
+          "startColumn": 5,
+          "endLine": 41,
+          "endColumn": 60
+        },
+        {
+          "stable_id": "sym-8c3835c787d50a7a02513fc600cb1d50df9c1b8b31a749d8d52d922798bc94b6",
+          "kind": "MethodDeclaration",
+          "name": "GetOverviewAsync(CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Printing.PrintJobQueryService.GetOverviewAsync(CancellationToken)",
+          "startLine": 49,
+          "startColumn": 5,
+          "endLine": 86,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+          "kind": "MethodDeclaration",
+          "name": "ComposeTicketContentAsync(string jobId, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeTicketContentAsync(string, CancellationToken)",
+          "startLine": 99,
+          "startColumn": 5,
+          "endLine": 140,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Pending query filters route/status and sorts creation time but ToList has no Take/cursor. Overview materializes all nonsucceeded jobs regardless of age plus recent succeeded jobs, and only later limits attention output to 60. Ticket composition fetches persisted frozen order items and related metadata per job.",
+      "risk_and_counterevidence": "Offline backlog increases response memory and repeated queue scans; 60 attention rows does not cap server load. Route/status index exists in model, so absence of all useful indexes would be false. Exact plan and backlog throughput are unmeasured.",
+      "recommendation_and_tests": "Propose bounded oldest-first page with durable claim/lease coordinated with PRT-001 reliability finding, age-aware overview aggregates and evidence-preserving detail pagination. Do not discard old failures, parallelize one paper path or remove attempt persistence.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-09",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+      "baseline_git_blob_sha256": "31051c0c991f43c10d1ab5335195e82db8b7f03a2b59f42707b35831a4d5d979",
+      "worktree_sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640",
+      "source_symbols": [
+        {
+          "stable_id": "sym-80fc0cbc5120e72a6e394ee37ee0bfc998ab85da179de2ffa2208abd7cee395d",
+          "kind": "MethodDeclaration",
+          "name": "DrainAsync(string route, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.PrintAgent.PrintJobProcessor.DrainAsync(string, CancellationToken)",
+          "startLine": 68,
+          "startColumn": 5,
+          "endLine": 79,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-f88d78f9acd00be3317a0a316fa0024fb487f9146eded2adad7b935ac98d8aa9",
+          "kind": "MethodDeclaration",
+          "name": "ProcessAsync(PrintJobDto job, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.PrintAgent.PrintJobProcessor.ProcessAsync(Falah.Application.Printing.PrintJobDto, CancellationToken)",
+          "startLine": 81,
+          "startColumn": 5,
+          "endLine": 129,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-61be486321709002c5aac91293edc95e8eec2f50ff8b66c1cef466d68ee73e51",
+          "kind": "MethodDeclaration",
+          "name": "ReportAsync(ReportPrintJobResultRequest request, CancellationToken ct)",
+          "qualifiedSymbol": "Falah.PrintAgent.PrintJobProcessor.ReportAsync(Falah.Application.Printing.ReportPrintJobResultRequest, CancellationToken)",
+          "startLine": 131,
+          "startColumn": 5,
+          "endLine": 161,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "DrainAsync fetches all pending then serially awaits each ProcessAsync. Rendering is synchronous inside processing before transport. Unreported attempt persists before send and after outcome; report retries three times with 400/800ms waits then durable retry on next drain.",
+      "risk_and_counterevidence": "Per-printer serial throughput is intentionally bounded by render/send/report latency. These durable disk writes are safety barriers, not redundant I/O to remove. One failed ticket is caught/reported while cancellation exits; no multi-job parallelism proposed.",
+      "recommendation_and_tests": "Measure render/transport/report separately using synthetic ticket/file transport only with approved test state; retain uncertainty/no-auto-reprint policy. Page rather than parallelize backlog, independently test crash/restart/report failure.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-10",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+      "baseline_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+      "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+      "source_symbols": [
+        {
+          "stable_id": "sym-8c50884e47ae50bf8bcc5e8fcac748674d9aba387068bd6e33874e2de1ced661",
+          "kind": "MethodDeclaration",
+          "name": "Render(ComposedTicket ticket, int paperWidthDots = 576, bool thickenStrokes = true, int marginDots = 24)",
+          "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.Render(Falah.Domain.Printing.ComposedTicket, int, bool, int)",
+          "startLine": 83,
+          "startColumn": 5,
+          "endLine": 101,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-dd54cfcab95a55cf58acb1517afffa97a80d13d932e9a511527972527f68a66c",
+          "kind": "MethodDeclaration",
+          "name": "RenderSegment(IReadOnlyList<TicketElement> elements, int paperWidthDots, int marginDots,\r\n        List<Rectangle> inverted, List<QrPlacement> codes)",
+          "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.RenderSegment(IReadOnlyList<Falah.Domain.Printing.TicketElement>, int, int, List<System.Drawing.Rectangle>, List<Falah.PrintAgent.BitmapTicketRenderer.QrPlacement>)",
+          "startLine": 244,
+          "startColumn": 5,
+          "endLine": 395,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-c797c5e95434c232507c17c75d48da7837299c4f6ee1920d706f9ad0f0e875c0",
+          "kind": "MethodDeclaration",
+          "name": "WriteRaster(Stream stream, Bitmap bmp, bool thickenStrokes, IReadOnlyList<Rectangle> inverted,\r\n        IReadOnlyList<QrPlacement> codes)",
+          "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.WriteRaster(Stream, System.Drawing.Bitmap, bool, IReadOnlyList<System.Drawing.Rectangle>, IReadOnlyList<Falah.PrintAgent.BitmapTicketRenderer.QrPlacement>)",
+          "startLine": 500,
+          "startColumn": 5,
+          "endLine": 535,
+          "endColumn": 6
+        },
+        {
+          "stable_id": "sym-a267869737dd95db38e04d128534315967b5d56fcd9339402e2695cfec939b0a",
+          "kind": "MethodDeclaration",
+          "name": "Thicken(bool[,] source, int width, int height, bool[,] isProtected)",
+          "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.Thicken(bool[*,*], int, int, bool[*,*])",
+          "startLine": 584,
+          "startColumn": 5,
+          "endLine": 606,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Render allocates one bitmap per cut segment, disposes it normally, accumulates ESC/POS MemoryStream then ToArray copies payload. WriteRaster scans GetPixel for every pixel, allocates full bool grid, optional protected mask and grown grid, then packed byte output. RenderSegment height follows wrapped content. Font disposal loop is reached only after successful measurement/drawing.",
+      "risk_and_counterevidence": "CPU and peak memory scale with segment width times content height; normal path has substantial disposal and is not blanket resource leak. Exception before cleanup can leave created fonts/bitmap undisposed until native finalization. No actual OOM, leak slope, print latency or Arabic clipping reproduced here.",
+      "recommendation_and_tests": "Benchmark bounded raster strips/LockBits and exception-safe ownership; pixel hashes and Arabic/QR/white-on-black edges must remain equivalent. Preserve row wrapping and cut boundaries. Very tall segment/header limits require separate correctness review; do not silently crop a receipt for memory savings.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    },
+    {
+      "candidate_id": "PERF-CAND-11",
+      "classification": "SOURCE_CONFIRMED_BEHAVIOR_WITH_UNMEASURED_PERFORMANCE_IMPACT",
+      "path": "src/Falah.Infrastructure/Authorization/SessionService.cs",
+      "baseline_git_blob_sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "worktree_sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "source_symbols": [
+        {
+          "stable_id": "sym-6b58fba3d6909a61439e856a4b7d7f88a6dab6d962b2d11914df6045e737e30a",
+          "kind": "MethodDeclaration",
+          "name": "ResolveAsync(string? token, CancellationToken ct = default)",
+          "qualifiedSymbol": "Falah.Infrastructure.Authorization.SessionService.ResolveAsync(string?, CancellationToken)",
+          "startLine": 42,
+          "startColumn": 5,
+          "endLine": 67,
+          "endColumn": 6
+        }
+      ],
+      "review_scope": "performance-focused source reasoning; not exhaustive security/business review of all symbols",
+      "behavior": "Every authenticated resolve queries token row then active user; successful use writes LastSeen only when older than one minute. TokenHash has unique index in current model. It does not write on every poll.",
+      "risk_and_counterevidence": "Polling adds authentication reads; parallel requests can each observe stale LastSeen and write, but claimed per-request write amplification would be overstated. Caching permissions risks delaying account deactivation/revocation.",
+      "recommendation_and_tests": "Measure query rate first; preserve immediate active-user/revocation semantics and no plaintext token storage. No auth cache or session change made.",
+      "independent_verification": "PENDING",
+      "runtime_measurement": "NOT_EXECUTED"
+    }
+  ],
+  "not_a_canonical_finding_registry": true,
+  "counting_rule": "Do not promote to exhaustive file/function completion; parent reviews source and reconciles stable identities."
+}

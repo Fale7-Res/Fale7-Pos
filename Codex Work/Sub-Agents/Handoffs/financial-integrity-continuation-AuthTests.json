@@ -1,0 +1,32 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:22:23.4293190Z",
+  "path": "tests/Falah.Server.IntegrationTests/AuthTests.cs",
+  "stable_ids": [
+    "sym-291f0d7abe79cedc7936a65f182101056ffa2185bb52dfecc272abf1f8c82a9d",
+    "sym-e332d13425f4fbf9fe77ec4e0e1a1fa649bc27dd1345a3945d1d916193191c82",
+    "sym-636d6d5031dbc33f364b0786776bae8749b506633a53449f5928747d4bfc2dde",
+    "sym-e00132bfcc5207c4d26341b7bc137976293720367880cb8edf09d50651c6cf12",
+    "sym-b73e46b5c09ca7bfee8305e0a91475710409fed502fdcc2f4672b90e16948108",
+    "sym-1aabf492fa9300322e87c4d179a6a57b78023716a5bd24645e6b653638635555",
+    "sym-1ad815985f50ecc3454500a5dba712b78f7f2547e2981f6b6593ac631e289519",
+    "sym-3f3b3e97deec5dd159d4ea24ed93ab5d958935553358b9684424385cdba7da17"
+  ],
+  "queued_count": 8,
+  "reconciliation": {
+    "current_union_remaining": 8,
+    "coordinator_database_reports": 8,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/AuthTests.cs": "9CFE8DD84F80C5D211F1276852BD7B8BEC1E642DCCAAD200C55929A682310798",
+    "src/Falah.Infrastructure/Authorization/SessionService.cs": "EB65442B2F36E359DEE026D2988EF67DEF1B7484CA39FCA09A8DBEFF271CAB81",
+    "src/Falah.Server/AuthenticationMiddleware.cs": "3E64AD8EF5324FE99AA19A0DEAD024A4AFE8F99E038F8E280631B2EB8EABC5EB"
+  },
+  "assessment": "Auth tests cover successful PIN identity, wrong PIN rejection, and inactive-user rejection. Static source confirms session resolution binds token to an active persisted user, while middleware requires a valid bearer session on API paths except login/health. These are foundational for financial command identity. No new financial integrity issue from this test file.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static source only; test methods were not executed and no live database used.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

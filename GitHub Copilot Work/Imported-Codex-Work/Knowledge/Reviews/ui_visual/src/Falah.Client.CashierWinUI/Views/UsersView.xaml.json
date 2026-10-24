@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/UsersView.xaml",
+  "source_git_blob_sha256": "debceb8f3649010489d74464b0211a977ce531c41a50bdd2346aff586e5c548f",
+  "worktree_sha256": "c527f98477b8576bc04336c4dc87d79145b168ea79ea815e7d0cfc9a8bfe2c12",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:38:43.499096+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "User selection, effective permission editing, creation and PIN-change overlays.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CanEditSelected",
+      "reasoning": "Permission ItemsControl and save use selected-user edit gate; individual grants CanActorGrant, owner banner blocks changes conceptually. Client display alone cannot prove server authorization; coordinator owns actual privilege paths."
+    },
+    {
+      "anchor": "RetryUserActionCommand",
+      "reasoning": "Generic pending retry button visibleHasPendingAction outside selected-user modal context, unlike Payroll; offers recovery surface even when dialogs absent. API auth proof token mutation UI020 remains separate from markup."
+    },
+    {
+      "anchor": "SelectUserCommand",
+      "reasoning": "Root scoped user selection, role translation and inactive badge, fixed320pane. Load/error/empty occupy same row as list, VM must ensure visibility coherence and stale rows not actionable."
+    },
+    {
+      "anchor": "CreateUserCard",
+      "reasoning": "Max680x800 stretched, header/star-scroll/footer named for geometry probe. Username/role/permissions and two PasswordBoxes disabledCanEditAction; PIN6maximum and explanatory4..6digits rule, no actual PIN exposed. Role text explicitly says grants independent of label."
+    },
+    {
+      "anchor": "IsPinChangeOpen",
+      "reasoning": "Self currentPIN conditional, targetname visible, new+confirm6max and busy ring/retry caption. Full scroll keeps tall content reachable. Retained sensitive payload storage is VM/service concern already sent security coordinator."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "Literalwhite success text on themeTextPrimary background repeats dark contrast issue. Refresh has explicit Arabic accessible name, improvement over other management views. No native focus trap/live announcements declared."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No authentication automation, accounts or PIN changes. Need true token-bearing proof, wrong-user proof header assertion, process-recovered dialog context, all-permission actor boundaries and dark/highcontrast native tests. No callable declarations.",
+  "recommendations": "Keep immutable actor/target reconciliation and secure journal design separate from masked UI, and use semantic paired feedback colors.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

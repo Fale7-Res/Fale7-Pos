@@ -1,0 +1,1705 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "parent",
+  "decisions": [
+    {
+      "stable_id": "sym-bc34c11bf7dcb951e13dddcc9e43c69eeee24d4a3db045e7d284fb4287d38836",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        288,
+        307
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Wrapper200/409/422/404 matches actual catches. Independently read full OpenShiftHandler: actor38/permission40, balance54-55 before transaction69, Save/commit95-96 and replay catch confirm FIN011 qualification. Approvals absent on open; queued slip not paper.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T01:59:58.600287+00:00"
+    },
+    {
+      "stable_id": "sym-6ddc0569a6defbdfdb7668effd54dc449e6789d9e7bae6a2c196e6ffff720046",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        337,
+        356
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Wrapper catches typed conflict409/domain422/invalid404; independently read full CloseShiftHandler and Domain Shift/AuthorizationPolicy. Body-selected ClosedByUserId is not any middleware alias; discrepancy still requires blind-close permission plus valid action-bound approval and reason. No driver custody block despite stale summary comment. Transaction contains shift lock/reconciliation/handover/slip; no actual financial test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T01:59:58.607936+00:00"
+    },
+    {
+      "stable_id": "sym-0e5f4b2e3e6d6da1f9ea8b93dc7aea6ec6ff1d48d98468dfaaeb8d24f2f2535b",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2141,
+        2145
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read PrintJobQueryService.GetJobDetailsAsync88-97: one job query then ordered attempts, no save/permission check. Endpoint404 only InvalidOperationException; two-read snapshot inconsistency and unbounded attempts correctly classified risks, not reproduced defects.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T01:59:58.615227+00:00"
+    },
+    {
+      "stable_id": "sym-9bec8810dc54825ad7539bbe10625ba1eda5e9175f89b6c4a525e14eb36c94b9",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        384,
+        385
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read ControlCenterQueryService.ListBusinessDaysAsync19-24: unbounded descending AsNoTracking day projection includes reopen metadata, no permission gate. Global session required; metadata visibility is policy question not automatically High defect.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T01:59:58.622127+00:00"
+    },
+    {
+      "stable_id": "sym-e4dd537b2982698e37513607b5dfbd01ed1c1ce904ea6e90e05701ad4f1df2e0",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        387,
+        391
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read wrapper387-391 and ControlCenterQueryService26-32: one day ID query, DTO metadata, missing404; no permission policy. Read-only access still authenticated; authorization severity requires owner policy.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:13.129188+00:00"
+    },
+    {
+      "stable_id": "sym-b5484ecee80fb1f8969a3925c7f0297275cddc5e54f1c549650c64814895598a",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        393,
+        397
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read wrapper393-397, query34-40 and full ControlCenter/BusinessDayCloseEvaluator26-86 plus Domain EvaluateCloseBlockers. Global shift/custody/journal/pending queries, day-specific checklist, protected balance aggregate and current threshold match receipt. Preview writes nothing but no common snapshot; no DB probe executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:13.136383+00:00"
+    },
+    {
+      "stable_id": "sym-0fa7ccbd03b5492521bf29037a49d4fe74a524a9a438d9821b6ef6f0c2fa1f0e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        421,
+        425
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read route421-425, query42-48 and CloseBusinessDayHandler.ToDto162-165. Authoritative snapshot latest revision selected, no recompute/existence check; JSONfinancial disclosure to any authenticated user requires authorization-policy review.404empty only null result.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:13.143139+00:00"
+    },
+    {
+      "stable_id": "sym-eee6642b4af7cdfcb182fefa4022c54046fe3c8693484ebf7e371aba4ab9c91e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        427,
+        428
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read route427-428, query50-53 and ToDto: all revisions orderedascending and200empty, unlike singular404; nonauthoritative history deliberately preserved. Source-depth accepted, not runtime/financial correctness approval.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:13.149988+00:00"
+    },
+    {
+      "stable_id": "sym-47e9faee7ef04ee5606dd899f1da91a02e871cfe46db2317b9022093bceb9fb5",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        430,
+        446
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Independently read full ReopenBusinessDayHandler29-109, Domain Reopen46-56 and wrapper430-446. Route overrides dayID only; same-request replay before authorization, reason/snapshot/closed/no-other-active guards remain. No explicit transaction covering other-day decision; blocked DomainException appends attempted+blocked and saves. SEC001 body actor boundary retained. No reopen or DB write performed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:13.156950+00:00"
+    },
+    {
+      "stable_id": "sym-e22a9f5c85cb016045c62b4c56d215b7303f972e8f5cb3a734b5088ee818f07c",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        448,
+        449
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Read query55-64: active Phase/SortOrder items, firstmatching day completion; no day lookup. Invented ID returns blank full checklist; source visibility policy unresolved, no SQL test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.791248+00:00"
+    },
+    {
+      "stable_id": "sym-67fef4b65f50ec242214872b0aa53ad23e5ff8d493cc091a5f3d36363c3a02bb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        451,
+        467
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Read full CompleteChecklistItemHandler: actor permission business_day_close, item/day existence only, no day status/item active gate. Upsert toggles actor/time then Save; concurrent distinct firstinsert not proven replay-safe. Route overrides day+itemID and maps422/404. No mutation performed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.798733+00:00"
+    },
+    {
+      "stable_id": "sym-08e29101a0bf19a7d8f406f97e5b398d4d9c17ac6ec193e437b38cdce7dad792",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        469,
+        469
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Read full SettingsQueryService: singleton lookup returns staticDefaults without write or ToDto; does not expose connection/password. Default restaurantcontact values already in baseline not copied to new audit. Global auth only; source-depth accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.805921+00:00"
+    },
+    {
+      "stable_id": "sym-1fb8e9949d4aca77bbd75b5e9e09137b921dc9583da8dbf3bd099f84adf37803",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        482,
+        483
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Read exact Domain constant115-116 and calculation125-136: static descending piastre denominations, no query or money operation. Membership not enforced by calculation; source review of route accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.812843+00:00"
+    },
+    {
+      "stable_id": "sym-af8a62dd1510cf7286b484872bc140959ce017fdf86cfb71c04a57d8ab77f67c",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        485,
+        486
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_STATED_LIMITS",
+      "reasoning": "Read actual query134-142: dateID-filtered stored count list ordered creationdescending, JSON deserialize then caller-facing expected/actual/difference; no day check or permission. Malformed stored JSON could error, no corruption test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.820042+00:00"
+    },
+    {
+      "stable_id": "sym-7a158f4ae1a34024042ba7eef06d297bfb91250a158fb96641a4844ae0c2e281",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        488,
+        498
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full SaveCashCountHandler29-78 plus Domain calculation and wrapper488-498: early IDreplay, actor cash_count permission, dayexists, accepted expected/userrows, count+audit SaveChanges and DbUpdate replay path. Receipt statement unchecked arithmetic needs precision: perrow multiplication and total-minus-expected are unchecked in default context, while Enumerable.Sum<long> checks accumulation. Do not call all arithmetic unchecked or proven exploitable. No DB/financial invocation.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:06:48.827191+00:00"
+    },
+    {
+      "stable_id": "sym-6e2261372b3ac7896064e1933081a014741490eddfe7994f7ed1ef18fa219da8",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        500,
+        504
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetExceptions70-113 and entire Domain ControlCenterRules. Day/date-scoped shift/refund/expense and global custody/journal/delivery combine with current threshold, persisted state overlay. BuildExceptions checks Math.Abs shift and90minute delivery time, not a malicious timer; no repair/write. Wrapper404 only invalidop. Source-depth accepted, no DB/API test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.556391+00:00"
+    },
+    {
+      "stable_id": "sym-c1ad4f9d5142759638d5c12b3c355e5d0f729f268dc1d01d4f6cf359dcdf04ba",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        506,
+        522
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full SetExceptionStatusHandler25-75: validates two statuses/reason, actor/control_center permission or issued matching approval; arbitrary route IDupsert and audit Save without findingexistence check. Does not remove financial blocker. Source-depth accepted; authorize omission case still SEC001 and race/policy unexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.566403+00:00"
+    },
+    {
+      "stable_id": "sym-b1171ce940c099c4d482acb862c4e44aa2e697e4bb5a8e91f45008203d997fdc",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        524,
+        525
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListAuditEvents122-132 and contrast general audit route531-540 explicit permission. This controlaudit endpoint uses global auth only, caller limit unbounded, sensitive actor/reason/blocker JSONprojection. No claim negativeTake exploit or actual disclosure request. Source-depth accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.576546+00:00"
+    },
+    {
+      "stable_id": "sym-a5e2c58ed949ad8277b2a6a15daa90649e3f2ff0bc26714c6a066e2d28da8052",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        542,
+        561
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire DepositHandler and TreasuryAccountValidation: allowed externaltype/account, positive amount/reason, selectedactor treasury_manage/approval, open day thentransaction journal/movement/audit+commit. Early replay before checks and nullType Replace exception are additional robustness hypotheses, not tested. Wrapper409/422/404 matches; no device or bank verification.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.585283+00:00"
+    },
+    {
+      "stable_id": "sym-b7d3ca09f20dccbd7a03958ba2c1c3f4c80889204b4d0203bcddb572e5b2a5e0",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        563,
+        582
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire WithdrawalHandler and actual parameterized TreasuryBalanceQuery. BeginTransaction before UPDLOCK/HOLDLOCK source read, protected balance then moneyout/journal/audit; counterexample to indiscriminate FIN011 generalization. Bodyactor SEC001 remains, balance guard unchanged.200/409/422/404 catches match.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.595026+00:00"
+    },
+    {
+      "stable_id": "sym-3dc3e21c045704ef3d2315d891553a2fdf00c13b9f9ace48670ab4ab0ac25ead",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        584,
+        603
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire TransferHandler/TreasuryAccountValidation: accountcatalog/equalcheck, transaction sourcelock/balance, journal/internalmovement+CashHandover+auditcommit. ReceivedBy self/approver attribution is not independent recipient acceptance. Idempotency only samekey; no concurrency/runtime test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.604073+00:00"
+    },
+    {
+      "stable_id": "sym-3c63c6a7a287857ca33f17c686d9ca25e72043ea751beedb4d99b20f2e82da4f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        605,
+        624
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire SafeDropHandler: explicitly only shiftexists, open businessday, safe_drop permission/approval; protected Drawer lock insidetransaction then Drawer->Main movement/journal/audit. Closedshift attribution could distort reconciliation; businesspolicy/race needs test, not silently invented guard. Wrapper correctly maps409/422/404.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.617140+00:00"
+    },
+    {
+      "stable_id": "sym-c559f7adee929bfecc5829ea40874aa2581467d54dc3c11a284c9cf60bd9ef79",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        626,
+        645
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire AddExpenseHandler and earlier AuthorizeExpense branch: source Protected, amount/description/category/openShift, drawerpermission-orapproval vs nonDrawerdirectpermission, openDay; transaction sourcebalance+expense+movement+journal+audit+vouchercommit. Receipt626-646 span should be626-645 actual node; stored immutable span uses645. No paper or money test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:07:40.626763+00:00"
+    },
+    {
+      "stable_id": "sym-2938ef430cc50a34c942b1311dca26abf37e09d808f017be79723d2e7be1fe9c",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        648,
+        663
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire ExpenseQueryService. Literal cashier role requires supplied Open shift, not shiftowner check; other roles datefilter. Route domain422/missing404; absent/closed shift200empty. Queryidentity comparison not assumed casebypass; no live read. Correct actual nodeends663, one cited664offbyone.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.789596+00:00"
+    },
+    {
+      "stable_id": "sym-269903c4c27f07316e2fe45a5665f551b2368c3b58e180e36df4dc9ab246edb6",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1673,
+        1682
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire OpenCashDrawerHandler. Deterministic early replay, reason/selectedactor/openshift/permission-orapproval, Requestedrecord+auditSave and collisionreplay. No pulse/printjob/Treasury mutation; sourcedepthaccepted, no device proof.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.797079+00:00"
+    },
+    {
+      "stable_id": "sym-6cf0a7990f4a3f47d6121ca9860355fa8169a60aff5cf6aa72c6ab97ee9384c5",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1684,
+        1693
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire ReportCashDrawerResultHandler95-111. Command and reporterexistence only, overwrites success/error/time with no reportkey/permission/immutableattempt. Reportername not persisted. No Treasurywrite; documented idempotent comment overstates repeat timestamp behavior. Source finding mechanismnotruntime.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.804115+00:00"
+    },
+    {
+      "stable_id": "sym-03d4a576b2940f76f732a43f71cf043139092f0c50213f11291dff9a87dada30",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1695,
+        1705
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire CashierCashMovementHandler. Typevalidated first thenkeyreplay, positive/reason/actor/openshift/permission/openDay, Main->Drawer cash_in or reverse cash_out. Transactionbefore sourcelock+balance thenmovement/journal/auditcommit. No hardwarepulse/handover. Actualrouteends1705 versus cited1707; immutablemapspan correct.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.810990+00:00"
+    },
+    {
+      "stable_id": "sym-cc0e464231bf0f3e28e65acd45b5eaceb7d73de85b0ba7872ec37afad3e7e5b8",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1395,
+        1414
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full RefundOrderHandler,RefundRules,Order.ApplyRefund. Actualrequested amount floored/capped, positive remaining; transactionorderlock and pooled sourcebalanceguard. ApplyRefund only Cancelled/Multi/amount guards, no IsPaidguard supportsFIN003. OperationalShift differs historical original; FIN004 reconciliationchain retained from priorindependentfinding. No refund/SQLcall. Wrapper409/422/404 matches.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.817605+00:00"
+    },
+    {
+      "stable_id": "sym-9ce14c19936295f45806f471752c2d31a0b481382685b74958f115e9edf12c1c",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1182,
+        1183
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read DeliveryQueryService15-16: active Drivers flag only, DTOid/name/active, no employment/custody/permissioncheck. No ownership/fundsassertion implied; safe catalogsourcepass accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.824269+00:00"
+    },
+    {
+      "stable_id": "sym-9b307dce21d6be6bf83ca6d9683bc72582c77ea4d1b5e9955818eef4f0ab033f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1185,
+        1186
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read DeliveryQueryService21-22: all Drivers noActivepredicate, managementcomment does not implementpermission.200list/global500, no write. Source-depthaccepted without exposingactualdriverdata.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.831076+00:00"
+    },
+    {
+      "stable_id": "sym-731999d854b232c2b48b92ff0e07821a05fa1553f6ab465d3cbde26afee0d9d2",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1188,
+        1189
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read DeliveryQueryService24-26: Active DeliveryServices projection includesprice/creator/time; no currentorderrepricing or permissiongate. No network/DBexecution, source-depthaccepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:08:24.837758+00:00"
+    },
+    {
+      "stable_id": "sym-6d4e738b0ff73469420d4d1ad1e21b3e8346412e8044868785aa91894e50abeb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1191,
+        1192
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read DeliveryQueryService28-30: allservices includinginactive, no Orders/historicalprice reconstruction or authzdependency. Source-depth accepted, no datarequest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.453080+00:00"
+    },
+    {
+      "stable_id": "sym-1e5cde7d1a6a503dc8bacd7462ed06dd98f5bbe24d14c942b1ea8b534ff2017d",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1201,
+        1210
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full DeliveryServiceHandlers88-126 and NormalizeName: optionalname/fee/active withnameclash check; no negativefee assertion, nullfee cannotclear, bodyselectedactor+approval. Raceuniqueness/culture concerns not reproduced. RouteServiceId overrides;422/404 matches.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.460465+00:00"
+    },
+    {
+      "stable_id": "sym-c39e026f281c1b6df730c2f304f41a2af514fddd0f41f64bdeaa119000f41972",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1212,
+        1222
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full SetDriverActive71-87: actor directdelivery_manage, driverexists, conditionalActiveSave, no custody/employment/deactivationfinancialmutation. HistoricalEmployeesabsent commentstale. No live driverchange.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.467234+00:00"
+    },
+    {
+      "stable_id": "sym-137499b1e1c444490fefe3e4359ff806a001a07ab2d115ee41a65d34f5e29601",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1224,
+        1240
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full MarkDeliveryReady and complete DeliveryTransitions map. Permission/approval beforelockedSQLtransaction, Readyreplaycommit, onlyallowedtransition+version+readyEvent. No payment/kitchen evidence gate. Actualdelivery readiness remainsoperatorfact, no printerquery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.473742+00:00"
+    },
+    {
+      "stable_id": "sym-9344496560ccf457c269aa4e3eca6ba797c65dc828b0cf3af64e876458c0d37f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1332,
+        1333
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actualboardpredicate and QueryToDtos58-75 plus DeliveryFactsComposer. Sixnonterminalstates, orderedoldest, batchedOrders/Drivers then dictionarylookup; noauthzfilter or common snapshot. Customer/addressvisibility not tested or exposed here. Receiptdepth accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.480391+00:00"
+    },
+    {
+      "stable_id": "sym-b9a10419d8ee02db5405d09f4a09e7c64bf7e82c89d5ef2776cb0f7fc7a35d88",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1335,
+        1336
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Readydelegation via ListByStatus and QueryToDtos; exactlyReadystatus, notNewpreparation. No mutations. RawAmountToCollect equals total-refund evenprepaid; responsibility logicseparate, do not equaterawfieldwithactualcashdue.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.487409+00:00"
+    },
+    {
+      "stable_id": "sym-224f6c67b8aac0bee99f1ace48454e3dbe78ac66d25679588fe5a96531a4fa40",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1338,
+        1339
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read driveractivepredicate51-53: threeassigned/outstates, no Activeflag/existencecheck; unknownID200empty. Batchreads includeprivateaddresses; no live requests. Source-depth accepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.494412+00:00"
+    },
+    {
+      "stable_id": "sym-19591696abc5f8a9abb3518c0d04ced226427f11dc82949069c25b707dc50a48",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1341,
+        1345
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full GetDriverAccount104-146, FactsComposer and Domain BuildDriverSettlementScope52-79. CanSettle noactive +resolved>0, includesprepaidresolved; alltimeSettlements independentlysummed. Snapshotnottransactionalpromise; no settle test. Receipt operationalstatus precedence matches.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.501024+00:00"
+    },
+    {
+      "stable_id": "sym-7345c8143f417642e8f71eb542cd4ccbb3bb832066f90b48a944c66652ca8f94",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1349,
+        1353
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full statistics154-198: assigned/delivered/failed/returned eventtimes inclusivefrom/exclusiveto, deliveredordertotals vscollected, currentcustody alltime, settlementdifferencesranged; averagefiltersnegative durations. Invertedrange not rejected, alltimemetadata stillpopulates. No timings or SQLobservations.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:08.507882+00:00"
+    },
+    {
+      "stable_id": "sym-661a68e290d4451a1801d3c27c93d5a6e5152496cd92a425651780a0392c0e3f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1355,
+        1365
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Previously read actual GetOne77-91 and FactsComposer: delivery thenrequiredorder thenoptionaldriver, invalidop404 covers missingorder unlikeboarddictionary500. No permission/ownership gate. Namesnapshotfallback and amount/refundfacts correctlyqualified; no livecontactaccess.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.938076+00:00"
+    },
+    {
+      "stable_id": "sym-b48c06f9b9e2aa77dc8289689ff4734db3d5b56bda8702c32299420b85a50e62",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1367,
+        1368
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetTimeline94-97: directeventquery, ascendingtime, no deliveryexistence check yields200empty. DTOomits eventID/requestkey; historynotproofmoney. No privateeventquery executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.948337+00:00"
+    },
+    {
+      "stable_id": "sym-01e0971719b4c26d50fc3ad180ac01862f9019c642c321fd7f3518ebbe7f6d37",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1242,
+        1262
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire AssignDeliveryHandler36-154 and Domain responsibility/eligibility/transitions. Earlyeventkey replay returns requested delivery withoutpayloadmatch; Readylock, activedriver/nullableemployeeeligibility, Outstatus+custransaction+dispatchjob+audit. CreateCashCustody skipszeroresponsibility. No externalhandover observed; SQLreadparameterized.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.957096+00:00"
+    },
+    {
+      "stable_id": "sym-6b8237aa9f3a3705810377f92f0bb1c7c4015d26694b0467916c0b427c8a51d8",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1264,
+        1284
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire ReassignDeliveryHandler34-155 and driverdispatchcomposition313-343. Sameactivedriver/reason no-op precedes permission/statusgate; actualchange chooses overrideafteroutcome, relabelsunsettledcustody, updateshistory/event/dispatch/audittransaction. NewtargetonlyActivecheck unlikeassignEmployeeIdguard; reportqualificationaccepted. Queueddispatchhistoricaldriver usesnextreassignmentOldName, not alwayscurrentdriver.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.966604+00:00"
+    },
+    {
+      "stable_id": "sym-e43ecdd6da1799a3bdb9b9c712ebbcb756604c36f57711dbccf1c61641eacc23",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1286,
+        1306
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire RecordDeliveryResultHandler plus Domain rules/transitions. Validthreeoutcomes, actionpermission, lockedstatus/no-op, deliveredexpected/collectedreason guard andcustodyupdate; failedsixreasoncodes/returnedreason, event+audittransaction. No Order.IsPaid ortreasurywrite. Nullcollectiondefaults expected (operatorassertion). No deliverymoneytest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.975798+00:00"
+    },
+    {
+      "stable_id": "sym-ee452610b101d35a9ee77cb936efb25e73de4d902b3d2c17399e2bf875a18698",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1308,
+        1328
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire settlement handler36-197 and Domain CalculateTripSettlement/BuildScope. Transaction locksall driverunsettleddelivery+custodysets, refusesactive/no work, expectedSUMcollected notgross; variance reason+extraauthority, openDay, positiveactualMaininflowjournal, settlescustody/resolvedrows/events/record/auditcommit. Zeroactualstilloperationalwrite. Driverlookupoptional. Approvalreuse needsbothactiongates asdictated registry; notcalled.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.984073+00:00"
+    },
+    {
+      "stable_id": "sym-c53adea023c0f1ae87a336958b503194f2311bff07a093aecb5779f836a64ff7",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        685,
+        685
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire EmployeeQueryService including full ToDto81-85; currentroute serializes all employees includinginactive withcompensation/contact/address/nationalID/fingerprint/notes. No employees_manage orselfgate. Sensitive fieldnamesonly recorded; no actualprivate rowsread. Needcanonical source-supported disclosure candidate independently challenged.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:57.992332+00:00"
+    },
+    {
+      "stable_id": "sym-8cf19fe0b2930ec82f3c89250da790f15dbe06edb1e1954c2bdf6a9e58bc43fb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        687,
+        691
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetAsync64-66 + ToDto81-85; knownemployeefullDTOwithoutspecificauthorization,missing404. Authsessionstillrequired; notSEC001casevariant. No database/APIquery. Requirescanonical access-policyreview and isolated response test.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:09:58.000881+00:00"
+    },
+    {
+      "stable_id": "sym-f743f1e44daff02b442c208ceb7924ca05288c13c46943d1552b582d5cc69e73",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        693,
+        694
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Independently reread ledgerquery68-70 and mapper87-90: full employeeledger includingdebitcredit/rates/authorizers returned unguarded; missingemployeeempty200. BalanceAfternotvalidated; linkedSEC003scopeextension pending. No datarequested.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.298640+00:00"
+    },
+    {
+      "stable_id": "sym-b87aeb4ef75e79dce12941c52820f1b8213057ca74ac3c7b9a637cfd70deee58",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        696,
+        697
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Independently reread GetBalance74-79: alltimefilteredmaterializedcredits-debits, unknownemployeezero not404. No peremployee/selfpermission. Adjustmentcreditincludedbalance unlikeFIN012buckets; no SQLruntime.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.305536+00:00"
+    },
+    {
+      "stable_id": "sym-e9c2904a8cb9713eb901056516a9f6b49b741a6ce56e0788cc6eaa42445dbf32",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        702,
+        707
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read exact reportshelper2282-2290 + entireEmployeeFinancialReport25-59 + BusinessClockrange. Explicitreports_view/all gate distinguishes ungatedHRreads. Activeemployees/allledger loads, repeatedperemployee scan, creditAdjustmentexcludedbucketsbutincludedbalance. Invertedfrom/to notnormalizedhere; Cairo midnightDSTinvalidwalltime potentialneedsisolatedtest. No currenttiming/dateprobe.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.312001+00:00"
+    },
+    {
+      "stable_id": "sym-51ccec7f3f4aa8b34b1e51cb55a140c42d1b310e82dc9354521a47a2941ab4e2",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        807,
+        808
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListAttendance92-102 and mapper: optionalemployee/date filters, omittingbothunboundedallhistory with correctionreason/actor andhours. No HR/selfpermission beyondvalidsession; privacyrisklinkedSEC003 butindependenttestunexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.318533+00:00"
+    },
+    {
+      "stable_id": "sym-8a78af3a35f11a48b4f88b26990375fca69ffb7acdee6e47cadd6326be7b64ec",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        819,
+        819
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full PayrollQueryService12-16. Runmetadata allnewest includingapproval/paymentaccount/movementID, WasReplayedfalse. No permissionorfinancial consistencycheck; FIN006 remainsupstream status-onlyconcernnot causedbyquery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.325032+00:00"
+    },
+    {
+      "stable_id": "sym-4b05c6154fdd79542bad07316db0e865cd7ead5d21fb8d433a3a11a897bf3dad",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        821,
+        825
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetRun18-23 and CreatePayrollHandler.ToDto106-108: oneparentlookup404 thenmetadata mapping; no lines/recomputation/authorization. No endtoendassertion.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.331511+00:00"
+    },
+    {
+      "stable_id": "sym-d8d372d2164952dab7c985df2f323a4b3c3cc67e597c485c6e3f443fb98f6182",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        827,
+        828
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListLines25-31 actualprojection: frozenemployee/base/overtime/extra/bonus/deduction/advance/net/status/time, noorderingorparentexistence; unknownrun200empty. NoHRauthorization; privatecompensationreadpotential.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.337786+00:00"
+    },
+    {
+      "stable_id": "sym-491cae6d6e9bcbc671013e28f59a3c26c474e1f996d675ba1025f36b814c648c",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        667,
+        672
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire CreateEmployeeHandler and Domain AssertEmployeeInput: early deterministicIDreplay, requiredstrings/Enum.TryParse thenemployeepermission, fullDTOprivatefields initialized withnullUserId active forcedtrue, nullLifecycledefault. Enum.TryParse acceptsnumericundefined unlessIsDefined check; no salaryboundvalidation observed. No createexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.343954+00:00"
+    },
+    {
+      "stable_id": "sym-cf913a13eee9b02630fb1db82f0848a774bc9c4980c395dd857a9f3f295c18be",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        674,
+        683
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full UpdateEmployeeHandler: requiredstrings/parsecompensation, selectedactorpermission, targetlookup/fullreplacement andSave, keepsUserId, no versionguard ordriversync. Numericenum/nonnegativepayvalidationgaps sourcehypotheses; exactsignature andpathoverrideverified.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.350447+00:00"
+    },
+    {
+      "stable_id": "sym-5b8e0d4991ae1e00ce5900b1b1596b934683fe020c307493752850e8d2c3e65e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        709,
+        718
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full manualledgerhandler and EmployeeRules. Parsed canonicalType, positiveamount/description, selectedactorpermission-orapproval, employeeexists, unprotectedbalanceSUM thenrandomIDnewentry/Save; no requestkey/journal/treasury. IsCredit independentofType permits creditAdjustment. Numericundefinedenum andconcurrent BalanceAfterhypothesesnotliveverified; FIN012related.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:11:42.356847+00:00"
+    },
+    {
+      "stable_id": "sym-1c5a67f73a12da6d4c855e812e29e7a74875dc9fb4d2c2ae0d4d337c0a2853df",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        748,
+        757
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full dailywagehandler33-61 and EmployeeLedgerPoster. Actor permission/approval, employeeexistence, optionalcustomwage/default, Cairotoday+arbitraryshift key; duplicateproduces422. No ratepositive/active/compensation/shiftlookup inhandlerorposter. DefaultMoney permitsnegative, no debt/treasurywrite. Source risk not DBreproduction.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.209109+00:00"
+    },
+    {
+      "stable_id": "sym-a1bdc409ba817758fab925ee661c7fd3a234d33a7af6de51f9539e82df16a3bb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        759,
+        768
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full overtime77-109, settingsfallback and poster. Positivehours but no finite/ratepositivebound, globalrate insteademployee-specific, roundedlongtotal then deterministiccreditentry; sequentialreplayreturn, no concurrencyinsertcatch or employeelookup beforeFK. NormalJSONdoublebindingconstraints andFK stillcounterevidence; no maliciousinputs sent.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.216315+00:00"
+    },
+    {
+      "stable_id": "sym-e07003fb34db50b5e55dc41f3070cbb4ca92b81ef4c95635ebc1dcbf439957ee",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        770,
+        779
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full extrashift125-157 plus Money multiply. Positivecount, permission, employeeexists, ShiftValuepositiveelseDailyWage fallback, uncheckedlongmultiply; deterministiccredit andsequentialreplay. No actualattendanceproof oractiveguard; extremeoverflow/negativefallback notruntimeverified.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.223570+00:00"
+    },
+    {
+      "stable_id": "sym-0688ab7d32dfe6400657dc66d1fbbfd37c0d633d1c15ce13d1639bb1835f0da3",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        720,
+        730
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire RecordEmployeeCashOutHandler. CorrectKindkey, positive/reason, actor/employee, transactionemployeeanchorlock/replaythenopenshift/authority/openDay andDrawer/ledgerlocks. Withdrawboundedowed;Advance intentionallycannegativeemployee whileDrawerprotected. Movement+journal+debit+auditcommit. Source-depthaccepted, lockorderdiff fromPayEmployee is performance/deadlockhypothesis notfailingtest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.230564+00:00"
+    },
+    {
+      "stable_id": "sym-656229634498aae4cd2482acd06b9ec591e58ba1d5b36db5334fab9c0b9ee5cb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        736,
+        746
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire PayEmployeeHandler incl localLoadReplay: accountcatalogMainBankInstaPay, deterministicentry+movement replay, employeeanchorthenledgerthenaccountlocks, authorizedemployees_ledger andopenDay, amount<=owed/funds. Settlementdebit+moneyout+journal+auditatomic; no shift/payroll/providerintegration. Earlyreplay no payloadbinding verified; no bank/moneyoperationexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.237886+00:00"
+    },
+    {
+      "stable_id": "sym-39087865c2bf5b1972694eb10d9f7271e1b9ad53a7059c6a37b6393695f9de96",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        812,
+        817
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire CreatePayrollHandler + CalculatePayrollLines87-116: regexmonthformatnotcalendarvalidation, periodreplay beforeactor, selectedactorpermission, all employees/UTC-yearmonthledger, exactMonthlycaseflag, zeroadvanceinputs andfrozenDraftlines Save withfilteredperioduniquenessreplay. FIN012 creditAdjustmentomissionindependentlyconfirmed. Case-normalization and Cairo-monthboundary risks nottested.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.245471+00:00"
+    },
+    {
+      "stable_id": "sym-3ed8c9588e2f8b029b41760b146d050965bab0dfb81663ce1eff978ae28c0cbe",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        796,
+        805
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire CorrectAttendanceHandler with Domainlate/overtime math. TransactionattendanceUPDLOCK then immutableauditreceipt boundrecord+actor, actionpermission, metadataoverwrite, currentsettingsdelta into credit/debitAdjustment withledgerlock, savedbeforeafterDTO+auditcommit. Source supportsFIN012 downstreamcreditloss. Missingemployee/nonpositivewage skipfinancialdelta; no correction executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.252325+00:00"
+    },
+    {
+      "stable_id": "sym-bce26ba064f1cc3b1682e0532a145bb0d07c9be95a3f4ae89a2793d215ab2cd4",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        864,
+        868
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire BackupQueryService. Keyread404 thenDTOserverpath/status/size/verificationtime/error, no fileexists/hash/BACKUP/RESTORE action. No backup_manage check onread despite path/errorinformation; storedVerifiednotfreshvalidation. No backups/filescontents accessed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:10.260042+00:00"
+    },
+    {
+      "stable_id": "sym-5de9b97d6d9746c0b269c79749d7ab173b3c9ba3581cc4435fb35533cec936b6",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        927,
+        928
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actual InventoryQueryService20-35. Allitems plusallmovementdirection/quantity, signedgroupedsum, lowstock<=threshold, estimatedcostincluded, no valuationengine. This signedpath countersFIN013unsigneddashboard, not allinventorywrong. No snapshot/specificpermission; no actualstockread.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.734800+00:00"
+    },
+    {
+      "stable_id": "sym-268fde8fa3fa0d89e4064addc7f9bc3cf945174c740e6c486cf91468e5ecb682",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        930,
+        931
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetStockBalance37-41,LoadFacts216-222 and Domain StockBalance50-52. Direction/typeEnum.Parse errorsnotignored, allhistorysignedsum, missingitemzero. Scopequantitynotvaluation, no runtimeprobe.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.744221+00:00"
+    },
+    {
+      "stable_id": "sym-8d6b315759e70594d7fddb6e4db9859d3f0ccf2a79d6c24f0ac0107e7168f6ab",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        945,
+        946
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read reportgate and IngredientCost67-73,LoadCostingContext483-498 and CostingRules20-54. Allcontextmaterialized, nullitemUnknown200, Prepcycle guard, latestpositivepurchase thenpositiveestimate elseUnknown. No write orvaluestored. Partialrecursiveengineverification only aslinkedmethodnotwholecostingfilecertification.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.753981+00:00"
+    },
+    {
+      "stable_id": "sym-fb9060e74ea929c9c01b74ca42b13d82481a5d067104f50686ac4830c5299de6",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        948,
+        949
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListStockMovements43-50. Optionalitem, newestTakecallerlimit withcost/loss/actor/reason fullDTO; no upperclamp/reportgate. ProvidernegativeTake behavior untested, no invented422. No livehistoryaccess.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.762827+00:00"
+    },
+    {
+      "stable_id": "sym-e4208e50072731cacf0fc6e507c414ee4da0aee6146ca7f0aa74bd6ba5d997ff",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        953,
+        958
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read complete overview388-430/costcontext and PurchaseLineTotal. Signedbalances peritem/currentingredientcost, nullablevaluation, active-onlysummary whileallrowsreturned. Sumknownvalueswithunknowncounts explicitlynotcompletevaluation. No commonDBsnapshot/benchmark.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.771728+00:00"
+    },
+    {
+      "stable_id": "sym-69faf39e2b3349c1a23e68ec5c540b921c1bba3cbbaaa62ebbac2b1c7c9e15c0",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        960,
+        966
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read detail433-461, ListRows464-480 andvariance137-189. Currentalltimebalance/cost versusrangeconsumption+variance; latest60movementsignoredatefilter, namesloadedallitems.404missingtarget. Repeatedreads/currentsnapshotmix sourcefact; notwrongwithoutUIscopepolicy.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.780162+00:00"
+    },
+    {
+      "stable_id": "sym-7323f5136d59f1a3f721af93f15d0add6702f9a67ea3ce09e2d0cfdb87a40721",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        968,
+        969
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read loss52-65 andBusinessClock: requestedCairobusinessdate[Start,End), threeLossTypes, storednullvaluationas0/countretained. No repricing/physicalspoilagedetection; DSTboundaryhypothesispending. Reports gatepresent.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.788496+00:00"
+    },
+    {
+      "stable_id": "sym-232f960c0b1e6b07403b2f94af62f9a5af7b0b6dfe1f7452f0bf8da346ffede5",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        971,
+        972
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read variance137-189 plus Domain BaseQuantity136-141 and InventoryTotals/variance. Activecurrentrecipes/productvariantmaps andnonCancelledordersinclusivebothendtimestamps; missingyieldconversion skipped, no historicalrecipeversion/refundproportion. Actual Usage+loss vs theoretical, adjustmentseparate. Source-depthaccepted withrequirementsqualification.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.797060+00:00"
+    },
+    {
+      "stable_id": "sym-ad2b4f8a29659d92e2596fd19f3c7ba2f0fa9cbed3063a867590cafc59dcfc37",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        974,
+        980
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read shared191-200 + DomainSharedConsumption100-109: itemexists, allfactsrangefilteredinclusive, roundedelapseddaycountfloor0, usage+lossaverage nullablewhen0days. Reversed/subday intervalnotrejected, benchmarkconfigurednottruth. No timing/SQLtest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.805467+00:00"
+    },
+    {
+      "stable_id": "sym-5bf7d8db3fde549665f3fe6210505517f32832b1c4432d27446a32257086e715",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1041,
+        1041
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListRecipes202-203 and ToRecipeDto503-504: includesallactive/inactiverecipes+itemswithquantity/kind/yield, no costcalculation/report/menupermission. Source-depthaccepted; no recipe/customerdataqueried.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:18:53.813857+00:00"
+    },
+    {
+      "stable_id": "sym-6c2a2fb0eeaf09f36620ac0d3dd940c46b40815b193dd8220af1d8035d030010",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1043,
+        1047
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetRecipe205-207 +rawmapper503-504: targetIncludeitems, missing404, inactiveincluded, identifierreferencesnotenriched/validated. Source-depthaccepted withsession-onlyread policyquestion.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.289827+00:00"
+    },
+    {
+      "stable_id": "sym-ac9a79c06144d335f57021fb4d5a5cde3fdb56de7740faad04b2f489d22d7ef5",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1049,
+        1055
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read RecipeCost75-84 +CostingRulesComputeRecipeCost and BaseQuantity/IngredientUnitCost. Requiretarget, kindenumparse, yieldconversion/unknowncostskip withcompleteness, foodvsPackaging split, emptyrecipe0known/0complete. No fake100percentmargin or stockwrite; reports gatepresent.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.311303+00:00"
+    },
+    {
+      "stable_id": "sym-4240ea415b15cb272f9d6145395c8b1c07d867779ba4c6a775b2921cfb1f910e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1059,
+        1065
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetProfitability101-129 +Domain197-205. Optionaloverrideotherwisefirstpositiveproductthencheapestexplicitvariant, completeANDnonemptyrecipe andpositiveprice gatesmargin. Overrideanalyticalnotcheckoutmutation; linkedprice could differ whenrecipeProductId inconsistent. No pricechange.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.330143+00:00"
+    },
+    {
+      "stable_id": "sym-656310a6663852064184dadf869dff74a7547c70ad327ceb6c937c9f89826745",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1070,
+        1075
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListSummaries259-292/Profitability358-361 +costengine. Batchedallrecipes/context/products/categories/minvariantprice, linkedrecipe.ProductId fallbacklabel, includesinactive, completepositive marginonly. NoSQLperrecipeloop butCPUrepeatedcostcontextscan stillrisk; notmeasured.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.344839+00:00"
+    },
+    {
+      "stable_id": "sym-69c19ffc5d5f2a3d54d7345ebd2b075b4db329be005e9b8f6d0fbf24f1767699",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1077,
+        1082
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Coverage297-315 anditsListSummaries/contextcalls: onlyactiverecipeclassification, productsavailableRecipeIdnull ignoresvariantoverride, allinventoryunknownincludinginactive. Repeatscontextload. Headlinedenominatorsnotuniversalmenucostcompleteness; no DBprobe.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.357772+00:00"
+    },
+    {
+      "stable_id": "sym-95a41b656e11ff5439eee3a53bc4eaf5a6c181055715b84cdeea64413a6ea137",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1084,
+        1090
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Detail231-255 andBuildCostLine318-355/unitlookup/pricebasis369-380. Specificmissingconversion/cycle/missingitem/unknownpurchase reasons, nullableextendedcost+source/date, summaryrequirescomplete. Productlabelusesrecipe.ProductId vspriceproduct.RecipeId; inconsistentlinkhypothesisnottested. Reports gate/404verified.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.370636+00:00"
+    },
+    {
+      "stable_id": "sym-87f547266c66a8d5f13f8b3ea3fcd37312dc5f9627643c4ce7ecb8e32477d74e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        892,
+        907
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actual CreateInventoryItem25-55 pluscostcontextEnum.Parse. EarlyIDreplay, nonblankname, selectedactor inventory_manage, uncheckedmetadataCostSource stored, activeforcedtrue. Malformedcostsourcecanbreaklatercontextifdbaccepts; no seed/mutation executed. Notopeningstockcommand.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.381235+00:00"
+    },
+    {
+      "stable_id": "sym-82b05ba35b9429a2633c08c27a9d5d65c4e384f810ed79680d0287d1888798f3",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1092,
+        1107
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full SavePrepRecipe25-117 +actualDomainrecursion. Validname/outputpositive/linepositive, selectedactormenupermission-orapproval; self/indirectcycleBFSBEFOREtransaction, thentargetupsert/fullreplace. Otheractiveproducer graph only; concurrentcycle racehypothesisnotrun. No production/prepstockmovement.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.394782+00:00"
+    },
+    {
+      "stable_id": "sym-a2407dd56a5b426bd63d13ed1cac7365afd126f90e4f9901e45158ec5fb8f7a6",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1109,
+        1109
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListPrep209-210 +mapper506-507: allheadersincludinginactive andlines rawformulation, no costing/graphvalidation/menupermission. Authsessionrequired, noactualformulationdataqueried.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.415694+00:00"
+    },
+    {
+      "stable_id": "sym-3b8940f2875607e4bca7e88a69efdff5f1eafa51a1a2161cb103fde83eaa6995",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1111,
+        1117
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read PrepCost86-97 +ComputePrepRecipeCostpublic/private99-129 plusIngredientcyclehandling. Headerexists,seedresolvingsetoutput, allinputcostsneedknown andpositiveoutput+nonempty forUnitCost, partialknown/completenessretained. No stockconversion/mutation or hardware. Reports gate and404verified.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:19:34.437065+00:00"
+    },
+    {
+      "stable_id": "sym-c98f66a0a520be18d59af238671af0969910469d4e15fafdad727a5eec87c374",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1119,
+        1134
+      ],
+      "decision": "ACCEPTED_DEPTH_WITH_EXPLICIT_REJECTED_SUBCLAIMS",
+      "reasoning": "Read full SaveOrderPackagingRule25-60 and actual InventoryDeductionService76-99. Name/type/item semantic checks are indeed weak, but reject receipt speculation that each duplicate active rule is consumed: deduction uses FirstOrDefault(OrderType && Active), and CostingRules.OrderPackagingCost also uses first active. Duplicate rules instead make chosen rule unordered/ambiguous. Upsert does not consume stock. Correction preserved rather than silently editing agent evidence.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.011598+00:00"
+    },
+    {
+      "stable_id": "sym-d9a36bc2a9c55962f2ffab1aff27d836ad3fe00a142407ca53c41513c945ae39",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1136,
+        1136
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actual ListOrderPackagingRules212-214: allrawrulesincludinginactive, no itemvalidation/costing/deduction. Session gateonly. Distinguish listmultiplicity from firstactive-rule consumption; no live configuration read.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.018844+00:00"
+    },
+    {
+      "stable_id": "sym-55b5caf7479498685c18be95d815a50683701d992f209540ce5bb16d1ccd0518",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        982,
+        1001
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire countadjustmenthandler32-84 and AssertCountInput. Earlymovementreplay, positivequantity/reason, parseDirection, actor/item andinventoryauthority, additiveobservedmovement+auditSaveunique-replay. Enum.TryParse numericundefined maypersistinvaliddirection; no absolutecount/balance recompute. No stockwrite performed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.026881+00:00"
+    },
+    {
+      "stable_id": "sym-0238fad33964714b961da1fda469adbad6fa8e8a42387e2ff7156baa5417b625",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1003,
+        1022
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire wastehandler113-189 andDomainlossrules/lastpurchasevaluation. Allowedlossenumset additionallyguardsnumericundefined; positivelossreason, actor/item/authority, latestpositivepurchasecostornull, Outmovement+audit Save. Large>=10000 critical. Negativebookstockdeliberate; missingpurchase notestimatedcost. No expenseorTreasurywrite.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.033410+00:00"
+    },
+    {
+      "stable_id": "sym-bde287cdb9daedb2de003f9768e115d2f098dae2ca17a1b8ee42f4d9e569eeed",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1024,
+        1039
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire SaveRecipe31-110: rejectsactiveempty/positivequantities, menuauthority, transactionalupsert/replacelines andonlynewselectedproductlinkupdate. Oldproductnotcleared if recipe reassigned toanother; no productexists explicitthrow, lineKind/yieldnotvalidated. Concrete linkage/costing inconsistency candidate needs independent test, no recipeedit executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.040500+00:00"
+    },
+    {
+      "stable_id": "sym-febfde0369fe715bdfdb7e3b27551f7606e1278749d76f3ddc19b0b04afa15df",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1138,
+        1149
+      ],
+      "decision": "ACCEPTED_DEPTH_WITH_EXPLICIT_REJECTED_SUBCLAIMS",
+      "reasoning": "Read full UpsertCustomer23-125 and actual Domain/Customers/Customer.cs22-56 (agent callee CustomerRules.cs path DOES NOT EXIST; corrected here). Normalizeddigits/nameguard, phase1newcustomer maycommit beforephase2; customer+addresslocks merge geographicmatch, service/landmark refreshed; separatefinalread. No dedicatedpermission bydocumented design, validsessionrequired. No customer dataquery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.047378+00:00"
+    },
+    {
+      "stable_id": "sym-8248bd42990849ad895ce05a8d7a447172c82f8844cf8ee209efb9e9efbe038f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1512,
+        1512
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full GetMenu17-42, narrowkeys/product/variants57-73 and bestsellers85-105. Activecategories/availableproducts, imageversionnotbytes, serverofferclock, last14days quantities sortedtop12 excludingcancelled only. Historical25scomment notcurrentbenchmark. TwoTodaycalls/multiplequerysnapshot risks, no menu/APIrequest executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.054092+00:00"
+    },
+    {
+      "stable_id": "sym-fb33d7872a15d826a772972fed41e477fcc16accc2d3d7517e9ce356b861ddc1",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1548,
+        1563
+      ],
+      "decision": "ACCEPTED_DEPTH_WITH_EXPLICIT_REJECTED_SUBCLAIMS",
+      "reasoning": "Read full stationhandler27-45, actual Domain.PrintRules24-30 and MenuPricingService60-62. Reject suggested legacyfallback: current kitchen route selection ignores SendToGrill and only parses PreparationStation; clearingstation can suppress futurekitchenroute. Orders retain checkout snapshot, currentpendingordersnotrewritten. Validation allowsCharcoal/Grill only, directmenupermission, no audit/version inhandler. No sourcechange.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.060908+00:00"
+    },
+    {
+      "stable_id": "sym-18afb6e50efc528fb1b95175636207fb28b02b174b58af72345a012233b8fc15",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1567,
+        1567
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actual ListAllCategories111-113: sortedall active/inactivecategory DTOs withoutchildren, session-only despitemanagementlabel. No menu permission enforced onread; source-depthaccepted notvisibilitypolicyapproval.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.067742+00:00"
+    },
+    {
+      "stable_id": "sym-5742dee0af0672bc0ba541cd1afc19455629619c62dd718b098a004c9fa8e64a",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1569,
+        1578
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full CreateCategory29-58: earlydeterministicIDreplay, nonblankname, directmenupermission, trimmedcategory active true +audit Save, DbUpdateIDreplay. No duplicate-nameguard/products/station sideeffects. No categorycreated.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:20:47.074793+00:00"
+    },
+    {
+      "stable_id": "sym-feb387519d4d6e22534991be65c90faab091a4c706a14b34374181d8fc17b6ed",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1580,
+        1589
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Category update78-101 and full CommandReceipt. Transaction receipt row UPDLOCK/HOLDLOCK binds actor+target, no payloaddigest; samekeyconfirmed skips staleedit. Newedit directmenuauthority/name/category andauditcommit; Active separate. Blank RequestId createsrandomreceipt despite nonnullFind check, so notstable replay. Source-depthaccepted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:21.972076+00:00"
+    },
+    {
+      "stable_id": "sym-5e6e8a29f9b7a7b4c467d15a4bc01d4c9c6c58b03b5405cc549cd775c0c90195",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1591,
+        1600
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Category status119-140. Optionalreceipt thenpermission/target, nullRequestId unchangedstate no-op; keyedunchangedstate stillwritesreceipt. No products deleted oravailabilitychanged. Missingparent source404; no categorystatechangeexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:21.979971+00:00"
+    },
+    {
+      "stable_id": "sym-74788864f173c155394f8ec451ec085d7495a51ba878ffc4c70f6eeef4036cdb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1602,
+        1602
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read allproducts116-122 +fullnarrowloader57-73 andmapper132-135. AvailableOnlyfalse includeshiddenproducts, orderedvariants andimageversion only; nooffers/bestseller/photo bytes. Session-onlyconfigread. No livecatalogrequest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:21.988535+00:00"
+    },
+    {
+      "stable_id": "sym-f847982b3b60a3378798ae65cac99b63c8f783d55893e49bea70757cadfa5e5e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1604,
+        1608
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read detail124-130 +mapper. Nulltarget404, IncludeVariants unsorted comparedlistcheapest ordering, scalarimageversion separate. Inactivecategory/availabilitynotfiltered. Source orderingrisk not nativeobservation.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:21.996734+00:00"
+    },
+    {
+      "stable_id": "sym-d3eb1821fe47670db932405186253cd28f7196507de838566072817917405ab8",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1610,
+        1619
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read complete CreateProduct and MenuValidation. Positivebase/name/stationguard, actorpermission/categoryexists, randomvariant IDswithunvalidatednames/prices, product/auditsameSave; baseguarddoesnotvalidatevariants. No newhistoricalpricechanges. SchemaFKbehaviornotassumed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.005018+00:00"
+    },
+    {
+      "stable_id": "sym-8662faf8864066677d5bc9f9f14ef503860c0fd3c5feb05f314268e9f5dec33b",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1621,
+        1630
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full UpdateProduct and CommandReceipt. Transactionboundreceipt thenvalidation/permission/category/productgraph; keepsavailability, removesomittedvariants, updatesonlyexistinglocalIDs otherwisecreatesrandomnewlocalrow. CrossproductvariantIDcannotupdateotherrow. Rowversion/variantvalidationgaps notexecuted; historyFKeffect requiresseparatemodelreview.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.012861+00:00"
+    },
+    {
+      "stable_id": "sym-8bd100ee07b328790de179435f07495ec40ec33cdce493f9d68a3ee796f93f1d",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1632,
+        1641
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read availability170-194 +CommandReceipt: receipt/actor/target, nullkeyunchanged no-op, oneflag+audittransaction. Historicalrows/photos/recipes/categorynotdeleted. No actualproductmutation.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.020989+00:00"
+    },
+    {
+      "stable_id": "sym-c966339d18f45c5ea1b83dac2e3bb7c745ef3ccee8418ad8c19c987aafdfcb7b",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1645,
+        1645
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read actual TaxRuleQuery116-117 and Checkout60-63. Allenabled/disabledtaxDTOs withsessiononly, no priorityordering. CheckoutfirstEnabledunordered; listnotapplicabilitycontract. No taxqueryexecuted.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.027615+00:00"
+    },
+    {
+      "stable_id": "sym-c1eaeee6a043bb5ca39c91ae6ead3368d3c33f4d7cb8ea83359a521f360a7b42",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1647,
+        1656
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full CreateTaxRule andactualCheckoutModecomparison. Nonnegativerate/name/case-sensitiveTryParse butstoresrawMode; numericparse canbeaccepted yetcheckoutonlyexactInclusiveelseExclusive. Noupperrate/singleEnabledguard inhandler. Directsettingspermissionstillrequired; no configurationchange.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.034510+00:00"
+    },
+    {
+      "stable_id": "sym-3440ca5580263947dedbaa2287d10b5848d56660184b3b5c4e5ee5a8f13198eb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1658,
+        1667
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full UpdateTax81-108 +CommandReceipt. Transactionreceiptactor/target, nonnegative/name/parsevalidation, settingsauthority/targetthenfullrule+auditcommit; rawMode andcompetingEnablednotnormalized. Historicaltaxsnapshotunchanged. No actualtaxwrite.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:21:22.041904+00:00"
+    },
+    {
+      "stable_id": "sym-93fb9a51bad67200f65e5f05987270fc490b5e573bd0bd1e94b743cc2e728ef1",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1709,
+        1709
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read PriceRuleQueryService103-106 and ToDto93-95. Allruleswithproduct/dayrelations, active/inactive; raw scheduleconfiguration not currentoffers. No specificreadpermission; no livequery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.162287+00:00"
+    },
+    {
+      "stable_id": "sym-3ec880b99fc0ec24fda160d954bb4ee62664b0c563f64facc62983161dcba95d",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1711,
+        1720
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read entire SavePriceRule +DomainPricingRules. Transactionreceiptactor+target/originalDTOsnapshot, distinctproductIDs/positiveprice/weekday validation, offerspermission-orissuedapproval, allproductsexist, fullgraphreplace+auditcommit. Halfwindow ignored(timeunrestricted); fullwindow overnight supported. No pricingmutationorhistoricalrepricing.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.170845+00:00"
+    },
+    {
+      "stable_id": "sym-0a9c77e6099b72a296ffc7fc63328bd6c7be6f24f576ff9f8c40c7bc7643e297",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        1997,
+        1999
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read LoadSalesOrders35-49,CODcustody66-81,SalesReport87-95 and entireDomainSalesRules. Explicitreports gate; rangeResolvefromaloneoneday, underlyingtimestamp[Start,End), noncancelled/optionalshift. Pendingelectronic subtractsfullordertotal confirmsFIN010 evenmixedcashalreadycollected. Currentrefund/CODstate meansnotfrozenhistoricalreport. No SQL/APIcall.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.178847+00:00"
+    },
+    {
+      "stable_id": "sym-9598a83aabce131e7d048d4eb296d0ec8c9266df4c47964ce36d6570cb18026d",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2001,
+        2003
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetTax100-110 +DomainComputeTax107-121 andloadsales. Tax/basefrozenonorder, refundtaxproportionalroundedestimate subtractsnow onoriginalsalesdate, notrefundactivitydate. No taxrulechangesapplied. Reports gatepresent; no financialmutation.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.186990+00:00"
+    },
+    {
+      "stable_id": "sym-5e7bf82ec6d35edb12687b88dd04bb6a6ffe79592b7b8a1c5d40cb6b94e58047",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2005,
+        2007
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read expense124-137: storedBusinessDateinclusiverange/optionalnonemptyshift, allsource/allexpenseswithreportspermission unlikeoperationalcashierfilter; newestfullDTOsum. Invertedrange behaviorcan differ timestampreportsnormalization; sourcehypothesisnotregressiontest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.194827+00:00"
+    },
+    {
+      "stable_id": "sym-99bd8149b167842a19eb11d78a722fd873058a0f90a0f1c143a03cdf854546db",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2009,
+        2011
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read refund144-159: actualrefundCreatedAtUtc/businessrange andOperationalShift filter, innerorderjoinfornumber, preservesbothshiftIDs. Counterevidence: refundactivityattributioncorrect doesnotrepairFIN004expectedcash. Noorderstatusfilter; orphaninnerjoinexclusion noted, no runtimequery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.202668+00:00"
+    },
+    {
+      "stable_id": "sym-bd8bdaee35c0dd8d6fbe9ecfe6a3294063a145a1ffa87a794c2f24fe6416082e",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2013,
+        2019
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full Reconciliation164-208: dayIDorders/expenses/postedmovements, dailyNetaccountbalances notalltime, dateequalsShifts closefigures, collectedunsettledcustodies fordayorders, driverSettlementdayinflow andPurchasingtypeoutflow. Multiplequerysnapshotnotatomic; stalecommentsclaimmodulesabsentfalse.404missingday.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.210172+00:00"
+    },
+    {
+      "stable_id": "sym-1070d54e4d19c266ca2aeeb0f862305707548b0e1f52733aa317ae449873aeb9",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2021,
+        2027
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read DailySummary215-238 afterfullreconciliation: ledgerCairodateonlyfourlegacytypes DailyWage/Overtimecredit Advance/Withdrawal debit; excludesothermoneytypes, notcompleteemployeefinance. CurrentcashiernamesbydayShifts. Source-specificKPIs not proofledgerwrong; no dataaccess.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.218723+00:00"
+    },
+    {
+      "stable_id": "sym-8e375fa80dcb8bcdd40e87b214ffb4125f394f1f89abe0facf437695db5393cb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2029,
+        2030
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Range241-246 andTop251-263: from-onlyopenendedunlikeheadlinesResolveoneday; noncancelledlinejoin groupedfrozenProductName, quantity/lineTotal sums noTopNcap. Refund/payment/orderdiscounttax allocationabsent. Distinctrangecontractsourceconfirmed, ownersemanticsneedsdecision.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.226896+00:00"
+    },
+    {
+      "stable_id": "sym-be08d195a714df87866a64fbf841f8dcf332042fc5900672da32e29cdbb769aa",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2032,
+        2033
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Category325-341 +Range: noncancelledsoldlines joinedCURRENTproductCategoryId thencategorynames. Recategorizationmovesoldhistory; deletedproductwoulddropinnerjoin ifschemaallows. Aggregatedrawlinetotalsno refund/discountallocation. No categorydataqueried or changed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:22:00.234944+00:00"
+    },
+    {
+      "stable_id": "sym-92b23f75a8c3ca1e9e5bc1e8f5ac0bc1eb5fbca4bdb258511f214424516b9efc",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2035,
+        2036
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ProductHourly307-322: rangednoncancelledlines materialized thenfrozenname/Cairohour grouping, nozero-hourrows/collectedcash distinction. Fall-backhourmerges byhour-of-day intentionally; timezoneconversionnotdirectevidenceallrangeboundariessafe. Reports gateverified.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.855842+00:00"
+    },
+    {
+      "stable_id": "sym-0f3ce2bf3a7fa07a532cb6ecdced7dc86b98cb276ae47b3019f11a7e0f1aeb49",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2038,
+        2039
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full FoodCost349-422 andDomaincostengine. Currentsoldrecipes/products/variants/preps/purchases, countseveryline butonlycompletecostscontribute, missingnamesretained, firstactiveordertypepackaging once/ordercount. Historicalcostrestatedfromcurrentconfiguration, noimmutableCOGS; notclaimedpricedphysicalstockusage. No DBtest.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.863870+00:00"
+    },
+    {
+      "stable_id": "sym-44857051f782ddb139b445465813f55d0cc4b53acc571fb3cffff59012b58545",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2041,
+        2042
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read SignificantActions428-462. Fourapprovedsourcequeries notAuditEvents; resolvesexpensecreatornames, canrepresentoneapprovedexpense twice, directprivilegedunapprovedactionsomitted, treasuryStatusnotfiltered. Reportgatedsourceunionnotcomprehensiveaudit/independenthumanproof.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.871679+00:00"
+    },
+    {
+      "stable_id": "sym-615604176e19ed007f5216280cba565bf75d37e798d4bd93673d22bff03a945f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2048,
+        2049
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ShiftHistory487-505 and Build527-541. Defaultlatest90andbatchusernames butserialBuildqueriespershift; currentorders/COD/expenses plusstoredcashclosefields, not recomputedblindclose. No pagination/timings measured. Reports gatepresent.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.878686+00:00"
+    },
+    {
+      "stable_id": "sym-480261dc035efdaeb362f89dbea941916ac689896f1835ecf3476cfb68e2689f",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2051,
+        2057
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ShiftSummary470-478/Build527-541. Missing404, currentnameprojection, originalshiftorders/currentrefundsalessummary plusstoredclosecash, notoperationalrefundreconciliation. SupportsFIN004qualificationnotallrefundreportingwrong. No actualledgerreads.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.885722+00:00"
+    },
+    {
+      "stable_id": "sym-8428aec0d827406609806bfb987db5cd3e3ca559f8d8c5e8084612084cfcc0b2",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2059,
+        2060
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Outcomes545-594. Timestamps independentDelivered/Failed/Returned counts cansameorderacrossoutcomes, rangedfees/durations/settlements, currentalltimecustody; negative durationsfiltered/nullnone. Settleddoesnoteraseoutcometime. No actualcustodyquery.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.892856+00:00"
+    },
+    {
+      "stable_id": "sym-91da63f88c242551b598dcd0293b2a8eaa664417ee27a4e88afa4ecc18f12995",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2153,
+        2168
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full AddSupplier25-66 andAuthorizeAddSupplier149-153. Earlydeterministicreplay, nonblankname, selectedactorpurchasingORsuppliersauthority orvalidsupplierapproval, metadataactiveinsert/Save+collisionreplay. No invoice/openingledger/auditappend inhandler. No vendorcreated.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.900058+00:00"
+    },
+    {
+      "stable_id": "sym-bfda18d9182cb6ea2b1c435edf47e68a90c139629a316835d1ec8a9cead4a070",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2170,
+        2171
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full PurchasingQueryService16-21/101-108. Allsuppliers+allledger, pervendorrepeatedfilter; invoiceDebit/paymentCredit totals andall-entryOutstanding derivedledger, inactiveincluded. No readpermission or actualcontact/debtaccess.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.907038+00:00"
+    },
+    {
+      "stable_id": "sym-e6abcd59ad39a6e6c60837fecad679f17081e3cf9db547b2a5237501c6c72bd3",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2173,
+        2177
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetSupplier23-29/ToDto101-108: null404elseindependentledgerread/contact+debtDTO, no activefilter/cachecorrection. Session-only, no livevendorrecordread.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.914507+00:00"
+    },
+    {
+      "stable_id": "sym-b5649700d3c1c0da80a1e61994164a077ecb55bf5b8fb893208b8241fe99bfd8",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2179,
+        2180
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read Ledger31-35: exactsupplierfilter/oldestorder/fullreasonactor anddebitcreditDTO, parentmissingempty200, no treasuryreference/approval/operationproof. Session-onlyprivatefinanceexposurecandidate, no request.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.921560+00:00"
+    },
+    {
+      "stable_id": "sym-606a29d033bfa1f938bee26ff1dccee2f1f985cb9b45de9024033ae31b6396fd",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2182,
+        2201
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read complete ReceivePurchase36-243 and Domainpayment/costrules. Positivepaidtotalcap butlinequantity/unitcost notpositiveguard, distinctitemsexistence, chosenfundingbalance BEFOREtransaction confirmsFIN011. Atomicinvoice/stock/supplierdebit/optionalinitialpayment/journal/auditwithintransactiondoesnotrepairreadlockwindow. Duplicateitemstockkeycollides; negative/offsettinglinehypothesesnottested. No invoice/stock/DBwrite.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.928470+00:00"
+    },
+    {
+      "stable_id": "sym-5deb4096b9131f9a7db82c262e84e3f819e13a3f42c4f56aa2061f646c224893",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2203,
+        2204
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read ListPurchases37-40 +Receive.ToDto235-243: allinvoicegraphsLines+Payments, newest, rawcachedpaid/remainingandunitcost/account withsessiononly. No reconciliation; FIN005upstreamnotcorrected. No financialdataqueried.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.935908+00:00"
+    },
+    {
+      "stable_id": "sym-e711f317a49b2615c3f58864686af5d1032242cdbf0df9fffaf3d8e5c2d50ffb",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2207,
+        2208
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read full aging56-98 andDomainPayablesAging. TodayCairoasOf, storedRemainingpositive/notcancelled, no ledgerrecompute, bucketdueToday/notdue=0, noDueDateunknown, agefloor0separate, allbucketsincludingempty. No readpermission oractualinvoicequery; as-ofcannotbechosen.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.942897+00:00"
+    },
+    {
+      "stable_id": "sym-0843552aa8662eac2443be866e19c2c225d17ea6fcee0c58659be49d4a71e5aa",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_span": [
+        2210,
+        2214
+      ],
+      "decision": "ACCEPTED_SOURCE_DEPTH_WITH_PARENT_QUALIFICATIONS",
+      "reasoning": "Read GetPurchase42-47 +mapper: targetnull404elsefrozenreceiptlines/payments/cachedtotals, no suppliers/currentcostrepricing/paymentmutation. Session-onlyread financialscope, no invoiceaccess executed.",
+      "runtime_tested": false,
+      "at_utc": "2026-10-17T07:23:19.950156+00:00"
+    }
+  ],
+  "scope": "Each decision is independent source reasoning; not runtime or global approval",
+  "accepted_count": 130,
+  "pending_original_queue_count": 0,
+  "decisions_with_explicit_rejected_subclaims": [
+    "sym-c98f66a0a520be18d59af238671af0969910469d4e15fafdad727a5eec87c374",
+    "sym-febfde0369fe715bdfdb7e3b27551f7606e1278749d76f3ddc19b0b04afa15df",
+    "sym-fb33d7872a15d826a772972fed41e477fcc16accc2d3d7517e9ce356b861ddc1"
+  ],
+  "status": "ALL130_SOURCE_DEPTH_CHALLENGED_WITH_EXPLICIT_CORRECTIONS; NOT_ALL_CLAIMS_ACCEPTED_OR_RUNTIME_VERIFIED"
+}

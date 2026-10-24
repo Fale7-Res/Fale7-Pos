@@ -1,0 +1,375 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-042",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T08:20:40.221138+00:00",
+  "scope": "Narrow server-side semantic comparison of the blind shift-close read-only prepare endpoint and committed close command, including shared reconciliation, threshold resolution, domain rule, client calls and existing integration test source. Related UI retry behavior remains in SEM-MIRROR-034.",
+  "decision": "The two server steps share ShiftReconciliation.ComputeExpectedCashAsync and Shift.PrepareBlindClose, so expected cash/discrepancy semantics are not independently reimplemented in the preview and commit commands. Prepare is AsNoTracking and writes nothing. Commit starts a ReadCommitted transaction, acquires an update/hold lock on the shift row, re-reads status, recomputes expected cash and discrepancy threshold, re-evaluates approval, then writes the close state, reconciliation/handover treasury movements, audit event, print job, and commit in one transaction. Therefore the preview is intentionally advisory and can become stale; a changed expected amount/threshold is evaluated by the commit path rather than trusted from client preview. Source does not establish that all concurrent cash-movement writers share the shift-row lock; do not infer serializable global cutoff from this pair. No duplicate calculation defect found.",
+  "related_existing_findings": [
+    "SEM-MIRROR-034"
+  ],
+  "finding_candidate": null,
+  "severity": "No new finding assigned. Preview staleness is handled by authoritative commit recomputation; broader concurrent-writer cutoff behavior remains a separate financial investigation.",
+  "confidence": "High for shared formula and commit revalidation; concurrency across all money movement writers not concluded here.",
+  "manual_reasoning": {
+    "shared_rule": "Both prepare and commit call ComputeExpectedCashAsync and instantiate the same Shift aggregate then invoke PrepareBlindClose with counted amount, expected amount and threshold. Close additionally calls Shift.Close to enforce state transition.",
+    "threshold": "Both endpoints use the IConfiguration overload of ReadDiscrepancyThresholdAsync, which selects persisted singleton setting first, then config, then historical 5000-piastre default. The other overload is for callers without IConfiguration and is not used by this pair.",
+    "preview": "Prepare loads an open shift AsNoTracking and reads movements without beginning a transaction; returns expected, actual, difference and RequiresManagerApproval only. It has no explicit persistence side effect. The result may age before confirmation.",
+    "commit": "Close handler begins ReadCommitted transaction, obtains UPDLOCK/ROWLOCK/HOLDLOCK on the shift row, checks same CloseRequestId replay before closed-state rejection, recomputes actual expected cash and threshold, reruns approval policy, applies movement construction, updates shift, appends audit and queues ShiftClose print job, then SaveChanges and commits. Database exceptions roll back and attempt same-ID replay.",
+    "client_relation": "ApiClient exposes separate prepare and close routes. Two WinUI entry points call the same API pair. SEM-MIRROR-034 separately records their different treatment of uncertain transport results; this comparison does not duplicate or overwrite that evidence.",
+    "counterevidence": "Because data may change after prepare, a preview amount can differ from the committed expected amount; this is not itself a defect if close response is treated as authoritative and confirmation/approval is revalidated. Existing UI may display the preview before final submission. We did not inspect every movement writer lock protocol here, so cross-command racing financial events are unresolved.",
+    "test_source": "Existing integration-test source covers prepare expected cash for this shift and rejection/acceptance of discrepancy approvals. It does not run here and no concurrent movement-between-preview-and-close case was found in the inspected test ranges.",
+    "recommendation": "Preserve one shared reconciliation rule and commit-side recomputation/authorization. Future tests should alter a relevant movement or threshold between prepare and close and assert close uses current authoritative state, requires manager approval when current discrepancy crosses threshold, and commits shift/movements/audit/print-job atomically. Separately inspect all movement writers before asserting the close lock defines a global financial cutoff.",
+    "runtime": "NOT_EXECUTED."
+  },
+  "required_tests": [
+    "Prepare endpoint has no writes and returns calculated preview for open shift.",
+    "A changed expected-cash input between prepare and close is recomputed on close; client-provided preview expected value is not accepted as authority.",
+    "A changed threshold between prepare and close causes server-side approval gate to apply the current threshold.",
+    "Close shift, reconciliation/handover movement, audit event and print job commit or roll back together.",
+    "Same request ID after committed close replays; a different ID cannot create a second close.",
+    "Concurrency test coordinates each relevant movement writer against the close row lock before claiming a global cutoff."
+  ],
+  "acceptance_criteria": [
+    "Prepare and commit continue using shared expected-cash and blind-close rules.",
+    "Commit revalidates shift state, expected cash and manager approval under its transaction/shift lock.",
+    "One successful close owns exactly the corresponding financial postings and print job.",
+    "Stale preview behavior is explicit in UI; the final close result is authoritative.",
+    "No claim about all movement writers is made absent their lock-path review."
+  ],
+  "runtime": "NOT_EXECUTED; source and existing test-source inspection only.",
+  "limits": [
+    "No tests, build, API, SQL or UI execution.",
+    "No lock/interleaving test.",
+    "The comparison does not establish whether every financial writer participates in shift-close locking.",
+    "Related client uncertain-retry divergence is already recorded under SEM-MIRROR-034."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs",
+      "source_sha256": "23708a94b842bf26ec37bcf66b389996174e229caff9651f6c86b4ec6170b16c",
+      "worktree_sha256": "23708a94b842bf26ec37bcf66b389996174e229caff9651f6c86b4ec6170b16c",
+      "source_git_blob_sha256": "23708a94b842bf26ec37bcf66b389996174e229caff9651f6c86b4ec6170b16c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          32,
+          50
+        ],
+        [
+          58,
+          80
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0ab0643d4debaad9bce61127aeb45806b89ebd1d37cceb6311a650c3bfc3ef14",
+          "signature": "Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.HandleAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            32,
+            5,
+            50,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-aa38fa220e972bf44676d330165672bbb422480de63c8167de6791b3c544f8a9",
+          "signature": "Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, Microsoft.Extensions.Configuration.IConfiguration, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            58,
+            5,
+            67,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fa7606f0a5342874e37c5fc0b2b56e2e86f70728b69020fad047139d047d425a",
+          "signature": "Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            73,
+            5,
+            80,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "source_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          47,
+          175
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "source_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          30,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d2b3fa262b825e51feb2fa40a5bf212094393730e7ad5d2d060b638a9d452f7e",
+          "signature": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            30,
+            5,
+            31,
+            82
+          ]
+        },
+        {
+          "stable_id": "sym-7ed2e0ab03eb8d7f4a2148489b9bde49f6c70d0185fbde5b6997ea0436403cce",
+          "signature": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeBreakdownAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            42,
+            5,
+            81,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "source_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "source_git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          91,
+          117
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8c60ea74521ae74c05f9f6ea2dedf5c89b91a0a84070d7db58667d696d276334",
+          "signature": "Falah.Domain.Shifts.Shift.PrepareBlindClose(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            91,
+            5,
+            99,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7b8155252898c8eeabc32cef851fe02eb3a7dfa7e90cdc12a1ca3e9df994d72c",
+          "signature": "Falah.Domain.Shifts.Shift.Close(string, Falah.Domain.Shifts.Shift.BlindCloseResult, string?, string?, DateTimeOffset)",
+          "kind": "MethodDeclaration",
+          "span": [
+            103,
+            5,
+            117,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          320,
+          335
+        ],
+        [
+          337,
+          354
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1d702541da3f77eae17fb5cce4eaab23ab8d04a2d2b4d7be8b5d3db17b39b86b",
+          "signature": "Falah.Application.Shifts.PrepareShiftCloseRequest request",
+          "kind": "Parameter",
+          "span": [
+            320,
+            49,
+            320,
+            106
+          ]
+        },
+        {
+          "stable_id": "sym-0cb3b9caf36f5279fc9d4c8743ab9e6b2eddc42a41ca2aed146981272ff38e9f",
+          "signature": "Falah.Infrastructure.Shifts.PrepareShiftCloseHandler handler",
+          "kind": "Parameter",
+          "span": [
+            320,
+            108,
+            320,
+            140
+          ]
+        },
+        {
+          "stable_id": "sym-419a655e58ef6e0aa7a64ba2e7b5cc38d2c714b4e59a2a3bb50aa525e1ac44e8",
+          "signature": "CancellationToken ct",
+          "kind": "Parameter",
+          "span": [
+            320,
+            142,
+            320,
+            162
+          ]
+        },
+        {
+          "stable_id": "sym-0f6b80d0725cfa09eeac03595afa6fd19a83f173595c8064b840e17b01ae8afa",
+          "signature": "Falah.Application.Shifts.CloseShiftRequest request",
+          "kind": "Parameter",
+          "span": [
+            337,
+            41,
+            337,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-d939d0158b1f36a36e0f3275f5aa5ad01e5b5477ea1518d25823b521e200e715",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler handler",
+          "kind": "Parameter",
+          "span": [
+            337,
+            93,
+            337,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-d0f66fd6743e9e36742f64671380aff55f38a154a01228ed5de3cb210a3d3ece",
+          "signature": "CancellationToken ct",
+          "kind": "Parameter",
+          "span": [
+            337,
+            120,
+            337,
+            140
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "source_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          194,
+          202
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-deb0ed463c67ea108165f21304cae3581ce469b4f331b19ee331fa8bcb404008",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.PrepareShiftCloseAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            194,
+            5,
+            197,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-986adbe8f7a6339fc12009c13d1712d77268746095650729023a87f2fa10a44b",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.CloseShiftAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            199,
+            5,
+            202,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+      "source_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+      "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+      "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "line_ranges": [
+        [
+          59,
+          72
+        ],
+        [
+          129,
+          160
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d1c677c65a702156db8fa110970b2611582a7edd956dbcac5fd6c38a66d5f439",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Prepare_close_reports_expected_cash_including_cash_sales_from_this_shift_only()",
+          "kind": "MethodDeclaration",
+          "span": [
+            59,
+            5,
+            72,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d4a674a5b348a3d31e47fc1fd1b2a4894edc366748c3a210c36bf5bbdc344dab",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Closing_beyond_threshold_without_approval_is_rejected_and_the_shift_stays_open()",
+          "kind": "MethodDeclaration",
+          "span": [
+            129,
+            5,
+            143,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c39fa5cea2e1f5f38cb8d1d7782c50a039e8938a4a04822e7cd75067974579f1",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Closing_beyond_threshold_with_a_valid_manager_approval_succeeds_and_records_the_approver()",
+          "kind": "MethodDeclaration",
+          "span": [
+            145,
+            5,
+            160,
+            6
+          ]
+        }
+      ]
+    }
+  ]
+}

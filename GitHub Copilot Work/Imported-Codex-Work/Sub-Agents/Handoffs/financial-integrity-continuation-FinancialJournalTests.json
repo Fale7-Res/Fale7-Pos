@@ -1,0 +1,125 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:02:08.3485453Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/FinancialJournalTests.cs",
+  "symbol_count": 9,
+  "symbols": [
+    {
+      "stable_id": "sym-3e04dbbe19e823d24af342474221d2719a1fe6f2e0b02ecdc995d781969caa0a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Same_task_double_click_posts_exactly_once()",
+      "span": [
+        12,
+        5,
+        23,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5557af5cc4c847dd47d7f53d6e8030c77deda4df6c3b0f93822789aebc7ca62b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Network_retry_of_the_same_request_is_also_rejected()",
+      "span": [
+        25,
+        5,
+        38,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b8f923602bb8971e9dd20728b6e7fcbc6a95d78a726ad711ea60e25470ad646f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Deliberate_separate_operations_use_different_keys_and_both_post()",
+      "span": [
+        40,
+        5,
+        49,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2a9306aefa90fbbb0d0269e99603a3b9fe975d9995c4679a47e254ca0c70571b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Completing_an_unknown_key_throws_instead_of_silently_succeeding()",
+      "span": [
+        51,
+        5,
+        56,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c5293196f5c4d51a2e117ae843c299ac456e73a5bd3eb69b5251e00c3455f9da",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        55,
+        40,
+        55,
+        79
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0bcd2a84734ebd43cd5a93b0d1044a53f3ccd18ec8bffc84a088dbd2ea64d0c9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Completing_an_already_complete_key_throws()",
+      "span": [
+        58,
+        5,
+        65,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fc69482dadb1017703016a825c0233046cdd76c9e1ce947e336907576c6fed94",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        64,
+        40,
+        64,
+        68
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-cb8ed85b724d136c0ce98b60fef352d341d2682e3e7af48c4b37aa9b40ca2ebc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.Discarding_a_pending_entry_after_a_rejected_command_allows_a_clean_retry()",
+      "span": [
+        67,
+        5,
+        80,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-24a23d795978eb92a448d059e7be6db16f683967c2c565e81ffded9bf9ad4de9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialJournalTests.A_completed_entry_can_never_be_discarded()",
+      "span": [
+        82,
+        5,
+        94,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover duplicate-key start rejection, completed-key network retry rejection, separate-operation distinct keys, unknown/already-completed key errors, pending journal discard after rejected command, and protection for completed entries. This is in-memory domain behavior only and does not verify EF/provider unique-key locking or transaction recovery. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/9 exact IDs present",
+    "financial_coordinator": "/9 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

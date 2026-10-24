@@ -1,0 +1,1020 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-045",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T09:13:40.289844+00:00",
+  "reviewer": "/root coordinator",
+  "scope": "Bounded client/server catalog variant-price validation and downstream checkout amount/stock path; this is a targeted FIN016-adjacent validation lead, not a full catalog or pricing audit.",
+  "decision": "CashierWinUI rejects variant prices <= 0 in its editor, but ProductVariantInput has no validation attributes and both server CreateProductHandler and UpdateProductHandler persist variant input price without a positivity check. The initial schema and EF model establish a non-null bigint/key but no positive-price check. At checkout, MenuPricingService selects the stored variant price, ItemPricingRules preserves list price when no applicable rule overrides it, signed Money accepts negative values, and CheckoutRules sums item totals then clamps a negative taxable base/payable to zero. CheckoutOrderHandler persists the order and deducts stock even when the plan defers all money. Thus a negative catalog variant can understate a mixed order or produce a zero-payable order while stock is consumed, conditional on authorized catalog configuration and later selection. This is source-supported behavior; no API/DB reproduction was run.",
+  "finding_candidate": "FIN-CAND-NEGATIVE-VARIANT-PRICE-001; source-supported configuration-validation candidate, not independently challenged and not runtime-proven.",
+  "severity": "MEDIUM candidate: requires menu_manage catalog configuration; supports accidental or improper signed price storage and downstream undercharge/free-order behavior, while that permission already permits legitimate repricing. Do not describe as unauthenticated or exploit-confirmed.",
+  "manual_reasoning": {
+    "entry_and_server_validation": "MenuEditorViewModel.CreateRequest rejects blank variant names, unparsable values, and amount <= 0. The request DTO is a plain record with long PricePiastres. CreateProductHandler validates only product name/base price and menu_manage authorization before mapping each variant input directly to ProductVariantEntity. UpdateProductHandler validates product-level fields then directly assigns each input price for both retained and new variants. The UI guard is therefore not a server trust boundary.",
+    "persistence_and_checkout": "ProductVariants initial migration declares PricePiastres as non-null bigint; FalahDbContext configures only the primary key for this entity, with no positive-value check in the inspected mapping/schema. MenuPricingService loads a selected variant and uses its stored amount as list price. ItemPricingRules returns that list amount unchanged when no valid rule applies. Money.FromPiastres and multiplication preserve signed values; CheckoutRules sums item totals, clamps negative taxable base and negative payable to zero, and treats nonpositive payable as deferring all money. CheckoutOrderHandler still creates/persists the order and unconditionally calls inventory deduction before skipping treasury posting for a fully deferred plan.",
+    "workflow_precondition_and_effect": "A menu_manage-authorized request must first create or update a variant to a negative price; a subsequent POS checkout selects that variant. A single negative item is predicted to become a zero-payable sale; in a mixed cart it reduces the positive subtotal. The checkout caller still requires the ordinary POS permission and open shift, and inventory deduction is part of the transaction. No live order, DB write, or direct HTTP request was performed.",
+    "counterevidence_and_overlap": "Price editing is intentionally privileged and can set low positive prices; owner policy for zero/negative variants is not separately documented. A valid positive price rule can replace the variant list price. The client normally rejects negative values. This is distinct in precondition from FIN-016 negative delivery-fee path, which concerns a POS actor and bypassed discount/comp permission; do not merge or claim independent verification. Related FIN016 overflow extension previously left this variant lead pending a full Update/client/DTO review; that bounded review is now source-corroborated.",
+    "recommended_fix_design": "If variant prices are required to be positive, enforce that invariant in both server command handlers or a shared domain validator before any persistence, and consider a database check constraint for defense in depth after evaluating legacy rows. Also reject nonpositive authoritative item prices in MenuPricingService/checkout before order or inventory writes. Preserve signed Money elsewhere for legitimate financial deltas. Decide explicitly whether zero-priced variants are allowed before choosing >0 versus >=0.",
+    "required_tests": "Unit tests for create and update with negative, zero, and positive variant prices; update-existing and add-new branches; direct request/API path bypassing the WinUI guard; checkout with a stored negative variant alone and mixed with positive items; ensure rejection occurs before order, stock, audit, journal, or treasury writes; verify positive variant and valid fixed-price-rule behavior remain unchanged; migration/data check against any legacy nonpositive variant rows in a separately approved disposable DB.",
+    "acceptance_criteria": "Server and persistence boundary enforce the owner-approved variant-price domain; invalid values cannot reach checkout resolution; an invalid selected stored variant fails before order/inventory effects; positive variants and valid pricing-rule overrides retain expected behavior; any legacy-data migration plan is tested before production deployment."
+  },
+  "runtime_status": "NOT_EXECUTED; static source comparison only",
+  "limitations": [
+    "No test was run; no database or application state was changed.",
+    "menu_manage policy permits intentional price edits, and owner policy for zero/negative prices is not explicit.",
+    "No real incidence, deployed schema, HTTP acceptance, or physical checkout was observed.",
+    "The original financial specialist is currently unavailable due to the platform usage limit; independent challenge remains pending."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "line_ranges": [
+        [
+          323,
+          339
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-77e147bdc08bdade74a3c1729f06e69111c970f5bf34b2ad37d53179f65b40bb",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.CreateRequest()",
+          "kind": "MethodDeclaration",
+          "span": [
+            317,
+            5,
+            352,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 323,
+          "end": 339,
+          "text": "        if (HasSortOrder && !int.TryParse(SortOrderText, NumberStyles.Integer, CultureInfo.InvariantCulture, out sort)) { ActionError = \"أدخل ترتيب عرض صحيحًا.\"; return null; }\n        if (HasPrice && (!CashInput.TryParse(PriceText, out price) || price <= 0)) { ActionError = \"أدخل سعرًا صحيحًا أكبر من صفر.\"; return null; }\n        if (IsCategory) return _editing is CategoryDetailsDto c\n            ? new UpdateCategoryRequest(c.Id, Name.Trim(), string.IsNullOrWhiteSpace(Icon) ? null : Icon.Trim(), sort, actor, key)\n            : new CreateCategoryRequest(key, Name.Trim(), string.IsNullOrWhiteSpace(Icon) ? null : Icon.Trim(), sort, actor);\n        if (IsProduct)\n        {\n            if (Category?.Id is null || !CategoryChoices.Contains(Category) || Station is null) { ActionError = \"اختر القسم ومحطة التجهيز.\"; return null; }\n            var variants = new List<ProductVariantInput>();\n            foreach (var v in Variants)\n            {\n                if (string.IsNullOrWhiteSpace(v.Name) || !CashInput.TryParse(v.PriceText, out var amount) || amount <= 0) { ActionError = \"كل حجم يحتاج اسمًا وسعرًا صحيحًا أكبر من صفر.\"; return null; }\n                variants.Add(new(v.Id, v.Name.Trim(), amount, v.Recipe?.Id));\n            }\n            return _editing is ProductDetailsDto p\n                ? new UpdateProductRequest(p.Id, Category.Id, Name.Trim(), price, SendToGrill, Station.Id, sort, Recipe?.Id, variants.ToArray(), actor, key)\n                : new CreateProductRequest(key, Category.Id, Name.Trim(), price, SendToGrill, Station.Id, sort, Recipe?.Id, variants.ToArray(), actor);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Menu/MenuManagementRequests.cs",
+      "worktree_sha256": "398de8204e5ef0ccc50008587189be6047a811d07769ec458f1e585f9d363280",
+      "source_git_blob_sha256": "5d87a2470c394522cb3a0dd091aad67334d65f20c2f516e813e63b976cdb3700",
+      "line_ranges": [
+        [
+          20,
+          34
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 20,
+          "end": 34,
+          "text": "/// variant command anywhere in that codebase) - Variants here is the same \"replace the whole set\"\n/// idiom SaveRecipeHandler already uses for recipe lines, not a set of per-variant CRUD endpoints.\n/// `deleteProduct` never hard-deletes - it flips IsAvailable to false (SetProductAvailabilityRequest\n/// below), the exact same soft-delete shape as categories.</summary>\npublic sealed record ProductVariantInput(string? Id, string Name, long PricePiastres, string? RecipeId);\n\npublic sealed record CreateProductRequest(\n    string RequestId, string CategoryId, string Name, long BasePricePiastres, bool SendToGrill,\n    string? PreparationStation, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantInput> Variants, string ActorUserId);\n\npublic sealed record CreateProductResult(string ProductId, bool WasReplayed);\n\npublic sealed record UpdateProductRequest(\n    string ProductId, string CategoryId, string Name, long BasePricePiastres, bool SendToGrill,\n    string? PreparationStation, int SortOrder, string? RecipeId, IReadOnlyList<ProductVariantInput> Variants, string ActorUserId, string? RequestId = null);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "worktree_sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247",
+      "source_git_blob_sha256": "72586c396821ff033030936f49f62c5dee957038d129fac80a11040cb88706a3",
+      "line_ranges": [
+        [
+          29,
+          58
+        ],
+        [
+          95,
+          144
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-99d37e9ae9d11289aecdd0bdd4d8a713b5d916321af029c601973ef08de74539",
+          "signature": "Falah.Infrastructure.Menu.CreateProductHandler.HandleAsync(Falah.Application.Menu.CreateProductRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            29,
+            5,
+            73,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0501124b44d0aa9202beb1600c3a62d42b6d191b160c59823b7a1a184fa435e7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            32,
+            78,
+            32,
+            93
+          ]
+        },
+        {
+          "stable_id": "sym-21f37418a38b2932a0610278796de27f17b11547d779213055edce2db051d08f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            39,
+            76,
+            39,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-a1d8aa7c86a98f70eb9a377049da5a3e2bd13eb96ee3dc2c712133c9febd9b2c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            43,
+            80,
+            43,
+            111
+          ]
+        },
+        {
+          "stable_id": "sym-112a1946d81795e246ca17e4b44e49448d1d866075c4939502c3ae5ad0b3aae6",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            51,
+            48,
+            54,
+            14
+          ]
+        },
+        {
+          "stable_id": "sym-702e575782de19835ecd36815c853525b4b4242cbe21167d1a99350151abaea0",
+          "signature": "Falah.Infrastructure.Menu.UpdateProductHandler.HandleAsync(Falah.Application.Menu.UpdateProductRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            95,
+            5,
+            152,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-63a731ab1c96a6b0e31344c86b37485b9e59627a4a9de8c8f4289c1af7e63c4a",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            104,
+            76,
+            104,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-64413cfbd2fef01725d345d8142865c15a85269b6a1389a5b70beca12e4ef974",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            108,
+            80,
+            108,
+            111
+          ]
+        },
+        {
+          "stable_id": "sym-54c21187ecb60c9e03c736eb1fbeb2de78b0808dbf1e58b67026e1bb506c2bf7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            111,
+            49,
+            111,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-e773d43122ec34310a2f729d61de0b2c97c5afd02b4e247d62a5e27d880d9cf9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            111,
+            86,
+            111,
+            116
+          ]
+        },
+        {
+          "stable_id": "sym-6c59b26792cce3199d35074236ad58b0a3630fdb00f37876c5087dc3d15b4e0c",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            122,
+            46,
+            122,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-598df3415ae6ee811c16fe9a9658f782351c10f1cc7b4d9a38c892811a116dd7",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            122,
+            76,
+            122,
+            85
+          ]
+        },
+        {
+          "stable_id": "sym-46ba5a02a491332129021b74fc36a00d09fdce506b743d7c817aeb0ae39da473",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            123,
+            46,
+            123,
+            74
+          ]
+        },
+        {
+          "stable_id": "sym-75442932b8845b3d405a6a784e3a5634d80ec53b164290b8525f4fa879f9d83e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            129,
+            70,
+            129,
+            91
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 29,
+          "end": 58,
+          "text": "    public async Task<CreateProductResult> HandleAsync(CreateProductRequest request, CancellationToken ct = default)\n    {\n        var id = $\"prod-{request.RequestId}\";\n        var existing = await _db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);\n        if (existing is not null) return new CreateProductResult(existing.Id, WasReplayed: true);\n\n        if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException(\"اسم الصنف مطلوب.\");\n        if (request.BasePricePiastres <= 0) throw new DomainException(\"السعر الأساسي يجب أن يكون أكبر من صفر.\");\n        var station = MenuValidation.AssertValidStation(request.PreparationStation);\n\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), \"menu_manage\");\n\n        var category = await _db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == request.CategoryId, ct)\n            ?? throw new DomainException(\"القسم المحدد غير موجود.\");\n\n        var entity = new ProductEntity\n        {\n            Id = id, CategoryId = category.Id, Name = request.Name.Trim(), BasePricePiastres = request.BasePricePiastres,\n            SendToGrill = request.SendToGrill, PreparationStation = station, IsAvailable = true,\n            SortOrder = request.SortOrder, RecipeId = request.RecipeId,\n            Variants = request.Variants.Select(v => new ProductVariantEntity\n            {\n                Id = $\"var-{Guid.NewGuid():N}\", ProductId = id, Name = v.Name.Trim(), PricePiastres = v.PricePiastres, RecipeId = v.RecipeId,\n            }).ToList(),\n        };\n        try\n        {\n            _db.Products.Add(entity);"
+        },
+        {
+          "start": 95,
+          "end": 144,
+          "text": "    public async Task HandleAsync(UpdateProductRequest request, CancellationToken ct = default)\n    {\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        var receiptId = CommandReceipt.Id(\"product-update\", request.RequestId);\n        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;\n        if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException(\"اسم الصنف مطلوب.\");\n        if (request.BasePricePiastres <= 0) throw new DomainException(\"السعر الأساسي يجب أن يكون أكبر من صفر.\");\n        var station = MenuValidation.AssertValidStation(request.PreparationStation);\n\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), \"menu_manage\");\n\n        var category = await _db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == request.CategoryId, ct)\n            ?? throw new DomainException(\"القسم المحدد غير موجود.\");\n\n        var entity = await _db.Products.Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == request.ProductId, ct)\n            ?? throw new InvalidOperationException(\"الصنف غير موجود.\");\n\n        entity.CategoryId = category.Id;\n        entity.Name = request.Name.Trim();\n        entity.BasePricePiastres = request.BasePricePiastres;\n        entity.SendToGrill = request.SendToGrill;\n        entity.PreparationStation = station;\n        entity.SortOrder = request.SortOrder;\n        entity.RecipeId = request.RecipeId;\n\n        var keepIds = request.Variants.Where(v => v.Id is not null).Select(v => v.Id).ToHashSet();\n        var toRemove = entity.Variants.Where(v => !keepIds.Contains(v.Id)).ToList();\n        _db.ProductVariants.RemoveRange(toRemove);\n        foreach (var input in request.Variants)\n        {\n            if (input.Id is not null)\n            {\n                var existingVariant = entity.Variants.FirstOrDefault(v => v.Id == input.Id);\n                if (existingVariant is not null)\n                {\n                    existingVariant.Name = input.Name.Trim();\n                    existingVariant.PricePiastres = input.PricePiastres;\n                    existingVariant.RecipeId = input.RecipeId;\n                    continue;\n                }\n            }\n            entity.Variants.Add(new ProductVariantEntity\n            {\n                Id = $\"var-{Guid.NewGuid():N}\", ProductId = entity.Id, Name = input.Name.Trim(),\n                PricePiastres = input.PricePiastres, RecipeId = input.RecipeId,\n            });\n        }\n"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "source_git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "line_ranges": [
+        [
+          9,
+          36
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-01a0e359361cafc1fb5667c2bbd63293d2db2583296d63f017bde4c74367b3be",
+          "signature": "Falah.Domain.Common.Money.Piastres.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            11,
+            28,
+            11,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-7c458951ca04844ed68b9aa3f7a98abde273bbb9a38621fd840d88302f91643b",
+          "signature": "Falah.Domain.Common.Money.Money(long)",
+          "kind": "ConstructorDeclaration",
+          "span": [
+            13,
+            5,
+            13,
+            57
+          ]
+        },
+        {
+          "stable_id": "sym-d3393ef8a702a111a5b506a3234d3bdd07b723b494aa0cbcce02ef4edc51240e",
+          "signature": "Falah.Domain.Common.Money.FromPiastres(long)",
+          "kind": "MethodDeclaration",
+          "span": [
+            17,
+            5,
+            17,
+            70
+          ]
+        },
+        {
+          "stable_id": "sym-e4202acad35cfd0610601d90dda4f1d7b1e3673bc895752547848b1623fad352",
+          "signature": "Falah.Domain.Common.Money.FromEgp(decimal)",
+          "kind": "MethodDeclaration",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-be47ab7c4ccdbbd07c9f674bca6eca4e1a3ddbd3ba9a259bad07803efa9f0cf6",
+          "signature": "Falah.Domain.Common.Money.operator +(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            31,
+            5,
+            31,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-2b79e4e0396b587f81e1adc4476e02c0d328f40682f294a063385531170be426",
+          "signature": "Falah.Domain.Common.Money.operator -(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            32,
+            5,
+            32,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-fb15b7d83203f5c5c64b5b2e86f064e13b1d696986b6a95e3b339b8c565b22d6",
+          "signature": "Falah.Domain.Common.Money.operator -(Falah.Domain.Common.Money)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            33,
+            5,
+            33,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-dfe2052fe432d9a1cf07032050f47700c64355309d46286d70758c51e2806f91",
+          "signature": "Falah.Domain.Common.Money.operator *(Falah.Domain.Common.Money, long)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            34,
+            5,
+            34,
+            86
+          ]
+        },
+        {
+          "stable_id": "sym-fb4af896cadbcfdc008515d10103d938b7fd2082d309d5e6892714f62663e013",
+          "signature": "Falah.Domain.Common.Money.operator >(Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            36,
+            5,
+            36,
+            80
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 9,
+          "end": 36,
+          "text": "public readonly record struct Money : IComparable<Money>\n{\n    public long Piastres { get; }\n\n    private Money(long piastres) => Piastres = piastres;\n\n    public static readonly Money Zero = new(0);\n\n    public static Money FromPiastres(long piastres) => new(piastres);\n\n    /// <summary>\n    /// Only for boundary input (an operator typing \"45.50\" EGP into a field). Internal\n    /// calculations must never round-trip through decimal/EGP - they stay in piastres.\n    /// </summary>\n    public static Money FromEgp(decimal egp)\n    {\n        var piastres = decimal.Round(egp * 100m, 0, MidpointRounding.AwayFromZero);\n        return new Money((long)piastres);\n    }\n\n    public decimal Egp => Piastres / 100m;\n\n    public static Money operator +(Money a, Money b) => new(a.Piastres + b.Piastres);\n    public static Money operator -(Money a, Money b) => new(a.Piastres - b.Piastres);\n    public static Money operator -(Money a) => new(-a.Piastres);\n    public static Money operator *(Money a, long factor) => new(a.Piastres * factor);\n\n    public static bool operator >(Money a, Money b) => a.Piastres > b.Piastres;"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+      "worktree_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "source_git_blob_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "line_ranges": [
+        [
+          13,
+          28
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4043fa258d8bf43c6a05f266e4deb5b0b3015107932148158ffeaa0d6fdb6b69",
+          "signature": "Falah.Domain.Pricing.ItemPricingRules.Resolve(string, Falah.Domain.Common.Money, string?, IEnumerable<Falah.Domain.Pricing.PriceRule>, DateTimeOffset, TimeZoneInfo)",
+          "kind": "MethodDeclaration",
+          "span": [
+            19,
+            5,
+            27,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 13,
+          "end": 28,
+          "text": "{\n    public readonly record struct ResolvedItemPrice(Money ListUnitPrice, Money EffectiveUnitPrice, string? AppliedPriceRuleId, string? AppliedPriceRuleName)\n    {\n        public bool RuleApplied => AppliedPriceRuleId is not null;\n    }\n\n    public static ResolvedItemPrice Resolve(\n        string productId, Money listUnitPrice, string? requestedPriceRuleId,\n        IEnumerable<PriceRule> allRules, DateTimeOffset whenUtc, TimeZoneInfo timeZone)\n    {\n        var validRule = PricingRules.ValidateAppliedRule(productId, requestedPriceRuleId, allRules, whenUtc, timeZone);\n        return validRule is null\n            ? new ResolvedItemPrice(listUnitPrice, listUnitPrice, null, null)\n            : new ResolvedItemPrice(listUnitPrice, validRule.FixedPrice, validRule.Id, validRule.Name);\n    }\n}"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+      "worktree_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "source_git_blob_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "line_ranges": [
+        [
+          25,
+          64
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-798c0df56a69e47a1ec4d4f56598a240b51443092a04cb9492850e71b2e96bd5",
+          "signature": "Falah.Infrastructure.Orders.MenuPricingService.ResolveAsync(IReadOnlyList<Falah.Application.Orders.CheckoutItemRequest>, DateTimeOffset, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            68,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4efcbfd30c92cae7dd59e1595909bc9c29f92d3cc79bf8c310abe908c2b066dd",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            29,
+            42,
+            29,
+            58
+          ]
+        },
+        {
+          "stable_id": "sym-4410c8a591f16a0f8764153838ac345c49f48f8113bda82e8126f47a84605197",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            30,
+            51,
+            30,
+            66
+          ]
+        },
+        {
+          "stable_id": "sym-563c5b25d89628d0a37147a31e3931b6d2576096c362a07fbe30f3b30c3dda6d",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            31,
+            20,
+            31,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-193a5fe110b1664f35ea838b0327b314f145bd7b15e7e279e18344d80ba31cef",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            31,
+            70,
+            31,
+            79
+          ]
+        },
+        {
+          "stable_id": "sym-ed262cb24623a7f4780f50d432fcb8b171924b0c43c5c40296484e6730ec8390",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            33,
+            55,
+            33,
+            70
+          ]
+        },
+        {
+          "stable_id": "sym-484d8157111afb546aab0c172dbf6e17c60217a6097314b7e0b0a194ee96b5ed",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            33,
+            80,
+            33,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-399fa844ae0235f952784a2be19ea08967631d668dbcb6372d8c3449bc17ad9f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            34,
+            20,
+            34,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-bf5a6aedefe869efe2f1cba1e033fcdbd36c405e6b5d935fedd1be4706927aea",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            49,
+            59,
+            49,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-7bdf3e976ce1852130a751f8485cc1be2f34bfdc8f923b3edc60b9c4bedf2434",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            54,
+            52,
+            54,
+            103
+          ]
+        },
+        {
+          "stable_id": "sym-97f32ad1c8957abd333b4cb42d49398bda1372fa26494daead781b669e3082ad",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            54,
+            72,
+            54,
+            102
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 25,
+          "end": 64,
+          "text": "    public async Task<List<ResolvedItem>> ResolveAsync(IReadOnlyList<CheckoutItemRequest> requests, DateTimeOffset nowUtc, CancellationToken ct)\n    {\n        if (requests.Count == 0) throw new DomainException(\"السلة فارغة. الرجاء إضافة أصناف قبل الدفع.\");\n\n        var productIds = requests.Select(r => r.ProductId).Distinct().ToList();\n        var products = await _db.Products.Include(p => p.Variants)\n            .Where(p => productIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);\n\n        var priceRules = await _db.PriceRules.Include(r => r.Products).Include(r => r.Days)\n            .Where(r => r.Active).ToListAsync(ct);\n\n        var resolved = new List<ResolvedItem>();\n        foreach (var request in requests)\n        {\n            if (request.Quantity <= 0) throw new DomainException(\"الكمية يجب أن تكون أكبر من صفر.\");\n\n            if (!products.TryGetValue(request.ProductId, out var product))\n                throw new DomainException($\"المنتج غير موجود: {request.ProductId}\");\n            if (!product.IsAvailable)\n                throw new DomainException($\"المنتج غير متاح حاليًا: {product.Name}\");\n\n            ProductVariantEntity? variant = null;\n            if (request.VariantId is not null)\n            {\n                variant = product.Variants.FirstOrDefault(v => v.Id == request.VariantId)\n                    ?? throw new DomainException($\"الخيار غير موجود لهذا المنتج: {request.VariantId}\");\n            }\n\n            var listPrice = Money.FromPiastres(variant?.PricePiastres ?? product.BasePricePiastres);\n            var applicableRules = priceRules.Where(r => r.Products.Any(p => p.ProductId == product.Id)).Select(ToDomainRule).ToList();\n            var price = ItemPricingRules.Resolve(product.Id, listPrice, request.RequestedPriceRuleId, applicableRules, nowUtc, BusinessClock.CairoTimeZone);\n\n            var orderItem = new OrderItem(\n                $\"item-{Guid.NewGuid():N}\", product.Id, variant?.Id, product.Name, variant?.Name,\n                price.EffectiveUnitPrice, price.ListUnitPrice, request.Quantity,\n                price.EffectiveUnitPrice * request.Quantity, product.SendToGrill,\n                price.AppliedPriceRuleId, price.AppliedPriceRuleName, request.Notes,\n                product.PreparationStation);\n\n            resolved.Add(new ResolvedItem(orderItem, variant?.RecipeId ?? product.RecipeId));"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderItem.cs",
+      "worktree_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "source_git_blob_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "line_ranges": [
+        [
+          10,
+          24
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 10,
+          "end": 24,
+          "text": "/// Falah.Domain.Printing.PrintRules' own doc comment for why routing must read this frozen value,\n/// never the product's current live configuration.</summary>\npublic sealed record OrderItem(\n    string Id,\n    string ProductId,\n    string? VariantId,\n    string ProductName,\n    string? VariantName,\n    Money UnitPrice,\n    Money ListUnitPrice,\n    int Quantity,\n    Money TotalPrice,\n    bool SendToGrill,\n    string? PriceRuleId,\n    string? PriceRuleName,"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "line_ranges": [
+        [
+          32,
+          39
+        ],
+        [
+          68,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ab12c252465b9f272f5fd5af0c58f4e0fe0c38137fdc7f0c2903fa62a13f8a57",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputeSubtotal(IReadOnlyList<Falah.Domain.Orders.OrderItem>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            32,
+            5,
+            33,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-628f1878df6d05e54af226a2e2f0d34ee84ca307ce7d6ebd175651f312f5bfe9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            33,
+            38,
+            33,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-4d345e01c2382c8a77c8b8bfc4da2bf2e9bc4c162913ebc88d7d58d85dc32f09",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputePayableTotal(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            39,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6255995d932426730f3b4fbcab2eb4c3fa77ae09e3d0f0a3352e9f7905b2617e",
+          "signature": "Falah.Domain.Orders.CheckoutRules.DefersAllMoney(Falah.Domain.Common.Money, bool, Falah.Domain.Orders.ElectronicPayment?, Falah.Domain.Financial.PaymentMethod)",
+          "kind": "MethodDeclaration",
+          "span": [
+            68,
+            5,
+            72,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f27d18261ff9a93c1f3033471883240f16508ceccf68cf20f63b5b544e639338",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputeIsPaid(bool, Falah.Domain.Orders.ElectronicPayment?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            77,
+            5,
+            78,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-77e1899a5d7a3b40aa3a4e3d0d8fce70eeef75f5b96da6c0dd568170c7eb7a06",
+          "signature": "Falah.Domain.Orders.CheckoutRules.BuildPlan(Falah.Domain.Orders.OrderType, Falah.Domain.Financial.PaymentMethod, IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, IReadOnlyList<Falah.Domain.Financial.PaymentSplit>?, string?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            115,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 32,
+          "end": 39,
+          "text": "    public static Money ComputeSubtotal(IReadOnlyList<OrderItem> items) =>\n        Money.FromPiastres(items.Sum(i => i.TotalPrice.Piastres));\n\n    public static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)\n    {\n        var result = cartTotal + deliveryFee - compAmount;\n        return result.IsNegative ? Money.Zero : result;\n    }"
+        },
+        {
+          "start": 68,
+          "end": 109,
+          "text": "    public static bool DefersAllMoney(Money payableTotal, bool cashOnDelivery, ElectronicPayment? electronicLeg, PaymentMethod paymentMethod)\n    {\n        var collectsNothing = !payableTotal.IsPositive;\n        return collectsNothing || cashOnDelivery || (electronicLeg is not null && paymentMethod != PaymentMethod.Multi);\n    }\n\n    /// <summary>Not \"paid\" while any leg is an unverified electronic claim or nothing has actually\n    /// changed hands yet (cash on delivery) - keeps the money out of expected drawer cash and out\n    /// of collected revenue until it is actually confirmed.</summary>\n    public static bool ComputeIsPaid(bool cashOnDelivery, ElectronicPayment? electronicLeg) =>\n        !cashOnDelivery && electronicLeg is null;\n\n    /// <summary>Builds the full checkout plan and throws on any of the checkout-time validation\n    /// rules the original app enforces (multi-payment split presence, sufficient payment, exact\n    /// split allocation). Cart emptiness, shift-open, and permission checks are the caller's\n    /// responsibility - they depend on state this pure function does not have.</summary>\n    public static CheckoutPlan BuildPlan(\n        OrderType orderType, PaymentMethod paymentMethod, IReadOnlyList<OrderItem> items,\n        Money discount, TaxRule? taxRule, Money deliveryFee, Money compAmount, Money amountPaid,\n        IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)\n    {\n        if (paymentMethod == PaymentMethod.Multi && (splitPayments is null || splitPayments.Count == 0))\n            throw new DomainException(\"يجب تحديد تفاصيل الدفع المتعدد.\");\n\n        var subtotal = ComputeSubtotal(items);\n        var taxableBase = subtotal - discount;\n        if (taxableBase.IsNegative) taxableBase = Money.Zero;\n        var tax = TaxEngine.Calculate(taxableBase, taxRule);\n        var cartTotal = tax.Final;\n        var payableTotal = ComputePayableTotal(cartTotal, deliveryFee, compAmount);\n\n        var cashOnDelivery = IsCashOnDelivery(orderType, paymentMethod, payableTotal);\n        var electronicLeg = SelectElectronicLeg(paymentMethod, payableTotal, splitPayments, walletProvider);\n\n        if (!cashOnDelivery && amountPaid < payableTotal)\n            throw new DomainException(\"المبلغ المدفوع أقل من إجمالي الطلب.\");\n\n        if (paymentMethod == PaymentMethod.Multi && splitPayments is not null)\n            FinancialRules.AssertSplitPaymentAllocation(splitPayments, payableTotal);\n\n        var defers = DefersAllMoney(payableTotal, cashOnDelivery, electronicLeg, paymentMethod);\n        var isPaid = ComputeIsPaid(cashOnDelivery, electronicLeg);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "line_ranges": [
+        [
+          115,
+          154
+        ],
+        [
+          248,
+          280
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-eff21506998a8535612b2da6e2c8a2ab908ae24c715a9f20c524a61a02c0d40e",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            127,
+            83,
+            127,
+            122
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 115,
+          "end": 154,
+          "text": "        string? compApprovedByName = null;\n        if (compAmount.IsPositive)\n        {\n            var preCompSubtotal = CheckoutRules.ComputeSubtotal(items);\n            var preCompTaxable = preCompSubtotal - discount;\n            if (preCompTaxable.IsNegative) preCompTaxable = Money.Zero;\n            var orderValueBeforeComp = TaxEngine.Calculate(preCompTaxable, taxRule).Final + deliveryFee;\n            PricingRules.AssertCompAmount(compAmount, orderValueBeforeComp);\n            PricingRules.AssertCompReasonCode(request.CompReasonCode);\n\n            if (string.IsNullOrEmpty(request.CompApprovalId) || string.IsNullOrEmpty(request.CompApproverUserId))\n                throw new DomainException(\"الضيافة تتطلب اعتماد مدير.\");\n            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CompApproverUserId, ct)\n                ?? throw new DomainException(\"المعتمد غير موجود.\");\n            // The approval is looked up in the persisted registry (EfApprovalRegistry), so it survives\n            // a Server restart between the manager granting it and this checkout spending it. It is\n            // single-use, must match the orders_comp action, and only a role allowed to issue it can.\n            //\n            // Validated for EVERY cashier, including one who holds orders_comp: the order and the\n            // audit trail name this approver, so the approval has to be real. Holding the permission\n            // used to skip the check entirely and record whatever approver the request named.\n            var approval = new ManagerApproval(request.CompApprovalId, approverUser.Id, approverUser.Name,\n                approverUser.Role, DateTimeOffset.UtcNow, \"orders_comp\", request.CompReason);\n            AuthorizationPolicy.ValidateApproval(_approvalRegistry, \"orders_comp\", approval);\n            compApprovedByName = approverUser.Name;\n        }\n\n        var plan = CheckoutRules.BuildPlan(orderType, paymentMethod, items, discount, taxRule,\n            deliveryFee, compAmount, amountPaid, splits, request.WalletProvider);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            var saleKey = $\"sale-{request.CheckoutRequestId}\";\n            if (!plan.DefersAllMoney)\n            {\n                var journal = new EfFinancialJournal(_db);\n                if (!journal.TryStart(saleKey, \"sale\"))\n                    throw new CheckoutConflictException(\"مفتاح العملية المالية هذا مستخدم بالفعل.\");\n            }"
+        },
+        {
+          "start": 248,
+          "end": 280,
+          "text": "            // Stock leaves the kitchen the moment the order is made, independent of whether the\n            // money settles now or later (cash-on-delivery, a pending electronic transfer) - same\n            // unconditional placement as the current app's checkout flow.\n            await _inventory.DeductForOrderAsync(orderId, request.OrderType, resolvedItems, cashierUser.Name, now, ct);\n\n            if (!plan.DefersAllMoney)\n            {\n                if (paymentMethod == PaymentMethod.Multi && splits is not null)\n                {\n                    var idx = 0;\n                    foreach (var split in splits)\n                    {\n                        if (split.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet) { idx++; continue; }\n                        var movement = TreasuryMovementFactory.BuildSaleMovement($\"tm-{Guid.NewGuid():N}\",\n                            $\"op-{Guid.NewGuid():N}\", $\"{request.CheckoutRequestId}-{idx}\", orderId,\n                            split.Method, split.Amount, businessDayId, request.ShiftId, cashierUser.Name, now);\n                        _db.TreasuryMovements.Add(ToEntity(movement));\n                        idx++;\n                    }\n                }\n                else\n                {\n                    var movement = TreasuryMovementFactory.BuildSaleMovement($\"tm-{Guid.NewGuid():N}\",\n                        $\"op-{Guid.NewGuid():N}\", request.CheckoutRequestId, orderId,\n                        paymentMethod, plan.PayableTotal, businessDayId, request.ShiftId, cashierUser.Name, now);\n                    _db.TreasuryMovements.Add(ToEntity(movement));\n                }\n                new EfFinancialJournal(_db).Complete(saleKey);\n            }\n\n            await _db.SaveChangesAsync(ct);\n            await transaction.CommitAsync(ct);\n            return ToResult(orderEntity, wasReplayed: false);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          201,
+          207
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "kind": "MethodDeclaration",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-045166e51319de14b426879df5b9d7d3559fcc87a9acfda88655244ac44d8f9d",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            197,
+            44,
+            205,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-416fe02fd25a0a912537d79ab1a54a6fa38023f2badabb753bf809317e9e4cff",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            201,
+            23,
+            201,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-1b6e7b701e20d8481a165107219f1f8f54dca01f9b4a5c4ae4de0877225f5c00",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            201,
+            64,
+            201,
+            80
+          ]
+        },
+        {
+          "stable_id": "sym-8ca7984f34f29e80274e3f6b9188b38fec4ed6cfd59abe4ffd496c4fece72c51",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            206,
+            51,
+            206,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-c5aae25e515747110055af7dd111267ee117603ede7c4b2ceb1f94cdfed68db8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            206,
+            65,
+            206,
+            74
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 201,
+          "end": 207,
+          "text": "            b.HasMany(p => p.Variants).WithOne().HasForeignKey(v => v.ProductId).OnDelete(DeleteBehavior.Cascade);\n            // A product's RecipeId is a plain nullable reference, not enforced as an FK here,\n            // because Recipe.ProductId already points the other way (one product -> one active\n            // recipe is the real relation); this column only feeds resolution at checkout time.\n        });\n        modelBuilder.Entity<ProductVariantEntity>(b => b.HasKey(v => v.Id));\n"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+      "worktree_sha256": "5fe110d7121b655d758edfab04d72240aa80066214153c1af0eea54be6ea62e8",
+      "source_git_blob_sha256": "e3d26a30a2f726f543fa15a44ff3d7111753e9d4815536d91adcf52c6386885a",
+      "line_ranges": [
+        [
+          338,
+          352
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+          "signature": "Falah.Infrastructure.Persistence.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+          "kind": "MethodDeclaration",
+          "span": [
+            12,
+            9,
+            591,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-c7460237184de4a187312963566de908da8eb2762201b9b9b1b599b40fc3c0e3",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            339,
+            26,
+            346,
+            18
+          ]
+        },
+        {
+          "stable_id": "sym-d2660badc0a2439f77a09d853c25dab55dca91a2157930127e65466ecfe91a0f",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            347,
+            30,
+            356,
+            18
+          ]
+        },
+        {
+          "stable_id": "sym-d74528eda0c15218978a588bb65d61e25adb582ca7c1d375a9b1e629653e93c9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            349,
+            60,
+            349,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-e67acb83d021471e0a6583fe3860c04e5c2bf6ad2f26b80b48c16334670917c8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            352,
+            33,
+            352,
+            49
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 338,
+          "end": 352,
+          "text": "                name: \"ProductVariants\",\n                columns: table => new\n                {\n                    Id = table.Column<string>(type: \"nvarchar(450)\", nullable: false),\n                    ProductId = table.Column<string>(type: \"nvarchar(450)\", nullable: false),\n                    Name = table.Column<string>(type: \"nvarchar(max)\", nullable: false),\n                    PricePiastres = table.Column<long>(type: \"bigint\", nullable: false),\n                    RecipeId = table.Column<string>(type: \"nvarchar(max)\", nullable: true)\n                },\n                constraints: table =>\n                {\n                    table.PrimaryKey(\"PK_ProductVariants\", x => x.Id);\n                    table.ForeignKey(\n                        name: \"FK_ProductVariants_Products_ProductId\",\n                        column: x => x.ProductId,"
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
+      "worktree_sha256": "53f5c23c7f83daca94e2aa452fe130a6770de729a17724bddb1ddc88484bf096",
+      "source_git_blob_sha256": "4aa06d65f469d7efb99341f408561e7747edbba975788d61782b9fa100d8992d",
+      "line_ranges": [
+        [
+          149,
+          215
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c5e919250ea0964b6977cd6bd9a9a0e6f0c3dcf547569e89bdfac350e1a018ce",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Creating_a_product_with_variants_succeeds_and_is_readable_back()",
+          "kind": "MethodDeclaration",
+          "span": [
+            148,
+            5,
+            161,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8bbd078225d3e636c45f206bf5ef5b297645e8b449f861c253b00d30275964ec",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            160,
+            43,
+            160,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-4e2f3357659d35d77038b3a3c42590b84577320f3f9be2a748f6620c4ebdfd73",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Creating_a_product_for_an_unknown_category_is_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            163,
+            5,
+            168,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7f24fc41ba059c9ed5d0c4e88513c000c9876db261da87cf45f78712242b28e9",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Creating_a_product_with_zero_price_is_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            170,
+            5,
+            176,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8a543817dd8e75369ac98ae4b4f9ee08bc2d93b9dc80b0dd6ddc3096c679594a",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Creating_a_product_with_an_invalid_preparation_station_is_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            178,
+            5,
+            185,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c6161eb257ae288d1c4e487d056de9dccca9daece38e942f70b12dcce1f9d3c5",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Updating_a_product_replaces_its_whole_variant_set()",
+          "kind": "MethodDeclaration",
+          "span": [
+            187,
+            5,
+            211,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1b279bfd1ee3c4077a2c2cddfc1838115a9b1b73804062af2ca43ad77b31bbb8",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            196,
+            55,
+            196,
+            73
+          ]
+        },
+        {
+          "stable_id": "sym-8b00f8142b076011d2762adc3360bb9906770b63daf36fb1d9771e54ea26ff32",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            208,
+            43,
+            208,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-dc25aaaf121206f874fbbf35bbc8875aaff283b344d588827365aa2b88aea83b",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            209,
+            49,
+            209,
+            67
+          ]
+        },
+        {
+          "stable_id": "sym-3a9243970f8ece80a53f69c52abc4a986a88567aa126787b24b9549a47070c02",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            210,
+            43,
+            210,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-4e65e9818f8ec181a7e0addb422c2d68cc78456b3c1889bd59ae61139480b994",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Setting_a_product_unavailable_removes_it_from_the_pos_menu_but_keeps_it_readable_for_management()",
+          "kind": "MethodDeclaration",
+          "span": [
+            213,
+            5,
+            227,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 149,
+          "end": 215,
+          "text": "    public async Task Creating_a_product_with_variants_succeeds_and_is_readable_back()\n    {\n        var categoryId = await SeedCategoryIdAsync();\n        var variants = new[] { new ProductVariantInput(null, \"صغير\", 5000, null), new ProductVariantInput(null, \"كبير\", 8000, null) };\n        var response = await CreateProductAsync(categoryId, \"ساندويتش\", 5000, variants);\n        response.EnsureSuccessStatusCode();\n        var result = await response.Content.ReadFromJsonAsync<CreateProductResult>();\n\n        var product = await (await _client.GetAsync($\"/api/products/{result!.ProductId}\")).Content.ReadFromJsonAsync<ProductDetailsDto>();\n        Assert.Equal(\"ساندويتش\", product!.Name);\n        Assert.Equal(2, product.Variants.Count);\n        Assert.Contains(product.Variants, v => v.Name == \"صغير\" && v.PricePiastres == 5000);\n    }\n\n    [Fact]\n    public async Task Creating_a_product_for_an_unknown_category_is_rejected()\n    {\n        var response = await CreateProductAsync(\"cat-does-not-exist\", \"صنف\", 5000);\n        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);\n    }\n\n    [Fact]\n    public async Task Creating_a_product_with_zero_price_is_rejected()\n    {\n        var categoryId = await SeedCategoryIdAsync();\n        var response = await CreateProductAsync(categoryId, \"صنف مجاني\", 0);\n        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);\n    }\n\n    [Fact]\n    public async Task Creating_a_product_with_an_invalid_preparation_station_is_rejected()\n    {\n        var categoryId = await SeedCategoryIdAsync();\n        var response = await _client.PostAsJsonAsync(\"/api/products\", new CreateProductRequest(\n            $\"req-{Guid.NewGuid():N}\", categoryId, \"صنف\", 5000, false, \"Kitchen\", 1, null, Array.Empty<ProductVariantInput>(), _menuManagerId));\n        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);\n    }\n\n    [Fact]\n    public async Task Updating_a_product_replaces_its_whole_variant_set()\n    {\n        var categoryId = await SeedCategoryIdAsync();\n        var created = await (await CreateProductAsync(categoryId, \"منتج\", 5000,\n            new[] { new ProductVariantInput(null, \"أ\", 5000, null), new ProductVariantInput(null, \"ب\", 6000, null) }))\n            .Content.ReadFromJsonAsync<CreateProductResult>();\n\n        var existing = await (await _client.GetAsync($\"/api/products/{created!.ProductId}\")).Content.ReadFromJsonAsync<ProductDetailsDto>();\n        var keepVariantId = existing!.Variants.Single(v => v.Name == \"أ\").Id;\n\n        // Keep \"أ\" (by id), drop \"ب\", add a brand new \"ج\".\n        var updateResponse = await _client.PutAsJsonAsync($\"/api/products/{created.ProductId}\", new UpdateProductRequest(\n            created.ProductId, categoryId, \"منتج معدل\", 6000, false, null, 1, null,\n            new[] { new ProductVariantInput(keepVariantId, \"أ\", 5500, null), new ProductVariantInput(null, \"ج\", 7000, null) },\n            _menuManagerId));\n        updateResponse.EnsureSuccessStatusCode();\n\n        var updated = await (await _client.GetAsync($\"/api/products/{created.ProductId}\")).Content.ReadFromJsonAsync<ProductDetailsDto>();\n        Assert.Equal(\"منتج معدل\", updated!.Name);\n        Assert.Equal(2, updated.Variants.Count);\n        Assert.Contains(updated.Variants, v => v.Id == keepVariantId && v.PricePiastres == 5500); // kept row, updated price\n        Assert.DoesNotContain(updated.Variants, v => v.Name == \"ب\"); // removed\n        Assert.Contains(updated.Variants, v => v.Name == \"ج\"); // newly added\n    }\n\n    [Fact]\n    public async Task Setting_a_product_unavailable_removes_it_from_the_pos_menu_but_keeps_it_readable_for_management()\n    {"
+        }
+      ]
+    }
+  ]
+}

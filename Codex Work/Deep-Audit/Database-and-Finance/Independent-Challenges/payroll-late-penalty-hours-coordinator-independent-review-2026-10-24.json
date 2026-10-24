@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_independent_source_challenge",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-24T12:44:21.404Z",
+  "reviewer": "root coordinator",
+  "independent_of": "financial_integrity_continuation",
+  "subject": {
+    "stable_id": "sym-00c8631835d24ba42da8db099abc45ebf54f664042ebc6dc2e1d7214acb63529",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLatePenaltyHours(int, int, int)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      36,
+      40
+    ],
+    "source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "agent_handoff": "Sub-Agents/Handoffs/financial-payroll-late-penalty-hours-quality-review-2026-10-24.json",
+    "receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json"
+  },
+  "result": "SUBSTANTIVE_REASONING_CORROBORATED; CONDITIONAL CONFIGURATION QUESTION REMAINS; NO NEW CONFIRMED DEFECT",
+  "evidence": {
+    "identity": "Current source raw SHA, source-symbol index hash, stable ID and 36-40 span match the handoff and receipt; receipt itself matches the handoff SHA and exact symbol span.",
+    "arithmetic": "Source is piecewise: late<=grace returns 0; otherwise <=60 returns min(1,maxPenaltyHours); >60 returns maxPenaltyHours. Return unit is penalty-hours and no proportional minutes calculation occurs. Negative max can return negative hours; grace>=60 alters threshold reachability.",
+    "call_chain": "CalculateLateDeduction multiplies rate by returned hours and configured multiplier. Biometric check-in floors elapsed late minutes to >=0 and posts only positive penalty amounts using deterministic employee/date ID. CorrectAttendance recalculates old/new deductions under employee-ledger update lock and writes the signed delta as Adjustment. Payroll loads period ledger facts. Settings handler assigns nullable grace/max/multiplier values without local range checks in the inspected block, but requires settings_manage elsewhere; default settings are ordinary positive values.",
+    "tests": "PayrollRulesTests covers ordinary grace and 60/61 minute tiers and positive-config amount calculation, not negative max/grace or correction-delta behavior. Server integration sources did not test this edge. Test sources were inspected but not run."
+  },
+  "counterevidence_and_limits": [
+    "No owner-approved invariant defining allowable grace/max/multiplier ranges was found in the reviewed source material.",
+    "Negative settings reachability is suggested by an authorized settings API assignment without local range validation, but was not dynamically reproduced; caller/UI/API perimeter and configuration ownership remain to be separately examined.",
+    "Biometric auto-post suppresses non-positive amount. Correction path is signed and may have different consequences if malformed settings are stored.",
+    "No database/runtime/financial operation or test execution."
+  ],
+  "disposition": "Promote only this callable to SUBSTANTIVE_REVIEW_VERIFIED in the evidence overlay. Preserve malformed settings/correction delta as a conditional follow-up and do not create a duplicate FIN finding absent policy/behavior proof.",
+  "next_action": "Financial continuation agent to review UpdateSettingsHandler.HandleAsync/request/API paths and tests specifically for payroll policy range validation and correction consequences; coordinator will verify that handoff and avoid re-reviewing the pure arithmetic callable."
+}

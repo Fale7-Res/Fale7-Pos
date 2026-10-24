@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+  "source_git_blob_sha256": "3c41757e4d1030f744ce7ee818066e61e204b942b1046dbaf1ea2171fdaf3a34",
+  "worktree_sha256": "6d6d87cd0703d327ddbd5210aa92c85e907e360097c14e223e1114b3690f1c63",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:43:46.208798+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Recipe cost coverage, selectable dish detail and ingredient editor.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SelectedRecipe",
+      "reasoning": "ListView selectionTwoWay has no IsEnabled gate on IsDetailLoading or IsEditing. Confirms UI018 counterargument of native selection disabled is not supported by this markup; lateA response can publish whileBselected as reviewedVM allows."
+    },
+    {
+      "anchor": "Coverage",
+      "reasoning": "Coverage/filter search240+type180 separate from400px master list and detailstar. Status text explicitly incomplete and knowncostfloor; cost/marginnotzero forunknown."
+    },
+    {
+      "anchor": "Detail.ProductName",
+      "reasoning": "Detail title binds actualreturnedDTO not selectedrow; observantoperator can spot mismatch but it does not guard saving. StartEdit only CanStartEdit visibility, no binding tying detailID toselectedrecipe."
+    },
+    {
+      "anchor": "DetailCostDisplay",
+      "reasoning": "Cost/packaging, sellingprice/basis, contribution/foodcostpercent allactualVMdisplays. Fourcardspadded14 insidedetailcolumncancompress. No independent claim of actualcurrentcost accuracy frommarkup."
+    },
+    {
+      "anchor": "DetailLines",
+      "reasoning": "Ingredientquantity/basequantity/kind/unitcost/source/asof/extendedcost/missingreason give provenance.480pxfixedcolumns plusnames require widepane; nohorizontal scroll. Emptyrecipeexplicitunknowncostnotfree."
+    },
+    {
+      "anchor": "EditorLines",
+      "reasoning": "Quantity/kind/yield inputs have no busy/CanEditAction disable. Yieldlabel pieces-per-unit admitsnumerictext while VMUI019 truncates fractionalinput; nativeplaceholderdoesnotvalidate. Delete rootcommand withtooltip butnoexplicitaccessiblename."
+    },
+    {
+      "anchor": "CancelEditCommand",
+      "reasoning": "Cancel/savealwayscommand-bound; selection and editingremain enabledmarkup while requestinflight, so VMimmutabletarget/pendingguardrequired. Footerwarnsmissingcost/margin and staysoutsideingredientscroll. No actualrecipewrite."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need reversedA/Bdetail task completion, selectwhileediting, fractionalyield, unknowncost and480fixedcolumnsoverflow. No callabledeclarations.",
+  "recommendations": "Invalidate stale detail byselectedID/generation,freeze editing target and enforceexact yieldunits. Preserveprovenance/unknowncost explanations.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

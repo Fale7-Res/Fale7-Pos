@@ -1,0 +1,135 @@
+{
+  "name": "Common WinUI converter and unit-normalization behavior",
+  "comparisons": [
+    {
+      "group_prefix": "623127d6",
+      "reasoning": "Two CairoBusinessDate converters identical including Arabic weekday table and dd/MM/yyyy. DateOnly input is already calendar date; DateTimeOffset uses dto.DateTime WITHOUT Cairo conversion, DateTime likewise unchanged, string parses current culture.",
+      "callers_context": "Converters.CallCenter201-214 versusCashier678-691 and immediate weekday arrays inspected; binding resource adapter, no server date calculation.",
+      "financial_security_effects": "No differing copy behavior; adapter name is stronger than timestamp semantics. A UTC instant near Cairo midnight can display source-offset date if bound directly, but normal business-date DateOnly binding unaffected; not independently confirmed UI defect.",
+      "recommendation": "Share one WinUI date converter with explicit DateOnly-versus-instant contract; preserve unknown emdash.",
+      "tests": [
+        "DateOnly and current-culture string",
+        "UTC instant near Cairo midnight",
+        "Unsupported/null placeholder"
+      ]
+    },
+    {
+      "group_prefix": "dedfb311",
+      "reasoning": "Two image converters cache absolute URI BitmapImage under static Dictionary lock, decode width320, return cached object, unsupported input null. Both caches are per-type/per-process, unbounded and no eviction shown.",
+      "callers_context": "CallCenter314-325/static fields309-312 versusCashier807-818/static fields800-805; ProductCatalogueView.xaml30 image binding verified.",
+      "financial_security_effects": "No auth-header injection or network authorization guarantee from BitmapImage here. Same body still separate assemblies/caches, not cross-client shared memory. Long-lived versioned URI churn can retain images; no measured leak/hardware claim.",
+      "recommendation": "Shared compatible WinUI image adapter and bounded cache/lifetime policy, preserve UI-thread affinity and URI version behavior.",
+      "tests": [
+        "Same URI cache hit",
+        "New URI version refresh",
+        "Nonabsolute URI failure policy",
+        "UI thread image creation",
+        "Bounded memory with changing menu images"
+      ]
+    },
+    {
+      "group_prefix": "18c83359",
+      "reasoning": "TimeOfDay converters identical. DateTimeOffset ToLocalTime uses workstation zone then ar-EG formatting; DateTime formats supplied value without conversion.",
+      "callers_context": "CallCenter225-230 versusCashier702-707, adapter surface includes unsupported emdash.",
+      "financial_security_effects": "Display time can differ server Cairo policy on non-Cairo workstation, a shared assumption rather than copy divergence; no actual workstation timezone deployment test.",
+      "recommendation": "Share converter with explicit restaurant versus device-local time policy; preserve formatting contract.",
+      "tests": [
+        "UTC timestamp on Cairo/non-Cairo workstation",
+        "DateTime Kind variants",
+        "Null/unsupported placeholder"
+      ]
+    },
+    {
+      "group_prefix": "8c3333cd",
+      "reasoning": "OrderStatus labels normalize lower invariant then same Arabic names for pending/preparing/ready/completed/cancelled/refunded; unknown raw string retained, nonstring empty.",
+      "callers_context": "CallCenter13-22 versusCashier306-315; Cashier comment states lower-case wire DTO order status contract.",
+      "financial_security_effects": "No alternative financial status transition logic, label only; server state machine remains authoritative. Unknown names do not reject or authorize anything.",
+      "recommendation": "One shared status label map compatible with WinUI resources, do not alter server enum/state transitions.",
+      "tests": [
+        "Pascal/lower casing",
+        "Unknown status",
+        "Nonstring/null",
+        "Same labels both clients"
+      ]
+    },
+    {
+      "group_prefix": "88c86981",
+      "reasoning": "Money display converters accept long/int, decimal divide100 and format2decimals with currency suffix. Null emdash; unexpected type silently0.00. Same Format helper bodies and contracts read.",
+      "callers_context": "CallCenter145-153 versusCashier622-630; menu/checkout/cash count bindings use Piastres fields.",
+      "financial_security_effects": "Display-only decimal prevents currency floating write; unsupported double/string can mask type mismatch as zero, not actual recorded zero money. No source divergence.",
+      "recommendation": "Share one typed money presentation adapter; consider explicit unknown on invalid type after UI contract tests, no change applied.",
+      "tests": [
+        "long/int extremes and negatives",
+        "Null versus wrong type",
+        "Current locale separators",
+        "No accidental factor100 double conversion"
+      ]
+    },
+    {
+      "group_prefix": "bfb95f8c",
+      "reasoning": "Visibility equality converters use ordinal comparison of value/parameter cast to string; both null becomes equal/Visible. Same type/parameter behavior on both clients.",
+      "callers_context": "CallCenter123-124/Cashier600-601; CallCenterOrderPanel175 payment method wallet binding verified.",
+      "financial_security_effects": "Presentation gating does not authorize payment; missing null parameter can show section, requiring binding contract tests. No financial actor enforcement here.",
+      "recommendation": "Share stateless visibility converter while preserving ordinal case and parameter semantics.",
+      "tests": [
+        "wallet exact match",
+        "Case mismatch",
+        "Null value/parameter",
+        "Nonstring inputs"
+      ]
+    },
+    {
+      "group_prefix": "03a40b7e",
+      "reasoning": "EmptyCollection visibility converter only recognizes nongeneric ICollection Count0 OR null, else collapsed. Identical copies.",
+      "callers_context": "CallCenter172-173 versusCashier649-650; collection-bound placeholder adapter, no row mutation.",
+      "financial_security_effects": "A lazy IEnumerable empty sequence without ICollection is treated nonempty/not-empty-state; ordinary ObservableCollection implements expected contract. No money calculation.",
+      "recommendation": "Shared converter or explicit collection-count binding, preserve distinction null and unsupported collection types.",
+      "tests": [
+        "ObservableCollection add/remove",
+        "Null",
+        "Empty lazy enumerable",
+        "Notification update binding"
+      ]
+    },
+    {
+      "group_prefix": "e81548eb",
+      "reasoning": "CountGreaterThanOne converter recognizes ICollection Count>1 only. Null/unsupported/one/zero collapsed, copies identical.",
+      "callers_context": "CallCenter133-134 versusCashier610-611; ProductCatalogue variant chooser visibility binding47 verified.",
+      "financial_security_effects": "Only presentation of variant control, not server item selection validation. No authorization or variant price formula duplicated.",
+      "recommendation": "Share converter with stateless collection contract; keep threshold>1 distinct other collection adapters.",
+      "tests": [
+        "0/1/2variants",
+        "Null",
+        "Collection change notification",
+        "Unsupported enumerable"
+      ]
+    },
+    {
+      "group_prefix": "cea27f40",
+      "reasoning": "NonEmpty converter recognizes ICollection Count>0 only, not arbitrary IEnumerable. Both identical, different predicate intentionally from Empty and GreaterThanOne.",
+      "callers_context": "CallCenter183-184 versusCashier660-661; same WinUI IValueConverter adapters.",
+      "financial_security_effects": "No financial data collection or side effects; do not merge distinct thresholds into one implicit rule.",
+      "recommendation": "Share parameterized converter only with explicit threshold/null policy and compatible resource facades.",
+      "tests": [
+        "0/1items",
+        "Null",
+        "Lazy enumerable",
+        "Live updates"
+      ]
+    },
+    {
+      "group_prefix": "02d0c6ff",
+      "reasoning": "Four Arabic-digit normalization lambdas identical: ArabicIndic/EasternIndic digits to ASCII, Arabic decimal mark to dot. Parent parsers differ: CashInput decimal2digits/nonnegative/maxlong100; MilliUnits decimal3digits/maxlong1000; Attendance finite double hours/nonnegative or nonnegative int count.",
+      "callers_context": "Exact lambdas read in both CashInput, MilliUnits18-22 and Attendance146-153; prior full CashInput clone comparison preserved.",
+      "financial_security_effects": "Only character transformation reusable. Sharing whole parser would wrongly impose currency precision on inventory/hours. Financial source server validation independent; client parser alone does not fix signed raw API bounds.",
+      "recommendation": "Extract pure normalization helper if compatible, retain distinct unit-specific precision/range/parsing rules.",
+      "tests": [
+        "Two digit families and Arabic dot",
+        "Currency2versus inventory3decimals",
+        "Hours fractional precision",
+        "Finite numeric input and unit bounds"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json"
+}

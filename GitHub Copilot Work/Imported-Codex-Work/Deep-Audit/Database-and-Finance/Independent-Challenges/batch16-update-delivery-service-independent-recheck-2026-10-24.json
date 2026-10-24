@@ -1,0 +1,58 @@
+{
+  "artifact_kind": "financial_callable_independent_recheck",
+  "at_utc": "2026-10-24T13:10:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "callable": {
+    "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+    "signature": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+    "lines": [
+      89,
+      122
+    ],
+    "source_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+    "symbol_index": {
+      "found": true,
+      "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+      "qualified_symbol": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+      "span": [
+        89,
+        5,
+        122,
+        6
+      ]
+    },
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs.json",
+      "expected_sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+      "actual_sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+      "hash_matches": true,
+      "reviewer": "financial_integrity",
+      "callable_reasoning": "Authorizes actor then loads service. Optional Name normalized, rejects blank and detects other-ID name clash before Save. Updates fee only when nonnull, so nullable fee cannot be cleared to null through this request; Active optionally toggles. No monetary sign/max validation, no row concurrency token/name-admission lock, no historical order rewrite. Concurrent updates can be last-writer-wins and name predicate races; no live DB acceptance claimed."
+    }
+  },
+  "prior_validation": "financial-production-batch-16-coordinator-validation-2026-10-24.json",
+  "agent_handoff": "Sub-Agents/Handoffs/financial-production-callable-quality-batch-16-update-delivery-service-2026-10-24.json",
+  "independent_recheck": {
+    "reviewer": "root coordinator",
+    "related_sources_checked": 15,
+    "all_hashes_and_ranges_match": true,
+    "source_index_id_and_span_match": true,
+    "errors": [],
+    "source_body_reopened": true,
+    "tests_read_not_run": true
+  },
+  "disposition": {
+    "canonical_finding": "FIN-016",
+    "conclusion": "Supplemental configuration-ingress evidence: UpdateDeliveryServiceHandler permits an authorized delivery_manage request to persist a signed fee without server sign/magnitude validation. The active-service query and cashier checkout path subsequently carry the configured amount into signed fee arithmetic. This is the same missing server-side fee invariant covered by FIN-016; extend its evidence/affected paths rather than create a duplicate finding.",
+    "confirmed": "Static source behavior and wiring only. No live HTTP/API acceptance, SQL persistence, cashier checkout or financial side effect executed.",
+    "owner_policy": "Nonnegative/maximum fee policy and nullable null-versus-clear semantics remain unresolved.",
+    "fin003": "No impact on FIN-003 Order.ApplyRefund or its collection-policy limitations.",
+    "new_finding": "Not warranted from this batch."
+  },
+  "tests_not_executed": [
+    "API negative/extreme fee boundary",
+    "same-service frozen numeric fee snapshot",
+    "provider-level concurrency"
+  ]
+}

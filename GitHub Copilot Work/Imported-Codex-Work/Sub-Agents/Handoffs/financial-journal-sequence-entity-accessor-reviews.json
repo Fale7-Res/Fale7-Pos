@@ -1,0 +1,331 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-5d51e9ed51aae1d56b38fc5794cf31c1818ba30f862ad21cb3cd7e08f73ff908",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.IdempotencyKey.get",
+        "span": [
+          118,
+          36,
+          118,
+          40
+        ],
+        "reasoning": "Getter exposes journal primary key shared by check-start/complete/discard; choosing business-event scope correctly is essential, as FIN001 shows sale-key collision between checkout and later confirmation.",
+        "inputs": "Entity carrying string journal business key.",
+        "outputs": "string journal business key without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-088854668414d100424dbfb564bdb6484a762bb94de78186758be62cb2623677",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.IdempotencyKey.set",
+        "span": [
+          118,
+          41,
+          118,
+          45
+        ],
+        "reasoning": "Setter records caller-supplied business event key during TryStart. PK uniqueness is enforced only when caller saves; in-memory true from TryStart is not committed reservation proof.",
+        "inputs": "string journal business key assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-1ab986be8a63143613457c0f5ac68e482a5abb40485885199b5f70cb28ed1769",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.Kind.get",
+        "span": [
+          119,
+          26,
+          119,
+          30
+        ],
+        "reasoning": "Getter exposes command classification but TryStart duplicate decision uses only IdempotencyKey, not kind or payload equality.",
+        "inputs": "Entity carrying string journal kind.",
+        "outputs": "string journal kind without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-c8ca087cbc8745239bd07cdf4700a644662c8436ca938441127b1a64acc752b0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.Kind.set",
+        "span": [
+          119,
+          31,
+          119,
+          35
+        ],
+        "reasoning": "Setter stores supplied kind without independent validation. Differing kind cannot create second row with same primary key, nor bypass same-key rejection.",
+        "inputs": "string journal kind assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-7fab13b576c1e5ec7cc74f9c90296690327ccfe5bb8c683b912b8790fe6b9129",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.Status.get",
+        "span": [
+          120,
+          28,
+          120,
+          32
+        ],
+        "reasoning": "Getter supplies string lifecycle state used by Complete/DiscardPending and day-close blocker checks, not an automatic indication money safely committed.",
+        "inputs": "Entity carrying string journal state.",
+        "outputs": "string journal state without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-536e4f3d3982edc64f35fab3e36c6e586a1c5d576750e302a540c02d7bbc4a73",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.Status.set",
+        "span": [
+          120,
+          33,
+          120,
+          37
+        ],
+        "reasoning": "Setter initializes Pending and Complete changes only a Pending entry. No SaveChanges or transaction is started by setter/helper; caller ambient transaction determines atomicity with money facts.",
+        "inputs": "string journal state assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-7f76c2918beb686c82cb9c992ff022cd58561f8bec5b7c5bd5d8b9f87bfac5ea",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.CreatedAtUtc.get",
+        "span": [
+          121,
+          42,
+          121,
+          46
+        ],
+        "reasoning": "Getter provides journal creation-attempt time; helper has no completion timestamp, so duration cannot be inferred from a second lifecycle time.",
+        "inputs": "Entity carrying DateTimeOffset journal creation.",
+        "outputs": "DateTimeOffset journal creation without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-2c43f7c5000d9140f8f6b59685e49aa5dac1cabcd7508bafa883701c46290457",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.FinancialJournalEntryEntity.CreatedAtUtc.set",
+        "span": [
+          121,
+          47,
+          121,
+          51
+        ],
+        "reasoning": "Setter records UtcNow when staged in TryStart, potentially before transaction commit or rollback. Rolled-back staging must not be counted as persisted pending evidence.",
+        "inputs": "DateTimeOffset journal creation assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-6bd0a6851e293896fb2a0818bc63f914ae0ffbfd98ab2bc7feae74b0bfb29de0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderSequenceEntity.Id.get",
+        "span": [
+          128,
+          21,
+          128,
+          25
+        ],
+        "reasoning": "Getter identifies counter row; actual allocator targets literal Id1, so arbitrary additional rows do not partition allocation by terminal or business day.",
+        "inputs": "Entity carrying int counter identity.",
+        "outputs": "int counter identity without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-6e54c7ebe39b811ce0d6f36a20ed7ad8bc24b875501e4078c54a7c3605b74480",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderSequenceEntity.Id.set",
+        "span": [
+          128,
+          26,
+          128,
+          30
+        ],
+        "reasoning": "Setter is seeded with1 in model; singleton behavior is logical caller convention, while PK allows additional distinct IDs if externally inserted.",
+        "inputs": "int counter identity assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-9432183f17872582bc2ce9ddcc4d4b1934b8101734b29b0f51dc46465fc8de4a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderSequenceEntity.LastAllocated.get",
+        "span": [
+          129,
+          33,
+          129,
+          37
+        ],
+        "reasoning": "Getter exposes last allocated long counter, but actual SQL UPDATE OUTPUT operates directly rather than reading this entity property for next value.",
+        "inputs": "Entity carrying long latest order number.",
+        "outputs": "long latest order number without allocating or committing.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      },
+      {
+        "stable_id": "sym-026931f4886f261fda6ec482628b6cc5551ecd23e22ab835aaaf7a8b949ce69f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderSequenceEntity.LastAllocated.set",
+        "span": [
+          129,
+          38,
+          129,
+          42
+        ],
+        "reasoning": "Setter is seeded127 only; runtime allocator increments persisted value atomically and joins CurrentTransaction when present. Entity assignment does not enforce caller transaction contract or prevent long exhaustion.",
+        "inputs": "long latest order number assigned by journal or seed/materialization.",
+        "outputs": "Field assignment only, no return value.",
+        "side_effects": "In-memory property mutation only; journal stages EF changes, sequence allocator bypasses entity setter using SQL. No execution in audit.",
+        "trust_boundaries": "Idempotency storage enforces unique key at persistence, not actor authorization/payload fingerprint. Sequence helper requires caller transaction by documented contract but accepts absent CurrentTransaction.",
+        "database": "FalahDbContext154-162: journal key PK, sequence Id PK and seed(1,127). EfJournal22-53 has Local/DB reads and staged mutations, no own SaveChanges; Sequence19-28 uses UPDATE OUTPUT Id1. No SQL executed.",
+        "printing_ui": "Order numbers can be displayed/printed downstream, but this field review neither allocated a number nor produced a ticket.",
+        "performance": "O(1) accessor; journal existence query and one-row sequence UPDATE cost belong helpers. No lock timing, throughput or provider measurement.",
+        "duplicates_conflicts": "FIN001 key namespace collision is retained, not refuted by PK. Existing checkout caller ordering supplies intended transaction; no blanket claim other callers cannot burn numbers.",
+        "issues_hypotheses": "No new accessor finding. Exact journal key scope, caller transaction/rollback and sequence exhaustion need explicit regression; not runtime-verified.",
+        "tests_missing": "No tests run. Need same-key competing kinds/payloads, pending rollback/discard, source money atomicity, sequence missing row, concurrent allocation and rollback without number burn under correct caller.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:22-57",
+          "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs:19-28",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:154-162"
+        ]
+      }
+    ]
+  }
+]

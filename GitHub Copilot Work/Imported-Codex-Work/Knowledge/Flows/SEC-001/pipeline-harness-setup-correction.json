@@ -1,0 +1,7 @@
+{
+  "at_utc": "2026-10-17T01:44:07.380353+00:00",
+  "prior_instrumented_attempt": "Exited1 after canonical-mismatch assertion",
+  "actual_cause": "Harness Request.Path was outside /api/; baseline middleware intentionally skips non-API paths. This was an audit-tool setup error, not contradictory production evidence.",
+  "correction": "Audit harness path changed to /api/isolated-audit-probe; baseline app middleware/DTO unchanged",
+  "publication": "NO_PARTIAL_COMMIT_OR_PUSH until complete original audit and final quality gates"
+}

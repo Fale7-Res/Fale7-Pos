@@ -1,0 +1,367 @@
+{
+  "at_utc": "2026-10-20T03:11:35.126Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_key": "STANDALONE_SETTLEMENT_VERSUS_PERIOD_PAYROLL_OBLIGATION",
+  "status": "SOURCE_LEAD_PENDING_INDEPENDENT_FINANCIAL_POLICY_AND_COUNTERCONTROL_CHECK",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          16,
+          29
+        ],
+        [
+          99,
+          104
+        ],
+        [
+          125,
+          139
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+          "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+          "span": [
+            46,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            25,
+            101,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587",
+          "signature": "lambda expression",
+          "span": [
+            103,
+            71,
+            103,
+            110
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "line_ranges": [
+        [
+          44,
+          65
+        ],
+        [
+          75,
+          87
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+          "signature": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            104,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-6883abd4f8ef4dd18e286cf776a7904878462037a5133d608116cb323765610f",
+          "signature": "lambda expression",
+          "span": [
+            46,
+            20,
+            46,
+            97
+          ]
+        },
+        {
+          "stable_id": "sym-17a63eacca5de5a61fdfc231e5b887b260a4b9e7d9e401cb7439a5f5db3e42ac",
+          "signature": "lambda expression",
+          "span": [
+            54,
+            43,
+            63,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b0e5eac49582c0788a267876bf5deede5cec1ce9bfa065e8577b49f3854a6c8c",
+          "signature": "lambda expression",
+          "span": [
+            56,
+            50,
+            56,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-de9e43eacc05dbfa2072b8418d775374227dad8d4c6efa3bba196e67381ee111",
+          "signature": "lambda expression",
+          "span": [
+            57,
+            25,
+            57,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          83,
+          111
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+          "span": [
+            83,
+            5,
+            112,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fb6e06c94ed98882fd223b075315e64ea785607dd4fc9ead89e76b8bf161dd11",
+          "signature": "lambda expression",
+          "span": [
+            88,
+            51,
+            88,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-5c54e9ee3a705e9926060f72df563e5c19dc0239cdbc90519b5ab7cb3667b0d4",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            62,
+            97,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-87f6f012e75f4ceba9a9b9f25a4ada25083ece3b18eb241a301ff5b2f6c0ca7b",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            106,
+            97,
+            128
+          ]
+        },
+        {
+          "stable_id": "sym-c88242c0c88b12e693a5cd1e86059e585d5a190698448c6c91fb05c01cea56cd",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            71,
+            98,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-aa49efb2be6439fd698d692a1b232ec88d58b38bb0b96b57268c9ffdf54b5faa",
+          "signature": "lambda expression",
+          "span": [
+            98,
+            102,
+            98,
+            124
+          ]
+        },
+        {
+          "stable_id": "sym-ae42b9392712dd4b24684dbdeffe96476fd168b45936231b1acdd759bd0f7313",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            74,
+            99,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-ec12fc9b089e55273554965f0cf22e4d0e93aaae7a4f21aa3243a6f3e4e8f62f",
+          "signature": "lambda expression",
+          "span": [
+            99,
+            107,
+            99,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-97a1c09544dab50238f260b23e0a62832c2dfa5aaf7ada402e3742683f0136a2",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            70,
+            100,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-25025ec4c7c0577967b58ed456ff0a55139cdcc7d4a7f2619ad6f77a856c7a17",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            116,
+            100,
+            138
+          ]
+        },
+        {
+          "stable_id": "sym-e275b089567793bca24444064ad55f1ef63eed026ecf642c2e9fabe4c14ffc3e",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            73,
+            101,
+            115
+          ]
+        },
+        {
+          "stable_id": "sym-8e097b381da5228f3dd076e77d3fa589a6c9b8008c21128032e5f09af0389a84",
+          "signature": "lambda expression",
+          "span": [
+            101,
+            121,
+            101,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [
+        [
+          86,
+          108
+        ],
+        [
+          136,
+          162
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+          "signature": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+          "span": [
+            39,
+            5,
+            182,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-166c23b1374dde0bc098da55c4f80ff9bdabc3292f42c3ca8ad4d72aec8d0a15",
+          "signature": "lambda expression",
+          "span": [
+            86,
+            50,
+            86,
+            93
+          ]
+        },
+        {
+          "stable_id": "sym-6e5308987c8babd84e68b2e29d364e1bb40a70e6c29c299f06bbacfb29dc0476",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            31,
+            87,
+            56
+          ]
+        },
+        {
+          "stable_id": "sym-739f54119add32bbc86ae738b323f2f5b57e4b4ec461010dc8d58383abb2b84d",
+          "signature": "lambda expression",
+          "span": [
+            95,
+            44,
+            95,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-08ac74b4094a84644796fd173d79c63c07d74366d9ab778dfae114370db529fc",
+          "signature": "lambda expression",
+          "span": [
+            97,
+            24,
+            99,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-e3d25049b1c9075f24cfd7ae8f153a463a28dcfca8bb1481cb5166ae90914c01",
+          "signature": "lambda expression",
+          "span": [
+            100,
+            25,
+            100,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-8133ca06a75a53035e0cbae5ae0cf103f3fd51574b0f3ad5be305ae2b012b355",
+          "signature": "lambda expression",
+          "span": [
+            137,
+            46,
+            137,
+            75
+          ]
+        }
+      ]
+    }
+  ],
+  "origin": "Existing PayPayroll per-file report already warns frozen net ignores standalone settlements; root now tracing actual cross-method source rather than inventing new lost finding.",
+  "source_trace": [
+    "PayEmployee explicitcontinuousledger noPayrollrequired rule16-29; currentfact balance99-104 protects thiscommand only, debitSettlement125-128 persisted138-139.",
+    "CreatePayroll periodentries45-47/inputs56-62 andRules95-107 earn categories andnamedDeduction/Adjustmentdebits,RequestedAdvanceDeduction0; Settlement not subtracted.",
+    "PayPayroll86-108 uses frozenNet lines and136-162 debitspositiveNet asPayrollSettlement; no currentemployee obligation recheck in inspectedwriter."
+  ],
+  "synthetic_source_schedule": [
+    "Daily employee has current-period genuineDailyWagecredit20000, no other debt/deduction. Create approved run whose frozenNet20000.",
+    "Authorized standalone PayEmployee pays20000 againstcurrentbalance, recordsSettlementdebit20000 andtreasuryoutflow; currentbalance0.",
+    "Authorized PayPayroll laterpays frozen20000 line, recordsPayrollSettlementdebit20000 plussecondtreasuryoutflow; projectedledgerdelta20000-20000-20000=-20000."
+  ],
+  "classification_limit": "Arithmetic described from source, NOT an executed test or actual database acceptance. Whether pay mechanisms intentionally represent independent payable obligations or mutuallyexclusive deployment paths must be challenged before promoting duplicate-pay defect.",
+  "countercontrols": [
+    "Both commands require legitimate ownpermission/managerapproval, open day andsufficientprotected sourcefunds; samecommand idempotency works.",
+    "Monthlysalary base/ledger conventions may differ; selectedlead usesDailyWagepostedfact, notzero-earning monthly case.",
+    "Source period/monthUTC filter andfrozenpayroll semantics intentional; fixcannot silentlyrecompute paid/frozenpayroll orremove historical facts.",
+    "No provider, payroll, employee, API, configuration or businessdata writes performed."
+  ],
+  "next": "Originalspecialist bounded independentchallenge andsearch savedlead/disposition history forduplicateorpolicyresolution; root compareactualrouting/clientavailability ifneeded.",
+  "runtime": "NOT_EXECUTED",
+  "new_primary_callable_receipts": 0
+}

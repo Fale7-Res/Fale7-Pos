@@ -1,0 +1,63 @@
+{
+  "candidate_key": "INVENTORY_UNIT_CHANGE_STALE_NO_MOVEMENT_ADMISSION",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "severity": "MEDIUM_CANDIDATE",
+  "confidence": "HIGH_STATIC_SCHEDULE_NO_DB_TEST",
+  "status": "CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "independent_pending": true,
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs",
+      "git_blob_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "worktree_sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+      "git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+      "git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+      "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de"
+    }
+  ],
+  "trigger": "Initially valid inventory item with UnitA and no stock movements. Authorized inventory_manage update requests distinct UnitB. Separately authorized purchasing receipt for same existing item uses positive quantity/cost, credit payment0, valid supplier/open day, fresh IDs.",
+  "schedule": [
+    "UpdateInventory loads item81 and checks unitChanged84, then StockMovements.Any87 returnsfalse and Domain guard88 accepts; pause before Save100.",
+    "ReceivePurchase commits a legitimate PurchaseReceipt In movement with quantity milliunits in previously current UnitA: stock167-175, Save207/Commit208. Choose complete receipt before metadata writer resumes, so transactions need not overlap.",
+    "UpdateInventory resumes sets UnitB93 and Save100; no repeated movement query, transaction-held inventory anchor or version token."
+  ],
+  "root_cause": "Immutable-unit predicate is evaluated before write without coordinating the first stock-movement admission. InventoryItem mapping244 is primary key only, no concurrency token; movement FK protects existence, not unit interpretation.",
+  "impact": "Historical bare milliunit movement is reinterpreted under UnitB, contrary explicit InventoryRules40-47 no-unit-snapshot invariant. Current stock display joins current Unit, and valuation/recipe conversions can become semantically inconsistent; no measured monetary loss or actual SQL schedule executed.",
+  "counterevidence": [
+    "If movement already exists when update query runs, guard correctly rejects; selected first-movement race avoids that ordinary protection.",
+    "Receipt itself is transactional, idempotent and FK-valid; chosen nonoverlapping commits release its parent FK locks before unit update Save.",
+    "Source-account locks irrelevant to credit0 receipt and do not protect item metadata anyway.",
+    "Both actors require legitimate inventory/purchasing authority; not unauthorized privilege escalation.",
+    "No runtime queryplan/isolation/EF generated SQL observed. External serialization or unsupported metadata operation policy not certified."
+  ],
+  "correction_design": "Coordinate Unit mutation and every first stock-posting path on same transaction-held item anchor or durable immutable-unit schema contract, recheck movement existence inside protected boundary; do not only add metadata Version if stock writers never modify parent token.",
+  "regression_tests": [
+    "Barrier after unit no-movement read, commit first receipt, then metadata save must reject unit change or receipt must be admitted only under new unit with explicit semantics.",
+    "Reverse order and concurrent stock adjustment/usage paths; existing movement sequential rejection retained.",
+    "Unrelated metadata changes remain possible and same-unit updates do not fail."
+  ],
+  "runtime": "NOT_EXECUTED; no application/stock/DB/configuration write.",
+  "updated_at_utc": "2026-10-19T01:43:00.383072+00:00"
+}

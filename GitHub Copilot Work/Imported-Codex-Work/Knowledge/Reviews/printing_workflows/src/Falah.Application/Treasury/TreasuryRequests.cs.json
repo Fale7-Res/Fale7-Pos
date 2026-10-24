@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Treasury/TreasuryRequests.cs",
+  "source_git_blob_sha256": "6213584b772681c647ce1627e9353cc56ec915127a1553f37968924f2ab7ff6a",
+  "worktree_sha256": "dc81bfe18c81e2d4ccb07c1d5232c22d3a2fea59c9ce8fa7a899e520116d35a4",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.896861+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-8c78c7e86419cb5a7b242c3dfac9ea6c653e1bfbf906d3478a184500e7a6f2e5",
+      "status": "ANALYZED",
+      "reasoning": "TreasuryConflictException constructor forwards supplied message to Exception unchanged; it introduces no inner exception, HTTP status, identity validation or retry behavior. The distinct exception type selects treasury409 in endpoint catches. Throwing it is not by itself proof a transaction rolled back or operation never committed.",
+      "inputs": "string message",
+      "outputs": "TreasuryConflictException instance",
+      "side_effects": "Exception message allocation only",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Operator message can carry caller/DB-derived details; callers must avoid secrets. The type does not make arbitrary retries safe.",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "treasury409",
+        "System.Exception(message)",
+        "Program explicit typed catch when present"
+      ],
+      "evidence_source_span": [
+        77,
+        77
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

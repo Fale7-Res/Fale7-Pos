@@ -1,0 +1,197 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-066",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:19:26.979Z",
+  "reviewer": "root coordinator",
+  "title": "Call Center and Cashier session responsibilities and operation guards",
+  "scope": "Compare active CallCenter WinUI and Cashier WinUI session state, permissions, unresolved-operation guards and delivery checkout shift admission. This is a bounded role-specific comparison, not a global session audit.",
+  "decision": "The common permission predicate and per-user view-model caching serve parallel session roles. Call Center intentionally discovers the single global open shift before delivery checkout because it does not own a drawer/shift; Cashier retains an operator-selected shift and additionally tracks pending management commands. Call Center HasUnresolvedOperation relies on CanEditOperation, which includes IsOperationBusy; Cashier redundantly checks IsOperationBusy as well, so no current busy-state divergence is shown. No new finding.",
+  "behavior": {
+    "shared": "Both process-local sessions hold CurrentUser and shift identity, check permission with all-or-specific, and cache one workflow VM per logged-in user.",
+    "callCenter": "RefreshCurrentShiftAsync queries the server global current shift, clears local shift fields on failure, and checkout rechecks before building request; this reflects station has no drawer/owned shift.",
+    "cashier": "HasUnresolvedOperation includes management operation owners and cached cashier VM pending/busy states; cashier workflow uses own opened/selected shift and handles broader till operations.",
+    "equivalence": "Call Center !CanEditOperation and Cashier !CanEditOperation || IsOperationBusy have same busy implication for the inspected CashierViewModel.State getter, where CanEditOperation already includes !IsOperationBusy."
+  },
+  "counterevidence_and_limits": "Different station responsibilities make shift and pending-command policies intentionally non-identical. Server CheckoutOrderHandler independently checks the submitted shift is Open; the client refresh/request has a possible time-of-check/time-of-use interval but that is covered by the existing checkout/shift-close analysis and is not newly asserted here. Does not review legacy WPF cashier app, all login/session code, or every header/lock caller.",
+  "recommendation": "Keep role-specific shift ownership and pending-command semantics explicit. If factoring shared permission/session helpers, do not collapse Call Center global-shift discovery into cashier-owned shift lifecycle. Add focused tests only if session lifecycle is refactored; include no-open-shift, shift-closes-between-refresh-and-checkout, unresolved checkout, and pending cashier management action cases.",
+  "required_tests": [
+    "Call Center checkout stops and clears local shift when GET current shift fails.",
+    "Call Center refreshes global shift immediately before new checkout and uses the returned ID.",
+    "Cashier blocks lock/close while IsOperationBusy or pending financial command.",
+    "If common session logic is introduced, verify all/specific permission behavior in both clients."
+  ],
+  "related_findings": [
+    "Existing checkout/shift-close semantic comparison; no new finding."
+  ],
+  "runtime_executed": false,
+  "limitations": "Source comparison only; no UI/runtime tests and no database/network activity.",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs",
+      "source_git_blob_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+      "worktree_sha256": "ade21bda88fdb6bcc6995c8dd8c3d2e5d29d6d099499f51eee20f9c9750e2694",
+      "line_ranges": [
+        [
+          27,
+          58
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cb832ed819f75ef32e482a6bd534c2ae131476e41c2db4e42e89647006961482",
+          "signature": "Falah.Client.CallCenterWinUI.Services.AppSession.GetOrderDesk(Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel)",
+          "kind": "MethodDeclaration",
+          "span": [
+            27,
+            5,
+            33,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a1bc7b43861b2c4ebf553a906dc3bdfd251b5781f87c2ad6714c679863fab842",
+          "signature": "Falah.Client.CallCenterWinUI.Services.AppSession.HasUnresolvedOperation",
+          "kind": "PropertyDeclaration",
+          "span": [
+            38,
+            5,
+            38,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-44b3fc159498b85ba8b163964e2264b85f2bb0add8d519f70401c1cdabb7ea10",
+          "signature": "Falah.Client.CallCenterWinUI.Services.AppSession.HasPermission(string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            41,
+            126
+          ]
+        },
+        {
+          "stable_id": "sym-c02b5c397bc6c82b8797017b4983edc1fc060cade57b797579907a55835a5c37",
+          "signature": "Falah.Client.CallCenterWinUI.Services.AppSession.RefreshCurrentShiftAsync(CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            46,
+            5,
+            58,
+            6
+          ]
+        }
+      ],
+      "evidence": "Source-indexed callable identity; manually compared to the counterpart/consumer paths named in this artifact."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "line_ranges": [
+        [
+          12,
+          34
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-854cdafb5794ad6a9c77f585a823cc9b0e2cb9fd7b861b2d081dfdf8d8e9373b",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.HasUnresolvedOperation",
+          "kind": "PropertyDeclaration",
+          "span": [
+            12,
+            5,
+            12,
+            147
+          ]
+        },
+        {
+          "stable_id": "sym-c3b6746bb8aed1de5023f13c565fda975a21f8314bd0e177b6edcf6049ed4ebe",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.SetManagementOperationPending(object, bool)",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            20,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a45243af95943991f8d38374fd292d1a60c7f9edf12df1ce79a5739afeb56fb2",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.GetCashier(Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)",
+          "kind": "MethodDeclaration",
+          "span": [
+            22,
+            5,
+            28,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ebe9c8514f3bb69a36cd840ed97ebe3b879820994ed3a5955057258d7bfe4873",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.HasPermission(string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            33,
+            5,
+            34,
+            126
+          ]
+        }
+      ],
+      "evidence": "Source-indexed callable identity; manually compared to the counterpart/consumer paths named in this artifact."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "line_ranges": [
+        [
+          98,
+          140
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ac068985fe1f63f1b67e0480bb8da5498bc8abacd2dbdf722fe7d6eb37b8a8f0",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SubmitOrderAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            98,
+            5,
+            176,
+            6
+          ]
+        }
+      ],
+      "evidence": "Source-indexed callable identity; manually compared to the counterpart/consumer paths named in this artifact."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs",
+      "source_git_blob_sha256": "48a28a7c8351ffd0ec599ee599ea5d5de2495a09e8a0f238e515410e305149bd",
+      "worktree_sha256": "9826b8fc7ac4c90e688e59bccf35b9b47ec0d9eeca8e79db22aed5c47bf6675d",
+      "line_ranges": [
+        [
+          19,
+          24
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8070f2c01cf85ec6b2370bcfdddba04ca4260ba9c67d06f658ac8f1dde343ac5",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CanEditOperation",
+          "kind": "PropertyDeclaration",
+          "span": [
+            22,
+            5,
+            24,
+            146
+          ]
+        }
+      ],
+      "evidence": "Source-indexed callable identity; manually compared to the counterpart/consumer paths named in this artifact."
+    }
+  ]
+}

@@ -1,0 +1,1867 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/OrderEntity.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-23ae2a2ece8e2d3a0ccff8cf4c0e14dcb05709b2ed49573f2864a0dfd0119a92",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryFeePiastres.get",
+        "span": [
+          46,
+          39,
+          46,
+          43
+        ],
+        "reasoning": "Getter exposes charged order-time delivery fee, not necessarily catalog default/service current tariff.",
+        "inputs": "Order entity containing long charged delivery fee.",
+        "outputs": "long charged delivery fee without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-672a8f5df487274653c3fd8a302adc9ed2590c842154f971c3b8e3994306ac34",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DeliveryFeePiastres.set",
+        "span": [
+          46,
+          44,
+          46,
+          48
+        ],
+        "reasoning": "Setter freezes domain fee from checkout boundary; FIN016 sign/bounds admission remains and stored long does not validate nonnegative charge.",
+        "inputs": "long charged delivery fee from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c3eaf70fff92cfd81eb4f73c2aa4e09b3cb6f1c25a54f2eb6a3d60b7e92e067b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SubtotalPiastres.get",
+        "span": [
+          47,
+          36,
+          47,
+          40
+        ],
+        "reasoning": "Getter exposes frozen effective item subtotal before manual discount/comp/tax, not live menu aggregate.",
+        "inputs": "Order entity containing long frozen subtotal.",
+        "outputs": "long frozen subtotal without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-cc63b0f50f5b72e9e8fb9d1dbaf65e142d8cdc3ede361078fcec9bfcacc5c9e6",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SubtotalPiastres.set",
+        "span": [
+          47,
+          41,
+          47,
+          45
+        ],
+        "reasoning": "Setter copies plan/domain subtotal. Reconstitute trusts stored primitive rather than recomputing items, so consistency is normal-writer contract, not accessor guarantee.",
+        "inputs": "long frozen subtotal from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-1c071c827c9a96490b97fdc8ccad316dcc67d953a8d4cdce64d846e8638d3855",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DiscountPiastres.get",
+        "span": [
+          52,
+          36,
+          52,
+          40
+        ],
+        "reasoning": "Getter separates manual discount from price-rule offer difference and comp; reporting can classify each independently.",
+        "inputs": "Order entity containing long manual discount.",
+        "outputs": "long manual discount without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-90abcbc501261ca9fe6a17d0b4bf45a6d793b303f98d633cb67c196984dff200",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.DiscountPiastres.set",
+        "span": [
+          52,
+          41,
+          52,
+          45
+        ],
+        "reasoning": "Setter copies authorized checkout discount snapshot. Property does not itself enforce orders_discount or amount cap.",
+        "inputs": "long manual discount from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-2ded49985f44fe44f7924b68ab202cb9fb2009f383588af9bed55cadb80fdb52",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompAmountPiastres.get",
+        "span": [
+          53,
+          38,
+          53,
+          42
+        ],
+        "reasoning": "Getter exposes frozen manager-approved comp amount, distinct from manual discount and later refund.",
+        "inputs": "Order entity containing long comp amount.",
+        "outputs": "long comp amount without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-3123e3d717721fc1760533201d3b328b265ea43b11db264c7e6268fc19518c66",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompAmountPiastres.set",
+        "span": [
+          53,
+          43,
+          53,
+          47
+        ],
+        "reasoning": "Setter copies plan comp after strict approval path. Changing amount alone would not revalidate manager or recalculate total, so accessors are not aggregate invariant boundary.",
+        "inputs": "long comp amount from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-910a479aa3d52d42a59097b20e5957cab2d5dc41a565291830244e7347c1484d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompReasonCode.get",
+        "span": [
+          54,
+          37,
+          54,
+          41
+        ],
+        "reasoning": "Getter retains optional structured comp reason code; null is normal when comp amount zero.",
+        "inputs": "Order entity containing nullable comp reason code.",
+        "outputs": "nullable comp reason code without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-851497d0aa3f962833f776f7c6a9f719f9d5603e8373d0951dc8f2de7cdb9384",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompReasonCode.set",
+        "span": [
+          54,
+          42,
+          54,
+          46
+        ],
+        "reasoning": "Setter stores request reason code only when positive comp in checkout169, not a general cancellation/refund reason.",
+        "inputs": "nullable comp reason code from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-607b08ae38e9e8148a4333cfd5339f3a5514aa70af5301fbf0e70652d5573675",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompAuthorizedBy.get",
+        "span": [
+          55,
+          39,
+          55,
+          43
+        ],
+        "reasoning": "Getter exposes verified comp approver-name snapshot, distinct from cashier and approval ID.",
+        "inputs": "Order entity containing nullable comp approver name.",
+        "outputs": "nullable comp approver name without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b22bf6eb1c648f703957c2bad1860c89b273920d7ef17c2e4ac61fcc50214a0e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompAuthorizedBy.set",
+        "span": [
+          55,
+          44,
+          55,
+          48
+        ],
+        "reasoning": "Setter freezes compApprovedByName produced by strict comp validation; this field alone is not registry consumption or live manager authority.",
+        "inputs": "nullable comp approver name from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-bce9011d3d7d96c1b9cea65f6f44e9a6773447a2c2649e714a1a956bd6441a22",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompApprovalId.get",
+        "span": [
+          56,
+          37,
+          56,
+          41
+        ],
+        "reasoning": "Getter preserves optional comp approval identity for provenance, separate from displayed approving name.",
+        "inputs": "Order entity containing nullable comp approval key.",
+        "outputs": "nullable comp approval key without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-9b0395f26823f25f092555b6b168a2391d3bedd8fa495f0480db429902f8fc23",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CompApprovalId.set",
+        "span": [
+          56,
+          42,
+          56,
+          46
+        ],
+        "reasoning": "Setter stores supplied comp approval only when comp positive. It is not a universally mandatory approval for noncomp orders.",
+        "inputs": "nullable comp approval key from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-9741a8745ddc6c5564656f5200bf9e76bca884f5e1d12d6f351df6a8f4faca45",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxAmountPiastres.get",
+        "span": [
+          57,
+          37,
+          57,
+          41
+        ],
+        "reasoning": "Getter exposes frozen calculated tax component, not rate or amount to add again blindly to already-inclusive total.",
+        "inputs": "Order entity containing long frozen tax amount.",
+        "outputs": "long frozen tax amount without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b5dbb9a496bd6a257223f1b5ba74067ce14880475d3638ed62df860d5b789448",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxAmountPiastres.set",
+        "span": [
+          57,
+          42,
+          57,
+          46
+        ],
+        "reasoning": "Setter copies tax engine result. Historical tax is not recomputed from current settings after catalog rule edits.",
+        "inputs": "long frozen tax amount from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-23d78cad2284b26c531bf2f1294a2fb155dd0dd5e3ea7046e7e026f5b8c7b7e3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxableBasePiastres.get",
+        "span": [
+          58,
+          39,
+          58,
+          43
+        ],
+        "reasoning": "Getter retains computed taxable component after relevant discount/comp policy, separate from gross subtotal.",
+        "inputs": "Order entity containing long taxable base.",
+        "outputs": "long taxable base without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-aaffe96411cc2dd744988c1fec7ba4a1403d458811998850efce42bd3ee27fe5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxableBasePiastres.set",
+        "span": [
+          58,
+          44,
+          58,
+          48
+        ],
+        "reasoning": "Setter copies plan.Tax.Taxable. Reconstitute accepts stored value and does not re-run tax validation.",
+        "inputs": "long taxable base from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-38c1287dad9784c295d17b70caa68648d67ea13daf2f6aec63af41f8602153d7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxRateBasisPoints.get",
+        "span": [
+          59,
+          38,
+          59,
+          42
+        ],
+        "reasoning": "Getter exposes optional chosen rule rate snapshot; null distinguishes no selected rule from zero-rate selected rule.",
+        "inputs": "Order entity containing nullable tax basis points.",
+        "outputs": "nullable tax basis points without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-26d6a727d4cf40b5d590459758830ec06c6b8c3327b21e9832b9e45d368760f9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxRateBasisPoints.set",
+        "span": [
+          59,
+          43,
+          59,
+          47
+        ],
+        "reasoning": "Setter copies selected tax rate after Checkout selects first enabled. Bounds/selection policy belongs handlers and FIN021 representation qualification.",
+        "inputs": "nullable tax basis points from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-434d03789d44943b0c016ef97be9105bfe8a4def1ed429f065c0a4c9d474d35f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxMode.get",
+        "span": [
+          60,
+          30,
+          60,
+          34
+        ],
+        "reasoning": "Getter retains selected tax mode snapshot for historical reports, not current TaxRule.Mode.",
+        "inputs": "Order entity containing nullable tax mode snapshot.",
+        "outputs": "nullable tax mode snapshot without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-6348ceb8ba70e614228a07d9af68d7c9787b7cfdfabb045a04057cdcd7424d90",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxMode.set",
+        "span": [
+          60,
+          35,
+          60,
+          39
+        ],
+        "reasoning": "Setter stores domain selected mode.ToString from checkout; FIN021 shows raw saved numericInclusive can be interpreted Exclusive before this canonical snapshot is created.",
+        "inputs": "nullable tax mode snapshot from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-e241bb38f9992f6acef72badc2fc303a4af272d739fdd929f1c0731a249ac9c4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxRuleName.get",
+        "span": [
+          61,
+          34,
+          61,
+          38
+        ],
+        "reasoning": "Getter exposes chosen tax label at sale time, not a live join to renamed rule.",
+        "inputs": "Order entity containing nullable tax rule label.",
+        "outputs": "nullable tax rule label without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-cc4e05d949585a77b94115114de9f6b62e224cebb77e9e597c11644987ccd446",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TaxRuleName.set",
+        "span": [
+          61,
+          39,
+          61,
+          43
+        ],
+        "reasoning": "Setter copies selected rule name; nullable no-rule does not imply missing historical data if tax zero legitimately.",
+        "inputs": "nullable tax rule label from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-8dabac7f41d85433fa1dbaadbfd8e71469a009e5a0a1042a9bd8a389368ce940",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TotalPiastres.get",
+        "span": [
+          62,
+          33,
+          62,
+          37
+        ],
+        "reasoning": "Getter is frozen payable order amount used as refund cap and delivery responsibility input, not proof it was collected.",
+        "inputs": "Order entity containing long payable total.",
+        "outputs": "long payable total without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-1fef3c20f6228b251caf33217cb80656684a2138e177a65aa89664d50a9c56fc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.TotalPiastres.set",
+        "span": [
+          62,
+          38,
+          62,
+          42
+        ],
+        "reasoning": "Setter copies checkout plan.PayableTotal; IsPaid and ledger are separate. FIN016 arithmetic/admission and FIN003 refund eligibility remain despite stored total.",
+        "inputs": "long payable total from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-44f81ff11dda8e2cfcff8d62496416a70a7e202b3d981827bbf822049f37bbe9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.PaymentMethod.get",
+        "span": [
+          63,
+          35,
+          63,
+          39
+        ],
+        "reasoning": "Getter is wire overall method including Multi; actual split legs and electronic leg contain additional financial facts.",
+        "inputs": "Order entity containing string overall payment wire value.",
+        "outputs": "string overall payment wire value without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-587f533af8ede41be59cdfce82748ff540517b5c0f0780db83587f0046b7bea8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.PaymentMethod.set",
+        "span": [
+          63,
+          40,
+          63,
+          44
+        ],
+        "reasoning": "Setter uses domain ToWireString. Single overall Multi label is not a residual account mapping; refund domain blocks Multi rather than guessing payout split.",
+        "inputs": "string overall payment wire value from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c125ffd5407582fb79a96e6825c7e4aa93e91c11282fea7330aecaa150b3751e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SplitPaymentsJson.get",
+        "span": [
+          66,
+          40,
+          66,
+          44
+        ],
+        "reasoning": "Getter contains order-scoped serialized wire legs; null differs from malformed/empty JSON and parsing happens in mapper.",
+        "inputs": "Order entity containing nullable split JSON.",
+        "outputs": "nullable split JSON without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-bafe599c5560e0ecaea4c011d5dd46b3e101ec16ffd852d94e006b703c02126d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.SplitPaymentsJson.set",
+        "span": [
+          66,
+          45,
+          66,
+          49
+        ],
+        "reasoning": "Setter serializes domain Method/Amount allocation. No JSON CHECK or normalized child relation in inspected mapping; malformed external text can fail parser, no accepted corruption test.",
+        "inputs": "nullable split JSON from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-cab0e737bdeffc4e34beb3c56cd18dbb34ff75c6bd641d4814cc78a9d6d62184",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.AmountPaidPiastres.get",
+        "span": [
+          67,
+          38,
+          67,
+          42
+        ],
+        "reasoning": "Getter preserves checkout-plan amount paid/tendered, not cumulative future electronic receipts or driver settlement actual handover.",
+        "inputs": "Order entity containing long checkout amount-paid snapshot.",
+        "outputs": "long checkout amount-paid snapshot without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-3fa98c6b3045b864caaa5a87a9c5b421a5256fdcd7e47aa5c909707e335fec4f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.AmountPaidPiastres.set",
+        "span": [
+          67,
+          43,
+          67,
+          47
+        ],
+        "reasoning": "Setter copies plan amount at creation; Confirm changes IsPaid/status without updating this field. Avoid interpreting it as ledger-derived collected total across stages.",
+        "inputs": "long checkout amount-paid snapshot from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-0a7e4178214eb7c778c7af6f7c450f7ec5aa5f556a0165f27a3d60f26d4bcf1e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ChangeDuePiastres.get",
+        "span": [
+          68,
+          37,
+          68,
+          41
+        ],
+        "reasoning": "Getter exposes checkout cash change amount distinct from refund and total.",
+        "inputs": "Order entity containing long checkout change.",
+        "outputs": "long checkout change without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-421906da485146e06760f02a7f4a9d6ca899c22455edf8c78246e412ccee9ab1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ChangeDuePiastres.set",
+        "span": [
+          68,
+          42,
+          68,
+          46
+        ],
+        "reasoning": "Setter freezes plan.ChangeDue. No new cash-out movement is generated by property and client must not recompute change from later price edits.",
+        "inputs": "long checkout change from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-eb153ea1015215b54391d0f35ecb026072c99cf5abbeaa4a0042af5068878d8f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CheckoutRequestId.get",
+        "span": [
+          69,
+          39,
+          69,
+          43
+        ],
+        "reasoning": "Getter is unique checkout business replay key used for order lookup and sale journal namespace.",
+        "inputs": "Order entity containing string checkout request key.",
+        "outputs": "string checkout request key without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-97e05d8071881f6de64ae64a9b09a78317bd3549191368f89246f5efbd752d67",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CheckoutRequestId.set",
+        "span": [
+          69,
+          44,
+          69,
+          48
+        ],
+        "reasoning": "Setter stores request ID. Schema uniqueness prevents duplicate order same key, but FIN001 demonstrates one namespace used across distinct checkout/confirmation stages can conflict.",
+        "inputs": "string checkout request key from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-06e92abfdd788c5b72c14055ed175e6b519e4940231a9385adc8fe8293767207",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Status.get",
+        "span": [
+          73,
+          28,
+          73,
+          32
+        ],
+        "reasoning": "Getter exposes order wire operational/commercial state separately from delivery and electronic payment status.",
+        "inputs": "Order entity containing string order wire state.",
+        "outputs": "string order wire state without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-8a54c64ce14557059e2f2f3e5b15fbb09d4437008aa2b2a835f20f1d292bdfee",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Status.set",
+        "span": [
+          73,
+          33,
+          73,
+          37
+        ],
+        "reasoning": "Setter initializes preparation/completed wire status, refund changes domain-refunded status, pending cancellation cancels whole order. FIN002 cash-leg accounting consequence persists despite version token.",
+        "inputs": "string order wire state from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-9fca066be0416c66e6713b2b880c6e26bcf193cceaa42c503c7dc6be92014dbc",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.IsPaid.get",
+        "span": [
+          74,
+          26,
+          74,
+          30
+        ],
+        "reasoning": "Getter is domain payment flag used by delivery composition, not fresh query of treasury facts or current refund entitlement.",
+        "inputs": "Order entity containing bool domain payment flag.",
+        "outputs": "bool domain payment flag without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-af5c846d7db59a73103044045410f8713fbe02c825ba505d368ebbf7f70b959f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.IsPaid.set",
+        "span": [
+          74,
+          31,
+          74,
+          35
+        ],
+        "reasoning": "Setter initializes from plan, confirmation sets true, cancellation false. FIN019 pending Multi false can misclassify full amount as custody; correct flag write alone does not encode collected split residual.",
+        "inputs": "bool domain payment flag from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c44a222978167bf4aebfd0dd2ff1a71d115436fc1f96b906f8409a29cc7eda37",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentMethod.get",
+        "span": [
+          75,
+          46,
+          75,
+          50
+        ],
+        "reasoning": "Getter determines whether mapper reconstructs electronic leg; null means no leg even if other electronic columns were externally populated.",
+        "inputs": "Order entity containing nullable pending-leg wire method.",
+        "outputs": "nullable pending-leg wire method without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-4b631efaa22282ffba3a413097c91c2dc0f233b10f698eb26baace22781252a9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentMethod.set",
+        "span": [
+          75,
+          51,
+          75,
+          55
+        ],
+        "reasoning": "Setter snapshots optional domain leg method.ToWireString. Single leg is current model; no fabricated support for several independent pending electronic legs.",
+        "inputs": "nullable pending-leg wire method from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-ae2e5ceae2a2f861757b9148e2374d94385794664a10a0f5dc3894901a41c838",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentProvider.get",
+        "span": [
+          76,
+          48,
+          76,
+          52
+        ],
+        "reasoning": "Getter exposes optional wallet/provider metadata, not proof external processor acknowledged transfer.",
+        "inputs": "Order entity containing nullable provider label.",
+        "outputs": "nullable provider label without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-ec411bdf50269b92005e15427d23753f361e691581db7f7f4024e7821a7db5f9",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentProvider.set",
+        "span": [
+          76,
+          53,
+          76,
+          57
+        ],
+        "reasoning": "Setter copies domain leg provider without making a network payment call. No external provider/test transaction executed here.",
+        "inputs": "nullable provider label from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-a31a576208daad11db239c399cb949f3ab4edbb8f88547433da628a902f7b71f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentAmountPiastres.get",
+        "span": [
+          77,
+          52,
+          77,
+          56
+        ],
+        "reasoning": "Getter exposes pending/confirmed leg amount, distinct from whole payable and cash split already posted.",
+        "inputs": "Order entity containing nullable electronic leg amount.",
+        "outputs": "nullable electronic leg amount without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-83b163799c6c39c8c52aad98d527c389aa6dc6bdcc05b4bd10a3b5f42b8beb36",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentAmountPiastres.set",
+        "span": [
+          77,
+          57,
+          77,
+          61
+        ],
+        "reasoning": "Setter stores leg amount at creation; confirm posts that amount. FIN001 key collision is independent of having correct leg amount.",
+        "inputs": "nullable electronic leg amount from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-650cb7c1cb3de926b900487466856d1ca85cd24ccf3aa70c0a76bd98dfb86d13",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentStatus.get",
+        "span": [
+          78,
+          46,
+          78,
+          50
+        ],
+        "reasoning": "Getter is wire pending/confirmed/cancelled used in exact CLR confirmation checks; SQL comparison case behavior must remain provider dependent.",
+        "inputs": "Order entity containing nullable electronic leg status.",
+        "outputs": "nullable electronic leg status without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-79f03437104429cf2023674cdbcbff45714f7fc8397a591652609394ec19f1a0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.ElectronicPaymentStatus.set",
+        "span": [
+          78,
+          51,
+          78,
+          55
+        ],
+        "reasoning": "Setter stores leg wire status at create/confirm/cancel. This status is manual in-system acknowledgement, not independently verified bank event or webhook.",
+        "inputs": "nullable electronic leg status from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-1c3d8a3c497cf0ec7b2a9c1667a56c2cec102d56218574b9a38c0e35e89b4b59",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.RefundAmountPiastres.get",
+        "span": [
+          79,
+          40,
+          79,
+          44
+        ],
+        "reasoning": "Getter returns cached cumulative refunds used for remaining cap and net reports, not a separate account payout.",
+        "inputs": "Order entity containing long cumulative refunded amount.",
+        "outputs": "long cumulative refunded amount without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-2ac6fbc8b7a95ebb606468b8c52dca5dbc771483d90f346f419d2ee336d41045",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.RefundAmountPiastres.set",
+        "span": [
+          79,
+          45,
+          79,
+          49
+        ],
+        "reasoning": "Setter initializes zero/domain aggregate then refund updates and increments Version under row lock. FIN003/004 eligibility/chronology remain while duplicate cap control is real.",
+        "inputs": "long cumulative refunded amount from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-7007fec4f5ac53840ae8c46514f2743b24327e33921fd26bb81d3303c32dae33",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelledAtUtc.get",
+        "span": [
+          80,
+          45,
+          80,
+          49
+        ],
+        "reasoning": "Getter exposes pending electronic cancellation time, not physical order disposal/refund or print cancellation proof.",
+        "inputs": "Order entity containing nullable electronic cancellation instant.",
+        "outputs": "nullable electronic cancellation instant without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-b25bf402934f7bb575f948751190e7cf7f83121c6ec1d6e81243e7bbc3ec1191",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelledAtUtc.set",
+        "span": [
+          80,
+          50,
+          80,
+          54
+        ],
+        "reasoning": "Setter copies domain cancellation now in CancelPending handler55; no treasury reversal for previously collected mixed cash follows automatically (FIN002).",
+        "inputs": "nullable electronic cancellation instant from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-09fb6b9fa167fbcc830204f82d792eb9516f4757758da01554be30c27889d48e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelReason.get",
+        "span": [
+          81,
+          35,
+          81,
+          39
+        ],
+        "reasoning": "Getter retains typed cancellation reason, separate from refund reason, delivery failure or comp code.",
+        "inputs": "Order entity containing nullable cancellation rationale.",
+        "outputs": "nullable cancellation rationale without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-5e759ec3d29173b2b241e1cbcf7bf3e79b9594e32e66aa183534ca98e0354918",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelReason.set",
+        "span": [
+          81,
+          40,
+          81,
+          44
+        ],
+        "reasoning": "Setter copies domain reason after nonblank validation. No financial undo or provider cancellation is executed by storing it.",
+        "inputs": "nullable cancellation rationale from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-1facf01982ef7f30a4e034aec4d384a8ddb42d5c01874f5da0cc9545ffcb71ca",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelledBy.get",
+        "span": [
+          82,
+          34,
+          82,
+          38
+        ],
+        "reasoning": "Getter exposes cancelling operator display snapshot, not stable user FK or original cashier identity.",
+        "inputs": "Order entity containing nullable cancelling actor name.",
+        "outputs": "nullable cancelling actor name without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-f3b1989631b1885c2d02cfd0875860c2d0520e291eb6b216fe40bd89f0203a29",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.CancelledBy.set",
+        "span": [
+          82,
+          39,
+          82,
+          43
+        ],
+        "reasoning": "Setter records resolved cashierUser.Name through domain cancel; property cannot authorize cancellation.",
+        "inputs": "nullable cancelling actor name from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-03abf753c3e7aac53d85a68f68155e8b995defb6a1e1974e8799ff31db29ea76",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Items.get",
+        "span": [
+          84,
+          42,
+          84,
+          46
+        ],
+        "reasoning": "Getter exposes loaded mutable sold-line collection used by DTO/domain reconstitution; empty navigation without Include is not proof empty sale.",
+        "inputs": "Order entity containing List of OrderItemEntity.",
+        "outputs": "List of OrderItemEntity without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-af17db225e56757975dcc87bb1eb0288e3043d65691cce3362b21b102413cec3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Items.set",
+        "span": [
+          84,
+          47,
+          84,
+          51
+        ],
+        "reasoning": "Setter constructs item snapshots for fresh order only. OrderMapper.ToEntity does not rebuild existing refund collection and is not a universal whole-aggregate merge.",
+        "inputs": "List of OrderItemEntity from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-69ebcbd015e1f17a532875636ad842d5065f671abfac812c4872162992d92abe",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Refunds.get",
+        "span": [
+          85,
+          46,
+          85,
+          50
+        ],
+        "reasoning": "Getter exposes loaded refund history used to reconstitute domain; not a live query or fresh current account balance.",
+        "inputs": "Order entity containing List of OrderRefundEntity.",
+        "outputs": "List of OrderRefundEntity without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-c385d8d08945789045a3312e8b6bbd91355c15dbfdf1e84ba0d356e1d0fad1ab",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Refunds.set",
+        "span": [
+          85,
+          51,
+          85,
+          55
+        ],
+        "reasoning": "Setter defaults empty; normal refund adds mapped child to owning collection so EF sets OrderId. No list-level cap, uniqueness or permission checks.",
+        "inputs": "List of OrderRefundEntity from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-cb3c38faeddffe50d65db103ee191a3514278917f2d8a58189968f59564c5ce0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Version.get",
+        "span": [
+          90,
+          27,
+          90,
+          31
+        ],
+        "reasoning": "Getter exposes application-managed uint optimistic concurrency token, not auto-generated DB rowversion.",
+        "inputs": "Order entity containing uint order concurrency counter.",
+        "outputs": "uint order concurrency counter without financial revalidation.",
+        "side_effects": "No side effects or related query; returned lists mutable.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      },
+      {
+        "stable_id": "sym-7ce925f21d43792ae540520156e76fa71d89e46246ea331b56c078c8ac675a44",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.OrderEntity.Version.set",
+        "span": [
+          90,
+          32,
+          90,
+          36
+        ],
+        "reasoning": "Setter/mutation increments on confirmation, cancellation and refund before save. Token guards stale concurrent updates but cannot validate financial logic, key namespace or original collected entitlement.",
+        "inputs": "uint order concurrency counter from plan/domain mapping or admitted order update.",
+        "outputs": "Field/navigation assignment only.",
+        "side_effects": "EF assignment; caller transactions stage related movements/refunds/stock/jobs/audit. No business action or DB write executed by review.",
+        "trust_boundaries": "Financial snapshots are output of checkout/domain admission, not safe request DTOs or collected-cash proof. Confirmation is operator acknowledgement; stored provider is not external bank verification.",
+        "database": "Model78-99 order PK, unique checkout key/sequence and Version token. Mapper41-126 trusts stored primitive financial values on reconstruction. Confirm55-87 locks row, Cancel49-70 persists cancellation, Refund56-131 locks/caps/pays. No SQL execution.",
+        "printing_ui": "DTO24-39 and downstream receipt/report read snapshots; electronic status wire representation differs from certain client comparisons (FIN019 extension). No UI, payment or physical printer run.",
+        "performance": "O(1) accessor. JSON parse/serialization, Includes, transaction locks and tax calculations belong mapper/handlers. No provider plan or runtime timing guarantee.",
+        "duplicates_conflicts": "FIN001/002 mixed payment confirmation/cancel, FIN003/004 refund eligibility/chronology, FIN010 pending collected report, FIN016/021 bounds/representation and FIN019 custody retain qualified independent findings. No duplicate IDs.",
+        "issues_hypotheses": "No new accessor finding. Single flag/status and immutable-looking totals do not prove correct combined payment/refund/delivery workflow; actual source controls and open provider gates retained.",
+        "tests_missing": "No tests executed. Need mixed cash/pending confirmation and cancel, split residual custody/reporting, refund paid-state/current-shift guards, numeric monetary bounds, tax representation and row-token/replay integrity.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Orders/OrderMapper.cs:24-39,41-126",
+          "src/Falah.Domain/Orders/Order.cs:89-109,119-171",
+          "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:55-87",
+          "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:49-70",
+          "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:56-131",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:78-99"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,146 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-8g4q-xg66-9fp4",
+  "retrieved_at_utc": "2026-10-17T01:52:54.366163+00:00",
+  "http_status": 200,
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 01:52:55 GMT",
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": "W/\"c965d4958594cb5739b4c4a9057d7e89db4131d12f6519e11a8eaf48ae98f70f\"",
+    "Last-Modified": "Thu, 24 Oct 2024 16:11:23 GMT"
+  },
+  "raw_body_utf8": "{\"ghsa_id\":\"GHSA-8g4q-xg66-9fp4\",\"cve_id\":\"CVE-2024-43485\",\"url\":\"https://api.github.com/advisories/GHSA-8g4q-xg66-9fp4\",\"html_url\":\"https://github.com/advisories/GHSA-8g4q-xg66-9fp4\",\"summary\":\"Microsoft Security Advisory CVE-2024-43485 | .NET Denial of Service Vulnerability\",\"description\":\"# Microsoft Security Advisory CVE-2024-43485 | .NET Denial of Service Vulnerability\\n\\n## <a name=\\\"executive-summary\\\"></a>Executive summary\\n\\nMicrosoft is releasing this security advisory to provide information about a vulnerability in System.Text.Json 6.0.x and 8.0.x. This advisory also provides guidance on what developers can do to update their applications to remove this vulnerability.\\n\\nIn System.Text.Json 6.0.x and 8.0.x, applications which deserialize input to a model with an `[JsonExtensionData]` property can be vulnerable to an algorithmic complexity attack resulting in Denial of Service.\\n\\n## Announcement\\n\\nAnnouncement for this issue can be found at https://github.com/dotnet/announcements/issues/329\\n\\n## <a name=\\\"mitigation-factors\\\"></a>Mitigation factors\\n\\nJSON models which do not utilize the `[JsonExtensionData]` feature are not impacted by this vulnerability.\\n\\n## <a name=\\\"affected-software\\\"></a>Affected software\\n\\n* Any .NET 8.0 application running on .NET 8.0.8 or earlier.\\n* Any .NET 6.0 aplication running on .NET 6.0.33 or earlier.\\n* Any application consuming one of the [vulnerable packages](affected-packages).\\n\\n## <a name=\\\"affected-packages\\\"></a>Affected Packages\\nThe vulnerability affects any Microsoft .NET Core project if it uses any of affected packages versions listed below\\n\\n\\n### <a name=\\\".NET 8\\\"></a>.NET 8\\nPackage name | Affected version | Patched version\\n------------ | ---------------- | -------------------------\\n[System.Text.Json](https://www.nuget.org/packages/System.Text.Json)                   | >= 8.0.0, <= 8.0.4 | 8.0.5\\n\\n### <a name=\\\".NET 6\\\"></a>.NET 6\\nPackage name | Affected version | Patched version\\n------------ | ---------------- | -------------------------\\n[System.Text.Json](https://www.nuget.org/packages/System.Text.Json)                   | >= 6.0.0, <= 6.0.9 | 6.0.10\\n\\n\\n## Advisory FAQ\\n\\n### <a name=\\\"how-affected\\\"></a>How do I know if I am affected?\\n\\nIf you have a runtime or SDK with a version listed, or an affected package listed in [affected software](#affected-packages) or [affected packages](#affected-software), you're exposed to the vulnerability.\\n\\n### <a name=\\\"how-fix\\\"></a>How do I fix the issue?\\n\\n* To fix the issue please install the latest version of .NET 8.0 or .NET 6.0. If you have installed one or more .NET SDKs through Visual Studio, Visual Studio will prompt you to update Visual Studio, which will also update your .NET  SDKs.\\n* .NET Framework-based applications and other application types need to perform a package update.\\n* If you have .NET 6.0 or greater installed, you can list the versions you have installed by running the `dotnet --info` command. You will see output like the following;\\n\\n```\\n.NET Core SDK (reflecting any global.json):\\n\\n\\n Version:   8.0.200\\n Commit:    8473146e7d\\n\\nRuntime Environment:\\n\\n OS Name:     Windows\\n OS Version:  10.0.18363\\n OS Platform: Windows\\n RID:         win10-x64\\n Base Path:   C:\\\\Program Files\\\\dotnet\\\\sdk\\\\6.0.300\\\\\\n\\nHost (useful for support):\\n\\n  Version: 8.0.3\\n  Commit:  8473146e7d\\n\\n.NET Core SDKs installed:\\n\\n  8.0.200 [C:\\\\Program Files\\\\dotnet\\\\sdk]\\n\\n.NET Core runtimes installed:\\n\\n  Microsoft.AspAspNetCore.App 8.0.3 [C:\\\\Program Files\\\\dotnet\\\\shared\\\\Microsoft.AspAspNetCore.App]\\n  Microsoft.AspNetCore.App 8.0.3 [C:\\\\Program Files\\\\dotnet\\\\shared\\\\Microsoft.AspNetCore.App]\\n  Microsoft.WindowsDesktop.App 8.0.3 [C:\\\\Program Files\\\\dotnet\\\\shared\\\\Microsoft.WindowsDesktop.App]\\n\\n\\nTo install additional .NET Core runtimes or SDKs:\\n  https://aka.ms/dotnet-download\\n```\\n\\n* If you're using .NET 6.0, you should download and install .NET 6.0.35  Runtime or .NET 6.0.135 SDK (for Visual Studio 2022 v17.6) from https://dotnet.microsoft.com/download/dotnet-core/6.0.\\n* If you're using .NET 8.0, you should download and install .NET 8.0.10  Runtime or .NET 8.0.110 SDK (for Visual Studio 2022 v17.8) from https://dotnet.microsoft.com/download/dotnet-core/8.0.\\n\\n.NET 8.0 and .NET 6.0 updates are also available from Microsoft Update. To access this either type \\\"Check for updates\\\" in your Windows search, or open Settings, choose Update & Security and then click Check for Updates.\\n\\nOnce you have installed the updated runtime or SDK, restart your apps for the update to take effect.\\n\\nAdditionally, if you've deployed [self-contained applications](https://docs.microsoft.com/dotnet/core/deploying/#self-contained-deployments-scd) targeting any of the impacted versions, these applications are also vulnerable and must be recompiled and redeployed.\\n\\n## Other Information\\n\\n### Reporting Security Issues\\n\\nIf you have found a potential security issue in .NET 8.0 or .NET 6.0, please email details to secure@microsoft.com. Reports may qualify for the Microsoft .NET Core & .NET 5 Bounty. Details of the Microsoft .NET Bounty Program including terms and conditions are at <https://aka.ms/corebounty>.\\n\\n### Support\\n\\nYou can ask questions about this issue on GitHub in the .NET GitHub organization. The main repos are located at https://github.com/dotnet/runtime and https://github.com/dotnet/aspnet/. The Announcements repo (https://github.com/dotnet/Announcements) will contain this bulletin as an issue and will include a link to a discussion issue. You can ask questions in the linked discussion issue.\\n\\n### Disclaimer\\n\\nThe information provided in this advisory is provided \\\"as is\\\" without warranty of any kind. Microsoft disclaims all warranties, either express or implied, including the warranties of merchantability and fitness for a particular purpose. In no event shall Microsoft Corporation or its suppliers be liable for any damages whatsoever including direct, indirect, incidental, consequential, loss of business profits or special damages, even if Microsoft Corporation or its suppliers have been advised of the possibility of such damages. Some states do not allow the exclusion or limitation of liability for consequential or incidental damages so the foregoing limitation may not apply.\\n\\n### External Links\\n\\n[CVE-2024-43485]( https://www.cve.org/CVERecord?id=CVE-2024-43485)\\n\\n### Revisions\\n\\nV1.0 (October 08, 2024): Advisory published.\\n\\n_Version 1.0_\\n\\n_Last Updated 2024-10-08_\",\"type\":\"reviewed\",\"severity\":\"high\",\"repository_advisory_url\":\"https://api.github.com/repos/dotnet/runtime/security-advisories/GHSA-8g4q-xg66-9fp4\",\"source_code_location\":\"https://github.com/dotnet/runtime\",\"identifiers\":[{\"value\":\"GHSA-8g4q-xg66-9fp4\",\"type\":\"GHSA\"},{\"value\":\"CVE-2024-43485\",\"type\":\"CVE\"}],\"references\":[\"https://github.com/dotnet/runtime/security/advisories/GHSA-8g4q-xg66-9fp4\",\"https://nvd.nist.gov/vuln/detail/CVE-2024-43485\",\"https://github.com/dotnet/announcements/issues/329\",\"https://github.com/dotnet/runtime/issues/108678\",\"https://msrc.microsoft.com/update-guide/vulnerability/CVE-2024-43485\",\"https://github.com/advisories/GHSA-8g4q-xg66-9fp4\"],\"published_at\":\"2024-10-08T20:25:19Z\",\"updated_at\":\"2024-10-24T16:11:23Z\",\"github_reviewed_at\":\"2024-10-08T20:25:19Z\",\"nvd_published_at\":\"2024-10-08T18:15:10Z\",\"withdrawn_at\":null,\"vulnerabilities\":[{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Text.Json\"},\"vulnerable_version_range\":\">= 8.0.0, <= 8.0.4\",\"first_patched_version\":\"8.0.5\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Text.Json\"},\"vulnerable_version_range\":\">= 6.0.0, <= 6.0.9\",\"first_patched_version\":\"6.0.10\",\"vulnerable_functions\":[]}],\"cvss_severities\":{\"cvss_v3\":{\"vector_string\":\"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"cvss_v4\":{\"vector_string\":\"CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:H/SC:N/SI:N/SA:N\",\"score\":8.8}},\"cwes\":[{\"cwe_id\":\"CWE-407\",\"name\":\"Inefficient Algorithmic Complexity\"}],\"credits\":[{\"user\":{\"login\":\"rbhanda\",\"id\":30737530,\"node_id\":\"MDQ6VXNlcjMwNzM3NTMw\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/30737530?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/rbhanda\",\"html_url\":\"https://github.com/rbhanda\",\"followers_url\":\"https://api.github.com/users/rbhanda/followers\",\"following_url\":\"https://api.github.com/users/rbhanda/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/rbhanda/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/rbhanda/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/rbhanda/subscriptions\",\"organizations_url\":\"https://api.github.com/users/rbhanda/orgs\",\"repos_url\":\"https://api.github.com/users/rbhanda/repos\",\"events_url\":\"https://api.github.com/users/rbhanda/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/rbhanda/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"analyst\"},{\"user\":{\"login\":\"markusschaber\",\"id\":939834,\"node_id\":\"MDQ6VXNlcjkzOTgzNA==\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/939834?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/markusschaber\",\"html_url\":\"https://github.com/markusschaber\",\"followers_url\":\"https://api.github.com/users/markusschaber/followers\",\"following_url\":\"https://api.github.com/users/markusschaber/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/markusschaber/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/markusschaber/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/markusschaber/subscriptions\",\"organizations_url\":\"https://api.github.com/users/markusschaber/orgs\",\"repos_url\":\"https://api.github.com/users/markusschaber/repos\",\"events_url\":\"https://api.github.com/users/markusschaber/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/markusschaber/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"type\":\"analyst\"}],\"comments\":0,\"cvss\":{\"vector_string\":\"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"epss\":{\"percentage\":0.03078,\"percentile\":0.87087}}",
+  "raw_bytes_sha256": "a32a4285eb93f7bafbb5c4099e32c047154fef230e138684db3efa28d175681e",
+  "transport_bytes_sha256": "a32a4285eb93f7bafbb5c4099e32c047154fef230e138684db3efa28d175681e",
+  "decompression": "none",
+  "data": {
+    "ghsa_id": "GHSA-8g4q-xg66-9fp4",
+    "cve_id": "CVE-2024-43485",
+    "url": "https://api.github.com/advisories/GHSA-8g4q-xg66-9fp4",
+    "html_url": "https://github.com/advisories/GHSA-8g4q-xg66-9fp4",
+    "summary": "Microsoft Security Advisory CVE-2024-43485 | .NET Denial of Service Vulnerability",
+    "description": "# Microsoft Security Advisory CVE-2024-43485 | .NET Denial of Service Vulnerability\n\n## <a name=\"executive-summary\"></a>Executive summary\n\nMicrosoft is releasing this security advisory to provide information about a vulnerability in System.Text.Json 6.0.x and 8.0.x. This advisory also provides guidance on what developers can do to update their applications to remove this vulnerability.\n\nIn System.Text.Json 6.0.x and 8.0.x, applications which deserialize input to a model with an `[JsonExtensionData]` property can be vulnerable to an algorithmic complexity attack resulting in Denial of Service.\n\n## Announcement\n\nAnnouncement for this issue can be found at https://github.com/dotnet/announcements/issues/329\n\n## <a name=\"mitigation-factors\"></a>Mitigation factors\n\nJSON models which do not utilize the `[JsonExtensionData]` feature are not impacted by this vulnerability.\n\n## <a name=\"affected-software\"></a>Affected software\n\n* Any .NET 8.0 application running on .NET 8.0.8 or earlier.\n* Any .NET 6.0 aplication running on .NET 6.0.33 or earlier.\n* Any application consuming one of the [vulnerable packages](affected-packages).\n\n## <a name=\"affected-packages\"></a>Affected Packages\nThe vulnerability affects any Microsoft .NET Core project if it uses any of affected packages versions listed below\n\n\n### <a name=\".NET 8\"></a>.NET 8\nPackage name | Affected version | Patched version\n------------ | ---------------- | -------------------------\n[System.Text.Json](https://www.nuget.org/packages/System.Text.Json)                   | >= 8.0.0, <= 8.0.4 | 8.0.5\n\n### <a name=\".NET 6\"></a>.NET 6\nPackage name | Affected version | Patched version\n------------ | ---------------- | -------------------------\n[System.Text.Json](https://www.nuget.org/packages/System.Text.Json)                   | >= 6.0.0, <= 6.0.9 | 6.0.10\n\n\n## Advisory FAQ\n\n### <a name=\"how-affected\"></a>How do I know if I am affected?\n\nIf you have a runtime or SDK with a version listed, or an affected package listed in [affected software](#affected-packages) or [affected packages](#affected-software), you're exposed to the vulnerability.\n\n### <a name=\"how-fix\"></a>How do I fix the issue?\n\n* To fix the issue please install the latest version of .NET 8.0 or .NET 6.0. If you have installed one or more .NET SDKs through Visual Studio, Visual Studio will prompt you to update Visual Studio, which will also update your .NET  SDKs.\n* .NET Framework-based applications and other application types need to perform a package update.\n* If you have .NET 6.0 or greater installed, you can list the versions you have installed by running the `dotnet --info` command. You will see output like the following;\n\n```\n.NET Core SDK (reflecting any global.json):\n\n\n Version:   8.0.200\n Commit:    8473146e7d\n\nRuntime Environment:\n\n OS Name:     Windows\n OS Version:  10.0.18363\n OS Platform: Windows\n RID:         win10-x64\n Base Path:   C:\\Program Files\\dotnet\\sdk\\6.0.300\\\n\nHost (useful for support):\n\n  Version: 8.0.3\n  Commit:  8473146e7d\n\n.NET Core SDKs installed:\n\n  8.0.200 [C:\\Program Files\\dotnet\\sdk]\n\n.NET Core runtimes installed:\n\n  Microsoft.AspAspNetCore.App 8.0.3 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspAspNetCore.App]\n  Microsoft.AspNetCore.App 8.0.3 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.WindowsDesktop.App 8.0.3 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\n\nTo install additional .NET Core runtimes or SDKs:\n  https://aka.ms/dotnet-download\n```\n\n* If you're using .NET 6.0, you should download and install .NET 6.0.35  Runtime or .NET 6.0.135 SDK (for Visual Studio 2022 v17.6) from https://dotnet.microsoft.com/download/dotnet-core/6.0.\n* If you're using .NET 8.0, you should download and install .NET 8.0.10  Runtime or .NET 8.0.110 SDK (for Visual Studio 2022 v17.8) from https://dotnet.microsoft.com/download/dotnet-core/8.0.\n\n.NET 8.0 and .NET 6.0 updates are also available from Microsoft Update. To access this either type \"Check for updates\" in your Windows search, or open Settings, choose Update & Security and then click Check for Updates.\n\nOnce you have installed the updated runtime or SDK, restart your apps for the update to take effect.\n\nAdditionally, if you've deployed [self-contained applications](https://docs.microsoft.com/dotnet/core/deploying/#self-contained-deployments-scd) targeting any of the impacted versions, these applications are also vulnerable and must be recompiled and redeployed.\n\n## Other Information\n\n### Reporting Security Issues\n\nIf you have found a potential security issue in .NET 8.0 or .NET 6.0, please email details to secure@microsoft.com. Reports may qualify for the Microsoft .NET Core & .NET 5 Bounty. Details of the Microsoft .NET Bounty Program including terms and conditions are at <https://aka.ms/corebounty>.\n\n### Support\n\nYou can ask questions about this issue on GitHub in the .NET GitHub organization. The main repos are located at https://github.com/dotnet/runtime and https://github.com/dotnet/aspnet/. The Announcements repo (https://github.com/dotnet/Announcements) will contain this bulletin as an issue and will include a link to a discussion issue. You can ask questions in the linked discussion issue.\n\n### Disclaimer\n\nThe information provided in this advisory is provided \"as is\" without warranty of any kind. Microsoft disclaims all warranties, either express or implied, including the warranties of merchantability and fitness for a particular purpose. In no event shall Microsoft Corporation or its suppliers be liable for any damages whatsoever including direct, indirect, incidental, consequential, loss of business profits or special damages, even if Microsoft Corporation or its suppliers have been advised of the possibility of such damages. Some states do not allow the exclusion or limitation of liability for consequential or incidental damages so the foregoing limitation may not apply.\n\n### External Links\n\n[CVE-2024-43485]( https://www.cve.org/CVERecord?id=CVE-2024-43485)\n\n### Revisions\n\nV1.0 (October 08, 2024): Advisory published.\n\n_Version 1.0_\n\n_Last Updated 2024-10-08_",
+    "type": "reviewed",
+    "severity": "high",
+    "repository_advisory_url": "https://api.github.com/repos/dotnet/runtime/security-advisories/GHSA-8g4q-xg66-9fp4",
+    "source_code_location": "https://github.com/dotnet/runtime",
+    "identifiers": [
+      {
+        "value": "GHSA-8g4q-xg66-9fp4",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2024-43485",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/dotnet/runtime/security/advisories/GHSA-8g4q-xg66-9fp4",
+      "https://nvd.nist.gov/vuln/detail/CVE-2024-43485",
+      "https://github.com/dotnet/announcements/issues/329",
+      "https://github.com/dotnet/runtime/issues/108678",
+      "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2024-43485",
+      "https://github.com/advisories/GHSA-8g4q-xg66-9fp4"
+    ],
+    "published_at": "2024-10-08T20:25:19Z",
+    "updated_at": "2024-10-24T16:11:23Z",
+    "github_reviewed_at": "2024-10-08T20:25:19Z",
+    "nvd_published_at": "2024-10-08T18:15:10Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Text.Json"
+        },
+        "vulnerable_version_range": ">= 8.0.0, <= 8.0.4",
+        "first_patched_version": "8.0.5",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Text.Json"
+        },
+        "vulnerable_version_range": ">= 6.0.0, <= 6.0.9",
+        "first_patched_version": "6.0.10",
+        "vulnerable_functions": []
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 7.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:H/SC:N/SI:N/SA:N",
+        "score": 8.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-407",
+        "name": "Inefficient Algorithmic Complexity"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "rbhanda",
+          "id": 30737530,
+          "node_id": "MDQ6VXNlcjMwNzM3NTMw",
+          "avatar_url": "https://avatars.githubusercontent.com/u/30737530?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/rbhanda",
+          "html_url": "https://github.com/rbhanda",
+          "followers_url": "https://api.github.com/users/rbhanda/followers",
+          "following_url": "https://api.github.com/users/rbhanda/following{/other_user}",
+          "gists_url": "https://api.github.com/users/rbhanda/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/rbhanda/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/rbhanda/subscriptions",
+          "organizations_url": "https://api.github.com/users/rbhanda/orgs",
+          "repos_url": "https://api.github.com/users/rbhanda/repos",
+          "events_url": "https://api.github.com/users/rbhanda/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/rbhanda/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      },
+      {
+        "user": {
+          "login": "markusschaber",
+          "id": 939834,
+          "node_id": "MDQ6VXNlcjkzOTgzNA==",
+          "avatar_url": "https://avatars.githubusercontent.com/u/939834?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/markusschaber",
+          "html_url": "https://github.com/markusschaber",
+          "followers_url": "https://api.github.com/users/markusschaber/followers",
+          "following_url": "https://api.github.com/users/markusschaber/following{/other_user}",
+          "gists_url": "https://api.github.com/users/markusschaber/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/markusschaber/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/markusschaber/subscriptions",
+          "organizations_url": "https://api.github.com/users/markusschaber/orgs",
+          "repos_url": "https://api.github.com/users/markusschaber/repos",
+          "events_url": "https://api.github.com/users/markusschaber/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/markusschaber/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      }
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 7.5
+    },
+    "epss": {
+      "percentage": 0.03078,
+      "percentile": 0.87087
+    }
+  },
+  "status": "RETRIEVED"
+}

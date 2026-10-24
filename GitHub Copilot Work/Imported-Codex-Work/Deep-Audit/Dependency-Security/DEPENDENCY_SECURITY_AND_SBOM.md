@@ -1,0 +1,29 @@
+# Dependency security and SBOM — IN PROGRESS
+
+Baseline c35816ecae49633674775dd32061c6ee92f94aaf. [SBOM](SBOM.json) inventories12 tracked projects,210 distinct NuGet name/version components and1836 project/target dependency edges from existing restore assets. All12 assets existed; no restore, install, upgrade or application build was performed for this inventory. It is an explicit JSON inventory, not a certified CycloneDX/SPDX document.
+
+Direct requirements include EFCore8.0.11, ASP.NETOpenApi8.0.30, WindowsAppSDK1.7.260224002, MVVM8.3.2, Swashbuckle6.6.2, QRCoder1.8.0, Drawing8.0.0 and xunit2.5.3. Resolved transitives include SqlClient5.1.6 and several older-looking framework libraries. Presence in an asset graph is not proof of vulnerable runtime code loading: framework unification, build-only design assets, target/RID and actual use must be assessed. SHA512 metadata is retained but package bytes/signatures have not been independently validated.
+
+## Specific primary-source checks completed
+
+- Newtonsoft.Json13.0.1 is at the patched threshold for [GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr). This advisory does not justify a defect against that resolved version.
+- The graph selects System.Text.Encodings.Web6.0.0, outside the older affected ranges in [GHSA-ghhp-997w-qr28](https://github.com/advisories/GHSA-ghhp-997w-qr28). A report about Text.Json4.7.2's former transitive encoder is insufficient to label this selected graph affected.
+- Caching.Memory8.0.1 is patched for the applicable8.x range in [GHSA-qj66-m88j-hmgj](https://github.com/advisories/GHSA-qj66-m88j-hmgj). [SqlClient5.1.7 release notes](https://github.com/dotnet/SqlClient/blob/main/release-notes/5.1/5.1.7.md) mention older dependency fixes, but actual selected versions must govern classification.
+
+Machine evidence and precise ranges: [advisory-checks.json](advisory-checks.json). These are narrow exclusions for three advisories, not a blanket secure-package verdict. No destructive denial-of-service specimen was executed.
+
+## Remaining required work
+
+Complete authoritative advisory matching for all210 components and shared framework/Windows/native/build-host dependencies; inspect actual runtime/RID reachability and insecure API use; reconcile supported/patched versions; analyze compatibility, deployment regression and license implications for any upgrade/replacement/fork proposal. NuGet feed/advisory availability must be recorded explicitly. No quiet search result establishes safety.
+
+For a future approved dependency change, prefer supported upstream fixes and test all cashier/callcenter/print/database paths, authentication, package assembly binding, Arabic raster rendering/QR and deployment architecture. Do not introduce a maintained fork without demonstrated need, license review, ownership, update/ABI and security servicing plans. No dependency or application source modification is part of this audit.
+
+## Reconciled saved metadata and independent challenge (2026-10-17)
+
+The previous remaining-advisory paragraph is superseded for the **210 NuGet component/version snapshot only**: [full advisory handoff](dependency-audit-handoff.md) and [component decisions](dependency-advisory-assessment.json) now compare all components against both advertised NuGet pages. Parent independently reconstructed all 59 candidate pairs from the saved raw pages, checked 33 snapshot body hashes/parsed contents, rechecked all 12 existing assets and 61 test manifests, then reran the existing official NuGet.Versioning parser: 59 decisions agree and 12 semantic boundary cases pass. [Independent quality record](../../Knowledge/Quality-Reviews/dependency-parent-validation.json). This is related public advisory data, not proof of zero vulnerabilities or independent exhaustive databases.
+
+Two test-only legacy package versions match known ranges: System.Net.Http4.3.0 (<4.3.4) and System.Text.RegularExpressions4.3.0 (>=4.3.0,<4.3.1). Current public ranges rechecked on 2026-10-17: [HTTP advisory](https://github.com/advisories/GHSA-7jgj-8wvc-jh57), [regex advisory](https://github.com/advisories/GHSA-cmhx-cq75-c4mj). The old implementations have no runtime/runtimeTargets/native entries in any of the 61 checked test manifests and no adjacent implementation DLLs there. A loaded vulnerable production implementation or exploitable POS path is **not established**. Existing output staleness, shared-framework servicing and final publish host resolution remain explicit limits. [NuGet VulnerabilityInfo semantics](https://learn.microsoft.com/en-us/nuget/api/vulnerability-info) define page union and package-ID matching; feed absence is not certification.
+
+[Local license metadata](package-license-metadata.json) now records the actual nuspec hashes for all 210 components:122 expression declarations,7 file declarations and81 without a modern license node (legacy URL host retained when present). Declared expressions and signature-file presence do not establish trusted bytes, valid certificates or redistribution clearance. The seven license-file contents still require individual interpretation; old URL-only entries need primary license retrieval before distribution/fork decisions. No package bytes were installed or executed for this metadata inventory.
+
+Keep no-upgrade audit boundaries: evaluate owner-approved upstream servicing within the supported framework first, then test EF SQL translation/transactions, SqlClient TLS and connection behavior, WindowsAppSDK x64 unpackaged/native deployment, CommunityToolkit generated bindings, Swashbuckle API contracts, and QRCoder/System.Drawing Arabic raster/QR output. A fork adds ongoing provenance, license, security-servicing and ABI obligations; no demonstrated need for one has been established. Host/native support and complete license/provenance review remain open and this phase is still IN PROGRESS.

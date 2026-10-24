@@ -1,0 +1,79 @@
+$ErrorActionPreference='Stop'
+$repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$databaseName='Fale7CSharp_Test'
+$sqlTool=(Get-Command sqlcmd.exe).Source
+$expectedMigrations=@(Get-ChildItem (Join-Path $repoRoot 'src\Falah.Infrastructure\Persistence\Migrations') -File -Filter '*.cs'|Where-Object{$_.Name -notlike '*.Designer.cs' -and $_.Name -ne 'FalahDbContextModelSnapshot.cs'}|Select-Object -ExpandProperty BaseName|Sort-Object)
+& $sqlTool -S '(localdb)\Fale7CSharpDev' -E -d $databaseName -l 15 -b -Q "IF DB_NAME() <> N'$databaseName' THROW 51000, 'Wrong database.', 1; SELECT DB_NAME() AS VerifiedDatabase, COUNT(*) AS AppliedMigrations FROM dbo.__EFMigrationsHistory;"
+if($LASTEXITCODE -ne 0){throw 'Isolated database/migration verification failed.'}
+$appliedMigrations=@(& $sqlTool -S '(localdb)\Fale7CSharpDev' -E -d $databaseName -l 15 -b -h -1 -W -Q 'SET NOCOUNT ON; SELECT MigrationId FROM dbo.__EFMigrationsHistory ORDER BY MigrationId;'|Where-Object{$_ -match '^\d{14}_'}|ForEach-Object{$_.Trim()})
+if($LASTEXITCODE -ne 0 -or @(Compare-Object $expectedMigrations $appliedMigrations).Count -ne 0){throw 'Applied migration identifiers do not exactly match source.'}
+$base='http://localhost:5151'
+$health=$null
+for($healthAttempt=1;$healthAttempt -le 4;$healthAttempt++){
+    try{$health=Invoke-RestMethod "$base/health" -TimeoutSec 60;if($health.status -eq 'ok'){break}}
+    catch{Write-Output "Health readiness attempt $healthAttempt has not completed; backend is still warming up.";if($healthAttempt -eq 4){throw}}
+    Start-Sleep -Seconds 2
+}
+if($health.status -ne 'ok'){throw 'Backend health failed.'}
+$listenerIds=@(Get-NetTCPConnection -LocalPort 5151 -State Listen | Select-Object -ExpandProperty OwningProcess -Unique)
+if($listenerIds.Count -ne 1){throw 'Cannot uniquely identify backend listener.'}
+$backendProcess=Get-Process -Id $listenerIds[0]
+if($backendProcess.Path -ne (Join-Path $repoRoot 'src\Falah.Server\bin\Release\net8.0\Falah.Server.exe')){throw 'Unexpected backend executable owns port 5151.'}
+$backendId=$backendProcess.Id
+& $sqlTool -S '(localdb)\Fale7CSharpDev' -E -d $databaseName -l 15 -b -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE host_process_id = $backendId AND database_id = DB_ID(N'$databaseName')) THROW 51000, 'Backend SQL session is not verified on test database.', 1; SELECT $backendId AS VerifiedBackendPid;"
+if($LASTEXITCODE -ne 0){throw 'Backend-to-database identity check failed; no authentication or test writes will be attempted.'}
+# Obtain only existing, code-defined sample credentials in memory; never log them or tokens.
+$seedText=[IO.File]::ReadAllText((Join-Path $repoRoot 'src\Falah.Infrastructure\Persistence\DemoDataSeeder.cs'))
+$managerPin=[regex]::Match($seedText,'var managerPin = PinHasher\.Hash\("(?<pin>\d+)"\)').Groups['pin'].Value
+$cashierPin=[regex]::Match($seedText,'var cashierPin = PinHasher\.Hash\("(?<pin>\d+)"\)').Groups['pin'].Value
+if(!$managerPin -or !$cashierPin){throw 'Could not identify existing sample-account provisioning mechanism.'}
+$manager=Invoke-RestMethod "$base/api/auth/login-by-pin" -Method Post -ContentType application/json -Body (@{pin=$managerPin}|ConvertTo-Json) -TimeoutSec 60
+$cashier=Invoke-RestMethod "$base/api/auth/login-by-pin" -Method Post -ContentType application/json -Body (@{pin=$cashierPin}|ConvertTo-Json) -TimeoutSec 60
+if($manager.id -ne 'user-demo-manager' -or $cashier.id -ne 'user-demo-cashier' -or !$manager.token -or !$cashier.token){throw 'Unexpected test account identity.'}
+$managerHeaders=@{Authorization="Bearer $($manager.token)"}
+$cashierHeaders=@{Authorization="Bearer $($cashier.token)"}
+try{
+    $menu=Invoke-RestMethod "$base/api/menu" -Headers $cashierHeaders -TimeoutSec 60
+    $products=@($menu.categories|ForEach-Object{$_.products})
+    if($menu.categories.Count -eq 0 -or $products.Count -eq 0){throw 'Real menu was empty.'}
+    $dayBody=@{requestId='fale7csharp-localtest-open-day-20261016';openedByUserId=$manager.id;businessDate='2026-10-16'}
+    $day=Invoke-RestMethod "$base/api/business-day/open" -Headers $managerHeaders -Method Post -ContentType application/json -Body ($dayBody|ConvertTo-Json) -TimeoutSec 60
+    $shiftBody=@{requestId='fale7csharp-localtest-open-shift-20261016';shiftName='Fale7C# local test';openedByUserId=$cashier.id;openingCashPiastres=0}
+    $shift=Invoke-RestMethod "$base/api/shifts/open" -Headers $cashierHeaders -Method Post -ContentType application/json -Body ($shiftBody|ConvertTo-Json) -TimeoutSec 60
+    $currentDay=Invoke-RestMethod "$base/api/business-day/current" -Headers $managerHeaders -TimeoutSec 60
+    $currentShift=Invoke-RestMethod "$base/api/shifts/current" -Headers $cashierHeaders -TimeoutSec 60
+    $cola=@($products|Where-Object{$_.id -eq 'prod-demo-cola'})
+    if($cola.Count -ne 1){throw 'Expected seeded sample beverage is missing.'}
+    $checkout=@{
+        checkoutRequestId='fale7csharp-localtest-sale-20261016';cashierId=$cashier.id;shiftId=$shift.shiftId;orderType='takeaway';paymentMethod='cash'
+        items=@(@{productId=$cola[0].id;variantId=$null;quantity=1;requestedPriceRuleId=$null;notes='Isolated local runtime verification only'})
+        discountPiastres=0;deliveryFeePiastres=0;compAmountPiastres=0;compApprovalId=$null;compApproverUserId=$null;compReason=$null
+        amountPaidPiastres=[long]$cola[0].basePricePiastres;splitPayments=$null;walletProvider=$null;tableNumber=$null
+        customerName=$null;customerPhone=$null;deliveryAddress=$null;deliveryArea=$null;businessDayId=$day.businessDayId;customerPrintRoute='Receipt'
+    }
+    $checkoutJson=$checkout|ConvertTo-Json -Depth 8
+    $sale=Invoke-RestMethod "$base/api/orders/checkout" -Headers $cashierHeaders -Method Post -ContentType application/json -Body $checkoutJson -TimeoutSec 60
+    $replay=Invoke-RestMethod "$base/api/orders/checkout" -Headers $cashierHeaders -Method Post -ContentType application/json -Body $checkoutJson -TimeoutSec 60
+    if(!$sale.isPaid -or $sale.orderId -ne $replay.orderId -or !$replay.wasReplayed -or $sale.totalPiastres -ne $cola[0].basePricePiastres){throw 'Real checkout or safe replay validation failed.'}
+    $details=Invoke-RestMethod "$base/api/orders/$($sale.orderId)" -Headers $cashierHeaders -TimeoutSec 60
+    $settings=Invoke-RestMethod "$base/api/settings" -Headers $managerHeaders -TimeoutSec 60
+    $inventory=Invoke-RestMethod "$base/api/inventory/items" -Headers $managerHeaders -TimeoutSec 60
+    $dashboard=Invoke-RestMethod "$base/api/reports/owner-dashboard?actorUserId=$($manager.id)" -Headers $managerHeaders -TimeoutSec 60
+    $printJobs=Invoke-RestMethod "$base/api/orders/$($sale.orderId)/print-jobs" -Headers $managerHeaders -TimeoutSec 60
+    $report=[ordered]@{
+        DisplayName='Fale7C#';Instance='Fale7CSharpDev';Database=$databaseName;ApiBaseUrl=$base;Health='ok';AppliedMigrations=$appliedMigrations.Count
+        ManagerAuthentication='Verified with existing seeded account';CashierAuthentication='Verified with existing seeded account'
+        CategoryCount=$menu.categories.Count;ProductCount=$products.Count;BusinessDayId=$day.businessDayId;BusinessDate=$day.businessDate
+        ShiftId=$shift.shiftId;ShiftName=$shift.shiftName;OpeningCashPiastres=0
+        TestOrderId=$sale.orderId;TestOrderNumber=$sale.orderNumber;TestSaleTotalPiastres=$sale.totalPiastres;IsPaid=$sale.isPaid
+        SameRequestReplayVerified=$replay.wasReplayed;OrderDetailsRead='Verified';SettingsRead='Verified';InventoryRead='Verified';OwnerDashboardRead='Verified'
+        PrintJobs=@($printJobs|Select-Object id,route,status);PhysicalPrinting='Never started';VerifiedAtUtc=[DateTimeOffset]::UtcNow.ToString('O')
+        TestWrites='Seed data; test login sessions; one business day; one zero-opening-cash shift; one cash beverage sale and its journal/treasury/print-job records. Replay reused the same order.'
+    }
+    $report|ConvertTo-Json -Depth 7|Tee-Object -FilePath (Join-Path $PSScriptRoot 'runtime-verification.json')
+}finally{
+    foreach($headers in @($managerHeaders,$cashierHeaders)){
+        try{Invoke-RestMethod "$base/api/auth/logout" -Headers $headers -Method Post -TimeoutSec 10|Out-Null}catch{Write-Warning 'A test verification session could not be revoked; it will expire normally.'}
+    }
+    $managerPin=$null;$cashierPin=$null;$manager=$null;$cashier=$null
+}

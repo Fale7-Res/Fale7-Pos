@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/OrdersView.xaml",
+  "source_git_blob_sha256": "361826db8184d5f30e32f4cdcb2c501fc46fa5d5540e5a3a9c0d5ef7ba87f6be",
+  "worktree_sha256": "26442911aded9d8ccafb02f4c4b4f9e46d377ea60f85364ff63fc2e24197d81b",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:35:38.084718+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Read-only searchable order list and detailed item overlay.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SearchQuery",
+      "reasoning": "Immediate query text promises number/name/phone; no date or paging controls visible. Actual API cap/filter reviewed in VM independently; UI should disclose truncated history if backend bounded."
+    },
+    {
+      "anchor": "OpenOrderCommand",
+      "reasoning": "Nested rows pass real order to root command; header refresh icon unnamed. List type/total/status consistent server strings through converters, customer name wraps, fixed columns leave star narrow."
+    },
+    {
+      "anchor": "SelectedOrder.Items",
+      "reasoning": "Detail scroll includes product/variant/notes/quantity/line total and customer address. Boundaries620wide max700height/margin24 require native smaller-screen check."
+    },
+    {
+      "anchor": "SelectedOrder.PaymentMethod",
+      "reasoning": "Footer gives total and method only, no IsPaid/pending confirmation status, no split amount legs, refund/cancellation or pending-payment reconciliation command in this view. Thus dashboard orders navigation alone does not expose full pending electronic action; primary cashier lookup separate."
+    },
+    {
+      "anchor": "IsDetailOpen",
+      "reasoning": "Header close + scroll + pinned footer, no full receipt rendering or print action. This provides item inspection without physical printer but not faithful receipt preview."
+    },
+    {
+      "anchor": "HasNoOrders",
+      "reasoning": "Error/loading/no matching list overlays independent. No detail-specific loading/error region here; VM must delay open or surface detail read failure elsewhere."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Native item viewing, stale detail responses, pending electronic visibility, bounded history search and screenreader refresh naming need tests. No callable declarations.",
+  "recommendations": "Clearly show payment confirmation and split legs for financial follow-up; add separate receipt preview later only if authorized.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,165 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:11:33.5904132Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/PinHasherTests.cs",
+  "symbol_count": 12,
+  "symbols": [
+    {
+      "stable_id": "sym-701512730daa91e5157ad3b0161b6f8eb2a00b817b515ffde416b96c796b388b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.A_correct_pin_verifies_against_its_own_hash()",
+      "span": [
+        9,
+        5,
+        14,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6c90400ce41247404dc235b63528330524f7a95194f01ff327e144d5c91b349e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.A_wrong_pin_does_not_verify()",
+      "span": [
+        16,
+        5,
+        21,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f6a6788904ed0a62c8865ae76590e7f65eb244336fe6d3d2c11c009f3944ad57",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.The_same_pin_hashed_twice_produces_different_salts_and_hashes()",
+      "span": [
+        23,
+        5,
+        33,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-33cb536be894e968683193d0b415ece95b63ccc12ec4dce50c79de18e7564466",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.Hashing_rejects_a_pin_that_is_too_short_or_too_long()",
+      "span": [
+        35,
+        5,
+        40,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0a3917a28efd51c217c336d3360c7002018a4a39b7620774ade22797d281328d",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        38,
+        40,
+        38,
+        67
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-080ff63905bdaaf81c6ea4ba1547c919526816abb071ddb82877cc85e38e862f",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        39,
+        40,
+        39,
+        71
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d61243233ba0409c5261c05804ba36c539e6e74b64f9091a3d9c4f895d3c1c4f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.Hashing_rejects_a_non_numeric_pin()",
+      "span": [
+        42,
+        5,
+        46,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-edfaada782d561184477b67b7c51194133073b945cafadc6b8a559daebe8647a",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        45,
+        40,
+        45,
+        68
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e6873666a82f46ae3faaad823e5b2192b19fe5d75369040f115aad18cb9dc17c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.Hashing_rejects_an_all_repeated_digit_pin()",
+      "span": [
+        48,
+        5,
+        53,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3ded3523c9e5fe679fcd3d543fa625a99bd043eeae7d60bad03f70634cc3aced",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        51,
+        40,
+        51,
+        68
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-732869123e490fbe092294cb0d54a5665e2d1e341f01d10c5adcac25750717f5",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        52,
+        40,
+        52,
+        70
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-59aba9d58ce342b357edaebccc40c06c56c0bf126c768fe66b6692610780eddd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PinHasherTests.A_stored_iterations_value_is_honored_at_verify_time_even_if_the_default_changes_later()",
+      "span": [
+        55,
+        5,
+        61,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests verify correct/wrong PIN checking, per-hash random salts, length/numeric/repeated-digit validation, and stored iteration count used at verification. PinHasher uses PBKDF2-SHA256, random 16-byte salts, 32-byte hashes and fixed-time comparison; new/change PIN hashing validates length and repeated-digit strength, while HashWithoutValidation is explicitly for legacy backfill. The API is a financial authorization dependency, but the reviewed test/source path shows no new financial-integrity finding. Persistence-corrupted iterations/base64 could make Verify throw; stored-input hardening is not covered here and no reachable exploit was established. No tests executed.",
+  "source_ranges": "PinHasherTests.cs: entire file; PinHasher.cs: 1-64; IssueManagerApprovalHandler.cs: 36 (caller read for financial authorization context).",
+  "execution": "Read-only source/test review; no test/runtime execution.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/PinHasherTests.cs": "D422CBFA0E65B6C3D1066D6F629643444D509B92CC60771FC9F18F49EF721BA8",
+    "src/Falah.Domain/Authorization/PinHasher.cs": "DEA709E111ADF03D56624A80FCF330BA2CB63540F3D70ACAA97E91BDBA1F40B6"
+  },
+  "shard_reconciliation": {
+    "financial_integrity": "0/12 exact IDs present",
+    "financial_coordinator": "0/12 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

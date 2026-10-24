@@ -1,0 +1,347 @@
+{
+  "artifact_kind": "financial_callable_substantive_quality_review",
+  "created_at_utc": "2026-10-22T04:07:53Z",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Batch 07: independently compare up to six materially financial production callables marked EXISTING_REASONING_UNVERIFIED against exact source and linked author receipts; exclude all batch01-06 and the 42 live verified IDs.",
+  "readback": {
+    "classification_path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "stale_checkpoint_counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7785,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 36,
+      "IDENTITY_ONLY": 983
+    },
+    "classification_sha256": "17606A03366D6257A36A37C57051180AA3741A869977EF94E9F835AD3DC13508",
+    "live_entry_counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7779,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 42,
+      "IDENTITY_ONLY": 983
+    },
+    "note": "Counts recomputed from live entries; prior checkpoint summary is stale after coordinator Batch06 promotion. No shared overlay changed."
+  },
+  "items": [
+    {
+      "stable_id": "sym-0ab0643d4debaad9bce61127aeb45806b89ebd1d37cceb6311a650c3bfc3ef14",
+      "signature": "Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.HandleAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs",
+      "source_lines": [
+        32,
+        50
+      ],
+      "source_sha256": "23708a94b842bf26ec37bcf66b389996174e229caff9651f6c86b4ec6170b16c",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs.json",
+      "receipt_sha256": "ABBBBD01D97D0EF9E67AE928794FF00CAED56559091F263B8C33406D55E40F07",
+      "receipt_author": "financial_integrity",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "The handler reads an Open shift, computes expected drawer cash through ShiftReconciliation, reads discrepancy threshold, reconstructs the open Shift aggregate, and returns expected/actual/difference/approval requirement. No write, authorization record, or immutable preview token is created. Read-only preview may become stale after movements, but CloseShiftHandler independently recomputes expected cash and authorization from its close request, so preview staleness alone does not establish a close accounting defect.",
+      "call_chain": "POST /api/shifts/prepare-close -> handler -> ShiftReconciliation.ComputeExpectedCashAsync -> ComputeBreakdownAsync (orders/refunds, drawer expenses, posted cash-in/safe-drop/withdrawals) -> Shift.PrepareBlindClose; close route independently recomputes in CloseShiftHandler.",
+      "cross_evidence": [
+        {
+          "sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+          "lines": [
+            15,
+            68
+          ],
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs"
+        },
+        {
+          "sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "lines": [
+            95,
+            104
+          ],
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs"
+        },
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            320,
+            335
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "33ca290e359ab0abb0a2eeeb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+          "lines": [
+            60,
+            72
+          ],
+          "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs"
+        }
+      ],
+      "counterevidence": "CloseShiftHandler recomputes before final close; existing test asserts expected opening cash plus a cash sale in preview. Existing FIN-004 refund allocation remains separate. No source shows prepare endpoint creates or mutates financial state.",
+      "test_gaps": "Existing test checks ordinary preview total only; no stale-preview/final-recompute behavior test, but static close source is counterevidence. Tests not executed.",
+      "remaining_action": "No new finding from this callable; if UX contract requires preview and close to match, add an integration test that posts a movement between prepare and close and asserts final close uses recomputed total."
+    },
+    {
+      "stable_id": "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+      "signature": "Falah.Infrastructure.Employees.CreateEmployeeHandler.HandleAsync(Falah.Application.Employees.CreateEmployeeRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "source_lines": [
+        26,
+        63
+      ],
+      "source_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs.json",
+      "receipt_sha256": "51d8f8385bdd4c56d2dbf969e57e5fe57968ca597192031ed83e6a3fc12c9914",
+      "receipt_author": "financial_coordinator",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "The create route validates basic employee identity fields and parses compensation type case-insensitively, authorizes employees_manage, then copies raw CompensationType and signed DailyWage/ShiftValue/MonthlySalary/OvertimeRate piastres into EmployeeEntity without command-specific sign/range checks. Deterministic emp-{RequestId} replay returns prior row; user link is null. This is an admission path into compensation inputs, not proof that a negative value is actually paid or that caller is unauthorized.",
+      "call_chain": "POST /api/employees -> CreateEmployeeHandler -> EmployeeRules.AssertEmployeeInput + enum parse + employees_manage -> EmployeeEntity -> SaveChanges; later biometric/payroll consumers read stored values.",
+      "cross_evidence": [
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            667,
+            672
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+          "lines": [
+            80,
+            86
+          ],
+          "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs"
+        },
+        {
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "lines": [
+            95,
+            99
+          ],
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs"
+        }
+      ],
+      "counterevidence": "Employee command explicitly requires employees_manage; ordinary cashier UI accepts profile input through this route but no negative-value request behavior was executed. Existing FIN-022 covers enum casing/raw storage. FIN-024 / SEM-MIRROR-057 cover signed earning admission and are the proper linked candidate; no duplicate finding.",
+      "test_gaps": "EmployeeVerticalSliceTests.cs:51-74 covers create/idempotency/permission; 76-89 covers normal update. No negative/zero/upper-bound wage admission case is shown in inspected coverage. Tests not run.",
+      "remaining_action": "Cross-link this additional create-path evidence to existing FIN-024; validate negative/zero employee compensation at the authorized HTTP boundary in future tests, with explicit zero policy. No new finding."
+    },
+    {
+      "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+      "signature": "Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "source_lines": [
+        26,
+        99
+      ],
+      "source_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs.json",
+      "receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+      "receipt_author": "financial_coordinator",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "For a found employee the handler uses Cairo business date and UTC HH:mm, updates or inserts attendance, derives lateness only from a same-business-date open shift, and posts a daily-wage credit only when stored compensation type equals exact Daily. It calls EmployeeLedgerPoster with a deterministic employee/date/shift id, then may post a deterministic late penalty; one SaveChanges persists attendance and pending ledger rows. No explicit wage-positive guard exists on daily wage posting, while late penalty requires positive wage. Event ID is stored but not used as dedup key; deterministic ledger IDs protect same-key movement, and employee/date uniqueness may reject concurrent first attendance.",
+      "call_chain": "POST /api/attendance/check-in -> BiometricCheckInHandler -> SettingsQueryService, attendance row, EmployeeLedgerPoster.PostIfNewAsync for daily wage/penalty -> one SaveChanges; endpoint maps missing employee to 404.",
+      "cross_evidence": [
+        {
+          "sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+          "lines": [
+            14,
+            54
+          ],
+          "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs"
+        },
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            783,
+            787
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+          "lines": [
+            55,
+            69
+          ],
+          "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs"
+        }
+      ],
+      "counterevidence": "Handler comments specify biometric-device authorization model and automatic posting distinct from manual employees_ledger permission; do not infer an auth bypass. Same deterministic id makes repeated same employee/date/shift ledger append a no-op. Existing FIN-022 casing and FIN-024 signed-earning candidate cover the relevant boundaries; no duplicate finding.",
+      "test_gaps": "Existing integration coverage checks a normal daily wage and duplicate event; it does not cover negative stored wages, lower-case type, same Cairo date across UTC midnight, or concurrent first check-in. No tests executed.",
+      "remaining_action": "Cross-reference FIN-024/FIN-022; validate the accepted negative/zero wage behavior and date-boundary/replay semantics in tests under existing device authorization policy."
+    },
+    {
+      "stable_id": "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+      "signature": "Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "source_lines": [
+        79,
+        115
+      ],
+      "source_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs.json",
+      "receipt_sha256": "51d8f8385bdd4c56d2dbf969e57e5fe57968ca597192031ed83e6a3fc12c9914",
+      "receipt_author": "financial_coordinator",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "The update route validates identity fields/enum, authorizes employees_manage, loads the entity, then replaces compensation type, wage/shift/monthly/overtime values and profile flags with raw request values, with no numeric sign/range validation or optimistic version check. UserId is not changed. Existing evidence supports input admission and last-writer-wins possibility, not an actual concurrent financial loss.",
+      "call_chain": "PUT /api/employees/{employeeId} -> route copies path ID into request -> UpdateEmployeeHandler -> employees_manage -> tracked entity replacement -> SaveChanges; downstream attendance/payroll reads persisted rates.",
+      "cross_evidence": [
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            674,
+            683
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+          "lines": [
+            80,
+            86
+          ],
+          "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs"
+        },
+        {
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "lines": [
+            95,
+            99
+          ],
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs"
+        }
+      ],
+      "counterevidence": "Existing employee management tests prove positive update and preserve UserId. employees_manage gate is explicit. FIN-022 covers raw enum casing and FIN-024/SEM-MIRROR-057 cover signed earning inputs; do not create a second candidate.",
+      "test_gaps": "EmployeeVerticalSliceTests.cs:76-89 only checks a normal positive wage update. Negative/zero bounds and concurrent update against attendance/payroll are not covered by inspected source. Tests not run.",
+      "remaining_action": "Link this source path to FIN-024 and existing FIN-022; future tests should define command-specific negative/zero policy and conflict behavior. No new finding."
+    },
+    {
+      "stable_id": "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+      "signature": "Falah.Infrastructure.Employees.BiometricCheckOutHandler.HandleAsync(Falah.Application.Employees.BiometricCheckOutRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "source_lines": [
+        110,
+        153
+      ],
+      "source_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs.json",
+      "receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+      "receipt_author": "financial_coordinator",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "The handler finds employee and today attendance, requires a record, combines stored HH:mm with current UTC date, computes worked/overtime hours, overwrites checkout/hours/event ID, and posts overtime only when hours and stored daily wage are positive. Fixed ledger id is employee/date so repeat checkout with changed derived hours updates attendance but does not revise existing ledger credit. The UTC-date reconstruction can undercount or zero hours when a Cairo business date crosses UTC midnight; this source behavior matches existing FIN-023 candidate. No realized underpayment is established.",
+      "call_chain": "POST /api/attendance/check-out -> BiometricCheckOutHandler -> employee/date attendance + settings + open shift ID -> PayrollRules.CalculateOvertimeAmount -> EmployeeLedgerPoster fixed id -> SaveChanges; API maps domain exception.",
+      "cross_evidence": [
+        {
+          "sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+          "lines": [
+            14,
+            54
+          ],
+          "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs"
+        },
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            789,
+            794
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+          "lines": [
+            90,
+            109
+          ],
+          "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs"
+        }
+      ],
+      "counterevidence": "Existing FIN-023 already tracks date-reconstruction path; handler rejects checkout without attendance and gates auto overtime to positive wage/hours. Current tests only assert no-checkin rejection and zero overtime for a short shift, so do not counterprove UTC boundary behavior. Same deterministic key prevents duplicate row but does not recompute prior amount.",
+      "test_gaps": "No checkout test spanning UTC midnight within one Cairo business date, no positive overtime settlement test, no repeated checkout with changed hour and ledger assertion. Tests not run.",
+      "remaining_action": "Cross-reference FIN-023 without duplicating. Add boundary and repeated-checkout tests to establish intended recalculation/idempotency policy."
+    },
+    {
+      "stable_id": "sym-0debe5a77f4ef4f5426a52025c203952db3a716ea3d073617739930d00911478",
+      "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.GetAsync(DateOnly, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "source_lines": [
+        60,
+        90
+      ],
+      "source_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs.json",
+      "receipt_sha256": "0b278235cb8abfd816658b31ef7a4f87da1b61e61476d8fe00dcaa9cc0cc6abb",
+      "receipt_author": "financial_coordinator",
+      "verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "reasoning": "The service builds one selected business-date UTC range, looks up first BusinessDay with that date, then sequentially composes sales, tax, sold product/hourly, expense summary/details, shift summaries, period treasury movements plus current balances, employee rows, inventory, delivery, refunds, audit, printing and backup status. It performs no writes and no shared snapshot transaction; sections can observe different database instants. The selected-day flows versus current balances/status mix is explicit by DTO/queries and should not be called historical balance reconstruction. Duplicate-date FirstOrDefault ambiguity remains conditional on whether multiple BusinessDay rows per date are allowed.",
+      "call_chain": "GET /api/reports/daily-statement -> RequireReportsAccessAsync -> GetAsync(businessDate or BusinessClock.Today) -> report query services and local section builders -> DailyStatementDto.",
+      "cross_evidence": [
+        {
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "lines": [
+            1985,
+            1995
+          ],
+          "path": "src/Falah.Server/Program.cs"
+        },
+        {
+          "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+          "lines": [
+            75,
+            116
+          ],
+          "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs"
+        }
+      ],
+      "counterevidence": "Endpoint requires reports_view. Selected-day query fanout is explicit and current account balances/status are purposefully current. Tests verify normal products and expense detail; no material accounting defect follows solely from lack of a snapshot because no snapshot contract is established. No repeated-date policy or schema constraint was checked.",
+      "test_gaps": "DailyStatementVerticalSliceTests.cs:75-81 permission and 85-116 ordinary sales/expense section behavior. No cross-section consistent-snapshot test under concurrent writes; no duplicate BusinessDay date test. Tests not run.",
+      "remaining_action": "No new finding. If a point-in-time statement is required, define snapshot consistency and test concurrent mutation; if date uniqueness is invariant, prove it at schema/domain boundary or test the selection rule."
+    }
+  ],
+  "related_cross_reference": {
+    "comparison_id": "SEM-MIRROR-058",
+    "disposition": "Not in the six reviewed callables and not independently re-reviewed here. Its source-described stale Product.RecipeId pointer could affect current food-cost reporting if recipe retarget is supported and exclusive ownership intended. DailyStatement GetAsync does not include GetFoodCostReportAsync, so this batch does not broaden the issue; retain conditional owner-contract/runtime limits and do not duplicate.",
+    "artifact": "Codex Work/Deep-Audit/Duplication-and-Architecture/recipe-retarget-foodcost-pointer-semantic-comparison.json"
+  },
+  "batch_summary": {
+    "ids_reviewed": [
+      "sym-0ab0643d4debaad9bce61127aeb45806b89ebd1d37cceb6311a650c3bfc3ef14",
+      "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+      "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+      "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+      "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+      "sym-0debe5a77f4ef4f5426a52025c203952db3a716ea3d073617739930d00911478"
+    ],
+    "canonical_or_overlay_changes": 0,
+    "tests_executed": [],
+    "primary_receipt_credit": 0,
+    "substantive_reviews": 6,
+    "new_findings": 0,
+    "next_action": "Coordinator may independently validate this handoff and select the next live EXISTING_REASONING_UNVERIFIED production callable set after excluding these IDs and batches 01-06. Do not infer global substantive coverage from this batch.",
+    "source_runtime_db_changes": false
+  },
+  "limitations": [
+    "Static source and receipt comparison only.",
+    "No tests, API calls, runtime, SQL, database, migration, printing, or publication executed.",
+    "Prior receipt author is recorded separately; reviewer analysis is independent source verification, not a claim to original author identity.",
+    "FIN-022, FIN-023, FIN-024 and FIN-004 are cross-references; no duplicate finding promoted.",
+    "Current deployment policy, caller use, concurrency outcomes, database-side triggers/constraints, and realized financial effects remain unverified."
+  ],
+  "post_hoc_correction_notes": [
+    {
+      "recorded_at_utc": "2026-10-22T04:14:36Z",
+      "kind": "append_only_receipt_hash_metadata_correction",
+      "coordinator_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-07-coordinator-validation-2026-10-22.json",
+      "reason": "Coordinator independently computed receipt bytes and confirmed exact stable ID, signature, source span and reasoning. Preserve original declared strings as historical metadata; do not rewrite receipt files or prior item evidence.",
+      "mismatches": [
+        {
+          "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+          "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs.json",
+          "declared_receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+          "observed_receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9deb45b4c1ca81d840d2817338ee4892c",
+          "stable_id_signature_span_reasoning_match": true
+        },
+        {
+          "stable_id": "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+          "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs.json",
+          "declared_receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+          "observed_receipt_sha256": "c2ae96c68f364de7b2b84824135e03c9deb45b4c1ca81d840d2817338ee4892c",
+          "stable_id_signature_span_reasoning_match": true
+        }
+      ],
+      "historical_evidence_preserved": true
+    }
+  ]
+}

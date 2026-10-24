@@ -1,0 +1,481 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-040",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T08:01:15.839421+00:00",
+  "scope": "Bounded cross-layer trace of order-level packaging setup, per-order cost resolution, aggregate food-cost accounting, profitability completeness DTO and Cashier dashboard warning state. Reconciles rather than duplicates FIN-CAND-PACKAGING-COVERAGE-001.",
+  "decision": "The existing candidate is source-confirmed and has a material cross-layer consequence: when a sold order type has an active packaging rule whose inventory cost is unknown, CostingRules returns Known=false and ReportingQueryService appends the packaging item name to Missing but does not change totalLines or knownLines (dish-line counters). OwnerDashboardQueryService/ProfitabilityRules derive IsFoodCostComplete solely from those counts. Therefore, if all dish recipes are costed, the dashboard can report IsFoodCostComplete=true while its cost report has an unresolved packaging component; the Cashier UI warning banner and attention warning are gated on !IsFoodCostComplete and will not surface that missing packaging entry. This validates the existing FIN-CAND-PACKAGING-COVERAGE-001 and adds the UI source path; do not create a second finding ID. No full endpoint/UI runtime reproduction was executed.",
+  "finding_candidate": "FIN-CAND-PACKAGING-COVERAGE-001",
+  "related_existing_findings": [
+    "FIN-CAND-PACKAGING-COVERAGE-001"
+  ],
+  "severity": "MEDIUM (existing candidate; accounting completeness / misleading report indicator, not demonstrated ledger loss)",
+  "confidence": "High for source control/data flow and warning gating; runtime/native rendering not tested.",
+  "manual_reasoning": {
+    "configuration": "SaveOrderPackagingRuleHandler.HandleAsync validates a chosen inventory item and positive quantity, applies menu_manage authorization, upserts one active/inactive rule by order type, and saves. Existing integration test asserts only that the rule can be stored/read; it does not cover cost completeness.",
+    "cost_resolution": "CostingRules.OrderPackagingCost selects the active rule for an order type. No rule/inactive rule is represented as known zero by current policy; a found rule whose item cost cannot resolve returns zero partial amount, Known=false, and the item name.",
+    "aggregation": "ReportingQueryService.GetFoodCostReportAsync first increments totalLines for each noncancelled sold item and increments knownLines only when that dish recipe is complete. It then separately groups sold orders by order type, computes packaging once per order, and on !known adds its name to Missing and continues without changing knownLines. Thus returned Missing may be nonempty even when knownLines==totalLines.",
+    "dashboard_propagation": "OwnerDashboardQueryService.BuildProfitability passes FoodCostReportDto numeric amount and SoldLineCount/KnownLineCount to ProfitabilityRules; the latter marks complete from knownLineCount>=soldLineCount. It forwards Missing as ItemsWithUnknownCost separately, but ProfitabilityDto.IsFoodCostComplete is sourced from gross.IsComplete.",
+    "ui_consequence": "OwnerDashboardViewModel.RebuildMetrics uses IsFoodCostComplete for its green/unknown caption; RebuildAttention adds an unknown-cost warning only when that flag is false; HasUnknownFoodCost drives XAML banner Visibility. Therefore the missing package name alone does not activate these UI warning paths when dish counters show complete. Source confirms the gate; no live UI observation claimed.",
+    "counterevidence": "Missing packaging is still present in FoodCostReportDto.Missing and ProfitabilityDto.ItemsWithUnknownCost. The separate reporting screen may expose the missing list; it was not traced here. A no-rule optional packaging cost is intentionally known zero, distinct from an active rule with unresolved cost. The rule is order-level and counted per order by design.",
+    "tests": "Existing domain tests check known/incomplete food line counts, and the integration test checks rule persistence. Search found no test asserting a known dish plus unknown active order packaging must mark the aggregate DTO/UI incomplete. No test suite was run.",
+    "severity_rationale": "Financial report completeness and a dashboard attention state may be falsely positive; total cost/profit can be overstated by the unresolved package cost. It does not itself alter ledger balances or prove money movement loss."
+  },
+  "recommended_action": "Keep packaging cost in the per-order aggregate, but feed its known/unknown state into an explicit aggregate cost-completeness result consumed by ProfitabilityRules/OwnerDashboardQueryService and DTO. Ensure the UI warning gate uses that aggregate state, while preserving separate sold-dish counts and one-package-per-order cardinality. Keep no-active-rule semantics explicitly known-zero only if owner confirms optional packaging is valid.",
+  "required_tests": [
+    "Known dish plus active packaging rule with unknown item cost yields nonempty Missing and aggregate IsFoodCostComplete=false.",
+    "The owner dashboard attention list and warning banner appear for that case; native visual rendering is a separate verification.",
+    "Known active packaging cost is included once per order type/order, independent of item quantity.",
+    "No active packaging rule remains known zero only under confirmed optional-packaging policy.",
+    "Dish cost gaps and packaging gaps both contribute to aggregate incompleteness without corrupting SoldLineCount/KnownLineCount meanings.",
+    "Report DTO and dashboard source projections agree on incomplete aggregate cost state."
+  ],
+  "acceptance_criteria": [
+    "A nonempty missing list for a cost component required by an active sold-order rule cannot coexist with a complete aggregate profitability flag.",
+    "Dashboard warning visibility reflects unknown order packaging cost.",
+    "Per-order packaging is not multiplied by item count.",
+    "No treasury, stock ledger, or sales amount side effects are introduced by report calculation.",
+    "No duplicate finding ID is created; canonical FIN-CAND-PACKAGING-COVERAGE-001 includes cross-layer evidence and verification limits."
+  ],
+  "runtime": "NOT_EXECUTED. Only source and existing test source inspected; no build/test/HTTP/database/UI interaction.",
+  "limits": [
+    "No SQL Server query executed and no test run.",
+    "No native dashboard screenshot/visual check.",
+    "Owner policy on whether absence of a configured packaging rule is always optional known-zero remains an assumption encoded in code.",
+    "This comparison does not certify all report calculations."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs",
+      "source_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "worktree_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "source_git_blob_sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          25,
+          59
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e2bc6fa50704fc084fd0cc23de60155ee9e8658c32f7a239f5474455658401ae",
+          "signature": "Falah.Infrastructure.Inventory.SaveOrderPackagingRuleHandler.HandleAsync(Falah.Application.Inventory.SaveOrderPackagingRuleRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            59,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "source_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          181,
+          190
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a37184daa74a29ceaf9a0a0efae1fb2687dbc0e55f16a843284f7761fc8466dd",
+          "signature": "Falah.Domain.Inventory.CostingRules.OrderPackagingCost(string, IEnumerable<Falah.Domain.Inventory.OrderPackagingRule>, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            181,
+            5,
+            190,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          349,
+          423
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          205,
+          224
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            205,
+            5,
+            224,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "source_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          35,
+          60
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db",
+          "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            60,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "source_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "source_git_blob_sha256": "46998d7ab7f677438be4477df32b02e33a9be00ccb105a63a9e690b4f69389d1",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          91,
+          109
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-00a2267f5c8b3d494b27ea0dbb40413615039ddfc7fc7685b7d66baa8dea666a",
+          "signature": "Falah.Application.Reports.ProfitabilityDto",
+          "kind": "RecordDeclaration",
+          "span": [
+            93,
+            1,
+            108,
+            49
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+      "source_sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+      "worktree_sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+      "source_git_blob_sha256": "10bd354942034056001cb72f047bddb9937559c3da0fd601062ef317262775d0",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          229,
+          239
+        ],
+        [
+          316,
+          324
+        ],
+        [
+          420,
+          435
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8f7f9edf874c87ef0ce1b641fbecdb217979aab370c88d9344e34ecef8e8fd02",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildMetrics(Falah.Application.Reports.OwnerDashboardDto?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            210,
+            5,
+            239,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-cb60f9ca4b447b55f59bf33c8ce996f94f75dac8fe095f5519923488094a920c",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildAttention(Falah.Application.Reports.OwnerDashboardDto?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            266,
+            5,
+            356,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-757146152ce449812fa9cd98033f48ba960ea028ec6c0cac2a17ad9c51613495",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.HasUnknownFoodCost",
+          "kind": "PropertyDeclaration",
+          "span": [
+            420,
+            5,
+            420,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-7435f4c046d1e884983e63bda9c95557851a9367e4a88a0cf3d16c6979a3fa23",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.UnknownCostLabel",
+          "kind": "PropertyDeclaration",
+          "span": [
+            422,
+            5,
+            435,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+      "source_sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+      "worktree_sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+      "source_git_blob_sha256": "c7626ca4d4c66233519de67702c4835e8e59dee9754e6c347cf728cf068edeba",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          255,
+          277
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "source_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          668,
+          678
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-714fe41bff126ee6318260cc3f732cbfcd644279f730ffda75baa6c40bd9aaf3",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Saving_an_order_packaging_rule_persists_it()",
+          "kind": "MethodDeclaration",
+          "span": [
+            668,
+            5,
+            678,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs",
+      "source_sha256": "63938933d1b29a843037c374978463a4cc9ada64689c115596ecf1670ffb2eb9",
+      "worktree_sha256": "63938933d1b29a843037c374978463a4cc9ada64689c115596ecf1670ffb2eb9",
+      "source_git_blob_sha256": "5093e9055133bfd324283e1787ee86e64e4185e85d27c5c18f48f01c8e3d17f4",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          12,
+          171
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ec08db933d32a2fb15094b2bd3c55152080a240a65031d742f59115a7e26e02",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.P(long)",
+          "kind": "MethodDeclaration",
+          "span": [
+            14,
+            5,
+            14,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-af1424307ba1bd8245a0c164c10a04ec8543e17632f39a5669f407a19479861e",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Gross_profit_is_net_sales_less_food_cost()",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            25,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7f5fa01c8afec262387324366b40da6a45e51fd32f5aa9a7b8b236edee33f689",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Incomplete_cost_coverage_is_reported_not_hidden()",
+          "kind": "MethodDeclaration",
+          "span": [
+            27,
+            5,
+            37,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8af94dc0e5c35e560804715826d3bf14950c30c958afbeefb0ead4da3baad058",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.A_day_with_no_sales_has_no_percentage_rather_than_zero_percent()",
+          "kind": "MethodDeclaration",
+          "span": [
+            39,
+            5,
+            48,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-82a789cedc3b9e78adebbc1a54a82e323da327686df23a414b825e12b21a5258",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.A_period_with_no_sold_lines_still_counts_as_complete()",
+          "kind": "MethodDeclaration",
+          "span": [
+            50,
+            5,
+            55,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e9d236dd1a036d9db17601beefd17690f915cf269e47c3dfd48f8015594a63b3",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Food_cost_above_sales_produces_a_negative_gross_profit_not_a_clamped_zero()",
+          "kind": "MethodDeclaration",
+          "span": [
+            57,
+            5,
+            65,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-61f91e09570cefbe2c6fc72e809781d6fdc3273a865ecef35397ebf24c765d71",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Operating_margin_subtracts_food_expenses_and_wages()",
+          "kind": "MethodDeclaration",
+          "span": [
+            67,
+            5,
+            80,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b34630f108da6338baefd54d39d92baaa56f353a776ea66cddb13c6aad637d24",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Incomplete_coverage_carries_up_into_the_operating_margin()",
+          "kind": "MethodDeclaration",
+          "span": [
+            82,
+            5,
+            90,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0d11b389087ff6b991f1a6e36b101d09acac0b8162a2590b611f911fdf060ecb",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Operating_margin_can_be_negative()",
+          "kind": "MethodDeclaration",
+          "span": [
+            92,
+            5,
+            100,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5c0dbd99bbc51a3f4bc7f5e042b9cc07501976207cadccdcadbacb73024316db",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Sales_with_no_known_cost_at_all_report_no_profit_rather_than_a_hundred_percent_margin()",
+          "kind": "MethodDeclaration",
+          "span": [
+            102,
+            5,
+            116,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fdd2be18a3d87224276a33f7625fa95df6b905833685d3a848bd8dff79938ffc",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.One_known_line_out_of_many_is_enough_to_report_a_bounded_figure()",
+          "kind": "MethodDeclaration",
+          "span": [
+            118,
+            5,
+            126,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7c4469aaeb094f6e3f6b5e398a34f00f22bb4902a9ce077959fffe7d83d47696",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.An_unknown_food_cost_makes_the_operating_result_unknown_but_keeps_wages_and_expenses_visible()",
+          "kind": "MethodDeclaration",
+          "span": [
+            128,
+            5,
+            143,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-49eb3fbd360b0cefbdbe847bf6b6e2e56b7f3e1fac6397a33e7b9f6536934cce",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.A_period_with_no_wage_postings_reports_an_unknown_wage_ratio_not_zero_percent()",
+          "kind": "MethodDeclaration",
+          "span": [
+            145,
+            5,
+            159,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-df8b3be58f0382e2fde09ba36d714ca212fea4f2bf37d3282ae617af2b04f2b6",
+          "signature": "Falah.Domain.Tests.ProfitabilityRulesTests.Wages_that_were_posted_and_summed_to_zero_still_report_a_ratio()",
+          "kind": "MethodDeclaration",
+          "span": [
+            161,
+            5,
+            170,
+            6
+          ]
+        }
+      ]
+    }
+  ]
+}

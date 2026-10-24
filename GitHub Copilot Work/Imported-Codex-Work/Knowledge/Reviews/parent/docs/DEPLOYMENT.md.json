@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "docs/DEPLOYMENT.md",
+  "source_git_blob_sha256": "fa64025f84e004290ce67397417500d8e93c5f2e4744a72858ccc69562f0e0b5",
+  "worktree_sha256": "fa64025f84e004290ce67397417500d8e93c5f2e4744a72858ccc69562f0e0b5",
+  "reviewer": "parent",
+  "updated_at_utc": "2026-10-17T01:50:04.635380+00:00",
+  "responsibilities": "Arabic restaurant installation, service/backup operation, owner provisioning and opening-stock instructions.",
+  "symbols": [],
+  "callables": "NOT_APPLICABLE: no source callable declarations in this document/configuration",
+  "non_callable_analysis": {
+    "role": "Arabic restaurant installation, service/backup operation, owner provisioning and opening-stock instructions.",
+    "reasoning": "All90lines read, with seed credential literals masked in display if present. Instructions require elevated installer/service/SQL effects and are not audit probes. Hardcoded E-drive paths and SQL service dependency differ from the approved isolated LocalDB runtime, so copying the command here would not safely reproduce this session. ScheduledBackupService source settings confirm20h/30min/60/90s defaults; their presence is legitimate backup scheduling, not evidence of a malicious timer. SQL service writes backup files, so app/SQL account filesystem permissions differ. Off-device backup is explicitly outside current app. First-owner UI choice and server allow-first-owner branch actually exist; stale Application DTO commentary saying no owner API must not override current handler. Concurrent uniqueness and SEC001 identity checks still require security review; documentation alone does not prove guarantees.",
+    "relationships": [
+      "tools/install-falah-service.ps1",
+      "ScheduledBackupService configuration and backup handlers",
+      "CreateUserHandler.HandleAsync lines37-55",
+      "UsersViewModel.Actions RoleOption owner choice",
+      "OPENING_STOCK_CHECKLIST.md"
+    ],
+    "tests": "No installer, service change, backup, restore, owner creation, PIN login or inventory write executed. SQL permissions and last-admin guarantees not proven by instructions.",
+    "recommendation": "Create environment-specific reviewed deployment instructions, explicit dry-run/safe test targets and off-device restore-drill policy. Record service identity and real backup verification beyond VERIFYONLY. Do not execute these production instructions during audit.",
+    "risks": "Elevated service installation, automatic DB migration and scheduled backup side effects; first-owner workflow must not be confused with a safe default production setup."
+  },
+  "reviewed_line_spans": [
+    [
+      1,
+      90
+    ]
+  ],
+  "status": "REVIEWED_STATIC_COMPLETE_FILE",
+  "scope_limit": "Full manual file read and specific claim reconciliation; no runtime acceptance inferred",
+  "remaining_callable_ids": []
+}

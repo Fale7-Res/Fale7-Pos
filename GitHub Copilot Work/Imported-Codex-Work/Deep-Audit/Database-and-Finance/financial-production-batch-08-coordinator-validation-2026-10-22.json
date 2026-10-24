@@ -1,0 +1,212 @@
+{
+  "artifact_kind": "financial_callable_batch_coordinator_quality_validation",
+  "created_at_utc": "2026-10-22T04:35:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "main_coordinator",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-08-2026-10-22.json",
+  "communication": "Existing /root/financial_integrity_continuation session supplied the batch; coordinator independently checked source/index/stable identities/receipts/hashes and source behavior.",
+  "items": [
+    {
+      "stable_id": "sym-63ceba156fff98e827071190da20bf3a5aaa1ff87517d8a555b1685825cda38c",
+      "source_path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+      "signature": "Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.HandleAsync(Falah.Application.Delivery.SettleDriverCustodyRequest, CancellationToken)",
+      "source_line_range": [
+        36,
+        194
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:36:5:MethodDeclaration",
+      "source_worktree_sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs.json",
+      "receipt_sha256_observed": "48fb146fb4bd28addbc74c446b34bd055b1ad35567d427ae6efb7ce9bad3d704",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "test_source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "test_source_line_range": [
+        720,
+        821
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "DRIVER_CUSTODY_SETTLEMENT",
+      "coordinator_source_reasoning": "The handler first replays the request key, rejects negative actual cash, authorizes base settlement and stronger variance approval, then locks the driver nonterminal delivery/custody sets in a transaction. Expected amount is already-collected custody; positive actual posts Main treasury movement and journal, zero actual posts none. The handler settles custody/delivery rows, writes settlement/event/audit, then commits atomically. It assigns each custody SettledPiastres=CollectedPiastres while aggregate settlement actual/difference lives on DriverSettlementEntity; source does not establish whether that custody field means collected amount or cash physically tendered.",
+      "counterevidence_and_limits": "Same-key replay, distinct-key contention and financial writes have source tests, but tests were not run and provider behavior is unverified. Per-custody settled-field meaning and zero/shortage allocation semantics remain unresolved; do not infer duplicate/lost cash.",
+      "exact_remaining_action": "Confirm entity/UI/report semantics for SettledPiastres and define whether settlement cash is only aggregate. If per-custody actual allocation is required, specify deterministic allocation before changing persistence; add SQL Server two-session different-key contention, zero/shortage/overage and retry tests.",
+      "agent_reasoning": "Request replay first; rejects negative actual; requires delivery_manage and stricter settlement approval for variance. Transaction takes row locks over driver nonterminal deliveries and unsettled custody; rejects unresolved active deliveries. Settlement expected is sum of already-collected custody; positive actual creates incoming Main treasury movement with journal, zero actual creates no movement but still closes resolved delivery/custody rows. Settlement, events, audit, movement/journal and status changes save/commit together.",
+      "agent_counterevidence": "Same request replay is deduped; row locks cover distinct request IDs, and test source asserts one successful concurrent settlement/movement. Collected cash is explicitly the expected handover basis; original responsibility variance is recorded during delivery result. Whether UI wording should call that expected is owner policy, not proof of duplicate payment.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    },
+    {
+      "stable_id": "sym-ee328e92de0ccaa197e6b26dd0742965a52f9fd8b9c1dfb52da056e0410c3f96",
+      "source_path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+      "signature": "Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.HandleAsync(Falah.Application.Delivery.RecordDeliveryResultRequest, CancellationToken)",
+      "source_line_range": [
+        45,
+        162
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:45:5:MethodDeclaration",
+      "source_worktree_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs.json",
+      "receipt_sha256_observed": "74e68f91cf43101ee90404d95bd488ed795c0e325a9c3b45d34a80dcaa05721e",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "test_source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "test_source_line_range": [
+        256,
+        331
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "DELIVERY_COLLECTION_STATE",
+      "coordinator_source_reasoning": "Only Delivered/Failed/Returned results are accepted. The transaction locks the delivery, validates transition and reason, calculates collection responsibility for Delivered and updates delivery plus existing custody collected/difference; event/audit/state save together. It does not change Order.Paid or treasury. Same-status request returns no-op, so it cannot correct a prior collection value.",
+      "counterevidence_and_limits": "No evidence here that the order payment was erroneously changed; collection is custody responsibility before driver settlement. Whether corrections after a terminal result are required is a product/business contract question.",
+      "exact_remaining_action": "If correction is supported, specify a separate authorized correction event that revises custody and records an audit trail without mutating order-payment settlement; add same-status correction, idempotency and concurrency tests.",
+      "agent_reasoning": "Only Delivered/Failed/Returned accepted; actor permission checked; delivery row locked in transaction. Delivered derives expected responsibility, defaults collected to expected, requires reason for variance, updates delivery and existing custody Collected/Difference. Failed/Returned require reason. Event/audit and state commit; no order payment change or treasury movement. Same-status new request is no-write, so it cannot correct a previous collected amount.",
+      "agent_counterevidence": "Row lock, transition guard and same-request replay protect a repeated event; inspected tests cover default collection, variance reason, failure reason and idempotent event. Outcome is custody evidence, not treasury cash receipt.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    },
+    {
+      "stable_id": "sym-a927df96046d6df8eb9d12678fc2a6d3165efc0ea8d1ffe1277af6a84873e6d5",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "signature": "Falah.Infrastructure.Delivery.AssignDeliveryHandler.HandleAsync(Falah.Application.Delivery.AssignDeliveryRequest, CancellationToken)",
+      "source_line_range": [
+        36,
+        151
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:36:5:MethodDeclaration",
+      "source_worktree_sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs.json",
+      "receipt_sha256_observed": "fc7ff30c0f759e0dafaae8a41fe27755b840c673b052bf7740536d83eed12c2d",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "test_source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "test_source_line_range": [
+        171,
+        253
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "DELIVERY_ASSIGNMENT_CUSTODY",
+      "coordinator_source_reasoning": "Under delivery_manage, transaction and row lock, only Ready delivery and active driver are eligible. Facts determine whether cash custody is created; delivery/trip, custody, assignment event, pending dispatch PrintJob metadata and audit are saved together. Request ID event identity supports replay; no treasury or order payment is posted.",
+      "counterevidence_and_limits": "A dispatch PrintJob is metadata and is not proof of physical print or money movement. Route/worker behavior not verified in this callable review.",
+      "exact_remaining_action": "No source defect identified. If hardening transactional outbox behavior, test rollback of all staged rows on provider failure and retry without duplicate custody or dispatch job.",
+      "agent_reasoning": "New attempt requires delivery_manage, transaction + delivery row lock, Ready status and active driver. It derives order collection facts and creates custody only if responsibility is positive; prepaid order has no custody. Delivery/trip/driver state, custody, event, dispatch print-job metadata and audit persist together. Event RequestId replay prevents duplicate assignment; row lock makes a competing different assignment see non-Ready state.",
+      "agent_counterevidence": "Tests cover cash-on-delivery custody, prepaid no-custody, same-key replay and competing different-driver attempts with one winner. Dispatch job itself is not financial posting.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    },
+    {
+      "stable_id": "sym-b29cec6ec1d9a558c103dbed783934a4af218bd2bc2beb3dd201c88ccb9cb025",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "signature": "Falah.Infrastructure.Delivery.ReassignDeliveryHandler.HandleAsync(Falah.Application.Delivery.ReassignDeliveryRequest, CancellationToken)",
+      "source_line_range": [
+        34,
+        153
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:34:5:MethodDeclaration",
+      "source_worktree_sha256": "adf3fa04c4e79acd26d25fdf5d2010b55397638a7f4b9405617d690c81050a1f",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs.json",
+      "receipt_sha256_observed": "1f0e106de6bc2671568f043232136fd55aad3662274ab3ce18e142eb58f46dca",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "test_source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "test_source_line_range": [
+        337,
+        453
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "DRIVER_CUSTODY_REASSIGNMENT",
+      "coordinator_source_reasoning": "Locks delivery in a transaction; validates active target, reason and terminal status. Same driver is no-op; settled/cancelled are rejected; after outcome requires delivery_override. Existing unsettled custody changes owner only and retains expected/collected amounts; history/event, dispatch metadata and audit commit together; no treasury movement/new custody.",
+      "counterevidence_and_limits": "The code preserves custody amounts during ownership transfer, which is a plausible intended attribution policy; cross-session race with settlement is not proven without provider execution.",
+      "exact_remaining_action": "No defect promoted. Define whether collected cash may be reassigned after outcome; add SQL Server race test for settlement versus reassignment and verify exactly one driver/custody attribution.",
+      "agent_reasoning": "Reassignment locks delivery inside transaction; validates active new driver, reason and status. Same driver is a no-op; settled/cancelled rejected; after-outcome change requires delivery_override. Existing unsettled custody changes DriverId only; amounts are preserved. Assignment/version, history/event, dispatch job and audit commit together; no new custody or treasury movement.",
+      "agent_counterevidence": "Tests cover same-driver no-op, settled rejection, elevated permission after outcome and full unsettled custody transfer old-to-new without changing collected amount.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    },
+    {
+      "stable_id": "sym-9b36353687b4ac2479e29b8ffec5e2d129c16799eed5fc917fe14b50d98df967",
+      "source_path": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs",
+      "signature": "Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.HandleAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)",
+      "source_line_range": [
+        31,
+        82
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31:5:MethodDeclaration",
+      "source_worktree_sha256": "e894c1a9e72507c94ebfc8406bd8168753b460ab29aa5234dd345ec74eadf993",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs.json",
+      "receipt_sha256_observed": "5d01e6cadd31ef84063aa2794395393e24111e7ae66615ac8f81c42e44bde7c1",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs",
+      "test_source_sha256": "797fdff97b6cd2c97100fbdfed9303f727be98bcd2ca7b6d3ca00c91ca213d3e",
+      "test_source_line_range": [
+        40,
+        114
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "CASH_DRAWER_COMMAND_CONTROL",
+      "coordinator_source_reasoning": "Existing RequestId returns the prior command. A new request requires reason, actor, Open shift and cash_drawer authorization/approval, then writes Requested command and warning audit in one SaveChanges. This handler queues command only; it does not operate hardware or alter treasury. Shift status read is outside a transaction.",
+      "counterevidence_and_limits": "A close race can leave a queued request associated with a shift closed after the read; no accounting movement follows here. Hardware consumer revalidation and physical outcome are outside this source scope.",
+      "exact_remaining_action": "Confirm queue-consumer shift revalidation policy; if closed-shift commands must not execute, enforce at consumption boundary and add close-between-enqueue-and-consume integration coverage. No financial defect established.",
+      "agent_reasoning": "RequestId replays existing command. New request requires reason, existing actor, Open shift and cash_drawer permission/approval; it creates Requested command and warning audit in one SaveChanges, with no treasury movement. The shift status read precedes save and is outside transaction; a close race can leave queued command associated with a closed shift, but this handler does not operate hardware or affect accounting balances.",
+      "agent_counterevidence": "Tests assert no treasury movement, permission/reason/open-shift behavior, retry and same-key concurrency. A stale command is operational queue state only on this path; physical draw outcome is separate.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    },
+    {
+      "stable_id": "sym-fe45f0bcd6ab3f5c74f21b45226e301bc5dc85b347c8e6a087356bed32fb7a7e",
+      "source_path": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs",
+      "signature": "Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.HandleAsync(Falah.Application.CashDrawer.ReportCashDrawerResultRequest, CancellationToken)",
+      "source_line_range": [
+        96,
+        109
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:96:5:MethodDeclaration",
+      "source_worktree_sha256": "e894c1a9e72507c94ebfc8406bd8168753b460ab29aa5234dd345ec74eadf993",
+      "source_baseline_relation": "git diff against c35816ecae49633674775dd32061c6ee92f94aaf is clean for this source file",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs.json",
+      "receipt_sha256_observed": "5d01e6cadd31ef84063aa2794395393e24111e7ae66615ac8f81c42e44bde7c1",
+      "receipt_author": "financial_integrity",
+      "receipt_identity_and_reasoning_match": true,
+      "test_source_path": "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs",
+      "test_source_sha256": "797fdff97b6cd2c97100fbdfed9303f727be98bcd2ca7b6d3ca00c91ca213d3e",
+      "test_source_line_range": [
+        116,
+        141
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "financial_risk_category": "CASH_DRAWER_RESULT_METADATA",
+      "coordinator_source_reasoning": "Loads a cash-drawer command and existing user, then overwrites status/error/reported timestamp and saves. This callable has no local permission, active-user or terminal-state check and repeated callbacks may overwrite prior result. It changes command metadata only; no treasury/order/payment rows are touched.",
+      "counterevidence_and_limits": "The call path may be restricted to a trusted authenticated callback elsewhere; that host/consumer trust boundary was not established here. Therefore no authorization or financial loss finding is promoted from handler-local evidence alone.",
+      "exact_remaining_action": "Cross-reference general security/printing audit to verify callback identity and authorization; define whether conflicting terminal callbacks are allowed, then test duplicate and contradictory callbacks. Not a direct financial ledger defect in this callable.",
+      "agent_reasoning": "Loads command and a user row, overwrites status/error/time from callback, then saves; no local permission/active-user or terminal-transition guard is present in this callable. This records hardware command result metadata only; no treasury/order/payment changes. Repeated conflicting callbacks can overwrite status.",
+      "agent_counterevidence": "Tests cover success and failure and verify failure does not touch treasury movement count. Missing local authorization does not prove public reachability/auth bypass; hosting policy and trusted callback caller were not reviewed.",
+      "scope_note": "Substantive source review only for this callable and cited dependencies; not end-to-end financial completion or runtime/provider certification."
+    }
+  ],
+  "validation_errors": [],
+  "tests_executed": [],
+  "agent_handoff_anomalies": [],
+  "scope_limit": "No live SQL/provider/runtime, actual delivery settlement, cash drawer hardware, or integration test executed. Per-custody SettledPiastres meaning and callback trust/terminal transition policy remain unresolved where stated. This batch does not close the financial gate."
+}

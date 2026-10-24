@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:19:33.0311092Z",
+  "path": "tests/Falah.Domain.Tests/UnitCostChangeTests.cs",
+  "stable_ids": [
+    "sym-8ed19cdc0241f6b98c295d20eda051eac3a9ec0858fd6f09744f8d872eb3da84",
+    "sym-2e8e3cf031caa07db4c4b155424ecfe1352c7f74f67846327be040bdce18d9a5",
+    "sym-b0b2468f70978dfaea127e7682066467a61c66187e2f0be78d1a4ffd3fa99661",
+    "sym-a0bb5111f1930117a3423727e572e46f100b43bed0eab6e47b16796edda9a65b",
+    "sym-dcc17a86815a43a83e38627dbf6fd1dcd346755289c20e59345367c7242946a8",
+    "sym-e912641be01d03e898f62bf05b6ff06379619bea23ca50c3c5e9d51554d02431",
+    "sym-6b45ba39285de29374364d874656b0244f1be3ae629a4644a920adaec2bbe96b",
+    "sym-6e30870f46ba74f71c1b71319fe0fb54fa31c2c11c48de89bdf3cedc70720bcf"
+  ],
+  "queued_count": 8,
+  "reconciliation": {
+    "current_union_remaining": 8,
+    "coordinator_database_reports": 8,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/UnitCostChangeTests.cs": "76E5ACA63640EA88AE946FEF67C3A85A47972927E5601951B666AA79D4CD2EDE",
+    "src/Falah.Domain/Inventory/PurchasingRules.cs": "E11CCC80B8FB47C7D534BB3595E4553FBFDE47EAE93EB0EB6BA007F1C7ED2524"
+  },
+  "assessment": "Tests cover first/same/ordinary changes, tenfold and tenth thresholds, both directions, and zero previous cost. Source matches these assertions. The order-of-magnitude result is advisory and tests intentionally do not block genuine price/pack-size changes. Existing ledger already notes the signal does not prevent a mistyped purchase from repricing recipe costing and that purchase receipt validation has more serious line-sign and duplicate-line gaps; no duplicate candidate promoted.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only review; no tests, transactions or database work.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

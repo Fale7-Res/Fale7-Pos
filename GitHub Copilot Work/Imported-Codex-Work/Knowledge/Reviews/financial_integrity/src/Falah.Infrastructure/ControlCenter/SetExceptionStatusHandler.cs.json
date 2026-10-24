@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs",
+  "source_git_blob_sha256": "45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee",
+  "worktree_sha256": "45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:13:48.760528+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-e766063d2f5005c8d2ffa19aa6ed16827ef6215411dbaa685eb4fcd66a255be3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.SetExceptionStatusHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        20,
+        5,
+        24,
+        6
+      ],
+      "reasoning": "Stores context/registry without reading or acknowledging any exception. Audit row is directly staged later in same context rather than separate IAuditLog.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "Upserts human review overlay and control audit only; no financial reconciliation or source-fact mutation.",
+      "database": "None",
+      "trust_boundaries": "control_center direct permission or valid fallback approval, typed reason and exact allowed status.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant query/write count; no cursor or polling.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Overlay is not financial truth or a manager approval token; close blocker evaluation uses source facts independently.",
+      "tests_missing": "Scoped context",
+      "verified_callers_callees": "Assignments22-23."
+    },
+    {
+      "stable_id": "sym-5391bcb1e6cb308427adb93669b901290d129c880c3b1e2768bf87aa2e35fb82",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken)",
+      "span": [
+        26,
+        5,
+        70,
+        6
+      ],
+      "reasoning": "Rejects statuses except acknowledged/resolved and requires reason; resolves actor/optional approver, authorizes control_center, upserts deterministic exception ID overlay and appends audit, Save together. Does not verify exception currently exists or compare source-fact version; a permitted actor can set state for an ID before generation or keep resolution when same ID severity changes. This is review-state policy concern, not demonstrated close bypass, because evaluator uses raw blockers and not this overlay. Repeating call appends another audit and refreshes time; no RequestId contract claimed.",
+      "inputs": "Exception status request/ct",
+      "outputs": "Task",
+      "side_effects": "Upserts human review overlay and control audit only; no financial reconciliation or source-fact mutation.",
+      "database": "User/approval/state reads, overlay and audit writes Save69",
+      "trust_boundaries": "control_center direct permission or valid fallback approval, typed reason and exact allowed status.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant query/write count; no cursor or polling.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Overlay is not financial truth or a manager approval token; close blocker evaluation uses source facts independently.",
+      "tests_missing": "Unknown/future ID, source fact changes same ID, repeated resolved creates audit, concurrent first upsert",
+      "verified_callers_callees": "Input28-29; auth43; state46-60; audit63-67; Save69; ControlCenterRules deterministic IDs."
+    },
+    {
+      "stable_id": "sym-588445adedb353eea74a6a606dc3a43ead3bb1040d615a0168ba7a5f5f8ec01d",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        31,
+        76,
+        31,
+        108
+      ],
+      "reasoning": "Actual user lookup before constructing actor and authorizing. Role/name from persisted row, not review request.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "Upserts human review overlay and control audit only; no financial reconciliation or source-fact mutation.",
+      "database": "Users read",
+      "trust_boundaries": "control_center direct permission or valid fallback approval, typed reason and exact allowed status.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant query/write count; no cursor or polling.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Overlay is not financial truth or a manager approval token; close blocker evaluation uses source facts independently.",
+      "tests_missing": "Unknown/inactive actor, session binding",
+      "verified_callers_callees": "Lookup31; mapper33; policy43."
+    },
+    {
+      "stable_id": "sym-95fe48b11e426c0fe1a6070f0c30835b9b888a855e85b0ff061bf9d36fc31db4",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        38,
+        83,
+        38,
+        125
+      ],
+      "reasoning": "Optional approver loaded by ID and validated through authorization fallback when required. Audit attribution takes returned authorization.Approver, so arbitrary optional presenter is not automatically recorded.",
+      "inputs": "User/approver ID",
+      "outputs": "Boolean",
+      "side_effects": "Upserts human review overlay and control audit only; no financial reconciliation or source-fact mutation.",
+      "database": "Users read",
+      "trust_boundaries": "control_center direct permission or valid fallback approval, typed reason and exact allowed status.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant query/write count; no cursor or polling.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Overlay is not financial truth or a manager approval token; close blocker evaluation uses source facts independently.",
+      "tests_missing": "Fake/expired approval and direct permission controls",
+      "verified_callers_callees": "Presentation40-41; policy43; audit66."
+    },
+    {
+      "stable_id": "sym-5d570f20560bc95a3bec9a94e9eca19a530147513b02dd5f386a7e98ac30af55",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        46,
+        77,
+        46,
+        109
+      ],
+      "reasoning": "Looks up overlay solely by deterministic exception ID; not scoped to day or fact fingerprint. That matches rule-generated persistent ID design, but new changed source values can inherit previous status. Does not query event reality here.",
+      "inputs": "Exception state/request ID",
+      "outputs": "Boolean",
+      "side_effects": "Upserts human review overlay and control audit only; no financial reconciliation or source-fact mutation.",
+      "database": "ControlExceptionStates read",
+      "trust_boundaries": "control_center direct permission or valid fallback approval, typed reason and exact allowed status.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant query/write count; no cursor or polling.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Overlay is not financial truth or a manager approval token; close blocker evaluation uses source facts independently.",
+      "tests_missing": "Different day same entity ID and source-change overlay behavior",
+      "verified_callers_callees": "Lookup46; statewrite50/55-58; query overlay must be inspected next."
+    }
+  ],
+  "remaining_callable_ids": []
+}

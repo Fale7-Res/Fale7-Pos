@@ -1,0 +1,389 @@
+{
+  "id": "financial-residual-213-depth-reconciliation-latest",
+  "created_utc": "2026-10-21",
+  "task": "Independent depth reconciliation of the exact original residual 213 IDs; no source edits/runtime tests.",
+  "decision": "Residual queue exact membership is complete; residual source-specific dispositions are not 213 accounting analyses. For the inspected printing subset, no money-moving accounting operation was found. Close-slip behavior has two conditional reconciliation/presentation questions; no source defect promoted without policy and post-close mutability evidence.",
+  "coverage": {
+    "authority_denominator": 8804,
+    "prior_union_receipts": 7602,
+    "continuation_exact_ids": 989,
+    "residual_ids": 213,
+    "exact_membership": 8804,
+    "source_hash_span_validation": {
+      "checked_by": "main coordinator",
+      "entries": 213,
+      "hash_mismatches": 0,
+      "invalid_spans": 0
+    },
+    "aggregate_dispositions": {
+      "NOT_APPLICABLE_TO_FINANCE": 99,
+      "FINANCIAL_PRESENTATION": 45,
+      "FINANCIAL_PRESENTATION_SUPPORT": 5,
+      "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+      "FINANCIAL_PRESENTATION_WARNING": 5,
+      "PRESENTATION_ONLY_OR_INDIRECT": 28,
+      "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+      "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+      "FINANCIAL_PRESENTATION_AUDIT": 8
+    },
+    "disposition_quality": "All 213 have stable IDs and source-specific disposition/flow notes, but only 13 specifically say NO_ACCOUNTING_MUTATION_CONFIRMED and aggregate categories are dominated by rendering/presentation. A disposition is coverage, not a full financial workflow analysis."
+  },
+  "residual_batch_handoffs": [
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-query-and-rules-batch.json",
+      "entries": 97,
+      "findings": [
+        {
+          "id": "FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001",
+          "status": "conditional presentation integrity risk; no confirmed defect",
+          "evidence": "PrintJobQueryService.cs:183-203 uses saved expected/actual/difference when available but recomputes breakdown; PrintRules.cs:555-577 prints breakdown components and expected total. Post-close mutability policy not examined.",
+          "next": "Check close writer and post-close mutation constraints before promoting."
+        },
+        {
+          "id": "FIN-PRINT-CLOSE-WARNING-SCOPE-001",
+          "status": "probable shift-scope presentation defect; no accounting balance impact established",
+          "evidence": "LoadCloseWarningsAsync (PrintJobQueryService.cs:216-219) counts all Status==Open DriverCustodies without shift join. Counterevidence: DeliveryRules.UnsettledCustodyForShift (src/Falah.Domain/Delivery/DeliveryRules.cs:99-104) restricts custody by deliveries whose ShiftId matches the requested shift; DeliveryRulesTests.cs:120-130 explicitly excludes another shift. CloseShiftHandler.cs:81-84 says outstanding custody is shown on this shift handover slip; DeliveryRules.cs:94-97 likewise describes shift handover slip and marks it not a shift-close blocker. DeliveryVerticalSliceTests.cs:825-860 verifies one same-shift custody appears, but not cross-shift leakage.",
+          "implication": "The slip’s open-custody warning count/value can include a different shift’s delivery, contrary to the named shift-scoped helper and comments. This is a presentation/reconciliation-scope issue, not evidence of a ledger posting or expected-cash error.",
+          "counterevidence": "Could have an intentionally global handover policy; no owner policy found in evidence reviewed. Existing test only establishes same-shift inclusion.",
+          "next": "Coordinator mirror and owner should confirm wording/policy; if intended shift-scoped as source comments imply, change query to use delivery ShiftId semantics and add cross-shift test (outside this audit task). No source change made."
+        }
+      ],
+      "source_hashes": {
+        "src/Falah.Domain/Printing/PrintRules.cs": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+        "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C"
+      },
+      "id_membership": "Exact IDs preserved in entries and completion manifest."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-renderer-layout-batch.json",
+      "entries": 32,
+      "findings": [
+        {
+          "id": "FIN-PRINT-RENDER-ENCODING-001",
+          "status": "known static limitation; runtime/physical rendering unverified",
+          "evidence": "EscPosTicketRenderer.cs:11-18 and 35-40 explicitly state Arabic encoding/codepage must be checked on physical printer; source defaults UTF-8 and configurable table. Render serializes text data and formatting but has no monetary transformations.",
+          "disposition": "No financial amount corruption is source-proven. Keep print rendering verification excluded from static accounting correctness claim and flag physical text fidelity as unverified."
+        },
+        {
+          "id": "FIN-PRINT-LAYOUT-PRICE-001",
+          "status": "source-confirmed presentation flow; no arithmetic issue observed",
+          "evidence": "TicketLayout.cs:106-113 prints cashier item.TotalPrice.Egp; 183-196 prints TotalPrice.Egp only in withPrice branch; 158-164 formats supplied amount; 204-210 may print list unit price as promo reference.",
+          "disposition": "No source-supported financial defect found in this batch; formulas originate upstream and not recomputed by layout."
+        }
+      ],
+      "source_hashes": {
+        "src/Falah.Domain/Printing/EscPosTicketRenderer.cs": "01F404EF1B4785C2668D7263A1BEAAE5E8EA16CA1FC04D814D333AD69AE0F5BE",
+        "src/Falah.Domain/Printing/TicketLayout.cs": "39637CA707F513B00B85C4BA8995E381509AB6A4A99E3434091485F0217CD908"
+      },
+      "id_membership": "Exact IDs preserved in entries and completion manifest."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-job-creation-batch.json",
+      "entries": 13,
+      "findings": [],
+      "source_hashes": {
+        "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+        "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs": "DADE9CFF80994F1CBFC9885F07FD45ACEA492D31F2D2068C1DDE1097C11DB772",
+        "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F27609484A542"
+      },
+      "id_membership": "Exact IDs preserved in entries and completion manifest."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-result-reprint-station-batch.json",
+      "entries": 19,
+      "findings": [],
+      "source_hashes": {
+        "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs": "C8DE0C41178F19BEB9C9D523CBEB79D12B8959E566D901B003D1849CC8176115",
+        "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+        "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs": "67287A9765BF24109B657A00102B36D54CA5B4E42A3180B49ACB9D3562DBE33C"
+      },
+      "id_membership": "Exact IDs preserved in entries and completion manifest."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-nonfinancial-tests-batch.json",
+      "entries": 52,
+      "findings": [],
+      "source_hashes": {
+        "tests/Falah.Domain.Tests/CustomerRulesTests.cs": "DFFE01BC6582280D1205767E4A96C1979FAFB86FB838E0B83E6C1B1392D70AD2",
+        "tests/Falah.Domain.Tests/ProductImageRulesTests.cs": "BCC0E389C3EA918A5C6ED2942574FA7F51105CAB426950B57841CD107096B970",
+        "tests/Falah.Server.IntegrationTests/EscPosTicketRendererTests.cs": "499EAC3185FF90E6EDD85196E8329426991F3269E0F972784E2AB0A41BA9A1C8",
+        "tests/Falah.Server.IntegrationTests/MenuQrRenderingTests.cs": "6F79719658B72E4CFA9728041AE0500D10E311843772A21C6AAD220E849D3378",
+        "tests/Falah.Server.IntegrationTests/TicketDtoText.cs": "DE58908604D9D3A5B2983E606382366E91943C8FE0A5C94EBCBED16EDC3C6D2C"
+      },
+      "id_membership": "Exact IDs preserved in entries and completion manifest."
+    }
+  ],
+  "substantive_source_checks": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "sha256": "BE7E9B0DAB28DD16AF51B952BD4ED000875CA04D6A9B61FA357DC55A0F2E304C",
+      "ranges": [
+        [
+          181,
+          204
+        ],
+        [
+          208,
+          226
+        ],
+        [
+          228,
+          250
+        ]
+      ],
+      "symbols": [
+        "ComposeShiftCloseSlipAsync",
+        "LoadCloseWarningsAsync",
+        "ComposeExpenseSlipAsync",
+        "DescribePaymentAccount"
+      ],
+      "reasoning": "ComposeShiftCloseSlipAsync loads the closed shift; ComputeBreakdownAsync re-reads current order/refund/movement/expense rows, then expected/actual/difference prefer the values saved on Shift. Thus the headline close figures are frozen where present, but explanatory components can be reconstructed later from mutable rows. Expense breakdown separately groups paid-from-drawer expenses by category. The query has no mutation. LoadCloseWarningsAsync counts pending electronic and unpaid orders filtered by shift, but selects all Status==Open DriverCustodies without joining delivery ShiftId, and totals ExpectedPiastres globally."
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "sha256": "1D728F9F30593703F473A603EBA63945C3859CB8398457BEEA5B9521FD3D9DC9",
+      "ranges": [
+        [
+          516,
+          530
+        ],
+        [
+          532,
+          598
+        ],
+        [
+          600,
+          620
+        ],
+        [
+          636,
+          637
+        ]
+      ],
+      "symbols": [
+        "ComposeShiftOpenTicket",
+        "ComposeShiftCloseTicket",
+        "ComposeExpenseTicket",
+        "DescribeDifference"
+      ],
+      "reasoning": "Pure ticket composition. Close ticket prints breakdown components, expected/actual/difference, grouped expense lines, note and warnings; no posting. Expense ticket doc comment explicitly says printing posts nothing. Difference label maps sign, does not recompute arithmetic."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "sha256": "CD1A406323EE3E43AC267321D1B9D8B42CC739FB7E18AD87FDC5CA9C2162F099",
+      "ranges": [
+        [
+          30,
+          31
+        ],
+        [
+          33,
+          80
+        ]
+      ],
+      "symbols": [
+        "ComputeExpectedCashAsync",
+        "ComputeBreakdownAsync"
+      ],
+      "reasoning": "Close/preview calculation filters orders, drawer-paid expenses and posted treasury movements by ShiftId; refunds are itemized but not subtracted twice. Reprint invokes this same current-data calculation, so post-close immutability or revision policy is the unresolved condition behind recomputed components."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "sha256": "58319FDF46C1A0F6181BABA6FF711129913FBF4C64E7A00923FA2862D0EA36DE",
+      "ranges": [
+        [
+          60,
+          84
+        ],
+        [
+          95,
+          98
+        ]
+      ],
+      "symbols": [
+        "CloseShiftHandler.HandleAsync"
+      ],
+      "reasoning": "Handler locks and closes one shift row, computes expected via ShiftReconciliation, takes actual count, and comments that driver custody does not block shift close; it is surfaced on dashboard and handover slip. This supports warning-only effect and gives no assurance the query scope should be global."
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "sha256": "CF4AB3BA7E243A1EF76BE56D3E5C4D0F5EFE0D9C6C17D49E6A08AD4D6716EEFA",
+      "ranges": [
+        [
+          90,
+          104
+        ]
+      ],
+      "symbols": [
+        "DeliveryRules.UnsettledCustodyForShift"
+      ],
+      "reasoning": "Named shift-scoped rule selects deliveries by ShiftId and custodies via DeliveryId. Contradicts an unqualified interpretation that the close slip is expected to show only that shift, while the handler/comment describes unsettled custody more generally."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+      "sha256": "C7720A63722934BAF1E3F3914054159C1E2810082451D3731A2F91D89472D918",
+      "ranges": [
+        [
+          115,
+          130
+        ]
+      ],
+      "symbols": [
+        "Unsettled_custody_is_reported_for_a_shift_rather_than_blocking_its_close"
+      ],
+      "reasoning": "Existing test verifies same-shift custody inclusion and explicitly excludes another shift in the domain helper, not in print query."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "sha256": "2CF833E812D290B7BFCB7C48307D02C36DAA9A072EA9394120A12C8690C8134F",
+      "ranges": [
+        [
+          825,
+          860
+        ]
+      ],
+      "symbols": [
+        "A_shift_closes_with_an_unsettled_driver_custody_which_stays_outstanding"
+      ],
+      "reasoning": "Integration test closes shift with same-shift unsettled custody, verifies it stays Open and warning is on slip; it does not set up a second shift to test leakage."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "ranges": [
+        [
+          32,
+          93
+        ]
+      ],
+      "symbols": [
+        "CreatePrintJobsHandler.HandleAsync"
+      ],
+      "reasoning": "Persists idempotent PrintJob records and an audit event for reprint; it does not post sales, expenses, shifts, inventory or treasury."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "sha256": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F276094A542",
+      "ranges": [
+        [
+          46,
+          94
+        ]
+      ],
+      "symbols": [
+        "OrderAutoPrintService.TryPrintAsync"
+      ],
+      "reasoning": "Invokes post-checkout job creation based on settings and catches failures, logs them and returns false; comments state sale remains unaffected and tickets remain reprintable."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "sha256": "6410CCEA64CADCF7B37BE00F368207FFDDA5BC074DDD6B3290E20F1CFA91238F",
+      "ranges": [
+        [
+          27,
+          74
+        ]
+      ],
+      "symbols": [
+        "ReprintDocumentHandler.HandleAsync"
+      ],
+      "reasoning": "Validates existing ShiftOpen/closed ShiftClose/Expense document, creates print job, appends audit event and saves; no business ledger mutation."
+    },
+    {
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md",
+      "sha256": "45FFFBA8E1B026E40694149233820A3D618DFD7C3AE841465CFDC9F6E0C9670B",
+      "ranges": [
+        [
+          1,
+          19
+        ],
+        [
+          26,
+          68
+        ]
+      ],
+      "symbols": [
+        "current report header",
+        "historical snapshot",
+        "findings table"
+      ],
+      "reasoning": "Header says 327/327 files, exact membership complete but not substantive certification, and says 39 findings (16H/22M/1L). Current coverage reconciliation says 40 findings (16H/23M/1L) and 39 defect roots because FIN-013 aliases FIN-029. Body labels old 7516/8804, 1288 pending, 35/95 generated, and 1202 pending figures historical/superseded."
+    }
+  ],
+  "conditional_questions": [
+    {
+      "id": "FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001",
+      "classification": "Conditional financial-presentation consistency risk; not confirmed defect",
+      "source_facts": "Reprint retains saved ExpectedCash, ActualCash, CashDifference where stored, while recomputing component breakdown and paid-from-drawer category expenses from current rows.",
+      "counterevidence": "Comment says close slip uses same reconciliation as close; shared ShiftReconciliation backs close and reprint calculation. No post-close mutation policy or immutable snapshot for component values established in this pass.",
+      "effect": "After relevant underlying rows change, displayed breakdown could cease to explain frozen persisted close total; no close/payment/ledger is changed by printing.",
+      "next": "Check whether post-close order/refund/expense/movement rows are immutable or revisions are prohibited; if mutable, freeze breakdown/expense details with close or label as current recomputation and test reopen/reprint."
+    },
+    {
+      "id": "FIN-PRINT-CLOSE-WARNING-SCOPE-001",
+      "classification": "Probable presentation-scope mismatch, intent unresolved; no accounting impact established",
+      "source_facts": "LoadCloseWarningsAsync filters shift on pending/unpaid Orders, but open DriverCustodies are global by status; expected amounts/count are summed globally. DeliveryRules.UnsettledCustodyForShift filters by Delivery.ShiftId and its test excludes another shift. Close comments only promise warning on this slip and describe driver custody as business-day/global obligation, so global handover context is plausible.",
+      "counterevidence": "Vertical test asserts same-shift warning but does not test cross-shift. No owner policy explicitly defines the slip warning as shift-only or global.",
+      "next": "Confirm desired handover policy; if shift-scoped, join custody to deliveries for shift and add a cross-shift integration test; if global, label warning as system/business-day wide."
+    }
+  ],
+  "classification_and_gaps": {
+    "residual_213": {
+      "NOT_APPLICABLE_TO_FINANCE": 99,
+      "FINANCIAL_PRESENTATION": 45,
+      "FINANCIAL_PRESENTATION_SUPPORT": 5,
+      "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+      "FINANCIAL_PRESENTATION_WARNING": 5,
+      "PRESENTATION_ONLY_OR_INDIRECT": 28,
+      "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+      "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+      "FINANCIAL_PRESENTATION_AUDIT": 8,
+      "total": 213,
+      "comment": "All 213 exact dispositions sum to the authority residual. 94 are expressly presentation/support/warning/audit/indirect, 13 expressly confirm print-job/no-accounting mutation, 99 are N/A to finance, and 7 N/A to financial posting. None is a demonstrated money-moving posting function."
+    },
+    "money_moving": "No residual member was found to post or mutate sales, expenses, cash, payroll, settlements, inventory, supplier balances or shift close. The set is printing/reprint/encoding/layout/tests. Print job and audit rows are operational/presentation state, not ledger movements.",
+    "full_327_file_report_scope": "327/327 file report entries exist; coordinator does not certify substantive function depth for all. This residual review covers printing subset at static source level and does not remedy remaining function/workflow-depth gaps in the 327-file source report.",
+    "global_callable_depth": "Exact ID membership after continuation + residual = 8804/8804. Still not substantive verification of every callable; coordinator gate remains INCOMPLETE."
+  },
+  "count_reconciliation": {
+    "coverage_reconciliation": {
+      "financial_findings": 40,
+      "by_severity": {
+        "HIGH": 16,
+        "MEDIUM": 23,
+        "LOW": 1
+      },
+      "table_omissions_in_old_report": [
+        "FIN-029",
+        "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+        "FIN-CAND-BUSINESS-DAY-OPEN-RACE-001"
+      ],
+      "payroll_overlap": "Separate payout mechanics and frozen payroll value are source-supported; duplicate payout not runtime proven; owner policy and combined sequence unresolved.",
+      "distinct_defect_roots": 39,
+      "deduplication": {
+        "canonical": "FIN-029",
+        "historical_duplicate": "FIN-013",
+        "status": "SUPERSEDED_DUPLICATE_EVIDENCE_PRESERVED",
+        "reason": "Same OwnerDashboardQueryService outbound-direction aggregation; count once."
+      },
+      "new_candidate": "FIN-CAND-BUSINESS-DAY-OPEN-RACE-001; independently source-corroborated predicted interleaving, not SQL reproduced."
+    },
+    "report_header": {
+      "finding_claim": "39 FIN-prefixed registry records",
+      "severity": "16 HIGH, 22 MEDIUM, 1 LOW"
+    },
+    "current_coverage_artifact": {
+      "findings": 40,
+      "severity": "16 HIGH, 23 MEDIUM, 1 LOW",
+      "distinct_roots": 39,
+      "alias": "FIN-013 is historical alias of FIN-029"
+    },
+    "conflict": "Current report header undercounts one finding and one medium severity relative to current-coverage reconciliation. The report body explicitly marks old receipt metrics historical: 7516/8804 and 1288 missing; 7524/8804 intermediate; 7602/8804 union before 989 continuation; old 1202 pending does not reflect current exact membership. Keep historical text labeled; refresh current headline count only through canonical owner."
+  },
+  "limitations": [
+    "No tests, DB/provider execution, physical printing, source modification or report/registry modification.",
+    "No independent review of all 8,804 callables or all 327 file reports.",
+    "No post-close mutability policy/source-writer audit beyond the listed print/reconciliation flow.",
+    "No coordinator-owned queue/master registry edits."
+  ]
+}

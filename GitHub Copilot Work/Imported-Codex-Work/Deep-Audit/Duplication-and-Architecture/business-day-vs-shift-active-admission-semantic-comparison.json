@@ -1,0 +1,192 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-027",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T03:59:07.259Z",
+  "scope": "Bounded comparison of active-day admission in business-day creation against the analogous single-active-shift opening invariant; includes application/domain/schema evidence only.",
+  "decision": "BusinessDayRules.Open rejects any existing active day (Open, Closing, Reopened), and OpenBusinessDayHandler queries those statuses before insertion. Two distinct RequestIds can race: both may read an empty active set, both pass the domain rule, and both insert because the current FalahDbContext BusinessDayEntity model and the initial BusinessDays migration show only unique OpenRequestId, while OpenShiftHandler explicitly has a filtered unique Shift.Status=Open index as the database race-safety net. This is a source-supported concurrency candidate, not a reproduced database race. It is a semantic invariant comparison between analogous lifecycle paths, not a claim of literal duplicated code.",
+  "finding_candidate": "FIN-CAND-BUSINESS-DAY-OPEN-RACE-001",
+  "severity": "MEDIUM_CANDIDATE",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "worktree_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+      "source_git_blob_sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c970386241d168bc598f73b6d4175a87acb6c182906c242ed2745ca516fb67e2",
+          "signature": "Falah.Infrastructure.BusinessDay.OpenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.OpenBusinessDayRequest, CancellationToken)",
+          "span": [
+            25,
+            5,
+            63,
+            6
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          27,
+          28
+        ],
+        [
+          34,
+          55
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-256137b0988157696e4e15f4210213997909f6b1b8c00fd96b2efb52064f42d7",
+          "signature": "Falah.Domain.BusinessDay.BusinessDayRules.Open(string, DateOnly, string, DateTimeOffset, IEnumerable<Falah.Domain.BusinessDay.BusinessDayRecord>)",
+          "span": [
+            40,
+            5,
+            44,
+            6
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          22,
+          43
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-83e87963690239f68232a633d72f95d2e717595c01b7d297aa93a16714a3663a",
+          "signature": "FalahDbContext BusinessDayEntity mapping lambda",
+          "span": [
+            137,
+            48,
+            141,
+            10
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          116,
+          127
+        ],
+        [
+          137,
+          141
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "worktree_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "source_git_blob_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7ac925ec38be5884a6e011617a2d5a08a64c3091bf3dc361f7d4f5e966a0d685",
+          "signature": "Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+          "span": [
+            33,
+            5,
+            110,
+            6
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          17,
+          27
+        ],
+        [
+          33,
+          55
+        ],
+        [
+          69,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs",
+      "worktree_sha256": "0b2db7efe2138b0c3f3d8896a6092012f07db22858a5e28e58af818a15a7cb4a",
+      "source_git_blob_sha256": "9c054ea9b6377ebfc301f12944bfefca503505fd5fdc88e8658e1dbd4a6300b7",
+      "relevant_symbols": [],
+      "line_ranges": [
+        [
+          14,
+          38
+        ]
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "worktree_sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917",
+      "source_git_blob_sha256": "45caa6a4242ae5749072b14d761a5a58039322b638574d8767270540512d9bd9",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-532fd0a07999d755aececc4501c9c8fc641e61241011f31fa7e44f2b0ac3c7be",
+          "signature": "FalahDbContextModelSnapshot.BuildModel BusinessDayEntity mapping lambda",
+          "span": [
+            268,
+            96,
+            336,
+            18
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          326,
+          336
+        ]
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "business_day_path": "HandleAsync loads active statuses before BusinessDayRules.Open and then adds a new row/SaveChanges; no explicit transaction spans the read and insert.",
+    "shift_path": "OpenShiftHandler has the same pre-check shape but its XML summary and FalahDbContext configure the unique Open status filtered index; transaction covers shift and optional opening-float movement and print-job side effects.",
+    "schema_difference": "BusinessDays model config has unique OpenRequestId only. The initial migration creates BusinessDays with PK and unique OpenRequestId; subsequent migration search found no BusinessDays active-status unique index. Therefore two different request IDs are not excluded by those indexed constraints.",
+    "counterevidence": [
+      "Same OpenRequestId replay is protected by unique OpenRequestId and replay lookup; this schedule uses distinct RequestIds.",
+      "The source domain rule intentionally rejects a second active day when it observes one.",
+      "No database race or deployment-wide serialization behavior was executed or inspected end-to-end.",
+      "Database schema drift in an installed instance has not been checked; source baseline model/migrations are the evidence.",
+      "Whether one active day is global versus scope-specific is implied by the domain rule and system-wide query but should be confirmed if multiple concurrent business days are a product requirement."
+    ]
+  },
+  "recommendation": "Confirm the invariant scope. If one active BusinessDay is intended, enforce it at the same persistence boundary as the single-open-shift invariant (provider-appropriate active-row uniqueness or a serialized admission row/lock covering Open and Reopen), and make losing admission return a stable conflict without partial side effects. Preserve same-request idempotency. Do not rely solely on a pre-insert read.",
+  "required_regression_tests": [
+    "Barrier-controlled concurrent opens with two distinct RequestIds: at most one active day commits; loser receives a conflict and no second row is created.",
+    "Same RequestId replay returns the original day without a second row.",
+    "Concurrent reopen of one day and open of another cannot create two active days if global invariant is confirmed.",
+    "Sequential open while Open, Closing, or Reopened rejects; after valid close, a new day opens.",
+    "Run against supported SQL Server provider and two independent DbContext/process instances; assert database-level invariant."
+  ],
+  "acceptance_criteria": [
+    "A documented owner policy establishes the active-day scope (global or per defined partition).",
+    "If global single-active-day remains intended, every Open/Reopen transition is serialized or constrained by database-enforced uniqueness so concurrent instances cannot persist more than one active day.",
+    "A losing concurrency attempt leaves no partial state and the existing same-request replay contract remains intact."
+  ],
+  "limits": "Static source/model/migration comparison only. No application tests, SQL Server/provider behavior, database instance, race schedule, or deployment-level lock was executed.",
+  "reviewer": "main Codex coordinator; independent financial challenge by continuation agent",
+  "independent_challenge": {
+    "reviewer": "financial_integrity_continuation (replacement specialist; not original hidden session)",
+    "artifact": "Codex Work/Sub-Agents/Handoffs/business-day-open-active-uniqueness-independent-challenge.json",
+    "sha256": "f6f997775976b6fc386bfe2cd10dfc28da87c77f2411286ee859ed188c9d1de8",
+    "disposition": "SOURCE_SUPPORTED_CONCURRENT_ACTIVE_DAY_RISK; NO ACTIVE-DAY UNIQUE CONSTRAINT OR HANDLER TRANSACTION FOUND",
+    "confidence": "High for configured application source and SQL Server EF model/migration scope. Concurrent dual commit is a predicted outcome, not observed SQL execution; external deployment-level coordination remains unknown.",
+    "limitations": "No migration applied, database queried or written, app built/run, or concurrent test executed. Source predicts the race under ordinary parallel requests but no actual double-commit is claimed."
+  }
+}

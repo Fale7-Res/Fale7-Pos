@@ -1,0 +1,98 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:06:45.7367823Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/OrderPaymentQueriesTests.cs",
+  "symbol_count": 6,
+  "symbols": [
+    {
+      "stable_id": "sym-6153286c3f4baef5796221a340b1e499872bdcfc0555da287d29916aa8c5dc6a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.Item(decimal)",
+      "span": [
+        12,
+        5,
+        13,
+        143
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-4fefb267cf9bbec97d805c7225211016feb417cb4c7d2c2223116401d375598c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.CashOrder(decimal, string)",
+      "span": [
+        15,
+        5,
+        18,
+        104
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b6bb64742291b68ccfc99c3305dc134b8f18caa6dcbb33841cf1bf33bcf70897",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.Cash_sales_count_the_net_amount_after_refunds()",
+      "span": [
+        20,
+        5,
+        28,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b3f11540d75d76a71e89dc3bfe394a99a43519ee9debd7b17759b9bf76c05907",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.An_unconfirmed_instapay_order_contributes_nothing_until_confirmed()",
+      "span": [
+        30,
+        5,
+        43,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a848a69e7ed1745c4c9908663906b7348a8a956261ab604537037f6a08989dcf",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.A_split_orders_cash_leg_counts_immediately_while_its_sibling_electronic_leg_is_still_pending()",
+      "span": [
+        45,
+        5,
+        56,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6a2b79a2333bf0e64222a8d612c1d2570eabbba1a1d6bc9dc5de85698d8b6c43",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderPaymentQueriesTests.CashSalesFromOrders_is_the_cash_channel_of_PaymentMethodTotals()",
+      "span": [
+        58,
+        5,
+        63,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests verify single cash order totals net of a 50 EGP refund; pending single InstaPay contributes zero until confirmation; a split cash+InstaPay order counts the immediately settled cash leg while the electronic sibling remains pending; and CashSalesFromOrders is the cash channel of PaymentMethodTotals. Source comments deliberately leave split legs gross and reject Multi refunds. The split cancellation case is absent and is already captured by FIN-002 (confirmed static finding): whole-order cancellation skips the order in these totals while immediate cash remains collected with no reversal. The pending split electronic confirmation issue is separately captured by FIN-001. No duplicate finding added; no tests/runtime executed.",
+  "source_ranges": "OrderPaymentQueriesTests.cs: 1-64; OrderPaymentQueries.cs: 1-76; Order.cs: 217-224; existing source findings FIN-001 and FIN-002 in financial-findings.json.",
+  "execution": "Read-only source and existing-finding review; no tests or runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/OrderPaymentQueriesTests.cs": "6D4EFBE18D40151CA25104A3B21F2F285A4F4E46085AE31BC89D35A8FDFB9609",
+    "src/Falah.Domain/Orders/OrderPaymentQueries.cs": "805E8D11D87CAEC242E36504176417B876DA153B236910F64502C3488E2B9412",
+    "src/Falah.Domain/Orders/Order.cs": "4F93EBCBA865636BBD00A6D6EDBAAB1453F72ACB35D220DE129D3BA8F47B1C4B"
+  },
+  "existing_finding_references": [
+    "FIN-001",
+    "FIN-002"
+  ],
+  "shard_reconciliation": {
+    "financial_integrity": "0/6 exact IDs present",
+    "financial_coordinator": "0/6 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

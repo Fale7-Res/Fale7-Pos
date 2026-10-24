@@ -1,0 +1,54 @@
+{
+  "artifact_kind": "financial_next_queue_reconciliation",
+  "reviewer": "financial_integrity_continuation",
+  "date": "2026-10-24",
+  "assignment": "Resume from durable Batch16; reload current NEXT_ACTION and live overlay; select one risk-ranked financial callable from the persisted remaining queue, excluding verified work. Do not select by overlay order alone.",
+  "session_identity": "Existing /root/financial_integrity_continuation continuation; no original hidden context claimed.",
+  "files_reconciled": [
+    {
+      "path": "Codex Work/Conversation-Recovery/NEXT_ACTION.md",
+      "sha256": "5dbaf97b37f221518a84669f582d03d09a971bd8a6ce9e06ee5fe84e5c7272b2",
+      "finding": "Records Batch16 complete, financial gate open, counts at that saved checkpoint as 66 verified / 7,755 unverified / 983 identity-only; explicitly requests risk-ranked queue selection and says not to choose from overlay order."
+    },
+    {
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-current-coverage-reconciliation.json",
+      "sha256": "7edb218a8c26264a741ba23751a4e70855c62baa22715e7e8fe30c7a91aa3a0e",
+      "finding": "Its remaining_gates say genuine global callable coverage is UNKNOWN and the exact remaining substantive queue is not recoverable; historical 4,102 versus 4,253 IDs has no stable-ID crosswalk, and the file-function evidence gap remains."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Results/financial-integrity-continuation-queue.json",
+      "sha256": "c8c4c4eb49ec76991b0e08ca27994e69746301698753275b47844d7b32824698",
+      "finding": "Historical queue was constructed around the 1,202-authority residual and 989 continuation membership set; it reports next_exact_symbol=null and next_in_scope_financial_symbol=null. Its remaining_after_continuation_review is a broad structural tail whose direct next records are printing renderers; no financial-risk ranking is present. Counts/unions predate current overlay quality promotions."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-global-queue-reconciliation-2026-10-21.json",
+      "sha256": "fb9ea23674255ec537d2482eb46da844fcb8b255bc2a95bd71975d9983d41573",
+      "finding": "Earlier independent queue reconciliation explicitly decided NO_DEFENSIBLE_NEXT_CALLABLE_BATCH_FROM_CURRENT_GLOBAL_LEDGER and enumerated required per-ID reasoning class crosswalk before selecting more scope. This blocker persists in current coverage reconciliation."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Checkpoints/financial-integrity-continuation-batch-16-checkpoint-2026-10-24.json",
+      "sha256": "ccd8241a30a95e328b53ad13857df175713ad54248965e503d8ebe713a34864e",
+      "finding": "Batch16 complete; next_queue asks coordinator for a risk-ranked callable and explicitly declines to choose from overlay membership alone."
+    },
+    {
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+      "sha256": "9216d188a87c530ac0986009485746475cb699c3ffaac7680d6eda5e8efec9d8",
+      "finding": "Current recount: 66 SUBSTANTIVE_REVIEW_VERIFIED, 7,755 EXISTING_REASONING_UNVERIFIED, 983 IDENTITY_ONLY, total 8,804. This status membership provides no risk ordering or next-review ranking."
+    }
+  ],
+  "decision": "NO_DEFENSIBLE_NEXT_CALLABLE_FROM_PERSISTED_RISK_RANKED_QUEUE",
+  "reason": "No saved exact ordered risk-ranked finance queue exists. The legacy continuation queue reports no next financial symbol and has stale membership tail; current evidence reconciliation says exact substantive gap queue is UNKNOWN. The live overlay's 7,755 unverified entries do not rank materiality. Selecting a candidate solely from canonical finding cross-references or overlay order would invent a new priority rather than follow the requested persisted queue. The last actual tool invocations succeeded; no usage-limit failure occurred in this turn.",
+  "exact_blocker": "Coordinator must provide or persist a stable-ID ordered candidate queue that joins current EXISTING_REASONING_UNVERIFIED status with financial materiality/risk rationale, source path/span, receipt link, and exclusion list of already verified Batch1-16 IDs; alternatively reconcile the 8,804 per-ID evidence ledger to derive that queue. The stale 1,202 residual queue cannot do this.",
+  "work_done": "Read current recovery note, live overlay, coverage reconciliation, continuation queue, global-queue reconciliation and Batch16 checkpoint. Confirmed current counts and absence of a defensible next risk-ranked callable. No source callable was selected or re-reviewed.",
+  "selected_callable": null,
+  "review_performed": false,
+  "tests_run": [],
+  "source_test_database_runtime_shared_registry_changed": false,
+  "current_overlay_counts": {
+    "SUBSTANTIVE_REVIEW_VERIFIED": 66,
+    "EXISTING_REASONING_UNVERIFIED": 7755,
+    "IDENTITY_ONLY": 983,
+    "total": 8804
+  },
+  "next_action": "Wait for coordinator to persist an exact risk-ranked next callable queue or a specific stable ID assignment; then verify the ID is still EXISTING_REASONING_UNVERIFIED and not in Batch1-16, inspect its receipt and source, and save a reviewer-owned handoff/checkpoint."
+}

@@ -1,0 +1,239 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-024",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:38:00Z",
+  "scope": "Compare the two WinUI entry points for blind shift close, particularly preview, manager approval, request identity, unknown-outcome recovery, cancellation and server side effects. Not a general closeout or runtime audit.",
+  "decision": "The dedicated Shifts screen and POS-embedded close implement the same blind-count/preview and conditional manager-approval presentation, but their command completion semantics differ. The embedded CashierViewModel retains a stable _CloseShiftRequestId, stores _pendingCloseShift, blocks cancellation while the operation is unresolved, and retries the identical request through CompleteCloseShiftAsync. The dedicated ShiftsViewModel creates a fresh shift-close GUID on each confirm, does not retain unknown requests, and reports a failed response without reloading the shift. The server only replays by the same CloseRequestId; a new ID against a now-closed shift is rejected. Its row lock, status check, and transaction prevent a second handover/reconciliation posting, so the divergence is a recovery/feedback risk, not evidence of duplicate cash movement. Existing integration tests verify same-key replay, concurrent same-key close, and rejection of a new key after close.",
+  "finding_candidate": null,
+  "related_existing_finding": "UI-016",
+  "severity": "INFORMATIONAL_CROSS_REFERENCE",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.ShiftClose.cs",
+      "worktree_sha256": "06cd84179290763e76ed175c2d91f6cdddcb2d6ad4b95503bc5f24386a631a82",
+      "source_git_blob_sha256": "f3e4f93a1a8c5fd1a0f03a27b9ef20fcb111b7b2b30cdbcd016b95cb092778fe",
+      "line_ranges": [
+        [
+          35,
+          50
+        ],
+        [
+          91,
+          163
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8fec9685fa6347fb3a2d8760f915aae3ab5d0e6a3025c6fe2a0373a9d29939d3",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenCloseShift()",
+          "span": [
+            35,
+            5,
+            47,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-45dae19839c8f24bd2a67ba40bcb7065d0e9f2cc660bc194e10eb87448c9221d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CancelCloseShift()",
+          "span": [
+            49,
+            5,
+            50,
+            221
+          ]
+        },
+        {
+          "stable_id": "sym-6b2907c61ebda64d0c6c42c4e0c885b5aa21494c7b8115de041fcc1fde82e94d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ConfirmCloseShiftAsync()",
+          "span": [
+            91,
+            5,
+            140,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0d42973d6a6b14d28b580e75706533997167738c5f4361679ff129c49643c4a8",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteCloseShiftAsync(Falah.Application.Shifts.CloseShiftRequest)",
+          "span": [
+            143,
+            5,
+            163,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs",
+      "worktree_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "source_git_blob_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "line_ranges": [
+        [
+          37,
+          53
+        ],
+        [
+          90,
+          146
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5e126f8d2e2abcd24deda54d56f6a44d6e49240c10680b90c6812bf1152d32f0",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenCloseShiftModal()",
+          "span": [
+            37,
+            5,
+            47,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-148dbae53fdb32abca706c7a1aaaf3421c6a3c86444fadbdc5d6816d1d20f1ba",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CancelCloseShiftModal()",
+          "span": [
+            49,
+            5,
+            50,
+            97
+          ]
+        },
+        {
+          "stable_id": "sym-aff5637a3545c2b89ca191636678cd3497a3f2a00e07919c9f8d8f52d6e351c5",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.BackToCloseShiftCount()",
+          "span": [
+            52,
+            5,
+            53,
+            70
+          ]
+        },
+        {
+          "stable_id": "sym-150b510e1d12a51f5f425f570e2ea19739ad3dc0656426e54d5f835977f65403",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.PrepareCloseShiftAsync()",
+          "span": [
+            58,
+            5,
+            85,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-28411fed2c72f7ff3021a1122c9bb5552aa5d7d655698ed6f66031890ba17388",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmCloseShiftAsync()",
+          "span": [
+            90,
+            5,
+            146,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "line_ranges": [
+        [
+          47,
+          84
+        ],
+        [
+          132,
+          175
+        ],
+        [
+          177,
+          178
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+          "span": [
+            47,
+            5,
+            175,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-31b45757c40cf5e82ae3e7c2374dd2879df128ed8ab7107acd4586f2985d830b",
+          "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.FindExistingAsync(string, CancellationToken)",
+          "span": [
+            177,
+            5,
+            178,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs",
+      "worktree_sha256": "33ca290e359ab0abb0a2eebb6e60bec2644ba25f101cf55d6e8d5b39faa3e9c3",
+      "source_git_blob_sha256": "71eaaa6a9506a79df7a53c002585cd3b1c3c1c61e9291dddd00734f6a8eb7aff",
+      "line_ranges": [
+        [
+          162,
+          206
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-79f6730be1d4366fa8b1be2faac3853dfd4ea8b359cea6775ebd0b4f075482f2",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Retrying_the_exact_same_close_request_never_posts_movements_twice()",
+          "span": [
+            162,
+            5,
+            177,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8f699291c9ed9bdabac2bb0881aacc19099b21681367b5dd55dd11c060c3fad1",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Concurrent_close_requests_with_the_same_idempotency_key_race_to_exactly_one_close()",
+          "span": [
+            179,
+            5,
+            193,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ec6335803b91624f4deaa52b9d3681d49071f1df3503456e89f6fc35a46e39e4",
+          "signature": "Falah.Server.IntegrationTests.ShiftCloseVerticalSliceTests.Closing_an_already_closed_shift_under_a_new_request_id_is_rejected_not_silently_reclosed()",
+          "span": [
+            195,
+            5,
+            206,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "shared_contract": "Both surfaces collect actual cash before preview; both call PrepareShiftCloseAsync and CloseShiftAsync, obtain server-issued shifts_manage approval for above-threshold differences, and do not duplicate expected-cash arithmetic. The server Prepare/Close path recomputes expected cash using shared ShiftReconciliation and FinancialRules.",
+    "embedded_entry": "OpenCloseShift enforces CanCloseShift, CanEditOperation and empty cart. ConfirmCloseShiftAsync resumes a stored pending close before creating approval/request. The generated CloseRequestId is held stable; CompleteCloseShiftAsync stores pending request, preserves it when OutcomeUnknown, and only rotates identity after success. CancelCloseShift refuses closure if operation is pending.",
+    "dedicated_entry": "OpenCloseShiftModal checks CanCloseShift and ActiveShift. ConfirmCloseShiftAsync obtains approval, then constructs request with a fresh shift-close GUID inline. It calls CloseShiftAsync directly and returns a failed result to the modal without tracking OutcomeUnknown or refreshing/reloading the active shift. CancelCloseShiftModal only checks IsClosingShift during the call; after it finishes, a failed/unknown request can be dismissed. A subsequent confirm mints another key.",
+    "server_counterevidence": "CloseShiftHandler first replays a previously recorded request key. Under a transaction it locks the Shift row with UPDLOCK/ROWLOCK/HOLDLOCK, replays if the stored CloseRequestId matches, rejects non-Open status, and atomically records the close plus treasury movements. Therefore a different key after successful first close should be rejected before movements are added. This limits duplicate-money impact but leaves no response replay for the second UI path.",
+    "tests": "ShiftCloseVerticalSliceTests asserts same request retry returns WasReplayed and does not double-post movements, same-key concurrency results in one close, and new-key close against a closed shift is rejected. Test source was read only; none executed. No dedicated ViewModel test was found in the referenced source for unknown outcome recovery via the Shifts screen.",
+    "classification": "Source-confirmed implementation divergence; underlying UI-016 known unknown-outcome/request-identity risk is cross-referenced rather than duplicated. Server transaction/status checks provide counterevidence against duplicate close movements. Operator-visible reconciliation delay or confusing failure is plausible; actual frequency and user impact are unverified.",
+    "limitations": "Static source/test reading only. No HTTP call, database operation, UI session, lost-response simulation or test execution. Server retry guarantees are inferred from source and test assertions, not run in this task."
+  },
+  "recommendation": "Keep both entry points on a shared close-operation workflow or give the dedicated Shifts screen equivalent pending-request persistence, stable request identity, unresolved-outcome handling and replay UX. Add a client test that simulates commit-success/response-loss from each surface, retries, and verifies a single displayed successful close and one set of movements. Preserve server row locking and status/idempotency tests.",
+  "required_regression_tests": [
+    "For both UI entry points, simulate unknown response after server commit; retry must use byte-identical CloseRequestId and payload and resolve as replay.",
+    "After an unresolved response, cancellation/navigation should not silently discard the request identity.",
+    "Retain same-key concurrency and new-key-after-close rejection assertions for one treasury handover."
+  ],
+  "reviewer": "Main Codex coordinator; bounded manual semantic comparison; no separate reviewer."
+}

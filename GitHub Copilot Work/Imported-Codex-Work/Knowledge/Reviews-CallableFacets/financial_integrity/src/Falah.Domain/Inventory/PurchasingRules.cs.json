@@ -1,0 +1,46 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T22:04:27.783846+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+  "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-9324a9b101fc2ed1719d62b8e7ed57b46c0bc7f5044152ad19e71d793823f79a",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional record class synthesizes init properties and deconstruction of supplier/purchase/reference IDs and debit/credit Money. Value equality/hash includes all five components; reference ID changes distinguish entries but do not automatically deduplicate ledger rows. With-copy is shallow, safe for immutable strings and Money values. Nullable IDs permit legacy reference matching, not DB nullability proof.",
+      "inputs": "Five positional ledger facts",
+      "outputs": "Generated construction/init/deconstruction/value equality/copy behavior",
+      "side_effects": "Generated immutable value construction/copy only.",
+      "trust_boundaries": "No validation/authorization synthesized by record semantics.",
+      "database": "No DB access or row uniqueness derived from equality.",
+      "printing_ui": "Diagnostic display only; no hardware access.",
+      "performance": "Small fixed component equality/hash; string operations depend on ID lengths.",
+      "duplicates_conflicts": "Original authored callable IDs remain separate; contexts not invented generated method counts.",
+      "issues_hypotheses": "No independent new finding from generated behavior.",
+      "tests_missing": "Equality/copy/deconstruct field retention and null cases; no execution.",
+      "verified_callers_callees": "PayPurchase62 creates records; SupplierOutstanding97-98 reads properties."
+    },
+    {
+      "stable_id": "sym-5354488729f27c67e39db8546f4d40ced82d3193bd0ee2b66c826d03d592bc5d",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positional record struct carries six independently supplied diagnostic outputs including nullable Money and nullable double factor. Compiler-generated equality/hash/copy compares these values, not a recalculated cost ratio; callers can construct inconsistent diagnostic combinations if bypassing DescribeUnitCostChange. With-copy does not mutate original and no identity or persistence is implied. Generated formatting may include costs but no hardware I/O.",
+      "inputs": "Previous/new cost and four diagnostic flags/factor",
+      "outputs": "Generated value copy/equality/deconstruction/property behavior",
+      "side_effects": "Generated immutable value construction/copy only.",
+      "trust_boundaries": "No validation/authorization synthesized by record semantics.",
+      "database": "No DB access or row uniqueness derived from equality.",
+      "printing_ui": "Diagnostic display only; no hardware access.",
+      "performance": "Small fixed component equality/hash; string operations depend on ID lengths.",
+      "duplicates_conflicts": "Original authored callable IDs remain separate; contexts not invented generated method counts.",
+      "issues_hypotheses": "No independent new finding from generated behavior.",
+      "tests_missing": "Equality/copy/deconstruct field retention and null cases; no execution.",
+      "verified_callers_callees": "DescribeUnitCostChange60/63/66 constructs; Receive193-205 reads flags/cost/factor."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

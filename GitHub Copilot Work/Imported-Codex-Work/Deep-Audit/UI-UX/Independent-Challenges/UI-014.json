@@ -1,0 +1,138 @@
+{
+  "id": "UI-014",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_STATUS_CONTRACT_MISMATCH",
+  "severity_assessment": "HIGH misleading restore outcome in critical workflow; no actual repeated restore or data loss tested.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs",
+      "startLine": 262,
+      "endLine": 283,
+      "source_git_blob_sha256": "a901af5185d49178a93586d2fbfb3c2eb85509fb4544ae9219ccb18601b32500",
+      "worktree_sha256": "5c77ce94f6fefe0cbfeaca0fcb9b1be9e983694af4eee50dd564666e56fe24a5",
+      "symbol": {
+        "stable_id": "sym-fb94ff781e5825ed2e452c8d6ab46894f0200165b2040764b3e576501582ec99",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CompleteRestoreAsync(Falah.Application.Backup.RestoreBackupRequest)",
+        "startLine": 262,
+        "endLine": 283,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "UI accepts Completed only; successful returned Succeeded takes error branch and returns before clearing RestoreTarget."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "startLine": 167,
+      "endLine": 174,
+      "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+      "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+      "symbol": {
+        "stable_id": "sym-6169ef3c03b4842183f4796c30d34f069683908c295334130a886381ef1c3f97",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Backup.RestoreBackupHandler.HandleAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken)",
+        "startLine": 49,
+        "endLine": 195,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Backend success sets status nameof(BackupRecordStatus.Succeeded)."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+      "startLine": 193,
+      "endLine": 194,
+      "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+      "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6",
+      "symbol": {
+        "stable_id": "sym-6169ef3c03b4842183f4796c30d34f069683908c295334130a886381ef1c3f97",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Backup.RestoreBackupHandler.HandleAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken)",
+        "startLine": 49,
+        "endLine": 195,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Returns BackupQueryService.ToDto directly after outcome record."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/BackupQueryService.cs",
+      "startLine": 20,
+      "endLine": 22,
+      "source_git_blob_sha256": "8ffbc88eb64e21d8a95e1da6ba6da8ac4527acf174ef4c2f48b2dd3f97426370",
+      "worktree_sha256": "8ffbc88eb64e21d8a95e1da6ba6da8ac4527acf174ef4c2f48b2dd3f97426370",
+      "symbol": {
+        "stable_id": "sym-372399195e2e94688f5bffd3744cd02ae2a5a6e6b23dfc05b9625c56a7dc4388",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Backup.BackupQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.BackupRecordEntity)",
+        "startLine": 20,
+        "endLine": 22,
+        "startColumn": 5,
+        "endColumn": 100
+      },
+      "evidence": "DTO carries entity Status unchanged; no Succeeded-to-Completed mapping."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.People.cs",
+      "startLine": 55,
+      "endLine": 57,
+      "source_git_blob_sha256": "e7fa6464747cd2191c684e64d7c4f7c27af214702d91824dd4f2489f55e75822",
+      "worktree_sha256": "001422f6a5bcc160cbd831b67346ae58ae93f3e54f3874a0a451ec59d43f4630",
+      "symbol": {
+        "stable_id": "sym-5154123217e355242c964fe157114e09ccdd8ae1e7f9abbe7edbc32f2f75e327",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.RestoreBackupAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken)",
+        "startLine": 55,
+        "endLine": 57,
+        "startColumn": 5,
+        "endColumn": 103
+      },
+      "evidence": "API wrapper directly deserializes BackupRecordDto, no vocabulary translation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs",
+      "startLine": 80,
+      "endLine": 93,
+      "source_git_blob_sha256": "a901af5185d49178a93586d2fbfb3c2eb85509fb4544ae9219ccb18601b32500",
+      "worktree_sha256": "5c77ce94f6fefe0cbfeaca0fcb9b1be9e983694af4eee50dd564666e56fe24a5",
+      "symbol": null,
+      "evidence": "History presentation correctly recognizes Succeeded, giving operator counterevidence against error message."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "startLine": 43,
+      "endLine": 49,
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "symbol": {
+        "stable_id": "sym-37892f3ec3dce1068241cae171cddc43d5d5d9cc6777030fcb21780eb68d88fd",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)",
+        "startLine": 34,
+        "endLine": 51,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Successful non-null HTTP result clears retained state before CompleteRestore interprets status; a retry would be a new restore attempt, not proof same retained operation retried."
+    }
+  ],
+  "preconditions": [
+    "Authorized operator submits restore and real server returns successful Succeeded result."
+  ],
+  "counterevidence": [
+    "History can correctly show Succeeded despite modal false error.",
+    "Server permissions/approval/confirmation/active-operation safety gates remain; false message is not authorization bypass.",
+    "Stale summary comment says restore not exposed, but actual methods/XAML expose it; comment is not runtime behavior."
+  ],
+  "recommended_remediation": "Use shared successful-status contract and close successful restore context while preserving accurate Blocked/Failed distinctions; no fix applied.",
+  "required_tests": [
+    "Fake successful Succeeded DTO produces success note and clears restore target.",
+    "Blocked/Failed DTOs remain non-success.",
+    "Ensure owner sees one consistent outcome across modal and history without executing real restore."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:47:10.696516+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source-only cross-layer challenge",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local challenge, no exhaustive callable promotion"
+}

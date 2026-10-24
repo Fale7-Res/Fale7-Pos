@@ -1,0 +1,500 @@
+{
+  "artifact_kind": "independent_static_finding_challenge",
+  "id": "FIN-CAND-PAYROLL-001-ROOT-CHALLENGE-2026-10-21",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "finding_id": "FIN-CAND-PAYROLL-001",
+  "status": "INDEPENDENT_SOURCE_CORROBORATION; RUNTIME_INTERLEAVING_UNVERIFIED",
+  "severity_assessment": "HIGH_STATIC_WITH_QUALIFICATIONS_NO_SQL_REPRODUCTION; no severity escalation",
+  "source_reasoning": "Independently read PayPayrollHandler.HandleAsync and TransitionPayrollHandler.HandleAsync. Payment checks Approved at PayPayrollHandler.cs:62-74, then computes payable lines before opening its DB transaction at 110-111; the transactional section locks treasury balance and writes movement, employee settlements, and Paid metadata at 118-163, but does not reread/conditionally update payroll run state. Cancellation reads the current status and validates the transition at TransitionPayrollHandler.cs:34-37, assigns target status at 54-57, then saves at 59-60 without an explicit shared run lock or transaction. PayrollRules.AssertTransition defines the allowed states at PayrollRules.cs:13-27. The payroll mapping shows unique period/idempotency keys but no configured rowversion/concurrency token at FalahDbContext.cs:460-477.",
+  "plausible_interleavings": [
+    "Pay reads Approved; cancel reads Approved and saves Cancelled; pay then enters transaction and persists Paid with the outflow/settlements without a state reread. Cancellation can return success although payment subsequently wins.",
+    "Pay reads Approved; cancel reads Approved; pay commits payment and Paid; stale cancellation writes Cancelled afterward. In that schedule the final status may say Cancelled while treasury movement and employee settlements exist. Actual EF-generated update predicates and SQL Server scheduling were not executed, so final row outcome remains provider/runtime dependent."
+  ],
+  "counterevidence": [
+    "PayPayroll is protected against a repeated same-run payout by a deterministic run idempotency key and transactional journal/treasury/settlement writes. This finding is not a duplicate-payment claim.",
+    "Existing PayrollVerticalSliceTests cover sequential same-run replay and six concurrent pay requests (lines 208-258), but do not interleave cancellation with payment.",
+    "The unique live-period index can constrain some schedules if a replacement run is inserted; no replacement run is assumed in the described schedule.",
+    "EF tracking and SQL Server isolation details must be verified in an approved integration test; static source alone cannot prove actual winner/order."
+  ],
+  "root_cause": "The payable run state is read/validated outside the payment transaction, while cancellation independently reads and saves that same state without a shared row lock, conditional terminal-state update, or visible concurrency token; the money movement and run terminal status are not guarded by a single shared serialization boundary.",
+  "impact": "Potentially contradictory audit/user state: cancellation can be acknowledged while payment settles, or a successful payment may coexist with a final Cancelled run state. No duplicated outflow is inferred.",
+  "recommended_remediation": "Preserve a single terminal transition invariant by serializing payment and cancellation on the PayrollRun row or using a conditional state transition within the same database transaction as the side effects. The winner should determine one durable terminal state: cancellation success must imply no payroll movement/settlements; payment success must imply Paid plus exactly one movement and the matching settlements. Keep the existing same-run idempotency/journal and treasury balance lock.",
+  "required_tests": [
+    "On disposable SQL Server, force pay to pause after Approved read and force cancel to commit; resume pay. Verify the chosen winner policy and assert cancellation success never coexists with a payroll payment movement/settlement.",
+    "Force cancellation to pause after reading Approved while payment commits; resume cancel. Assert stale cancellation is rejected/replayed and final status is Paid when payment won.",
+    "Retain sequential and concurrent same-run pay tests and assert exactly one movement/journal and one settlement per eligible line.",
+    "Inspect generated SQL/update predicates and assert concurrency/state guard is effective under actual provider isolation."
+  ],
+  "tests_executed": "NONE; read-only source/test inspection only",
+  "owner_policy": "The required atomic terminal-state/accounting invariant is clear; user-facing winner/response semantics for an overlap should be explicitly selected by product owner if the API has not defined it.",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "line_ranges": [
+        [
+          39,
+          87
+        ],
+        [
+          110,
+          163
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+          "signature": "Falah.Infrastructure.Employees.PayPayrollHandler.HandleAsync(Falah.Application.Employees.PayPayrollRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            39,
+            5,
+            182,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "line_ranges": [
+        [
+          24,
+          60
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+          "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            24,
+            5,
+            61,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          13,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7a2c3c021a49d2f8d68558d96a7858da5b7869e2ca3c69a3072bd3e5c31ee2af",
+          "signature": "Falah.Domain.Payroll.PayrollRules.AssertTransition(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus)",
+          "kind": "MethodDeclaration",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+      "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "source_git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "line_ranges": [
+        [
+          5,
+          20
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c0bf5b5acdd699e6a91cc0f5abeb3535a8ab13a114af95c150f189b7ffbf512a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            5,
+            1,
+            20,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-0df828d67780e05df49dff268882a868ab1396df2b646257a92c0871bb5cce33",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Id.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            7,
+            24,
+            7,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-2f52c42182ed412887b5bf7f3610b3a2f1d33006f8e34c1600932cf9bd0f3a45",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Id.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            7,
+            29,
+            7,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-7aba7e4766232a26be3845284a842e7f6a2dcec2bf917bcc2e5453db06069d0e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Period.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            8,
+            28,
+            8,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-2fda19329364eb7f23b2e87039fecc51b0544a31e9c1ed44fa4796c01213b56c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Period.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            8,
+            33,
+            8,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-ac2b2ef8a0596dca270cd1efbbae749b76f59b3d71c7fae56240e7cf167e0828",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Status.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            9,
+            28,
+            9,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-985d93f2f440e1b699023fe26725885ba3edd9fda78dd7ff3b3529a920193e56",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.Status.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            9,
+            33,
+            9,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-36ee1d864304222ed326ffb37021400b5e44363a893fb2fa59d99613e758f91c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.CreatedBy.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            10,
+            31,
+            10,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-5972caf30d16ed0b9c3ec3e8fa740a737e87386dde7b343232bbe84e61f047e3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.CreatedBy.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            10,
+            36,
+            10,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-3ad1d6ee9506a1780e463fd6d706835c8a31d509f34fd144917b267822305e32",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.CreatedAtUtc.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            11,
+            42,
+            11,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-454c696929504c8d1bdafaae93a1f0f9667a0784fb9c5c168ce823cd8a0b8e31",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.CreatedAtUtc.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            11,
+            47,
+            11,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-1d2b41709cfa6bb71926b1a977506018cc891fc1354756bcb3fcc7a451308df3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ApprovedBy.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            12,
+            33,
+            12,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-56348b3aff910fe0cef65721ad7d006bbf890c737817f8190bf568efcb8c3eb1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ApprovedBy.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            12,
+            38,
+            12,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-8209a70f87b54eadd794763e951eb986abfcdf2a2bf5ece824b561cc0d2c7f0b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.PaidAtUtc.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            13,
+            40,
+            13,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-21f84d67f3a1a55ebda38401f356b0411a6dc72c551c4df4f1c704682c19a582",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.PaidAtUtc.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            13,
+            45,
+            13,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-d9f37a1a0cd1e5937a0a2445c45b8c4d4fb368d05d7f1273352c1d183f50cbec",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ReviewedAtUtc.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            14,
+            44,
+            14,
+            48
+          ]
+        },
+        {
+          "stable_id": "sym-0c41df9f69c5edb51e12eed535c2865247dbc08275a74286bf6d1ad8a8925718",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ReviewedAtUtc.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            14,
+            49,
+            14,
+            53
+          ]
+        },
+        {
+          "stable_id": "sym-1b3a32d2864adbb2ab0092b3d3a88b949eb010066244c95b2263696bb54243b5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ReviewedBy.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            15,
+            33,
+            15,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-942d24e581daa3e920a07d08745d635a2f3389e7cc9c06722de90cf3d1789232",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.ReviewedBy.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            15,
+            38,
+            15,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-8c506d40f71d2a357862a06380e10030f14ec87202305bff30ffac564f24cde3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.OperationId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            16,
+            34,
+            16,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-86e784f49734e268053942be9d8a479ba0b62028f3cc121af113079fc8e0abac",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.OperationId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            16,
+            39,
+            16,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-c0dfd91cf2f4aa5f2c1ebe5ea20d4465c5612fd9eb6dafa159da2b60fbf39861",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.TreasuryMovementId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            17,
+            41,
+            17,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-4f7f138bb53ac0c082636709f351cc9b44890053bbbb9c031fa26bf8ef79128f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.TreasuryMovementId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            17,
+            46,
+            17,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-3dfe25c5a5a00936e88d047e01f5737aff82f28b1425ae9f16fb4c6011a0209c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.PaymentAccountId.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            18,
+            39,
+            18,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-d1e046b75f9b2d9b6056967004714301fdded7f7f412aa1a70b7fa8c609632b7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.PaymentAccountId.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            18,
+            44,
+            18,
+            48
+          ]
+        },
+        {
+          "stable_id": "sym-bd7da363df7d415ffd77da8c66e156603022f08b13b1d1353394ccff131a72cb",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.IdempotencyKey.get",
+          "kind": "GetAccessorDeclaration",
+          "span": [
+            19,
+            37,
+            19,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-8ed26b5f076616329c2babbe2f6bbda2b882f8c2e5f665be33b98d1c041e795a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PayrollRunEntity.IdempotencyKey.set",
+          "kind": "SetAccessorDeclaration",
+          "span": [
+            19,
+            42,
+            19,
+            46
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          460,
+          477
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cb0740c81a7956731413bd3f32a5a6079c31b0e3ecfaafd5c50310b17f21600c",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext",
+          "kind": "ClassDeclaration",
+          "span": [
+            6,
+            1,
+            481,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-7e30db134e1c0c48e0ee2567e449597c21d37da9bebd1fd1a7b003fa109b680d",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.FalahDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<Falah.Infrastructure.Persistence.FalahDbContext>)",
+          "kind": "ConstructorDeclaration",
+          "span": [
+            8,
+            5,
+            8,
+            88
+          ]
+        },
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "kind": "MethodDeclaration",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+      "line_ranges": [
+        [
+          208,
+          258
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-653073cb83d9d39280a3d7951e292512529d014ac8960b5d93aac75dda4e0a77",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Paying_the_same_run_twice_never_double_pays()",
+          "kind": "MethodDeclaration",
+          "span": [
+            208,
+            5,
+            224,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5e089a47da7115869a58d42e5b31b9a4dbf617ede8aa8d7320dd5ca5dbe9c478",
+          "signature": "Falah.Server.IntegrationTests.PayrollVerticalSliceTests.Six_concurrent_pay_requests_for_the_same_run_settle_exactly_once()",
+          "kind": "MethodDeclaration",
+          "span": [
+            244,
+            5,
+            258,
+            6
+          ]
+        }
+      ]
+    }
+  ]
+}

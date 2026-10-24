@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Printing/TicketElementMapping.cs",
+  "source_git_blob_sha256": "247fe0b899d9ca3697083c2b32a691172ff0dd50801a5f0ea6df246e76438efc",
+  "worktree_sha256": "1f465ebdd0d8275f7d51b24f3603fa9042f70aad6b1fe3c1bb92910a6e39eef3",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:31:24.083040+00:00",
+  "scope": "All10 callables individually reasoned, including two nested cell lambdas",
+  "symbols": [
+    {
+      "stable_id": "sym-849f7f78f7c421e7be0e4f76a4e245adb4f26c4c2b50a099619bc012d24ac5d6",
+      "status": "ANALYZED",
+      "reasoning": "Maps each concrete Domain ticket element to flat wire DTO: Text preserves bold/align/size/inverted; Row maps cells and flags; rule/cut map discriminators; QR payload rides Text. Unknown Domain element becomes text of ToString, preserving some visibility rather than type safety.",
+      "inputs": "TicketElement hierarchy",
+      "outputs": "TicketElementDto",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Unknown element fallback may expose type string instead of useful content; no generic lossless-forward-compatibility guarantee",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "Called PrintJobQueryService.ToDto; calls cell lambda28 and enum wire helpers"
+      ],
+      "evidence_source_span": [
+        23,
+        36
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-a0a6becb91e8f87b303bdb5517bfeb4fb5c6ca5a52654588c4d23fbbae448ee3",
+      "status": "ANALYZED",
+      "reasoning": "Transforms one Domain row cell into wire cell carrying exact Text, WidthPercent, translated alignment and Bold. It does not renormalize widths or protect null text; upstream ticket composition must produce valid layout. Order of Select preserves Arabic right-to-left logical cell sequence.",
+      "inputs": "TicketCell c",
+      "outputs": "TicketCellDto",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Malformed width sum not validated here; renderer layout can clip for invalid content",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "Called ToDto row branch; AlignToWire"
+      ],
+      "evidence_source_span": [
+        28,
+        28
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9393e3479a923309fb471d59a78890514583340e8061eeb7c5efdcfef0845fc2",
+      "status": "ANALYZED",
+      "reasoning": "Dispatches wire Kind to Domain row/rule/cut/QR or default text. Missing Cells becomes empty list; QR nullText becomes empty payload; booleans preserved. Case-sensitive discriminators unknown to agent degrade to text, which is readable only if Text carries useful fallback.",
+      "inputs": "TicketElementDto untrusted server response",
+      "outputs": "TicketElement Domain hierarchy",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "No shape/size/width validation; Kind case variants fall through, not parse exception",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ToDomain; cell lambda42; enum readers"
+      ],
+      "evidence_source_span": [
+        38,
+        50
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-4e183f506fd4ae529c1284eb57589b0fa49447d45dca75252579217f76cc73e3",
+      "status": "ANALYZED",
+      "reasoning": "Rebuilds each flat wire cell with unchanged text/percent/bold and parsed alignment. This is a structural conversion, not validation; a server-sent negative or oversized percent persists into bitmap/text layout. Empty null Cells is handled by caller and yields no lambda invocation.",
+      "inputs": "TicketCellDto c",
+      "outputs": "Domain TicketCell",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Defensive width validation belongs before layout; no current check in mapper",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDomain row branch; AlignFromWire"
+      ],
+      "evidence_source_span": [
+        42,
+        42
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f38252200ec52b44da415b04bfa04389c2619d639082778cc8c16328443926bf",
+      "status": "ANALYZED",
+      "reasoning": "Serializes Center as center and End as end, all other enum values as start. The fallback covers Start and undefined enum values, avoiding throw but losing evidence of invalid input. Both renderers depend on stable wire spellings.",
+      "inputs": "TicketAlign enum",
+      "outputs": "lowercase wire string",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Undefined enum collapses silently; test known enum roundtrip separately from invalid fallback",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDto text/cell branches"
+      ],
+      "evidence_source_span": [
+        52,
+        55
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-ac942d1d50df2ae54f2fbe270eb850e6a18c6ee11d7fabfb19f542936d3209c8",
+      "status": "ANALYZED",
+      "reasoning": "Parses exact lowercase center/end to matching Domain alignment; any other string becomes Start. Does not lowercase incoming value; CENTER is not Center. Designed safe fallback, not strict schema validation, so unknown alignment should be observable in contract tests.",
+      "inputs": "wire align string",
+      "outputs": "TicketAlign",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Case-sensitive fallback can silently alter centering",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDomain text/cell branches"
+      ],
+      "evidence_source_span": [
+        57,
+        60
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9858241922a7629d89843cd889a378ac902fcc1c42ea3abb4f993b33248909c5",
+      "status": "ANALYZED",
+      "reasoning": "Serializes Display,Huge,Title,Large to matching lowercase wire names and Normal/unknown enum to normal. Keeps explicit large order-number and title variants across process boundary without exposing renderer font pixels in DTO.",
+      "inputs": "TicketTextSize enum",
+      "outputs": "wire size string",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Invalid enum silently normalizes; no resource/rendering effects here",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDto text/row branches"
+      ],
+      "evidence_source_span": [
+        62,
+        66
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-4cc8eb2addccb5e46730c019b146aa5e78d1f484671af189a9c11aabe6a31481",
+      "status": "ANALYZED",
+      "reasoning": "Maps exact display,huge,title,large strings back to Domain sizes, default Normal. This is symmetric for emitted known values; arbitrary uppercase/unknown strings degrade instead of crashing printer. No font-size configuration is accepted directly here.",
+      "inputs": "wire size string",
+      "outputs": "TicketTextSize",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Fallback readability may differ from intended huge order token; test all supported sizes",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDomain row/text branches"
+      ],
+      "evidence_source_span": [
+        68,
+        72
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-7dd8a924736c7dd33774f519479398f7b2bc10913cf5a377fee0f6fa988cd6d9",
+      "status": "ANALYZED",
+      "reasoning": "Serializes heavy,blank,dashed,thin,accent explicitly; Light and unknown use light. Blank represents intentional spacing; confusing it with visible rule changes receipt length, so each variant must be roundtripped.",
+      "inputs": "TicketRuleStyle",
+      "outputs": "wire rule string",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Default doesnot validate unknown Domain enum; no physical cut generated by a rule",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDto rule branch"
+      ],
+      "evidence_source_span": [
+        74,
+        77
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-fdd052f372e461a75f39e88e6577c7df80aef777ebbba37f8dd47eea2c78f6ef",
+      "status": "ANALYZED",
+      "reasoning": "Parses exact known rule-style strings, default Light. Cut is a separate Kind and cannot be created by unknown rule value. Mapping preserves known separator choices but cannot promise unsupported future renderer style fidelity.",
+      "inputs": "wire rule string",
+      "outputs": "TicketRuleStyle",
+      "side_effects": "Pure allocations/string/enum mapping; no state or I/O",
+      "trust_boundaries": "Server Domain->wire->agent boundary; malformedwire notvalidated",
+      "database": "NOT_APPLICABLE: pure mapping",
+      "printing_ui": "Preserves thermal document content; no printer send or UI operation",
+      "performance": "O(1) per scalar or O(cells) via caller Select; no I/O",
+      "duplicates_conflicts": "Two mapping directions share one definition; discriminator names explicitly case-sensitive",
+      "issues_hypotheses": "Unknown styles fall back; tests must distinguish blank,cut,and unsupported style",
+      "tests_missing": "Roundtrip all element flags and enums; unknown/null/invalidwidth fixtures; no tests run",
+      "verified_callers_callees": [
+        "ToDomain rule branch"
+      ],
+      "evidence_source_span": [
+        79,
+        82
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

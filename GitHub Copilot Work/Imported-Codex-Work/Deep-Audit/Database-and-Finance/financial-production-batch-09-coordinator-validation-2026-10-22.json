@@ -1,0 +1,297 @@
+{
+  "artifact_kind": "financial_callable_batch_coordinator_quality_validation",
+  "created_at_utc": "2026-10-22T05:00:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "main_coordinator",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-09-and-custody-semantics-2026-10-22.json",
+  "communication": "Existing financial_integrity_continuation supplied Batch09 and custody semantics disposition; coordinator independently read the four source bodies, relevant query composition/domain rules and cited test sources, then checked identity and hashes.",
+  "items": [
+    {
+      "stable_id": "sym-cc333096c4257c48976c6008a65141413e1e4ab87953dff48d455d5a8de4a58b",
+      "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.CurrentTreasuryAsync(CancellationToken)",
+      "source_range": [
+        158,
+        169
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:158:5:MethodDeclaration",
+      "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "source_baseline_relation": "git diff for source file is expected clean; verify before publication",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+      "observed_receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+      "receipt_author": "financial_coordinator",
+      "receipt_identity_and_reasoning_match": true,
+      "test_evidence": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+          "lines": [
+            167,
+            181
+          ],
+          "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+          "coverage": "asserts TreasuryNow is period-independent for Main and Drawer; not all five accounts"
+        }
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "risk_category": "CURRENT_TREASURY_READ",
+      "coordinator_source_reasoning": "The query selects Posted movements only, materializes source/destination/amount and derives the five account balances as destination inflow minus source outflow. GetAsync places this all-time balance beside selected-period sales; comments and the cited integration test support current-balance semantics. It is read-only and has no report-period filter by design.",
+      "counterevidence_and_limits": "No evidence found that dashboard balance differs from TreasuryQueryService for equivalent data. Whole movement history and five local sums are unbenchmarked; query snapshot timing is untested.",
+      "exact_remaining_action": "Compare account-by-account to TreasuryQueryService over identical movement fixtures (including transfers/reversals/statuses); measure scale only if report performance is material.",
+      "agent_reasoning": "GetAsync calls CurrentTreasuryAsync for Cash.TreasuryNow (OwnerDashboardQueryService.cs:48-55). This helper selects only Status Posted movements as SourceAccountId/DestinationAccountId/AmountPiastres, materializes the entire matching history, then for each five accounts sums destination amount minus source amount (lines 160-168). It does not mutate balances. This is an all-time/current balance calculation, independent of selected report dates.",
+      "agent_counterevidence": "The source XML comment (156-157) and test Treasury_balances_are_current_not_scoped_to_the_reported_period (OwnerDashboardVerticalSliceTests.cs:167-181) directly support current/all-time semantics. No common snapshot / live provider behavior was checked; whole-history materialization and five local sums are unbenchmarked. No evidence this report calculation disagrees with posted treasury balances.",
+      "review_scope": "Callable-level static review; file and dashboard end-to-end audit remain incomplete."
+    },
+    {
+      "stable_id": "sym-44479b324b587f6a62f7c2406d5e80236904a9e24b371c2a5388ee4a1036644d",
+      "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadLeakageAsync(Falah.Domain.Common.BusinessDateRange, Falah.Application.Reports.SalesReportDto, long, int, DateTimeOffset, DateTimeOffset, CancellationToken)",
+      "source_range": [
+        171,
+        184
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:171:5:MethodDeclaration",
+      "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "source_baseline_relation": "git diff for source file is expected clean; verify before publication",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+      "observed_receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+      "receipt_author": "financial_coordinator",
+      "receipt_identity_and_reasoning_match": true,
+      "test_evidence": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+          "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+          "coverage": "no direct null LossValue assertion located in this reviewed test source"
+        }
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "risk_category": "LEAKAGE_REPORT_COMPOSITION",
+      "coordinator_source_reasoning": "Queries waste/spoilage/breakage movements over UTC [start,end), takes nullable LossValue values, sums null as zero and preserves total row count. It composes offers/comps/discounts/refunds and selected-period expenses from already computed report inputs; it writes no stock or accounting rows.",
+      "counterevidence_and_limits": "A null-valued loss contributes zero to money total while still increasing count. Whether this is acceptable depends on loss valuation policy and DTO meaning; source does not establish that unknown means zero or show a realized row. No specific null-loss test found in reviewed test paths.",
+      "exact_remaining_action": "Specify whether unknown cost should yield an incomplete/unknown total; test null vs zero, count semantics, and UTC boundary. Do not claim live underreport absent data/policy evidence.",
+      "agent_reasoning": "GetAsync supplies selected-range sales, expense total, refund count, and UTC start/end (lines 46-59). LoadLeakage queries Waste/Spoilage/Breakage StockMovements by CreatedAtUtc in [start,end), projects nullable LossValuePiastres, sums null as zero but returns losses.Count separately; it composes SalesReport values for offers/comps/manual discounts/refunds plus the passed expenses (lines 175-183). This is read-only report composition; it does not write accounting or inventory rows.",
+      "agent_counterevidence": "Receipt reasoning accurately flags a meaningful completeness caveat: a row with null loss value contributes zero to money total while remaining visible in count. This could understate reported leakage if such rows are legitimate financial loss with unknown valuation. The source distinguishes count from priced loss but gives no dashboard DTO field for unknown-valued loss count; verify whether `LossesCount` denotes all loss rows or valued rows before treating the total as complete. No specific existing test asserting null loss handling was found in this batch; no evidence of a mutation error.",
+      "review_scope": "Callable-level static review; file and dashboard end-to-end audit remain incomplete."
+    },
+    {
+      "stable_id": "sym-0a74b8ebeb922c1a8f33698b43cb8e17315b323ef131410dfbef540156e709b2",
+      "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadWagesPostedAsync(DateTimeOffset, DateTimeOffset, CancellationToken)",
+      "source_range": [
+        191,
+        203
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:191:5:MethodDeclaration",
+      "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "source_baseline_relation": "git diff for source file is expected clean; verify before publication",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+      "observed_receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+      "receipt_author": "financial_coordinator",
+      "receipt_identity_and_reasoning_match": true,
+      "test_evidence": [
+        {
+          "path": "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs",
+          "lines": [
+            67,
+            170
+          ],
+          "sha256": "63938933d1b29a843037c374978463a4cc9ada64689c115596ecf1670ffb2eb9",
+          "coverage": "gross/operating margin completeness, negative margin, zero-posting unknown ratio; not ledger query inclusion"
+        }
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "risk_category": "POSTED_WAGE_REPORT_BASIS",
+      "coordinator_source_reasoning": "Filters employee-ledger credits for six earning categories by CreatedAtUtc in [start,end), sums credits and count; advances/withdrawals/deductions are excluded. GetAsync feeds total and count to BuildProfitability. Domain profitability keeps wage ratio null only when no wage rows were posted, otherwise uses the supplied gross credit total.",
+      "counterevidence_and_limits": "This avoids double counting advances/withdrawals as fresh labor cost, but policy does not define whether the dashboard should use gross earned credits, net payroll payouts, or another period expense basis. Ledger read and dashboard reads lack a shared snapshot; no actual discrepancy shown.",
+      "exact_remaining_action": "Owner should confirm accounting presentation basis. Test each included/excluded ledger category, boundary timestamps, zero postings vs zero-sum posted rows, and provider snapshot consistency if point-in-time report consistency is required.",
+      "agent_reasoning": "GetAsync passes period UTC boundaries to LoadWagesPostedAsync and uses its total in BuildProfitability (lines 58-59, 205-224). The helper filters EmployeeLedgerEntries to DailyWage, Salary, Overtime, ExtraShift, Bonus, OtherEarning by CreatedAtUtc >= start and < end; materializes CreditPiastres and returns sum and row count (lines 193-202). Advances/withdrawals/deductions are not netted here. It is a read-only ledger aggregation.",
+      "agent_counterevidence": "The existing receipt correctly distinguishes earnings credits from advances/withdrawals, which would otherwise double-count already-earned wages, and notes gross-vs-net expense semantics need a business decision. Category list includes six positive earning types; no calculation of payroll liability settlement is made here. No focused OwnerDashboard integration assertion was located by static search; source confirms only aggregate path. No writer correlation/live dataset check.",
+      "review_scope": "Callable-level static review; file and dashboard end-to-end audit remain incomplete."
+    },
+    {
+      "stable_id": "sym-a295bbe4240fa1de66733eba8cb921af081f4f767cfab65096b258387a5c73a5",
+      "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadObligationsAsync(DateTimeOffset, DateTimeOffset, CancellationToken)",
+      "source_range": [
+        317,
+        356
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:317:5:MethodDeclaration",
+      "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "source_baseline_relation": "git diff for source file is expected clean; verify before publication",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+      "observed_receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+      "receipt_author": "financial_coordinator",
+      "receipt_identity_and_reasoning_match": true,
+      "test_evidence": [
+        {
+          "path": "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs",
+          "lines": [
+            205,
+            226
+          ],
+          "sha256": "d045dc58b7e1c82985a1270a9a33128b0cd262aba1a89773997bd495967a9bd6",
+          "coverage": "dashboard/detail overdue and unscheduled reconciliation"
+        }
+      ],
+      "tests_executed": false,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "risk_category": "OBLIGATIONS_AND_PAYABLES_REPORTING",
+      "coordinator_source_reasoning": "Supplier and employee obligation stocks are all-time grouped ledger sums; purchase total/paid values are selected-period CreatedAt activity; overdue and unscheduled invoices are current all-time open purchases excluding exact lowercase cancelled. Comments explicitly identify aging as unscoped. No writes occur.",
+      "counterevidence_and_limits": "PayablesAgingVerticalSliceTests asserts owner-dashboard overdue and unscheduled amounts/counts/days agree with detail report. Sequential queries are not a common snapshot. Selected-period purchase query has no status predicate; canceled-purchase treatment needs domain/owner contract before any issue claim.",
+      "exact_remaining_action": "Confirm canceled purchase inclusion semantics; test status transitions, ledger vs cached RemainingAmount and dashboard/detail consistency. If a single point-in-time view is required, define and test snapshot boundary/isolation.",
+      "agent_reasoning": "GetAsync passes UTC range from BusinessDateRange.ToUtcRange (lines 46,66). LoadObligations groups all supplier ledger entries per supplier and sums Debit-Credit, retaining positive balances (321-326); selects period purchases by CreatedAtUtc [start,end), sums cached TotalPiastres/PaidPiastres (327-329,350-351); groups all employee ledger rows and sums Credit-Debit (331-335); then intentionally loads all remaining positive-amount purchases whose Status is not exact lowercase \"cancelled\", computes overdue from BusinessClock.Today, and separately totals null-due invoices (337-348, 352-355). It performs no writes.",
+      "agent_counterevidence": "Receipt reasoning is borne out: outstanding supplier/employee amounts are current ledger stocks, purchase totals/paid are selected-period activity, and invoice aging is current/all-time. Explicit code comment says aging is not period scoped (337-339). PayablesAgingVerticalSliceTests.The_owner_dashboard_agrees_with_the_payables_report (205-226) checks overdue/unscheduled amount/count and age against detail report; this is positive consistency counterevidence. Queries run separately without common transaction/snapshot. Period purchase selector does not show a status predicate; whether cancelled purchases persist/affect period totals requires writer/entity policy check before calling a defect. No runtime/provider consistency was verified.",
+      "review_scope": "Callable-level static review; file and dashboard end-to-end audit remain incomplete."
+    }
+  ],
+  "validation_errors": [],
+  "custody_settlement_disposition_cross_check": "Agent source-chain evidence aligns with coordinator inspection: per-row SettledPiastres mirrors Collected while aggregate actual/difference is separate; no inspected API/UI/report consumer treats it as an actual allocation. Whether the row field is a physical allocation remains owner policy. No financial defect or canonical finding created.",
+  "tests_executed": [],
+  "scope_limit": "No integration/domain tests executed, SQL/provider runtime or DB activity; source tests are evidence only. Dashboard period-basis decisions (unknown loss costing, wages, canceled purchase selection) remain policy/validation questions, not proven incidents.",
+  "coordinator_direct_checks": [
+    {
+      "artifact_kind": "financial_callable_coordinator_source_quality_review",
+      "created_at_utc": "2026-10-22T05:10:00Z",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "reviewer": "main_coordinator",
+      "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+      "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+      "source_line_range": [
+        205,
+        224
+      ],
+      "function_index_declaration_id": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:205:5:MethodDeclaration",
+      "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256_from_symbol_map": null,
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+      "receipt_sha256_observed": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+      "receipt_author": "financial_coordinator",
+      "receipt_identity_reasoning_match": true,
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "classification_after": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "coordinator_reasoning": "BuildProfitability passes only SoldLineCount/KnownLineCount to ComputeGrossProfit and ComputeOperatingMargin, while forwarding FoodCostReportDto.Missing separately. ReportingQueryService increments those counters only for dish lines; unknown active order packaging is appended to Missing and skipped without changing the counters. If all dish costs are known but an applicable packaging cost is unknown, domain completeness can still be true and numeric gross/operating results are produced. This is the existing FIN-CAND-PACKAGING-COVERAGE-001; no duplicate finding is created. The source behavior is confirmed, but active configuration incidence, owner policy for optional packaging, UI treatment and end-to-end report behavior were not executed.",
+      "related_existing_finding": "FIN-CAND-PACKAGING-COVERAGE-001",
+      "related_semantic_comparison": "SEM-MIRROR-060 order-packaging-completeness-cross-layer-semantic-comparison.json is an existing artifact but not registered as a group yet; do not count until reconciled",
+      "source_cross_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "lines": [
+            413,
+            423
+          ],
+          "symbol": "GetFoodCostReportAsync",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "lines": [
+            35,
+            59
+          ],
+          "symbol": "ComputeGrossProfit",
+          "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "lines": [
+            84,
+            105
+          ],
+          "symbol": "ComputeOperatingMargin",
+          "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "lines": [
+            181,
+            190
+          ],
+          "symbol": "OrderPackagingCost",
+          "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        },
+        {
+          "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+          "lines": [
+            91,
+            108
+          ],
+          "symbol": "ProfitabilityDto",
+          "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da"
+        }
+      ],
+      "counterevidence_and_limits": [
+        "Unknown package name remains in Missing/ItemsWithUnknownCost; issue is conflicting completeness signal, not loss of warning text.",
+        "No configured packaging rule can be intentional known-zero under current rules; active unknown-cost precondition required.",
+        "Existing independent static challenges and partial pure component probe do not constitute full owner-dashboard or SQL runtime reproduction."
+      ],
+      "recommended_future_action": "Use an aggregate known-cost completeness state that incorporates dish and applicable per-order packaging costs while preserving dish line counts, missing names, and once-per-order cardinality. Confirm optional packaging policy before implementation.",
+      "tests_required": [
+        "Known dish plus active unknown-cost packaging must surface aggregate incomplete state.",
+        "Known packaging contributes once per order and retains complete state.",
+        "No active packaging rule follows confirmed optional-known-zero policy.",
+        "DTO/UI warning aligns with profitability completeness."
+      ],
+      "tests_executed": false,
+      "source_refs": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+          "lines": [
+            413,
+            423
+          ],
+          "symbol": "GetFoodCostReportAsync",
+          "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "lines": [
+            35,
+            59
+          ],
+          "symbol": "ComputeGrossProfit",
+          "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+          "lines": [
+            84,
+            105
+          ],
+          "symbol": "ComputeOperatingMargin",
+          "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "lines": [
+            181,
+            190
+          ],
+          "symbol": "OrderPackagingCost",
+          "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        },
+        {
+          "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+          "lines": [
+            91,
+            108
+          ],
+          "symbol": "ProfitabilityDto",
+          "worktree_sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da"
+        }
+      ],
+      "runtime_limit": "No test, SQL query, dashboard/API or UI execution."
+    }
+  ]
+}

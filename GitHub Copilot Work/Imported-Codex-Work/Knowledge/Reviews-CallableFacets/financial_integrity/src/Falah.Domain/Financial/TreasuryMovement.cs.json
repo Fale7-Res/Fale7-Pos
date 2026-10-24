@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:04:35.394359+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+  "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-4672eabf978e3153b5f6cf4f1bf3208d2e66d06a76a6017324c379a0025ac6ae",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional treasuryfactrecord includes16identity/account/money/reference/day/shift/actor/time/status components. Generatedconstruction/withcopy/equalitydoesnotenforcepositiveamount, exactlyoneexternalaccount, uniqueidempotencykey, sufficientbalance orPostedcommit. EqualityallfieldsnotdatabaseId; with-copycanalteraccount/statusinttrustedcodewithoutpersistingorreversinganything. Historicalactorlabels frozenstrings; mutableobjectgraphnotpresentexceptreference stringsimmutable.",
+      "inputs": "Exactsourcepositionalcomponents for TreasuryMovement",
+      "outputs": "Generatedrecordproperties/construction/copy/equality/deconstructioncontext.",
+      "side_effects": "Value/referencecopyonly; noDB/journalchanges.",
+      "trust_boundaries": "Noauthorizationorbusinessvalidationgenerated.",
+      "database": "Recordequalitynotrowidentity/idempotencyconstraint; transactionexternal.",
+      "printing_ui": "Financialfacts maybedisplayedelsewhere; nohardware.",
+      "performance": "Fixedcomponentrecordoperation,stringhashlinearfieldlength.",
+      "duplicates_conflicts": "Originalauthoredfactory/engine stableIDs separate; contextnotcountedinventedCLRmethods.",
+      "issues_hypotheses": "FIN001/003/004 relevantauthoredworkflowgaps, notrecordgenerateddefect.",
+      "tests_missing": "Copy/equalityfieldretention; invalidconstructortuplecallerpolicy; defaultstructtaxvalues.",
+      "verified_callers_callees": "TaxEngine16-27 constructsTaxCalculation; CheckoutHandler61-63 createsTaxRule; factories41-102 createTreasuryMovement as applicable."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

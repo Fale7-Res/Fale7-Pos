@@ -1,0 +1,256 @@
+{
+  "artifact_kind": "financial_residual_print_reconciliation_coordinator_challenge",
+  "created_utc": "2026-10-21T04:23:34Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "main coordinator",
+  "source": "financial-residual-213-depth-reconciliation-latest.json",
+  "status": "CONDITIONAL_OBSERVATIONS_ONLY_NO_NEW_CANONICAL_DEFECT",
+  "review_scope": "Targeted recheck of ShiftClose print/reprint paths and cross-shift custody semantics from residual 213; static source only.",
+  "source_reference_validation": {
+    "references": 10,
+    "unique_paths": 10,
+    "source_hashes_matching_current": 9,
+    "range_bounds_valid": true,
+    "source_test_diff_from_baseline_empty": true,
+    "correction": {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "handoff_sha256": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F276094A542",
+      "actual_worktree_sha256": "0a7282c6766d2a7b446739d56984950d87ab69f52f88dd3be88f27609484a542",
+      "stable_symbol_id": "sym-bf73ddf0b2517152a6d52e705c53183483c6bd5ef8b1f1d1f4fc4cead5837255",
+      "range": [
+        46,
+        94
+      ],
+      "disposition": "Handoff hash string is malformed/truncated; current file matches source index hash and source/test diff from baseline is empty. Preserve discrepancy; no source edit.",
+      "index_sha256_match": true,
+      "handoff_hash_malformed_or_truncated": true
+    },
+    "hashes_case_insensitive": true,
+    "invalid_ranges": []
+  },
+  "observations": [
+    {
+      "id": "FIN-PRINT-CLOSE-SLIP-RECOMPUTE-001",
+      "classification": "Conditional financial-presentation/reconciliation risk; not confirmed defect",
+      "evidence": "ComposeShiftCloseSlipAsync preserves saved Shift ExpectedCash/ActualCash/CashDifference where present but recomputes breakdown components and paid-from-drawer expense categories from current rows through ShiftReconciliation. Reprint calls the current-data calculation path. Printing does not mutate financial ledgers.",
+      "counterevidence": "Close handler uses the same reconciliation helper; stored headline close figures are preserved. This can be intended current-state explanatory detail. Post-close mutation/revision policy and immutability of contributing rows were not reviewed/established.",
+      "impact": "If relevant source rows can change after close, visible breakdown can stop summing to the frozen headline. No close/payment/cash/expense mutation is evidenced.",
+      "source_refs": [
+        {
+          "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+          "worktree_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+          "ranges": [
+            [
+              181,
+              204
+            ],
+            [
+              208,
+              226
+            ],
+            [
+              228,
+              250
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "ComposeShiftCloseSlipAsync",
+            "LoadCloseWarningsAsync",
+            "ComposeExpenseSlipAsync",
+            "DescribePaymentAccount"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Printing/PrintRules.cs",
+          "worktree_sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+          "ranges": [
+            [
+              516,
+              530
+            ],
+            [
+              532,
+              598
+            ],
+            [
+              600,
+              620
+            ],
+            [
+              636,
+              637
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "ComposeShiftOpenTicket",
+            "ComposeShiftCloseTicket",
+            "ComposeExpenseTicket",
+            "DescribeDifference"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+          "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+          "ranges": [
+            [
+              30,
+              31
+            ],
+            [
+              33,
+              80
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "ComputeExpectedCashAsync",
+            "ComputeBreakdownAsync"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "ranges": [
+            [
+              60,
+              84
+            ],
+            [
+              95,
+              98
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "CloseShiftHandler.HandleAsync"
+          ]
+        }
+      ],
+      "owner_question": "Must reprinted close slips reproduce the exact close-time breakdown, or can explanatory components reflect current row state?",
+      "proposed_resolution": "If historical reproduction is required, persist immutable close-time components or version/source-row revision identifiers. If current recomputation is intended, label it and retain frozen headline distinction.",
+      "tests": [
+        "Close then mutate/correct a contributing order/refund/expense/movement in an approved isolated test DB; compare original vs reprinted breakdown and frozen headline.",
+        "Reopen/revise only through authorized flow, then verify old and new close revisions render the intended snapshot.",
+        "Verify print/reprint never changes financial journal or shift close values."
+      ],
+      "acceptance": "Reprint semantics are documented and tests prove each close revision is stable or explicitly current/recomputed; print operations remain ledger-nonmutating.",
+      "runtime": "No SQL/DB/provider/physical print tests executed."
+    },
+    {
+      "id": "FIN-PRINT-CLOSE-WARNING-SCOPE-001",
+      "classification": "Requirements-dependent presentation scope concern; no accounting impact established",
+      "evidence": "PrintJobQueryService.LoadCloseWarningsAsync filters pending electronic/unpaid orders by shift but selects all open DriverCustodies by status without delivery ShiftId join. DeliveryRules.UnsettledCustodyForShift is shift-filtered; its test excludes cross-shift custody. The close handler/comment permits global handover context and same-shift integration test verifies warning inclusion only.",
+      "counterevidence": "Unsettled custody may intentionally be restaurant-wide/business-day context; owner requirement is absent. The warning does not affect expected cash, close eligibility or treasury movements.",
+      "source_refs": [
+        {
+          "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+          "worktree_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+          "ranges": [
+            [
+              181,
+              204
+            ],
+            [
+              208,
+              226
+            ],
+            [
+              228,
+              250
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "ComposeShiftCloseSlipAsync",
+            "LoadCloseWarningsAsync",
+            "ComposeExpenseSlipAsync",
+            "DescribePaymentAccount"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+          "ranges": [
+            [
+              60,
+              84
+            ],
+            [
+              95,
+              98
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "CloseShiftHandler.HandleAsync"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+          "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+          "ranges": [
+            [
+              90,
+              104
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "DeliveryRules.UnsettledCustodyForShift"
+          ]
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+          "worktree_sha256": "c7720a63722934baf1e3f3914054159c1e2810082451d3731a2f91d89472d918",
+          "ranges": [
+            [
+              115,
+              130
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "Unsettled_custody_is_reported_for_a_shift_rather_than_blocking_its_close"
+          ]
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+          "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+          "ranges": [
+            [
+              825,
+              860
+            ]
+          ],
+          "verified_range_bounds": true,
+          "symbols": [
+            "A_shift_closes_with_an_unsettled_driver_custody_which_stays_outstanding"
+          ]
+        }
+      ],
+      "owner_question": "Should the shift handover warning show only custody tied to that shift, or all outstanding driver custody across the restaurant/business day?",
+      "proposed_resolution": "If shift-scoped, join open custody through delivery ShiftId. If intentionally global, label the warning as global/business-day wide. Do not alter global business-day close blockers without separate evidence.",
+      "tests": [
+        "Create two shifts with open delivery custody on only one shift; close the other and verify warning wording/scope.",
+        "Assert no financial movements or close amount changes from warning aggregation."
+      ],
+      "acceptance": "Owner-defined scope is explicit in labels and cross-shift test; ledger and close arithmetic are unchanged.",
+      "runtime": "Source tests read only; none executed."
+    }
+  ],
+  "overall": {
+    "all_residual_ids_have_individual_notes": true,
+    "all_residual_ids_are_substantively_accounting_audited": false,
+    "observed_money_moving_in_residual_print_subset": false,
+    "full_327_file_workflow_depth_complete": false,
+    "next_needed": "Agent delivery for 213 item semantic triage; owner policy and post-close mutability review; complete substantive source/function quality gate."
+  },
+  "limitations": [
+    "Static source review only; no SQL Server/provider execution, database mutation, production transaction or physical print job.",
+    "The two observations are not defects unless owner policy or post-close mutability establishes the invariant.",
+    "No complete independent re-review of all 8,804 callables or all 327 file reports."
+  ],
+  "agent_disposition": "COMPLETED"
+}

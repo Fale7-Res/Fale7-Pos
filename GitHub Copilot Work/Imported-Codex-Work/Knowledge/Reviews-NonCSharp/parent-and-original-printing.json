@@ -1,0 +1,441 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-17T07:25:48.479488+00:00",
+  "reviewed_callable_count": 17,
+  "records": [
+    {
+      "path": "tools/install-falah-service.ps1",
+      "name": "Assert-Administrator",
+      "language": "powershell",
+      "source_span": [
+        36,
+        42
+      ],
+      "reasoning": "Obtains current Windows identity, wraps WindowsPrincipal and requires Administrator role, otherwise throws an Arabic instruction. This is a privilege prerequisite, not user authorization for the service deletion/start actions elsewhere. No elevation prompt or installation occurs inside this helper.",
+      "inputs": "Current process identity",
+      "outputs": "void or exception",
+      "side_effects": "Reads process security token",
+      "trust_boundaries": "Local privileged operations remain disallowed during audit; passing admin check does not authorize production modifications",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "No printing; enables administrative installer continuation if script actually run",
+      "performance": "Constant token/role check",
+      "duplicates_conflicts": "Windows-specific API; failure stops script through ErrorActionPreference",
+      "issues_hypotheses": "Windows-specific API; failure stops script through ErrorActionPreference",
+      "tests_missing": "Admin/nonadmin role fixtures without installer execution",
+      "verified_callers_callees": [
+        "Script top-level line60 calls before install/uninstall branches"
+      ],
+      "source_git_blob_sha256": "c588e78bec6d6d4f305745e4e26ed6bb966bf3d559c03083544c56ae5b4471fd",
+      "worktree_sha256": "c588e78bec6d6d4f305745e4e26ed6bb966bf3d559c03083544c56ae5b4471fd",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-07b52c6db3faf0654e04210ddf9c08deabf89c9bee2a5714a434ce901157d258",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Independently read36-42. Windows identity/principal Administrator test throws on insufficient role; it does not elevate or authorize changing an arbitrary named service. Reading this function did not execute it.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/install-falah-service.ps1",
+      "name": "Stop-AndRemoveService",
+      "language": "powershell",
+      "source_span": [
+        44,
+        58
+      ],
+      "reasoning": "Looks up named service, returns false if absent; otherwise force-stops a running service, waits up to30 seconds, calls sc.exe delete and sleeps2 seconds before true. It does not check sc.exe exit code or preserve service configuration; installer invokes it before publish success, risking loss of a previously working service when publishing later fails.",
+      "inputs": "Service name",
+      "outputs": "bool presence/attempted removal",
+      "side_effects": "Stops/deletes Windows service and waits if actually invoked",
+      "trust_boundaries": "Name is user-configurable administrative target; no repository scope guard",
+      "database": "Stopping backend can interrupt live clients/transactions; helper does not coordinate DB shutdown",
+      "printing_ui": "No printer action; actual POS availability affected",
+      "performance": "Blocking wait30s plus2s; not a read-only check",
+      "duplicates_conflicts": "Return true may mean delete command attempted, not confirmed successful; partial failure no rollback",
+      "issues_hypotheses": "Return true may mean delete command attempted, not confirmed successful; partial failure no rollback",
+      "tests_missing": "Mock service/sc results and preserve prior service recovery; no live service tests",
+      "verified_callers_callees": [
+        "Uninstall branch",
+        "Install publish preparation"
+      ],
+      "source_git_blob_sha256": "c588e78bec6d6d4f305745e4e26ed6bb966bf3d559c03083544c56ae5b4471fd",
+      "worktree_sha256": "c588e78bec6d6d4f305745e4e26ed6bb966bf3d559c03083544c56ae5b4471fd",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-2b74e853ccc7b160f0b7ffa7ede0d7f0b9708940ddf784b3f19021a30ade2f02",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Independently read44-58. Missing service returns false; otherwise force stop, wait30seconds, sc.exe delete without checking native exit, then sleep2seconds and true. Return true certifies attempted removal, not confirmed deletion. No service call executed.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/pre-demo-check.ps1",
+      "name": "Add-Result",
+      "language": "powershell",
+      "source_span": [
+        28,
+        30
+      ],
+      "reasoning": "Appends a PSCustomObject to captured results list, choosing PASS or FAIL from supplied bool and retaining arbitrary Check/Detail/Fix strings. It does not verify a condition independently; callers determine pass and may supply sensitive or misleading details. No console or database action inside helper.",
+      "inputs": "Check,Pass,Detail,optional Fix",
+      "outputs": "List updated",
+      "side_effects": "In-memory list mutation",
+      "trust_boundaries": "Diagnostic inputs must avoid PIN/token or secret connection details",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "No printing or UI automation",
+      "performance": "Constant append; total result memory grows with calls",
+      "duplicates_conflicts": "PASS flag is caller evidence, not a test engine guarantee",
+      "issues_hypotheses": "PASS flag is caller evidence, not a test engine guarantee",
+      "tests_missing": "PASS/FAIL/default fix/list ordering fixtures",
+      "verified_callers_callees": [
+        "Pre-demo top-level diagnostics call repeatedly",
+        "Final Format-Table output"
+      ],
+      "source_git_blob_sha256": "860355cb970d49aefe5b3a9e0707f06e1c3df466d97e2abd404d5454dce28498",
+      "worktree_sha256": "860355cb970d49aefe5b3a9e0707f06e1c3df466d97e2abd404d5454dce28498",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-a7822ca546cccc91ace0e6b5295da14ef99de132dfeb48bf4c2e2efd67c78c91",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Independently read28-30. Builds caller-supplied PASS/FAIL object and appends captured list; it does not determine test truth. PowerShell subexpression if is not a separate callable declaration. Arbitrary Detail/Fix can carry sensitive output if script is run.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/pre-demo-check.ps1",
+      "name": "Invoke-Sql",
+      "language": "powershell",
+      "source_span": [
+        31,
+        34
+      ],
+      "reasoning": "Runs external sqlcmd with captured SqlInstance and Integrated authentication, no explicit database, prefixes SET NOCOUNT ON and supplied complete SQL text. Merges stderr with stdout, removes blank lines and joins strings. It does not check LASTEXITCODE or restrict query to SELECT; current callers use metadata reads but arbitrary input could write. The script itself later logs in via HTTP outside this helper, so whole-script READ-ONLY claim is too strong.",
+      "inputs": "Query string and captured SqlInstance",
+      "outputs": "Combined nonblank command output text",
+      "side_effects": "Would connect to SQL Server and run query; NOT executed",
+      "trust_boundaries": "Local diagnostic process/database boundary; integrated identity permission applies",
+      "database": "Current sys metadata queries read-only; helper contract accepts arbitrary SQL and no explicit DB identity",
+      "printing_ui": "No printing; may read SQL resource stats",
+      "performance": "External process and database timeout not bounded here; output entire string",
+      "duplicates_conflicts": "Error output can be parsed as number by callers and fail/misreport; no reliable result/error discrimination",
+      "issues_hypotheses": "Error output can be parsed as number by callers and fail/misreport; no reliable result/error discrimination",
+      "tests_missing": "Mock failed sqlcmd exit/stdout/stderr and empty/multirow data; no database call",
+      "verified_callers_callees": [
+        "SQL semaphore/configuration checks in script",
+        "sqlcmd invocation"
+      ],
+      "source_git_blob_sha256": "860355cb970d49aefe5b3a9e0707f06e1c3df466d97e2abd404d5454dce28498",
+      "worktree_sha256": "860355cb970d49aefe5b3a9e0707f06e1c3df466d97e2abd404d5454dce28498",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-54d7eb08925cd103e31368f78e0a2f102c291257e168e3312837f1dbda8ba17f",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Independently read31-34. sqlcmd uses captured instance and integrated identity with arbitrary Query, no explicit database or exit-code check. Merged stderr/stdout is filtered and joined; read-only behavior depends on caller queries, not enforced by helper. Not invoked.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "stable_id": "sym-a1c3b41d77e24c1d991aeeefef54953d387a15b4f0ceddf0a4209c7433ea0398",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Filters merged command output by truthiness and nonblank Trim. Does not distinguish SQL error text from data and can throw if a nonstring object lacks Trim.",
+      "inputs": "Each merged sqlcmd output item",
+      "outputs": "Boolean predicate used to retain output; no new external call",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/pre-demo-check.ps1:33-33 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "stable_id": "sym-c1f9ddb29cec4d5ce3f9cde26dc2279ff824e3065a9caaa05f3c60ebff0857af",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Counts only results whose Result equals FAIL. This is a summary of caller-recorded flags, not independent verification; omitted checks cannot contribute failure.",
+      "inputs": "Recorded result object",
+      "outputs": "Boolean predicate for final failure count",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/pre-demo-check.ps1:117-117 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "path": "tools/repro-native-crash.ps1",
+      "name": "Get-CrashCount",
+      "language": "powershell",
+      "source_span": [
+        25,
+        32
+      ],
+      "reasoning": "Reads Application Error events since given timestamp, returns0 when no events or query failure suppressed, otherwise counts messages wildcard-matching image name. It identifies text matches, not exact process IDs; unrelated concurrent launches of same executable can contaminate attribution. Event-log access denied can appear as zero crashes.",
+      "inputs": "Since datetime,ImageName",
+      "outputs": "int count",
+      "side_effects": "Reads Windows event log if invoked",
+      "trust_boundaries": "OS log visibility and wildcard pattern are diagnostic inputs, not proof of process fault",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "No printer; outer script launches/closes/kills client and was not run",
+      "performance": "Queries all matching provider events since timestamp then filters in memory",
+      "duplicates_conflicts": "Wildcard metacharacters in supplied image name change matching; process exit code remains separate evidence",
+      "issues_hypotheses": "Wildcard metacharacters in supplied image name change matching; process exit code remains separate evidence",
+      "tests_missing": "Permission-denied/noevents/concurrent same-image and coarse timestamp fixtures",
+      "verified_callers_callees": [
+        "Outer reproduction loops sample startup/run/shutdown phases"
+      ],
+      "source_git_blob_sha256": "f9ffbaee946ae7848cf90589a955b38019481b0e762ae90bd953b6f406f7db8a",
+      "worktree_sha256": "f9ffbaee946ae7848cf90589a955b38019481b0e762ae90bd953b6f406f7db8a",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-2b55c960e269ff00c29b947e72bae461ef15b3a140190435293800c578d0ef80",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Independently read25-32 and call sites. Event log filter by Application Error and start time then wildcard image-name substring count; denied query with SilentlyContinue can look like zero crashes. Event provider/name matching is weaker than exact process correlation. No event log queried.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "stable_id": "sym-0e75b4700d8779449fee1085e0006eb10a1c38c99fc613107a8c497a61e6d7fd",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Wildcard substring matches event Message against captured ImageName. Names containing wildcard syntax can broaden matches and unrelated same-image events are not process-ID correlated.",
+      "inputs": "Application event object and captured image name",
+      "outputs": "Boolean predicate; event reads belong to surrounding helper",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/repro-native-crash.ps1:31-31 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "stable_id": "sym-fa869ea93bf2f4edf2b010cbd23bb89578b73024584804f6111b2e9a92594051",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Formats each grouped Mode/Phase name and count after completed harness runs. It only writes console text and does not itself start or kill processes.",
+      "inputs": "Grouped harness result",
+      "outputs": "Console summary line",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/repro-native-crash.ps1:87-89 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "stable_id": "sym-2e213fc2b1e5754131ba20f20b5b4776d8ecc4368c2878c71d8fe6e23786b3e8",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Formats grouped Exit code frequency ordered by count. Unknown n/a and successful exits remain report values; this aggregation does not independently decide crash cause.",
+      "inputs": "Grouped exit result",
+      "outputs": "Console frequency line",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/repro-native-crash.ps1:92-94 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "stable_id": "sym-6628647089a65dcb4b08ed677b03af578972978b76ce436c059cc3a1ab1d20cb",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Prefixes agent stdout with agent label. Unfiltered output may contain paths/device details; does not check the process exit code or spooler acceptance.",
+      "inputs": "Agent stdout item",
+      "outputs": "Console text",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/verify-windows-printer-transport.ps1:52-52 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "stable_id": "sym-a1ee0bde0e13ed98dbd85acccaebc4f1c197fdb5a00140c4f34dd52344115177",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "reasoning": "Selects every queue job with generic DocumentName Falah ticket, not only the current verification submission. Surrounding pipeline removes all selected jobs, supporting PRT005 broad cleanup risk. No queue queried or changed.",
+      "inputs": "Print job metadata",
+      "outputs": "Boolean selector used by destructive Remove-PrintJob downstream",
+      "side_effects": "Console/predicate behavior as specified; all audited scripts NOT_EXECUTED",
+      "trust_boundaries": "Caller-provided diagnostic/result metadata; no application authentication or runtime data accessed",
+      "database": "No direct database operation in this scriptblock; surrounding script context remains distinct",
+      "printing_ui": "PRT005 applies to selector61; other blocks are diagnostics, not paper/native UI verification",
+      "performance": "Linear per-item/group predicate/formatting; no measured runtime or throughput",
+      "duplicates_conflicts": "Generic names/aggregation can conflate records as detailed in reasoning",
+      "issues_hypotheses": "See reasoning; no physical reproduction",
+      "tests_missing": "Mock output/event/job objects and scope/exit failures without executing script top-level effects",
+      "verified_callers_callees": [
+        "tools/verify-windows-printer-transport.ps1:61-61 actual pipeline and surrounding script source read"
+      ]
+    },
+    {
+      "path": "tools/xaml-audit.py",
+      "name": "load_defined",
+      "language": "python",
+      "source_span": [
+        42,
+        53
+      ],
+      "reasoning": "Reads direct Styles/*.xaml plus App.xaml, regex-extracts Style key and TargetType when attributes occur in fixed order, and collects x:Key strings. Returns partial resource inventory; it does not resolve merged/nested dictionaries, namespaces or framework resources semantically. Missing files silently skipped.",
+      "inputs": "project relative path",
+      "outputs": "Style target map and key set",
+      "side_effects": "Local file reads only",
+      "trust_boundaries": "Source strings are parsed heuristically; no project/code execution",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Supports static WinUI checks, not actual renderer/thermal printing",
+      "performance": "Linear text reads/regex over direct resource files",
+      "duplicates_conflicts": "Duplicate style keys overwrite target map; fixed attribute order and missing default resource inventory can misclassify",
+      "issues_hypotheses": "Duplicate style keys overwrite target map; fixed attribute order and missing default resource inventory can misclassify",
+      "tests_missing": "Attribute reorder, merged dictionaries, framework keys, duplicate keys and missing file fixtures",
+      "verified_callers_callees": [
+        "audit(project) calls load_defined"
+      ],
+      "source_git_blob_sha256": "0c4f176f6c12288d549342672851b0be534db2cc68f99640600d59cb08342665",
+      "worktree_sha256": "00c267f65d79a1316c15317abd8cf279be3da6773569030dcfcdfe467a3543b1",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-9763e0525c4fad7798867fe5f50340bfbef41fa94ccdadc1fdb03708ea2d1510",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Read42-53. Reads only immediate Styles/*.xaml and App.xaml; regex requires exact double-quoted Style key-before-TargetType layout. Last duplicate key overwrites target; resources from external/nested dictionaries and implicit/theme scopes are not modeled. Returns targets/keys, no writes.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/xaml-audit.py",
+      "name": "audit_structure",
+      "language": "python",
+      "source_span": [
+        61,
+        83
+      ],
+      "reasoning": "XML-parses direct Views/Controls plus App.xaml and reports malformed XML. For selected single-child containers counts children whose tag lacks dot, excluding property elements, and flags multiple content children. This is structural syntax checking, not a compiled XAML schema/type validator. Nested paths and unlisted container types are omitted.",
+      "inputs": "project path",
+      "outputs": "Problem strings",
+      "side_effects": "File reads/XML parse only",
+      "trust_boundaries": "Untrusted/malformed source handled as parse diagnostic; no runtime views loaded",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Detects some WinUI layout build failures without opening app",
+      "performance": "Linear element traversal; each file parsed independently",
+      "duplicates_conflicts": "XML well-formedness does not prove WinUI validity; namespace/localtag heuristic may misclassify custom controls",
+      "issues_hypotheses": "XML well-formedness does not prove WinUI validity; namespace/localtag heuristic may misclassify custom controls",
+      "tests_missing": "Property child/content combinations, invalid XML, nested directories and custom namespace fixtures",
+      "verified_callers_callees": [
+        "main aggregates audit_structure"
+      ],
+      "source_git_blob_sha256": "0c4f176f6c12288d549342672851b0be534db2cc68f99640600d59cb08342665",
+      "worktree_sha256": "00c267f65d79a1316c15317abd8cf279be3da6773569030dcfcdfe467a3543b1",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-9291aca1ccd973d428fabfd97f41f3d3165e6f31038701fc0e9a3624ecc19f27",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Read61-83. ElementTree parses direct Views/Controls/App XML and catches ParseError, then counts non-property children of three single-child container names. It validates XML shape only, not WinUI semantic bindings; inaccessible files or non-ParseError IO failures propagate. No native UI construction.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/xaml-audit.py",
+      "name": "audit_converters",
+      "language": "python",
+      "source_span": [
+        86,
+        100
+      ],
+      "reasoning": "Reads App.xaml and exactly Converters/Converters.cs if both exist, regex-collects public sealed class X:IValueConverter declarations and checks conv:X usages. Other files, partial/nonsealed declarations, alias names and formatting can be valid yet absent from this narrow set. Missing files return empty problems rather than establish successful validation.",
+      "inputs": "project path",
+      "outputs": "Missing converter problem strings",
+      "side_effects": "Two file reads/regex only",
+      "trust_boundaries": "Declared text is not resolved type metadata or compiler output",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Static registration hints; no converter execution",
+      "performance": "Bounded source reads; regex assumptions determine accuracy",
+      "duplicates_conflicts": "Potential false positives/negatives due exact prefix/class shape; cannot replace XAML compiler",
+      "issues_hypotheses": "Potential false positives/negatives due exact prefix/class shape; cannot replace XAML compiler",
+      "tests_missing": "Converters in other files/aliases/partial classes and missing files fixtures",
+      "verified_callers_callees": [
+        "main aggregates audit_converters"
+      ],
+      "source_git_blob_sha256": "0c4f176f6c12288d549342672851b0be534db2cc68f99640600d59cb08342665",
+      "worktree_sha256": "00c267f65d79a1316c15317abd8cf279be3da6773569030dcfcdfe467a3543b1",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-72c8b7aba0fba9f6078069d81bf94e3291461089730d94c146ea8d4947c10dbf",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Read86-100. If App or converter file missing returns empty list. Regex identifies only public sealed IValueConverter declarations with exact formatting and conv prefix in App; alternate namespace/class shapes can cause false positives or misses. Diagnostics line counts are textual, no type compilation.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/xaml-audit.py",
+      "name": "audit",
+      "language": "python",
+      "source_span": [
+        103,
+        144
+      ],
+      "reasoning": "Combines resource inventory with direct View/Control regex checks for stale collection visibility binding, double hyphens in comments, IsEnabled on selected panels/text elements, style target/name, and missing StaticResource keys. It returns diagnostics but does not compile or instantiate XAML. Text regex ordering and exact element/target equality may reject valid inherited styles or miss alternate syntax.",
+      "inputs": "project path",
+      "outputs": "Problem string list",
+      "side_effects": "Local source reads only",
+      "trust_boundaries": "Heuristic source-to-diagnostic boundary; style compatibility requires real framework semantics",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Finds candidate UI startup/binding failures; does not verify working screens",
+      "performance": "Multiple linear regex passes per file; no live performance benchmark",
+      "duplicates_conflicts": "Repeated issue reports deduplicated later; embedded comments/alternate whitespace/namespaces and framework resources can affect results",
+      "issues_hypotheses": "Repeated issue reports deduplicated later; embedded comments/alternate whitespace/namespaces and framework resources can affect results",
+      "tests_missing": "Known-valid inherited styles, quoted attributes, nested templates, theme resources and reactive collection binding fixtures",
+      "verified_callers_callees": [
+        "load_defined",
+        "main aggregates audit"
+      ],
+      "source_git_blob_sha256": "0c4f176f6c12288d549342672851b0be534db2cc68f99640600d59cb08342665",
+      "worktree_sha256": "00c267f65d79a1316c15317abd8cf279be3da6773569030dcfcdfe467a3543b1",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-73c24d37b98e0f5bfc7bbbefb3a01004cba87bea06e787a001e626cd1113e15f",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Read103-144. Independent regex checks for collection converter binding, XML comment hyphens, IsEnabled on named noncontrols, style target exactness and StaticResource names. Inheritance/framework/theme resources and formatting are not resolved semantically; diagnostics can be false positives or omissions. Reads immediate files, not nested/native states.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    },
+    {
+      "path": "tools/xaml-audit.py",
+      "name": "main",
+      "language": "python",
+      "source_span": [
+        147,
+        160
+      ],
+      "reasoning": "For each hardcoded WinUI project that exists, concatenates three audit result lists, deduplicates/sorts diagnostics, prints them and returns1 if any; otherwise prints XAML audit clean and returns0. If run outside repository and neither project exists, it still reports clean despite checking nothing. No source changes or build invocation.",
+      "inputs": "Current working directory and PROJECTS constants",
+      "outputs": "Exit result0/1 plus console diagnostics",
+      "side_effects": "File reads via helpers and console output",
+      "trust_boundaries": "Must verify expected source roots existed before interpreting clean as evidence",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Static check only, no app launch or print",
+      "performance": "Checks two direct project scopes; dedup sort costs proportional diagnostics",
+      "duplicates_conflicts": "Empty-scope false pass and heuristics require explicit coverage count",
+      "issues_hypotheses": "Empty-scope false pass and heuristics require explicit coverage count",
+      "tests_missing": "Missing project root/empty scope/duplicate diagnostics and valid/invalid fixture trees",
+      "verified_callers_callees": [
+        "__main__ exits main result",
+        "audit",
+        "audit_converters",
+        "audit_structure"
+      ],
+      "source_git_blob_sha256": "0c4f176f6c12288d549342672851b0be534db2cc68f99640600d59cb08342665",
+      "worktree_sha256": "00c267f65d79a1316c15317abd8cf279be3da6773569030dcfcdfe467a3543b1",
+      "scope_caveat": "Absent parent immutable Source-Symbols declaration identity; NOT added to388 Roslyn total. AST parse only, script not executed.",
+      "stable_id": "sym-30e125e409d23802a2b3fd9be95322e97eb24c0d953189e6da0e3251c97831b8",
+      "status": "ANALYZED_SOURCE_ONLY",
+      "parent_independent_reasoning": "Read147-160 and module entry. Checks only two hardcoded project directories if present, concatenates three checker results and deduplicates sorted strings. Zero checked projects still prints clean/returns0; caller must separately verify scope. No build, login, app launch, source write or physical output.",
+      "historical_reasoning_source": "Sub-Agents/Results/printing-noncsharp-function-gap.json"
+    }
+  ],
+  "limits": "17 exact source-only receipts: original10 named functions independently source-read by parent;7 explicit scriptblocks newly reasoned. No script invoked, installation/authentication/SQL/eventlog/printing performed. This supplements, never silently changes, C#11653 denominator."
+}

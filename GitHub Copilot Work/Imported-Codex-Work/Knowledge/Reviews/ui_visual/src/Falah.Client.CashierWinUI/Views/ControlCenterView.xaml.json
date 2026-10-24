@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml",
+  "source_git_blob_sha256": "ed23bd5b189f84cb0646e92cd197c5450db0d80b9d02c904d6d7af611b942eee",
+  "worktree_sha256": "cc8d56dbe18e27540467b08b2453908e87330acba5535f43bacf8764f1812aea",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:39:21.661746+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Business-day selection, reconciliation, saved close snapshot, blockers/checklist, exceptions and financial overlays.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SelectedHistoryDay",
+      "reasoning": "History selection disabledCanEditAction; open/count/safedrop separate permission/state gates. Toolbar many horizontal controls require available width; refresh icon unnamed."
+    },
+    {
+      "anchor": "CanSeeReconciliation",
+      "reasoning": "Live reconciliation six equal cards show gross/refund/net/expense/custody/difference, permission-gated. Snapshot section separately labels immutable close-time values, close actor and snapshot/operationID. No client recompute of close result in markup."
+    },
+    {
+      "anchor": "HasBlockers",
+      "reasoning": "Server blockers message/code lead active-day close section; zero blockers text says server rechecks at confirmation. IsEnabledCanClose not merely color; checklist required/completed icons and root command separate."
+    },
+    {
+      "anchor": "Exceptions",
+      "reasoning": "Live exceptions message+severity, review decisions explicitly do not waive financial blocker. Severity rawEnglish text unlike otherlocalizedstatus tables. Open review gated permission."
+    },
+    {
+      "anchor": "RetryOperationCommand",
+      "reasoning": "Generic pending retry exists but is inside ScrollViewer visibleHasBusinessDay. Recovered open-day pending with no transient/current day could hide retry unless VM restores modal/context; source hypothesis needs exact VM restart trace, not claimed confirmed here."
+    },
+    {
+      "anchor": "IsDayActionOpen",
+      "reasoning": "Open optional YYYY-MM-DD with serverCairo default, reopen mandatoryreason, confirm disabled fields byCanEditAction.500max620 scroll. Close controls must preserve unknown result, same-process tests cover some action kinds."
+    },
+    {
+      "anchor": "IsSafeDropOpen",
+      "reasoning": "Describes real internaldrawer→main transfer and open-shift requirement, amount/reason/conditionalmanagerPIN locked. Globalretained coordination belongsVM, no treasury writes executed."
+    },
+    {
+      "anchor": "ExceptionTarget",
+      "reasoning": "Review overlay allowsstatus/reason and explicitly non-financial waiver; CashCount nestedlast with ownDataContext. Modal exclusivity/focus management not defined in XAML."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need fresh-process open pending/no day retry visibility, live versus immutable snapshot, narrowtoolbar, all6cards and exceptions permissions. No callable declarations.",
+  "recommendations": "Ensure recovery action remains visible independently of HasBusinessDay and transient modal state; keep server recheck and snapshot semantics explicit.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

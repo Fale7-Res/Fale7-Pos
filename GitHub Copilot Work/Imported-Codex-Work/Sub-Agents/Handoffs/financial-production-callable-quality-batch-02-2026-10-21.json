@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_verification_batch",
+  "created_at_utc": "2026-10-21T14:02:00Z",
+  "assignment": "Manual quality check of six materially financial production callables marked EXISTING_REASONING_UNVERIFIED. Exclude previous twelve verified IDs; no source/test/database/runtime/shared-report changes.",
+  "classification_path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+  "classification_as_of_utc": "2026-10-21T13:11:00Z",
+  "classification_sha256": "1d1bc8334ae46bb157f25e5bdb64ba10a238a24612b0152c01e4f08797867f86",
+  "prior_verified_ids": [
+    "sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+    "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+    "sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+    "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+    "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+    "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+    "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+    "sym-309b602105ce776e81f8c226164c17e6c334cb5599f19fbef2b4955ddb340ecf",
+    "sym-0132fa8d6710c67d9b91badb754d0a43245667f0cc0ae572e62c9859c1846cb6",
+    "sym-5a8e6ab40bdceff0f55770d2ca7f2c069ad744956ad10275018b93e9f14af4d2",
+    "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+    "sym-14dd0237e29c2d081fc44c8846313dcad27ba7bf41c22c57448d3be7180d22fd"
+  ],
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "line_range": [
+        29,
+        104
+      ],
+      "span": [
+        29,
+        5,
+        104,
+        6
+      ],
+      "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+      "source_current_worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs.json",
+      "receipt_author": "financial_integrity",
+      "receipt_updated_at_utc": "2026-10-18T01:07:01.213366+03:00",
+      "receipt_sha256": "80ffed6f86616a6e855e4dc479094a8686e5c9cf33d74d19a574e57a267cb2ff",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Checks only YYYY-MM digitshape, not actual year/month bounds; looks up any noncancelled period then replays before permission. For new run authorizes employees_manage, reads all employees and UTCcalendar month entries, computes frozen domain lines with advance deductions disabled, inserts Draft run/lines and one Save. SQL Save atomicity protects graph; filtered unique noncancelled period prevents duplicate races. DbUpdateException clears tracker then finds same request OR existing active period; cancelled same-request may replaycancelled byID. All old period corrections afterfreeze intentionally not recomputed; FIN012 applies beforecreate.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Loads period, employees and UTC-posted employee-ledger rows; calls PayrollRules.CalculatePayrollLines; inserts Draft PayrollRun and frozen PayrollLines in one SaveChanges. No payment movement here. Source confirms regex YYYY-MM shape only, early active-period replay before auth, then employees_manage for new creation. Unique period index handles concurrent creation; invalid month/year shape policy and payroll date semantics remain open.",
+      "side_effects": "Draft run/line persistence only; money-out is PayPayrollHandler, separately reviewed.",
+      "counterevidence_and_existing_test_source": "Receipt flags invalid month/year and Adjustment-credit calculation questions. Here the caller forwards entries and zero advance deduction; calculation behavior belongs to PayrollRules (lines 83-111). Payroll vertical source covers idempotency, concurrent creates, authorization, line outcomes; none run.",
+      "test_source": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs:48-115,143-187",
+      "tests_executed": false,
+      "remaining_action": "Keep FIN012/domain and invalid-period questions separate; specify calendar and historical correction contract; no incidence claim."
+    },
+    {
+      "stable_id": "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "line_range": [
+        24,
+        61
+      ],
+      "span": [
+        24,
+        5,
+        61,
+        6
+      ],
+      "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "source_current_worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs.json",
+      "receipt_author": "financial_integrity",
+      "receipt_updated_at_utc": "2026-10-18T01:07:01.200341+03:00",
+      "receipt_sha256": "b6ae173dfd353d858e113c5e7bae05bb2ec004256f4b84144990da78f7a959c2",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Parses target enum case-insensitive then requires employees_manage, loads current run and validates domain transition. Extra payroll_approve gate occurs only for targetApproved; targetPaid allowedfromApproved by rules and persists just Status. No treasury/settlement/paid timestamp appears here: FIN006 actual payout bypass. Reads status without concurrency token check/transaction, so competing transitions require separate race trace, not assumed safe.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Loads user and tracked PayrollRun, validates transition through PayrollRules.AssertTransition, applies payroll_approve only for target Approved, changes status/reviewer metadata and SaveChanges. Source has no treasury movement, settlement, PaidAt update, or delegation to PayPayrollHandler. Domain graph allows Approved->Paid.",
+      "side_effects": "Status/lifecycle mutation only; independent PayPayrollHandler posts actual treasury and employee settlement.",
+      "counterevidence_and_existing_test_source": "Existing receipt correctly identifies FIN006 state-versus-payout distinction. Integration source has lifecycle and dedicated payout scenarios; separate payout flow is counterevidence to “all payroll payment is fake,” but does not alter this transition path.",
+      "test_source": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs:143-187,189-256",
+      "tests_executed": false,
+      "remaining_action": "Keep FIN006 source-mechanism confirmed; decide policy whether generic transition may mark Paid. Do not claim actual duplicate/unpaid payroll incident absent data/runtime."
+    },
+    {
+      "stable_id": "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Treasury.DepositHandler.HandleAsync(Falah.Application.Treasury.DepositRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "line_range": [
+        31,
+        106
+      ],
+      "span": [
+        31,
+        5,
+        106,
+        6
+      ],
+      "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+      "source_current_worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/DepositHandler.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_updated_at_utc": "2026-10-18T06:29:21.848073+03:00",
+      "receipt_sha256": "afd7b280a446871fd25d6de107b093089e1c6c4ee22f5ee4e17091f6fa1b502b",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Builds type/request-specific idempotency key and replays before actor lookup. Validates closed-set funding type, external-capital destination, positive amount and reason; resolves actor and optional presentation, uses returned authorization.Approver for attribution. Requires open business day before transaction. Within transaction writes one inward movement, completed financial journal and audit, saves/commits. No source balance lock needed for an inflow, but day admission precedes transaction (separate cross-workflow review needed). Conflict rolls back and looks up committed movement; contention path bounded sibling lookup. Does not validate retry payload equality; existing result wins. No extra bug claimed from that contract.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Builds type/request key and retries existing movement before actor lookup; validates funding type, destination, positive amount and reason, then actor/approval and open-day gate. Transaction writes journal start, inward treasury movement, completed journal and audit then saves/commits. Inflow has no source balance lock; day admission is before transaction.",
+      "side_effects": "Atomic inflow, journal, audit; external funding increases destination balance.",
+      "counterevidence_and_existing_test_source": "Receipt and source align. Treasury test source includes open-day, legal type/account, same-key replay and concurrent same-key deposit cases. Retry payload is not compared; existing result wins. Pretransaction day gate may need separate concurrency contract; does not prove cross-day posting.",
+      "test_source": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs:63-110,190-203",
+      "tests_executed": false,
+      "remaining_action": "No new defect. Preserve same-key semantics and separate open-day admission concurrency question. No runtime conclusion."
+    },
+    {
+      "stable_id": "sym-2cef0f36c5ee0ce1caeb34ca1615f0f4f2c830934c4816b208ac53a65f13eccb",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Treasury.WithdrawalHandler.HandleAsync(Falah.Application.Treasury.WithdrawalRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+      "line_range": [
+        30,
+        109
+      ],
+      "span": [
+        30,
+        5,
+        109,
+        6
+      ],
+      "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+      "source_current_worktree_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_updated_at_utc": "2026-10-18T06:29:21.859347+03:00",
+      "receipt_sha256": "39caffe68f1921252b89e6a0b9eabd35a968c22a4eb4c06e1efe06690748e3b4",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Checks run-independent withdrawal key replay, closed-set external-capital source, positive amount and reason. Resolves actor and validates treasury_manage or issued fallback approval. Requires open business day, begins transaction then obtains protected-source movement lock before spending validation. Journal, outward movement, audit and completed key commit atomically. Attribution uses returned approval, unlike CloseShift FIN017. Conflict rollback returns saved replay, with sibling retry only for contention. Transaction-held lock is stronger than OpenShift/ReceivePurchase FIN011; no observed negative-balance race established for this path.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Validates request-specific key, external-capital source, positive amount/reason, actor and treasury_manage approval; requires open day, begins transaction and locks posted account movements using TreasuryBalanceQuery UPDLOCK/HOLDLOCK before checking protected source balance. It atomically writes outward movement, completed journal and audit. Contention rolls back, replays same-key sibling or reports retry.",
+      "side_effects": "Atomic protected-account outflow plus journal/audit.",
+      "counterevidence_and_existing_test_source": "Source aligns with receipt. Treasury source tests cover different-key overdraw races, same-key concurrent retry, account boundaries and permissions. Inbound deposit correctly has no source balance check. SQL/provider locking behavior unexecuted.",
+      "test_source": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs:124-145,190-288,339-355",
+      "tests_executed": false,
+      "remaining_action": "No source-supported overspend defect found in this path; preserve execution/provider limitation. No runtime assertion."
+    },
+    {
+      "stable_id": "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Purchasing.PayPurchaseHandler.HandleAsync(Falah.Application.Purchasing.PayPurchaseRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "line_range": [
+        34,
+        149
+      ],
+      "span": [
+        34,
+        5,
+        149,
+        6
+      ],
+      "source_git_blob_sha256": "be370184f006f531f6e35a30c4bfe6c8ab03cea1f55db268a0148dfbc22f9ba2",
+      "source_current_worktree_sha256": "34ed4f90f854e21b20c18b1c708754d010dc9b3313c648c5b29be1af08844306",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs.json",
+      "receipt_author": "financial_integrity",
+      "receipt_updated_at_utc": "2026-10-18T01:02:35.436448+03:00",
+      "receipt_sha256": "8bdecfe470a18fa58f94f51d72f9b825aae4f71b4ab8037e883509b5ef114a4f",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Loads tracked purchase/collections, rejects cancelled then checks replay by purchase+request key. Authorizes actor, reads supplier ledger outstanding and validates positive amount before transaction. Inside transaction acquires source liquidity locks, posts treasury debit, journal, payment and ledger credit, updates cached totals, audits then saves/commits. Distinct request keys can both validate same stale invoice outstanding before serialized source lock; lock never refreshes entitlement or tracked purchase, so FIN005 survives despite protected balance check. Catch rollback/replay only handles designated conflicts; cancellation/other exceptions dispose transaction, not swallowed.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Loads tracked purchase and collections, reads supplier-ledger outstanding and validates amount before transaction. Within transaction it locks treasury source balance, starts journal, writes treasury movement, mutates tracked purchase totals, adds PurchasePayment and supplier ledger credit, audit, save and commit. Balance lock protects treasury solvency, but does not refresh invoice entitlement or the tracked purchase under lock.",
+      "side_effects": "Atomic per-call payment, purchase totals, supplier ledger, treasury outflow, journal and audit.",
+      "counterevidence_and_existing_test_source": "Existing receipt FIN005 matches source: distinct request keys may both pass stale invoice outstanding, then serialize account lock; if cash is sufficient, lock alone does not cap invoice. Current tests cover overpayment sequentially and same-key retry/concurrency, not different-key concurrent invoice cap. No test run.",
+      "test_source": "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs:260-322",
+      "tests_executed": false,
+      "remaining_action": "Retain FIN005 as conditional source mechanism, not actual incidence. Add provider-backed distinct-key concurrency test with sufficient treasury balance and assert aggregate payment/ledger/treasury cannot exceed invoice balance."
+    },
+    {
+      "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "quality_class_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "line_range": [
+        47,
+        175
+      ],
+      "span": [
+        47,
+        5,
+        175,
+        6
+      ],
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "source_current_worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "author_receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs.json",
+      "receipt_author": "financial_integrity",
+      "receipt_updated_at_utc": "2026-10-18T00:54:53.188674+03:00",
+      "receipt_sha256": "d93cc4a48f93ee7c250d5167c90ab3c8fcb1d1778bc36e8f5a9456bdc275bedc",
+      "receipt_symbol_status": "ANALYZED",
+      "receipt_reasoning": "Full185line source read. Fastclosekeyreplaybeforeactorvalidation; actorlookup thenReadCommittedtransaction, ShiftUPDLOCK/ROWLOCK/HOLDLOCK, samekeyreplayafterlock andOpencheck. No drivercustodyblock actualbody82; staleheaderclaimsotherwise, deliverytests833 matchbody. Computesexpectedfromorders/expenses/movements, readsactual/threshold, domainblindresult thenAuthorizeShiftClose. Optionalapproverpresentation copiedAuthorizedBy105 evenifnotvalidatedbygate => audit-attributioncandidate. Postsdifference shortage/overage first andactualpositivehandoverMain, updatesClosed/counts/keys/links/Version, auditandShiftClosejob SaveCommit. Properrowlockprotectsconcurrentclosesbutcheckoutdoesnotcooperatewithlockprecheck, newstale-shiftcandidate. CatchDBrollbackFindkeyreplayelsegenericconflict; noownaccountbalanceappLock, correctnessdependsexpected=actualledgerbalance &allmoneywriters coordinated.",
+      "reviewer": "financial_integrity_continuation",
+      "source_reasoning_checked": "Replays same close key, starts ReadCommitted transaction, locks shift row, rechecks replay/open status, recomputes expected cash, validates blind-close authorization against counted cash, posts shortage/overage and positive actual cash handover, updates close state and links, writes audit and PrintJob, saves/commits. No custody gate in actual handler body despite stale comment elsewhere.",
+      "side_effects": "Atomic shift close, reconciliation/handover treasury movements, audit and print-job intent; physical print is not inside money semantics.",
+      "counterevidence_and_existing_test_source": "Receipt aligns. ShiftClose source tests cover expected cash, threshold authorization, movement direction, exact retry, same-key concurrency and new-key rejection for closed shifts. Existing concerns include optional approver attribution and concurrent checkout/close coordination; no actual duplicate close claimed.",
+      "test_source": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs:60-210",
+      "tests_executed": false,
+      "remaining_action": "Keep existing candidate qualifications. Test distinct-key concurrent closes/stale checkout and optional approval attribution if contract requires; do not promote runtime outcomes."
+    }
+  ],
+  "batch_result": {
+    "count": 6,
+    "all_selected_classification": "EXISTING_REASONING_UNVERIFIED",
+    "all_current_source_hashes_match_quality_classification_and_receipt": true,
+    "primary_receipt_union_credit": false,
+    "shared_files_modified": [],
+    "tests_run": false,
+    "runtime_or_database": false,
+    "source_changed": false,
+    "findings_reconfirmed": [
+      "FIN005 stale supplier invoice entitlement across distinct-key PayPurchase operations is source-supported as a conditional concurrency mechanism; no runtime incidence established.",
+      "FIN006 generic Approved-to-Paid payroll transition changes state without treasury/settlement; separate PayPayrollHandler performs actual payout.",
+      "No unsupported overdraw mechanism was found in the reviewed Withdrawal source path.",
+      "Deposit and CloseShift interpretations are source-consistent within the reviewed scope."
+    ]
+  },
+  "limitations": [
+    "Current source and receipts were read statically. Test files were read for coverage only; no test execution.",
+    "Concurrency outcomes depend on provider/transaction scheduling and data, not established by source alone.",
+    "Source hashes reflect current working tree and matched classification/author receipts at review time.",
+    "No shared evidence classification, master finding, canonical report or primary receipt was edited."
+  ],
+  "next_action": "Coordinator may independently validate these six handoff entries and decide whether to update the shared quality overlay. Select next batch only from a deduplicated financial production-callable quality queue."
+}

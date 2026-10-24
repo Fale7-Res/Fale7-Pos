@@ -1,0 +1,81 @@
+{
+  "artifact_kind": "financial_integrity_bounded_challenge",
+  "id": "FIN-CAND-PAYROLL-READ-AUTHORIZATION-001",
+  "created_at_utc": "2026-10-20T10:36:27.414Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "status": "SOURCE_CONFIRMED_UNGUARDED_AUTHENTICATED_PAYROLL_READS_POLICY_CONFIRMATION_PENDING",
+  "title": "Authenticated payroll read endpoints expose payroll-run and per-employee pay data without server permission checks",
+  "scope": "Bounded static check of payroll GET routes, query service, caller session binding, UI read/action gating, and create-existing-run early return; distinct from settlement-versus-payroll overlap.",
+  "assessment": {
+    "mechanics": "GET /api/payroll-runs, /{runId}, and /{runId}/lines call PayrollQueryService methods without actor identity or permission checks. PayrollQueryService returns payroll metadata and per-employee base, overtime, extras, deductions, net payable, status, and paid timestamp. AuthenticationMiddleware still requires a valid session, but only binds a declared actor ID when one is present; the GET routes declare none. Thus a caller with any valid session can invoke these endpoints directly.",
+    "additional": "CreatePayrollHandler checks for an existing non-cancelled run and returns its DTO before loading or authorizing the actor, so even the POST replay/no-op path can disclose existing run metadata to a session holder lacking employees_manage. The UI gates create/approve/pay actions but calls GET runs and lines on load/selection without those checks.",
+    "policy": "Source shows permission gates for create, transition, approval, and pay, and the payroll UI treats those as distinct action permissions. No explicit payroll-read permission or documented policy allowing all authenticated users to inspect individual compensation was located. Treat intended read authorization as requiring owner confirmation, but server absence of a gate is source-confirmed.",
+    "impact": "Potential confidentiality exposure of employee pay figures, deductions, approval/payment state, and run metadata to any authenticated cashier/user with a valid session. No financial state mutation is involved in the GET paths.",
+    "counterevidence": "Session middleware prevents anonymous API access and rejects a mismatched actorUserId when the route declares one. UI action buttons are permission-gated. Neither countermeasure prevents direct GET invocation because these endpoints supply no actor field and no server permission guard.",
+    "tests": "PayrollVerticalSliceTests verifies employees_manage for creating a new run, payroll_approve for approval, and payroll_pay for payout. It does not test read endpoint authorization; the existing-run early-return path is also not covered by the create permission test.",
+    "classification": {
+      "routes_and_data_shape": "SOURCE_CONFIRMED",
+      "policy_intent": "NOT_EXPLICITLY_DOCUMENTED",
+      "runtime_or_live_exposure": "NOT_TESTED",
+      "financial_mutation": "NONE_IN_READ_PATH",
+      "source_or_database_modified": false
+    },
+    "recommendation": "Define a payroll-read permission (or explicitly authorize an existing management permission) and enforce it in all payroll list/detail/line endpoints and before returning a pre-existing run from create. Add tests proving a session-only cashier cannot read run metadata or salary lines, while permitted payroll roles can."
+  },
+  "evidence": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        "812-828"
+      ],
+      "sha256": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6",
+      "observation": "POST create handles request but GET payroll list, run, and lines directly call query service with no actorUserId or permission gate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayrollQueryService.cs",
+      "ranges": [
+        "10-31"
+      ],
+      "sha256": "757DD6E6A2D74462E08602EADADD6B0B989E54F838A67CAC9867EAD8E1B31AF2",
+      "observation": "Read service has no actor argument and projects all runs and detailed payroll line amounts."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "ranges": [
+        "29-43"
+      ],
+      "sha256": "339845A57FC7EC98268BBF79D4B204FBF1C029A3DA4CFF89771294522963E878",
+      "observation": "Existing-period run lookup and return precedes actor lookup and employees_manage authorization."
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "ranges": [
+        "18-60",
+        "65-103"
+      ],
+      "sha256": "3E64AD8EF5324FE99AA19A0DEAD024A4AFE8F99E038F8E280631B2EB8EABC5EB",
+      "observation": "All /api requests require valid issued session; actor matching only applies to named query/body fields. GET payroll routes have no actor field to match."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "ranges": [
+        "103-132",
+        "140-193",
+        "225-231",
+        "330-335"
+      ],
+      "sha256": "8CF4E9F6EC47B2165413BC6EC1583F9261D08DB7F950BDC75B3EE84FC8FE31A0",
+      "observation": "Client permission predicates gate manage/approve/pay actions; LoadAsync and selected-run loading call run/line GET APIs without those predicates."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "ranges": [
+        "85-91",
+        "156-165",
+        "226-242"
+      ],
+      "sha256": "D3A8443936A34A414715A735AFEB02214DCAF8ED22D7CA9B5E9B0C3DD2BBA1D8",
+      "observation": "Existing tests cover create/approve/pay action authorization only; no GET read permission coverage, and create test uses a period without an existing run."
+    }
+  ]
+}

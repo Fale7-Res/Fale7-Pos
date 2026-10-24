@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Audit/EfAuditLog.cs",
+  "source_git_blob_sha256": "9c85aef61a313dc4de40307ed367388ac4d6480921f11cdf3b45dc478e7bab22",
+  "worktree_sha256": "9c85aef61a313dc4de40307ed367388ac4d6480921f11cdf3b45dc478e7bab22",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:07:57.234965+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-c64de077373f51e1c532683d4a3cdbc2a09a5ebd3a6882318ff8301e26bdffd6",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Audit.EfAuditLog.EfAuditLog(Falah.Infrastructure.Persistence.FalahDbContext)",
+      "span": [
+        15,
+        5,
+        15,
+        54
+      ],
+      "reasoning": "StoresprovidedDbContext withoutcreatingindependentconnection, transaction orwrite. Designassumessame scopedcontextasfinancialhandler; constructoralonecannotenforceDIidentity.",
+      "inputs": "DbContext",
+      "outputs": "Logger",
+      "side_effects": "Noquery/write.",
+      "database": "NoDBoperation.",
+      "trust_boundaries": "TrustedDIcontextscope.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No newfinding; transactionclaimconditionalonDI/contextsharing.",
+      "tests_missing": "Differentcontextregistrationmustnotmisleadatomicitytests.",
+      "verified_callers_callees": "Field14/constructor15; handlersinjectIAuditLog."
+    },
+    {
+      "stable_id": "sym-9f68d61cd877c10b40e85c8f3ffd97ea9a7f3b35376bb3b39e083f5e4fc29f1c",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Audit.EfAuditLog.Append(Falah.Domain.Audit.AuditEvent)",
+      "span": [
+        17,
+        5,
+        28,
+        6
+      ],
+      "reasoning": "ValidatesseveritythenstagesAuditEventEntitycopyofeverydomainfield withoutSave. Thereforewithsamehandlercontext/transaction, committedfinancialfact andauditcommit together; methodalone doesnotpersistorownrollback. InvalidseveritythrowsbeforeAddandcanabortcaller. Stagedrowscanremaintrackerafterrollback; callerthatcatchesthenlaterSavewithoutClearneedsseparatetracebeforeorphanclaim.",
+      "inputs": "DomainAuditEvent",
+      "outputs": "Void/stagedrow",
+      "side_effects": "EFAdd only; noSave/transactionstarted.",
+      "database": "AddsAuditEvents tocallerscontext.",
+      "trust_boundaries": "Callerprovidesactor/approval/operation/messagefacts; validationonlyseverity, notauthoritytruth (FIN017presenterattributionupstream).",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixedfieldmapping/trackerentryallocation.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN017 fromupstreampresentation notloggermutation; no newpromotedissue.",
+      "tests_missing": "Invalidseverity noAdd; rollback/noorphan, operationcorrelation, reusedcontextaftercatch, allfieldroundtrip.",
+      "verified_callers_callees": "AuditRules.AssertValidSeverity19; Add20-27; financialhandlersSaveowntransaction."
+    }
+  ],
+  "remaining_callable_ids": []
+}

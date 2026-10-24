@@ -1,0 +1,269 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-050",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21",
+  "reviewer": "/root coordinator",
+  "title": "Cashier shift-open entry points and uncertain-result retry semantics",
+  "scope": "Targeted comparison of the Cashier POS-embedded shift-open flow and the Shifts-screen modal, with shared API transport and server handler. Source-only; does not establish device/network runtime behavior or the business policy for recovery UX.",
+  "decision": "DISTINCT_UI_FLOWS; MODAL_RETRY_USES_NEW_ID_AFTER_UNKNOWN_RESULT; SERVER_GUARDS_PREVENT_DUPLICATE_OPEN_SHIFT_BUT_ORIGINAL_RESULT_IS_NOT_RECONCILED",
+  "behavior": {
+    "pos_embedded": "OpenShiftAsync blocks reentry and invalid/negative opening float. It creates one request using _OpenShiftRequestId, then CompleteOpenShiftAsync retains _pendingOpenShift. When ApiResult.OutcomeUnknown is true it keeps the same request object and ID for retry; success rotates the ID, sets session shift, and loads menu. A definitive initial failure clears pending.",
+    "shifts_modal": "OpenOpenShiftModalAsync obtains a default float and optionally a treasury balance suggestion. ConfirmOpenShiftAsync validates nonnegative cash and creates a fresh RequestId for that invocation. On failure it leaves the modal open and sanitizes insufficient-source-balance text if the operator lacks treasury visibility, but stores no pending request/ID. Repeated confirm after an unknown result therefore uses a different key.",
+    "transport": "Cashier ApiClient.OpenShiftAsync posts the request to /api/shifts/open. SendAsync reports transport/cancellation/JSON/IO exceptions as OutcomeUnknown and instructs the caller to retry with the same data.",
+    "server": "OpenShiftHandler first replays an existing shift by OpenRequestId. Otherwise it authorizes the supplied user, checks the global active shift, and for positive opening cash requires an open business day and validates protected Main treasury balance. One transaction writes the shift, optional Main-to-Drawer movement, and shift-open print job; a filtered unique active-shift index is documented as the race-safety net. A new RequestId after an already committed first request is not replayed: the active-shift guard returns ShiftAlreadyOpen; it does not create another movement."
+  },
+  "cross_file_call_chain": [
+    "ShiftsViewModel.ConfirmOpenShiftAsync or CashierViewModel.OpenShiftAsync",
+    "Cashier ApiClient.OpenShiftAsync",
+    "POST /api/shifts/open (Falah.Server Program.cs)",
+    "OpenShiftHandler.HandleAsync",
+    "Shift row + optional TreasuryMovement + PrintJob in one transaction"
+  ],
+  "counterevidence_and_limits": [
+    "Both routes call the same API method and server handler; the server request ID replay and unique active-shift guard limit duplicate shift/opening movement creation. No duplicate posting or lost money is proven from this client divergence.",
+    "The modal is explicitly a separate reference-modeled Shifts screen, while the POS embedded flow is a fast terminal path; distinct suggestion/name behavior is documented as intentional.",
+    "Only current Cashier WinUI UI paths and the shared server handler were compared; other clients were not included.",
+    "No runtime/network-loss or SQL Server concurrency test was executed."
+  ],
+  "related_findings": [],
+  "recommendation": "Treat as an uncertain-outcome recovery consistency gap, not a confirmed duplicate-financial-operation defect. Future implementation should retain the exact immutable OpenShiftRequest/RequestId after OutcomeUnknown in the modal (or query/reconcile the current shift before permitting a new open attempt), matching the embedded flow. Preserve the existing treasury-visibility error sanitization and allow an intentional new request only after a definitive outcome or explicit reconciliation. Do not consolidate the distinct opening-cash suggestion and shift-name UI behavior.",
+  "tests": {
+    "executed": "NONE; source inspection and source/index/baseline identity validation only",
+    "needed": [
+      "ViewModel test: transport returns OutcomeUnknown; second Confirm reuses the original RequestId and payload, and pending state remains until success or definitive failure.",
+      "Integration test on disposable SQL Server: server commits first request but response is lost; retry with same key returns WasReplayed and exactly one Shift, opening TreasuryMovement, and PrintJob exist.",
+      "Interleaving test: two different request IDs concurrently open positive-float shifts; exactly one shift/movement pair commits and loser receives a deterministic conflict.",
+      "Authorization regression: caller without treasury visibility still receives sanitized insufficient-balance response; request actor authorization remains server authoritative."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs",
+      "worktree_sha256": "fe92b9e4d8ea353aa57fb2a70c4a7948a5821376a246c055c6b7282d72929ac0",
+      "source_git_blob_sha256": "942d8dbf033357f7186def2e56f3871b14b273b7ca559738d1456cde829215e2",
+      "line_ranges": [
+        [
+          14,
+          43
+        ],
+        [
+          44,
+          66
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9605f4acfb5b89766bd0aa47a5ebd5639b921a37c13d339608c4e71afeb431f5",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()",
+          "kind": "MethodDeclaration",
+          "startLine": 14,
+          "endLine": 43,
+          "span": [
+            14,
+            5,
+            43,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()"
+        },
+        {
+          "stable_id": "sym-040e57dd41fcf090510eecd2aeb838f71b50dac4101d5b424a70975c336cabbe",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteOpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest)",
+          "kind": "MethodDeclaration",
+          "startLine": 46,
+          "endLine": 66,
+          "span": [
+            46,
+            5,
+            66,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteOpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest)"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+      "worktree_sha256": "10e6ac543011f2b5cae23d8aaad9ebed7e82e66514301050037f460c82e09b46",
+      "source_git_blob_sha256": "8f1e681a0c405d42f40fd9d0f721b75e0276fb497d4c14e4620325ffad8e7d9c",
+      "line_ranges": [
+        [
+          38,
+          71
+        ],
+        [
+          73,
+          115
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a2acca379437c6ba1a3d79f44c80b4327dea9fc2a0e1aab37dd9df090ea8fc2d",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenOpenShiftModalAsync()",
+          "kind": "MethodDeclaration",
+          "startLine": 38,
+          "endLine": 68,
+          "span": [
+            38,
+            5,
+            68,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenOpenShiftModalAsync()"
+        },
+        {
+          "stable_id": "sym-575e8a0b61a2affa996c2ce8f1072bd04d2cbefda6739485ef06d4a5f91416ac",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmOpenShiftAsync()",
+          "kind": "MethodDeclaration",
+          "startLine": 73,
+          "endLine": 115,
+          "span": [
+            73,
+            5,
+            115,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmOpenShiftAsync()"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          112,
+          123
+        ],
+        [
+          189,
+          192
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "startLine": 112,
+          "endLine": 123,
+          "span": [
+            112,
+            5,
+            123,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)"
+        },
+        {
+          "stable_id": "sym-01ab54c6131d03aed2bebc78c0341cadc00b91ef2bc2addd2376540ad1e3f0b6",
+          "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "startLine": 189,
+          "endLine": 192,
+          "span": [
+            189,
+            5,
+            192,
+            6
+          ],
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Shifts/OpenShiftRequest.cs",
+      "worktree_sha256": "8c4a6da228e3ffed2e762157d7d035cf9c87f825be0e53049068aa861edcd8f7",
+      "source_git_blob_sha256": "8c4a6da228e3ffed2e762157d7d035cf9c87f825be0e53049068aa861edcd8f7",
+      "line_ranges": [
+        [
+          3,
+          7
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2626d11676f018aaaf434375ebf3da868b575471ba18917e1d16ce2990e4378e",
+          "qualifiedSymbol": "Falah.Application.Shifts.OpenShiftRequest",
+          "kind": "RecordDeclaration",
+          "startLine": 5,
+          "endLine": 5,
+          "span": [
+            5,
+            1,
+            5,
+            124
+          ],
+          "signature": "Falah.Application.Shifts.OpenShiftRequest"
+        },
+        {
+          "stable_id": "sym-f4533e41e2e9984b50d19918a4e20c42aa2fed115c90879ccb6e241fe2402c5c",
+          "qualifiedSymbol": "Falah.Application.Shifts.OpenShiftResult",
+          "kind": "RecordDeclaration",
+          "startLine": 7,
+          "endLine": 7,
+          "span": [
+            7,
+            1,
+            7,
+            131
+          ],
+          "signature": "Falah.Application.Shifts.OpenShiftResult"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "worktree_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "source_git_blob_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "line_ranges": [
+        [
+          33,
+          110
+        ],
+        [
+          112,
+          113
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7ac925ec38be5884a6e011617a2d5a08a64c3091bf3dc361f7d4f5e966a0d685",
+          "qualifiedSymbol": "Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "startLine": 33,
+          "endLine": 110,
+          "span": [
+            33,
+            5,
+            110,
+            6
+          ],
+          "signature": "Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)"
+        },
+        {
+          "stable_id": "sym-5b1fd10769313ff216c57cefcd26ed33f3e4fb8e806f3032100ff3e0c58a2a11",
+          "qualifiedSymbol": "Falah.Infrastructure.Shifts.OpenShiftHandler.ToResult(Falah.Infrastructure.Persistence.Entities.ShiftEntity, bool)",
+          "kind": "MethodDeclaration",
+          "startLine": 112,
+          "endLine": 113,
+          "span": [
+            112,
+            5,
+            113,
+            98
+          ],
+          "signature": "Falah.Infrastructure.Shifts.OpenShiftHandler.ToResult(Falah.Infrastructure.Persistence.Entities.ShiftEntity, bool)"
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "source_read": "All referenced ranges read in current source. All five files current SHA-256 values match Source-Symbol indexes; their Git blob IDs match the baseline commit.",
+    "semantic_analysis": "Both UI entry points, transport unknown-outcome contract, server idempotency ordering, transaction and side effects, and active-shift uniqueness comment were traced.",
+    "tests_executed": false,
+    "independent_challenge": "Pending Financial Integrity quality reviewer challenge; do not label independent yet."
+  }
+}

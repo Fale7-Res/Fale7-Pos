@@ -1,0 +1,341 @@
+{
+  "artifact_kind": "bounded_semantic_comparison",
+  "id": "SEM-MIRROR-060",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-24T11:41:55.108Z",
+  "reviewer": "main coordinator; source-level cross-file comparison; no runtime execution",
+  "title": "Reversed dashboard range normalizes headline query but produces an empty daily series",
+  "scope": "Targeted edge-case extension to SEM-MIRROR-020 and existing FIN-CAND-REPORT-RANGE-001. Compares API range admission, shared range conversion/enumeration, sales headline query and dashboard daily-series aggregation. No AST clone claim; not a repository-wide semantic audit.",
+  "decision": "SOURCE-CONFIRMED REPORT-CONSISTENCY DIVERGENCE FOR A REVERSED MULTI-DATE REQUEST: the endpoint accepts the constructed reversed BusinessDateRange; the headline query normalizes UTC endpoints by swapping them and reads the corresponding dates, while daily-series point enumeration uses the unnormalized From/To and returns no points. Policy on reject-versus-normalize is not specified. Cross-reference existing FIN-CAND-REPORT-RANGE-001; no new canonical finding ID.",
+  "observed_behavior": {
+    "precondition": "An actor passes reports access and requests owner-dashboard with from later than to; only a multi-day reversed range selects daily series.",
+    "headline": "ReportingQueryService uses BusinessDateRange.ToUtcRange; BusinessClock.UtcRangeForBusinessDates swaps reversed endpoints; noncancelled orders in the normalized interval are queried and summarized.",
+    "series": "OwnerDashboardQueryService selects LoadDailySeriesAsync because reversed distinct endpoints are not single-day; that method queries the same normalized interval but constructs output only from BusinessDateRange.Days(); Days iterates day=From while day<=To and thus yields no points.",
+    "counterpart": "For forward ranges the two formulas share order creation cohort, cancellation exclusion and TotalPiastres-RefundAmountPiastres; existing test verifies chart sum equals headline for forward seven-day range."
+  },
+  "cross_file_call_chain": [
+    "GET /api/reports/owner-dashboard -> RequireReportsAccessAsync -> BusinessDateRange.Resolve(from,to,businessDate) -> OwnerDashboardQueryService.GetAsync/LoadTrendAsync",
+    "OwnerDashboard LoadTrendAsync -> ReportingQueryService.GetSalesReportAsync -> LoadSalesOrdersAsync -> normalized ToUtcRange",
+    "OwnerDashboard LoadTrendAsync -> LoadDailySeriesAsync -> normalized query + original-range Days() zero-point enumeration"
+  ],
+  "counterevidence_and_limits": [
+    "The API may receive only UI-validated ranges in normal use; the endpoint itself does not validate order and no client-specific input check was included in this bounded comparison.",
+    "The correct contract could reject reversed endpoints or normalize them; source does not document which.",
+    "Existing forward-range test supports intended reconciliation in normal requests but does not cover reversed inputs.",
+    "No integration test, HTTP request, database query, or runtime behavior was executed."
+  ],
+  "candidate_disposition": "No duplicate finding. Extends FIN-CAND-REPORT-RANGE-001 to the dashboard headline/series pair; record as source-confirmed edge-case inconsistency pending common range-input policy and existing finding reconciliation.",
+  "recommendation": "Choose one invariant at the API/domain boundary: reject From>To with a clear client error, or normalize BusinessDateRange endpoints once so ToUtcRange, DayCount, IsSingleDay and Days share the same canonical endpoints. Keep sales, expense, cost and dashboard series semantics aligned; avoid locally normalizing only one report.",
+  "required_tests": [
+    "API integration request with reversed multi-day owner-dashboard endpoints: assert explicit validation error or consistently normalized headline and ordered daily points.",
+    "Unit/property test BusinessDateRange for From>To: ToUtcRange, DayCount, IsSingleDay and Days must agree with chosen invariant.",
+    "Cross-report reconciliation test for sales, expenses, costs and dashboard series under reversed input.",
+    "Forward single-day and forward multi-day regression tests remain unchanged."
+  ],
+  "limits": [
+    "Static source review only; no tests executed.",
+    "No source, test, runtime or database changes.",
+    "This comparison does not establish broad semantic completeness."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        [
+          1976,
+          1983
+        ]
+      ],
+      "ids": [
+        "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e"
+      ],
+      "evidence": "Owner dashboard endpoint authorizes reports access, resolves (from,to,businessDate) into BusinessDateRange without rejecting From>To, and passes it to dashboard service.",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "line_range": [
+            1976,
+            1983
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          1976,
+          1983
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4b8e9ebc1c801828b3ca9ad59357b65e01efbe932833d76abb053e06e382489e",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "line_range": [
+            1976,
+            1983
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "ranges": [
+        [
+          47,
+          53
+        ],
+        [
+          58,
+          82
+        ]
+      ],
+      "ids": [
+        "sym-42eccd8fb3aa149ddfa63595bd22c1a8f59592ac01b1aed8b2e1ec136ebdad17",
+        "sym-6488f358eb0a8c143b1c0ea9e2f40d8e5fbbb0a33f4041bbff724337124cbc10",
+        "sym-144b17f7cf3d3fbc43b4da7ed330125ee5e9b94398445059de93b7ed1825ddd8"
+      ],
+      "evidence": "UtcRangeForBusinessDates swaps reversed endpoints; BusinessDateRange.ToUtcRange delegates to it, while Days enumerates from original From to To with an ascending condition and so yields no dates for a reversed range.",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-42eccd8fb3aa149ddfa63595bd22c1a8f59592ac01b1aed8b2e1ec136ebdad17",
+          "signature": "Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(DateOnly, DateOnly)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            47,
+            53
+          ]
+        },
+        {
+          "stable_id": "sym-6488f358eb0a8c143b1c0ea9e2f40d8e5fbbb0a33f4041bbff724337124cbc10",
+          "signature": "Falah.Domain.Common.BusinessDateRange.ToUtcRange()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            76,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-144b17f7cf3d3fbc43b4da7ed330125ee5e9b94398445059de93b7ed1825ddd8",
+          "signature": "Falah.Domain.Common.BusinessDateRange.Days()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            79,
+            82
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          47,
+          53
+        ],
+        [
+          58,
+          82
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-42eccd8fb3aa149ddfa63595bd22c1a8f59592ac01b1aed8b2e1ec136ebdad17",
+          "signature": "Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(DateOnly, DateOnly)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            47,
+            53
+          ]
+        },
+        {
+          "stable_id": "sym-6488f358eb0a8c143b1c0ea9e2f40d8e5fbbb0a33f4041bbff724337124cbc10",
+          "signature": "Falah.Domain.Common.BusinessDateRange.ToUtcRange()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            76,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-144b17f7cf3d3fbc43b4da7ed330125ee5e9b94398445059de93b7ed1825ddd8",
+          "signature": "Falah.Domain.Common.BusinessDateRange.Days()",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            79,
+            82
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "ranges": [
+        [
+          35,
+          52
+        ],
+        [
+          88,
+          94
+        ]
+      ],
+      "ids": [
+        "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+        "sym-36e001dc1cc77647c350f1028bc5ba7bca6054b45b387f698bfd726673352c1c"
+      ],
+      "evidence": "Sales headline uses normalized ToUtcRange and excludes cancelled orders, materializing rows for shared SalesRules report calculation.",
+      "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            35,
+            52
+          ]
+        },
+        {
+          "stable_id": "sym-36e001dc1cc77647c350f1028bc5ba7bca6054b45b387f698bfd726673352c1c",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSalesReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            88,
+            94
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          35,
+          52
+        ],
+        [
+          88,
+          94
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            35,
+            52
+          ]
+        },
+        {
+          "stable_id": "sym-36e001dc1cc77647c350f1028bc5ba7bca6054b45b387f698bfd726673352c1c",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSalesReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            88,
+            94
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "ranges": [
+        [
+          76,
+          107
+        ],
+        [
+          111,
+          132
+        ]
+      ],
+      "ids": [
+        "sym-87ff726983ccf1260d431494400dc422d419011458032064d0d7244e609170da",
+        "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c"
+      ],
+      "evidence": "Multi-date range selects daily series; daily series queries using normalized range and then enumerates original range.Days() to build points.",
+      "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_text_matches_baseline": true,
+      "callables": [
+        {
+          "stable_id": "sym-87ff726983ccf1260d431494400dc422d419011458032064d0d7244e609170da",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadTrendAsync(Falah.Domain.Common.BusinessDateRange, Falah.Application.Reports.SalesReportDto, long, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            76,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            111,
+            132
+          ]
+        }
+      ],
+      "line_ranges": [
+        [
+          76,
+          107
+        ],
+        [
+          111,
+          132
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-87ff726983ccf1260d431494400dc422d419011458032064d0d7244e609170da",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadTrendAsync(Falah.Domain.Common.BusinessDateRange, Falah.Application.Reports.SalesReportDto, long, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            76,
+            107
+          ]
+        },
+        {
+          "stable_id": "sym-92377c8e5700efb7c4d131d045542d5ee25a621a2e81068889f16e9d2cd98a4c",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadDailySeriesAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "line_range": [
+            111,
+            132
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "ranges": [
+        [
+          151,
+          165
+        ]
+      ],
+      "ids": [],
+      "evidence": "Forward seven-day range test asserts seven points and series sum equals headline; no reversed endpoint case in the inspected test class.",
+      "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "source_text_matches_baseline": true,
+      "callables": [],
+      "line_ranges": [
+        [
+          151,
+          165
+        ]
+      ],
+      "relevant_symbols": []
+    }
+  ],
+  "related_prior_comparisons": [
+    "SEM-MIRROR-020"
+  ],
+  "related_findings": [
+    "FIN-CAND-REPORT-RANGE-001"
+  ]
+}

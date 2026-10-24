@@ -1,0 +1,44 @@
+{
+  "artifact_kind": "financial_callable_substantive_review_coordinator_validation",
+  "created_at_utc": "2026-10-24T11:53:49.442Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root coordinator",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-13-people-2026-10-24.json",
+  "stable_id": "sym-4d76ba6fec41f9f17ac074c55daebae49691b1ebf2cf0b38bee9724f64d150e2",
+  "symbol": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadPeopleAsync(Falah.Domain.Common.BusinessDateRange, long, CancellationToken)",
+  "line_range": [
+    358,
+    372
+  ],
+  "receipt_identity": {
+    "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "stable_id_matches": true,
+    "receipt_reasoning": "Attendance record/status/late-minute totals use range; wage total is passed in; no payroll creation/payment."
+  },
+  "source_hashes": {
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "src/Falah.Application/Reports/OwnerDashboardDtos.cs": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+    "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+    "src/Falah.Infrastructure/Persistence/FalahDbContext.cs": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+    "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+    "src/Falah.Domain/Common/BusinessClock.cs": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+    "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+    "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+    "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+    "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6"
+  },
+  "review": {
+    "status": "SUBSTANTIVE_REVIEW_VERIFIED",
+    "reasoning": "GetAsync obtains normalized UTC bounds from range.ToUtcRange, calculates wages through LoadWagesPostedAsync over EmployeeLedgerEntries in [start,end), then calls LoadPeopleAsync with the original BusinessDateRange and the wage total. LoadPeopleAsync filters AttendanceRecords by raw inclusive DateOnly From/To, counts records by statuses, sums LateMinutes and copies wages into PeopleDto. The entity/database enforce one AttendanceRecord per employee/date; check-in handler posts daily wage to employee ledger by a deterministic employee/date/shift ID, but this query helper itself has no write/payment side effect. UI attendance panel displays row-status counts and late minutes, not distinct headcount or per-person wages. For forward ranges the receipt is supported. For reversed ranges the raw attendance filter yields zero records while normalized UTC wage range can still return ledger credits and DayCount is negative; this is another report-range consistency scope extension to FIN-CAND-REPORT-RANGE-001, no duplicate finding.",
+    "counterevidence": "The request policy is not documented as reject or normalize. Current UI path may constrain normal input; no range request or database behavior was executed. Existing attendance test covers idempotent wage credit but dashboard suite does not assert PeopleDto. No live snapshot consistency is established.",
+    "recommendation": "Keep FIN-CAND-REPORT-RANGE-001 canonical; reject reversed ranges or canonicalize once before computing UTC bounds, DateOnly filters, DayCount and series. Preserve employee-day wording; do not imply distinct headcount or wages allocated per employee.",
+    "required_tests": [
+      "Forward range with multiple employee-days: assert attendance counts/status/minutes and aggregate wage ledger total independently.",
+      "Reversed endpoints: assert chosen policy consistently for headline, wages, attendance, day count and chart series.",
+      "Ensure daily wage ledger credit remains idempotent; separate read-model tests from posting tests."
+    ],
+    "tests_executed": [],
+    "runtime_db_verification": false
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellPlaceholderViewModel.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:59:51.340433+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "3e35fb38cd222d65a4f00d3ac24b388d3051625612b0bb37db02df0eeca844c5",
+  "worktree_sha256": "3e35fb38cd222d65a4f00d3ac24b388d3051625612b0bb37db02df0eeca844c5",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-5e6a74ee841d5e7ceefdb78d547a407e533ee370d9b76d1aaa47894abb8dcab5",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.ShellPlaceholderViewModel._moduleTitle::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        11,
+        41,
+        11,
+        53
+      ],
+      "reasoning": "Observable ModuleTitle generated string property notifies heading binding; constructor initializes backing field directly before bindings attach. No generated load command, fabricated data or backend functionality.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Reachability of placeholder depends shell nav, not generator input.",
+      "tests_missing": "Reachability of placeholder depends shell nav, not generator input. NOT_EXECUTED.",
+      "verified_callers_callees": "constructor; ModuleTitle binding"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

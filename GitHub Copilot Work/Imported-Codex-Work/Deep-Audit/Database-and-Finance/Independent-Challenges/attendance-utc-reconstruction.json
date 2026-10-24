@@ -1,0 +1,640 @@
+{
+  "at_utc": "2026-10-19T09:13:08.143Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root",
+  "primary_reviewer": "financial_integrity",
+  "related_candidate": "FIN-LEAD-ATTENDANCE-UTC-001",
+  "classification": "SURVIVES_INDEPENDENT_STATIC_CHALLENGE_WITH_DATE_AND_ENTITLEMENT_QUALIFICATIONS",
+  "severity": "MEDIUM",
+  "confidence": "HIGH_SOURCE_ONLY",
+  "source_artifact": "Sub-Agents/Handoffs/attendance-utc-reconstruction-independent-disposition.json",
+  "source_artifact_sha256": "1b9faedac29a25da0d98a5740171a8af8338b50faf02846499734e8734daeea4",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          26,
+          34
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          110,
+          151
+        ]
+      ],
+      "source_excerpts": [
+        "    public async Task<AttendanceRecordDto?> HandleAsync(BiometricCheckInRequest request, CancellationToken ct = default)\r\n    {\r\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct);\r\n        if (employee is null) return null;\r\n\r\n        var now = DateTimeOffset.UtcNow;\r\n        var date = BusinessClock.Today();\r\n        var timeStr = now.ToString(\"HH:mm\");\r\n        var settings = await new SettingsQueryService(_db).GetAsync(ct);\r",
+        "        var existing = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct);\r\n        AttendanceRecordEntity entity;\r\n        if (existing is not null)\r\n        {\r\n            existing.CheckIn = timeStr;\r\n            existing.Status = status.ToString();\r\n            existing.LateMinutes = lateMinutes;\r\n            existing.LastCheckInEventId = request.BiometricEventId;\r\n            existing.Source = \"biometric\";\r\n            entity = existing;\r\n        }\r\n        else\r\n        {\r\n            entity = new AttendanceRecordEntity\r\n            {\r\n                Id = $\"att-{Guid.NewGuid():N}\", EmployeeId = request.EmployeeId, EmployeeName = employee.Name, Date = date,\r\n                CheckIn = timeStr, ShiftName = activeShift?.ShiftName ?? \"وردية صباحية\", Status = status.ToString(),\r\n                LateMinutes = lateMinutes, WorkHours = 0, OvertimeHours = 0, TatbiqCount = 0, IsManualCorrection = false,\r\n                LastCheckInEventId = request.BiometricEventId, Source = \"biometric\", CreatedAtUtc = now,\r\n            };\r\n            _db.AttendanceRecords.Add(entity);\r\n        }\r\n\r\n        // Daily wage entitlement - created exactly once per employee/date/shift (see\r\n        // RecordDailyWageHandler's own deterministic id scheme, reused here verbatim).\r\n        if (employee.CompensationType == nameof(CompensationType.Daily))\r\n        {\r\n            var wage = Money.FromPiastres(employee.DailyWagePiastres);\r\n            var wageId = $\"led-daily-wage-{request.EmployeeId}-{date:yyyy-MM-dd}-{activeShift?.Id ?? \"no-shift\"}\";\r\n            await EmployeeLedgerPoster.PostIfNewAsync(_db, wageId, request.EmployeeId, nameof(LedgerEntryType.DailyWage),\r\n                $\"تسجيل يومية عمل ({wage.Piastres} قرش)\", Money.Zero, wage, employee.Name, null, activeShift?.Id, null, null, null, wage.Piastres, ct);\r",
+        "    public async Task<AttendanceRecordDto> HandleAsync(BiometricCheckOutRequest request, CancellationToken ct = default)\r\n    {\r\n        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)\r\n            ?? throw new InvalidOperationException(\"الموظف غير موجود.\");\r\n\r\n        var now = DateTimeOffset.UtcNow;\r\n        var date = BusinessClock.Today();\r\n        var timeStr = now.ToString(\"HH:mm\");\r\n        var settings = await new SettingsQueryService(_db).GetAsync(ct);\r\n\r\n        var record = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct)\r\n            ?? throw new DomainException(\"لا يوجد تسجيل حضور لهذا الموظف اليوم - لا يمكن تسجيل انصراف بدون حضور.\");\r\n        var activeShiftId = await _db.Shifts.AsNoTracking().Where(s => s.Status == nameof(ShiftStatus.Open)).Select(s => s.Id).FirstOrDefaultAsync(ct);\r\n\r\n        double workHours = 0, overtimeHours = 0;\r\n        if (!string.IsNullOrEmpty(record.CheckIn) && TimeOnly.TryParse(record.CheckIn, out var checkInTime))\r\n        {\r\n            var checkInAt = now.Date.Add(checkInTime.ToTimeSpan());\r\n            var workedMinutes = Math.Max(0, (now.UtcDateTime - checkInAt).TotalMinutes);\r\n            workHours = Math.Round(workedMinutes / 60.0, 2);\r\n            overtimeHours = Math.Max(0, Math.Round(workHours - settings.StandardWorkdayHours, 2));\r\n        }\r\n\r\n        record.CheckOut = timeStr;\r\n        record.WorkHours = workHours;\r\n        record.OvertimeHours = overtimeHours;\r\n        record.LastCheckOutEventId = request.BiometricEventId;\r\n\r\n        if (overtimeHours > 0 && employee.DailyWagePiastres > 0)\r\n        {\r\n            var overtimeResult = PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(employee.DailyWagePiastres),\r\n                settings.StandardWorkdayHours, overtimeHours, settings.OvertimeMultiplier);\r\n            if (overtimeResult.Amount.IsPositive)\r\n            {\r\n                var overtimeId = $\"led-overtime-auto-{request.EmployeeId}-{date:yyyy-MM-dd}\";\r\n                await EmployeeLedgerPoster.PostIfNewAsync(_db, overtimeId, request.EmployeeId, nameof(LedgerEntryType.Overtime),\r\n                    $\"ساعات إضافية تلقائية من البصمة ({overtimeHours} ساعة × {overtimeResult.Rate.Piastres} قرش/ساعة × {Math.Round(settings.OvertimeMultiplier * 100)}%)\",\r\n                    Money.Zero, overtimeResult.Amount, employee.Name, null, activeShiftId, null, overtimeHours, overtimeResult.Rate.Piastres, null, ct);\r\n            }\r\n        }\r\n\r\n        await _db.SaveChangesAsync(ct);\r"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+          "signature": "Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken)",
+          "span": [
+            26,
+            5,
+            99,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d415975fcdd222571155193b1b0c4bcb64d55de10e15f16bb4f7215915314aad",
+          "signature": "lambda expression",
+          "span": [
+            28,
+            79,
+            28,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-55de42ac6cacde06ad3f170d663c3492144be22088c1d3277fad904c945b034e",
+          "signature": "lambda expression",
+          "span": [
+            49,
+            72,
+            49,
+            129
+          ]
+        },
+        {
+          "stable_id": "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc",
+          "signature": "Falah.Infrastructure.Employees.BiometricCheckOutHandler.HandleAsync(Falah.Application.Employees.BiometricCheckOutRequest, CancellationToken)",
+          "span": [
+            110,
+            5,
+            153,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d41142832fa515ceaeba1760cf8f0241d08e45fd3b2f6c3a07b46eed5b631e40",
+          "signature": "lambda expression",
+          "span": [
+            112,
+            79,
+            112,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-892f55880076fcb31823b9f5418c6bcd28b4aebdebb7a71c72412353a755adfa",
+          "signature": "lambda expression",
+          "span": [
+            120,
+            70,
+            120,
+            127
+          ]
+        },
+        {
+          "stable_id": "sym-507adc4067f4c909dd6cba918a336717b82a087daf22ec16bab7b7dd2268498b",
+          "signature": "lambda expression",
+          "span": [
+            122,
+            67,
+            122,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-43d2cca7fe80e2e1ffe1ad1611ca6a679ac56edfac45955ac473201c15dd5df4",
+          "signature": "lambda expression",
+          "span": [
+            122,
+            117,
+            122,
+            126
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "line_ranges": [
+        [
+          23,
+          29
+        ]
+      ],
+      "source_excerpts": [
+        "    public static DateOnly BusinessDate(DateTimeOffset instantUtc)\r\n    {\r\n        var local = TimeZoneInfo.ConvertTime(instantUtc, CairoTimeZone);\r\n        return DateOnly.FromDateTime(local.DateTime);\r\n    }\r\n\r\n    public static DateOnly Today() => BusinessDate(DateTimeOffset.UtcNow);\r"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1bb3a3c783e417e3d0f943d07643983d572260e36c4761806f2e74376c63beaf",
+          "signature": "Falah.Domain.Common.BusinessClock.BusinessDate(DateTimeOffset)",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4192ee9c760419631a56ac770c9c43d895839e833d5bab4bd26a73694a3f8979",
+          "signature": "Falah.Domain.Common.BusinessClock.Today()",
+          "span": [
+            29,
+            5,
+            29,
+            75
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          55,
+          60
+        ]
+      ],
+      "source_excerpts": [
+        "    public static OvertimeAmountResult CalculateOvertimeAmount(Money dailyWage, int workdayHours, double overtimeHours, double overtimeMultiplier)\n    {\n        var rate = NormalHourlyRate(dailyWage, workdayHours);\n        if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);\n        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));\n        return new OvertimeAmountResult(rate, amount);"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-35771f9335c189af64a8a80880cdfe014e5323d667a208d401cbff41d823dfc1",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money, int, double, double)",
+          "span": [
+            55,
+            5,
+            61,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "worktree_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "source_git_blob_sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "line_ranges": [
+        [
+          59,
+          80
+        ]
+      ],
+      "source_excerpts": [
+        "public class AttendanceRecordEntity\n{\n    public string Id { get; set; } = default!;\n    public string EmployeeId { get; set; } = default!;\n    public string EmployeeName { get; set; } = default!;\n    public DateOnly Date { get; set; }\n    public string? CheckIn { get; set; }\n    public string? CheckOut { get; set; }\n    public string ShiftName { get; set; } = default!;\n    public string Status { get; set; } = default!;\n    public int LateMinutes { get; set; }\n    public double WorkHours { get; set; }\n    public double OvertimeHours { get; set; }\n    public int TatbiqCount { get; set; }\n    public bool IsManualCorrection { get; set; }\n    public string? CorrectedBy { get; set; }\n    public string? CorrectionReason { get; set; }\n    public string? LastCheckInEventId { get; set; }\n    public string? LastCheckOutEventId { get; set; }\n    public string? Source { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}"
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-63126d481c10f7398c38166fbec7d171e7f1c87d1856ee518ad7f3cde231a249",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Id.get",
+          "span": [
+            61,
+            24,
+            61,
+            28
+          ]
+        },
+        {
+          "stable_id": "sym-a061fb6f177b114129d230f2ea6c9923e65a46106f3a70c05f554d10a304631a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Id.set",
+          "span": [
+            61,
+            29,
+            61,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-f69a06e3fa1a5a178dd4614c9c5e0be379a85c1598c7c497eda3a784dacf1ae1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeId.get",
+          "span": [
+            62,
+            32,
+            62,
+            36
+          ]
+        },
+        {
+          "stable_id": "sym-39f070195c4264afe88f0e9111e0940ce38bfec3c01f9de51e835126905cf52a",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeId.set",
+          "span": [
+            62,
+            37,
+            62,
+            41
+          ]
+        },
+        {
+          "stable_id": "sym-0abdfef854a35f2be5eea0145cc4d63bcaf983f00ddc2a6b0a28d5f0e1c1c6a0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeName.get",
+          "span": [
+            63,
+            34,
+            63,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-6a0814a3728bcaf959439229b7db3facf3c63aab74fc0c81b2694318c2fc95c3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.EmployeeName.set",
+          "span": [
+            63,
+            39,
+            63,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-5a4e22a9e5ab06f26abb10f853b22565e4a02b5793fb1ebd743ca55f28709754",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Date.get",
+          "span": [
+            64,
+            28,
+            64,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-b6d083b39f96bd92ce0edf1b431d324178778afbacce9623e42f661256b5f546",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Date.set",
+          "span": [
+            64,
+            33,
+            64,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-e3bdb154c918843bcf6bebc513ebcd5e80f3f70a7ab129f248ca435c02c477c0",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckIn.get",
+          "span": [
+            65,
+            30,
+            65,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-ed609847379a6c80dd2fba779c2308ff064d58d9b40307175a46a28cfc735530",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckIn.set",
+          "span": [
+            65,
+            35,
+            65,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-16bd964372e92cded4285546e38d59945593fc18e143fdd9607dcdef50d304c6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckOut.get",
+          "span": [
+            66,
+            31,
+            66,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-baa6a352a58f4dd78d4aefabb2a9e4aa0c44cdf3cf49e43289ebca770ae30d50",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CheckOut.set",
+          "span": [
+            66,
+            36,
+            66,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-c37bcb3206e63c7e3855fd0c43b13782caa7214b5d92b700356a0d216219afb1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.ShiftName.get",
+          "span": [
+            67,
+            31,
+            67,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-dbb957990599f79e840aae3d4eb5d6c7eb2e723d3ce223cea21318322f5592b1",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.ShiftName.set",
+          "span": [
+            67,
+            36,
+            67,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-2d807f0d87242aaab05a2898afb809ebf94fdfc9108fbffa6cff3c4ab6ddca9b",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Status.get",
+          "span": [
+            68,
+            28,
+            68,
+            32
+          ]
+        },
+        {
+          "stable_id": "sym-f4638d3fb1c5f0dec3b855916c54a6e6182448d17a31baa0b093b029e953b081",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Status.set",
+          "span": [
+            68,
+            33,
+            68,
+            37
+          ]
+        },
+        {
+          "stable_id": "sym-9dfb3e04732db458da67d323296ef627bf658565b24c0867c7baabb4ed2e0ac6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LateMinutes.get",
+          "span": [
+            69,
+            30,
+            69,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-10bf0abde97bc3c9174c318bfe9556feffeeaeabec22ae67b26daa655ab57b68",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LateMinutes.set",
+          "span": [
+            69,
+            35,
+            69,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-648579db5498722edcd61048d4a5d91ff83988014ffb7d4c1f9295f31e87ef8e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.WorkHours.get",
+          "span": [
+            70,
+            31,
+            70,
+            35
+          ]
+        },
+        {
+          "stable_id": "sym-9748f4041ebb716a96f2af4ce5a19f172a4d721833bce42801c25e893641a0a9",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.WorkHours.set",
+          "span": [
+            70,
+            36,
+            70,
+            40
+          ]
+        },
+        {
+          "stable_id": "sym-ecb7d6a20c426f0db254b62efc7c5f8eaf7e0774a9f14658e53573ab2678a6fc",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.OvertimeHours.get",
+          "span": [
+            71,
+            35,
+            71,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-704a85675380f9a7ce50d7c1773c6954cb1e85b2387da9aec98d8d5de8866fd6",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.OvertimeHours.set",
+          "span": [
+            71,
+            40,
+            71,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-789c064ccc996b444266e1c80552d2ca8816d72af863377fc0c1d4cefb205658",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.TatbiqCount.get",
+          "span": [
+            72,
+            30,
+            72,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-2475151620726bedb27321c7c58da0b0d6e488a8499919fa5f2c681345648f85",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.TatbiqCount.set",
+          "span": [
+            72,
+            35,
+            72,
+            39
+          ]
+        },
+        {
+          "stable_id": "sym-6ec94e363cfd0a6669d8ad09647eb2ddf97c8755cadcc13585dd639bef49115e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.IsManualCorrection.get",
+          "span": [
+            73,
+            38,
+            73,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-497017e66538e81c636d3c7f79e2105b5e3d671706acd38a8410ceb299995e22",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.IsManualCorrection.set",
+          "span": [
+            73,
+            43,
+            73,
+            47
+          ]
+        },
+        {
+          "stable_id": "sym-c18a9e8bf7a6bfb481e65a8331833a7849afdfff499a0adeac9cb948470d40d7",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectedBy.get",
+          "span": [
+            74,
+            34,
+            74,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-ce7d7b037f80086cccfc6a9649719d6d90a5031c731917a1374b998c8421f3f3",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectedBy.set",
+          "span": [
+            74,
+            39,
+            74,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-4002b8c314e032aa5c29a3ccb24c000f662b7f107d3a183ada94eda900e96fd5",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectionReason.get",
+          "span": [
+            75,
+            39,
+            75,
+            43
+          ]
+        },
+        {
+          "stable_id": "sym-b07464f2f3a3ab86f1e0555cb04468982da3ae7257805778a198507c8539a328",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CorrectionReason.set",
+          "span": [
+            75,
+            44,
+            75,
+            48
+          ]
+        },
+        {
+          "stable_id": "sym-4436242aaf36f6a69513b1631bf44f536eb6e4fb89b67ed452f5210fa81d1be4",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckInEventId.get",
+          "span": [
+            76,
+            41,
+            76,
+            45
+          ]
+        },
+        {
+          "stable_id": "sym-f2496cf3fe3aff7607ba904859a1faf18cd964ef7666dab7318057ef5dc74a19",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckInEventId.set",
+          "span": [
+            76,
+            46,
+            76,
+            50
+          ]
+        },
+        {
+          "stable_id": "sym-e51bef1b11b0aa4c3ded540c2b32c2e53a9e5437c332e8bd3c0a1c8aa6d92d92",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckOutEventId.get",
+          "span": [
+            77,
+            42,
+            77,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-cd9e5ddfab0d07a31246559beacf9aac803d92f5e893a423f29609c8c57f6c50",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.LastCheckOutEventId.set",
+          "span": [
+            77,
+            47,
+            77,
+            51
+          ]
+        },
+        {
+          "stable_id": "sym-b10b5293bd3cd5207dab0551c4a7d85a7bf5ffd4b7061d53eae9ea0705f95c89",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Source.get",
+          "span": [
+            78,
+            29,
+            78,
+            33
+          ]
+        },
+        {
+          "stable_id": "sym-deec8fa035e802f2219316301090fcffb578b2f09ca950894c18e71ab0502a6c",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.Source.set",
+          "span": [
+            78,
+            34,
+            78,
+            38
+          ]
+        },
+        {
+          "stable_id": "sym-de88afc020d792664cb1f5f55367cf4172091cf385edc3848770c4d9e12936bc",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CreatedAtUtc.get",
+          "span": [
+            79,
+            42,
+            79,
+            46
+          ]
+        },
+        {
+          "stable_id": "sym-13d73b6b2c16299b82d494e0418bdab6d9ca75272e995526450a3ac8297762cc",
+          "signature": "Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity.CreatedAtUtc.set",
+          "span": [
+            79,
+            47,
+            79,
+            51
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "worktree_sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "source_git_blob_sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "line_ranges": [
+        [
+          21,
+          30
+        ]
+      ],
+      "source_excerpts": [
+        "        OvertimeHourlyRatePiastres: 2500, DeliveryFeePiastres: 2000, Currency: \"ج.م\",\n        CashDiscrepancyThresholdPiastres: 5000, AutoLockMinutes: 10, ActiveShiftName: \"وردية صباحية\",\n        PrinterWidth: \"80mm\", AutoPrintReceipt: true, AutoPrintPreparationTicket: true, NumberOfReceiptCopies: 1,\n        GrillScreenSoundAlert: true, StandardWorkdayHours: 10, LateGraceMinutes: 15, MaxLatePenaltyHours: 2,\n        LatePenaltyMultiplier: 2.0, OvertimeMultiplier: 1.5,\n        // What this system has always done. Changing the default would change how every restaurant\n        // running it behaves, without anyone asking for it.\n        HoldPreparationUntilPaymentConfirmed: false,\n        // 1000 ج - what the restaurant actually puts in the drawer to start a shift.\n        DefaultOpeningCashPiastres: 100_000);"
+      ],
+      "relevant_symbols": []
+    }
+  ],
+  "independent_reasoning": [
+    "Read actual Attendance handlers, BusinessClock and entity/calendar fields. BusinessClock selects Cairo calendar date, while UTC HH:mm storage loses UTC date; checkout reconstructs that HH:mm on checkout UTC calendar date. These are separate representations, and date filtering does not ensure equal UTC dates.",
+    "Conditional fixed-offset example independently checked by calendar reasoning: D-1 23:30Z to D12:30Z is13hours and both map to D for offsets+02/+03. ReconstructionD23:30 lies11hours after checkout, producingclamped0, hence no automatic overtime. This is a conditional source example, not an observed host-zone or actual attendance test.",
+    "DateTimeOffset.Date supplies date clock fields and subtraction uses UTCDateTime clock fields; there is no conversion using original recorded instant in this branch. Ordinary sameUTCdate control remains unaffected by this particular date-loss defect.",
+    "Full CreatedAtUtc exists on entity but is not refreshed when CheckIn53 overwrites an existing row, so it is not a reliable general fallback without repeated-punch policy. A repair must retain original/last event instants explicitly."
+  ],
+  "counterevidence": [
+    {
+      "control": "Same UTC date",
+      "result": "Ordinary same-date elapsed calculation not affected."
+    },
+    {
+      "control": "Different Cairo dates",
+      "result": "Checkout does not select previousday attendance, throwsmissing today record; that separate crossbusiness-day policy not this candidate."
+    },
+    {
+      "control": "Repeated checkin",
+      "result": "CheckIn overwrites stored time; selected example excludes it. Fix must define first/last punch policy, not blindly CreatedAt use."
+    },
+    {
+      "control": "Invalid/null time string",
+      "result": "Guard leaveshours0, but candidate uses handler-produced validHH:mm, not corruption."
+    },
+    {
+      "control": "No overtime entitlement",
+      "result": "Elapsed hours <=standard or nonpositive storedwage suppress financial consequence; WorkHours can still wrong. Existing manualcorrection/credit may mitigate."
+    },
+    {
+      "control": "CreatedAtUtc field",
+      "result": "Initial creation stores fulltimestamp67 but subsequent checkin overwrites CheckIn without CreatedAt update, so CreatedAt not reliable generalcheckin substitute."
+    },
+    {
+      "control": "Stale shift lateness guard",
+      "result": "CheckIn45 requires activeShift.BusinessDate==date beforelate baseline; this legitimateguarddoesnot repaircheckoutdate reconstruction. No multi-daylate allegation."
+    }
+  ],
+  "preconditions": "Valid employee check-in and checkout belong to same BusinessClock Cairo calendar date but occur on opposite UTC dates; no intervening check-in overwrite, stored CheckIn parses. Positive wage/multiplier and elapsed hours above configured workday needed for missed overtime consequence.",
+  "impact": "Wrong hours and possible omission of otherwise eligible automatic overtime; no actual payment/loss or payroll record measured. Distinct from FIN012 correction-credit classification and FIN022 compensation enum interpretation.",
+  "recommended_solution": "Persist complete check-in/out instants with explicit zone-aware local display and defined repeated-punch policy. Compute elapsed from instants, keep business-date attribution separate. Legacy string migration/reconstruction ambiguous, needs approved policy and no silent ledger minting.",
+  "required_tests": [
+    "Same Cairo day crossing UTCmidnight13hour control, sameUTCday control, zone/DST transition selected from actualhosttimezone rules.",
+    "Correct positive overtime branch and exactly-one deterministic credit; repeatedcheckout response-loss, repeatedcheckin policy, missingtodayrecord controls.",
+    "Existing manually corrected/paid periods must not receive automatic duplicate retrospective earnings."
+  ],
+  "regression_risks": "Blindly adding24hours may credit invalid/multiday events; blindly usingCreatedAt can misread repeatedpunch/manual records. Recomputing paid/manual periods can duplicate or restate earnings. Preserve deterministic overtime IDs and explicit attribution.",
+  "runtime": "NOT_EXECUTED; no handler, database, timezone probe or physical event",
+  "new_author_receipts": 0
+}

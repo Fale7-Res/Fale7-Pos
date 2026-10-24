@@ -1,0 +1,31 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/Order.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T22:05:30.919410+00:00",
+  "facets": [
+    {
+      "reasoning": "Expression-bodied Refunds property is executable getter despite originalmap isCallablefalse. Returns private List<OrderRefund> directly typed IReadOnlyList; no defensive copy or ReadOnlyCollection wrapper. Reconstitute copies incoming refunds into this List and ApplyRefund appends while scalar RefundAmount tracks separate sum. Trusted compiled caller can cast returned object to List and mutate without scalar update; actual reachable API path doing such cast UNKNOWN, so this is encapsulation/design concern not exploitfinding.",
+      "inputs": "Existing Order aggregate",
+      "outputs": "Same internal mutable refundList exposed as IReadOnlyList",
+      "side_effects": "Getter no direct mutation/I/O; returned concrete object canbealiased",
+      "trust_boundaries": "In-process trusted consumers; no direct network deserialization into returnedList shown",
+      "database": "NoDB I/O; persistence mapper external",
+      "printing_ui": "Reports/tickets mayread history; nohardware",
+      "performance": "O1 no allocation, strongerreadonlywrapper/copytradeoff ifdesired",
+      "duplicates_conflicts": "Independent collection/scalar invariants vulnerabletoin-processmutation, noAPIexploit demonstrated",
+      "tests_missing": "Casting/retainedreference mutation cannot silently alterrefundhistory; childsum=RefundAmount invariant; no codefixperformed",
+      "verified_callers_callees": "Reconstitute167 AddRange copies into _refunds; ApplyRefund229 Add; property64 exposes_sameobject. External consumers UNKNOWN beyondhandlersmappercall.",
+      "stable_id": "sym-b0502e0f921ee4df6b5fecfa6e9fe174a017a7ccfb0fe92ebb590317d2454e91",
+      "status": "ANALYZED",
+      "issues_hypotheses": "Additive getter identity now reconciled; in-process List cast mutability concern, no reachable API mutation proved.",
+      "evidence_method": "Prior individually reasoned expression body retained, exact raw hash revalidated by persistence helper; no new independent rereread claim."
+    }
+  ],
+  "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+  "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

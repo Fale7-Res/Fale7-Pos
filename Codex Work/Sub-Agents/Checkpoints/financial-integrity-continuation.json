@@ -1,0 +1,124 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "last_completed_file": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+  "last_completed_symbol": "RefundVerticalSliceTests complete; 59 stable IDs independently reconciled against authoritative union; coordinator overlap=0",
+  "partial_file": null,
+  "partial_symbol": null,
+  "remaining_files": [],
+  "findings_reference": "Sub-Agents/Results/financial-findings.json",
+  "current_receipt": "Sub-Agents/Handoffs/financial-integrity-continuation-RefundVerticalSliceTests.json",
+  "saved_queue": "Codex Work/Sub-Agents/Results/financial-integrity-continuation-queue.json",
+  "last_authoritative_union_count": 7602,
+  "last_authoritative_remaining_count": 1202,
+  "continuation_receipts_not_yet_merged": 989,
+  "remaining_symbol_file_count": 15,
+  "payroll_overlap_challenge": "Sub-Agents/Handoffs/financial-integrity-continuation-payroll-overlap-challenge.json",
+  "payroll_overlap_disposition": "Source-confirmed cross-flow mechanism; policy/usage and realized duplicate pay unconfirmed; retained as candidate only.",
+  "inventory_dashboard_challenge": "Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json",
+  "inventory_dashboard_disposition": "CONFIRMED_STATIC_BEHAVIORAL_DIVERGENCE",
+  "cashier_money_input_challenge": "Sub-Agents/Handoffs/financial-integrity-continuation-cashier-money-input-challenge.json",
+  "cashier_money_input_challenge_disposition": "Source-confirmed old-client rounding/precision mismatch in a project still included in Falah.sln; demonstrated difference is bounded to <=1 piastre per amount-entry conversion. Refund server clamps/rejects zero and checks protected balance; shift server checks positive float availability. Integer-piastres API cannot detect original text precision. New WinUI paths use CashInput. Runtime/deployment/use unverified.",
+  "payroll_read_authorization_challenge": "Sub-Agents/Handoffs/financial-integrity-continuation-payroll-read-authorization-challenge.json",
+  "payroll_read_authorization_disposition": "Source-confirmed authenticated read surface without role/permission gate; policy intent unconfirmed; no runtime verification. Distinct from payroll/Settlement overlap.",
+  "purchase_line_sign_validation_challenge": "Sub-Agents/Handoffs/financial-integrity-continuation-purchase-line-sign-validation-challenge.json",
+  "purchase_line_sign_validation_disposition": "Source-confirmed negative quantity/unit cost acceptance; signed input can create positive payable and negative inbound stock receipt. Static-only, runtime unverified.",
+  "current_gap_reconciliation": "Sub-Agents/Handoffs/financial-integrity-continuation-current-gap-reconciliation-2026-10-21.json",
+  "current_assignment_status": "Independent challenge saved for negative-variant candidate; delivery outcomes date-vs-current scope corroborated and source correction recorded (Expected DTO metric sums Collected); TaxReport and SalesReport source handoffs saved. Structural union 7,602/8,804 remains membership only; global substantive coverage unknown.",
+  "next_owned_operation": "Coordinator to produce canonical per-stable-ID evidence-class ledger and crosswalk historical 4102 manual categories, 4253 indexed IDs, 7602 author receipts, 989 continuation IDs and 213 residual IDs; derive exact remaining substantive queue and map 327-file report scope. Do not infer from membership.",
+  "residual_substantive_batch_history": [
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-01.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-02.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-03.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-04.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-05.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-06.json",
+    "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-07.json"
+  ],
+  "callcenter_cancelled_payment_line_challenge": "Sub-Agents/Handoffs/financial-callcenter-cancelled-order-payment-line-independent-challenge-2026-10-21.json",
+  "callcenter_cancelled_payment_line_disposition": "SOURCE_CONFIRMED_CONTRADICTORY_PRESENTATION; IsPaid=false plus ElectronicPaymentStatus=cancelled falls through to collect-at-delivery. Visible muted Cancelled status is counterevidence but does not resolve the conflicting instruction; actual collection/money effect unproven.",
+  "global_substantive_queue_reconciliation": "Sub-Agents/Handoffs/financial-integrity-continuation-global-queue-reconciliation-2026-10-21.json",
+  "current_batch_assignment": "Manual source quality review of six EXISTING_REASONING_UNVERIFIED refund/checkout, expense, employee cashout, and business-day reopen handlers; excludes prior 18 verified IDs",
+  "current_batch_handoff": "Sub-Agents/Handoffs/financial-production-callable-quality-batch-03-2026-10-21.json",
+  "current_batch_status": "6/6 source methods and author receipts checked; exact IDs/signatures/ranges/current hashes match classification and receipts. FIN001/003/004 and conditional admission concerns retained without runtime claims.",
+  "current_batch_analyzed_ids": [
+    "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+    "sym-94e0b0a6b61d82d55f776e03860869d9482ed2f56a4176a0ec53c8735a4d0517",
+    "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+    "sym-549cf3f660de0fec71a0ca98801b4222c43930bfcbdcf6a2f7e9349f2f59b9b0",
+    "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+    "sym-7f7926930b1d96d08b14f64c04c966e2b241703a0ee2e8e8b1f270d8ede20ce6"
+  ],
+  "current_batch_pending_ids": [],
+  "indexed_4253_receipt_crosswalk": "Codex Work/Sub-Agents/Handoffs/financial-indexed-count-crosswalk-reconciliation-2026-10-21.json",
+  "indexed_4253_receipt_crosswalk_count": 4253,
+  "current_genuine_analysis_count": "UNKNOWN",
+  "exact_remaining_genuine_analysis_queue": "UNKNOWN; requires per-ID reasoning depth/quality grading across 8,804; historical 4,102 category mapping also unavailable.",
+  "latest_reporting_batch": "Codex Work/Sub-Agents/Handoffs/financial-sales-report-substantive-review-2026-10-21.json",
+  "latest_reporting_batch_status": "Substantive static review complete for GetSalesReportAsync overloads. Cash-basis collected-sales excludes pending e-pay/COD until confirmed/settled; channel cash is distinct drawer/payment-channel figure. Delivery test source covers transitions. No new defect; no tests run.",
+  "next_reporting_queue": "Continue only from a coordinator-defined nonduplicate batch after the current finance evidence ledger is quality-graded; this batch did not create primary union credit or select a globally unreviewed callable.",
+  "coordinator_packaging_independent_challenge": "Codex Work/Deep-Audit/Database-and-Finance/packaging-completeness-coordinator-independent-challenge-2026-10-21.json independently corroborates FIN-CAND-PACKAGING-COVERAGE-001 as conditional static completeness issue; preserved in shift-summary handoff with counterevidence; no live incidence/runtime claim.",
+  "assigned_daily_summary_id_discrepancy": "Assigned/NEXT_ACTION/previous BusinessDay handoff used sym-8e7d2d3022c4e54a707da81cfbed1f2b7649a5c8349ec0d39552c5ae760f702; source index, current receipt, remaining queue and paused backlog all use sym-bf1df41ee193bb6b847776835fda72073efd3772c8a000ebe5b1cab5f4b2f83b. Checkpoint next ID corrected. Coordinator should reconcile NEXT_ACTION.md and prior handoff next_queue.",
+  "coordinator_delivery_outcomes_challenge": "Codex Work/Sub-Agents/Handoffs/financial-negative-variant-and-delivery-outcomes-independent-challenge-2026-10-21.json: confirms mixed current-vs-period scope remains policy question; identifies DTO Expected metric sums CollectedPiastres; owner contract needed.",
+  "identity_only_financial_batch_disposition": "No ordinary production service/handler callables exist in IDENTITY_ONLY; 180 source entries are migrations, 809 test/other. Reviewed six financially relevant Up migrations; further quality review must draw from EXISTING_REASONING_UNVERIFIED after coordinator queue selection.",
+  "latest_quality_batch_prior_exclusions_count": 30,
+  "latest_quality_batch_selected_overlap_count": 0,
+  "latest_bounded_assignment": "SEM-MIRROR-057 compensation admission source challenge + Batch 06 six existing-reasoning inventory/costing/payables production callables; static only.",
+  "latest_bounded_handoff": "Codex Work/Sub-Agents/Handoffs/financial-compensation-overlap-and-production-batch-06-2026-10-22.json",
+  "latest_bounded_handoff_sha256": "7FBF95A4C37E54B82E6F9384830392683A9DE5A037B2A29F4741B9B41C9986F9",
+  "latest_bounded_status": "Compensation lead corroborated as source-level client/server divergence overlapping FIN-024; no new duplicate finding. Six source/reasoning reviews saved; no overlay promotion. Current live entry recount 36 verified / 7,785 unverified / 983 identity-only; status_counts summary is stale at 30/7,791/983.",
+  "latest_overlay_digest": "3f7f408f7a12ed97d75cbeecb94aad51a88fe9971fb558ba1049a5d5d42e2fbe",
+  "latest_quality_batch_assignment": "Batch13: source and receipt reasoning review of OwnerDashboardQueryService.LoadPeopleAsync; reconcile raw business-date attendance rows with aggregate ledger wages.",
+  "latest_quality_batch_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-13-people-2026-10-24.json",
+  "latest_quality_batch_handoff_sha256": "0b90903422e86eb5f1fa6dba1f3f4a02bc64df1232d1c1c89c68ddb83fdf5e8a",
+  "latest_quality_batch_status": "One callable source/receipt/DTO/writer/UI/test-source review saved; receipt reasoning corroborated. Reversed-range mixed semantics linked to existing range candidate; no new finding or class promotion. No tests/runtime/DB.",
+  "latest_quality_batch_ids": [
+    "sym-4d76ba6fec41f9f17ac074c55daebae49691b1ebf2cf0b38bee9724f64d150e2"
+  ],
+  "latest_entry_status_recount": {
+    "EXISTING_REASONING_UNVERIFIED": 7759,
+    "IDENTITY_ONLY": 983,
+    "SUBSTANTIVE_REVIEW_VERIFIED": 62
+  },
+  "updated_at_utc": "2026-10-24T11:52:22Z",
+  "batch07_receipt_sha_correction": {
+    "handoff_sha256": "fb7b837471e9b616ceccaf870c0d4a98e057ac5c93507eff2ade0ad367ed4e7f",
+    "note": "Declared versus observed SHA-256 values for both attendance method receipts are preserved in the append-only handoff note; coordinator matched exact stable ID/signature/span/reasoning.",
+    "hashes": [
+      {
+        "declared": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+        "observed": "c2ae96c68f364de7b2b84824135e03c9deb45b4c1ca81d840d2817338ee4892c",
+        "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099"
+      },
+      {
+        "declared": "c2ae96c68f364de7b2b84824135e03c9de45b4c1ca81d840d2817338ee4892c",
+        "observed": "c2ae96c68f364de7b2b84824135e03c9deb45b4c1ca81d840d2817338ee4892c",
+        "stable_id": "sym-c741a06727c9cf64f9c8d16148f04608da109ae4856b119d1f1baeb0203031fc"
+      }
+    ],
+    "handoff_path": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-07-2026-10-22.json",
+    "validation_path": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-07-coordinator-validation-2026-10-22.json"
+  },
+  "next_exact_callable": {
+    "stable_id": "sym-dbdd95c4da9dbcb373b6d0985e39424bd207c0b2ac2f5d6df4e0e08d2a9c8490",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHealthAsync(CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "line_range": [
+      374,
+      419
+    ],
+    "status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "custody_settlement_semantics_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-09-and-custody-semantics-2026-10-22.json",
+  "batch10_11_status_reconciliation": {
+    "coordinator_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-10-11-coordinator-validation-2026-10-24.json",
+    "status": "Coordinator validated/promoted Batch10 LoadDailySeriesAsync and Batch11 LoadHourlySeriesAsync; prior 59/7762/983 snapshot is stale. Live recount now 61/7760/983. Do not overwrite shared overlay."
+  },
+  "batch12_status_reconciliation": {
+    "validation": "Coordinator independently verified/promoted LoadStockAsync; current batch13 overlay recount is authoritative for this checkpoint. Batch10/11 were previously validated/promoted.",
+    "current_counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7759,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 62
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:25:58.7879860Z",
+  "path": "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs",
+  "stable_ids": [
+    "sym-6b5a51d0080ec07615388e73a4e51e0ec0ba385bc80b71892588e9bc7fb7113c",
+    "sym-a4cf1314ae90bdb484dc2dad7c0cfb74423dbe07207b8a3f312aeb71095b7be1",
+    "sym-e625c2a0399d60c3286f159c60769dd73aab835e8b0eafb729ee839e7739346e",
+    "sym-8c5b6867ec2f8b0d17926121ca2b72fe166d2f776d11c569d045378dbe726ddb",
+    "sym-c3da91a0b9c944a3bf28234d326d6bbfb36c2cc16ce4850ba5712aedb13a6c76",
+    "sym-0e5003130f9accb594e5e1c2bd71917184253dd572f1597822f7ac255edfe898",
+    "sym-c8c4e42cbef65d0f958ae7cd66da43d95a7285623d9860a3660090061448424d",
+    "sym-46c71f59c3c0e0b732a8d8605bf30fa08f27a565eaba403bc5d407af5dfcf3ab",
+    "sym-0f76eea2c94e67c37323fdb142b2df46c0b2a8c7e1ee1ec93fb873633aa4f0ef",
+    "sym-7e7e966267be68675d494207702f939f9ffec184a9205b0b3aa2f20ff36a5efe",
+    "sym-e85d45619c005cb330ca5052870628b0d02a7c379370b8655ccced6436660fe1",
+    "sym-591590fd5fc53b8e512db5fb01019ae5b2fc5c367b41e5d81c307464dbbb10f7",
+    "sym-f4b6da41d25c484df3333a46d62401c9ba8a30e6ec35b9e6c30e96b4d225b0ac",
+    "sym-ed81c20b59070dd5c1da9ac5cd12360edab0541343e805ba8d0baec4cc2fe720",
+    "sym-69f462628d375dc76534377a9df217b6909009e30db154d874643dad4de58d6b",
+    "sym-d97824d2a933e262ea748829d09c80a6f5247047b033e39cc30e0efaaafac1d8",
+    "sym-86f9d4fbb9e5f4b2b17f91debff9dd47e578cecdd672c602d0dbbd720799fc92",
+    "sym-85d132a141d90f3bfc08373b1883bb774699283205f302c82d16c68c1c265c8d",
+    "sym-0aad3843f9a027181b2d6b5ccb4f1af0ce216c3c8ddd294312d93e62ff1f054a",
+    "sym-abdcc4d215d09556dcaebe85d4b37dfa8e3bd191a1acd72706d1f643c48619c5",
+    "sym-fc3ec68954cf869a4399c7737a5360642e71f4babc0f2fb95ef59dc68b1c66b3",
+    "sym-686715f7c35cf9314d0ee18015480d8029e50886144f075ca108bbc4c92a6185",
+    "sym-7187b0d3ede871b263ddb2329857122e2842d5bae39aa29e1ca1997e0b55e890",
+    "sym-a5116d17bacc82fc4ef487f9350f1ed23efcc188b9713644634f06b2bf33b9ae",
+    "sym-5a659ac8b1824e7c8c8684a1e0bee311f2ffa7db1fed1c1946f4c13b6bf1aed0",
+    "sym-918e66ad36a666d4cd4fba5acb1ff712a6c5913d719943ee19a1123ee743d995",
+    "sym-3f160f06361c35e60d3964ec966c13ad61bf26714d7983190f386851c81334e9"
+  ],
+  "queued_count": 27,
+  "reconciliation": {
+    "current_union_remaining": 27,
+    "coordinator_database_reports": 27,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs": "C83D925533B572AC108851718AFC95147390CC66AA32633375CC1C8BEE57267F",
+    "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs": "7B2AFCF63D01E1BB55A5AB7AE1B6E986CFE2BCD96853C091FD9D5D1D101DB7929",
+    "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs": "FCBEB3B2A7895001C185355DC1D9551D5EFD4256D3B89A8805328E2A83EAB79F"
+  },
+  "assessment": "Tests establish the default is only a suggestion, stored shift opening cash remains historical fact, later settings changes do not rewrite it or prepared expected cash, negative setting rejected, and zero is valid. Caveats already in the ledger: the dialog assertion reads the settings API rather than actual UI wiring; next-shift test only rereads setting; funded main fixture does not expose constrained-balance contention. Opening-slip test only checks composed ticket text; no printing was performed. No new financial finding promoted.",
+  "existing_findings": [
+    "FIN-011"
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only; no tests, database or printing ran.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

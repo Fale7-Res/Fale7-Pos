@@ -1,0 +1,349 @@
+{
+  "artifact_kind": "source_semantic_comparison",
+  "id": "SEM-MIRROR-057",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-22",
+  "reviewer": "/root main coordinator; bounded source-level cross-layer comparison; no runtime execution",
+  "title": "Employee compensation input validation across cashier UI and server/payroll",
+  "scope": "Compare employee compensation form validation with create/update handlers, employee-ledger credit paths and payroll aggregation. This supplements the existing compensation-mode casing comparison (SEM-MIRROR-008) and unpromoted employee-credit admission leads; it is not the same issue.",
+  "decision": "CASHIER FORM REJECTS NEGATIVE PROFILE MONEY VALUES, BUT SERVER CREATE/UPDATE COPY SIGNED VALUES WITHOUT A SERVER-SIDE AMOUNT GUARD; DOWNSTREAM ATTENDANCE AND LEDGER HANDLERS CAN STORE NEGATIVE CREDIT FACTS. SOURCE-CONFIRMED VALIDATION DIVERGENCE; FINANCIAL LOSS/SETTLEMENT CONSEQUENCE AND ZERO/NEGATIVE BUSINESS POLICY REQUIRE TESTS/OWNER CONTRACT. NO RUNTIME INCIDENT CLAIMED.",
+  "behavior": {
+    "client": "EmployeeEditorViewModel.CreateRequest rejects negative daily/shift amounts; TryOptionalMoney does the same for optional monthly/overtime values. It accepts zero and sends typed create/update DTOs.",
+    "server": "CreateEmployeeHandler and UpdateEmployeeHandler call EmployeeRules.AssertEmployeeInput (identity fields only), parse CompensationType and authorize employees_manage, then assign signed numeric request values to EmployeeEntity without amount constraints. Route handlers forward DTOs to these services.",
+    "downstream": "RecordDailyWage/Overtime/ExtraShift handlers post earning values as ledger credits. BiometricCheckInHandler posts stored DailyWage for Daily compensation without a positive guard. EmployeeLedgerPoster stores signed debit/credit fields as passed. PayrollRules sums those credits into buckets and floors only final NetPayable at zero.",
+    "interpretation": "This is an actual client/server validation difference, not an authorization bypass: profile commands remain permission-gated. A privileged non-UI caller can persist negative compensation values and subsequent earning flows can create negative credit facts. Whether those requests should be rejected is a financial invariant strongly implied by wage/rate semantics but needs explicit owner/domain contract; no actual API or database call was executed."
+  },
+  "cross_file_call_chain": [
+    "EmployeeEditorViewModel.CreateRequest -> Create/UpdateEmployeeRequest signed long fields -> Program.cs employee POST/PUT -> CreateEmployeeHandler/UpdateEmployeeHandler -> EmployeeEntity signed bigint fields.",
+    "Persisted DailyWage -> BiometricCheckInHandler or RecordDailyWageHandler -> EmployeeLedgerPoster credit column -> CreatePayrollHandler/PayrollRules.CalculatePayrollLines -> payroll line net/pay eligibility.",
+    "RecordOvertimeHandler and RecordExtraShiftHandler -> EmployeeLedgerPoster -> payroll overtime/extra-shift credit sums."
+  ],
+  "existing_evidence": {
+    "related_unpromoted_source_lead": "Codex Work/Deep-Audit/Database-and-Finance/employee-credit-admission-source-leads.json",
+    "related_prior_mirror": "SEM-MIRROR-008 / Codex Work/Deep-Audit/Duplication-and-Architecture/compensation-mode-semantic-comparison.json",
+    "canonical_finding_created": false,
+    "candidate_disposition": "Do not create a duplicate canonical finding before Financial Integrity agent challenges this cross-layer evidence and owner policy is distinguished from source behavior."
+  },
+  "counterevidence_and_limits": [
+    "The normal Cashier WinUI employee form blocks negative compensation values.",
+    "Create/update server methods require employees_manage authorization; no permission bypass is asserted.",
+    "Zero amounts are accepted intentionally/possibly for some compensation arrangements; recommendation must preserve legitimate zero/null semantics unless owner decides otherwise.",
+    "Source proves signed values flow through the path, not that a user entered them, a payroll was paid, or real money was lost.",
+    "UI edit and API request tests, SQL persistence and payroll settlement were not executed. Existing integration tests reviewed cover valid paths only in cited span."
+  ],
+  "recommendation": "Future repair should enforce shared server/domain constraints for each compensation amount at create/update and for custom wage/rate entry points, while preserving optional null and legitimate zero values per owner policy. Add one invariant source of truth; keep client validation for UX but do not rely on it. Confirm hourly/monthly/daily/shift business semantics before deciding which fields may be zero. Do not conflate profile-input validation with the separate payroll adjustment historical-rate policy.",
+  "tests": {
+    "executed": "NONE",
+    "needed": [
+      "Create and update employee requests with negative DailyWagePiastres, ShiftValuePiastres, MonthlySalaryPiastres and OvertimeRatePiastres are rejected server-side; zero/null cases remain accepted or rejected according to an explicit policy.",
+      "Direct daily-wage request with negative CustomWagePiastres and stored negative wage is rejected or otherwise reconciled by stated contract.",
+      "Direct overtime request tests negative CustomRatePiastres, zero rate, nonfinite Hours at pure handler boundary, finite extreme Hours and multiplication/long conversion bounds; HTTP JSON binder behavior separately.",
+      "ExtraShift with negative/zero ShiftValue fallback to negative/zero DailyWage and large ShiftCount tests arithmetic boundary.",
+      "Biometric check-in with zero/negative persisted daily wage must not produce invalid negative credit if policy prohibits it; verify duplicate/idempotency behavior.",
+      "Payroll calculation with negative DailyWage/Overtime/ExtraShift credit records has explicit handling; assert base/net/report totals and inactive employee behavior."
+    ],
+    "acceptance_criteria": [
+      "Server and UI agree on the domain-approved compensation constraints.",
+      "No path stores a negative earning credit if negative wages/rates are disallowed.",
+      "Valid zero, nullable salary and legacy employee profiles retain documented behavior.",
+      "Tests establish the impact on payroll lines and payment eligibility without posting real funds."
+    ]
+  },
+  "limitations": [
+    "Bounded comparison of employee profile and wage-credit path; not an exhaustive mirror scan or proof of all client/server semantic parity.",
+    "Static source only; no tests, HTTP requests, database writes or payroll settlement executed.",
+    "Severity and intended zero/negative input policy require Financial Integrity/owner disposition."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs",
+      "worktree_sha256": "0606ca2008dfe343a653116ed071834d760aa11695df274b580c38a8e6cc59e7",
+      "source_git_blob_sha256": "37beafea4cb892e939a39905e7c7b9d30ed52acc2507e25079e0d2a244ec1c5e",
+      "line_ranges": [
+        [
+          186,
+          225
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-47c603b34b0318bcd71627f1cb1a7a2a05c324d5b26290f471179f93745b6914",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.EmployeeEditorViewModel.CreateRequest()",
+          "kind": "MethodDeclaration",
+          "span": [
+            199,
+            5,
+            226,
+            6
+          ]
+        }
+      ],
+      "evidence": "CreateRequest rejects negative daily/shift amounts and TryOptionalMoney rejects negative monthly/overtime amounts before building CreateEmployeeRequest/UpdateEmployeeRequest. Zero remains accepted; persisted form values are loaded back into the editor."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs",
+      "worktree_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "source_git_blob_sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "line_ranges": [
+        [
+          26,
+          63
+        ],
+        [
+          79,
+          115
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-505a0594d1b39d8abb9eeff76122eaffe6216b26a952d8695b69e2892920a873",
+          "signature": "Falah.Infrastructure.Employees.CreateEmployeeHandler.HandleAsync(Falah.Application.Employees.CreateEmployeeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            63,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-5bd6381d6506abf1c6310993d46112c13e4158b954d810c3d20fde084dd34222",
+          "signature": "Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            79,
+            5,
+            115,
+            6
+          ]
+        }
+      ],
+      "evidence": "Create/update validate name, employee number, title, phone, compensation enum and employees_manage authorization, but copy signed compensation numeric fields without value checks."
+    },
+    {
+      "path": "src/Falah.Domain/Employees/EmployeeRules.cs",
+      "worktree_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "source_git_blob_sha256": "8b25256a36f25b58aa3f61ddbaeee9f7bb32fed5e8ff522d71486b92b308d3b5",
+      "line_ranges": [
+        [
+          11,
+          17
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d3e9ca3b245fc2f117bbaa8a35226967078acbc939f5bd1abdcb63005f1e585d",
+          "signature": "Falah.Domain.Employees.EmployeeRules.AssertEmployeeInput(string, string, string, string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            11,
+            5,
+            17,
+            6
+          ]
+        }
+      ],
+      "evidence": "AssertEmployeeInput validates only name/employee-number/job-title/phone; no compensation amount invariant."
+    },
+    {
+      "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+      "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+      "line_ranges": [
+        [
+          6,
+          21
+        ],
+        [
+          35,
+          47
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3340b9d97b6979ca2d023767c55a1cdec1ef283124eba89d6eeee91db95b004f",
+          "signature": "Falah.Application.Employees.CreateEmployeeRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            6,
+            1,
+            11,
+            25
+          ]
+        },
+        {
+          "stable_id": "sym-2442f8a7cd7a66808bb389bb1178d6cb1c5fcf2d122990e28ff292f4e837ffae",
+          "signature": "Falah.Application.Employees.UpdateEmployeeRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            16,
+            1,
+            21,
+            53
+          ]
+        }
+      ],
+      "evidence": "Create/update DTO monetary properties are signed Int64 values (nullable monthly/overtime); no validation attributes or constructor guards."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "source_git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "line_ranges": [
+        [
+          33,
+          61
+        ],
+        [
+          77,
+          109
+        ],
+        [
+          125,
+          157
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+          "signature": "Falah.Infrastructure.Employees.RecordDailyWageHandler.HandleAsync(Falah.Application.Employees.RecordDailyWageRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            33,
+            5,
+            61,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+          "signature": "Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            77,
+            5,
+            109,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+          "signature": "Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            125,
+            5,
+            157,
+            6
+          ]
+        }
+      ],
+      "evidence": "Daily wage accepts custom-or-stored signed amount; overtime accepts signed custom rate and computes rounded rate*hours; extra shift falls back to daily wage when ShiftValue is not positive. Each posts a credit through EmployeeLedgerPoster; same-key replay semantics differ: daily wage throws on existing deterministic key while overtime/extra return existing row."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          31,
+          50
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+          "signature": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            31,
+            5,
+            51,
+            6
+          ]
+        }
+      ],
+      "evidence": "Poster computes cached balance and stores passed debit/credit piastres as-is; it has no sign invariant or transaction/anchor lock in this helper."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "worktree_sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "source_git_blob_sha256": "445bd6901c7f5e3f170135127a0e68fc9149e2aa175f1c4998256a0ba3760d07",
+      "line_ranges": [
+        [
+          72,
+          80
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-54d1b93e37a5454b9d29091cce3c6c9f77e436deec169292c98bf79656f93099",
+          "signature": "Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            99,
+            6
+          ]
+        }
+      ],
+      "evidence": "Biometric check-in creates DailyWage credit directly for CompensationType Daily from stored DailyWagePiastres without positive guard; this is an alternate production path to the manual daily-wage command."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          83,
+          110
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            83,
+            5,
+            112,
+            6
+          ]
+        }
+      ],
+      "evidence": "Payroll sums all DailyWage/Salary credits into base and Overtime/ExtraShift credits into their buckets; final net is floored at zero, but source ledger is not normalized/rejected for negative credits."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          667,
+          685
+        ],
+        [
+          748,
+          779
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Typed create/update and wage endpoints forward requests to handlers. Handler-level employees_manage authorization governs profile writes; route is not a substitute for server-side monetary invariant validation."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "worktree_sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+      "source_git_blob_sha256": "1b4cdc0cbbc4dafef48b6d0843631814d096bb3c8ba0cab52eeb48f210013e69",
+      "line_ranges": [
+        [
+          113,
+          179
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Inspected test span covers ordinary valid wage/overtime/extra-shift and permission/dedup paths; it does not cover negative profile/custom amounts, negative overtime rate, nonfinite/extreme hours, or negative fallback wage. Tests were not executed."
+    }
+  ]
+}

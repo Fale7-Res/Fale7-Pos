@@ -1,0 +1,162 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-food-cost-report-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T09:15:00Z",
+  "assignment": "Review GetFoodCostReportAsync through product and order-packaging costing, dashboard/report consumers, existing tests, and historical cost semantics. Static only; no tests, DB or runtime actions.",
+  "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "349-423",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "status": "ANALYZED",
+      "note": "Identity/status only; detailed method and consumers were inspected independently for this handoff."
+    }
+  },
+  "source_reasoning": {
+    "product_cost_flow": "Range bounds order creation timestamps (with the same shared status predicate as adjacent reports). It loads sold OrderItem ProductId, VariantId, frozen ProductName and Quantity. Current Product.RecipeId and current ProductVariant.RecipeId maps choose the variant recipe when present, else product recipe. Current recipes/recipe lines, current inventory items, current prep recipes/lines, and all purchase receipts with unit costs are loaded. CostingRules resolves current active prep chains; actual last purchase cost wins, otherwise positive EstimatedUnitCostPiastres is accepted, otherwise unknown. Every sold line increments totalLines; only a fully complete recipe increments knownLines and line cost (known recipe cost times sold quantity). Unknown/no recipe or incomplete recipe adds its product name to Missing and skips its cost.",
+    "order_packaging_flow": "Separately groups every noncancelled in-range order by OrderType, loads current OrderPackagingRules and calls CostingRules.OrderPackagingCost once per order type, multiplying known per-order cost by order count. No active rule returns known zero. An active rule with unknown ingredient cost returns Known=false and its inventory item name; the report adds that name to Missing and skips that packaging amount. This packaging branch does not increment totalLines or knownLines.",
+    "material_completeness_gap": "When all sold product recipes are complete but an active order-packaging rule has unknown cost, TotalFoodCostPiastres omits that order-packaging cost while Missing names it, yet SoldLineCount==KnownLineCount. ReportsViewModel.HasIncompleteFoodCost checks only KnownLineCount < SoldLineCount. OwnerDashboardQueryService passes those same counts to ProfitabilityRules; both gross and operating IsComplete are based only on product-line counts. Therefore the Reports warning and OwnerDashboard unknown-cost warning can remain hidden and the dashboard can present partial known cost/gross profit as complete. The core defect is independent of runtime: the count contract fails to include an explicitly computed unknown order-level cost.",
+    "historical_cost_basis": "This is a current-cost reconstruction, not frozen sale-time COGS. The source loads current product/variant recipe assignments, current recipe/prep definitions and current inventory cost inputs. CostingRules uses the latest actual purchase receipt if one exists; otherwise a positive current estimate is considered known. The ReportsViewModel visibly states the report uses current ingredient prices and recipes rather than sale-time values. Thus historical restatement is source-confirmed but disclosed; whether it is acceptable is an owner accounting policy choice, not an undisclosed defect identified here.",
+    "status_and_date": "The method repeats the adjacent reports' Status != nameof(OrderStatus.Cancelled) filter and shared Range helper; lowercase persisted `cancelled` vs PascalCase query literal and optional-bound semantics therefore remain the same conditional concerns from prior handoffs. Both ReportsViewModel and OwnerDashboardQueryService pass both range bounds. No new status/range conclusion."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "span": "29-53, 143-190",
+      "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "behavior": "IngredientUnitCost selects active prep recipe cost or last actual purchase cost, then positive estimated cost, else unknown. ComputeRecipeCost counts complete recipe lines and exposes IsComplete only when LineCount>0 and KnownLineCount==LineCount. OrderPackagingCost returns zero/known when no active order-type rule exists; with an active rule, unknown unit cost returns zero/false/name, while known cost returns per-order cost."
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "span": "9-23",
+      "sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "behavior": "PurchaseLineTotal uses quantity milli-units times unit cost / 1000; LastPurchaseUnitCost chooses the latest positive actual purchase by timestamp, not a weighted average."
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "span": "70",
+      "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "behavior": "FoodCostReportDto returns only total cost, sold product line count, known product line count and Missing labels; no separate packaging count/completeness bit exists."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "span": "35-60, 205-221",
+      "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "behavior": "Owner dashboard calls GetFoodCostReportAsync for the selected range, then BuildProfitability passes FoodCostReportDto.SoldLineCount/KnownLineCount to gross/operating rules and copies Missing labels to ItemsWithUnknownCost."
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "span": "35-58, 84-107",
+      "sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+      "behavior": "Completeness is `soldLineCount == 0 || knownLineCount >= soldLineCount`; it does not see Missing or packaging completeness. With product lines fully known, partial knownFoodCost caused by unknown package is treated as complete and used for gross profit/operating result."
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "span": "91-109",
+      "sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+      "behavior": "ProfitabilityDto documents incompleteness only in terms of sold lines and exposes IsFoodCostComplete plus missing-item labels; there is no packaging completeness field."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "span": "151-166, 300-303",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "behavior": "Standalone food-cost warning is computed from known product-line count versus sold-line count. It exposes a line coverage label and current recipe/price basis note; it does not inspect FoodCost.Missing for the warning decision."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "span": "336-347",
+      "sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "behavior": "Shows the numeric total and line coverage. Warning Border visibility binds to HasIncompleteFoodCost; Missing itself is not rendered in this section."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+      "span": "231-238, 420-434",
+      "sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5ecf3535f9475a48d65a0",
+      "behavior": "Food-cost caption and HasUnknownFoodCost/UnknownCostLabel are gated by Profitability.IsFoodCostComplete; if true, Missing labels do not make the warning visible."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+      "span": "272",
+      "sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+      "behavior": "Unknown-cost warning visibility is bound to HasUnknownFoodCost, which is false when line-count-based IsFoodCostComplete is true."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "2038-2039, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/food-cost accepts optional from/to, gates on reports_view or all, and returns this DTO."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs",
+      "span": "25-58",
+      "sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "behavior": "Active order-packaging rules are a real persisted configuration path; request stores order type, inventory item, quantity and active flag."
+    }
+  ],
+  "test_evidence": {
+    "report_tests": {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "scenarios": [
+        {
+          "span": "227-256",
+          "name": "Food_cost_report_computes_cogs_from_sold_items_current_recipe_cost",
+          "coverage": "Known recipe cost equals expected current purchase-derived cost and Missing is empty."
+        },
+        {
+          "span": "258-279",
+          "name": "Food_cost_report_names_a_sold_item_with_unknown_ingredient_cost_instead_of_folding_it_in_as_zero",
+          "coverage": "Unknown product ingredient makes Missing nonempty and known total stays zero; test does not create an order-packaging rule."
+        },
+        {
+          "span": "281-300",
+          "name": "A_dish_whose_recipe_has_no_ingredients_is_unknown_cost_not_zero_cost",
+          "coverage": "Empty existing recipe yields one sold line, zero known lines, and Missing."
+        }
+      ],
+      "packaging_gap": "No ReportingVerticalSlice/OwnerDashboard test found that creates a fully costed sold product plus an active order-packaging rule with unknown unit cost, then asserts report/dashboard incompleteness and warning."
+    },
+    "configuration_test": {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "span": "669-680",
+      "coverage": "Verifies a delivery packaging rule can be persisted and listed; it does not run the food-cost report or assert missing-cost completeness."
+    },
+    "owner_dashboard_counterevidence": {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "coverage": "Tests dashboard unknown product-recipe cost (and unrelated financial fields), but no active packaging with unknown cost."
+    },
+    "tests_executed": false
+  },
+  "assessment": {
+    "disposition": "SOURCE_CONFIRMED_COMPLETENESS_DEFECT; RUNTIME_UNVERIFIED",
+    "finding_candidate_overlap": "Corroborates the existing FIN-CAND-PACKAGING-COVERAGE-001 concern at the source level. This handoff does not change any shared candidate/registry or claim runtime proof.",
+    "root_cause": "The DTO's completeness denominator/numerator model counts product order lines only. Unknown order-level packaging adds a Missing label and omits cost, but never lowers KnownLineCount or adds a sold/known packaging obligation. Both ProfitabilityRules and UI warnings derive completeness only from those line counts.",
+    "impact": "Under the precondition that all product recipe lines in the selected report are known and at least one sold order type has an active packaging rule whose inventory item cost is unresolved, the returned total omits packaging but IsComplete/standalone warning state still reports complete. Owner dashboard can publish an overstated gross/operating result as complete; standalone food-cost panel can omit its warning. Runtime incidence depends on actual rules/cost inputs; static path is confirmed.",
+    "counterevidence_and_limits": [
+      "Unknown packaging name remains in FoodCostReportDto.Missing; a direct API consumer could inspect it, though the inspected report and dashboard warning gates ignore it when product line counts are complete.",
+      "When any product recipe line is itself unknown, line counts already mark the report incomplete and UI warning appears; the defect is hidden specifically when incompleteness is only at order packaging (or the product-line denominator is zero).",
+      "No active packaging rule is treated as known zero; that path is valid when restaurant has no configured packaging obligation for an order type.",
+      "No existing report/dashboard test covers unknown order packaging. No tests were run and no actual configured data was inspected."
+    ],
+    "repair_direction": "Represent product-line and order-packaging obligations in a common completeness model (or add explicit packaging/overall completeness fields); carry the unknown packaging state into ProfitabilityRules and warning predicates, and ensure missing labels surface. Add integration tests for fully known dish + active unknown delivery package through both food-cost and owner-dashboard endpoints, verifying partial cost is not labeled complete; also test known package counted exactly once per qualifying order and no-rule behavior.",
+    "historical_cost_disposition": "Source-confirmed current recipe/current purchase cost (latest actual purchase, else positive estimate) is used for old sales. UI explicitly labels current recipes/prices. Preserve as documented owner-policy choice unless sale-time COGS is required; not promoted as an undisclosed defect.",
+    "adjacent_status_range": "Same conditional status/collation and one-sided Range observations as preceding reports; no new evidence changes those dispositions.",
+    "runtime_limits": "No database collation/configuration/data inspection, HTTP invocation or tests. Findings are static source behavior and conditional on current persisted rule/cost inputs."
+  },
+  "next_callable": {
+    "stable_id": "sym-0da894fa646b4e4680a9479fe10eaec5c02e94bafb3a54be07569a23a40fef8b",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSignificantActionsAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "428-464"
+  },
+  "limitations": [
+    "No tests executed.",
+    "No app source, test, DB/runtime, shared report/registry, or Git changes.",
+    "Substantive callable review only; not a global finance completion claim."
+  ]
+}

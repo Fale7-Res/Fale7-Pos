@@ -1,0 +1,77 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:16:37.6066002Z",
+  "path": "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs",
+  "stable_ids": [
+    "sym-5ec08db933d32a2fb15094b2bd3c55152080a240a65031d742f59115a7e26e02",
+    "sym-af1424307ba1bd8245a0c164c10a04ec8543e17632f39a5669f407a19479861e",
+    "sym-7f5fa01c8afec262387324366b40da6a45e51fd32f5aa9a7b8b236edee33f689",
+    "sym-8af94dc0e5c35e560804715826d3bf14950c30c958afbeefb0ead4da3baad058",
+    "sym-82a789cedc3b9e78adebbc1a54a82e323da327686df23a414b825e12b21a5258",
+    "sym-e9d236dd1a036d9db17601beefd17690f915cf269e47c3dfd48f8015594a63b3",
+    "sym-61f91e09570cefbe2c6fc72e809781d6fdc3273a865ecef35397ebf24c765d71",
+    "sym-b34630f108da6338baefd54d39d92baaa56f353a776ea66cddb13c6aad637d24",
+    "sym-0d11b389087ff6b991f1a6e36b101d09acac0b8162a2590b611f911fdf060ecb",
+    "sym-5c0dbd99bbc51a3f4bc7f5e042b9cc07501976207cadccdcadbacb73024316db",
+    "sym-fdd2be18a3d87224276a33f7625fa95df6b905833685d3a848bd8dff79938ffc",
+    "sym-7c4469aaeb094f6e3f6b5e398a34f00f22bb4902a9ce077959fffe7d83d47696",
+    "sym-49eb3fbd360b0cefbdbe847bf6b6e2e56b7f3e1fac6397a33e7b9f6536934cce",
+    "sym-df8b3be58f0382e2fde09ba36d714ca212fea4f2bf37d3282ae617af2b04f2b6"
+  ],
+  "queued_count": 14,
+  "reconciliation": {
+    "current_union_remaining": 14,
+    "coordinator_shard": 14,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs": "63938933D1B29A843037C374978463A4CC9ADA64689C115596ECF1670FFB2EB9",
+    "src/Falah.Domain/Reports/ProfitabilityRules.cs": "912310FAD5A965CF46B0B84C20C78B44059E61475BFC60569D950014527B038F",
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+    "src/Falah.Application/Reports/OwnerDashboardDtos.cs": "0CBCEA3FCB9E03851FE45A316B0FDD6F2B2655F0B95795DB98EAC04137A822DA",
+    "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml": "B1E10C421627332741E9A70078B354F25E02DF46CE74180BD1902007641415C9",
+    "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs": "AC90773E9C322596DF77B62F2F257BE17F16C11B63D7AFB8AA9FAF76732ED0E6"
+  },
+  "findings": [
+    "No new independent finding promoted from this test batch. Tests cover normal/negative gross profit, no sales, partial/all unknown food cost, posted wage distinction, expense ratios and no-wage wage-ratio null behavior.",
+    "Bounded completeness caveat: with wagePostingCount=0, ComputeOperatingMargin keeps a numeric OperatingResult subtracting zero wages and leaves IsComplete tied only to food cost coverage. The dashboard DTO exposes the result but its explicit completeness flag is IsFoodCostComplete; UI labels the wage row as posted wages and separately renders WagePercent as unknown. This is a potentially optimistic partial measure, but source comments/tests document that operating result means costs recorded by system, not net profit; missing rent/depreciation/unentered expense caveat is prominent. Existing financial ledger already records the same wage/packaging completeness limitation (ledger entry for this test path notes bounded estimate policy). No duplicate candidate raised.",
+    "OwnerDashboardVerticalSliceTests only verifies OperatingResult null when no sold line has any known food cost; it does not verify dashboard display for a period with no wage entries."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "lines": "80-105",
+      "claim": "OperatingResult is withheld when all sold food cost is unknown; otherwise numeric subtraction includes wages amount, while IsComplete only tracks food-cost line coverage and WagePercent is null when no wage posts."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "lines": "180-220",
+      "claim": "Wage query counts posted earning ledger entries; builder passes the count to domain rules and projects nullable wage percent and operating result."
+    },
+    {
+      "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+      "lines": "93-108",
+      "claim": "DTO explicitly calls completeness IsFoodCostComplete and comments WagePercent is null when no wage entry was posted; OperatingResult is a separate nullable number."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+      "lines": "260-274",
+      "claim": "Dashboard displays posted wages and an unknown wage percent alongside operating result; caption says rents/depreciation/unregistered expense are excluded."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs",
+      "lines": "67-170",
+      "claim": "Domain tests assert absent wage postings produce null WagePercent but still a numeric OperatingResult; unknown food cost with no known line makes operating result null."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "lines": "96-107",
+      "claim": "Integration test checks only that fully unknown food cost nulls operating result."
+    }
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static source review only. No tests, DB access, transactions, or runtime queries executed.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

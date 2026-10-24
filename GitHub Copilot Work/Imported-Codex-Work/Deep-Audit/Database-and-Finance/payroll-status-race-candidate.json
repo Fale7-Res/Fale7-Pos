@@ -1,0 +1,115 @@
+{
+  "candidate_key": "PAYROLL_CANCEL_PAYMENT_STALE_STATUS_RACE",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root finishing explicitly interrupted financial competing-path lead",
+  "at_utc": "2026-10-18T03:23:05.441660+00:00",
+  "status": "SOURCE_SUPPORTED_HIGH_CANDIDATE_PENDING_INDEPENDENT_CHALLENGE",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "lines": [
+        24,
+        60
+      ],
+      "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "symbols": [
+        "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "lines": [
+        62,
+        87
+      ],
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "symbols": [
+        "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+        "sym-e1836001213e59d67e5f4c5b5d410a03df04bd624f958d0722a0947d8d809d3a"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "lines": [
+        110,
+        162
+      ],
+      "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "symbols": [
+        "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "lines": [
+        13,
+        27
+      ],
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "lines": [
+        460,
+        477
+      ],
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "symbols": [
+        "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+        "sym-6f67681e797db4ee997d1bcf1474ca758f599548efd3458247443aa35af32fcd"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+      "lines": [
+        5,
+        20
+      ],
+      "source_git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "symbols": []
+    }
+  ],
+  "root_cause": "Generic transition and payment authorize status on tracked pre-write snapshots without shared run lock/conditional status predicate/concurrency token.",
+  "schedules": [
+    {
+      "steps": [
+        "Cancellation loads Approved34 and validates Approved->Cancelled37, then pauses.",
+        "Payment reads Approved62-74, valid actor/account/day/balance; posts movement+settlements and commits Paid161-162.",
+        "Cancellation resumes sets Cancelled55 and SaveChanges59; no run concurrency token in entity/model."
+      ],
+      "predicted_effect": "Paid movement and settlement remain while run status becomes Cancelled. Filtered live-period index excludes Cancelled; subsequent run creation eligibility may change. No claim actual duplicate payment reproduced."
+    },
+    {
+      "steps": [
+        "Payment reads Approved62-74 and lines86, then pauses before transaction111.",
+        "Cancellation reads Approved and commits Cancelled59.",
+        "Payment resumes, starts transaction, locks only source balance118, not run state; sets Paid149 and commits."
+      ],
+      "predicted_effect": "Cancelled run can still be paid. Choose no replacement run inserted, avoiding unique live-period index conflict."
+    }
+  ],
+  "counterevidence": [
+    "Same-run payment idempotency key and unique journal/movement prevents duplicate same-run payment; does not coordinate status-only transition.",
+    "Payment source balance lock is inside transaction and protects cash balance; does not revalidate payroll status.",
+    "Paid and Cancelled terminal domain states reject newly read invalid transitions; selected schedules deliberately validate earlier Approved snapshots.",
+    "Filtered unique live-period index can reject a payment restoring Paid when another active run has already been inserted; chosen no-new-run schedule avoids this counterexample.",
+    "Actual EF SQL predicate and database acceptance not observed; source model/entity show no run concurrency token."
+  ],
+  "impact": "Money may leave for a run already cancelled, or completed financial settlement be displayed as cancelled; downstream reports and retry/recreation decisions unreliable.",
+  "proposed_fix": "Coordinate pay/cancel/review transitions on same transaction-held run lock or compare-and-swap concurrency token; recheck state and lines inside monetary critical section; retain idempotency and consistent lock order.",
+  "required_tests": [
+    "Approved snapshot pause then cancel commit then payment resume must reject all financial writes",
+    "Cancel snapshot pause then pay commit then cancel resume must reject without changing Paid",
+    "Same-run duplicate payment retains one movement",
+    "Interleaving with newly created replacement period run and live-period unique index"
+  ],
+  "verification": "SOURCE_ONLY; no DB mutation or transactions executed",
+  "independent_challenge": "PENDING; financial specialist unavailable thread-limit; root author is not independent challenger"
+}

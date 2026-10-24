@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs",
+  "source_git_blob_sha256": "255209e418f421aa749563c9dc2cedfd4f5ed59a22ee7845ecab737733ad5275",
+  "worktree_sha256": "6c354f62493fe359a802524930a881d825b21fc3c1359c47c162017020858bad",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:40:48.078112+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Native picker source read; no file selection or image upload performed.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-a2726d34833c5a2f3095d636596049c0ff34aae35901a3b2847b4eae84a10502",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Platform.ImageFilePicker.PickAsync()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        15,
+        5,
+        41,
+        6
+      ],
+      "reasoning": "Returns null if main window unavailable, creates JPG/JPEG/PNG/WebP picker parented with actual native window handle, awaits file selection, reads entire selected stream into memory, maps extension to MIME and returns bytes. Cancellation returns null. No size limit before whole-file allocation; server validation cannot prevent client allocation. No local file was picked during audit.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Large local image allocation and picker cancellation/failure need tests; MIME derived extension is not trusted content validation.",
+      "tests_missing": "Large local image allocation and picker cancellation/failure need tests; MIME derived extension is not trusted content validation. NOT_EXECUTED.",
+      "verified_callers_callees": "App.MainAppWindow; FileOpenPicker; InitializeWithWindow; PickSingleFileAsync; CopyToAsync"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

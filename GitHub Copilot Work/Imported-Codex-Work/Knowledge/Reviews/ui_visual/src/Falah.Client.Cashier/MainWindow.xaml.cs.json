@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/MainWindow.xaml.cs",
+  "source_git_blob_sha256": "e04fad78c7de6f4c759cc4ecba0b70be8c02f3f6bcff81e97011a24a0ecebbf9",
+  "worktree_sha256": "477928047643d3dfb96685c107e198710dbb642951111f5d0f98844e1ef200a3",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:55:23.437174+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Legacy WPF window startup exact constructor.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/MainWindow.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-42dc4ea815b97ba5b48657f55cb490023b05524c135d3b42ea8a00d48d9877c5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.MainWindow.MainWindow()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        18,
+        5,
+        22,
+        6
+      ],
+      "reasoning": "Initializes WPF window and assigns new MainViewModel, triggering its timers and login view state when actually launched. No custom closing guard registered here.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Audit did not construct window; legacy shutdown pending-operation safety differs active WinUI.",
+      "tests_missing": "Audit did not construct window; legacy shutdown pending-operation safety differs active WinUI. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent; new MainViewModel"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

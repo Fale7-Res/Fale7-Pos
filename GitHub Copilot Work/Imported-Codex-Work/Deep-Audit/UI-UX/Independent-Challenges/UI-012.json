@@ -1,0 +1,115 @@
+{
+  "id": "UI-012",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_AUTO_PRINT_SETTING_MITIGATION_REJECTED",
+  "severity_assessment": "HIGH conditional duplicate kitchen preparation risk; actual paper output NOT executed.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "startLine": 337,
+      "endLine": 343,
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "symbol": {
+        "stable_id": "sym-0f0caea531cc42e42350fff8bdee7dbdb04497ea17d973b4200d2ef8bf6a7109",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.ReprintLookedUpOrderAsync()",
+        "startLine": 336,
+        "endLine": 344,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Customer receipt reprint constructor omits optional IncludeKitchenRoutes, so true."
+    },
+    {
+      "path": "src/Falah.Application/Printing/PrintingRequests.cs",
+      "startLine": 15,
+      "endLine": 21,
+      "source_git_blob_sha256": "132837514fd334d8066193fc04ce8a57759246c32df73b4de901d809eea6237d",
+      "worktree_sha256": "b49f26ad9bcd56d10236fdd5f0e6c4000b86492e6f96cd92b57a2e4055111d3b",
+      "symbol": null,
+      "evidence": "Actual DTO default IncludeKitchenRoutes=true distinct from IsReprint=true."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml",
+      "startLine": 170,
+      "endLine": 171,
+      "source_git_blob_sha256": "16e9dba5bd2305650d309c15a2ac58848e15e2d3820ae05ff1473b2ee02a06ed",
+      "worktree_sha256": "67022609cfa8b4a82b59f2b225725d921e8596defeda694af4a1a47bfef79eea",
+      "symbol": null,
+      "evidence": "Action labelled reprint CallCenter receipt, not explicit full kitchen preparation."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "startLine": 32,
+      "endLine": 92,
+      "source_git_blob_sha256": "59acb00e831bcbaaac53ebf3ddeff7ffaef460a4702da93c71a580f173cdcf45",
+      "worktree_sha256": "ac7a5a9aefba464dfb2444c86d6a5bb22149455b2f82856f3fea4971931ff941",
+      "symbol": {
+        "stable_id": "sym-98d59816766ac625a3e02dedf1b8907a60da00c6556f8aa682d19845057f20f0",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Printing.CreatePrintJobsHandler.HandleAsync(Falah.Application.Printing.CreatePrintJobsRequest, CancellationToken)",
+        "startLine": 32,
+        "endLine": 93,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Handler directly uses IncludeKitchenRoutes to derive kitchen routes; no settings lookup, creates fresh pending jobs on new request ID and marks IsReprint."
+    },
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "startLine": 24,
+      "endLine": 30,
+      "source_git_blob_sha256": "a12792b890d3264b90a1b3f72c8ad87bdd9c52a039dfc27c64ccc82e743e1db7",
+      "worktree_sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "symbol": {
+        "stable_id": "sym-70ee7a7a8497b22609a80516e74e5a72cdc13f88b4efff2043b3f43a2ca2802b",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Domain.Printing.PrintRules.DetermineKitchenRoutes(IEnumerable<string?>)",
+        "startLine": 24,
+        "endLine": 30,
+        "startColumn": 5,
+        "endColumn": 26
+      },
+      "evidence": "Only valid Grill/Charcoal preparation stations derive routes; drinks/no station produces no kitchen job."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "startLine": 63,
+      "endLine": 83,
+      "source_git_blob_sha256": "2f1bb87e4d9f442dbd11ade3b43b2955967ff5ac8971265bc7125cd1f87b04f2",
+      "worktree_sha256": "0a7282c6766d2a7b446739d56984950d87ab69f52f88dd3be88f27609484a542",
+      "symbol": {
+        "stable_id": "sym-bf73ddf0b2517152a6d52e705c53183483c6bd5ef8b1f1d1f4fc4cead5837255",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Printing.OrderAutoPrintService.TryPrintAsync(Falah.Application.Orders.CheckoutOrderRequest, Falah.Application.Orders.CheckoutOrderResult, CancellationToken)",
+        "startLine": 46,
+        "endLine": 94,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "AutoPrintPreparationTicket and HoldPreparationUntilPaymentConfirmed influence automatic initial checkout caller flag, not generic manual CreatePrintJobs handler."
+    }
+  ],
+  "preconditions": [
+    "Operator requests customer receipt reprint of an order containing Grill/Charcoal station snapshots.",
+    "New reprint request succeeds; preparation worker/printer must later process it before actual cooking duplication."
+  ],
+  "counterevidence": [
+    "Same request ID idempotency returns existing jobs, so ambiguous retry of that request alone is not an extra kitchen batch.",
+    "Job IsReprint provides visible context; kitchen staff may correctly ignore repeated preparation.",
+    "No preparation station items means no kitchen jobs.",
+    "Original author counterargument global preparation setting prevents this manual request is contradicted by handler: only automatic checkout caller checks those settings."
+  ],
+  "recommended_remediation": "Send explicit IncludeKitchenRoutes=false for customer copy and provide separately labelled deliberate kitchen reprint if required.",
+  "required_tests": [
+    "CallCenter reprint DTO assertion false for customer-only action.",
+    "Handler fixture customer-only no Grill/Charcoal jobs; explicit kitchen request creates intended routes.",
+    "Verify settings differences across automatic initial print and manual reprint without physical printers."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:48:29.444011+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source-only challenge; no application or service execution",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local challenge only"
+}

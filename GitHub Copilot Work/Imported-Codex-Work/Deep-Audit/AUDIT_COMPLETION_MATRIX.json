@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "assessment_kind": "management_remaining_work_assessment",
+  "assessment_date": "2026-10-24",
+  "audit_completion_claim": false,
+  "owner_scope": "Assessment only; no new financial callable review or semantic mirror comparison performed for this assessment.",
+  "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "git_state_at_assessment": {
+    "branch": "main",
+    "head": "9beff52a6c9c6c4f7244cbd46dc449da91745582",
+    "application_source_and_tests_match_baseline": true,
+    "worktree_clean": false,
+    "publication_performed": false,
+    "note": "Many audit document changes and untracked artifacts exist; unrelated/temp candidates were observed and not cleaned or published."
+  },
+  "agent_state": {
+    "financial_integrity_continuation": "INTERRUPTED/PAUSED after owner requested assessment-only; existing assignment was PayrollRules.AssertTransition.",
+    "original_financial_integrity_agent": "Unavailable in saved coordination record.",
+    "other_specialists": "Paused; not activated for this assessment."
+  },
+  "measurable_coverage": {
+    "file_reports": {
+      "reported_count": 690,
+      "quality_status": "Reports exist according to the saved source inventory, but report presence does not certify substantive callable analysis.",
+      "independent_final_acceptance": false
+    },
+    "financial_callable_evidence_classes": {
+      "identity_total": 8804,
+      "substantive_review_verified": 73,
+      "existing_reasoning_unverified": 7748,
+      "identity_only": 983,
+      "class_sum_matches_total": true,
+      "verified_fraction_of_financial_callable_identities": 0.008292,
+      "meaning": "0.83% of this evidence-class ledger has explicit substantive verification. This is not the financial audit completion percentage; other substantive work is not globally reconciled to this denominator and full substantive completion is UNKNOWN.",
+      "financial_file_ledger": {
+        "scope_count": 327,
+        "record_count": 327,
+        "unique_paths": 327,
+        "source_hashes_match": 327,
+        "has_reasoning_and_line_spans": 327,
+        "semantic_callable_depth_proven": false,
+        "coverage_complete_flag": false
+      }
+    },
+    "mirrored_code": {
+      "ast_candidate_groups": 218,
+      "ast_groups_with_disposition": 218,
+      "semantic_comparisons_recorded": 71,
+      "semantic_artifact_inputs": 70,
+      "source_reference_records": 475,
+      "distinct_source_paths": 215,
+      "referenced_callable_ids": 1027,
+      "explicit_line_ranges": 705,
+      "semantic_completeness_exhaustive": false,
+      "gate": "OPEN",
+      "metadata_inconsistency": "latest_semantic_group is SEM-MIRROR-071 while latest_comparison is SEM-MIRROR-066; reconcile before closure."
+    },
+    "master_findings": {
+      "records": 77,
+      "severity_record_counts": {
+        "HIGH": 31,
+        "HIGH_REQUIREMENT_GAP": 1,
+        "MEDIUM": 40,
+        "LOW": 5
+      },
+      "unique_confirmed_defect_count": "UNKNOWN; counts are records, not deduplicated runtime-confirmed defects."
+    },
+    "required_deliverables": {
+      "present_by_expected_basename": 11,
+      "missing_by_expected_basename": 8,
+      "present_does_not_mean_finally_accepted": true
+    }
+  },
+  "phases": [
+    {"number": 1, "name": "Verified source of truth and architecture", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["baseline source identity", "source inventory and function index exist"], "receipt_or_unverified_evidence": ["inventory/hashes do not prove full architecture or generated/runtime correspondence"], "remaining": ["ARCHITECTURE_AND_SOURCE_MAP.md", "verify configuration/DI/generated behavior and cross-project paths", "final source-consistency gate"], "blockers": ["semantic/runtime reachability evidence is incomplete"], "depends_on": [], "minimum_close": "Publish an evidence-linked architecture map with explicit generated/runtime limitations and validate source references."},
+    {"number": 2, "name": "Per-file and per-function review", "status": "NOT READY", "substantive_evidence": ["690 file report files are inventoried", "73 financial callable IDs explicitly classified substantive verified"], "receipt_or_unverified_evidence": ["historical 11,653 callable index", "7,748 financial reasoning entries unverified", "983 financial identity-only entries"], "remaining": ["reconcile current repository callable denominator", "review evidence quality by risk", "give justified dispositions for remaining applicable callable contexts"], "blockers": ["no current global substantive callable count; report presence is not depth"], "depends_on": [1, 3, 4, 5, 6, 7, 8, 9, 10, 11], "minimum_close": "Evidence-backed callable coverage ledger with verified, unverified, incomplete, not-applicable reasons and bounded scope."},
+    {"number": 3, "name": "Adversarial security and hidden behavior", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["SEC-001 source/binding path and limited harness results", "SEC-003 employee-read path documented"], "receipt_or_unverified_evidence": ["security plugin did not produce a successful full scan", "search hits/receipts do not establish full endpoint or backdoor coverage"], "remaining": ["authorization and SQL boundary matrix", "timers/native/startup/exfiltration review", "independent challenge for each High/Critical security record", "final security report reconciliation"], "blockers": ["live privileged/DB testing not executed"], "depends_on": [1, 2, 4, 13, 14], "minimum_close": "Complete bounded source threat model, disposition each material lead, challenge high findings and state unexecuted runtime limits."},
+    {"number": 4, "name": "Direct/transitive dependency security and SBOM", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["210 NuGet component snapshot and saved advisory/version comparisons", "limited metadata cross-checks"], "receipt_or_unverified_evidence": ["saved feed snapshot is dated and not full runtime/RID exposure or license certification"], "remaining": ["refresh advisory state at freeze", "reconcile deployed assets/native/shared framework", "finish license/provenance/compatibility disposition"], "blockers": ["runtime deployment inventory and full license evidence unavailable in saved gate"], "depends_on": [1, 3, 15], "minimum_close": "A reproducible component inventory, advisory source/date, runtime reachability and documented exception/remediation for each material item."},
+    {"number": 5, "name": "Pickup/order intake and payment lifecycle", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["source report states current pickup is prepaid and requested two-stage lifecycle is absent", "FLOW-001 requirement gap and FLOW-002 dependency documented"], "receipt_or_unverified_evidence": ["static trace does not prove deployed end-to-end behavior"], "remaining": ["owner policy on reservation/preparation/payment/handover", "cross-layer lifecycle and stock/ledger/cancellation mapping", "safe test plan"], "blockers": ["business requirements unresolved; no runtime order test"], "depends_on": [6, 7, 9, 13], "minimum_close": "Document approved state/payment invariants, trace every boundary and define integration acceptance scenarios."},
+    {"number": 6, "name": "Delivery preparation, receipts and payment states", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["checkout/dispatch/COD/custody source traces", "Batch16 independent source/hash/range check supplements FIN-016"], "receipt_or_unverified_evidence": ["no integrated SQL/API/client run; policy assumptions remain"], "remaining": ["reconcile pending electronic/preparation and settlement paths", "disposition fee sign/null semantics", "document retry/custody/receipt acceptance tests"], "blockers": ["owner decisions and DB integration tests not run"], "depends_on": [5, 7, 9, 13], "minimum_close": "One cross-layer state and money-flow map with policy questions separated from code defects and test gaps."},
+    {"number": 7, "name": "Printing reliability, Arabic rendering and preview", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["static report with transport, journal and raster analysis", "PRT-001 through PRT-004 saved in report; PRT-005 appears in master"], "receipt_or_unverified_evidence": ["past route receipts and report text are not a full route/state challenge or paper test"], "remaining": ["route/caller and recovery/retry/reprint matrix", "Arabic clipping/RTL/thermal preview limits", "safe preview/renderer and fake transport validation plan", "independent PRT-005 safety review"], "blockers": ["no spooler/printer/paper operation; hardware permission required"], "depends_on": [5, 6, 8, 13], "minimum_close": "Finish static path matrix and isolated simulation where safe; explicitly defer physical acceptance until authorized hardware tests."},
+    {"number": 8, "name": "Visual UI/UX and accessibility", "status": "NOT READY", "substantive_evidence": ["UI source reports and challenge artifacts exist; UI-UX directory has saved files"], "receipt_or_unverified_evidence": ["older file/callable receipts do not establish screen-by-state visual coverage"], "remaining": ["UI_UX_VISUAL_AUDIT.md", "contrast, RTL, navigation, loading/error/retry and permissions state matrix", "native visual validation or clear limitations"], "blockers": ["native app/screenshots not verified in current assessment"], "depends_on": [2, 5, 7, 13], "minimum_close": "Map relevant screen/state combinations to source and visual evidence; mark unavailable native states untested."},
+    {"number": 9, "name": "Database and financial integrity", "status": "NOT READY", "substantive_evidence": ["73/8,804 financial IDs substantive verified", "327/327 financial file records pass structural consistency", "financial workflow findings and source challenges exist"], "receipt_or_unverified_evidence": ["7,748 existing reasoning unverified; 983 identity-only; overall substantive amount UNKNOWN"], "remaining": ["high-risk callable and invariant coverage", "payroll overlap/pay-cancel and close/day/deposit concurrency", "purchase quantity/cost, shift attribution, reports, refund and fee policy", "line-range/finding reconciliation and independent challenges"], "blockers": ["SQL/concurrency/runtime tests not executed; owner policies unresolved; specialist paused"], "depends_on": [1, 2, 5, 6, 11, 13, 14], "minimum_close": "Risk-based substantive evidence for material money-moving/state-writing paths and a reconciled finding/test matrix; disclose all runtime gaps."},
+    {"number": 10, "name": "Performance and practical minimum hardware", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["source-focused performance report covers 12 candidate records and counterevidence"], "receipt_or_unverified_evidence": ["hardware envelopes are hypotheses, not certified requirements"], "remaining": ["representative workload, query plans, memory/CPU/UI latency and hardware measurements", "performance findings challenge and final test plan"], "blockers": ["no profiling/load/hardware benchmark"], "depends_on": [1, 4, 7, 9, 14], "minimum_close": "Report repeatable measured results or label minimum hardware not certified, with test configuration and workload."},
+    {"number": 11, "name": "Duplicated code and architecture", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["218/218 AST candidate dispositions", "71 semantic comparison records", "canonical report exists"], "receipt_or_unverified_evidence": ["bounded comparison artifacts and mechanical link/hash/range checks do not prove semantic exhaustiveness"], "remaining": ["reconcile latest comparison metadata 066 vs SEM-071", "ensure 71 artifacts/findings cross-reference report", "close selected high-impact semantic mirrors and document stopping rule"], "blockers": ["renamed semantic/dead/generated/reachability scope cannot be exhaustive; final report flag false"], "depends_on": [1, 2, 5, 6, 9, 13], "minimum_close": "Disposition the finite AST inventory and bounded material workflow candidates, reconcile evidence, and state residual semantic coverage limits."},
+    {"number": 12, "name": "Immediate fixes, near-term and future recommendations", "status": "NOT READY", "substantive_evidence": ["some per-finding repair ideas/tests and workflow design notes are saved"], "receipt_or_unverified_evidence": ["no consolidated canonical immediate/future recommendation reports"], "remaining": ["IMMEDIATE_FIXES_AND_FEATURES.md", "FUTURE_IMPROVEMENTS_AND_FEATURES.md", "owner decisions, priority/dependencies and regression strategy"], "blockers": ["findings not finally deduplicated/severity reconciled"], "depends_on": [3, 4, 5, 6, 7, 8, 9, 10, 11, 13], "minimum_close": "Prioritized recommendations traceable to canonical findings, with acceptance tests, dependencies, and risk."},
+    {"number": 13, "name": "Finding evidence, confidence and independent challenge", "status": "PARTIALLY COMPLETE", "substantive_evidence": ["77 canonical records; multiple independent challenge files; Batch16 and payroll sample reviews corroborated"], "receipt_or_unverified_evidence": ["counts include requirement gaps and possible overlap; not all findings independently challenged"], "remaining": ["deduplicate/reconcile IDs and cross-report references", "validate hashes/lines/symbols/claims", "challenge all High/Critical or document independence limitation"], "blockers": ["not all historic reports/current source references have a single accepted gate"], "depends_on": [2, 3, 9, 11, 14], "minimum_close": "A quality-checked canonical registry with evidence type, confidence, counterevidence, proposed repair/tests and independent-review status per material record."},
+    {"number": 14, "name": "Coverage accounting and quality gates", "status": "NOT READY", "substantive_evidence": ["source/function inventories, file report count, financial and mirror consistency gates"], "receipt_or_unverified_evidence": ["counts from different dates/schemas conflict; presence/hash checks are not review-quality checks"], "remaining": ["AUDIT_COVERAGE.json", "one denominator and status taxonomy per scope", "recalculate links/source hashes/function coverage and resolve stale counts"], "blockers": ["no final unified coverage matrix; old phase reports retain stale snapshots"], "depends_on": [1, 2, 13, 15], "minimum_close": "Reproducible coverage totals explicitly separating indexed, reasoned, verified, independently challenged and runtime-tested."},
+    {"number": 15, "name": "Final reports and implementation roadmap", "status": "NOT READY", "substantive_evidence": ["11 of 19 expected deliverables exist by basename; substantive drafts and master registry are saved"], "receipt_or_unverified_evidence": ["existing file presence does not prove final acceptance; 8 exact deliverables missing"], "remaining": ["Arabic executive summary", "architecture map", "UI/UX report", "test coverage report", "immediate and future recommendations", "audit coverage JSON", "implementation roadmap", "final validation of all existing 11"], "blockers": ["phases 1-14 remain open or partial"], "depends_on": "Phases 1-14", "minimum_close": "All 19 named deliverables substantive, linked, schema-valid and privacy-reviewed, with phase limitations and final gate recorded."}
+  ],
+  "printing_readiness": {
+    "agent_activated": false,
+    "physical_jobs_sent": false,
+    "saved_reports": ["Codex Work/Deep-Audit/Printing/PRINTING_RELIABILITY_AND_PREVIEW.md", "Codex Work/Deep-Audit/Printing/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md"],
+    "static_findings": ["PRT-001", "PRT-002", "PRT-003", "PRT-004", "PRT-005"],
+    "sufficiently_covered": {
+      "Arabic_rendering_and_clipping": false,
+      "route_mapping_for_all_document_types": false,
+      "reprints_retries_duplicates_and_recovery": false,
+      "true_to_paper_preview": false
+    },
+    "isolated_possible_tests": ["synthetic receipt render to image/ESC-POS file", "fake transport and spooler state/cancellation tests", "journal crash/retry/replay tests", "route/state mapping against source and test fixtures"],
+    "owner_authorization_or_hardware_required": ["send a physical print job", "verify actual paper legibility, Arabic shaping/clipping, darkness, feed/cut and QR scan", "test deployed printer/spooler behavior on restaurant hardware"]
+  },
+  "deliverables": [
+    {"name":"EXECUTIVE_SUMMARY.md","status":"MISSING","path":null},
+    {"name":"ARCHITECTURE_AND_SOURCE_MAP.md","status":"MISSING","path":null},
+    {"name":"SOURCE_INVENTORY.csv","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Source-Inventory/Current/SOURCE_INVENTORY.csv"},
+    {"name":"FUNCTION_INDEX.json","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Source-Inventory/Current/FUNCTION_INDEX.json"},
+    {"name":"SECURITY_AND_BACKDOOR_AUDIT.md","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Security/SECURITY_AND_BACKDOOR_AUDIT.md"},
+    {"name":"DEPENDENCY_SECURITY_AND_SBOM.md","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Dependency-Security/DEPENDENCY_SECURITY_AND_SBOM.md"},
+    {"name":"PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Printing/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md"},
+    {"name":"PRINTING_RELIABILITY_AND_PREVIEW.md","status":"EXISTS_DRAFT","path":"Codex Work/Deep-Audit/Printing/PRINTING_RELIABILITY_AND_PREVIEW.md"},
+    {"name":"UI_UX_VISUAL_AUDIT.md","status":"MISSING","path":null},
+    {"name":"DATABASE_AND_FINANCIAL_INTEGRITY.md","status":"EXISTS_DRAFT_OPEN_GATE","path":"Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md"},
+    {"name":"PERFORMANCE_AND_MINIMUM_HARDWARE.md","status":"EXISTS_DRAFT_MEASUREMENTS_OPEN","path":"Codex Work/Deep-Audit/Performance/PERFORMANCE_AND_MINIMUM_HARDWARE.md"},
+    {"name":"CODE_DUPLICATION_AND_ARCHITECTURE.md","status":"EXISTS_DRAFT_OPEN_GATE","path":"Codex Work/Deep-Audit/CODE_DUPLICATION_AND_ARCHITECTURE.md"},
+    {"name":"TEST_COVERAGE_AND_MISSING_TESTS.md","status":"MISSING","path":null},
+    {"name":"IMMEDIATE_FIXES_AND_FEATURES.md","status":"MISSING","path":null},
+    {"name":"FUTURE_IMPROVEMENTS_AND_FEATURES.md","status":"MISSING","path":null},
+    {"name":"MASTER_FINDINGS.json","status":"EXISTS_OPEN_QUALITY_GATE","path":"Codex Work/Deep-Audit/MASTER_FINDINGS.json"},
+    {"name":"AUDIT_COVERAGE.json","status":"MISSING","path":null},
+    {"name":"IMPLEMENTATION_ROADMAP.md","status":"MISSING","path":null},
+    {"name":"FILE_REPORTS/","status":"EXISTS_690_REPORTS_DEPTH_OPEN","path":"Codex Work/Deep-Audit/File-Reports/"}
+  ],
+  "effort_estimate_review_hours_single_experienced_reviewer": {
+    "optimistic": {"min": 550, "max": 940},
+    "realistic": {"min": 1070, "max": 1820},
+    "conservative": {"min": 2000, "max": 3120},
+    "confidence": "LOW_TO_MEDIUM",
+    "assumptions": ["risk-based substantive review with explicit dispositions for low-risk/generated cases", "no application fixes included", "runtime/hardware verification mostly excluded", "existing evidence reused only after quality validation", "calendar duration cannot be inferred from review-hours due to usage limits, agent availability and test-environment access"],
+    "additional_runtime_and_hardware_effort": "At least approximately 80-200+ review/test hours may be needed, with unbounded access/wait variation; SQL, concurrency, printer and hardware tests are not included in core estimates."
+  },
+  "finite_audit_exit_criteria": [
+    "Each original phase has a source-linked disposition and explicit residual limitations.",
+    "Financial material callables and workflows have substantive evidence; receipt totals are not used as a proxy.",
+    "The finite 218 AST candidate list and selected high-impact semantic mirrors are dispositioned; search scope and stopping rule are stated without an exhaustive-absence claim.",
+    "All High/Critical findings have an independent challenge or a named limitation; duplicate/overlap records are reconciled.",
+    "All 19 deliverables are substantive, linked and schema/privacy checked.",
+    "Runtime, integration, physical printer and post-fix acceptance remain separate gates and are never marked passed when not executed."
+  ],
+  "implementation_readiness": {
+    "ready_to_begin_fixes_now": false,
+    "reason": "Financial and mirror gates are open; other original phases are open/paused; eight final deliverables are missing and findings need final deduplication/actionability validation.",
+    "recommended_sequence": ["resolve owner business-policy questions", "create isolated characterization and regression tests", "address security/financial invariants and transaction/idempotency issues in small dependency-aware changes", "implement workflow gaps only after policy approval", "address printing state/recovery and then physical acceptance", "optimize/refactor only after measurements and equivalence tests"]
+  },
+  "assessment_artifacts": ["Codex Work/Deep-Audit/AUDIT_REMAINING_WORK_ASSESSMENT.md", "Codex Work/Deep-Audit/AUDIT_COMPLETION_MATRIX.json", "Codex Work/Conversation-Recovery/NEXT_ACTION.md"]
+}

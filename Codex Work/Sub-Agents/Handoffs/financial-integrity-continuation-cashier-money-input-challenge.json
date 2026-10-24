@@ -1,0 +1,79 @@
+{
+  "artifact_kind": "financial_integrity_bounded_challenge",
+  "id": "FIN-CAND-CASHIER-LEGACY-DECIMAL-ROUNDING-001",
+  "created_at_utc": "2026-10-20T10:45:00Z",
+  "status": "SOURCE_CONFIRMED_CLIENT_BOUNDARY_ROUNDING_GAP_LOW_BOUNDED_EFFECT_RUNTIME_UNVERIFIED",
+  "title": "Legacy cashier shift-open and refund inputs silently round unsupported decimal precision",
+  "scope": "Bounded static challenge of Falah.Client.Cashier OpenShiftAsync and SubmitRefundAsync against CashInput and server-side protections; no other parsing routes examined.",
+  "assessment": {
+    "reachable_path": "Both client projects are explicitly included in Falah.sln; the old Falah.Client.Cashier command bindings reach these methods at source level, while the newer Falah.Client.CashierWinUI has separate bounded parsing. Project inclusion establishes potential build/reachability only, not deployment or actual use.",
+    "source_confirmed_mechanics": "Both old-client methods use culture-default decimal.TryParse and (long)Math.Round(amountEgp * 100m). The overload defaults to midpoint-to-even. They accept decimal precision finer than one piastre; values such as 0.025 EGP become 2 piastres, whereas CashInput rejects such inputs and Money.FromEgp uses midpoint away-from-zero (3 piastres). For 0.005 EGP, old-client conversion yields 0 piastres.",
+    "effect": "Shift-open can record a different opening-float value than entered by up to one piastre due solely to midpoint choice, and silently quantizes unsupported extra fractional digits. Refund can similarly be quantized by up to one piastre; a positive sub-piastre amount can become zero and is rejected server-side. No evidence here supports a materially larger direct financial loss through this rounding mismatch.",
+    "server_defenses": "OpenShiftHandler consumes integer piastres, and positive opening cash must pass protected main-treasury available-balance validation before posting. RefundOrderHandler clamps to the order refundable remainder, rejects non-positive safe amounts, requires orders_refund authorization or manager approval, and checks protected source-account balance under lock before posting. These guards bound the older client rounding effect; they cannot restore discarded precision. Server requests carry integer piastres, so server handlers cannot detect that a legacy client accepted extra decimal places or selected midpoint-to-even; these controls bound resulting loss rather than validate the original typed EGP text.",
+    "counterevidence": "The newer CashInput.TryParse path enforces non-negative decimal input, representable piastre bounds, and at most two effective decimals, then converts without rounding. Newer WinUI shift-open and refund viewmodels use CashInput. Existing CashierCorrectnessTests assert rejection of 1.001 and an unrepresentable amount. These counterexamples narrow the defect to the specified older client paths.",
+    "classification": {
+      "client_rounding_and_server_guards": "SOURCE_CONFIRMED",
+      "financially_material_realization": "NOT_ESTABLISHED; maximum direct rounding delta identified is one piastre per affected entry",
+      "runtime_or_live_usage": "NOT_TESTED",
+      "test_execution": "NOT_RUN",
+      "source_or_database_modified": false
+    },
+    "recommendation": "Use the bounded CashInput parser (or equivalent) in these legacy commands and reject unsupported fractional precision rather than silently rounding; add a focused test for midpoint and sub-piastre inputs if this client remains supported."
+  },
+  "evidence": [
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs",
+      "range": "16-30",
+      "sha256": "137BAA022EB1E158AE5AB7AE1B6E986CFE2BCD96853C091FD9D5D1D101DB7929",
+      "observation": "Shift-open parses in current culture, checks only negative, and rounds EGP to piastres."
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
+      "range": "67-90",
+      "sha256": "9F41D9133ED49CCB2E8DFF94A43E70DC525500836F7C6C6E8ADA4912BC1861DD",
+      "observation": "Refund path accepts any positive parsed decimal then rounds to piastres and sends it."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+      "range": "7-16",
+      "sha256": "541677785C462FFD6AC45BAE742FFCA263F0779EC0DEB0DC42D3364BEAD7748E",
+      "observation": "Shared WinUI parser rejects negative, unrepresentable, and finer-than-two-decimal values."
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "range": "23-27",
+      "sha256": "DA6AA95727609EEF384A975CEFD4D124BF6F211F6A98A6A75828B42B414C5A5F",
+      "observation": "Money.FromEgp rounds midpoint away from zero."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "range": "45-55",
+      "sha256": "7B2AFCF63D01E1BB55C0D88E7D1D64E55B3014539D51DD7F4ED9664E7E8B5EA3",
+      "observation": "The handler consumes integer piastres; positive opening cash is constrained by protected main-account balance."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "range": "78-94",
+      "sha256": "CA7D3922495AD8ED8F9979FEECA461F3FCA0AA150FDE7790714E29046E32D085",
+      "observation": "Refund is clamped to refundable remainder, must remain positive, is authorized, and is balance-checked."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "range": "93-104",
+      "sha256": "BC399716E95C2A9B42E3C5DB4AD92D6E3FE9879F2B042FA539EC6298D6ADEA7A",
+      "observation": "Newer WinUI refund flow parses with CashInput and rejects amounts above remaining refundable amount."
+    },
+    {
+      "path": "tests/Falah.Client.Tests/CashierCorrectnessTests.cs",
+      "range": "12-22",
+      "sha256": "BAF4B720FCDBF84824B6A2B4B3952BE1B25FD4452B5661EF780DD7CA4415D59D",
+      "observation": "Tests cover Arabic digits, exact-piastre conversion, too many decimals, negatives, ambiguous input, and bounds for CashInput; they do not exercise legacy paths."
+    },
+    {
+      "path": "Falah.sln",
+      "range": "22-24",
+      "sha256": "F2A4D663EDCC6F6B23DEBB920946C812BD6412AE1A5B00FEDBF803A0EEE0A959",
+      "observation": "Both Falah.Client.Cashier and Falah.Client.CashierWinUI projects are listed in the solution, so the old project cannot be dismissed as absent from the build graph."
+    }
+  ]
+}

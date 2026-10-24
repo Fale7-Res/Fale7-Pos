@@ -1,0 +1,395 @@
+{
+  "artifact_kind": "source_semantic_comparison",
+  "id": "SEM-MIRROR-056",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-22",
+  "reviewer": "/root main coordinator; source-level review; tests not executed",
+  "title": "Cashier Operations and Control Center safe-drop recovery divergence",
+  "scope": "Compare two active Cashier WinUI entry points for the same SafeDropRequest/server operation, including request validation, approval, shift/business-day gates, uncertainty/replay, persistence, and test coverage. Supplement to SEM-028 and UI-001.",
+  "decision": "BOTH VIEWS POST THE SAME SAFE-DROP COMMAND AND SERVER ENFORCES THE SAME MONEY RULES. CONTROL CENTER USES A DURABLE OWNER-KEYED RETAINED REQUEST; CASHIER OPERATIONS RETAINS ONLY IN MEMORY. THIS IS A SOURCE-CONFIRMED CLIENT RECOVERY DIVERGENCE UNDER PROCESS LOSS, NOT PROOF OF A DUPLICATE MOVEMENT. REUSE UI-001; NO NEW FINDING ID.",
+  "behavior": {
+    "shared": "Both surfaces use SafeDropRequest, SafeDropAsync and SafeDropHandler. The server owns amount/permission/day/shift/balance validation and transactional Drawer-to-Main posting. Their business context gates differ: cashier flow is shift/operation oriented; Control Center requires an active business day and open shift for new safe-drop entry. This distinction is consistent with their surrounding screens and was not treated as an error.",
+    "cashier_operations": "CashierViewModel.Operations keeps `_pendingSafeDrop` and `_SafeDropRequestId` in the current view model. It blocks cancel/edit while pending and retries the exact request in-process; AppSession pending state is also process-only. No durable owner-keyed RetainedRequest is used by this entry point.",
+    "control_center": "ControlCenterViewModel.Reconciliation uses RetainedRequest<SafeDropRequest> with stable owner key `controlcenter.safe-drop`; constructor restores pending request from the configured cashier FileRetainedRequestStore and exposes unresolved state. RetainedRequestStore Save catches errors and continues; App config supplies no callback, so durable-save failure is a residual best-effort limitation."
+  },
+  "cross_file_call_chain": [
+    "CashierViewModel.Operations.SubmitSafeDropAsync -> in-memory pending field -> ApiClient.SafeDropAsync -> SafeDropHandler.HandleAsync.",
+    "ControlCenterViewModel.Reconciliation.SubmitSafeDropAsync -> RetainedRequest.SendAsync -> FileRetainedRequestStore.Save before POST (best effort) -> ApiClient.SafeDropAsync -> same SafeDropHandler; constructor reloads request from stable owner key.",
+    "AppSession protects cashier flow navigation only while current process state exists; the Control Center retained DTO is process-persistent when local store save/load succeeds."
+  ],
+  "existing_finding": {
+    "id": "UI-001",
+    "relationship": "UI-001 already identifies process-loss recovery gaps and its prior challenge explicitly requested independent safe-drop path evidence. This comparison supplies that evidence and expands the existing finding record only; no duplicate finding."
+  },
+  "new_finding_created": false,
+  "counterevidence_and_limits": [
+    "Both flows preserve exact ID/payload during same-process retry.",
+    "Control Center improves process-restart recovery when local storage succeeds.",
+    "FileRetainedRequestStore catches disk errors; because no callback is supplied at app bootstrap, the current request can still be sent even if persistence failed. This is a conditional storage failure limitation, not a reproduced incident.",
+    "Existing CloseoutRegression test verifies only in-memory identical retry, not app/view-model reconstruction or successful disk recovery.",
+    "Server tests and source show same-key replay/atomic posting, not a second operation after operator submits a new key.",
+    "No process termination, storage fault injection, API call, database access or runtime operation was performed."
+  ],
+  "recommendation": "Unify both active safe-drop entry points on one owner-keyed RetainedRequest service/owner key (or a shared use-case), preserving each screen’s intended active-day/shift gating. Make durable-save failure visible and decide whether high-risk safe-drop may proceed without confirmed retention; if allowed, give operator a recoverable reconciliation path. Keep persistence versioned, protect local financial data, and never persist PIN/password. Do not silently auto-resend on startup; require explicit same-request reconciliation.",
+  "tests": {
+    "executed": "NONE",
+    "needed": [
+      "Parameterize same safe-drop request behavior across cashier and Control Center; verify identical request ID/payload on same-process retry.",
+      "Save an unknown result to the real isolated file-store fixture, reconstruct AppSession and each VM, and verify one replay with identical request ID; assert one server movement/journal/audit.",
+      "Inject local Save failure before dispatch and verify the chosen owner-approved behavior: block dispatch or surface an explicit non-durable recovery warning.",
+      "Verify cancel/edit/navigation restrictions while pending, plus distinct fresh requests after definitive resolution.",
+      "Verify Control Center active-day/new-request and open-shift gates without blocking replay recovery for a previously committed request."
+    ],
+    "limitations": "Only source/tests were reviewed; no test execution or runtime storage fault injection."
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs",
+      "worktree_sha256": "e4b4d4257703cbe135a8c821bb2075c7eb6d8b6e31dcb18622b0c8968fd38a06",
+      "source_git_blob_sha256": "b16994d5a208ffb06499671967fc9ff46f908b41863aa8c7160eaf63dffa19fa",
+      "line_ranges": [
+        [
+          31,
+          85
+        ],
+        [
+          368,
+          386
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-12cf6c3adf16926536f97e7cac723730422f23e68246ddc5d331ac3ee05cf115",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SafeDropNeedsApproval",
+          "kind": "PropertyDeclaration",
+          "span": [
+            31,
+            5,
+            31,
+            79
+          ]
+        },
+        {
+          "stable_id": "sym-9c7e22921eeb380f92a3ecac5539d8d151aa60db9e6e45e4e1d3f68564cc42dc",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenSafeDrop()",
+          "kind": "MethodDeclaration",
+          "span": [
+            33,
+            5,
+            43,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e6d20f67894e31949d7762e43c157b41c592454d3615aeee6267c5687a2573eb",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CancelSafeDrop()",
+          "kind": "MethodDeclaration",
+          "span": [
+            45,
+            5,
+            46,
+            213
+          ]
+        },
+        {
+          "stable_id": "sym-5b6801f5cf3eda59cf9a71ee48357b8736797d3c95db97ce0517952ab66f28f7",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitSafeDropAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            48,
+            5,
+            85,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-bc4a8d15c8e96dda4f6918a3e21598bb916908c49ace78d2d86fb31f40b50782",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteSafeDropAsync(Falah.Application.Treasury.SafeDropRequest)",
+          "kind": "MethodDeclaration",
+          "span": [
+            370,
+            5,
+            386,
+            6
+          ]
+        }
+      ],
+      "evidence": "Cashier Operations safe-drop holds `_pendingSafeDrop` and `_SafeDropRequestId` only as view-model fields; unknown response blocks cancel/edit and retries the same request during the same process, but constructor/restart does not restore it."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+      "worktree_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+      "source_git_blob_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+      "line_ranges": [
+        [
+          38,
+          118
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-631d2a8a1bf17c6cffd08e1c8e5c1936faa5a4a0fca5f1d577e7161e0cba4d08",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.SafeDropNeedsApproval",
+          "kind": "PropertyDeclaration",
+          "span": [
+            43,
+            5,
+            43,
+            79
+          ]
+        },
+        {
+          "stable_id": "sym-b62ddfb7ddadbd1291e79b2c2ad630d859548cb155111e91559fb646fe4e8c74",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CanOpenSafeDrop",
+          "kind": "PropertyDeclaration",
+          "span": [
+            48,
+            5,
+            48,
+            66
+          ]
+        },
+        {
+          "stable_id": "sym-c3ca756ea25ec93565564d57d0cf6cba74d02156337509850214183c5ab18d27",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OpenSafeDrop()",
+          "kind": "MethodDeclaration",
+          "span": [
+            53,
+            5,
+            61,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-effd1143907e0f5c321d0861fe16ef94b22124c2304c0ac92cbfb6d590bd2dd6",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.SubmitSafeDropAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            71,
+            5,
+            104,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2204b2f44340a5a59d396745256e0f75426c9d96098896b709c9ec8fdb7b99c0",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CompleteSafeDropAsync(Falah.Application.Treasury.SafeDropRequest)",
+          "kind": "MethodDeclaration",
+          "span": [
+            106,
+            5,
+            118,
+            6
+          ]
+        }
+      ],
+      "evidence": "Control Center safe-drop uses owner key `controlcenter.safe-drop`, rehydrates pending DTO in the constructor path, and retries through RetainedRequest. It additionally requires active business day and open shift before a new request; a recovered request is retried before the new-request shift gate."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs",
+      "worktree_sha256": "79a3002b009480d7197f057aedd49d82b6ab2a27646a6a7f1bd2e91796fbaae9",
+      "source_git_blob_sha256": "01a20063ad42ea2c09228b5197682d9d6f806ec31e751b863b230078a362f38f",
+      "line_ranges": [
+        [
+          22,
+          34
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6d94e4fa654a7f283adb465d80380716f58d8420750c08f4658f452f18e4d736",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ControlCenterViewModel(Falah.Client.CashierWinUI.Services.AppSession)",
+          "kind": "ConstructorDeclaration",
+          "span": [
+            22,
+            5,
+            34,
+            6
+          ]
+        }
+      ],
+      "evidence": "Constructor restores a retained SafeDropRequest, repopulates displayed amount/reason, shows unresolved status, and registers it with AppSession."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "line_ranges": [
+        [
+          13,
+          30
+        ],
+        [
+          34,
+          51
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37892f3ec3dce1068241cae171cddc43d5d5d9cc6777030fcb21780eb68d88fd",
+          "signature": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            51,
+            6
+          ]
+        }
+      ],
+      "evidence": "Owner-keyed RetainedRequest loads saved DTO at construction and saves it before send; it clears only on definitive success or a definitive initial failure."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+      "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+      "line_ranges": [
+        [
+          37,
+          54
+        ],
+        [
+          59,
+          82
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4964a9a24fd133652373e1eb65e317a1c24e25f20dd6dfa1a90457dbcb900755",
+          "signature": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.Save(string, object)",
+          "kind": "MethodDeclaration",
+          "span": [
+            59,
+            5,
+            82,
+            6
+          ]
+        }
+      ],
+      "evidence": "File store writes temp then replaces, but catches persistence exceptions and invokes optional callback. It does not itself make send contingent on successful save; actual app config passes no callback."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "line_ranges": [
+        [
+          5,
+          19
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-854cdafb5794ad6a9c77f585a823cc9b0e2cb9fd7b861b2d081dfdf8d8e9373b",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.HasUnresolvedOperation",
+          "kind": "PropertyDeclaration",
+          "span": [
+            12,
+            5,
+            12,
+            147
+          ]
+        },
+        {
+          "stable_id": "sym-c3b6746bb8aed1de5023f13c565fda975a21f8314bd0e177b6edcf6049ed4ebe",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.SetManagementOperationPending(object, bool)",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            20,
+            6
+          ]
+        }
+      ],
+      "evidence": "AppSession unresolved-operation state used by the cashier path is in memory only."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
+      "worktree_sha256": "0765214707a8c3d4e0f07b0feff9cb4f5c7bb278e666486088a51be222014dde",
+      "source_git_blob_sha256": "f593c13c1a64b9df886526c990093dd49c327498c7aec1e059ffe9e490c6a2c1",
+      "line_ranges": [
+        [
+          19,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b3ced77dc58e3a49c34019488454f50e4002dbd2572a256298baca2746172210",
+          "signature": "Falah.Client.CashierWinUI.App.App()",
+          "kind": "ConstructorDeclaration",
+          "span": [
+            19,
+            5,
+            27,
+            6
+          ]
+        }
+      ],
+      "evidence": "Application configures FileRetainedRequestStore for cashier station with no onError callback, so persistence failures are silently handled by the optional-callback path while requests still proceed."
+    },
+    {
+      "path": "tests/Falah.Client.Tests/CloseoutRegressionTests.cs",
+      "worktree_sha256": "d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c",
+      "source_git_blob_sha256": "d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c",
+      "line_ranges": [
+        [
+          46,
+          66
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-08290459c762a3b212b6eba567f4141def1054187bd7ac1a16d143c8f621809b",
+          "signature": "Falah.Client.Tests.CloseoutRegressionTests.Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()",
+          "kind": "MethodDeclaration",
+          "span": [
+            46,
+            5,
+            66,
+            6
+          ]
+        }
+      ],
+      "evidence": "Existing uncertain-safe-drop test verifies same-view-model identical retry and blocking edit; it does not recreate the VM/store to verify process restart recovery."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+      "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+      "source_git_blob_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+      "line_ranges": [
+        [
+          33,
+          59
+        ],
+        [
+          60,
+          97
+        ],
+        [
+          99,
+          115
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ea22fe8a1814d1a059857eaec1fad0fe6a8504dc715a25edfceb259854df435c",
+          "signature": "Falah.Infrastructure.Treasury.SafeDropHandler.HandleAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            33,
+            5,
+            117,
+            6
+          ]
+        }
+      ],
+      "evidence": "Both client entry points call the same server safe-drop endpoint and handler; server checks same-key replay, amount/reason, actor/shift/permission, open business day, locks drawer balance in transaction, and writes one movement/journal/audit."
+    }
+  ],
+  "limitations": [
+    "Bounded safe-drop workflow comparison; no claim of repository-wide semantic exhaustiveness.",
+    "UI-001 is retained as the canonical finding; related client workflow scope is clarified, not duplicated."
+  ]
+}

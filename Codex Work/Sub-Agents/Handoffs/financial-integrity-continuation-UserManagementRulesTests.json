@@ -1,0 +1,41 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:20:01.8551087Z",
+  "path": "tests/Falah.Domain.Tests/UserManagementRulesTests.cs",
+  "stable_ids": [
+    "sym-4109aa6f04ce5c7f489d07c3e705a49f2dc03913f48cf35ea842655fc0cd58ac",
+    "sym-8691a014cb83b84a2285fc287e1999382a0651b83ab04cfe6d3e8d6c6903e235",
+    "sym-79d6c6a6467573031f0b369c32cb536f204cffb63ebb396673908237b01b51b4",
+    "sym-9d3df81b98ef84cd4c111f83cc2b0c3f8165e341b2188d40d2052e5e984fd07c",
+    "sym-f17f933b42bda28af3cf70578d912c8fcb4349d03a3bc924c2b81979939deaba",
+    "sym-0a66c0328ed5d3259d1700bb1fcc657a5a82940632158a9b34de78a64181745d",
+    "sym-33393a33ae2d21db69c13e7e176f5cdabd3f2dd76719dda046d4377e84fc7a41",
+    "sym-358c994570f7176232c9ca2e9ffc9ba57739f29bc31a1e02d8a38f383589cac6",
+    "sym-97de2f80a808a5b1468f320ec9de03c11002709829797521a94ae1d26b3f9219",
+    "sym-11dffe2f6f55d4071ae1ddf5eb66077026b6fe0a33c9242007cfa2cd31661710",
+    "sym-718fb99f20ddc95e2a0383b7707a0734396f99d18236b803f5824a5beee77d50",
+    "sym-b6f7c84826e206cd88e59ad01c123d1f8773902aff9c26d1d7b85976464649d4",
+    "sym-3b39daed00bc7d5a6878419847062bf4926e2c3e13d1ef56c3a468061181643a",
+    "sym-575cb9b1d63b7f399e601d0f9c051553d55bca3dfff847698f3d3ba351802ea5",
+    "sym-e3182887a42b3139ef0a486e0e87ca8151294f4ced837a7056b5ba97802195e6",
+    "sym-0a65ae02143f31df7d36a7c309bb06890d208c0032b9092b443045484da29549",
+    "sym-21646f90f817b0213e9db71e71aebdb5134fffc7beabffb78f2c6f1ee0d8fd33",
+    "sym-e64d1e4c0f84316cf5ee47bd0f6b5d70e93e3e13a82e8da3e66bb7c2e814fc40"
+  ],
+  "queued_count": 18,
+  "reconciliation": {
+    "current_union_remaining": 18,
+    "coordinator_database_reports": 18,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/UserManagementRulesTests.cs": "BCC5C27344459F6B077A38339DE94027204AE62D526ECAB63516BD6E5A2258C7",
+    "src/Falah.Domain/Authorization/UserManagementRules.cs": "3A72EE5F6B79D83B6364BF22D8150B39B2A13211FA2DB392F13B90C5B10C32FE"
+  },
+  "assessment": "Tests match source checks for owner immutability, no privilege escalation, catalog-known permissions, and maintaining at least one active user administrator. These are a useful financial authorization boundary but do not prove application handler/controller authorization is correctly attached; endpoint review remains separate. No new integrity finding from the test cases.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only; no tests, API, database access or writes.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

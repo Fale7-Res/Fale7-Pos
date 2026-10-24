@@ -1,0 +1,157 @@
+{
+  "id": "UI-016",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_RECOVERY_GAP_WITH_BACKEND_DUPLICATE_GUARDS",
+  "severity_assessment": "HIGH financial operation recoverability; duplicate shift money posting NOT demonstrated and limited by backend guards.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+      "startLine": 74,
+      "endLine": 114,
+      "source_git_blob_sha256": "8f1e681a0c405d42f40fd9d0f721b75e0276fb497d4c14e4620325ffad8e7d9c",
+      "worktree_sha256": "10e6ac543011f2b5cae23d8aaad9ebed7e82e66514301050037f460c82e09b46",
+      "symbol": {
+        "stable_id": "sym-575e8a0b61a2affa996c2ce8f1072bd04d2cbefda6739485ef06d4a5f91416ac",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmOpenShiftAsync()",
+        "startLine": 73,
+        "endLine": 115,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Confirm creates fresh OpenShiftRequest Guid every invocation, uses direct API, retains no DTO and ignores OutcomeUnknown."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs",
+      "startLine": 71,
+      "endLine": 71,
+      "source_git_blob_sha256": "8f1e681a0c405d42f40fd9d0f721b75e0276fb497d4c14e4620325ffad8e7d9c",
+      "worktree_sha256": "10e6ac543011f2b5cae23d8aaad9ebed7e82e66514301050037f460c82e09b46",
+      "symbol": {
+        "stable_id": "sym-f78e92d02489e30d11be39926226a07278a72a402b4a7698ef7e0e9d3c8e898f",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CloseOpenShiftModal()",
+        "startLine": 70,
+        "endLine": 71,
+        "startColumn": 5,
+        "endColumn": 72
+      },
+      "evidence": "Open modal can close even while write awaits."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs",
+      "startLine": 91,
+      "endLine": 145,
+      "source_git_blob_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "worktree_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "symbol": {
+        "stable_id": "sym-28411fed2c72f7ff3021a1122c9bb5552aa5d7d655698ed6f66031890ba17388",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmCloseShiftAsync()",
+        "startLine": 90,
+        "endLine": 146,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Confirm close creates fresh close Guid each time, direct API and generic failure, no retained identity."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs",
+      "startLine": 50,
+      "endLine": 50,
+      "source_git_blob_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "worktree_sha256": "22bf59a61b7ce3adf137dc1862e158bd8f07e46c23fe2b7d8fe5acd5fe9b88c3",
+      "symbol": {
+        "stable_id": "sym-148dbae53fdb32abca706c7a1aaaf3421c6a3c86444fadbdc5d6816d1d20f1ba",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CancelCloseShiftModal()",
+        "startLine": 49,
+        "endLine": 50,
+        "startColumn": 5,
+        "endColumn": 97
+      },
+      "evidence": "Close-modal cancel correctly disallows while IsClosingShift: do not generalize unconditional close to this branch."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs",
+      "startLine": 33,
+      "endLine": 43,
+      "source_git_blob_sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "worktree_sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "symbol": null,
+      "evidence": "All three partials read/searched: no SetManagementOperationPending or retained request coordination. Main session gate therefore not informed by management shift booleans."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "startLine": 12,
+      "endLine": 19,
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "symbol": {
+        "stable_id": "sym-8a935e86319bb11a5b2299fa7c51164e2678ad1c28ee856d2f36e47446103931",
+        "kind": "SimpleLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 12,
+        "endLine": 12,
+        "startColumn": 97,
+        "endColumn": 145
+      },
+      "evidence": "Global unresolved derives management set and cached cashier state, not arbitrary ShiftsViewModel.IsOpeningShift/IsClosingShift."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "startLine": 33,
+      "endLine": 43,
+      "source_git_blob_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "worktree_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "symbol": {
+        "stable_id": "sym-7ac925ec38be5884a6e011617a2d5a08a64c3091bf3dc361f7d4f5e966a0d685",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+        "startLine": 33,
+        "endLine": 110,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Same request key returns existing shift; new key hits single-open guard rather than reliably proving prior outcome."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "startLine": 47,
+      "endLine": 79,
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "symbol": {
+        "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+        "startLine": 47,
+        "endLine": 175,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Same close key replay supported and transactional row lock prevents concurrent duplicate handover; new key on closed row rejected."
+    }
+  ],
+  "preconditions": [
+    "Management shift write reaches backend but response is unknown or process/session abandoned.",
+    "Operator repeats operation; fresh key/payload can no longer query original exact operation."
+  ],
+  "counterevidence": [
+    "IsOpeningShift/IsClosingShift block same-VM simultaneous confirm calls.",
+    "Close modal cancel correctly blocks during request; open modal close does not.",
+    "Server single-open and locked closed-status checks reduce duplicate money risk.",
+    "Refresh LoadAsync can reveal current shift state, mitigating confusion but not reconstructing original exact DTO/key."
+  ],
+  "recommended_remediation": "Adopt shared durable operation coordinator with fixed immutable request identity and global pending registration; expose outcome reconciliation before replacement.",
+  "required_tests": [
+    "Commit-lost-response fake API retries original management open/close with same DTO/key.",
+    "Lock/navigation/close obey busy and unresolved management writes.",
+    "Verify same-key backend replay and different-key guards remain intact."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:47:10.701852+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent source-only cross-layer challenge",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local challenge, no exhaustive callable promotion"
+}

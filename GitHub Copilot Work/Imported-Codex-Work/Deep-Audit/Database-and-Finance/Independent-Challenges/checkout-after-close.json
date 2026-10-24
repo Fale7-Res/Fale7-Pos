@@ -1,0 +1,414 @@
+{
+  "candidate_key": "CHECKOUT_STALE_OPEN_SHIFT_AFTER_COMPLETED_HANDOVER",
+  "canonical_finding_id": null,
+  "reviewer": "ui_independent_challenge",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "updated_at_utc": "2026-10-17T18:40:26.281318+00:00",
+  "disposition": "SURVIVES_INDEPENDENT_SOURCE_CHALLENGE_TOCTOU",
+  "severity_assessment": "HIGH financial/boundary integrity candidate; accepted runtime sale/ledger corruption NOT reproduced.",
+  "confidence": "HIGH for missing in-transaction shift revalidation in approved source; concrete SQL acceptance predicted under stated normal schema, not runtime observed.",
+  "method": "Independent source-level interleaving and schema/guard falsification; no code/app/DB/financial operation execution",
+  "evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "startLine": 44,
+      "endLine": 60,
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "symbol": {
+        "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+        "startLine": 40,
+        "endLine": 290,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Fresh request reads Shift status AsNoTracking47-50 outside any explicit transaction, then awaits user/pricing/tax reads. Same-key successful replay returns before fresh gate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "startLine": 142,
+      "endLine": 193,
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "symbol": {
+        "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+        "startLine": 40,
+        "endLine": 290,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Transaction starts145 after plan construction; no subsequent shift lookup/lock/update. Order.Create receives request.ShiftId166, staged OrderEntity added193."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "startLine": 248,
+      "endLine": 279,
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "symbol": {
+        "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+        "startLine": 40,
+        "endLine": 290,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Inventory staged251, cash sale movement270-273 with request.ShiftId, journal complete275, SaveChanges278/Commit279; no Shift status/version predicate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "startLine": 56,
+      "endLine": 104,
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "symbol": {
+        "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+        "startLine": 47,
+        "endLine": 175,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Close holds UPDLOCK/ROWLOCK/HOLDLOCK on Shift63 within transaction56, checks Open79 then computes expected96 and authorization104."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "startLine": 125,
+      "endLine": 164,
+      "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+      "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "symbol": {
+        "stable_id": "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Shifts.CloseShiftHandler.HandleAsync(Falah.Application.Shifts.CloseShiftRequest, CancellationToken)",
+        "startLine": 47,
+        "endLine": 175,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Close posts handover from counted actual128-133, marks Closed139, stores expected/actual141-143, increments Version150 and commits164."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "startLine": 78,
+      "endLine": 98,
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "symbol": {
+        "stable_id": "sym-27466a2785f223f32216b6eb4f0d673a6de98ee6dd89de23ef1cd426960128b0",
+        "kind": "SimpleLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 78,
+        "endLine": 99,
+        "startColumn": 42,
+        "endColumn": 10,
+        "isCallable": true
+      },
+      "evidence": "Order unique request/sequence plus Order.Version token; FK to Shift only on ShiftId97. No status predicate attached to order insertion."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "startLine": 116,
+      "endLine": 129,
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "symbol": {
+        "stable_id": "sym-29ef25ff6d4e6aa5846192f24a28b4a91da8a660c52beb4dd0328b39f08cd65b",
+        "kind": "SimpleLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 116,
+        "endLine": 129,
+        "startColumn": 42,
+        "endColumn": 10,
+        "isCallable": true
+      },
+      "evidence": "Shift.Version concurrency token protects updates to Shift row; filtered unique Open status constrains multiple open shifts, not inserts referencing closed parent."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+      "startLine": 64,
+      "endLine": 89,
+      "source_git_blob_sha256": "52bd586642a7e1be07ddf41fe5ca8bb0e4b13c360edd2868bf48bf07cef3dc6d",
+      "worktree_sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e",
+      "symbol": {
+        "stable_id": "sym-5f4dca6a0f778be65e0d46f06753c77b037dbf49c9a4adb6c5e9418b07a2fcb4",
+        "kind": "ClassDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Persistence.Entities.ShiftEntity",
+        "startLine": 64,
+        "endLine": 89,
+        "startColumn": 1,
+        "endColumn": 2,
+        "isCallable": false
+      },
+      "evidence": "Shift persistent status and uint Version exist; no automatic sale admission gate on entity property."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "startLine": 66,
+      "endLine": 110,
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "symbol": {
+        "stable_id": "sym-20e34134ea14dc690da76ac75a788f3ce95d2a1809da0b144555d2a1a46b5e14",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Domain.Orders.Order.Create(Falah.Domain.Orders.CheckoutRules.CheckoutPlan, string, string, long, string, string, IReadOnlyList<Falah.Domain.Orders.OrderItem>, string, string?, DateTimeOffset, string?, string?, string?, string?, Falah.Domain.Common.Money, string?, string?, string?, int?, string?, string?)",
+        "startLine": 66,
+        "endLine": 111,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Order.Create accepts string shiftId and copies it, no Shift aggregate/status input."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "startLine": 84,
+      "endLine": 114,
+      "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "symbol": {
+        "stable_id": "sym-77e1899a5d7a3b40aa3a4e3d0d8fce70eeef75f5b96da6c0dd568170c7eb7a06",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Domain.Orders.CheckoutRules.BuildPlan(Falah.Domain.Orders.OrderType, Falah.Domain.Financial.PaymentMethod, IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, IReadOnlyList<Falah.Domain.Financial.PaymentSplit>?, string?)",
+        "startLine": 84,
+        "endLine": 115,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "BuildPlan validates tender/payment computations, no live Shift input or close coordination."
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "startLine": 23,
+      "endLine": 29,
+      "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "symbol": {
+        "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "startLine": 23,
+        "endLine": 29,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Checkout TryGetActive finds optional active/closing/reopened business day; no shift check. Null allowed by caller."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "startLine": 21,
+      "endLine": 67,
+      "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "symbol": {
+        "stable_id": "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductForOrderAsync(string, string, IReadOnlyList<Falah.Infrastructure.Orders.MenuPricingService.ResolvedItem>, string, DateTimeOffset, CancellationToken)",
+        "startLine": 21,
+        "endLine": 67,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Stock stage operations receive order/item data, not Shift status. Empty recipe list can return28; no implicit Shift gate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "startLine": 77,
+      "endLine": 97,
+      "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "symbol": {
+        "stable_id": "sym-7cb1499dc461cea1564eb9848e4c5adcf3b24675b6b646b97ac3039d10c56048",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductOrderPackagingAsync(string, string, string, DateTimeOffset, CancellationToken)",
+        "startLine": 77,
+        "endLine": 97,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Packaging reads configured rule/stages usage only, no Shift gate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+      "startLine": 22,
+      "endLine": 44,
+      "source_git_blob_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+      "worktree_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+      "symbol": {
+        "stable_id": "sym-40ef18bae8fe0c94a20fe757fd78bb3eb5e22a85e571c392e767e1900145fb2e",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Persistence.EfFinancialJournal.TryStart(string, string)",
+        "startLine": 22,
+        "endLine": 36,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Journal is request-key scoped; new sale key does not coordinate with close. Complete changes local/request row, not Shift status."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+      "startLine": 19,
+      "endLine": 28,
+      "source_git_blob_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+      "worktree_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+      "symbol": {
+        "stable_id": "sym-19e519b9c3d199d1c0491a3ff3b0b0f8733b02d907cd992185d4acd71aa2f095",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "startLine": 19,
+        "endLine": 29,
+        "startColumn": 5,
+        "endColumn": 6,
+        "isCallable": true
+      },
+      "evidence": "Sequence allocator serializes fixed sequence row in checkout transaction, not Shift row. Schedule starts after close commit, no blocking resource overlap required."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "startLine": 30,
+      "endLine": 68,
+      "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "symbol": {
+        "stable_id": "sym-d2b3fa262b825e51feb2fa40a5bf212094393730e7ad5d2d060b638a9d452f7e",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+        "startLine": 30,
+        "endLine": 31,
+        "startColumn": 5,
+        "endColumn": 82,
+        "isCallable": true
+      },
+      "evidence": "Close expected derived from orders existing at computation and current expenses/movements; future checkout absent. Close does not later recompute after handover."
+    },
+    {
+      "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+      "startLine": 32,
+      "endLine": 60,
+      "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+      "symbol": {
+        "stable_id": "sym-fd1e297372ee88ceee8f09beba84e26bb954e73a75b4a2c34e0d471c56301e32",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod)",
+        "startLine": 32,
+        "endLine": 39,
+        "startColumn": 5,
+        "endColumn": 7,
+        "isCallable": true
+      },
+      "evidence": "Cash sale destination is tre-drawer; BuildSaleMovement marks Posted with original ShiftId, so post-close cash sale leaves new drawer movement after previous handover."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "startLine": 337,
+      "endLine": 342,
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "symbol": {
+        "stable_id": "sym-6ddc0569a6defbdfdb7668effd54dc449e6789d9e7bae6a2c196e6ffff720046",
+        "kind": "ParenthesizedLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 337,
+        "endLine": 356,
+        "startColumn": 34,
+        "endColumn": 2,
+        "isCallable": true
+      },
+      "evidence": "Close endpoint directly invokes scoped handler; no shared admission coordinator in endpoint."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "startLine": 1370,
+      "endLine": 1379,
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "symbol": {
+        "stable_id": "sym-79e59db91c765b1b529a94137ac97e6487d215ad4d128cb3974b9f74ebdf72c7",
+        "kind": "ParenthesizedLambdaExpression",
+        "qualifiedSymbol": "lambda expression",
+        "startLine": 1370,
+        "endLine": 1393,
+        "startColumn": 37,
+        "endColumn": 2,
+        "isCallable": true
+      },
+      "evidence": "Checkout endpoint directly awaits handler then automatic printing after commit; no revalidation performed there."
+    }
+  ],
+  "preconditions": [
+    "Fresh authorized checkout with unique CheckoutRequestId reaches successful Open snapshot for shift S.",
+    "Request pauses between Open snapshot and transaction145; intervening awaits/pricing/tax permit ordinary scheduling without malicious source changes.",
+    "Separate authorized close S completes valid count/approval and commits; no deletion of shift S.",
+    "Checkout payload otherwise valid, active products and normal approved schema, no out-of-repository/deployed trigger adding a status guard.",
+    "Cash take-away/pickup example avoids COD deferred-money semantics and comp/discount approvals; all legitimate permissions remain required."
+  ],
+  "interleaving": [
+    {
+      "step": 1,
+      "request": "T1 checkout",
+      "operation": "Reads S.Status=Open at47-50; pause before transaction145. No transaction-held Shift lock remains."
+    },
+    {
+      "step": 2,
+      "request": "T2 close",
+      "operation": "Begins transaction56, locks Shift63, computes expected without T1 order96, posts handover, sets Closed/Version++, Save/Commit163-164."
+    },
+    {
+      "step": 3,
+      "request": "T1 checkout",
+      "operation": "Resumes only after T2 committed; begins transaction145, allocates sequence and stages new Order(S) plus stock and cash movement, commits278-279 without reading/updating S."
+    }
+  ],
+  "impact": "Recorded closed shift expected/actual/handover exclude newly committed cash order while order and posted drawer collection reference that closed shift; new order time can be later than ClosedAtUtc. Stock can also be consumed when configured. No cash loss, fraud, exploit, or accepted real write observed.",
+  "counterevidence": [
+    "A request that first reads after close is correctly rejected at47-50; this is overlap/TOCTOU only.",
+    "Same checkout request replay returns an existing order; replay after close is expected and not this defect.",
+    "Close row lock and Version correctly serialize competing Shift updates/closes. Checkout reads no-tracking before transaction and does not issue Shift update, so these guards do not bind fresh sale commit to Open state.",
+    "FK validates existing parent key, not parent Status. Chosen schedule completes close before checkout transaction, avoiding need to predict overlapping FK lock behavior.",
+    "Atomic checkout transaction prevents order/payment/stock half-writes, but does not validate stale admission predicate.",
+    "Client busy/close navigation restrictions can protect a single app instance, not another device or already admitted server request.",
+    "Unique Open-shift index prevents two open parent rows, not an order referencing a closed row.",
+    "Deployment-specific triggers/policies were not queried. No trigger/custom SaveChanges status guard was found in approved persistence source/migration search; unknown deployed changes remain a limitation."
+  ],
+  "distinct_from": [
+    "FIN-004 historical refund allocation uses different workflow and refund movement attribution.",
+    "FIN-011 treasury balance locks acquired outside transaction in some callers; this candidate concerns sale admission versus shift close status."
+  ],
+  "recommended_remediation": "Coordinate checkout admission and closure with a transaction-held shared Shift row protocol: read/lock/revalidate Open before financial writes and hold coordination through commit, with consistent lock ordering across close/sale/refund/cash operations. Alternative explicit Closing/drain model requires preserving all admitted sales in handover before Closed. Do not retroactively rewrite closed snapshots to hide mismatch.",
+  "required_tests": [
+    "Approved isolated SQL integration fixture: barrier after checkout47-50 before145, close commits, resume fresh cash checkout; must reject with no order/payment/stock rows.",
+    "Reverse order: admitted transaction-held checkout should make close wait and recompute expected including exactly that sale.",
+    "Same-key completed replay after close remains non-mutating and successful.",
+    "Cover cash, partial electronic, COD, comp and print-after-commit boundaries, plus different device/session actors; no production writes."
+  ],
+  "runtime_reproduction": "NOT_EXECUTED",
+  "tests_executed": [],
+  "sql_or_financial_api_calls_executed": false,
+  "source_modified": false,
+  "evidence_validation": {
+    "source_references": 19,
+    "hash_span_stable_id_errors": 0
+  },
+  "remaining_uncertainty": [
+    "No deterministic DB integration reproduction performed under owner source-only constraints.",
+    "Actual deployed schema/SQL triggers and isolation settings not inspected; report applies approved source model.",
+    "Mitigation lock ordering/performance requires design/testing, not implemented in audit."
+  ]
+}

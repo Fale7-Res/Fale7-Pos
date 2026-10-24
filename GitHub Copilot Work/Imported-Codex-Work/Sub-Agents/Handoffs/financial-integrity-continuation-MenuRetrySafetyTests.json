@@ -1,0 +1,89 @@
+{
+  "artifact_kind": "financial_integrity_symbol_batch_handoff",
+  "batch": "MenuRetrySafetyTests",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:32:27.536Z",
+  "static_only": true,
+  "runtime_or_tests_executed": false,
+  "database_created_or_modified": false,
+  "source_or_database_modified": false,
+  "receipt": {
+    "symbols_reviewed": 13,
+    "ids": [
+      "sym-de7a566d283d4c146caf08b5a7b464ca57e0b2ca3543444c23ec1edcecfe7dd6",
+      "sym-5753693cd371a24724595992559f001b5c8e0e709a43898b6680cf30e7ff057f",
+      "sym-1c628a1fe1eb6aee9e6fa64fe2ae860f7076518550c8ff79650e5084169c6454",
+      "sym-4296026d66d80c1f2f8d0fcdb1d99e4c38189f9b333985302721f5fd5d735633",
+      "sym-385f4661017a0fa919f06d424a410ebc7f56f34f9f60ed1e8631bdba9362d2d5",
+      "sym-467c1f28fc43407f2dc3f5d3f0c06bd50c3f0ee04054a7f236d431e02300f600",
+      "sym-555106fe1852709d149afa2cd5ee9f60a4818b3704819f6a4a6702d191ada410",
+      "sym-2f52855b8b598a5374a7b1c203bc73df708a24c1c83a30509541a002f15dabde",
+      "sym-048b402f91eb13148266f3ad13d760b2fe8ba25e3f4ce12fa492826788a65512",
+      "sym-dcc44118d2b0f7e51aa896b28ec3ac7176a9f5f044a7758a5d4df50c952883b1",
+      "sym-5d32dd15092a7c01ef52d1c577e30bc933473b1d782740fc0a449eadd44381a6",
+      "sym-58fb80b64e4d5c338970f193a29dfd57ccfdd3980f7ba9ce51947b38f9b2c97e",
+      "sym-584bc1a277a7765fb9a02a1ce0219eab4037f00beecc5dff373aa3eb89d47d6a"
+    ],
+    "union_pending_matches": 13,
+    "coordinator_completed_matches": 0,
+    "outside_union": 0,
+    "authoritative_union_total": 7602,
+    "authoritative_remaining_total": 1202
+  },
+  "evidence": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuRetrySafetyTests.cs",
+      "ranges": [
+        "8-24",
+        "26-36",
+        "38-54",
+        "56-67",
+        "69-82",
+        "84-103"
+      ],
+      "sha256": "F6CE18DEC473D9AE6617EEE1B63F1FACEB96553A160C06781E9EB453008C495F",
+      "observation": "Tests reuse each original request ID after an intervening edit and assert the newer persisted category/product/tax/price-rule/status state remains. Price-rule replay also asserts the original receipt result while the current rule remains the latest version."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/CategoryHandlers.cs",
+      "ranges": [
+        "78-100",
+        "119-139"
+      ],
+      "sha256": "877B470C2D48E38599ADAA44EA9F3EE7D2ED80BFA8917379496CD75EE55C8A39",
+      "observation": "Update and active-state handlers check CommandReceipt for same request/resource/actor before mutating entity, then save the receipt/audit change transactionally."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "ranges": [
+        "95-152",
+        "170-194"
+      ],
+      "sha256": "98B29B5ACE01D781C176B352B054B561973281E4E923C23CB0794412C6107247",
+      "observation": "Product edit and availability handlers return on a matching prior receipt before applying submitted fields or variant changes."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs",
+      "ranges": [
+        "81-108"
+      ],
+      "sha256": "F40A0F0879CBC2789F11CD421DD850213E3A81122819011CC73FE8643DCCD4B0",
+      "observation": "Tax-rule update returns before mutation on same request receipt; separate request ID can intentionally update the rule."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs",
+      "ranges": [
+        "30-90"
+      ],
+      "sha256": "8F7AC5174B9572D5ED3F3C1093B5E41AE4F5C8C8C37A086A0CFEE71AED033CE6",
+      "observation": "Price-rule save resolves receipt by operation/request/resource/actor, returns serialized original receipt on replay, and otherwise applies requested current state."
+    }
+  ],
+  "assessment": {
+    "decision": "NO_NEW_FINANCIAL_OR_DATABASE_INTEGRITY_FINDING",
+    "source_confirmed": "The tested same-request replay paths short-circuit before mutating current catalog state; price rule returns its original receipt on replay.",
+    "counterevidence_and_limits": "These are test source assertions and handler source paths only. No integration test was run. This does not establish optimistic concurrency for two distinct request IDs or policy for intentionally submitting a new old-valued update.",
+    "runtime": "NOT_EXECUTED",
+    "recommendation": "No change recommended from this batch. Keep distinct request IDs and true concurrent stale-write behavior outside this batch conclusion."
+  }
+}

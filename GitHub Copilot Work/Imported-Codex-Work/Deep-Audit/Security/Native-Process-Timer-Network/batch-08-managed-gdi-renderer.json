@@ -1,0 +1,115 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "ui_independent_challenge",
+  "updated_at_utc": "2026-10-17T21:56:44.703784+00:00",
+  "records": [
+    {
+      "id": "NAT-BOUNDARY-020",
+      "category": "Managed GDI+/installed-font raster boundary",
+      "evidence": [
+        {
+          "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+          "startLine": 83,
+          "endLine": 100,
+          "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+          "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+          "symbol": {
+            "stable_id": "sym-8c50884e47ae50bf8bcc5e8fcac748674d9aba387068bd6e33874e2de1ced661",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.Render(Falah.Domain.Printing.ComposedTicket, int, bool, int)",
+            "startLine": 83,
+            "endLine": 101,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Renderer uses in-memory bitmap per ticket segment, writes ESC/POS stream then returns bytes; no file/network/process action here."
+        },
+        {
+          "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+          "startLine": 141,
+          "endLine": 167,
+          "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+          "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+          "symbol": {
+            "stable_id": "sym-56c23e7be7241ae3249ca974b43279bd2bf08d0f666f3414af3a06ddcd0ecd7f",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.ResolveSemiBoldFamily()",
+            "startLine": 141,
+            "endLine": 152,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Enumerates installed font families and selects fixed Segoe UI/Semibold; no dynamic font-file download/load."
+        },
+        {
+          "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+          "startLine": 245,
+          "endLine": 256,
+          "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+          "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+          "symbol": {
+            "stable_id": "sym-dd54cfcab95a55cf58acb1517afffa97a80d13d932e9a511527972527f68a66c",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.RenderSegment(IReadOnlyList<Falah.Domain.Printing.TicketElement>, int, int, List<System.Drawing.Rectangle>, List<Falah.PrintAgent.BitmapTicketRenderer.QrPlacement>)",
+            "startLine": 244,
+            "endLine": 395,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "GDI+ measurement through managed Bitmap/Graphics with using."
+        },
+        {
+          "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+          "startLine": 318,
+          "endLine": 324,
+          "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+          "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+          "symbol": {
+            "stable_id": "sym-dd54cfcab95a55cf58acb1517afffa97a80d13d932e9a511527972527f68a66c",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.RenderSegment(IReadOnlyList<Falah.Domain.Printing.TicketElement>, int, int, List<System.Drawing.Rectangle>, List<Falah.PrintAgent.BitmapTicketRenderer.QrPlacement>)",
+            "startLine": 244,
+            "endLine": 395,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Output bitmap width from configured paper dots and measured content height; managed graphics native resource boundary."
+        },
+        {
+          "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+          "startLine": 500,
+          "endLine": 534,
+          "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+          "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+          "symbol": {
+            "stable_id": "sym-c797c5e95434c232507c17c75d48da7837299c4f6ee1920d706f9ad0f0e875c0",
+            "kind": "MethodDeclaration",
+            "qualifiedSymbol": "Falah.PrintAgent.BitmapTicketRenderer.WriteRaster(Stream, System.Drawing.Bitmap, bool, IReadOnlyList<System.Drawing.Rectangle>, IReadOnlyList<Falah.PrintAgent.BitmapTicketRenderer.QrPlacement>)",
+            "startLine": 500,
+            "endLine": 535,
+            "startColumn": 5,
+            "endColumn": 6,
+            "isCallable": true
+          },
+          "evidence": "Reads bitmap pixels, allocates masks/raster bytes and writes ESC/POS; no executable interpretation of ticket text established."
+        }
+      ],
+      "inputs": "Typed server ticket text/rows/QR and trusted configured width/margins.",
+      "outputs_side_effects": "Native graphics/font resources and managed raster memory, returned payload for explicit transport.",
+      "legitimate_purpose": "Windows Arabic shaping/thermal raster rendering.",
+      "trust_boundaries": "Text/config size into OS font renderer and proportional allocation; external GDI+/font libraries outside source-only review.",
+      "counterevidence_limitations": [
+        "No full renderer security/callable certification here: inspected allocation/font/output boundaries only.",
+        "Large ticket/config dimensions can stress memory/CPU; bounds/throughput require separate performance evidence.",
+        "OS-installed font parsing/native vulnerabilities not examined; no malformed-font exploit or code execution claim.",
+        "Historical comments claim physical observations, but no paper test performed in this audit."
+      ],
+      "classification": "LEGITIMATE_MANAGED_NATIVE_GRAPHICS_RESOURCE_BOUNDARY"
+    }
+  ],
+  "execution": "SOURCE_ONLY_NO_APP_NETWORK_FILE_OR_NATIVE_CALL_EXECUTED"
+}

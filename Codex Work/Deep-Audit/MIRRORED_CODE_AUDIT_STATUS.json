@@ -1,6 +1,6 @@
 {
-  "at_utc": "2026-10-18T09:10:40.620185+00:00",
-  "status": "IDENTIFIED_COMPARISON_QUEUE_COMPLETE_WITH_ORIGINAL_PHASE11_SCOPE_LIMITS",
+  "at_utc": "2026-10-24T13:28:00Z",
+  "status": "FINITE AST CANDIDATE QUEUE DISPOSITIONED; 69 BOUNDED SEMANTIC COMPARISONS RECORDED; PHASE 11 NOT COMPLETE",
   "original_scope": "Original15phase request Phase11 repository-wide exact/semantic duplicate/mirrored business logic, architecture and recommendations. AST candidate inventory is only a bounded subset.",
   "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "candidate_group_total": 218,
@@ -416,8 +416,8 @@
     "employee-payout-policy-comparison.json"
   ],
   "final_report_exists": true,
-  "final_report_completed": true,
-  "next": "Financial primary continues exact remaining queue; root validates structural report/evidence and broadens only justified semantic/architecture gaps. No unrelated specialist or Git publication.",
+  "final_report_completed": false,
+  "next": "Continue bounded source-driven semantic mirror review; global Phase 11 remains incomplete because renamed semantic equivalence/dead-code/reachability is not cleared.",
   "comparison_batch_artifacts": [
     "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json",
     "Deep-Audit/Duplication-and-Architecture/mirror-converters-batch-evidence.json",
@@ -427,14 +427,10 @@
     "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
   ],
   "canonical_report": "Deep-Audit/CODE_DUPLICATION_AND_ARCHITECTURE.md",
-  "quality_gate": "Deep-Audit/Duplication-and-Architecture/mirror-final-quality-gate.json",
+  "quality_gate": "PASS_SOURCE_IDENTITY_AND_SYMBOL_REFERENCES (mechanical gate only; 59 groups/58 artifacts; no semantic exhaustiveness claim)",
   "original_phase11_exhaustive_semantic_dead_code_clearance": false,
-  "latest_semantic_comparison": {
-    "id": "SEM-MIRROR-016",
-    "path": "Deep-Audit/Duplication-and-Architecture/refund-locked-replay-semantic-comparison.json",
-    "status": "COMPLETE_CONDITIONAL_LOW_ACKNOWLEDGEMENT_SOURCE_ONLY"
-  },
-  "updated_at_utc": "2026-10-20T03:04:20.267Z",
+  "latest_semantic_comparison": "SEM-MIRROR-071",
+  "updated_at_utc": "2026-10-24T12:54:38.266Z",
   "additional_semantic_groups": [
     {
       "id": "SEM-MIRROR-005",
@@ -442,10 +438,220 @@
       "status": "BOUNDED_MANUAL_SEMANTIC_COMPARISON_COMPLETE_NO_NEW_DEFECT"
     }
   ],
-  "semantic_registry": "Deep-Audit/Duplication-and-Architecture/semantic-comparison-registry.json",
-  "verified_bounded_semantic_groups": 16,
+  "semantic_registry": {
+    "groups": 68,
+    "artifact_inputs": 67,
+    "source_reference_records": 471,
+    "distinct_source_paths": 221,
+    "distinct_referenced_symbol_ids": 1050,
+    "explicit_ranges_checked": 730,
+    "mechanical_gate": "PASS_SOURCE_IDENTITY_AND_SYMBOL_REFERENCES"
+  },
+  "verified_bounded_semantic_groups": 27,
   "additional_declaration_only_observations": 1,
-  "semantic_context_source_paths": 89,
-  "semantic_referenced_callable_contexts": 478,
-  "semantic_reference_counts_are_not_additional_financial_reviews": true
+  "semantic_context_source_paths": 177,
+  "semantic_referenced_callable_contexts": 766,
+  "semantic_reference_counts_are_not_additional_financial_reviews": true,
+  "supplemental_semantic_groups": 23,
+  "supplemental_semantic_group_count": 32,
+  "supplemental_semantic_distinct_source_paths": 149,
+  "supplemental_semantic_callable_contexts": 628,
+  "latest_semantic_evidence_gate": {
+    "at_utc": "2026-10-24T12:19:35.062Z",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "semantic_groups": 66,
+    "artifact_inputs": 65,
+    "source_reference_records": 455,
+    "distinct_source_paths": 215,
+    "distinct_referenced_symbol_ids": 1027,
+    "explicit_ranges_checked": 705,
+    "errors": [],
+    "gate": "PASS_SOURCE_IDENTITY_AND_SYMBOL_REFERENCES",
+    "limits": "Mechanical source and index identity, artifact digest, line-bound and symbol-name checks only; not semantic exhaustiveness or runtime verification."
+  },
+  "last_updated_by_root_utc": "2026-10-24T12:54:38.266Z",
+  "additional_semantic_supplement": {
+    "path": "Deep-Audit/Duplication-and-Architecture/business-day-vs-shift-active-admission-semantic-comparison.json",
+    "id": "SEM-MIRROR-027",
+    "new_comparison_group": true,
+    "new_financial_callable_reviews": 0,
+    "decision": "Source-supported business-day active-admission race candidate; independently source challenged, not SQL reproduced."
+  },
+  "current_reconciliation": {
+    "as_of_utc": "2026-10-22T04:07:10+00:00",
+    "identified_ast_candidate_groups": 218,
+    "remaining_application_groups": 0,
+    "remaining_test_groups": 0,
+    "bounded_semantic_groups": 58,
+    "semantic_registry_artifact_inputs": 57,
+    "source_reference_records": 422,
+    "distinct_source_paths": 208,
+    "stable_callable_context_ids": 996,
+    "explicit_line_ranges": 655,
+    "semantic_gate": "PASS_SOURCE_IDENTITY_AND_SYMBOL_REFERENCES",
+    "report_link_gate": "129 links / 0 broken",
+    "status": "INCOMPLETE — finite clone candidates dispositioned; bounded semantic comparisons are source referenced; renamed-equivalence, dead-code and reachability clearance remain open."
+  },
+  "bounded_semantic_comparisons": 58,
+  "latest_semantic_group": "SEM-MIRROR-071",
+  "latest_semantic_artifact": "Deep-Audit/Duplication-and-Architecture/business-day-close-blocker-consumer-parity-semantic-comparison.json",
+  "latest_semantic_disposition": "PreviewCloseBlockersAsync, CloseBusinessDayHandler and OwnerDashboardQueryService all call BusinessDayCloseEvaluator.EvaluateAsync. The GET and close routes bind to those consumers; the existing integration test opens a shift, checks OPEN_SHIFT in preview, attempts close, and asserts identical blocker-code sets. This is shared logic, not independently duplicated blocker rules; no divergence or new finding confirmed. Evaluator inputs include global outstanding shifts/custodies/journal entries/pending electronic payments and global protected balances, while checklist and some discrepancy checks are business-day scoped. Global-vs-day closure policy needs explicit owner/system scope confirmation, but source alone does not establish a defect; deployment topology may intentionally allow only one active day.",
+  "semantic_scope_limit": "The 218 exact-body candidate dispositions and 69 bounded semantic comparisons do not prove all semantically equivalent logic or dead-code paths were found. SEM-069 is a supplemental FIN-016 delivery-fee authority comparison. Runtime behavior remains untested.",
+  "latest_mechanical_gate": {
+    "at_utc": "2026-10-24T12:19:35.062Z",
+    "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "semantic_groups": 66,
+    "artifact_inputs": 65,
+    "source_reference_records": 455,
+    "distinct_source_paths": 215,
+    "distinct_referenced_symbol_ids": 1027,
+    "explicit_ranges_checked": 705,
+    "errors": [],
+    "gate": "PASS_SOURCE_IDENTITY_AND_SYMBOL_REFERENCES",
+    "limits": "Mechanical source and index identity, artifact digest, line-bound and symbol-name checks only; not semantic exhaustiveness or runtime verification."
+  },
+  "latest_semantic_lead_manifest": "Deep-Audit/Duplication-and-Architecture/remaining-semantic-search-leads-20261021-continued.json",
+  "remaining_keyword_hit_paths": 219,
+  "completion_gate": "OPEN — finite clone candidates dispositioned and bounded semantic comparisons reference-validated; not exhaustive semantic/dead-code clearance.",
+  "latest_reconciliation": {
+    "checked_at_utc": "2026-10-24T12:54:38.266Z",
+    "source": "semantic-comparison-registry.json and all listed artifacts",
+    "semantic_groups": 69,
+    "artifact_inputs": 68,
+    "source_reference_records": 462,
+    "distinct_source_paths": 216,
+    "distinct_callable_ids": 1004,
+    "explicit_ranges": 714,
+    "unreadable_artifacts": 0,
+    "scope_gate": "OPEN — bounded comparison evidence only; remaining original semantic scope not exhaustively proven"
+  },
+  "last_coordinator_batch": {
+    "id": "SEM-MIRROR-062",
+    "artifact": "Deep-Audit/Duplication-and-Architecture/owner-dashboard-vs-inventory-overview-stock-balance-semantic-comparison.json",
+    "decision": "Owner dashboard sums movement magnitudes without Direction; inventory overview and domain rules sign Out negative. Existing FIN-013; no duplicate.",
+    "created_at_utc": "2026-10-24T11:50:24.965Z",
+    "new_canonical_finding": false
+  },
+  "semantic_groups_current": 71,
+  "semantic_artifacts_current": 70,
+  "semantic_source_reference_records_current": 475,
+  "semantic_paths_current": 217,
+  "semantic_symbol_ids_current": 1015,
+  "semantic_ranges_current": 734,
+  "latest_comparison": "SEM-MIRROR-066",
+  "scope_limit": "Still not exhaustive for renamed semantic equivalents, dead/unreachable code, generated behavior, runtime/UI; finite AST queue 218/218 only.",
+  "latest_bounded_semantic_comparisons": {
+    "groups": 60,
+    "artifact_inputs": 58,
+    "source_reference_records": 403,
+    "distinct_source_paths": 200,
+    "distinct_symbol_ids": 923,
+    "explicit_ranges": 618,
+    "gate": "PASS_ARTIFACT_AND_SOURCE_REFERENCE_INTEGRITY",
+    "report_links": "not recalculated in this batch",
+    "limitations": "Mechanical artifact/source-reference integrity only; not semantic truth, full clone detection, runtime behavior, or repository-wide completion."
+  },
+  "semantic_comparison_metrics": {
+    "groups": 71,
+    "artifacts": 70,
+    "source_reference_records": 475,
+    "distinct_paths": 217,
+    "distinct_symbol_ids": 1015,
+    "explicit_line_ranges": 734,
+    "source_references_are_evidence_records_not_distinct_callables": true
+  },
+  "semantic_artifact_inputs": 65,
+  "latest_artifact": "Deep-Audit/Duplication-and-Architecture/callcenter-cashier-session-role-and-operation-guard-semantic-comparison.json",
+  "semantic_comparison_count": 71,
+  "semantic_evidence_gate": {
+    "gate": "OPEN",
+    "registered_artifact_inputs": 70,
+    "all_artifacts_readable_and_hash_matched": true,
+    "errors": [],
+    "latest_semantic_group": "SEM-MIRROR-071",
+    "tests_executed": false
+  },
+  "source_reference_records": 455,
+  "distinct_source_paths": 215,
+  "distinct_referenced_symbol_ids": 1027,
+  "explicit_ranges_checked": 705,
+  "reconciliation_history": [
+    {
+      "recorded_at": "2026-10-24T11:42:28.545Z",
+      "supersedes_stale_latest_reconciliation": true,
+      "note": "Recomputed from current semantic-comparison-registry.json and every unique referenced artifact; historical snapshots retained.",
+      "metrics": {
+        "as_of": "2026-10-24",
+        "groups": 60,
+        "artifact_inputs": 58,
+        "source_reference_records": 403,
+        "distinct_source_paths": 200,
+        "distinct_callable_ids": 923,
+        "explicit_ranges": 618,
+        "artifact_errors": 0,
+        "source_reference_errors": 0,
+        "latest": "SEM-MIRROR-060",
+        "mechanical_gate": "PASS_ARTIFACT_AND_SOURCE_REFERENCE_INTEGRITY",
+        "scope_limit": "Mechanical artifact/source-reference integrity only; not semantic truth, full clone detection, runtime behavior, or repository-wide completion."
+      }
+    },
+    {
+      "at_utc": "2026-10-24T11:48:07.330Z",
+      "artifact": "Deep-Audit/Duplication-and-Architecture/semantic-registry-current-source-integrity-2026-10-24.json",
+      "summary": "Recalculated after registering SEM060/SEM061. Previous 403 reference count predates both; current counts derive from all registered comparison inputs."
+    },
+    {
+      "at_utc": "2026-10-24T11:50:24.965Z",
+      "artifact": "Deep-Audit/Duplication-and-Architecture/semantic-registry-current-source-integrity-2026-10-24.json",
+      "summary": "Recalculated after SEM-MIRROR-062; includes SEM060/061/062 artifacts. Current input-based count supersedes stale prior counts."
+    },
+    {
+      "at_utc": "2026-10-24T12:05:49.280Z",
+      "previous_recorded": {
+        "groups": 62,
+        "artifacts": 61,
+        "refs": 421,
+        "paths": 201,
+        "ids": 956,
+        "ranges": 652
+      },
+      "current_recomputed": {
+        "groups": 63,
+        "artifacts": 62,
+        "refs": 444,
+        "paths": 210,
+        "ids": 1006,
+        "ranges": 692
+      },
+      "reason": "SEM-MIRROR-063 added and legacy source schemas reconciled; prior counters did not account consistently for legacy sources arrays."
+    },
+    {
+      "at_utc": "2026-10-24T12:09:59.513Z",
+      "previous_recorded": {
+        "groups": 63,
+        "artifacts": 62,
+        "refs": 444,
+        "paths": 210,
+        "ids": 1006,
+        "ranges": 692
+      },
+      "current_recomputed": {
+        "groups": 64,
+        "artifacts": 63,
+        "refs": 448,
+        "paths": 212,
+        "ids": 1014,
+        "ranges": 696
+      },
+      "reason": "SEM-064 added; all registered artifacts checked using both legacy and current reference schemas."
+    }
+  ],
+  "latest_coordinator_independent_source_validation": {
+    "artifact": "Deep-Audit/Duplication-and-Architecture/business-day-close-blocker-consumer-parity-semantic-comparison.json",
+    "source_references": 6,
+    "source_hash_line_range_and_symbol_index_checks": "PASSED",
+    "errors": [],
+    "tests": "READ_NOT_RUN",
+    "finding_created": false
+  }
 }

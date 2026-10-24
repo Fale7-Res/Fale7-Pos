@@ -1,0 +1,170 @@
+{
+  "id": "UI-007",
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T18:30:30.799780+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent actual source and XAML asynchronous state challenge",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_WITH_ADDRESS_AND_CAPTURE_QUALIFICATIONS",
+  "severity_assessment": "HIGH conditional customer/order integrity risk; no actual customer data or runtime write used.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "startLine": 35,
+      "endLine": 42,
+      "source_git_blob_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "worktree_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "symbol": {
+        "stable_id": "sym-3cb2f7f540175998d9cab1bb08cd6033cccb9e7eacf89dc6b0b11cfc9c35f8e6",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnCustomerPhoneChanged(string)",
+        "startLine": 35,
+        "endLine": 42,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Phone changes invoke lookup method directly fire-and-forget; _lastLookedUpPhone is dedup state only, not a post-await current-phone check."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "startLine": 51,
+      "endLine": 87,
+      "source_git_blob_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "worktree_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "symbol": {
+        "stable_id": "sym-9793ac3ed9911ce00cfe16fef27bb148004849368c653e0487a28dd32d25b2af",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.LookupCustomerCoreAsync()",
+        "startLine": 51,
+        "endLine": 80,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Result unconditionally replaces CustomerId/CustomerName/SavedAddresses. ResetResolvedCustomer clears ID/address choices, but not CustomerName or outstanding requests."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "startLine": 166,
+      "endLine": 176,
+      "source_git_blob_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "worktree_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "symbol": {
+        "stable_id": "sym-a66a34fa0b17a648e537d9a4133962f75ed1aaa37775ceb766f7c807776efb3c",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.ApplySavedAddress(Falah.Application.Customers.CustomerAddressDto)",
+        "startLine": 166,
+        "endLine": 177,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Saved address is applied only on explicit selection; lookup does NOT automatically assign DeliveryArea/Street."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "startLine": 217,
+      "endLine": 231,
+      "source_git_blob_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "worktree_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "symbol": {
+        "stable_id": "sym-b31689fbde78a9b6e1a4591d6c0018be03ddebdc488d1a262d7e53cd727b9b38",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.ResetCustomerAndDelivery()",
+        "startLine": 217,
+        "endLine": 231,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "ResetCustomerAndDelivery clears form but does not invalidate outstanding lookup completion."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.State.cs",
+      "startLine": 21,
+      "endLine": 29,
+      "source_git_blob_sha256": "d19dc93f79fad66bcf8d817971d1e0b7712b5b75fa98ce6f6386324a76647897",
+      "worktree_sha256": "d19dc93f79fad66bcf8d817971d1e0b7712b5b75fa98ce6f6386324a76647897",
+      "symbol": null,
+      "evidence": "Customer lookup flag not included in IsOperationBusy/CanEditOperation; changing phone/clearing can remain available while customer lookup awaits."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml",
+      "startLine": 35,
+      "endLine": 41,
+      "source_git_blob_sha256": "3645c88eab358dc65f711b2929843426a77eb9fce2834d4042aa753095660f76",
+      "worktree_sha256": "fa6fe4684602329cfc44514c3f1d957cfcd3858704c7320883752ce2886d7067",
+      "symbol": null,
+      "evidence": "Phone TwoWay PropertyChanged binding and progress bar; progress not an input lock."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "startLine": 150,
+      "endLine": 168,
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "symbol": {
+        "stable_id": "sym-ac068985fe1f63f1b67e0480bb8da5498bc8abacd2dbdf722fe7d6eb37b8a8f0",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SubmitOrderAsync()",
+        "startLine": 98,
+        "endLine": 176,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Checkout captures current mutable phone/name/address in immutable request."
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "startLine": 212,
+      "endLine": 220,
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "symbol": {
+        "stable_id": "sym-f94d1c39876bb927e02302b6f6df7b69e613410d643f53861c2501816cd4b8eb",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SendCheckoutAsync(Falah.Application.Orders.CheckoutOrderRequest)",
+        "startLine": 178,
+        "endLine": 235,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Post-success upsert uses captured request, not live form. Earlier stale-name pairing can persist, late response after capture cannot rewrite sent request."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "startLine": 96,
+      "endLine": 110,
+      "source_git_blob_sha256": "d989056e4c339b114b4586cd3aeadbf1d0ca01352f38c5bb6ba112c58ae42c94",
+      "worktree_sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "symbol": {
+        "stable_id": "sym-82f604d8e6b6611c85efa3cbb3661409581391776574005172e269ceb84e2c4c",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LookupCustomerAsync()",
+        "startLine": 96,
+        "endLine": 111,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Counterpart snapshots trimmed phone and discards changed-phone response; no such check in CallCenter."
+    }
+  ],
+  "supported_interleavings": [
+    "Lookup phone A awaits, change to B launches second read; B completes then A completes. Phone remains B while name/ID/address choices become A.",
+    "Lookup A awaits then clear order; late response repopulates customer identity/name/address choices after reset."
+  ],
+  "preconditions": [
+    "Overlapping lookup for different phone or reset while request pending; source API completion order reversed.",
+    "Operator accepts stale customer name and/or explicitly selects an old saved address before immutable checkout capture."
+  ],
+  "counterevidence": [
+    "Lookup only offers saved address choices; it does not automatically copy an address into DeliveryArea/Street.",
+    "Visible name/details may let operator notice and correct mismatch.",
+    "Checkout captures immutable request and upserts from it, so post-capture lookup does not alter already sent DTO.",
+    "No actual customer PII, HTTP/API call or database operation executed."
+  ],
+  "recommended_remediation": "Track normalized phone and monotonic form generation; reject stale completion and invalidate tasks on reset. Clear or preserve dependent identity/address state deliberately.",
+  "required_tests": [
+    "Controlled A/B reverse completion retains only B identity/name/addresses.",
+    "Clear while lookup pending leaves next form blank.",
+    "After checkout capture, late lookup must not change retained DTO; before capture validation must enforce matching customer identity."
+  ],
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "UI007 finding only; no callable-count promotion"
+}

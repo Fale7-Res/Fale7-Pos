@@ -1,0 +1,51 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "originator": "root",
+  "updated_at_utc": "2026-10-18T09:02:34.158954+00:00",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "severity": "MEDIUM",
+  "verification": "Actual source independently read; parent synthetic component result files inspected as parent evidence only, not independently rerun. No application/SQL/UI/account/ledger writes.",
+  "candidate_id": "FIN-CAND-CASHCOUNT-001",
+  "sources": [
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "git_blob_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+      "worktree_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3"
+    },
+    {
+      "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+      "git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+      "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+    }
+  ],
+  "evidence": [
+    "DomainCalculateDenominationCount125-135 clampsnegativequantityto0 intentionally thenmultiplies raw signeddenomination*nonnegativequantity withoutwhitelist/positiveguard orcheckedexpression.",
+    "Sum normalizedrowlongs usesLINQSum checkedaddition, so genericclaimalloverflowssilentlywrap false. Perrowmultiplication131 and finaldifference134 areordinarysignedlong expressions andcanwrap undernormaluncheckedcompilerpolicy.",
+    "SaveCashCount29-61 requirescash_count andexistingday, callsDomain40-41 thenstoresRowsJson/Total/Expected/Difference andFinalizedAt47-50. NoamountguardbetweencomputedvalueandSave60. Expectedisrequestclientlong, notindependentlyresolvedbalance here.",
+    "DTO47-51 rawsignedlongrows; Program488-497 replacesdayIDonly thenhandler, noguardrowvalues."
+  ],
+  "concrete_static_example": "Authorizedcount with denomination=-100 quantity1 expected0 createscalculationtotal-100 anddifference-100; sourcepersistsasfinalizedcount. 20000*long.MaxValuewraps -20000 inparentseparatenet10harness; nofinancialpostingclaimed.",
+  "counterevidence": [
+    "Negativequantityclamp intentionaldocumentedcompatibility, notfinding.",
+    "NormalUIgetsvalidfixeddenominations; craftedAPI needed.",
+    "No proofcountsoverridecloseblockers orcashledger; invalidcount/auditintegrityonly.",
+    "Expectedfromclientmaybedeliberateflexiblecounttarget; do notautomaticallyclassifyasprivilegebypass."
+  ],
+  "correction_design": "Validatepositiveallowlisteddenominations andboundedquantities; checkedproduct/sum/difference withclearDomainerror. Preserveintendednegativequantityclamp ifownerpolicyretainsit.",
+  "regression_tests": [
+    "Invalidnegative/unsupporteddenomination andoverflowfailwithoutcount/auditwrites.",
+    "Normalcount andnegativequantityclampcontrol retained.",
+    "Independentlytestwhetheranyclosedayconsumertrustscountbeforeclaimingfinancialclosebypass."
+  ]
+}

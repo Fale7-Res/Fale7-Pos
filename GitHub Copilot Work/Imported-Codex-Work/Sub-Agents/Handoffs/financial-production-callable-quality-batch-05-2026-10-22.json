@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_verification_batch",
+  "created_at_utc": "2026-10-22T01:00:00Z",
+  "assignment": "Bounded source quality review of six materially financial production methods from the refreshed EXISTING_REASONING_UNVERIFIED class, excluding every current SUBSTANTIVE_REVIEW_VERIFIED ID. Scope covers shift opening float/custody, business-day cash count, employee earnings postings, and attendance corrections that write payroll deltas. Static only.",
+  "classification_path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+  "classification_as_of_utc": "2026-10-22",
+  "classification_sha256": "1f9aea9eaffd010dedcd161be1342af4e4abab06fa10ce2c46dde21431c72c93",
+  "current_class_counts": {
+    "IDENTITY_ONLY": 983,
+    "EXISTING_REASONING_UNVERIFIED": 7791,
+    "SUBSTANTIVE_REVIEW_VERIFIED": 30,
+    "REVIEW_INCOMPLETE": 0,
+    "OUT_OF_FINANCIAL_SCOPE_WITH_REASON": 0
+  },
+  "prior_batch_04_reconciliation": {
+    "handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-04-2026-10-22.json",
+    "coordinator_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-04-coordinator-validation-2026-10-22.json",
+    "claim_digest_mismatch": true,
+    "coordinator_disposition": "No matching historical classification snapshot found; coordinator independently validated each selected record against current status, path, signature, span, source/blob/worktree SHA and receipt SHA before promotion.",
+    "this_reviewer_individual_check": "All six batch-04 IDs were independently rechecked: current status SUBSTANTIVE_REVIEW_VERIFIED, path/signature/range match, current source SHA equals prior handoff source SHA, receipt SHA equals prior handoff receipt SHA, analyzed receipt symbol exists; 6/6 pass."
+  },
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-7ac925ec38be5884a6e011617a2d5a08a64c3091bf3dc361f7d4f5e966a0d685",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Shifts.OpenShiftHandler.HandleAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "line_range": [
+        33,
+        110
+      ],
+      "source_sha256": "7b2afcf63d01e1bb55c0d88e7d1d64e55b3014539d51dd7f4ed9664e7e8b5ea3",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs.json",
+      "receipt_author": "financial_integrity",
+      "receipt_sha256": "95bb227aeedccf11733fbcd3dc653a878ff96ce3cd439193770e0644a7022baf",
+      "receipt_reasoning_checked": "Source lines 35-43 replay same request before fresh authorization and enforce single active shift precheck. Positive opening cash gates active-day lookup and reads Main posted movements through TreasuryBalanceQuery before transaction begins at line 69; inside transaction it adds shift, Main-to-Drawer opening movement and ShiftOpen print-job intent, then saves/commits. Domain Shift.Open validates shift name/amount; filtered unique Open-status index arbitrates two distinct opening requests. Source and receipt agree that the balance read is outside the transaction, so the helper lock cannot be relied on to serialize against another concurrent Main-account debit through commit.",
+      "side_effects": "New shift; for positive opening float, Main debit and Drawer credit; durable slip intent; atomic save/commit. Zero float creates no treasury movement or active-day gate.",
+      "counterevidence": "FalahDbContext.cs:120-127 has unique filtered index for one Open shift; ShiftCloseVerticalSliceTests.cs:212-242 covers second-open rejection, reopen after close and distinct-key concurrent opens with one winner. These constrain duplicate active shifts, not float-vs-transfer balance races. TreasuryBalanceQuery.cs:21-46 says caller transaction must retain spend lock.",
+      "test_source": "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs:212-242,261-279; endpoint src/Falah.Server/Program.cs:288; not executed",
+      "tests_executed": false,
+      "remaining_action": "Retain existing FIN011 cross-writer balance-lock concern as source mechanism, not realized overdraft. Add provider-backed distinct-key opening-float concurrent with other Main debits; separately preserve unique active-shift protection. Print job is intent, not physical output."
+    },
+    {
+      "stable_id": "sym-d1fac0a62a9a06a19397c440997f02d62aec3d8d862291a178aa4e2ddf2539eb",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.ControlCenter.SaveCashCountHandler.HandleAsync(Falah.Application.BusinessDay.SaveCashCountRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "line_range": [
+        29,
+        70
+      ],
+      "source_sha256": "1ebd4439f52e582f2e890c0db9bbd9f0c7e3e406b8ed56e46f2da900229083b3",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_sha256": "d99ed22483eee29f01b2484407fe1b640a4555bf04c43d5b4c73eece4f6c7a3b",
+      "receipt_reasoning_checked": "Source confirms existing count ID replays before authorization. New count checks actor cash_count permission and existence of a business day, then forwards rows and request.ExpectedPiastres to BusinessDayRules.CalculateDenominationCount and persists rows, total, expected, difference and control audit in one SaveChanges. It does not post treasury or recompute expected cash from movements. BusinessDayRules clamps quantity to >=0 but multiplies the signed denomination directly and does not validate denomination against canonical list.",
+      "side_effects": "Persists a reconciliation/count fact and audit only; no cash or treasury movement.",
+      "counterevidence": "Application request documents a blind physical denomination count and legacy same-ID idempotent behavior. Test source asserts totals/replay, dedicated permission and canonical denomination list endpoint. It does not prove that the write endpoint rejects a noncanonical or negative denomination; a trusted UI may constrain selection, but that caller was not validated here. ExpectedPiastres being supplied may be intended as a snapshot for a past count.",
+      "test_source": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs:559-601; endpoint src/Falah.Server/Program.cs:488; not executed",
+      "tests_executed": false,
+      "remaining_action": "Validate server-side denomination allowlist and whether expected amount should be recomputed or captured from a trusted reconciliation snapshot; test negative/unknown denomination and extreme product/sum bounds. Current source proves a malformed privileged request can produce a nonsensical reconciliation record, not a cash-loss event."
+    },
+    {
+      "stable_id": "sym-c3253f90b39b119d016833c044b040bc5745a0bbde102785ec02afa10db1df08",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.RecordDailyWageHandler.HandleAsync(Falah.Application.Employees.RecordDailyWageRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "line_range": [
+        33,
+        61
+      ],
+      "source_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_sha256": "67c4cee561621f7a1be1a11f7656ea818287e5f7c54f122ee13d017e0c9cbfe6",
+      "receipt_reasoning_checked": "Source confirms actual actor/approval authorization and employee lookup, then chooses signed CustomWagePiastres or stored DailyWagePiastres with no positive amount guard. Key is deterministic by employee, Cairo current date and ShiftId/no-shift; EmployeeLedgerPoster checks identity and saves a credit with current running balance. Missing shift existence validation and midnight key boundary match receipt. A negative custom/stored wage can be placed in the credit field, and the shared poster stores signed piastres without validation; this source mechanism can reduce an employee net balance and influence payroll eligibility/amount.",
+      "side_effects": "Adds employee ledger DailyWage fact; no treasury payment at this point. Subsequent payroll calculations consume ledger activity.",
+      "counterevidence": "AttendanceVerticalSliceTests.cs covers permission, duplicate daily-wage rejection and normal wage flow; no negative custom/stored wage case in inspected tests. Payroll lifecycle/payout are separate handlers. The request DTO uses signed long and does not carry an amount constraint.",
+      "test_source": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs:113-139; request src/Falah.Application/Employees/AttendanceRequests.cs:29-35; endpoint src/Falah.Server/Program.cs:748; not executed",
+      "tests_executed": false,
+      "remaining_action": "Confirm employee wage create/update validation and downstream net-pay handling; add a negative custom wage rejection test and ensure the stored compensation invariants cannot feed a negative credit. Do not claim a posted incident."
+    },
+    {
+      "stable_id": "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "line_range": [
+        77,
+        109
+      ],
+      "source_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_sha256": "67c4cee561621f7a1be1a11f7656ea818287e5f7c54f122ee13d017e0c9cbfe6",
+      "receipt_reasoning_checked": "Source requires Hours>0 and authorization, gets configured or signed caller CustomRatePiastres, computes rounded rate*hours, and calls EmployeeLedgerPoster with Money.Zero debit and computed amount as credit. No positive rate, total, finite or maximum guard is present at this handler; a negative custom rate therefore yields a negative credit for finite positive hours. Request DTO is signed long plus double hours. Deterministic RequestId replay avoids sequential duplicate rows but no local transaction/lock or duplicate-key recovery exists.",
+      "side_effects": "Adds employee Overtime credit fact with Hours/rate metadata; later payroll consumes ledger, but no treasury movement here.",
+      "counterevidence": "AttendanceVerticalSliceTests source tests ordinary positive overtime and permission context; it does not cover negative custom rate, huge finite hours, or same-key concurrent insert. JSON nonfinite handling and unchecked cast semantics are not claimed. Payroll payment remains separate.",
+      "test_source": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs:157-165; request src/Falah.Application/Employees/AttendanceRequests.cs:37-43; endpoint src/Falah.Server/Program.cs:759; not executed",
+      "tests_executed": false,
+      "remaining_action": "Add positive custom-rate and bounded finite-hours validation tests, and provider-backed same-key race coverage; validate downstream payroll aggregation for negative ledger credit. No realized loss claimed."
+    },
+    {
+      "stable_id": "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "line_range": [
+        125,
+        157
+      ],
+      "source_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_sha256": "67c4cee561621f7a1be1a11f7656ea818287e5f7c54f122ee13d017e0c9cbfe6",
+      "receipt_reasoning_checked": "Source requires positive ShiftCount, loads actor and employee, then chooses positive ShiftValue or falls back to DailyWage and multiplies by count. It does not assert the fallback wage positive or validate resulting total before passing as ledger credit. Negative stored daily wage when ShiftValue is nonpositive can produce negative credit; zero can record zero credit. EmployeeLedgerPoster stores signed fields and computes cached balance; deterministic RequestId replay but no local concurrent-key exception recovery.",
+      "side_effects": "Adds employee ExtraShift ledger credit fact with rate snapshot; later payroll consumes it. No cash or treasury movement here.",
+      "counterevidence": "AttendanceVerticalSliceTests source covers ordinary positive shift-value and count; no negative fallback wage, zero value, multiplication bound, or same-key race in inspected coverage. Employee create/update validation may constrain stored values and is remaining cross-file check; it does not constrain a later alternate source unless checked.",
+      "test_source": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs:168-179; request src/Falah.Application/Employees/AttendanceRequests.cs:45-47; endpoint src/Falah.Server/Program.cs:770; not executed",
+      "tests_executed": false,
+      "remaining_action": "Inspect employee create/update invariants and add zero/negative fallback wage plus large ShiftCount tests. No actual under/overpayment claimed."
+    },
+    {
+      "stable_id": "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+      "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "classification_before": "EXISTING_REASONING_UNVERIFIED",
+      "signature": "Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)",
+      "source_path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "line_range": [
+        30,
+        131
+      ],
+      "source_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs.json",
+      "receipt_author": "financial_coordinator",
+      "receipt_sha256": "496dd9762321331cfd06bbcd36cb90bc48d053e8bf14adab3e6015bc14d75ed2",
+      "source_reasoning_checked": "Source locks attendance record within ReadCommitted transaction, idempotently replays audit snapshot keyed to RequestId, authorizes attendance_manage and captures prior values. If employee has positive daily wage, it locks employee ledger range, computes old/new late penalty and overtime using current settings, and adds signed Adjustment deltas for changed amounts. It persists corrected attendance and audit atomically. Receipt is consistent. The use of current wage/settings for historical attendance delta is an identified policy/historical-rate concern; no old rate snapshot is present in this handler.",
+      "side_effects": "Updates attendance record; can add one or two employee Adjustment ledger rows; no treasury payout. Later payroll includes ledger facts.",
+      "counterevidence": "AttendanceVerticalSliceTests source covers permission, reason, overtime-delta credit, retry/replay, older-request protection, combined penalty/overtime BalanceAfter, restart replay and concurrent correction serialization. This is strong counterevidence to lost/reapplied correction defects, not to historical rate snapshot policy.",
+      "test_source": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs:182-325; request src/Falah.Application/Employees/AttendanceRequests.cs:21-27; endpoint src/Falah.Server/Program.cs:796; not executed",
+      "tests_executed": false,
+      "remaining_action": "Preserve FIN012/current-rate historical correction concern as policy and source semantics; ask whether corrections should use original rate/settings snapshot. Validate authorization to adjust hours/history separately. No duplicate adjustment runtime claim."
+    }
+  ],
+  "cross_workstream_note": "Coordinator SEM-MIRROR-056 compares SafeDrop client retry persistence; SafeDrop is already in prior verified batch 04 and is not reviewed again. Current batch confirms only server-side open-shift transfer behavior and employee ledger paths; no client restart or storage claim.",
+  "batch_result": {
+    "selected_count": 6,
+    "all_selected_currently_existing_reasoning_unverified": true,
+    "selected_ids_unique": true,
+    "disjoint_from_current_verified": true,
+    "tests_run": false,
+    "runtime_or_database_used": false,
+    "source_modified": false,
+    "shared_ledgers_reports_modified": false,
+    "primary_receipt_union_credit": false
+  },
+  "limitations": [
+    "The quality classification hash referenced in batch 04 handoff was stale; each prior batch-04 record was individually revalidated against current overlay/source/receipt and all six passed. This batch uses current overlay bytes and was checked per ID before authoring.",
+    "No tests executed, no SQL/provider/runtime behavior or live financial data validated.",
+    "Potential invalid-input or concurrent outcomes are source mechanisms, not observed incidents; business policy remains open where noted."
+  ],
+  "next_action": "Coordinator validates this handoff and may update the shared quality overlay. Then select another small distinct production batch from the current unverified set, excluding IDs that are verified at selection time. Reconcile employee compensation input validation before deciding whether negative wage/rate entries are closed by existing writer-level callers.",
+  "excluded_current_verified_ids": [
+    "sym-0132fa8d6710c67d9b91badb754d0a43245667f0cc0ae572e62c9859c1846cb6",
+    "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+    "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+    "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4",
+    "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+    "sym-14dd0237e29c2d081fc44c8846313dcad27ba7bf41c22c57448d3be7180d22fd",
+    "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5",
+    "sym-2cef0f36c5ee0ce1caeb34ca1615f0f4f2c830934c4816b208ac53a65f13eccb",
+    "sym-309b602105ce776e81f8c226164c17e6c334cb5599f19fbef2b4955ddb340ecf",
+    "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+    "sym-549cf3f660de0fec71a0ca98801b4222c43930bfcbdcf6a2f7e9349f2f59b9b0",
+    "sym-5a8e6ab40bdceff0f55770d2ca7f2c069ad744956ad10275018b93e9f14af4d2",
+    "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32",
+    "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+    "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+    "sym-7f7926930b1d96d08b14f64c04c966e2b241703a0ee2e8e8b1f270d8ede20ce6",
+    "sym-87187cc2fbb6ee06d1536b92df5dc2203bdf3e277aa9e60adb1dddd1a7f26741",
+    "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+    "sym-94e0b0a6b61d82d55f776e03860869d9482ed2f56a4176a0ec53c8735a4d0517",
+    "sym-98e36157a92c4e69395fa1ccb820a214d16c3cb4516d73d4ab8845886cea7ff0",
+    "sym-a4e444744afd145382ed0561480625c9fb7cb87de1611bda5a5c7fb5eb199836",
+    "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+    "sym-a99365f83efad5e98dba5809723e2e0ff2004e4b0cda9c6c4e61c3dbe1cc7f96",
+    "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+    "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+    "sym-d06aba080949e4a74a4c7a42d8aa375ca994cad9851dcb0309f9d937b18a9556",
+    "sym-d98954049c5db16e36f45f67c34dfbf08b8b2db79eca98864db370f2db670aa0",
+    "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+    "sym-ea22fe8a1814d1a059857eaec1fad0fe6a8504dc715a25edfceb259854df435c",
+    "sym-f8a011d3fcef62980161367241b625088cc3ab4bdaebb6dd98bc5403e624acd6"
+  ],
+  "excluded_current_verified_count": 30
+}

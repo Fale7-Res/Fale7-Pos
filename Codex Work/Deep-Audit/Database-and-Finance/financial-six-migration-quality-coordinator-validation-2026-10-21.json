@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_validation_of_migration_quality_batch",
+  "at_utc": "2026-10-21T10:50:44Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-identity-only-migration-quality-batch-2026-10-21.json",
+  "checks": {
+    "all_six_stable_ids_unique_in_overlay": true,
+    "all_six_identity_only_before_adjudication": true,
+    "all_current_source_sha256_match_handoff": true,
+    "all_six_symbol_index_identity_path_signature_and_line_ranges_match": true,
+    "review_status_promoted_only_with_source_reasoning": true,
+    "migration_execution_or_database_test_performed": false
+  },
+  "reviewer_independence": "Continuation agent checked source reasoning; coordinator independently checked stable-ID/source-index correspondence and current file hashes, but did not independently reproduce migration execution or database behavior.",
+  "verified_callables": [
+    {
+      "stable_id": "sym-38db73b243fb08c04b454bfd5690309d5d2440e01f7b7a7fbd4d6410ee76a551",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+      "lines": [
+        12,
+        591
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "5fe110d7121b655d758edfab04d72240aa80066214153c1af0eea54be6ea62e8"
+    },
+    {
+      "stable_id": "sym-309b602105ce776e81f8c226164c17e6c334cb5599f19fbef2b4955ddb340ecf",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.cs",
+      "lines": [
+        11,
+        173
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddInventoryManagement.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "0ce0b33d7b153a9dd56ada3bb579f9b86a05ef4214ae47596bd8f30c184c225f"
+    },
+    {
+      "stable_id": "sym-0132fa8d6710c67d9b91badb754d0a43245667f0cc0ae572e62c9859c1846cb6",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs",
+      "lines": [
+        12,
+        211
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPurchasingAndSuppliers.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "8b2347c5748e57a162b99a175d66e146a9972d1e904b5b7e20a5f4651e1a29d7"
+    },
+    {
+      "stable_id": "sym-5a8e6ab40bdceff0f55770d2ca7f2c069ad744956ad10275018b93e9f14af4d2",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs",
+      "lines": [
+        14,
+        187
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddBusinessDayCloseAndControlCenter.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "a58dcc1d19000077f1a337ea1d91a15768fb01d614784f55a417732312530685"
+    },
+    {
+      "stable_id": "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+      "lines": [
+        12,
+        73
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashCountAndSettings.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "68e8194ce95e0965f57bf9be97feca7c208daba51f4ff425574e24759d1ea64c"
+    },
+    {
+      "stable_id": "sym-14dd0237e29c2d081fc44c8846313dcad27ba7bf41c22c57448d3be7180d22fd",
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs",
+      "lines": [
+        12,
+        94
+      ],
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddPayrollAndBackup.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "source_sha256": "39b30ef5427bb0947417d9f749bcf2e14dca1210a905dc9d0e9e630905f759fe"
+    }
+  ],
+  "result": "SIX MIGRATION UP METHODS ACCEPTED AS SUBSTANTIVE STATIC SOURCE REVIEWS; no credit to production handler/runtime review.",
+  "global_financial_gate": "OPEN; overall financial substantive scope remains ungraded."
+}

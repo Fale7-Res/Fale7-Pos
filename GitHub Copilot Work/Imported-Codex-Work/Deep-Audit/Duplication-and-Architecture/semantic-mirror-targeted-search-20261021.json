@@ -1,0 +1,388 @@
+{
+  "id": "semantic-mirror-targeted-search-20261021",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "at_utc": "2026-10-21T03:59:19.898Z",
+  "method": {
+    "source_root": "src/**/*.cs",
+    "files_scanned": 468,
+    "excluded": [
+      "tests/**",
+      "bin/**",
+      "obj/**",
+      ".git/**",
+      "non-C# sources"
+    ],
+    "case_sensitive": false,
+    "lead_patterns": {
+      "financial": "/\\b(Total|Amount|Price|Cost|Refund|Paid|Payment|Balance|Profit|Revenue|Expense|Settlement|Movement|Journal)\\w*\\b/g",
+      "business_day_shift": "/\\b(BusinessDay|Shift|Close|Reopen|Snapshot|RequireOpen)\\w*\\b/g",
+      "idempotency_retry": "/\\b(Idempotency|RequestId|Retry|Replay|Duplicate)\\w*\\b/g",
+      "authorization": "/\\b(Authorize|Permission|Actor|Approval|Role)\\w*\\b/g"
+    },
+    "counts": {
+      "money": {
+        "files_with_hits": 216,
+        "top_terms": [
+          [
+            "AmountPiastres",
+            100
+          ],
+          [
+            "PaymentMethod",
+            76
+          ],
+          [
+            "TotalPiastres",
+            65
+          ],
+          [
+            "Expenses",
+            58
+          ],
+          [
+            "PaymentAccountId",
+            55
+          ],
+          [
+            "PricePiastres",
+            51
+          ],
+          [
+            "Refunds",
+            50
+          ],
+          [
+            "CostSource",
+            48
+          ],
+          [
+            "RefundAmountPiastres",
+            47
+          ],
+          [
+            "AmountPaidPiastres",
+            46
+          ],
+          [
+            "PriceRuleName",
+            44
+          ],
+          [
+            "PriceRuleId",
+            43
+          ],
+          [
+            "PriceRules",
+            42
+          ],
+          [
+            "PaidFromDrawer",
+            41
+          ],
+          [
+            "TotalPricePiastres",
+            41
+          ],
+          [
+            "PriceRuleEntity",
+            40
+          ],
+          [
+            "PriceRuleProductEntity",
+            39
+          ],
+          [
+            "PriceRuleProducts",
+            39
+          ],
+          [
+            "PriceRuleDayEntity",
+            38
+          ],
+          [
+            "PriceRuleDays",
+            38
+          ]
+        ]
+      },
+      "day": {
+        "files_with_hits": 201,
+        "top_terms": [
+          [
+            "ShiftId",
+            123
+          ],
+          [
+            "Shifts",
+            85
+          ],
+          [
+            "BusinessDayId",
+            71
+          ],
+          [
+            "ShiftName",
+            67
+          ],
+          [
+            "ClosedAtUtc",
+            47
+          ],
+          [
+            "BusinessDays",
+            46
+          ],
+          [
+            "CloseRevision",
+            43
+          ],
+          [
+            "ClosedByUserId",
+            43
+          ],
+          [
+            "ShiftEntity",
+            42
+          ],
+          [
+            "CloseRequestId",
+            41
+          ],
+          [
+            "BusinessDayEntity",
+            40
+          ],
+          [
+            "SnapshotId",
+            40
+          ],
+          [
+            "ReopenReason",
+            39
+          ],
+          [
+            "ReopenedBy",
+            39
+          ],
+          [
+            "BusinessDay",
+            35
+          ],
+          [
+            "ClosedBy",
+            30
+          ],
+          [
+            "ReopenedAtUtc",
+            29
+          ],
+          [
+            "ReopenApprovedBy",
+            29
+          ],
+          [
+            "ReopenRequestId",
+            28
+          ],
+          [
+            "BusinessDayCloseSnapshots",
+            28
+          ]
+        ]
+      },
+      "retry": {
+        "files_with_hits": 139,
+        "top_terms": [
+          [
+            "IdempotencyKey",
+            76
+          ],
+          [
+            "RequestId",
+            66
+          ],
+          [
+            "RetryMessage",
+            13
+          ],
+          [
+            "Idempotency",
+            3
+          ],
+          [
+            "RequestIds",
+            3
+          ],
+          [
+            "RetryCommandVisibleProperty",
+            2
+          ],
+          [
+            "RetryCommandVisible",
+            2
+          ],
+          [
+            "RetryRequested",
+            2
+          ],
+          [
+            "RetryButton",
+            2
+          ],
+          [
+            "RetryLoadMenuAsync",
+            2
+          ],
+          [
+            "Retrying",
+            1
+          ],
+          [
+            "RetryPrintAsync",
+            1
+          ],
+          [
+            "RetryOperationAsync",
+            1
+          ],
+          [
+            "RetryLedgerAsync",
+            1
+          ],
+          [
+            "RetryUserActionAsync",
+            1
+          ],
+          [
+            "Replaying",
+            1
+          ]
+        ]
+      },
+      "auth": {
+        "files_with_hits": 189,
+        "top_terms": [
+          [
+            "Role",
+            112
+          ],
+          [
+            "AuthorizedBy",
+            78
+          ],
+          [
+            "ActorUserId",
+            73
+          ],
+          [
+            "Actor",
+            62
+          ],
+          [
+            "ApprovalId",
+            56
+          ],
+          [
+            "Permissions",
+            55
+          ],
+          [
+            "AuthorizeCommand",
+            55
+          ],
+          [
+            "Approvals",
+            18
+          ],
+          [
+            "AuthorizeExpense",
+            5
+          ],
+          [
+            "PermissionCatalog",
+            5
+          ],
+          [
+            "PermissionDefinition",
+            4
+          ],
+          [
+            "AuthorizeAddSupplier",
+            4
+          ],
+          [
+            "AuthorizeShiftClose",
+            3
+          ],
+          [
+            "RoleLabel",
+            3
+          ],
+          [
+            "PermissionDeniedStateView",
+            2
+          ],
+          [
+            "ActorDisplay",
+            2
+          ],
+          [
+            "Permission",
+            2
+          ],
+          [
+            "PermissionToggle",
+            2
+          ],
+          [
+            "AuthorizeShiftOpen",
+            2
+          ],
+          [
+            "RoleOption",
+            1
+          ]
+        ]
+      }
+    }
+  },
+  "candidate_selection": {
+    "existing_semantic_evidence_source_paths": 104,
+    "source_files_with_financial_or_state_keywords_outside_existing_comparison_inputs": 228,
+    "manual_comparisons_added": [
+      "SEM-MIRROR-027"
+    ],
+    "scope": "The token scan is lead generation only. It does not infer clone groups or prove absence. A bounded high-risk analogue was selected: BusinessDay open admission versus Shift open admission, with source and persistence constraints inspected."
+  },
+  "negative_evidence": {
+    "observations": [
+      "OpenBusinessDayHandler authenticates the actor and the domain rule rejects any active day observed by the pre-insert query.",
+      "The existing same-request idempotency key is unique for BusinessDays.",
+      "The database model/migration evidence found only unique OpenRequestId, while Shift has a filtered unique Open status index."
+    ],
+    "limits": [
+      "A miss in this identifier scan is not negative evidence of semantic equivalence.",
+      "228 keyword-hit source paths outside semantic evidence inputs were not all manually compared; this includes DTOs, client view models, generated migration snapshots and unrelated structures.",
+      "The scan does not prove call reachability, active/dead code, or semantic completeness; inactive/dead code remains un-cleared except the separately recorded narrow declaration-only observation.",
+      "No provider/runtime concurrency test or deployed-schema inspection was performed."
+    ]
+  },
+  "result": "The bounded token scan found one source-supported potential invariant divergence, BusinessDay active admission versus Shift active admission. It received independent static source challenge in Sub-Agents/Handoffs/business-day-open-active-uniqueness-independent-challenge.json; SQL/provider outcome remains unexecuted. No repository-wide exhaustive clearance.",
+  "independent_challenge": {
+    "path": "Sub-Agents/Handoffs/business-day-open-active-uniqueness-independent-challenge.json",
+    "status": "INDEPENDENT_STATIC_SOURCE_CORROBORATION",
+    "runtime": "NOT_EXECUTED"
+  },
+  "latest_reconciliation": {
+    "at_utc": "2026-10-21T06:42:00Z",
+    "method": "Recomputed against tracked 468 C# paths and current 29 semantic artifact inputs; exact remaining lexical leads saved to remaining-semantic-search-leads-20261021.json.",
+    "tracked_cs_files": 468,
+    "semantic_artifact_source_paths": 138,
+    "files_with_scope_keyword_hits": 360,
+    "keyword_hit_paths_without_semantic_artifact_reference": 251,
+    "manually_compared_by_this_recount": 0,
+    "remaining_queue_is_semantic_candidate_proof": false,
+    "negative_evidence": "No inference of equivalence or absence from a keyword miss; source file report presence is not a semantic mirror comparison.",
+    "limitations": "This is a bounded candidate inventory, not a complete manual comparison of 251 paths or exhaustive semantic/dead-code/reachability analysis."
+  }
+}

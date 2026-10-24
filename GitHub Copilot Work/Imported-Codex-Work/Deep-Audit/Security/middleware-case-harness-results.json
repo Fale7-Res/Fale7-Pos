@@ -1,0 +1,14 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "command": "dotnet Codex Work/Verification-Tools/SecurityHarness/bin/Release/net8.0/SecurityHarness.dll",
+  "exit_code": 0,
+  "runtime": "net8.0; Microsoft.AspNetCore.App framework",
+  "linked_unchanged_source": ["src/Falah.Server/AuthenticationMiddleware.cs", "src/Falah.Application/Users/UserManagementRequests.cs"],
+  "boundary": "In-memory baseline middleware plus real UpdateUserPermissionsRequest using Http.Json.JsonOptions; SessionService/UserEntity are explicitly fake. No server, real sessions, handlers, database, network, filesystem business state or printers invoked.",
+  "results": [
+    {"field":"actorUserId","status":403,"endpointReached":false,"boundActor":null,"authenticatedActor":"restricted-user-placeholder","PropertyNameCaseInsensitive":true},
+    {"field":"ActorUserId","status":200,"endpointReached":true,"boundActor":"privileged-user-placeholder","authenticatedActor":"restricted-user-placeholder","PropertyNameCaseInsensitive":true},
+    {"field":"ACTORUSERID","status":200,"endpointReached":true,"boundActor":"privileged-user-placeholder","authenticatedActor":"restricted-user-placeholder","PropertyNameCaseInsensitive":true}
+  ],
+  "assertions": "All three branch assertions passed; mechanism reproduced, not an executed full permissions mutation."
+}

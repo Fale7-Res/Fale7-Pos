@@ -1,0 +1,47 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "candidate_id": "FIN-CAND-PREPGRAPH-001",
+  "reviewer": "financial_integrity original financial specialist",
+  "originator": "root",
+  "updated_at_utc": "2026-10-18T09:02:34.138920+00:00",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "severity": "MEDIUM",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    }
+  ],
+  "evidence": [
+    "SavePrep44-45 resolvesID andrunsAssertDoesNotConsumeItsOwnOutputAsync beforeTx47. Validator84-109 rejectsdirectselfinput andtraversesotheractiveproducers snapshot from92-96. No graphrevision/concurrencytoken attachedtoread.",
+    "Choose freshdistinctrecipeIDs/outputA/outputB, eachcurrentlyvalidInventoryItemID andCostSourcePrep. Bothactive requests havepositiveamounts andvalidmenu_manageauthority. T1AconsumesB,T2BconsumesA validateagainstnobody, pauseaftervalidation.",
+    "T1beginsTx/writesrecipeA+lineB/commits; T2thenbeginsTx/writesrecipeB+lineA usingoldvalidation andcommits. No overlappingtransaction orsharedrowneeded; distinctIDs andvalidFKanchors avoidsame-keyconflicts.",
+    "ModelPrepRecipe257-266 haskey/outputFK/lines relationship butnographconstraint; FKensuresitemexistenceonly. FullSaveHandlerneverrevalidatesaftertransactionstarts.",
+    "CostingRules28-45 path-localresolving setreturnsUnknown oncycle; ComputePrepRecipeCost108-124 marksmissingcircular/unknown andunitCostnullunlesscomplete. Thereforefinitefailurewithunknowncost, notstackoverflow or provenmoneypostingloss."
+  ],
+  "counterevidence": [
+    "Sequentialrequestscheckingafterfirstcommit rejectsecondedge asintended; selectedschedulebothchecksfirst.",
+    "Atomicwhole-line replacementpreventsindividualpartialrecipe butnotsharedgraphpredicatewrite-skew.",
+    "RealSQLisolation/FKacceptance/independentmultiserverbehaviornotexecuted; noqueryplan/locktrace. DistinctIDsandnonoverlappingtransactions chosen tominimizeunverified contentionassumptions.",
+    "No actualstockmovement/ledgerwrites inrecipeconfiguration; effectcostcoverageandreportingavailability only.",
+    "Inactiveotherrecipesexcludedfromgraph; currentrequestvalidatedeveninactive intentionally. Activeboth chosen, so separateinactivecyclepolicy doesnotnegatecandidate."
+  ],
+  "correction_design": "Coordinate graph mutation and structuralvalidation withinsamecrossprocessserializable admission boundary/revisionlock; ensuredeterministiclockorder/boundedretry. KeepfiniteUnknownfallback asdefense evenaftersavefix.",
+  "regression_tests": [
+    "Barrierafterbothgraphreads thennonoverlappingcommits: atmostoneoppositeedgeaccepted.",
+    "Acyclicindependentrecipeupdates stillallowed; directselfandlongcycle sequentialreject.",
+    "ExistingcyclicfixturecostterminateswithUnknown andreportincomplete, nozeroassumption."
+  ],
+  "verification": "Independent source challenge only; no application/SQL/graphconfiguration changes ornewtestexecution."
+}

@@ -1,0 +1,110 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:21.901473+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+  "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-e694b18812fdecafa2ef9a3e500d4c418f277f49b0b0c71e28d8e2f1d5f67175",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<T>::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        56,
+        5,
+        56,
+        127
+      ],
+      "reasoning": "ApiResult<T> positional record carries Success, nullable Value/Error plus OutcomeUnknown and StatusCode defaults. Equality/copy include flags and generic value semantics; record itself does not decide outcome or guarantee typed nonnull value.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Callers must inspect Success+Value and preserve unknown intent; no token/secret in record declaration.",
+      "tests_missing": "Callers must inspect Success+Value and preserve unknown intent; no token/secret in record declaration. NOT_EXECUTED.",
+      "verified_callers_callees": "ReadResultAsync; RetainedRequest/CallCenter retry logic"
+    },
+    {
+      "stable_id": "sym-82f5f106d52d6922d88db32e9087e2045a0e143c8148a718bbd2a393b9a10e1d",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ApiClient.ErrorBody::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        150,
+        5,
+        150,
+        52
+      ],
+      "reasoning": "Private ErrorBody record only captures nullable lowercase error property from response JSON; generated ToString would expose message if logged, but no logging path assumed.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Unexpected JSON shape falls back generic error in reader.",
+      "tests_missing": "Unexpected JSON shape falls back generic error in reader. NOT_EXECUTED.",
+      "verified_callers_callees": "ReadResultAsync<ErrorBody>"
+    },
+    {
+      "stable_id": "sym-b3ad4f301307b4933d0cea1c83a55ff6d58ab914632c88bd540ab2001dd8e60a",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ApiClient.TreasuryBalanceDto::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        702,
+        5,
+        702,
+        85
+      ],
+      "reasoning": "TreasuryBalanceDto record holds account ID and signed balance piastres; generated equality/copy do not impose nonnegative balance or actor visibility.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Endpoint authorization and monetary scale remain server contract.",
+      "tests_missing": "Endpoint authorization and monetary scale remain server contract. NOT_EXECUTED.",
+      "verified_callers_callees": "GetTreasuryBalanceAsync"
+    },
+    {
+      "stable_id": "sym-25202c43ca0790be98a4a4b8b211dba5a6edd75bde9d2210b07c65a169ec9da8",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ApiClient.EmployeeBalanceDto::record-generated-behavior",
+      "exact_kind": "CompilerRecordBehavior",
+      "exact_span": [
+        366,
+        5,
+        366,
+        86
+      ],
+      "reasoning": "EmployeeBalanceDto record stores employee identity and signed piastre balance; immutable-init fields but no sum/validation/permission logic generated.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Do not confuse reference equality with proven ledger correctness.",
+      "tests_missing": "Do not confuse reference equality with proven ledger correctness. NOT_EXECUTED.",
+      "verified_callers_callees": "GetEmployeeBalanceAsync"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

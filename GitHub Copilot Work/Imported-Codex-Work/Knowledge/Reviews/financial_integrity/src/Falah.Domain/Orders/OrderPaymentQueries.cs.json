@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+  "source_git_blob_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+  "worktree_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T21:56:54.960856+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-a8d4c1f9bbd505fd48eee24237ff27f9801da8afca94d7459fd1550db5fd53f7",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        26,
+        5,
+        54,
+        6
+      ],
+      "reasoning": "Initializes four channels, skips entire Cancelled orders before inspecting collected split legs, then Multi counts immediate Cash/Card irrespective IsPaid and electronic parts only if one confirmed leg methodmatches. Single method counts Total-RefundAmount only IsPaid. This correctly separates immediate split cash from pending sibling, but FIN002 whole-ordercancel erasesalreadycollected leg. Multi refunds notnetted intentionallyunsupported. COD IsPaid staysfalse evenafterdriver settle, so this is appropriate drawercash helper; any reportusingitasallrestaurantcashrevenue needs separatecustodysettlement interpretation notassumedhere.",
+      "inputs": "Orders enumerable",
+      "outputs": "Channel-to-Money dictionary",
+      "side_effects": "Pure enumeration/aggregation; no money posted or data changed.",
+      "database": "No database operations; caller chooses orders and operational date/shift scope.",
+      "trust_boundaries": "Trusts rehydrated payment/status/refund snapshots; no independent treasury reconciliation.",
+      "printing_ui": "Used by drawer breakdown and report/ticket figures, no renderer or printer.",
+      "performance": "Linear orders plus splits, fixed four-method dictionary; caller may already load large complete history.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 cancelled mixed money disappears; FIN004 original-order scope differs operational refunds. COD drawer-vs-overall-report interpretation remains qualified.",
+      "tests_missing": "Cancelledmixed FIN002, twoelectronicparts/sameMethod confirmation, COD settled reporting meaning, refundbounds",
+      "verified_callers_callees": "ShiftReconciliation49 directlycallswrapper58; SalesRules reportslegacytrace notstrictreceipt yet; loops32-49."
+    },
+    {
+      "stable_id": "sym-2da4c62ea4e7f035efdd7778c63abccba49db9008875739e643b34ef6a67a4c8",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        50,
+        28,
+        56
+      ],
+      "reasoning": "Dictionary key selector uses each fixed Cash/Card/InstaPay/Wallet enum once. Multi is not an output channel; unknown split enum ignored by ContainsKey rather than creating extra bucket.",
+      "inputs": "Tracked method",
+      "outputs": "Same enum key",
+      "side_effects": "Pure enumeration/aggregation; no money posted or data changed.",
+      "database": "No database operations; caller chooses orders and operational date/shift scope.",
+      "trust_boundaries": "Trusts rehydrated payment/status/refund snapshots; no independent treasury reconciliation.",
+      "printing_ui": "Used by drawer breakdown and report/ticket figures, no renderer or printer.",
+      "performance": "Linear orders plus splits, fixed four-method dictionary; caller may already load large complete history.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 cancelled mixed money disappears; FIN004 original-order scope differs operational refunds. COD drawer-vs-overall-report interpretation remains qualified.",
+      "tests_missing": "Undefinedenum and expected fourbucket presence",
+      "verified_callers_callees": "TrackedMethods14-15; ToDictionary28."
+    },
+    {
+      "stable_id": "sym-0f883666956b0766baff65e321ba05fa802e83d44e2c1c6f15505614aa7b08ed",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        58,
+        28,
+        73
+      ],
+      "reasoning": "Value selector initializes each channel Money.Zero, independent of input order data. Empty order set yields explicit zero buckets, supporting CashSales indexed access without missingkey.",
+      "inputs": "Ignored fixed method",
+      "outputs": "Money.Zero",
+      "side_effects": "Pure enumeration/aggregation; no money posted or data changed.",
+      "database": "No database operations; caller chooses orders and operational date/shift scope.",
+      "trust_boundaries": "Trusts rehydrated payment/status/refund snapshots; no independent treasury reconciliation.",
+      "printing_ui": "Used by drawer breakdown and report/ticket figures, no renderer or printer.",
+      "performance": "Linear orders plus splits, fixed four-method dictionary; caller may already load large complete history.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 cancelled mixed money disappears; FIN004 original-order scope differs operational refunds. COD drawer-vs-overall-report interpretation remains qualified.",
+      "tests_missing": "Empty input and stablebucket initialization",
+      "verified_callers_callees": "ToDictionary28, CashSales59 indexesCash."
+    },
+    {
+      "stable_id": "sym-55640e7b710a9b8370eff1c598ca77510b5e74479a5cc35218930a816f166318",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashSalesFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        58,
+        5,
+        59,
+        57
+      ],
+      "reasoning": "Returns Cash entry from complete channel calculation; physicaldrawer meaning documented56-57, therefore excludes unpaid COD whosecashgoesdriver/Main. DoesnotreadactualTreasury noroperational refundshift, caller scope causesFIN004.",
+      "inputs": "Orders enumerable",
+      "outputs": "Net drawer cash Money",
+      "side_effects": "Pure enumeration/aggregation; no money posted or data changed.",
+      "database": "No database operations; caller chooses orders and operational date/shift scope.",
+      "trust_boundaries": "Trusts rehydrated payment/status/refund snapshots; no independent treasury reconciliation.",
+      "printing_ui": "Used by drawer breakdown and report/ticket figures, no renderer or printer.",
+      "performance": "Linear orders plus splits, fixed four-method dictionary; caller may already load large complete history.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 cancelled mixed money disappears; FIN004 original-order scope differs operational refunds. COD drawer-vs-overall-report interpretation remains qualified.",
+      "tests_missing": "Oldorderrefund allocatednewshift, cancellationsplit andCOD settlement separatefromdrawer",
+      "verified_callers_callees": "PaymentMethodTotals26; ShiftReconciliation49 verifiedcaller."
+    },
+    {
+      "stable_id": "sym-9ce2bb347d6384cf1dfbc0019fca416da2cd0b2a6ba2096c05fde5a6cb0100db",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        71,
+        5,
+        81,
+        6
+      ],
+      "reasoning": "Sums RefundAmount only nonCancelled, nonMulti, IsPaid Cash orders; returns historicalorders refundtotal fordisplay, notsecondcashdeduction. OmitsunpaidCODrefunds FIN003 despiteactualTreasuryout; originalshiftcaller furthermisallocateslate refundsFIN004. NooperationalShift/time filterinsidefunction.",
+      "inputs": "Orders enumerable",
+      "outputs": "Cash refund display total",
+      "side_effects": "Pure enumeration/aggregation; no money posted or data changed.",
+      "database": "No database operations; caller chooses orders and operational date/shift scope.",
+      "trust_boundaries": "Trusts rehydrated payment/status/refund snapshots; no independent treasury reconciliation.",
+      "printing_ui": "Used by drawer breakdown and report/ticket figures, no renderer or printer.",
+      "performance": "Linear orders plus splits, fixed four-method dictionary; caller may already load large complete history.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN002 cancelled mixed money disappears; FIN004 original-order scope differs operational refunds. COD drawer-vs-overall-report interpretation remains qualified.",
+      "tests_missing": "Unpaidcashrefund FIN003, latehistoricalrefund FIN004, double-subtraction prevention",
+      "verified_callers_callees": "Conditions76-78; ShiftReconciliation50 andgrossdisplay72-73 verified."
+    }
+  ],
+  "remaining_callable_ids": []
+}

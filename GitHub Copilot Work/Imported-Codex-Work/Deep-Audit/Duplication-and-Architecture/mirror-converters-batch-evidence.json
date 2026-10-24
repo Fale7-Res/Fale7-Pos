@@ -1,0 +1,678 @@
+{
+  "at_utc": "2026-10-18T08:57:56.791015+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root mirrored-code coordinator",
+  "batch": "Common WinUI converter and unit-normalization behavior",
+  "comparisons": [
+    {
+      "group_prefix": "623127d6",
+      "reasoning": "Two CairoBusinessDate converters identical including Arabic weekday table and dd/MM/yyyy. DateOnly input is already calendar date; DateTimeOffset uses dto.DateTime WITHOUT Cairo conversion, DateTime likewise unchanged, string parses current culture.",
+      "callers_context": "Converters.CallCenter201-214 versusCashier678-691 and immediate weekday arrays inspected; binding resource adapter, no server date calculation.",
+      "financial_security_effects": "No differing copy behavior; adapter name is stronger than timestamp semantics. A UTC instant near Cairo midnight can display source-offset date if bound directly, but normal business-date DateOnly binding unaffected; not independently confirmed UI defect.",
+      "recommendation": "Share one WinUI date converter with explicit DateOnly-versus-instant contract; preserve unknown emdash.",
+      "tests": [
+        "DateOnly and current-culture string",
+        "UTC instant near Cairo midnight",
+        "Unsupported/null placeholder"
+      ],
+      "group_id": "clone-623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-8f8b8c4190d3816926115630c9df176269090fa4a1b9b6eb6c65abd0d220efed",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 201,
+          "end_line": 214,
+          "token_count": 96,
+          "body_token_sha256": "623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.CairoBusinessDateConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            201,
+            5,
+            214,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-15f75c26962132b72113ba48d4f978f04e1e89585f4f14c1474d86b59779e235",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 678,
+          "end_line": 691,
+          "token_count": 96,
+          "body_token_sha256": "623127d6a0724cfc374920d89b3d370ee40877b8bee454a374c92cb9e90fd772",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.CairoBusinessDateConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            678,
+            5,
+            691,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "dedfb311",
+      "reasoning": "Two image converters cache absolute URI BitmapImage under static Dictionary lock, decode width320, return cached object, unsupported input null. Both caches are per-type/per-process, unbounded and no eviction shown.",
+      "callers_context": "CallCenter314-325/static fields309-312 versusCashier807-818/static fields800-805; ProductCatalogueView.xaml30 image binding verified.",
+      "financial_security_effects": "No auth-header injection or network authorization guarantee from BitmapImage here. Same body still separate assemblies/caches, not cross-client shared memory. Long-lived versioned URI churn can retain images; no measured leak/hardware claim.",
+      "recommendation": "Shared compatible WinUI image adapter and bounded cache/lifetime policy, preserve UI-thread affinity and URI version behavior.",
+      "tests": [
+        "Same URI cache hit",
+        "New URI version refresh",
+        "Nonabsolute URI failure policy",
+        "UI thread image creation",
+        "Bounded memory with changing menu images"
+      ],
+      "group_id": "clone-dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-64349009d470a7f6478ad43aba0419c10d60bba2e4973f8603c36594d17e4a64",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 314,
+          "end_line": 325,
+          "token_count": 77,
+          "body_token_sha256": "dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            314,
+            5,
+            325,
+            6
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-740d606d1733794dc2bd9d1484035cc306146b34f475cbafbf192b011e84c3d1",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 807,
+          "end_line": 818,
+          "token_count": 77,
+          "body_token_sha256": "dedfb3114f042ef1a19c69e5e871331a88ceddcb3c541f127f5d35384286f41b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.ImageUriToSourceConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            807,
+            5,
+            818,
+            6
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "18c83359",
+      "reasoning": "TimeOfDay converters identical. DateTimeOffset ToLocalTime uses workstation zone then ar-EG formatting; DateTime formats supplied value without conversion.",
+      "callers_context": "CallCenter225-230 versusCashier702-707, adapter surface includes unsupported emdash.",
+      "financial_security_effects": "Display time can differ server Cairo policy on non-Cairo workstation, a shared assumption rather than copy divergence; no actual workstation timezone deployment test.",
+      "recommendation": "Share converter with explicit restaurant versus device-local time policy; preserve formatting contract.",
+      "tests": [
+        "UTC timestamp on Cairo/non-Cairo workstation",
+        "DateTime Kind variants",
+        "Null/unsupported placeholder"
+      ],
+      "group_id": "clone-18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-939ba342066b8db5a0e240e3067f59c7a01a94756227094956abd41ea156ade2",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 225,
+          "end_line": 230,
+          "token_count": 52,
+          "body_token_sha256": "18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.TimeOfDayConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            225,
+            5,
+            230,
+            7
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-f90e341942437683bdce64e4a4bb95a257ee0db7674f5cf3517f02b15c91d93c",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 702,
+          "end_line": 707,
+          "token_count": 52,
+          "body_token_sha256": "18c83359067d609a3d5fc4ea97b62a1f5d6195d27ce3869bdc934931f6ee2c3a",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.TimeOfDayConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            702,
+            5,
+            707,
+            7
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "8c3333cd",
+      "reasoning": "OrderStatus labels normalize lower invariant then same Arabic names for pending/preparing/ready/completed/cancelled/refunded; unknown raw string retained, nonstring empty.",
+      "callers_context": "CallCenter13-22 versusCashier306-315; Cashier comment states lower-case wire DTO order status contract.",
+      "financial_security_effects": "No alternative financial status transition logic, label only; server state machine remains authoritative. Unknown names do not reject or authorize anything.",
+      "recommendation": "One shared status label map compatible with WinUI resources, do not alter server enum/state transitions.",
+      "tests": [
+        "Pascal/lower casing",
+        "Unknown status",
+        "Nonstring/null",
+        "Same labels both clients"
+      ],
+      "group_id": "clone-8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-2280d8e35332729545b4e3a55b8121a31660ce61f56e478bcec8331490c1c9e0",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 13,
+          "end_line": 22,
+          "token_count": 45,
+          "body_token_sha256": "8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.OrderStatusLabelConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            13,
+            5,
+            22,
+            7
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-bb658dd141ceecf6cb5f1e977e9cb99fef1879e7de5ac582942adc84d6e5e193",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 306,
+          "end_line": 315,
+          "token_count": 45,
+          "body_token_sha256": "8c3333cd05b031d5088064f942a9de5d77c85dcc4836a3987455627cffcaae07",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.OrderStatusLabelConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            306,
+            5,
+            315,
+            7
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "88c86981",
+      "reasoning": "Money display converters accept long/int, decimal divide100 and format2decimals with currency suffix. Null emdash; unexpected type silently0.00. Same Format helper bodies and contracts read.",
+      "callers_context": "CallCenter145-153 versusCashier622-630; menu/checkout/cash count bindings use Piastres fields.",
+      "financial_security_effects": "Display-only decimal prevents currency floating write; unsupported double/string can mask type mismatch as zero, not actual recorded zero money. No source divergence.",
+      "recommendation": "Share one typed money presentation adapter; consider explicit unknown on invalid type after UI contract tests, no change applied.",
+      "tests": [
+        "long/int extremes and negatives",
+        "Null versus wrong type",
+        "Current locale separators",
+        "No accidental factor100 double conversion"
+      ],
+      "group_id": "clone-88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-2a477e13600d3f95272144d21388daef760f2ef8fe746c340480f03f77d2d97b",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 145,
+          "end_line": 151,
+          "token_count": 28,
+          "body_token_sha256": "88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.PiastresToDisplayConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            145,
+            5,
+            151,
+            7
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-6a7e9dba69d8cc1bf4ea1920f61d586045495c7f0a1bf6bc1a01b841d2c43c62",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 622,
+          "end_line": 628,
+          "token_count": 28,
+          "body_token_sha256": "88c869814543023698f8da166c5bec98200b6c42a9da39f41fa941009f2a64b8",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.PiastresToDisplayConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            622,
+            5,
+            628,
+            7
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "bfb95f8c",
+      "reasoning": "Visibility equality converters use ordinal comparison of value/parameter cast to string; both null becomes equal/Visible. Same type/parameter behavior on both clients.",
+      "callers_context": "CallCenter123-124/Cashier600-601; CallCenterOrderPanel175 payment method wallet binding verified.",
+      "financial_security_effects": "Presentation gating does not authorize payment; missing null parameter can show section, requiring binding contract tests. No financial actor enforcement here.",
+      "recommendation": "Share stateless visibility converter while preserving ordinal case and parameter semantics.",
+      "tests": [
+        "wallet exact match",
+        "Case mismatch",
+        "Null value/parameter",
+        "Nonstring inputs"
+      ],
+      "group_id": "clone-bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-c560a32c40ec9323ab430a0a00f8831e4bcf4d99477ed9f99b03dc1344401f06",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 123,
+          "end_line": 124,
+          "token_count": 24,
+          "body_token_sha256": "bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.StringEqualsToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            123,
+            5,
+            124,
+            131
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-47fe129ce5039f4f3e6dc3db0f8eac5a10bbbb3543fe1fc518a648281e5ce463",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 600,
+          "end_line": 601,
+          "token_count": 24,
+          "body_token_sha256": "bfb95f8cc4ed04f03740dcf99262633ccf3ea4377ed30505f52212f3bb8b7bce",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.StringEqualsToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            600,
+            5,
+            601,
+            131
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "03a40b7e",
+      "reasoning": "EmptyCollection visibility converter only recognizes nongeneric ICollection Count0 OR null, else collapsed. Identical copies.",
+      "callers_context": "CallCenter172-173 versusCashier649-650; collection-bound placeholder adapter, no row mutation.",
+      "financial_security_effects": "A lazy IEnumerable empty sequence without ICollection is treated nonempty/not-empty-state; ordinary ObservableCollection implements expected contract. No money calculation.",
+      "recommendation": "Shared converter or explicit collection-count binding, preserve distinction null and unsupported collection types.",
+      "tests": [
+        "ObservableCollection add/remove",
+        "Null",
+        "Empty lazy enumerable",
+        "Notification update binding"
+      ],
+      "group_id": "clone-03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-6e10cdff103c0b008d96d6ac688fda84cd065211c2b4273dd1497aaf0a3aad7e",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 172,
+          "end_line": 173,
+          "token_count": 22,
+          "body_token_sha256": "03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.EmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            172,
+            5,
+            173,
+            114
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-1b36b5a2f72aa8007c1ffdf569833f821e0381dc628015ada191d3828ad64789",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 649,
+          "end_line": 650,
+          "token_count": 22,
+          "body_token_sha256": "03a40b7ea7568f63ebe2b4aa26878f784693f664723f0e51225dcc57f8fbad83",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.EmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            649,
+            5,
+            650,
+            114
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "e81548eb",
+      "reasoning": "CountGreaterThanOne converter recognizes ICollection Count>1 only. Null/unsupported/one/zero collapsed, copies identical.",
+      "callers_context": "CallCenter133-134 versusCashier610-611; ProductCatalogue variant chooser visibility binding47 verified.",
+      "financial_security_effects": "Only presentation of variant control, not server item selection validation. No authorization or variant price formula duplicated.",
+      "recommendation": "Share converter with stateless collection contract; keep threshold>1 distinct other collection adapters.",
+      "tests": [
+        "0/1/2variants",
+        "Null",
+        "Collection change notification",
+        "Unsupported enumerable"
+      ],
+      "group_id": "clone-e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-62fb40753c04f9fc7c99c69254f2f9591495e77cbe22d335c6f1fd3862034c38",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 133,
+          "end_line": 134,
+          "token_count": 21,
+          "body_token_sha256": "e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.CountGreaterThanOneToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            133,
+            5,
+            134,
+            108
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-efb5e35609cc726e82115d068f7f7be8a339d285d04bbae8ca5f11ac585b69d8",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 610,
+          "end_line": 611,
+          "token_count": 21,
+          "body_token_sha256": "e81548eb7bfc75eb7370af11b76baea3978df9e2613108172a8df4f4fbfd2515",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.CountGreaterThanOneToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            610,
+            5,
+            611,
+            108
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "cea27f40",
+      "reasoning": "NonEmpty converter recognizes ICollection Count>0 only, not arbitrary IEnumerable. Both identical, different predicate intentionally from Empty and GreaterThanOne.",
+      "callers_context": "CallCenter183-184 versusCashier660-661; same WinUI IValueConverter adapters.",
+      "financial_security_effects": "No financial data collection or side effects; do not merge distinct thresholds into one implicit rule.",
+      "recommendation": "Share parameterized converter only with explicit threshold/null policy and compatible resource facades.",
+      "tests": [
+        "0/1items",
+        "Null",
+        "Lazy enumerable",
+        "Live updates"
+      ],
+      "group_id": "clone-cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+          "stable_id": "sym-673d96a8fa31adc15863e9fa93e29b2c7421470257335b94d2c50df779543fd9",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+          "start_line": 183,
+          "end_line": 184,
+          "token_count": 21,
+          "body_token_sha256": "cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.NonEmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            183,
+            5,
+            184,
+            108
+          ],
+          "enclosing_callable": null
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+          "stable_id": "sym-640764fcc694758a77d79c7ab9b073cb93f87edbdbc41cf02dbcb9f4c7cbaef4",
+          "kind": "MethodDeclaration",
+          "source_git_blob_sha256": "a064f7ba96e3eb7615d98a0b8be7582d7f6b01e5fd300a81ccc216a47dffc78c",
+          "start_line": 660,
+          "end_line": 661,
+          "token_count": 21,
+          "body_token_sha256": "cea27f40bc5411efc048897561fb35d1f1f31dd99fada974916fc20fcb7a33d2",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "90b9e4b4ccd5d737a239f66f0db5117c9c23c81e339ed2eb614c4191fb88d5e5",
+          "signature": "Falah.Client.CashierWinUI.Converters.NonEmptyCollectionToVisibleConverter.Convert(object, Type, object, string)",
+          "symbol_span": [
+            660,
+            5,
+            661,
+            108
+          ],
+          "enclosing_callable": null
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    },
+    {
+      "group_prefix": "02d0c6ff",
+      "reasoning": "Four Arabic-digit normalization lambdas identical: ArabicIndic/EasternIndic digits to ASCII, Arabic decimal mark to dot. Parent parsers differ: CashInput decimal2digits/nonnegative/maxlong100; MilliUnits decimal3digits/maxlong1000; Attendance finite double hours/nonnegative or nonnegative int count.",
+      "callers_context": "Exact lambdas read in both CashInput, MilliUnits18-22 and Attendance146-153; prior full CashInput clone comparison preserved.",
+      "financial_security_effects": "Only character transformation reusable. Sharing whole parser would wrongly impose currency precision on inventory/hours. Financial source server validation independent; client parser alone does not fix signed raw API bounds.",
+      "recommendation": "Extract pure normalization helper if compatible, retain distinct unit-specific precision/range/parsing rules.",
+      "tests": [
+        "Two digit families and Arabic dot",
+        "Currency2versus inventory3decimals",
+        "Hours fractional precision",
+        "Finite numeric input and unit bounds"
+      ],
+      "group_id": "clone-02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs",
+          "stable_id": "sym-bea6da4a1584264bb930deea74d66675c2e9de6264f54e1c507301313af35b3a",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+          "start_line": 10,
+          "end_line": 12,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "1cdf784cc9e89f6a7bd3611e53905258ef0dd748a473df6ae19548c2c3579f5d",
+          "signature": "lambda expression",
+          "symbol_span": [
+            10,
+            67,
+            12,
+            80
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-98e06dae1402dbf99896541a516a6e924cbdfdca3336178f6979a46b926fa1fd",
+            "signature": "Falah.Client.CallCenterWinUI.Services.CashInput.TryParse(string?, out long)",
+            "lines": [
+              7,
+              17
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+          "stable_id": "sym-3c6fabe579968563067d3d8550534ece4e8093c5f7a25ffbb66400bc352670db",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+          "start_line": 10,
+          "end_line": 12,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+          "signature": "lambda expression",
+          "symbol_span": [
+            10,
+            67,
+            12,
+            80
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-2c7354f95736e0fc30eda26f59cab2db70b8f9dfd400f7605ac878b5c4996d68",
+            "signature": "Falah.Client.CashierWinUI.Services.CashInput.TryParse(string?, out long)",
+            "lines": [
+              7,
+              17
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/MilliUnits.cs",
+          "stable_id": "sym-66b2cf83f33d0f904b0ad5c4d241a195bea89d932efeb47b30b1479ce3d6cbcc",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7bacd9ec6afd8fbf7b2e2dcfcbf176a79e9bf1f12a9e83aaa6893787a8c36efe",
+          "start_line": 18,
+          "end_line": 20,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "7bacd9ec6afd8fbf7b2e2dcfcbf176a79e9bf1f12a9e83aaa6893787a8c36efe",
+          "signature": "lambda expression",
+          "symbol_span": [
+            18,
+            67,
+            20,
+            80
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-79ffdb5601a7cfc918e16e8b8bd7f5ff402f7d369160e031a2692358a7c7f0ba",
+            "signature": "Falah.Client.CashierWinUI.Services.MilliUnits.TryParse(string?, out long)",
+            "lines": [
+              15,
+              25
+            ]
+          }
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/AttendanceViewModel.cs",
+          "stable_id": "sym-0fddaf3a924982e52f3aec263ef7eaf44badf0e4fac6bccef4566e54df5bea2b",
+          "kind": "SimpleLambdaExpression",
+          "source_git_blob_sha256": "7c278e9a5dae77559f3c7509edec07a74a931e1c19be1c534ab7f722c978cf79",
+          "start_line": 146,
+          "end_line": 148,
+          "token_count": 45,
+          "body_token_sha256": "02d0c6ffb1e5f66899c337c601f2adfb196a3f95d484bcec6bc455beff6a369b",
+          "constructor_initializer_excluded": false,
+          "category": "APPLICATION_OR_TOOL_SOURCE",
+          "worktree_sha256": "984380332116f705c592b3be9713191d47f6e42d53453604e0877fe5ccc0b0b1",
+          "signature": "lambda expression",
+          "symbol_span": [
+            146,
+            92,
+            148,
+            76
+          ],
+          "enclosing_callable": {
+            "stable_id": "sym-6cb2a67ce0946b4b4522b71cbeb7cd928671a77374c0e9e90bae4e67ce011052",
+            "signature": "Falah.Client.CashierWinUI.ViewModels.AttendanceViewModel.NormalizeNumber(string)",
+            "lines": [
+              146,
+              148
+            ]
+          }
+        }
+      ],
+      "runtime_executed": false,
+      "review_scope": "Actual bodies and described caller/context compared; not full-file/function certification or all runtime callers."
+    }
+  ],
+  "limits": "Source comparison, not runtime acceptance, financial function receipt increment, or exhaustive semantic duplication proof. No code/DB/printing/Git changes."
+}

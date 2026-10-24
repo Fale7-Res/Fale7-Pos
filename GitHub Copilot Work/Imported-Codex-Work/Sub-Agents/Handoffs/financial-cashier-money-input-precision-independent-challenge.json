@@ -1,0 +1,74 @@
+{
+  "artifact_kind": "bounded_source_challenge",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:14:28.1746414Z",
+  "scope": "Cashier UI opening-float and refund EGP-to-piastres conversion only",
+  "decision": "SMALL_REACHABLE_PRECISION_RISK_SERVER_BOUNDS_LIMIT_IMPACT",
+  "assessment": "Confirmed a reachable scale/rounding mismatch on these two cashier UI paths. Both accept any current-culture decimal and convert EGP*100 using Math.Round default ToEven; neither rejects more than two decimal places nor applies the max representable-piastres bound used by CashInput.TryParse. Money.FromEgp uses AwayFromZero. For a user-entered exact half-piastre amount such as 10.005 EGP, the UI path rounds 1000.5 piastres to 1000 (ToEven), whereas the Money boundary policy rounds to 1001 (AwayFromZero); opening float or refund can differ by one piastre. This is source-supported for reachable text-box paths, not runtime reproduced. Server receives integer piastres, so it cannot recover the entered precision or chosen rounding intent. Server protections bound consequence: Shift.Open rejects negative opening balances and positive floats are subject to active-day, account balance and transaction controls; RefundOrderHandler floors negative requests to zero, rejects zero, caps the requested integer to refundable remainder and checks source-account balance. These do not restore the user's unambiguous precision contract, but prevent this conversion mismatch from producing a refund above remaining amount or spending above protected balance. Excessively large decimal text may overflow at the client cast before a request, a UI error/availability concern rather than posted money. Main disposition: minor input correctness risk; unify cashier parsing with a shared bounded two-decimal parser (or explicitly define rounding), and add tests for third decimal exact-midpoint, excess precision, negative, and maximum amount. Static only.",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs",
+      "sha256": "137BAA022EB1E158AE5AB7AE1B6E986CFE2BCD96853C091FD9D5D1D101DB7929",
+      "lines": "14-30",
+      "claim": "Reachable opening-float text parses current-culture decimal, allows any scale, multiplies and rounds with default midpoint behavior."
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
+      "sha256": "9F41D9133ED49CCB2E8DFF94A43E70DC525500836F7C6C6E8ADA4912BC1861DD",
+      "lines": "67-88,97",
+      "claim": "Reachable refund text parses current-culture decimal, allows any scale, rounds to integer piastres; UI later shows whole-piastre result."
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Views/CashierView.xaml",
+      "sha256": "1144993977B6F66A46A50BB5CB31D5EBC448756CD8A12D4579DEE0D3E82CEAAD",
+      "lines": "21,450",
+      "claim": "Both inputs are ordinary text boxes with no visible precision/bound validation."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+      "sha256": "541677785C462FFD6AC45BAE742FFCA263F0779EC0DEB0DC42D3364BEAD7748E",
+      "lines": "7-16",
+      "claim": "Existing helper explicitly bounds piastres and rejects more than two decimals, but specified Cashier paths do not call it."
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "sha256": "DA6AA95727609EEF384A975CEFD4D124BF6F211F6A98A6A75828B42B414C5A5F",
+      "lines": "23-27",
+      "claim": "Money.FromEgp uses AwayFromZero midpoint rounding, unlike current UI conversion."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+      "sha256": "7B2AFCF63D01E1BB55C0D88E7D1D64E55B3014539D51DD7F4ED9664E7E8B5EA3",
+      "lines": "33-50,62-84",
+      "claim": "Server accepts integer piastres; Shift.Open and positive-float account/day checks bound negative or overspend behavior."
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "sha256": "E96A44389205732B3BB8A6C095D811BAE3C117B03A1EC82FC7B9CA3036756690",
+      "lines": "37-53",
+      "claim": "Shift.Open rejects a negative opening float."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "sha256": "CA7D3922495AD8ED8F9979FEECA461F3FCA0AA150FDE7790714E29046E32D085",
+      "lines": "78-97",
+      "claim": "Refund handler clamps to remaining, rejects nonpositive safe amount and checks protected account balance."
+    },
+    {
+      "path": "src/Falah.Application/Shifts/OpenShiftRequest.cs",
+      "sha256": "8C4A6DA228E3FFED2E762157D7D035CF9C87F825BE0E53049068AA861EDCD8F7",
+      "lines": "1-7",
+      "claim": "API receives integer piastres only."
+    },
+    {
+      "path": "src/Falah.Application/Orders/RefundOrderRequest.cs",
+      "sha256": "31CCD7179A21EB71ED5208EA6F04056EAF6518D75DA1C408D2CF7DD22A028D10",
+      "lines": "1-17",
+      "claim": "API receives integer piastres only."
+    }
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Read-only source review. No input automation, API call, database transaction or test execution.",
+  "example": "10.005 EGP -> 1000.5 piastres; Math.Round default ToEven => 1000. Money.FromEgp => AwayFromZero => 1001.",
+  "limitations": "Only the listed cashier client view models and handlers were inspected. No evidence establishes the actual user entry distribution or whether third-decimal input is expected to be allowed. No database writes or live verification."
+}

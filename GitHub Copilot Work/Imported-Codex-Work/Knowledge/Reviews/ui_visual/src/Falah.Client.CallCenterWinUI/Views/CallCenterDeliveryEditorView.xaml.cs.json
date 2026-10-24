@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml.cs",
+  "source_git_blob_sha256": "ada3814c5eac0343593f97d466aa999fb8c70e736e9254b0abe199a8ac518c69",
+  "worktree_sha256": "ada3814c5eac0343593f97d466aa999fb8c70e736e9254b0abe199a8ac518c69",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:39:16.826817+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "CallCenter view event/constructor exact-body review with source-only state, command and lifetime reasoning.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-f346e6304f584e3d6451828fe6f63f0746f106b4e55f42495b421396a2d1555b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.CallCenterDeliveryEditorView.CallCenterDeliveryEditorView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        7,
+        5,
+        10,
+        6
+      ],
+      "reasoning": "Only initializes delivery editor XAML; address, phone, zone validation and save behavior are bound to owner view model rather than code-behind.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No independent backend or validation is implemented here; rendering not observed.",
+      "tests_missing": "No independent backend or validation is implemented here; rendering not observed. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

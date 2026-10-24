@@ -1,0 +1,293 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:58:06.2282177Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/AuthorizationTests.cs",
+  "symbol_count": 23,
+  "symbols": [
+    {
+      "stable_id": "sym-b774d058c1f9836f5b52ced1ac910f0a2e0efc707a2ee610e3d85d2503288823",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.MakeActor(string, bool, params string[])",
+      "span": [
+        11,
+        5,
+        12,
+        71
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7e2e3231504a7847c14c130dd87431b1ac34c251b51586bcbbc2caba38ccf40a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Actor_holding_all_can_do_anything()",
+      "span": [
+        14,
+        5,
+        20,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-90897394d35640a2614871cee46ce725629d0d55443b6bdecf9332c51efaa28a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Inactive_actor_has_no_permission_even_with_all()",
+      "span": [
+        22,
+        5,
+        27,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b3a9a4862f745dbf126e49bedb698c357bb44c9ece6b88b9e8df6d4c5646f7e5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Cashier_without_refund_permission_cannot_authorize_a_refund_without_approval()",
+      "span": [
+        29,
+        5,
+        36,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-56767f47412dd5f62b36472f58ee0e4524f988bd55d0c8b6ccbb7feae036d1dc",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        34,
+        40,
+        35,
+        85
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-ee79ea131e77b3d489965a0bb97fc97722c5f9b1d69913da594d708fc3223949",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.A_valid_manager_approval_authorizes_the_exact_action_it_was_issued_for()",
+      "span": [
+        38,
+        5,
+        49,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7877380ac767afc567bf69b04b787b54afc631fb80bf6041fcf24572abc0d9c3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.A_consumed_approval_cannot_authorize_a_second_command()",
+      "span": [
+        51,
+        5,
+        63,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-81df89ad7b87c72e61602e528caf92d5c7e598e112347e6e2c51dc80d29c4e9d",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        61,
+        40,
+        62,
+        118
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-45044bf2c83c63dee4c0939ad383a7f7aa2a27791cffadcccfcf23c1e15eb857",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.An_approval_issued_for_a_different_action_cannot_be_reused()",
+      "span": [
+        65,
+        5,
+        75,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-aeaf9bbc52c2179f7a961d6162f826858193778682cc587f31d343b554fedbdb",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        73,
+        40,
+        74,
+        118
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f7ae02783a5cc6402e922bdc708bc05a1809cd02729a65815635d8a4a72e132c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.A_regular_cashier_cannot_issue_a_manager_approval_for_themselves()",
+      "span": [
+        77,
+        5,
+        84,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-db429cd9faf33162088c0bd12148ac133f38f0f6069bfc4805937d2ceaccaf5f",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        82,
+        40,
+        83,
+        100
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f9c78f2a3dfb2cb0285a2de125de0151c59ffa456ef93a943c1cf63043c2c2bb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Shift_close_with_no_discrepancy_needs_only_the_base_permission()",
+      "span": [
+        86,
+        5,
+        92,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7ba157126f6f4dba67644d3236277d615271e637c474f342e697bcc8e366a1c3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Shift_close_with_a_discrepancy_is_blocked_without_a_manager_approval_even_for_a_manager_role_string()",
+      "span": [
+        94,
+        5,
+        103,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-30cbb44ec29db1b2f9828d41653e0a84ff13140a5461727b1cf5983f9f4e1483",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        101,
+        40,
+        102,
+        126
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-09ba740a9ac39b48f5986113bb5e5697bd74355fca5f9c5dc248bab47baa2f5a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Purchasing_manage_alone_is_enough_to_add_a_supplier()",
+      "span": [
+        108,
+        5,
+        115,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-45004d3e0b222820192a8c5ffbdad1e05f787d74f44689dfb246acc7ec764605",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Suppliers_manage_alone_is_also_enough_to_add_a_supplier()",
+      "span": [
+        117,
+        5,
+        124,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c397b1ce013d1fda850f289e21bf04944e3f7ac22976c3e37680ea711b79aba1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.Neither_permission_requires_a_suppliers_manage_approval_to_add_a_supplier()",
+      "span": [
+        126,
+        5,
+        137,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3792b0355659fb3aa43ff9b368a6ac0a480c133492784af336df7325b00fb1bd",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        131,
+        40,
+        131,
+        121
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9806f8be795d0880e8cfdc6feaa32f3d526d7c4671c793db8ed722eeb46eabb6",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.An_approval_issued_for_purchasing_manage_cannot_substitute_for_suppliers_manage()",
+      "span": [
+        139,
+        5,
+        147,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-47c1fea35c00fb39ee0f15d231b3cce830474b610c0c9dcebe653d1ea71883db",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        146,
+        40,
+        146,
+        115
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2005e5d4b1dd5acf7d01d89ba89d64285304336c98cf6a17f5ca9e2bd9cc24bb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.AuthorizationTests.An_approval_with_no_action_approves_nothing_and_is_refused()",
+      "span": [
+        149,
+        5,
+        164,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6d722cae1c55ddb29434473c2c775b24b90698749f6222f552ed20c11993ffa9",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        160,
+        53,
+        161,
+        115
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test source covers permission wildcard, inactive actor denial, action-bound/consumed manager approvals, cashier restrictions, shift-close approval requirements, supplier permissions and rejection of empty approval actions. It demonstrates permissions are per-action and manager “all” can hold broad authority; it does not establish standalone payroll and period payroll are mutually exclusive. No tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/23 exact IDs present",
+    "financial_coordinator": "/23 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

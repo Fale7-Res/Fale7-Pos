@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_batch_09_and_settlement_semantics_challenge",
+  "created_at_utc": "2026-10-22T04:28:06Z",
+  "reviewer": "financial_integrity_continuation (independent source challenge; authored receipts are by financial_coordinator)",
+  "assignment": "Batch09: four materially financial dashboard query callables from current EXISTING_REASONING_UNVERIFIED entries, plus targeted custody SettledPiastres disposition requested by coordinator. No source/tests/config/database/runtime/shared registry/report edits; tests not run.",
+  "live_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "18902960caea654258f10c910c1f9562ed6a095ba8ed942cc49c122d9972aa66",
+    "counts": {
+      "SUBSTANTIVE_REVIEW_VERIFIED": 54,
+      "EXISTING_REASONING_UNVERIFIED": 7767,
+      "IDENTITY_ONLY": 983
+    },
+    "entries_reviewed_status_confirmed": true
+  },
+  "batch_review": {
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "receipt_author": "financial_coordinator",
+    "reviews": [
+      {
+        "stable_id": "sym-cc333096c4257c48976c6008a65141413e1e4ab87953dff48d455d5a8de4a58b",
+        "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+        "review_verdict": "EXISTING_REASONING_UNVERIFIED; independent source check only, no status promotion",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.CurrentTreasuryAsync(CancellationToken)",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_line_range": [
+          158,
+          169
+        ],
+        "source_span_from_current_quality_overlay": [
+          158,
+          5,
+          169,
+          6
+        ],
+        "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+        "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+        "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+        "receipt_author": "financial_coordinator",
+        "receipt_symbol_status": "ANALYZED",
+        "receipt_reasoning_checked": "Loads all Posted treasury source/destination/amount facts and derives five current account balances. All-time intentional per class contract, distinct selected-period flows. Materializes whole history and sums five times; not measured financial DB performance.",
+        "independent_source_reasoning": "GetAsync calls CurrentTreasuryAsync for Cash.TreasuryNow (OwnerDashboardQueryService.cs:48-55). This helper selects only Status Posted movements as SourceAccountId/DestinationAccountId/AmountPiastres, materializes the entire matching history, then for each five accounts sums destination amount minus source amount (lines 160-168). It does not mutate balances. This is an all-time/current balance calculation, independent of selected report dates.",
+        "counterevidence_and_limits": "The source XML comment (156-157) and test Treasury_balances_are_current_not_scoped_to_the_reported_period (OwnerDashboardVerticalSliceTests.cs:167-181) directly support current/all-time semantics. No common snapshot / live provider behavior was checked; whole-history materialization and five local sums are unbenchmarked. No evidence this report calculation disagrees with posted treasury balances.",
+        "existing_test_source_and_coverage": {
+          "paths": [
+            "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+            "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs"
+          ],
+          "tests_executed": false,
+          "coverage_note": "Static source inspection only; exact test evidence is described per callable."
+        },
+        "remaining_action": "No correctness gap inferred. For later verification: compare all accounts against TreasuryQueryService under identical posted rows, and add multi-account source/destination / reversal/void filtering cases; performance test only if history scale is a concern."
+      },
+      {
+        "stable_id": "sym-44479b324b587f6a62f7c2406d5e80236904a9e24b371c2a5388ee4a1036644d",
+        "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+        "review_verdict": "EXISTING_REASONING_UNVERIFIED; independent source check only, no status promotion",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadLeakageAsync(Falah.Domain.Common.BusinessDateRange, Falah.Application.Reports.SalesReportDto, long, int, DateTimeOffset, DateTimeOffset, CancellationToken)",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_line_range": [
+          171,
+          184
+        ],
+        "source_span_from_current_quality_overlay": [
+          171,
+          5,
+          184,
+          6
+        ],
+        "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+        "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+        "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+        "receipt_author": "financial_coordinator",
+        "receipt_symbol_status": "ANALYZED",
+        "receipt_reasoning_checked": "Queries timestamp-scoped waste/spoilage/breakage LossValue and composes offers/comps/discounts/refunds plus expenses. Unknown loss values counted as0 while row count stays visible; requirement for explicit unknown-cost coverage remains open, not new confirmed accounting write defect.",
+        "independent_source_reasoning": "GetAsync supplies selected-range sales, expense total, refund count, and UTC start/end (lines 46-59). LoadLeakage queries Waste/Spoilage/Breakage StockMovements by CreatedAtUtc in [start,end), projects nullable LossValuePiastres, sums null as zero but returns losses.Count separately; it composes SalesReport values for offers/comps/manual discounts/refunds plus the passed expenses (lines 175-183). This is read-only report composition; it does not write accounting or inventory rows.",
+        "counterevidence_and_limits": "Receipt reasoning accurately flags a meaningful completeness caveat: a row with null loss value contributes zero to money total while remaining visible in count. This could understate reported leakage if such rows are legitimate financial loss with unknown valuation. The source distinguishes count from priced loss but gives no dashboard DTO field for unknown-valued loss count; verify whether `LossesCount` denotes all loss rows or valued rows before treating the total as complete. No specific existing test asserting null loss handling was found in this batch; no evidence of a mutation error.",
+        "existing_test_source_and_coverage": {
+          "paths": [
+            "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+            "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs"
+          ],
+          "tests_executed": false,
+          "coverage_note": "Static source inspection only; exact test evidence is described per callable."
+        },
+        "remaining_action": "Owner/data policy must decide whether unknown loss valuation means unknown total vs known zero. Add tests for null and zero LossValue rows, date boundary, and correct count/unknown state; do not infer live incidence."
+      },
+      {
+        "stable_id": "sym-0a74b8ebeb922c1a8f33698b43cb8e17315b323ef131410dfbef540156e709b2",
+        "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+        "review_verdict": "EXISTING_REASONING_UNVERIFIED; independent source check only, no status promotion",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadWagesPostedAsync(DateTimeOffset, DateTimeOffset, CancellationToken)",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_line_range": [
+          191,
+          203
+        ],
+        "source_span_from_current_quality_overlay": [
+          191,
+          5,
+          203,
+          6
+        ],
+        "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+        "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+        "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+        "receipt_author": "financial_coordinator",
+        "receipt_symbol_status": "ANALYZED",
+        "receipt_reasoning_checked": "Selects six earning categories by ledger CreatedAt within interval, sums Credit and returns posting count. Excludes advances/withdrawals to avoid doublecount earned wages; deductions/adjustments not netted. Current costing report semantics require agreement whether gross posted earnings are appropriate period expense.",
+        "independent_source_reasoning": "GetAsync passes period UTC boundaries to LoadWagesPostedAsync and uses its total in BuildProfitability (lines 58-59, 205-224). The helper filters EmployeeLedgerEntries to DailyWage, Salary, Overtime, ExtraShift, Bonus, OtherEarning by CreatedAtUtc >= start and < end; materializes CreditPiastres and returns sum and row count (lines 193-202). Advances/withdrawals/deductions are not netted here. It is a read-only ledger aggregation.",
+        "counterevidence_and_limits": "The existing receipt correctly distinguishes earnings credits from advances/withdrawals, which would otherwise double-count already-earned wages, and notes gross-vs-net expense semantics need a business decision. Category list includes six positive earning types; no calculation of payroll liability settlement is made here. No focused OwnerDashboard integration assertion was located by static search; source confirms only aggregate path. No writer correlation/live dataset check.",
+        "existing_test_source_and_coverage": {
+          "paths": [
+            "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+            "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs"
+          ],
+          "tests_executed": false,
+          "coverage_note": "Static source inspection only; exact test evidence is described per callable."
+        },
+        "remaining_action": "Confirm owner/reporting contract whether profitability uses gross earned credit, net posted payroll, or another labor-cost basis. Add per-type inclusion/exclusion tests, period-boundary tests, zero-posting unknown-ratio test through BuildProfitability, and concurrent snapshot case if dashboard consistency is required."
+      },
+      {
+        "stable_id": "sym-a295bbe4240fa1de66733eba8cb921af081f4f767cfab65096b258387a5c73a5",
+        "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+        "review_verdict": "EXISTING_REASONING_UNVERIFIED; independent source check only, no status promotion",
+        "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadObligationsAsync(DateTimeOffset, DateTimeOffset, CancellationToken)",
+        "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "source_line_range": [
+          317,
+          356
+        ],
+        "source_span_from_current_quality_overlay": [
+          317,
+          5,
+          356,
+          6
+        ],
+        "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+        "source_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+        "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+        "receipt_author": "financial_coordinator",
+        "receipt_symbol_status": "ANALYZED",
+        "receipt_reasoning_checked": "Uses current supplier/employee ledger stocks, period purchase cached totals/paid, and all-time unpaid invoice aging relative today. Explicitly current obligations versus period activity. No common snapshot, cached purchase vs ledger drift possible if writer defects; no fresh runtime discrepancy asserted.",
+        "independent_source_reasoning": "GetAsync passes UTC range from BusinessDateRange.ToUtcRange (lines 46,66). LoadObligations groups all supplier ledger entries per supplier and sums Debit-Credit, retaining positive balances (321-326); selects period purchases by CreatedAtUtc [start,end), sums cached TotalPiastres/PaidPiastres (327-329,350-351); groups all employee ledger rows and sums Credit-Debit (331-335); then intentionally loads all remaining positive-amount purchases whose Status is not exact lowercase \"cancelled\", computes overdue from BusinessClock.Today, and separately totals null-due invoices (337-348, 352-355). It performs no writes.",
+        "counterevidence_and_limits": "Receipt reasoning is borne out: outstanding supplier/employee amounts are current ledger stocks, purchase totals/paid are selected-period activity, and invoice aging is current/all-time. Explicit code comment says aging is not period scoped (337-339). PayablesAgingVerticalSliceTests.The_owner_dashboard_agrees_with_the_payables_report (205-226) checks overdue/unscheduled amount/count and age against detail report; this is positive consistency counterevidence. Queries run separately without common transaction/snapshot. Period purchase selector does not show a status predicate; whether cancelled purchases persist/affect period totals requires writer/entity policy check before calling a defect. No runtime/provider consistency was verified.",
+        "existing_test_source_and_coverage": {
+          "paths": [
+            "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+            "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs"
+          ],
+          "tests_executed": false,
+          "coverage_note": "Static source inspection only; exact test evidence is described per callable."
+        },
+        "remaining_action": "No confirmed accounting defect from this review. Add tests/doc labels for current obligations vs selected-period purchase activity, cancellation behavior for period purchases, and ledger-vs-cached invoice consistency. If point-in-time consistency is required, define and test snapshot isolation / common report read boundary."
+      }
+    ],
+    "not_a_status_promotion": true
+  },
+  "custody_settlement_disposition": {
+    "question": "SettleDriverCustodyHandler marks every custody row SettledPiastres=CollectedPiastres even when aggregate Actual differs or is zero. Is this a confirmed financial inconsistency?",
+    "disposition": "SOURCE_CONFIRMED_PER_ROW_VS_AGGREGATE_REPRESENTATIONAL_DIVERGENCE; PER_ROW_FIELD_SEMANTICS_UNRESOLVED; do not promote to confirmed accounting defect without owner policy.",
+    "source_evidence": [
+      {
+        "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+        "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+        "symbol": "SettleDriverCustodyHandler.HandleAsync",
+        "lines": [
+          90,
+          103
+        ],
+        "behavior": "Aggregate expected is sum of CollectedPiastres and actual comes from request; difference requires reason plus settlement approval."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+        "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+        "symbol": "SettleDriverCustodyHandler.HandleAsync",
+        "lines": [
+          109,
+          124
+        ],
+        "behavior": "A Posted treasury movement is written only when actual is positive, for aggregate actual amount."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+        "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+        "symbol": "SettleDriverCustodyHandler.HandleAsync",
+        "lines": [
+          130,
+          135
+        ],
+        "behavior": "Every selected row is marked Settled and each SettledPiastres is copied from that row’s CollectedPiastres, regardless of aggregate difference."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+        "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+        "symbol": "SettleDriverCustodyHandler.HandleAsync",
+        "lines": [
+          155,
+          164
+        ],
+        "behavior": "DriverSettlement separately persists aggregate Expected, Actual, Difference, treasury movement reference."
+      },
+      {
+        "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+        "sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+        "symbol": "DeliveryRules.CalculateTripSettlement",
+        "lines": [
+          30,
+          38
+        ],
+        "behavior": "Expected explicitly sums Collected from unsettled custody; aggregate difference is actual minus expected."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+        "sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+        "symbol": "DriverCustodyEntity",
+        "lines": [
+          63,
+          80
+        ],
+        "behavior": "One custody row per delivery, with Expected/Collected/Settled/Difference fields; no XML comment defines SettledPiastres as physical cash allocation."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+        "sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+        "symbol": "RecordDeliveryResultHandler.HandleAsync",
+        "lines": [
+          94,
+          110
+        ],
+        "behavior": "Collected is set from actual collection or expected; variance gets a reason; custody row records collected and difference versus expected."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+        "sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+        "symbol": "GetDriverAccountAsync",
+        "lines": [
+          117,
+          146
+        ],
+        "behavior": "Current unsettled cash custody sums CollectedPiastres; historical account summarizes aggregate DriverSettlement actual, not per-custody SettledPiastres."
+      },
+      {
+        "path": "src/Falah.Application/Delivery/DeliveryRequests.cs",
+        "sha256": "1b3cfd319183da61331af6b771f45ef6b660a5ba10c88f3b348b1dcb07aef61c",
+        "symbol": "DriverAccountDto / SettleDriverCustodyResult",
+        "lines": [
+          54,
+          60,
+          102,
+          118
+        ],
+        "behavior": "API exposes aggregate settlement expected/actual/difference and current CashCustodyPiastres; not per-row settled allocation."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+        "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+        "symbol": "GetBusinessDayReconciliationAsync",
+        "lines": [
+          189,
+          197
+        ],
+        "behavior": "Business-day expected driver cash sums Collected of unsettled rows; settled cash derives Posted aggregate driver_settlement treasury movement."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
+        "sha256": "27b80026d0447e03faf17e6eaad32fe5fde3ee3cd004f9503d561dfd6adc6822",
+        "symbol": "LoadDriverAccountAsync / SettleDriverAsync",
+        "lines": [
+          411,
+          427,
+          443,
+          465
+        ],
+        "behavior": "Prefills actual from aggregate current CashCustodyPiastres and calculates difference against that aggregate."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml",
+        "sha256": "31281118fdd01405b6d84a897d70499c3b879fab73c882c27a3c8158972f066f",
+        "symbol": "driver account settlement view",
+        "lines": [
+          138,
+          143
+        ],
+        "behavior": "Labels aggregate CashCustodyPiastres as cash custody due; no per-row SettledPiastres presentation."
+      }
+    ],
+    "counterevidence": [
+      "The aggregate DriverSettlement explicitly stores actual and shortage/overage difference; positive actual is the treasury amount, while zero actual creates no positive movement.",
+      "UI and account/report consumers in inspected paths reason about aggregate Collected due versus aggregate actual; none inspected consumes per-row SettledPiastres.",
+      "DeliveryRulesTests verifies aggregate expected/difference, and DeliveryVerticalSliceTests verifies equal settlement and aggregate shortage authorization, but neither asserts per-custody SettledPiastres in shortage/zero cases."
+    ],
+    "interpretation": "If SettledPiastres means amount physically allocated from the handed-in actual to this delivery, the copied Collected amount is inconsistent whenever actual differs from aggregate collected (including zero actual). If it means the original per-delivery collected custody amount that was operationally closed, with actual shortage/overage tracked only by DriverSettlement aggregate, it may be intentional. Current consumers do not resolve that domain meaning.",
+    "owner_confirmation_needed": "Define whether per-row SettledPiastres is (a) original collected amount whose custody case is closed, or (b) actual cash allocation received for that delivery. If (b), specify deterministic allocation for shortages/overages/zero; do not invent allocation. If (a), document explicitly.",
+    "validation_needed": [
+      "Add handler/integration tests with two custody rows and aggregate actual equal to neither row sum nor zero; assert aggregate settlement/till movement and each row value.",
+      "Add zero-actual approval test asserting no positive treasury movement and intended per-row settled value.",
+      "Add domain/report reconciliation test proving sum of per-row SettledPiastres is or is not expected to equal aggregate ActualPiastres according to owner policy.",
+      "No runtime, database, or tests were executed during this review."
+    ]
+  },
+  "next_exact_callable": {
+    "stable_id": "sym-8757efcf3bcfc074517bbb0c4de2954146fdcec5f54394b069efb38b482c7a5a",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.BuildProfitability(Falah.Application.Reports.SalesReportDto, Falah.Application.Reports.FoodCostReportDto, long, long, int)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_range": [
+      205,
+      224
+    ],
+    "source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "overlay_status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "limitations": [
+    "Current source hashes are worktree-file SHA-256; source index baseline/git blob values retained separately per entry.",
+    "Independent static source review does not certify the full dashboard file or workflow.",
+    "No DB query/runtime execution, provider semantics, visual testing, or test execution.",
+    "Do not treat any issue hypothesis here as canonical finding without policy/owner validation and shared coordinator review."
+  ]
+}

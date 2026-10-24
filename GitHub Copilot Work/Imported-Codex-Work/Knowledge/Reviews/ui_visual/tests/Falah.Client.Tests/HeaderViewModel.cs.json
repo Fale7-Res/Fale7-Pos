@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/HeaderViewModel.cs",
+  "source_git_blob_sha256": "091d9717a346b563de7d5e2af620678e566c31da474ed32e89edbd8a00ef8a9d",
+  "worktree_sha256": "091d9717a346b563de7d5e2af620678e566c31da474ed32e89edbd8a00ef8a9d",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:57:05.916102+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "HeaderViewModel explicit test-only substitute behavior and evidence limits.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/HeaderViewModel.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-e8e9846ef622b8f3ce081959aa1918747ad0867a287a6423d74a78085a122ef5",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CashierWinUI.Services.AppSession?)",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        6,
+        5,
+        6,
+        68
+      ],
+      "reasoning": "Test substitute constructor accepts optional production-session type but intentionally ignores it; no native timer or UI notifications are constructed. This is not production header implementation.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Cannot validate real header binding, timezone, clock or accessibility through these tests.",
+      "tests_missing": "Cannot validate real header binding, timezone, clock or accessibility through these tests. NOT_EXECUTED.",
+      "verified_callers_callees": "Headless fixture stub"
+    },
+    {
+      "stable_id": "sym-422634caca12450d34c25267ee55c2c4452fdf22d332d81f8bb98d6de6ca8cd4",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        7,
+        5,
+        7,
+        27
+      ],
+      "reasoning": "No-op Stop satisfies linked production root API in headless tests; no timer exists to stop.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Passing shutdown tests with this substitute does not prove native timer cleanup.",
+      "tests_missing": "Passing shutdown tests with this substitute does not prove native timer cleanup. NOT_EXECUTED.",
+      "verified_callers_callees": "Headless header stub"
+    },
+    {
+      "stable_id": "sym-636e076a04718387df37c52b9faca24de3fb829a0fd3082ee7ea5e72854d8363",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh()",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        8,
+        5,
+        8,
+        30
+      ],
+      "reasoning": "No-op Refresh omits production property notifications; tests exercise business/session decisions independently of header rendering.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No native header refresh assurance.",
+      "tests_missing": "No native header refresh assurance. NOT_EXECUTED.",
+      "verified_callers_callees": "Headless header stub"
+    },
+    {
+      "stable_id": "sym-868caaac0f3e34b9e682107946d33d8ef426e3f6167d7dfbffe1f4e177b46d3d",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.SetIdentity(string)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        9,
+        5,
+        9,
+        45
+      ],
+      "reasoning": "No-op SetIdentity ignores name, allowing settings/root source linkage without real XAML/header state.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Restaurant identity visual refresh must be separately verified.",
+      "tests_missing": "Restaurant identity visual refresh must be separately verified. NOT_EXECUTED.",
+      "verified_callers_callees": "Headless header stub"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

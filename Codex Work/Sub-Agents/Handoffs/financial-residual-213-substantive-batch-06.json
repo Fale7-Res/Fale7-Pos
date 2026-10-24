@@ -1,0 +1,322 @@
+{
+  "artifact_kind": "substantive_callable_review_batch",
+  "id": "financial-residual-213-substantive-batch-06",
+  "created_utc": "2026-10-21T07:04:57Z",
+  "assignment": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-06-assignment.json",
+  "source_queue": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-05.json",
+  "queue_order": "First ten exact IDs in Batch 5 remaining queue; no skips/redo.",
+  "decision": "10/10 reviewed source bodies/callers. Ticket composition and expense voucher paths are read-only; driver reassignment query preserves job-time driver identity; other methods render item annotations/fallbacks/layout. No source-confirmed financial defect.",
+  "reviewed_callables": [
+    {
+      "counterevidence": "Source search found no caller.",
+      "span": [
+        87,
+        5,
+        92,
+        34
+      ],
+      "conclusion": "Unused formatting helper; no financial behavior established.",
+      "tests": "No direct test/caller found.",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "No callsite found in Printing domain source; helper appears only at declaration.",
+      "signature": "TicketLayout.InfoPair(string,string)",
+      "flow": "Pure formatting from two strings; no arithmetic or state.",
+      "body_range": [
+        85,
+        92
+      ],
+      "stable_id": "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+      "relevance": "No current financial behavior observed; if used later, metadata display only.",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "callee": "Builds a two-cell 50/50 TicketRow with opposing alignments."
+    },
+    {
+      "counterevidence": "Program comments 2062-2064 state print reporting does not touch order/payment/inventory; slip reprint integration test verifies stable financial footprint. Test not run.",
+      "span": [
+        99,
+        5,
+        140,
+        6
+      ],
+      "conclusion": "Read-only composition path; no financial side effect shown.",
+      "tests": "SlipPrintingAndReprintTests lines 156-180, hash 487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "GET print-ticket content endpoint, Program.cs line 2149.",
+      "signature": "PrintJobQueryService.ComposeTicketContentAsync(string,CancellationToken)",
+      "flow": "Loads document/order facts read-only and composes output. Order rows/totals come from stored order and item snapshots. No SaveChanges/state mutation.",
+      "body_range": [
+        99,
+        140
+      ],
+      "stable_id": "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+      "relevance": "Central financial-document presentation boundary.",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "callee": "AsNoTracking print job query; dispatch to shift/expense or order composers; MarkIfReprint; DTO mapping."
+    },
+    {
+      "counterevidence": "Ticket unit/line price from stored TicketItem fields in row around lines 184-195; ticket query maps persisted order item price snapshots lines 122-125.",
+      "span": [
+        198,
+        5,
+        199,
+        83
+      ],
+      "conclusion": "Presentation fallback; no price mutation.",
+      "tests": "No fallback-specific test located.",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "ItemRow at lines 186 and 194 for customer and station tickets.",
+      "signature": "TicketLayout.VariantOf(TicketItem)",
+      "flow": "Pure item display fallback; amount fields displayed separately.",
+      "body_range": [
+        198,
+        199
+      ],
+      "stable_id": "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+      "relevance": "Item identification; variant may identify chosen priced option, but method does not compute price.",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "callee": "Whitespace check; returns NoValue em dash or stored VariantName."
+    },
+    {
+      "counterevidence": "Separate from amount rows; physical print not verified.",
+      "span": [
+        78,
+        5,
+        78,
+        90
+      ],
+      "conclusion": "Pure formatting.",
+      "tests": "Receipt structure tests in PrintRulesTests, lines 110-129, hash 5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "PrintRules cashier receipt composer line 208.",
+      "signature": "TicketLayout.AccentRule()",
+      "flow": "Visual separator only.",
+      "body_range": [
+        76,
+        78
+      ],
+      "stable_id": "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+      "relevance": "Receipt layout, no totals or state.",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "callee": "Creates TicketRuleStyle.Accent."
+    },
+    {
+      "counterevidence": "Actual row/totals are produced from stored order snapshot, annotations do not feed totals. No direct annotation-specific test found.",
+      "relevance": "Explains existing price/discount context on customer row; kitchen route suppresses price-rule detail by flag.",
+      "caller": "PrintRules.ComposeItemTable lines 372-383; kitchen composer calls withPriceRule:false at line 70.",
+      "span": [
+        204,
+        5,
+        211,
+        6
+      ],
+      "signature": "TicketLayout.ItemAnnotations(TicketItem,bool)",
+      "flow": "Emits item note; when withPriceRule and offer name nonblank, emits offer and positive list price annotation. It does not calculate applied price.",
+      "conclusion": "Frozen-data explanatory presentation only.",
+      "body_range": [
+        201,
+        211
+      ],
+      "callee": "Reads Notes, PriceRuleName and ListUnitPrice.",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "stable_id": "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d"
+    },
+    {
+      "counterevidence": "DeliveryVerticalSliceTests lines 613-635 assert two tickets identify correct drivers and mark second reassignment (hash 2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f); query does not mutate history.",
+      "span": [
+        324,
+        20,
+        324,
+        89
+      ],
+      "conclusion": "Read-only temporal assignment reconstruction; no defect evidenced.",
+      "tests": "DeliveryVerticalSliceTests lines 613-635; not run.",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeDriverDispatchAsync picks earliest reassignment after queued job time.",
+      "signature": "lambda: h => h.DeliveryId == delivery.Id && h.ChangedAtUtc > job.CreatedAtUtc",
+      "flow": "Restores the prior driver identity to a queued print job if reassigned after creation.",
+      "body_range": [
+        321,
+        327
+      ],
+      "stable_id": "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+      "relevance": "Delivery custody/COD instruction identity, no money amount/state.",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "callee": "Read-only DeliveryReassignments filter/order by ChangedAtUtc, then OldDriverName"
+    },
+    {
+      "counterevidence": "No caller.",
+      "span": [
+        80,
+        5,
+        80,
+        90
+      ],
+      "conclusion": "Unused helper; no financial behavior established.",
+      "tests": "No direct test located.",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "No current callsite found in domain printing source.",
+      "signature": "TicketLayout.DashedRule()",
+      "flow": "Pure separator.",
+      "body_range": [
+        80,
+        80
+      ],
+      "stable_id": "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+      "relevance": "No observed financial flow.",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "callee": "Returns dashed TicketRule."
+    },
+    {
+      "counterevidence": "Source comment line 601 expressly says expense was already recorded and printing posts nothing. SlipPrintingAndReprintTests lines 145-153 checks ticket details and unchanged TreasuryMovements.",
+      "span": [
+        602,
+        5,
+        620,
+        6
+      ],
+      "conclusion": "Presentation only; no accounting mutation.",
+      "tests": "SlipPrintingAndReprintTests lines 145-153, hash 487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911; not run.",
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "caller": "ComposeExpenseSlipAsync at PrintJobQueryService lines 228-238 loads persisted expense and builds slip input.",
+      "signature": "PrintRules.ComposeExpenseTicket(ExpenseSlipInfo)",
+      "flow": "Renders persisted amount/date/category/payment label/employee/description/notes and recipient line; no posting.",
+      "body_range": [
+        600,
+        620
+      ],
+      "stable_id": "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+      "relevance": "Financial voucher presentation; evidence for manual expense review.",
+      "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "callee": "SlipHeading, MoneyLine, SlipLine and text elements."
+    },
+    {
+      "counterevidence": "Predicate is same ShiftId and PaidFromDrawer at 195-197. No mutation. Normalization policy for category casing not evidenced.",
+      "span": [
+        198,
+        22,
+        198,
+        37
+      ],
+      "conclusion": "Read-only grouping; no confirmed defect.",
+      "tests": "PrintRulesTests tests rendering of supplied summary, not query grouping.",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeShiftCloseSlipAsync expense grouping pipeline.",
+      "signature": "lambda: e => e.Category",
+      "flow": "Groups cash-drawer-paid expenses for this shift by Category before summing category values.",
+      "body_range": [
+        195,
+        200
+      ],
+      "stable_id": "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+      "relevance": "Direct financial breakdown shown on close slip.",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "callee": "LINQ GroupBy key after read-only results materialized."
+    },
+    {
+      "counterevidence": "Amount and account values are read from expense fields separately. PrintRulesTests expense slip case checks payer display.",
+      "span": [
+        232,
+        76,
+        232,
+        112
+      ],
+      "conclusion": "Read-only identity lookup; no accounting effect.",
+      "tests": "PrintRulesTests lines 624-640, hash 5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeExpenseSlipAsync after loading expense.",
+      "signature": "lambda: u => u.Id == expense.CreatedByUserId",
+      "flow": "Resolves expense creator name; falls back to stored creator ID; passes it with persisted amount/category/account to voucher composer.",
+      "body_range": [
+        230,
+        238
+      ],
+      "stable_id": "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+      "relevance": "Audit attribution on expense voucher; not arithmetic/posting.",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "callee": "AsNoTracking Users.FirstOrDefaultAsync."
+    }
+  ],
+  "analyzed_ids": [
+    "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+    "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+    "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+    "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+    "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d",
+    "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+    "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+    "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+    "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+    "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb"
+  ],
+  "remaining_relevant_ids": [
+    "sym-a57ae20ea32acb1cb86514516aea44b270cafec7c803b9e1c76c8f72455c07ca",
+    "sym-b0e426b0a9c2ffb3ec1e20a652d085e49e861a3112f2b069c4f9f76b36f05e33",
+    "sym-b38c92e2aa1cef5dc2976f7656370635af13578727943866471415a065f89f2c",
+    "sym-b407e27ee608a533415e75d0cf6ff371c1953ad8e832ed46648943aa63eaba94",
+    "sym-b5d02765cc73eb502bce00fe1d7fa69e5d505e4ab7d3528c6cbe64df1db3be99",
+    "sym-b72cee84fa9eb3496d45c0e7ea3ef2d3e77413091522986f2fe040b4a149bc11",
+    "sym-bc1982a176b054923f1a82a06a7f7fd41994f3b60f8a71cd9b7ffafb828d1e0b",
+    "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+    "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+    "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+    "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+    "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+    "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+    "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+    "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+    "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+    "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+    "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+    "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+    "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8",
+    "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+    "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+    "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+    "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+    "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+    "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+    "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+    "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+    "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+    "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+    "sym-f805f241abf3b0bf1b21618393033650c96e27a67a4a4aaebf7065a83890e0c0",
+    "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+    "sym-fed148bcba2be9afb960a340a25bf41eb48c4ed2acb6cc24138b8d16c79e4fab",
+    "sym-ffa25b5be7db6378758309023b1d9190ad95017c67dffcea4a6b0fea10d701a5"
+  ],
+  "remaining_relevant_count_after_batch": 34,
+  "source_hashes": [
+    {
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs"
+    },
+    {
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs"
+    },
+    {
+      "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "path": "src/Falah.Domain/Printing/PrintRules.cs"
+    },
+    {
+      "sha256": "5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+      "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs"
+    },
+    {
+      "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs"
+    },
+    {
+      "sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+      "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs"
+    }
+  ],
+  "primary_author_receipt_union": "Unchanged; supplemental review is not original author receipt credit.",
+  "tests": "No tests executed; cited tests read only as counterevidence.",
+  "limitations": [
+    "Static source-only; no DB/provider/runtime/printer run.",
+    "No shared report/registry or application/test source edits.",
+    "Does not certify full 8,804 callable or 327 file substantive coverage."
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "id": "UI-020",
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:43:22.599226+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent manual source challenge, no application execution or credentials read",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_IDENTITY_DESYNCHRONIZATION_ONLY",
+  "severity_assessment": "HIGH conditional on cross-operator recovery; same-user proof only rotates bearer. Privilege escalation NOT established.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+      "startLine": 148,
+      "endLine": 179,
+      "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+      "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+      "symbol": {
+        "stable_id": "sym-668fe7d416c76bd6bfdc131305b9fa5bf53eadec90c73a78b8b5f2a30b945645",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ChangePinAsync()",
+        "startLine": 147,
+        "endLine": 180,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "wasPending self-change proof invokes shared Api.LoginByPinAsync before checking returned user identity; no restoration on mismatch and no CurrentUser update."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "startLine": 157,
+      "endLine": 170,
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "symbol": {
+        "stable_id": "sym-2429d401662a38ec3d41aa1d3cf3d4b5bca73cd4d8bd24492b1a0a004e1e83e7",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.ApiClient.LoginByPinAsync(string, CancellationToken)",
+        "startLine": 157,
+        "endLine": 171,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Successful login installs returned bearer into process-shared HttpClient before returning UserSummaryDto to proof caller."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "startLine": 10,
+      "endLine": 34,
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "symbol": {
+        "stable_id": "sym-4901f106f424cf467a862f6a7bbb03fc270b6d2edd5478944129b37f4511855f",
+        "kind": "GetAccessorDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.AppSession.Api.get",
+        "startLine": 10,
+        "endLine": 10,
+        "startColumn": 28,
+        "endColumn": 32
+      },
+      "evidence": "One Api property shared with separately mutable CurrentUser and HasPermission derived from CurrentUser; no automatic identity synchronization."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+      "startLine": 19,
+      "endLine": 24,
+      "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+      "symbol": {
+        "stable_id": "sym-eb6e85a4ce72cb323d1ab13426865849986a1087238d7a98c8559bb32bafc36e",
+        "kind": "ConstructorDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.RetainedRequest(string?, Falah.Client.CashierWinUI.Services.IRetainedRequestStore?)",
+        "startLine": 19,
+        "endLine": 25,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Station-global users.change-pin owner key restores typed original request independently of current user."
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "startLine": 69,
+      "endLine": 81,
+      "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+      "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "symbol": {
+        "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Server.AuthenticationMiddleware.InvokeAsync(HttpContext, Falah.Infrastructure.Authorization.SessionService)",
+        "startLine": 30,
+        "endLine": 82,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Normal lower-camel actor binding rejects mismatched identity; protects many writes and limits impact. Separate SEC001 casing issue must not be silently combined into a demonstrated exploit."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Users/ChangePinHandler.cs",
+      "startLine": 30,
+      "endLine": 64,
+      "source_git_blob_sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+      "worktree_sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+      "symbol": {
+        "stable_id": "sym-51aa05d93005a9f1ff153c917852e02fe3c10ad4bde0d53bb4fd7dba4a9086db",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Infrastructure.Users.ChangePinHandler.HandleAsync(Falah.Application.Users.ChangePinRequest, CancellationToken)",
+        "startLine": 30,
+        "endLine": 65,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Self path validates OLD PIN; admin path authorizes users_manage and prohibits owner target. Proof belongs to recovery of old-PIN replay, not unauthenticated credential bypass."
+    }
+  ],
+  "preconditions": [
+    "An unresolved retained self-PIN-change exists and user explicitly retries it.",
+    "A successful proof login returns a bearer. Cross-operator restart can yield original actor token while CurrentUser remains the new operator; wrong-user proof could also replace token before equality fails.",
+    "A real PIN must authenticate: no arbitrary account/token invention."
+  ],
+  "counterevidence": [
+    "Same original user successful proof preserves principal and merely rotates token.",
+    "Failed login does not install bearer.",
+    "Returned identity equality prevents declaring wrong-user proof a successful PIN change, but occurs after bearer installation.",
+    "Normal server actor matching and command authorization can reject mismatches; no guaranteed financial privilege escalation."
+  ],
+  "affected_workflows": [
+    "Recovered self PIN change",
+    "Subsequent shared-API reads/writes after proof identity differs from visible CurrentUser"
+  ],
+  "recommended_remediation": "Use a separate non-installing credential-proof operation and explicit journal actor ownership; do not silently switch shared session during proof.",
+  "required_tests": [
+    "Fake transport proof returns different principal; verify original shared header and CurrentUser unchanged after rejected proof.",
+    "Recovered request from operator A under logged-in B requires explicit recovery ownership decision.",
+    "Same-user successful proof reconciles completed PIN change without altering unrelated session identity."
+  ],
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "This finding only; does not certify other UI or SEC001 findings."
+}

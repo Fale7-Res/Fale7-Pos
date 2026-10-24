@@ -1,0 +1,214 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-071",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T13:25:00Z",
+  "reviewer": "root coordinator",
+  "title": "Business-day close blocker parity across preview, enforcement and owner attention",
+  "scope": "Bounded comparison of read-only close-blocker preview, actual close admission, owner-dashboard blocker count, shared evaluator, route wiring and the integration test that compares preview to a close attempt.",
+  "decision": "PreviewCloseBlockersAsync, CloseBusinessDayHandler and OwnerDashboardQueryService all call BusinessDayCloseEvaluator.EvaluateAsync. The GET and close routes bind to those consumers; the existing integration test opens a shift, checks OPEN_SHIFT in preview, attempts close, and asserts identical blocker-code sets. This is shared logic, not independently duplicated blocker rules; no divergence or new finding confirmed. Evaluator inputs include global outstanding shifts/custodies/journal entries/pending electronic payments and global protected balances, while checklist and some discrepancy checks are business-day scoped. Global-vs-day closure policy needs explicit owner/system scope confirmation, but source alone does not establish a defect; deployment topology may intentionally allow only one active day.",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "line_ranges": [
+        [
+          26,
+          55
+        ],
+        [
+          62,
+          86
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-559e31438d5545dc9f65af226d1d54c56254f34e4ad83ede252eaa1e90247290",
+          "signature": "Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.EvaluateAsync(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            55,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b322d7a9901aa5c1b5e6eac5a771670a2fb154e118827fd5f9678c5d7232d2b6",
+          "signature": "Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.ComputeReconciliationChecksAsync(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            62,
+            5,
+            86,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "line_ranges": [
+        [
+          34,
+          100
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+          "signature": "Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.CloseBusinessDayRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            129,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "source_git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "line_ranges": [
+        [
+          34,
+          40
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f7290e69b5fdae57cfc08deb1847ad4c92b7261c2ed100e8f3a7035014bb700e",
+          "signature": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.PreviewCloseBlockersAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            40,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          262,
+          276
+        ],
+        [
+          278,
+          294
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-21b13272c77ed156008a1bae9861754b5c6aec46ada2a4505417aa31705c09d8",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadAttentionAsync(Falah.Domain.Common.BusinessDateRange, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            235,
+            5,
+            295,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          393,
+          397
+        ],
+        [
+          399,
+          420
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b5484ecee80fb1f8969a3925c7f0297275cddc5e54f1c549650c64814895598a",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            393,
+            53,
+            397,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-e2f90865aa384b3fe3b0dfbce2077e00b1c10c15549e29f6176c47e9b8a8face",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            399,
+            45,
+            419,
+            2
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "worktree_sha256": "66cc5719ec12a81881b02ba08468417f62e63b18e5fb63984fb79d2bfed06347",
+      "source_git_blob_sha256": "bd3bf3054b3c3c7bb6a727d09e09a87c1a5343445351647e4e8e0aebb6c0246a",
+      "line_ranges": [
+        [
+          217,
+          229
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-16fa36b5e3fd26bae3694c704c3c51958f4495be352bb7475b4b87ac51908a5b",
+          "signature": "Falah.Server.IntegrationTests.BusinessDayCloseVerticalSliceTests.The_close_blockers_preview_reflects_exactly_what_a_close_attempt_would_hit()",
+          "kind": "MethodDeclaration",
+          "span": [
+            217,
+            5,
+            229,
+            6
+          ]
+        }
+      ],
+      "baseline_identity": "current content hash matches baseline symbol-index worktree hash"
+    }
+  ],
+  "counterevidence_and_limits": [
+    "BusinessDayRules.Open rejects opening while any active business day exists; this supports a single-active-day design, but does not alone prove stale historical obligations should be global blockers.",
+    "Preview/close parity test exists in source but was not executed in this audit.",
+    "The source does not document whether close blockers for shifts, custodies, journals and pending electronic payments should be day-specific or global; no new finding is created without that policy.",
+    "SQL transaction isolation, cross-day fixtures and actual dashboard responses were not tested."
+  ],
+  "recommendation": "Keep one shared evaluator as the authoritative blocker calculation. Before future scoping changes, document whether non-checklist blockers represent global unresolved financial obligations or only obligations attached to the target business day; test another-date open shift, custody, incomplete journal and pending payment, plus dashboard/preview/close parity under the selected rule.",
+  "tests": {
+    "source_test": "BusinessDayCloseVerticalSliceTests.The_close_blockers_preview_reflects_exactly_what_a_close_attempt_would_hit",
+    "lines": [
+      217,
+      229
+    ],
+    "execution": "READ_NOT_RUN",
+    "existing_assertion": "Preview contains OPEN_SHIFT and its blocker-code set equals the subsequent close response."
+  },
+  "finding_created": false,
+  "gate": "Bounded comparison complete; not an exhaustive semantic search."
+}

@@ -1,0 +1,170 @@
+{
+  "name": "Remaining control adapters, window routing and delivery typed projection",
+  "comparisons": [
+    {
+      "group_prefix": "70cd7851",
+      "reasoning": "Same status-pill property callback copies text to label then calls client-local StatusToPillBrushConverter. Callee mapping predicates same, but CallCenter resource indexer differs Cashier ThemeResources.Get ActualTheme lookup.",
+      "callers_context": "Both StatusPill TextDependencyProperty callback registration and converter bodies read; Cashier ThemeResources.Get read.",
+      "financial_security_effects": "Important near-mirror divergence hidden by identical caller body: theme resource resolution different, existing UI004 context, not duplicate new visual finding. Contains(active/paid/settled) heuristics shared can misclassify negative-name states if reachable; no UI state observed.",
+      "recommendation": "Shared explicit status presentation mapping and theme-aware resource adapter; preserve WinUI live-theme lifecycle.",
+      "tests": [
+        "Light/Dark switch",
+        "Unknown/null status",
+        "Inactive/unpaid/unsettled labels where bound",
+        "Missing theme resource"
+      ]
+    },
+    {
+      "group_prefix": "ceb3bc69",
+      "reasoning": "ApplyItemWidth bodies identical but captured ProductTargetWidth differs CallCenter190 versusCashier212. Both force>=2columns and leave ItemHeight unset; ProductMinWidth/MaxWidth declared but unused by shown method.",
+      "callers_context": "Exact methods27-39 and constants16 plus constructor SizeChanged/Loaded hookups inspected.",
+      "financial_security_effects": "Intentional station density difference, not same rendered widths. Very narrow host can produce cells below stated min because min/max constants not applied; no actual clipping test or visual guarantee.",
+      "recommendation": "Shared reusable catalogue with configurable target/min/max and layout policy; remove dead constants only after approved implementation, none changed.",
+      "tests": [
+        "Narrow/normal/wide sizes",
+        "Offer badges row-height auto",
+        "Initial unloaded panel",
+        "Station-specific density"
+      ]
+    },
+    {
+      "group_prefix": "8ed19dac",
+      "reasoning": "Two window PropertyChanged routers same three property names trigger ApplyIsLoggedIn,ApplyIsOnline,ApplyCurrentView. Callees intentionally route different screen types.",
+      "callers_context": "CallCenter ApplyCurrentView Login/CallCenter; Cashier Login/Cashier/Shell; visibility helpers exact counterparts read.",
+      "financial_security_effects": "Identical router does not prove shell feature parity. It reacts only named properties, not null/empty all-properties notification; current Toolkit ordinary named notifications expected.",
+      "recommendation": "Shared window adapter pattern with per-station typed view factory, retain close/operation lifetimes separately.",
+      "tests": [
+        "Login and shell switching",
+        "Offline banner",
+        "Unsupported VM fallback",
+        "Named versus all-property notification"
+      ]
+    },
+    {
+      "group_prefix": "e7fd938c",
+      "reasoning": "Same caption property callback sets caption text and hides null/empty, whitespace remains visible. Dependency property contract string, no money math.",
+      "callers_context": "SummaryCard OnCaptionChanged in both clients, control-specific CaptionBlock UI element casts.",
+      "financial_security_effects": "Presentation copy intentional, no financial amount change or account authorization. Resource/framework same type API but separate XAML controls.",
+      "recommendation": "Common WinUI control library with stable dependency properties, resource/automation contract preserved.",
+      "tests": [
+        "Null/empty/whitespace caption",
+        "Binding changes",
+        "Card content automation"
+      ]
+    },
+    {
+      "group_prefix": "754aa061",
+      "reasoning": "Same empty-cart update toggles hint and scroll visibility from null VM/Cart.Count0. Surrounding subscription lifecycle DIVERGES: Cashier detaches previous/unloaded, CallCenter adds on every DataContext change without detach.",
+      "callers_context": "CallCenter ctor14-20;Cashier Subscribe52-54,Loaded/Unloaded24-25 read; underlying collection change invokes same helper.",
+      "financial_security_effects": "Existing UI015 long-lived cached Cart event retains previous CallCenter visual tree; do not create duplicate finding. Identical small callback hides real lifetime divergence.",
+      "recommendation": "Share lifecycle-correct panel infrastructure with attach/detach ownership; preserve pending-operation guards and per-client content.",
+      "tests": [
+        "A->B->A DataContext one subscription",
+        "Repeated lock/unlock",
+        "Unload no event callbacks",
+        "Count0/1transitions"
+      ]
+    },
+    {
+      "group_prefix": "ab89aa56",
+      "reasoning": "Same catalogue constructors InitializeComponent then SizeChanged and Loaded ApplyItemWidth handlers. Capture station-local target width rather than actual shared layout constant.",
+      "callers_context": "Both constructors18-25, exact ApplyItemWidth groupceb3bc69 and constants read.",
+      "financial_security_effects": "No event-to-money or server call. Same event wiring intentionally compensates ItemsPanelRoot realization timing; no runtime proof all sizes render.",
+      "recommendation": "Share UserControl with configurable density and defer layout safely on initial load.",
+      "tests": [
+        "First SizeChanged before panel realization",
+        "Reload/resizing",
+        "No repeated handlers across reconstruction"
+      ]
+    },
+    {
+      "group_prefix": "ebda8b17",
+      "reasoning": "Same offer tapped handler marks event Handled then dispatches typed OfferChoice to station VM SelectOfferCommand. Any invalid sender still handled by design.",
+      "callers_context": "Both ProductCatalogue OnOfferTapped54-59 and parent item click handler44-48, XAML offer chip event route source context read.",
+      "financial_security_effects": "Prevents parent click adding second default item, but offer price eligibility remains server validated. Different OfferChoice CLR namespaces mean typed adapters required.",
+      "recommendation": "Shared typed event adapter/control preserving routed-event suppression and station VM boundaries.",
+      "tests": [
+        "Offer tap adds exactly requested item once",
+        "Parent click suppressed",
+        "Disabled/unknown sender",
+        "Offer expires before checkout"
+      ]
+    },
+    {
+      "group_prefix": "ce9588b9",
+      "reasoning": "Same note-chip handler pattern-matches Button DataContext CartLine and Tag string then delegates AppendNoteText. Separate CartLine/VM types bind by namespace.",
+      "callers_context": "Both handler bodies and shared note Append group3590c2e2 guards inspected; fixed note chip Tag source routing.",
+      "financial_security_effects": "Delegate enforces pending-operation CanEditOperation; this event handler alone does not. No physical printer operation even if notes later printed.",
+      "recommendation": "Share control event contract with typed note action, preserving actual line and fixed text.",
+      "tests": [
+        "Correct cart line",
+        "Null/malformed Tag",
+        "No mutation while unresolved checkout"
+      ]
+    },
+    {
+      "group_prefix": "443be023",
+      "reasoning": "Same GridView item click chooses ProductTile.Product and executes SelectProductCommand, no alternative price/variant calculation here.",
+      "callers_context": "Both catalogue methods44-48 plus item-click/offer propagation context and VM edit-state guard family.",
+      "financial_security_effects": "Actual product selection workflow may differ station mode but source adapter has no financial authorization; avoid claiming typed command equality means same full checkout.",
+      "recommendation": "Shared product catalogue command interface retaining typed station model adapters.",
+      "tests": [
+        "Normal product click",
+        "Offer subcontrol suppresses parent",
+        "Missing VM/tile",
+        "Edit-blocked state"
+      ]
+    },
+    {
+      "group_prefix": "57eeeb59",
+      "reasoning": "Same DeliveryService DTO projection used Active query and All-management query. Filter difference is intentional caller policy; inactive rows retained for management.",
+      "callers_context": "DeliveryQueryService.ListActiveDeliveryServices24-26 versusListAll28-30 entire surrounding methods read.",
+      "financial_security_effects": "Do not consolidate as one always-filtered query or active-only mapper; source fee/created attribution preserved, no fee validation in projection.",
+      "recommendation": "Shared pure DTO mapper with explicit query inclusion policy.",
+      "tests": [
+        "Active only dispatch list",
+        "Inactive management visibility",
+        "Fee long unchanged",
+        "No accidental client-side filtering of full private list"
+      ]
+    },
+    {
+      "group_prefix": "df5cb23d",
+      "reasoning": "Same category click adapter matches CategoryTile then invokes selected-category command. Station controls use separate models and one differs constructor presentation.",
+      "callers_context": "BothCategoryStrip13-17/22-26 and selected category VM hook6bfa9f72, refresh catalogue context read.",
+      "financial_security_effects": "Selection identity can be reference-based downstream; no inventory or financial state mutation by adapter.",
+      "recommendation": "Shared category strip command interface preserving selection/RTL/resource contract; no visual audit execution.",
+      "tests": [
+        "Category reference reload",
+        "Empty category list",
+        "Non-tile sender",
+        "Selection highlight consistency"
+      ]
+    },
+    {
+      "group_prefix": "5693b1a9",
+      "reasoning": "Same RetryVisible dependency callback toggles RetryButton from bool. It does not retry any operation or mint financial request key.",
+      "callers_context": "Both ErrorState control callback declarations38-39; property contract bool directs visibility only.",
+      "financial_security_effects": "Showing retry is not proof command safe to resubmit; retained-request/unknown-outcome policy lives financial command owner, not this shared control.",
+      "recommendation": "Share error presentation control with externally supplied command and outcome-safe wording.",
+      "tests": [
+        "Retry false/true",
+        "Same request ID handled caller",
+        "No accidental invocation on visibility change"
+      ]
+    },
+    {
+      "group_prefix": "a70f6ec6",
+      "reasoning": "Same close automation-ID callback copies dependency string into CloseButton AutomationProperties; no CloseCommand execution in this callback.",
+      "callers_context": "ModalHeader CloseAutomationId property and adjacent independent CloseCommand binding callback read.",
+      "financial_security_effects": "Intentional testability/automation adapter, not operation cancellation or financial rollback. Stable IDs must survive shared control extraction.",
+      "recommendation": "Share ModalHeader with explicit title/close command/automation ID contract and caller pending-operation policy.",
+      "tests": [
+        "Automation ID changes",
+        "Close command binding",
+        "Pending financial flow refuses unsafe close"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-controls-batch-evidence.json"
+}

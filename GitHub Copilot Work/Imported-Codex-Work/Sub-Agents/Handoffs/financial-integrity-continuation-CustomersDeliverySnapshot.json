@@ -1,0 +1,125 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:55:24.1112085Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs",
+  "symbol_count": 9,
+  "symbols": [
+    {
+      "stable_id": "sym-022802a7f4b9149e5c8d44421535ce6bbf63a24f239f0923754f8e520aec3755",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCustomersAndDeliverySnapshot.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        130,
+        10
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6102c3a107030e29c0ae01b6bfae7945da2a60e143ced6f5cfba030d0cb5c5c5",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        72,
+        26,
+        79,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f8009a968c4a7e3d4f3a2478d441f88063830ff8316be9b2b5d21f60509f9fa7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        80,
+        30,
+        83,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5e80bc657bd6f61534493f425168981baa794d8492b4b6e0da21e2b1db3f4381",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        82,
+        54,
+        82,
+        63
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2b42093ed384af87af3112c8c78933903acaa144935ea709659767ceaafd7a92",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        87,
+        26,
+        101,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-31293f4bedafb38521adc8985f98062d007f21d14e0a9746d5582c36219a2e8b",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        102,
+        30,
+        111,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c3acc42c416f7a94df0e45936f6281cd79713c3d133958b1fefe8a9524f2245d",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        104,
+        62,
+        104,
+        71
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b86b42dce0e381cdde6c792bb400ed671b17197c13349517fc4992786e05697e",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        107,
+        33,
+        107,
+        50
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3013c9c3f7a8bc9bcdfb6737feb3757ee7040a1b15b3658754fb73628b4914ef",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCustomersAndDeliverySnapshot.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        133,
+        9,
+        184,
+        10
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Shift status is widened from max to nvarchar(450) and gets a filtered unique index on Status=\"Open\", enforcing at most one open shift. Customer and CustomerAddress tables are created; Customer.Phone is unique; address rows cascade on customer deletion, and address/phone indices are declared. The delivery address/service values added to Orders are optional snapshots, with ServiceId/Name remaining scalar text rather than an FK. No backfill is needed for nullable snapshot fields. No issue found from this source alone; uniqueness depends on phone canonicalization at write boundary, which this migration cannot establish.",
+  "source_ranges": "Entire source read: Up 12-130, Down 133-184.",
+  "execution": "Read-only source review; no migration/provider/database/tests.",
+  "shard_reconciliation": {
+    "financial_integrity": "/9 exact IDs present",
+    "financial_coordinator": "/9 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

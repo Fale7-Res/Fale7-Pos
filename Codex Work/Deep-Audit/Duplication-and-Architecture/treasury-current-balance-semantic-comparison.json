@@ -1,0 +1,121 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-018",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T09:57:21.130Z",
+  "scope": "Targeted comparison of duplicated all-time treasury balance projections in the owner dashboard and daily statement, plus existing endpoint-level regression assertions. Does not establish database isolation/snapshot consistency or runtime behavior beyond source tests.",
+  "decision": "The two query services independently materialize all Posted treasury movements and calculate each account balance as destination amount minus source amount. The filter and projection are semantically equivalent for each configured account, including transfers (debit source, credit destination). The Daily Statement separately exposes day-filtered movement rows; that is a different period-scoped detail view, not an inconsistency with its explicitly all-time current balance. Existing tests assert dashboard balance independence from selected reporting period and day filtering of displayed movement rows, but do not compare dashboard and daily-statement TreasuryNow values under transfers/non-posted rows. No current defect found; duplicated financial formula is a drift risk.",
+  "finding_candidate": null,
+  "severity": "INFORMATIONAL",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "line_ranges": [
+        [
+          158,
+          169
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc333096c4257c48976c6008a65141413e1e4ab87953dff48d455d5a8de4a58b",
+          "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.CurrentTreasuryAsync(CancellationToken)",
+          "span": [
+            158,
+            5,
+            169,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "line_ranges": [
+        [
+          141,
+          150
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8cf6c53ac420d74f60143e3deb2240409890f7177724ffa89ca722535db5331e",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.LoadCurrentTreasuryBalancesAsync(CancellationToken)",
+          "span": [
+            141,
+            5,
+            150,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "worktree_sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+      "source_git_blob_sha256": "dafabe15f75a8e81a9095b9825896d0ce5c5e0c818aa7fd9736209f8671602e7",
+      "line_ranges": [
+        [
+          167,
+          181
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0da68d8e225e2e37f7390ac997968e8b304db69afc208fe189ebb0ee586e6834",
+          "signature": "Falah.Server.IntegrationTests.OwnerDashboardVerticalSliceTests.Treasury_balances_are_current_not_scoped_to_the_reported_period()",
+          "span": [
+            167,
+            5,
+            181,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "worktree_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "source_git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "line_ranges": [
+        [
+          136,
+          162
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-889c578a29673ce74dab505f649c0e40f0bcea51c67345d1d31e30eeba84e515",
+          "signature": "Falah.Server.IntegrationTests.DailyStatementVerticalSliceTests.Treasury_movements_are_filtered_to_the_requested_day_a_different_days_movement_is_excluded()",
+          "span": [
+            136,
+            5,
+            162,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "owner_dashboard": "CurrentTreasuryAsync loads only Status=Posted, selects source/destination/amount, sums signed amounts for each five TreasuryAccounts, and returns TreasuryBalancesDto. It is an all-time query and is used within range-specific dashboard assembly.",
+    "daily_statement": "LoadCurrentTreasuryBalancesAsync repeats the same all-time posted-only query and signed source/destination projection; GetAsync returns this object alongside separate day-scoped TreasuryMovements.",
+    "comparison": "The implementations match in included status, scope, projected fields, sign convention, and five accounts. Neither has a differing permission or actor branch at method level; API authorization remains endpoint-level and was outside this bounded group. The parallel implementation can drift if one copy is amended independently.",
+    "tests": "OwnerDashboardVerticalSliceTests asserts Main and Drawer are invariant when the report range changes. DailyStatementVerticalSliceTests asserts its displayed movement list excludes an old posted movement. These assertions support intended distinct time semantics but are not an equality test across both current-balance projections. Tests were read, not executed.",
+    "counterevidence": "Both methods currently implement the same complete Posted ledger balance formula; the daily movement feed is intentionally date-scoped. No defect evidence.",
+    "limitations": "Static source comparison only. No test execution, DB snapshot/concurrency behavior, provider translation, or large-ledger performance measurement was performed."
+  },
+  "recommendation": "Consider extracting one shared treasury-balance query/helper so both DTOs cannot drift, and add a focused integration test that seeds posted transfer and non-posted movement rows and compares TreasuryNow from both endpoints; retain the distinct period filter for movement details.",
+  "required_regression_tests": [
+    "Given posted transfer A→B and a non-posted movement, dashboard TreasuryNow and daily-statement TreasuryNow agree for all accounts.",
+    "Changing the daily statement date continues to affect its movement detail list but not the all-time current balances.",
+    "A transaction that changes treasury movements during report assembly is covered by an explicit consistency policy if cross-query snapshot consistency is required."
+  ],
+  "reviewer": "Main Codex coordinator; this is a bounded manual comparison and no independent reviewer was assigned."
+}

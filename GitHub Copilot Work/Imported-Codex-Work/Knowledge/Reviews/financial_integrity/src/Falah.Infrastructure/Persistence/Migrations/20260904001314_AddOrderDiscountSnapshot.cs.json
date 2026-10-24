@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs",
+  "source_git_blob_sha256": "9c6d3e2e51a31ba6e26da086ff2e89d11cdd9015903f5d702be5b1cea1b62ec3",
+  "worktree_sha256": "e131b7e88d5e6fb7c308e8a02b8fedb25e82401e504d19c00c4fdc4a226f5650",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:08:25.133284+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-fd1a1f6a8e304bd4dcddbf6417ef7e868e29fa3dd3cd94c8ced0f0fb9797f3c1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderDiscountSnapshot.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        11,
+        9,
+        19,
+        10
+      ],
+      "reasoning": "Up appends required bigint DiscountPiastres default0 to Orders. New orders preserve manual discount independently from offer/comp; historical rows get0 rather than reconstructed prior transient discount, so historical discount analytics cannot be certified recovered by migration alone. No total/tax/order balance recalculation or positive-bound CHECK is added.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+      "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs:11-19",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-b733496ea692dcec6ab066f2ee43af4d6488014b3ce63b30cda5750ba3a72977",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddOrderDiscountSnapshot.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        22,
+        9,
+        27,
+        10
+      ],
+      "reasoning": "Down drops order manual discount snapshot column, losing ability to distinguish recorded manual discount in later reporting while existing total/tax money facts remain. It is schema/data loss, not a business refund or reversal of discount effect. No database change executed.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended add/alter/drop column/index migration operations; no credentials or business DTO.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Schema deployment must verify database identity, conversion prerequisites and retained backups. No plaintext PIN, verifier, salt, production rows or printer values were accessed.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Order station snapshot affects later rendering policy but no print workflow resumed. Credential schema code is not an authentication exploit/scan; no login attempted.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Legacy verifier conversion and lost historical discount/route data limits explicitly retained for owned upgrade/printing evidence rather than assuming fresh-install seed proves upgrades.",
+      "tests_missing": "No migrations/tests run. Disposable upgrade matrix must cover preexisting plaintext-only accounts, external backfill prerequisite, safe downgrade data expectations and historic order defaults; never run on user-active or unknown DB.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs:22-27",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/ElectronicPayment.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:40:50.339016+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "9b3fd7b69233fff187b40ac34b92851de557f38e6a8c8c641cd25c7add0efbd7",
+  "worktree_sha256": "9b3fd7b69233fff187b40ac34b92851de557f38e6a8c8c641cd25c7add0efbd7",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-a4233ef0670f2e97e26c108d522e06ab549ce9580fa91914cb5b9c9903238922",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Sealed positional ElectronicPayment record has Method, optionalProvider, Amount and Status, supporting value equality/copy/deconstruction. Generated with-copy can change status to Confirmed but does not post treasury, consume journal or freeze/unfreeze dispatch; Confirm handler is responsible. Single object represents only one electronic leg, not multiple independent pending channels. Source comment promises pending operational freeze, but readiness/assignment code does not universally enforce it; preserve as qualified workflow evidence, not constructor vulnerability.",
+      "inputs": "Exact positional declaration fields at source span [10, 10]",
+      "outputs": "Generated constructor/init/equality/hash/copy/deconstruction/printing context, not enumerated invented CLR methods.",
+      "side_effects": "Value/reference copy and possible generated string construction only; no DB, journal, permission issuance or print transport.",
+      "trust_boundaries": "Generated record behavior does not authenticate or validate financial state.",
+      "database": "No database read/write; identity, uniqueness and transaction rules remain outside record.",
+      "printing_ui": "May be represented as diagnostics or order snapshots; generated ToString is not physical printing.",
+      "performance": "Fixed scalar/string fields; Actor permission collection compared as reference.",
+      "duplicates_conflicts": "Original authored functions and getter facets retained; this is separate generated-context accounting.",
+      "issues_hypotheses": "Specific constraints and existing/pending financial findings distinguished in reasoning; no finding counted from generated behavior alone.",
+      "tests_missing": "Value equality/copy field retention, invalid direct construction rejected by actual boundary, collection alias where applicable.",
+      "verified_callers_callees": "Actual callers/constraints are identified individually in reasoning; relevant source reads and original exact callable receipts remain in financial_integrity shards. No new caller relationship inferred solely from record name."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

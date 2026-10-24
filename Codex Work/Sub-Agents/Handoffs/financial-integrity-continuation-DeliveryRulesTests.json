@@ -1,0 +1,389 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:01:27.5061472Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+  "symbol_count": 31,
+  "symbols": [
+    {
+      "stable_id": "sym-7def10e27ebea505320ca765dacca438d278e5d36f99882e0bb16d37b5d8f0f4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Cash_delivery_makes_the_driver_responsible_for_the_full_amount()",
+      "span": [
+        12,
+        5,
+        17,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5a3006f73d10635b1b028cf760d473c0348e5a03a4b4e472eecabbdb5c82c46d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Already_settled_electronic_payment_leaves_the_driver_nothing_to_collect()",
+      "span": [
+        19,
+        5,
+        24,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9f6939123f3b0a55f205aaef27f8683c75c093bec4487a0de71c9a778dd4ef74",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.No_custody_row_is_created_when_there_is_nothing_to_collect()",
+      "span": [
+        26,
+        5,
+        31,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7bedbb20cecdb0a535226d1a142e9822b08030c6fde6478cd83032d84653d4db",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Reassignment_moves_custody_to_the_new_driver_without_creating_a_second_row()",
+      "span": [
+        33,
+        5,
+        42,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a8c0a1cf04bc4a3e3b007077034f6a19e2eb0acad87ed907f1871132b95ca033",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_settled_custody_can_never_be_reassigned()",
+      "span": [
+        44,
+        5,
+        51,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b3d35e422af052338a58d192fb2ab0da3657c5fd40acaa6d185b12fd0e829a81",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Reassigning_ten_orders_across_two_drivers_never_double_counts_a_delivery()",
+      "span": [
+        53,
+        5,
+        68,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0d72804a5e13d443607a4a24a37cb88aa5eee1cc3b7e6dba2cffcfbd8c954f26",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        59,
+        21,
+        59,
+        184
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-986827224c795479d4347279be5bcc23ca89976097e06adf911084db463e347f",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        65,
+        47,
+        65,
+        76
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e762b1ceb14da39edb7f239b43a17070db00c1e436a8e924627cf1597cbf34c6",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        66,
+        47,
+        66,
+        76
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0007f35cf64492130bbc36eb74170f4b1f5e153951f1c1def69a3d44d14f5433",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        67,
+        46,
+        67,
+        71
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d18dcf3f88edfc8119769c23762a0b058d8df4e2fb3d29ca264a133b872b013a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Trip_settlement_difference_is_actual_minus_expected()",
+      "span": [
+        70,
+        5,
+        78,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-53f91ab0314524ce70627619c257a724839701bc715536cb3def3f875d21a717",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Negative_actual_settlement_cash_is_rejected()",
+      "span": [
+        80,
+        5,
+        84,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-eabceaa566c28c15308fe39027184995214cb3b6c8837017fb10e04cf1d998f4",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        83,
+        40,
+        83,
+        133
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-acef5a724fa85677f39ef5a95e016201beb2dfaaad39561171d0f54efc4804c4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Settlement_scope_excludes_orders_still_actively_out_for_delivery()",
+      "span": [
+        86,
+        5,
+        99,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0740ad1c2ff5658cf512706fdc8f2c0d3fca4324ed7f84cbc11be5d22fc8e87c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        94,
+        92,
+        94,
+        129
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d5aee9ddabbaa532c1959f36e57509b7c722e202e936de80ebfa818b04a98291",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Collection_amount_matching_expectation_needs_no_reason()",
+      "span": [
+        101,
+        5,
+        105,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-07b6c1abd3408a0b4061fc360885b5b2a839547a766069891601aa2ace121d94",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Collection_amount_differing_from_expectation_requires_a_reason()",
+      "span": [
+        107,
+        5,
+        113,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c8e2bae53bdb9caba0ddc8e99ad4f5c4e38611f21e0a820e2def2db9b140ab15",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        110,
+        40,
+        111,
+        104
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-be088bd5ba37380848d51cda7147474e99f8ff8d03fdffb2ab11c2783d97a793",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Unsettled_custody_is_reported_for_a_shift_rather_than_blocking_its_close()",
+      "span": [
+        119,
+        5,
+        130,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b7a693f4f3dd50d95e527d5e277d8a7344740f1487092fe3ae29dccfffaae61a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.An_inactive_driver_cannot_be_assigned_a_new_order()",
+      "span": [
+        132,
+        5,
+        137,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9f5134abc9eb53ca6c1a697a16950e6c53da95a71749fe991f817441e8eabb6f",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        136,
+        40,
+        136,
+        106
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-525a91c541b1550bd058d63dcd4b1b9349da08b6519f38faf48f26c7af4cea24",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_driver_linked_to_an_inactive_employee_cannot_be_assigned_even_if_the_driver_row_itself_is_active()",
+      "span": [
+        139,
+        5,
+        145,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-563bc4b97772523878669721330f7232a66fdccbfb57984c0cef48199b2675bd",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        144,
+        40,
+        144,
+        100
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-805061f9fbc63e49772f0c2724860ff9960c6406667f42ef435f70db6634fea9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Missing_delivery_fields_are_reported_in_form_order_not_all_at_once()",
+      "span": [
+        147,
+        5,
+        152,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a767218a1bfcd67324dc712354cd07f95a59c742c3315eda8a6cffd29b402d0c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Composed_delivery_address_joins_only_the_parts_that_are_present()",
+      "span": [
+        154,
+        5,
+        159,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d267f24c4037ede08893649f5cdf0ee09384047ed4af4fc2e1af3271268f29ff",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.Composed_delivery_address_skips_missing_parts_without_leaving_empty_separators()",
+      "span": [
+        161,
+        5,
+        166,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1edc3210da84a31bc585cf7dce277d48345da52b6c56fdf67034b10bbb703de4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_landmark_is_appended_after_the_composed_parts_with_its_own_separator()",
+      "span": [
+        168,
+        5,
+        173,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-bfd35552db5383d107b043be8532391dc52ecbd8d13a2408262edfabbdb650d4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_landmark_alone_with_no_structured_parts_is_the_entire_composed_address()",
+      "span": [
+        175,
+        5,
+        180,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3807c252265c76a93855eaad549a6bf7b6101b26f086a024005f36a5fab2924d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_pickup_needs_the_phone_first_then_the_name()",
+      "span": [
+        182,
+        5,
+        189,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-50524672a987ba89aaa2fa2ba4e21d316c54d09cfcc2e122c8304e4747b1984c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.A_pickup_with_a_name_and_a_phone_is_complete()",
+      "span": [
+        191,
+        5,
+        197,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-30a7d5fe4c76f5ef1524f99f8d05562d9e8954308e854f0f6fa234527314ab3c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.DeliveryRulesTests.MakeDelivery(string, string, Falah.Domain.Financial.PaymentMethod, bool, Falah.Domain.Common.Money)",
+      "span": [
+        199,
+        5,
+        200,
+        141
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static test-source review covers delivery cash responsibility, no custody for settled electronic orders, single custody on reassignment, settled custody immutability, multi-order driver scope, settlement difference and negative-cash guards, pending/outbound delivery exclusions from settlement, reason requirement for variance, unsettled custody reporting versus shift close, inactive-driver checks, and intake validation. It does not reproduce persistence or treasury settlement behavior; no tests executed.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/31 exact IDs present",
+    "financial_coordinator": "/31 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

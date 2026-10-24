@@ -1,0 +1,293 @@
+{
+  "artifact_kind": "financial_coordinator_callable_crosscheck",
+  "id": "financial-shift-date-vs-daily-statement-coordinator-crosscheck-2026-10-21",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator; source inspection, not independent reviewer certification",
+  "reviewed_callable": {
+    "stable_id": "sym-0806195d6dac18634817294d2cfd3fd64039c3ce7567c7168c0b8d03191145f3",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetShiftsForBusinessDateAsync(DateOnly, CancellationToken)",
+    "span": [
+      509,
+      525
+    ]
+  },
+  "scope": "Cross-check shift-by-date financial report against timestamp-ranged daily sales and active business-day assignment. Static only; no full shift/day workflow or provider execution.",
+  "assessment": {
+    "status": "CONDITIONAL_REPORTING_COHORT_DIVERGENCE_REQUIRES_POLICY_AND_RUNTIME_TEST; NOT CONFIRMED_RUNTIME_DEFECT",
+    "observed_behavior": "DailyStatementQueryService.GetAsync(date) computes top-level sales over the Cairo [midnight(date), midnight(date+1)) UTC window. Its shift section selects ShiftEntity.BusinessDate == date, then BuildShiftSummaryAsync aggregates all non-cancelled orders by that shift ID without applying the date window. Shift.Open freezes BusinessDate from Cairo date at opening. CheckoutOrderHandler obtains BusinessDayId from BusinessDayGate.TryGetActiveAsync, which returns any Open/Closing/Reopened day without comparing that day BusinessDate to the current Cairo date.",
+    "conditional_interleaving": "If a shift and business day opened on Cairo date D remain open past midnight, and checkout is accepted on D+1 before the prior business day is closed, the order timestamp belongs to D+1 while the order retains the prior active BusinessDayId and ShiftId. The D daily statement can then include that order in a D shift summary but exclude it from D timestamp-ranged top-level sales; the D+1 statement can include it in top-level sales while excluding the D shift from D+1 shift list. Source supports the path, but this exact lifecycle was not executed and actual product policy may expect closure before midnight.",
+    "counterevidence_and_limits": "The business-day close evaluator blocks closure while any shift remains open, and the source comments define business date as Cairo calendar date with no late-night rollover. That does not itself prevent the active day and shift from remaining open after midnight, but may indicate an operator-controlled closure expectation. Existing tests cover Cairo timestamp range and day-level reports separately; no cross-midnight open-shift/order scenario was located in the bounded test scan. Existing finding FIN-015 concerns stale shift admission across shift handover and is distinct per the saved business-day candidate; avoid duplicate attribution.",
+    "financial_effect": "Potential inconsistency among report sections and day-to-shift reconciliation, not evidence of duplicate/missing persisted ledger postings. The impact is conditional on an open operational day/shift crossing Cairo midnight and on consumers expecting date-partitioned shift rows to reconcile to date-partitioned sales.",
+    "recommendation": "First specify the intended boundary invariant: (A) require business day and relevant shift to be closed before Cairo midnight/new date operations, or (B) allow overnight shifts and allocate sales/shift rows by transaction business date rather than shift-open date, or (C) label shift rows as full-shift totals that can cross daily windows. Do not simply add the daily timestamp filter to shift summary without assessing cash reconciliation and late shift close semantics.",
+    "required_regression_tests": [
+      "With fixed Cairo instants, open shift/day on D and submit a valid sale after midnight on D+1 before closure; compare D and D+1 daily statement sales with shift sections and explicit expected policy.",
+      "Control case: close shift and business day on D before midnight, open new day/shift on D+1, assert each report section reconciles to its defined cohort.",
+      "Test rejection/acceptance and business-day attribution after midnight under whichever owner-approved policy is selected; verify persisted BusinessDayId, ShiftId, date summary and close cash snapshot together."
+    ],
+    "execution": "No test, endpoint, database query, clock manipulation, or runtime execution performed."
+  },
+  "canonical_finding": "Not added to MASTER_FINDINGS in this coordinator cross-check; keep as a conditional candidate pending owner policy and independent reviewer challenge. Do not classify as realized accounting loss or runtime-proven defect.",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "ranges": [
+        [
+          3,
+          8
+        ],
+        [
+          23,
+          41
+        ]
+      ],
+      "worktree_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1bb3a3c783e417e3d0f943d07643983d572260e36c4761806f2e74376c63beaf",
+          "signature": "Falah.Domain.Common.BusinessClock.BusinessDate(DateTimeOffset)",
+          "kind": "MethodDeclaration",
+          "span": [
+            23,
+            5,
+            27,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-059843e62021f0c025747f9d5366e5242aa0f0a2edbca5a5745c3ef1d25a7ed6",
+          "signature": "Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(DateOnly)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            41,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Shifts/Shift.cs",
+      "ranges": [
+        [
+          48,
+          49
+        ]
+      ],
+      "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "source_git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-07456821dff799fa96067d9b1b421a75b5fe6b7fbcd8df4c9a9c27431b943287",
+          "signature": "Falah.Domain.Shifts.Shift.Open(string, string, string, Falah.Domain.Common.Money, DateTimeOffset)",
+          "kind": "MethodDeclaration",
+          "span": [
+            48,
+            5,
+            49,
+            104
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+      "ranges": [
+        [
+          23,
+          29
+        ]
+      ],
+      "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7c9ef5cd166574188e64b3145a04e915e577a36ca17e4c539049257f64d5b612",
+          "signature": "Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            23,
+            5,
+            29,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "ranges": [
+        [
+          161,
+          168
+        ]
+      ],
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "ranges": [
+        [
+          35,
+          52
+        ],
+        [
+          509,
+          541
+        ]
+      ],
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0a024320b7efc1353d3f4a6cece9e0b40cdeff88e39386104bb0d2b52d9ea565",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.LoadSalesOrdersAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            52,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0806195d6dac18634817294d2cfd3fd64039c3ce7567c7168c0b8d03191145f3",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetShiftsForBusinessDateAsync(DateOnly, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            509,
+            5,
+            525,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0b19ace3617d0351961154cc594e758dc4855fe5ce5c5058622d80607d3bb17f",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.BuildShiftSummaryAsync(Falah.Infrastructure.Persistence.Entities.ShiftEntity, IReadOnlyDictionary<string, string>, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            527,
+            5,
+            541,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "ranges": [
+        [
+          60,
+          90
+        ],
+        [
+          105,
+          111
+        ]
+      ],
+      "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0debe5a77f4ef4f5426a52025c203952db3a716ea3d073617739930d00911478",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.GetAsync(DateOnly, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            60,
+            5,
+            90,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c2554a0c92aceecc4642db35f5af9633760e9786b465fbae86afcfffedb28271",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.BuildShiftTotals(IReadOnlyList<Falah.Application.Reports.ShiftSummaryDto>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            105,
+            5,
+            111,
+            105
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "ranges": [
+        [
+          26,
+          55
+        ]
+      ],
+      "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-559e31438d5545dc9f65af226d1d54c56254f34e4ad83ede252eaa1e90247290",
+          "signature": "Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.EvaluateAsync(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            55,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        [
+          1986,
+          1995
+        ]
+      ],
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": []
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "ranges": [
+        [
+          75,
+          81
+        ],
+        [
+          371,
+          384
+        ]
+      ],
+      "worktree_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "source_git_blob_sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint",
+      "relevant_symbols": []
+    }
+  ]
+}

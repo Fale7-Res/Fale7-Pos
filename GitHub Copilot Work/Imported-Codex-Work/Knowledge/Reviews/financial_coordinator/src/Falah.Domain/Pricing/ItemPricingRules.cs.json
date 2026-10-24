@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+  "source_git_blob_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+  "worktree_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:31:04.645155+00:00",
+  "symbols": [
+    {
+      "stable_id": "sym-4043fa258d8bf43c6a05f266e4deb5b0b3015107932148158ffeaa0d6fdb6b69",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Pricing.ItemPricingRules.Resolve(string, Falah.Domain.Common.Money, string?, IEnumerable<Falah.Domain.Pricing.PriceRule>, DateTimeOffset, TimeZoneInfo)",
+      "span": [
+        19,
+        5,
+        27,
+        6
+      ],
+      "reasoning": "Delegates requested rule to PricingRules.ValidateAppliedRule for matching product, active/time/day eligibility. Null/invalid result freezes unchanged list price with null rule metadata; valid result freezes rule.FixedPrice/id/name. It never accepts client-supplied effective price, but list-price source trust remains caller responsibility. Both branches preserve original list price for reporting.",
+      "inputs": "Declared arguments and explicitly described object/configuration/clock state; no operational records inspected.",
+      "outputs": "Exact declared result or guard/append/worker effect described individually above.",
+      "side_effects": "Clock/pricing/audit source is read-only except in-memory Append. Scheduler production paths can create/verify/delete backup files and update records; none executed.",
+      "trust_boundaries": "Actor authorization belongs financial handlers; system backup identity is trusted scheduling policy, not a user permission bypass demonstrated here.",
+      "database": "No persistence in pure domain methods. Scheduler EF queries and SaveChanges specifically documented; no DB connection made by audit.",
+      "printing_ui": "Reporting date/price results support financial UI; no UI visual or printer workflow restarted.",
+      "performance": "Date helpers constant-time except Days iteration; backup cycles sequential with history pruning materialization, no measured resource claims.",
+      "duplicates_conflicts": "Cairo date resolver used across reports; normalization mismatch tracked separately. Pricing resolves central rule rather than duplicating offer math.",
+      "issues_hypotheses": "Delegates requested rule to PricingRules.ValidateAppliedRule for matching product, active/time/day eligibility. Null/invalid result freezes unchanged list price with null rule metadata; valid result freezes rule.FixedPrice/id/name. It never accepts client-supplied effective price, but list-price source trust remains caller responsibility. Both branches preserve original list price for reporting.",
+      "tests_missing": "Boundary dates/DST/reversed scopes; invalid backup numeric configuration; verified-retention and filesystem/SaveChanges failures on authorized disposable fixture. No runtime execution claimed.",
+      "verified_callers_callees": "BusinessClock full source1-83; ItemPricing Resolve plus PricingRules validation source; scheduler1-158 plus BackupRules due/retention guards read. EF implementation/provider behavior not runtime verified."
+    }
+  ],
+  "scope": "Explicit per-callable static financial reasoning; original reviewer shards retained; no live application execution.",
+  "remaining_callable_ids": []
+}

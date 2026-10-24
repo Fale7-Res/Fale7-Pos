@@ -1,0 +1,120 @@
+{
+  "artifact": "financial-payroll-candidate-independent-challenge-latest",
+  "created_utc": "2026-10-21",
+  "scope": "Read-only challenge of canonical FIN-CAND-PAYROLL-001 and separate settlement/payroll obligation candidate; residual 213 receipt-quality assessment.",
+  "payroll_candidate": {
+    "canonical_id": "FIN-CAND-PAYROLL-001",
+    "title": "Concurrent pay/cancel can overwrite payroll terminal status",
+    "canonical_status": "INDEPENDENTLY_CORROBORATED_STATIC_FINDING",
+    "canonical_confidence": "HIGH_STATIC_WITH_QUALIFICATIONS_NO_SQL_REPRODUCTION",
+    "disposition": "CORROBORATED_STATIC_MECHANISM_WITH_QUALIFICATIONS",
+    "confidence": "High for the source-described stale-read/control-flow gap; database outcome not runtime-confirmed.",
+    "sources": [
+      {
+        "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+        "signature": "TransitionPayrollHandler.HandleAsync(TransitionPayrollRequest, CancellationToken)",
+        "lines": [
+          24,
+          60
+        ],
+        "sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+        "finding": "Reads tracked run and validates transition at 34-37; later assigns target status and saves at 55-59. No shared transaction or conditional status predicate appears in this range."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+        "signature": "PayPayrollHandler.HandleAsync pre-transaction status validation",
+        "lines": [
+          62,
+          87
+        ],
+        "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+        "finding": "Loads run, recognizes already-Paid replay, requires Approved, then loads lines before transaction."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+        "signature": "PayPayrollHandler.HandleAsync payment transaction",
+        "lines": [
+          110,
+          162
+        ],
+        "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+        "finding": "Transaction locks treasury source balance at 118-119; writes movement/journal, payroll settlement ledger rows, Paid status and commits at 149-162. Lock protects liquidity, not run status."
+      },
+      {
+        "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "signature": "PayrollRules.AssertTransition",
+        "lines": [
+          13,
+          27
+        ],
+        "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+        "finding": "Approved permits Paid or Cancelled; both are terminal for a fresh read. Stale validation is outside this protection."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+        "signature": "PayrollRunEntity mapping",
+        "lines": [
+          460,
+          477
+        ],
+        "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+        "finding": "Unique idempotency and filtered one-live-run-per-period index; no run concurrency token/configuration visible in this mapping."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+        "signature": "PayrollRunEntity",
+        "lines": [
+          5,
+          20
+        ],
+        "sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+        "finding": "Status and payment metadata present; no Version/rowversion property in entity."
+      }
+    ],
+    "counterevidence": [
+      "Same-run idempotency/replay and unique journal/movement protect repeated same-run payment; this is not a demonstrated duplicate same-run payout.",
+      "Source-balance lock is real and protects account sufficiency, but does not serialize payroll status.",
+      "Fresh transition rules reject invalid terminal transitions.",
+      "Filtered live-period index may reject some schedules that attempt to restore Paid after a replacement run; candidate schedule excludes replacement.",
+      "No generated EF SQL, production isolation level, or external serialization was executed or ruled out."
+    ],
+    "runtime": "Static only; no build, SQL, DB writes, or concurrency execution. Predicted final state is not observed."
+  },
+  "separate_obligation_overlap": {
+    "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+    "evidence": "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-coordinator-cross-check.json",
+    "distinction": "Different mechanism: payroll status race is pay versus cancel on one Approved run; overlap candidate asks whether prior standalone EmployeeLedger Settlement is netted against frozen period payroll. Do not merge or treat one as evidence for the other.",
+    "source_confirmed_mechanics": [
+      "Standalone PayEmployee locks employee ledger balance and atomically posts a Settlement debit plus treasury movement.",
+      "CreatePayroll gathers entries in the calendar period; PayrollRules counts specified earnings/deduction categories but does not subtract Settlement. PayPayroll pays frozen NetPayable and posts PayrollSettlement."
+    ],
+    "counterevidence_and_policy": [
+      "Standalone payment is described in code as an any-time mode, which could intentionally be separate.",
+      "Whether Settlement prepays same-period earnings or a distinct obligation is an owner policy question.",
+      "No combined sequence/runtime/SQL test was executed; do not claim an observed duplicate payment."
+    ],
+    "owner_decision": "Decide whether standalone Settlement is a prepayment against period earnings or a separate payable; then define netting or mutual exclusion."
+  },
+  "residual_213": {
+    "manifest": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json",
+    "batch_entries": [
+      97,
+      13,
+      19,
+      32,
+      52
+    ],
+    "total": 213,
+    "conclusion": "All 213 have individual stable ID, source path/hash, signature/span and review disposition/control-flow notes: these are more than bare count-only receipts. They are not 213 distinct substantive accounting analyses: many repeat method-level flow classifications and large groups are NOT_APPLICABLE, presentation-only, or no-accounting-mutation. Specific material reasoning is concentrated in two print/query findings and two renderer/layout findings; nonfinancial tests receive explicit N/A classification.",
+    "limitations": [
+      "Exact completed source/symbol triage set, not proof of 213 material findings or runtime correctness.",
+      "Static triage only; tests not run and no provider, SQL, physical print, or runtime execution."
+    ]
+  },
+  "reviewed_artifacts": [
+    "Codex Work/Deep-Audit/Database-and-Finance/parent-financial-findings.json",
+    "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-coordinator-cross-check.json",
+    "Codex Work/Sub-Agents/Handoffs/financial-five-candidates-repair-readiness-supplement.json",
+    "Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json"
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "artifact_kind": "substantive_callable_review_batch",
+  "id": "financial-residual-213-substantive-batch-01",
+  "created_utc": "2026-10-21T06:25:13Z",
+  "assignment": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-01-assignment.json",
+  "decision": "10/10 selected financial-facing PrintRules callables substantively reviewed from actual method bodies and their PrintJobQueryService call paths. All are read-only ticket composition. They can affect what a cashier/customer/driver sees, including collect amount and payment state, but do not mutate accounting. No defect established in these 10.",
+  "scope": "First 10 non-lambda callables from the residual financial presentation/support queue, ordered as persisted in the PrintRules batch. Static source only. No tests executed.",
+  "source_files": [
+    {
+      "path": "src/Falah.Domain/Printing/PrintRules.cs",
+      "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "roles": "Pure composition of monetary receipt, detailed-order and delivery ticket elements."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "roles": "Loads PrintJob and order data AsNoTracking, maps persisted money to domain Money/TicketItem/ReceiptTotals, invokes PrintRules, and maps composed elements to DTO."
+    }
+  ],
+  "caller_path_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "range": [
+        99,
+        150
+      ],
+      "reasoning": "ComposeTicketContentAsync loads the print job, skips order path for shift/expense documents, loads the order and items AsNoTracking for order documents, dispatches Receipt/CallCenter/DeliveryOrder/DriverDispatch to composition methods, then maps the ComposedTicket to a DTO and marks reprint. This method has reads and projection; it does not create the print job or post any sale/refund/expense/tender."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "range": [
+        257,
+        307
+      ],
+      "reasoning": "ComposeReceiptAsync maps frozen OrderEntity fields (subtotal, discounts, tax, fees, comp, total, amount paid, change, payment method, electronic pending, IsPaid) into ReceiptHeader and ReceiptTotals, then calls ComposeReceiptTicket. ComposeDeliveryOrderAsync uses the same persisted monetary fields, computes outstanding as max(0,total-paid), and calls CheckoutRules.IsCashOnDelivery before invoking ComposeDeliveryOrderTicket."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "range": [
+        313,
+        345
+      ],
+      "reasoning": "ComposeDriverDispatchAsync loads delivery/assignment history, reads payment fields from the order and derives COD via CheckoutRules.IsCashOnDelivery; amountToCollect is max(0,total-paid). It passes these values to ComposeDriverDispatchTicket."
+    }
+  ],
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-ef3f9f2ed75e468cf22ef31c93b5f01e2871d6278f4bb3af2b5a90866ecdf1ae",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeReceiptTicket(Falah.Domain.Printing.PrintRoute, Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "range": [
+        89,
+        108
+      ],
+      "caller": "PrintJobQueryService.ComposeReceiptAsync, lines 257-278; invoked under ComposeTicketContentAsync route dispatch at lines 128-134.",
+      "callees": "ComposeCustomerNumberSection and ComposeCashierDetailSection for Receipt; ComposeDetailedOrderSection for CallCenter; creates ComposedTicket only.",
+      "actual_behavior": "Rejects non-customer routes. Receipt route emits customer number then cashier detail; other allowed customer route uses detailed order layout. It consumes provided header/items/totals and returns ticket data.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: selects which customer-facing financial receipt layout appears. No calculation of an amount and no accounting persistence."
+    },
+    {
+      "stable_id": "sym-a351329f8a343a30737e6b02af7e1f286006717468b4b193a7910246b53e55cc",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCashierDetailSection(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "range": [
+        147,
+        200
+      ],
+      "caller": "ComposeReceiptTicket at line 98.",
+      "callees": "TicketLayout helpers; iterates item snapshots; ComposeCashierTotals at line 196; ComposeBrandFooter at line 199.",
+      "actual_behavior": "Builds cashier detailed receipt identity, delivery/customer fields where applicable, item rows and offer annotations, then totals/payment information and footer. Uses each provided item and frozen offer snapshot fields.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: carries item prices/offer and totals to paper; no new arithmetic or state mutation in this method. Incorrect layout could mislead a human, but no incorrect value is demonstrated by the body."
+    },
+    {
+      "stable_id": "sym-4c4a46c0a454ba87768a1792ea8ca383c65ad458bb0e8a3c25b67c7bef90a068",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCashierTotals(Falah.Domain.Printing.ReceiptHeader, Falah.Domain.Printing.ReceiptTotals)",
+      "range": [
+        236,
+        260
+      ],
+      "caller": "ComposeCashierDetailSection at line 196.",
+      "callees": "TicketLayout.SlipLine/MoneyLine; DescribePaymentMethod at line 257; CheckoutRules.IsCashOnDelivery at line 256 when classifying unpaid orders.",
+      "actual_behavior": "Formats supplied subtotal, discount, comp, delivery fee, tax and total; then determines display state from persisted header IsPaid or amount-paid fallback, gives pending-electronic state precedence, otherwise shows paid/COD/unpaid; displays supplied paid and change values.",
+      "financial_relevance": "FINANCIAL_PRESENTATION with human decision relevance. It displays persisted payment state and values but does not derive or post amounts. COD check only labels state."
+    },
+    {
+      "stable_id": "sym-414caa833061f2c487be830db6a2b04699a9c38dbeec5cae6a53275f11bd80de",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDetailedOrderSection(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals)",
+      "range": [
+        265,
+        292
+      ],
+      "caller": "ComposeReceiptTicket at line 105 for the non-Receipt customer route (CallCenter).",
+      "callees": "ComposeItemTable at line 288; ComposeTotals at line 289; TicketLayout helpers.",
+      "actual_behavior": "Formats order identity, customer/delivery fields, pending-electronic notice, item table and totals from supplied values. No writes or new money calculation.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: exposes order cost and payment details to call-center workflow; not a posting path."
+    },
+    {
+      "stable_id": "sym-077cc40a76a3964f7882c8b0461b426c8865cc747f4c06df106676e23cb3c496",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDeliveryOrderTicket(Falah.Domain.Printing.ReceiptHeader, IReadOnlyList<Falah.Domain.Printing.TicketItem>, Falah.Domain.Printing.ReceiptTotals, Falah.Domain.Printing.DeliveryOrderTicketInfo)",
+      "range": [
+        299,
+        329
+      ],
+      "caller": "PrintJobQueryService.ComposeDeliveryOrderAsync at lines 284-307.",
+      "callees": "ComposeItemTable, ComposeTotals, ComposeCollectionInstruction; TicketLayout.",
+      "actual_behavior": "Formats delivery order, items, totals, supplied amount-to-collect/COD/pending flags and delivery instructions. Adds operational disclaimer that this is not the customer receipt.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: amount-to-collect text can guide physical collection; its inputs are supplied by caller from order/payment snapshot and CheckoutRules. Ticket composition itself does not collect or record money."
+    },
+    {
+      "stable_id": "sym-695d0b0fc9a412b1c6219c3588152c306c328d6785d5ee9750a0608d16af7777",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeDriverDispatchTicket(string, string, string, string, string?, string?, string?, string?, Falah.Domain.Common.Money, bool, bool, string?, DateTimeOffset, bool)",
+      "range": [
+        337,
+        370
+      ],
+      "caller": "PrintJobQueryService.ComposeDriverDispatchAsync at lines 313-345.",
+      "callees": "ComposeCollectionInstruction at line 359; TicketLayout helpers.",
+      "actual_behavior": "Formats dispatch identity, assigned driver, reassignment marker, delivery details and collection instruction from caller-supplied COD/pending/amount values. Does not change order or custody records.",
+      "financial_relevance": "FINANCIAL_PRESENTATION with operational collection relevance: driver may rely on the paper instruction, but this method has no money-moving side effect and does not choose COD itself. Caller delegates that classification to CheckoutRules."
+    },
+    {
+      "stable_id": "sym-a1b0356cef90b6be1df774c4e53b9b6d1462d50cc8b56d39e56d8cbd3ecedcbf",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeItemTable(IReadOnlyList<Falah.Domain.Printing.TicketItem>, bool)",
+      "range": [
+        372,
+        385
+      ],
+      "caller": "ComposeDetailedOrderSection line 288 and ComposeDeliveryOrderTicket line 316.",
+      "callees": "TicketLayout.ItemTableHeader, ItemRow and ItemAnnotations.",
+      "actual_behavior": "Iterates supplied TicketItem objects and renders rows plus saved offer annotations; it uses item fields rather than summing/repricing them.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: unit and line-price information is shown for reconciliation, but the function neither calculates nor persists order totals."
+    },
+    {
+      "stable_id": "sym-3a47cbd8f29a1b6f5670568f6965983235085c03a8024888f1c8cf51bb72478c",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeTotals(Falah.Domain.Printing.ReceiptTotals)",
+      "range": [
+        387,
+        401
+      ],
+      "caller": "ComposeDetailedOrderSection line 289 and ComposeDeliveryOrderTicket line 317.",
+      "callees": "TicketLayout.MoneyLine/Field; DescribePaymentMethod at line 397.",
+      "actual_behavior": "Formats supplied subtotal, discount, comp, tax, delivery fee, total, payment-method label, paid amount and change. Adds display signs based on labels; no arithmetic is performed.",
+      "financial_relevance": "FINANCIAL_PRESENTATION: values may inform reconciliation/collection, but inputs are the order snapshot and this function only formats them."
+    },
+    {
+      "stable_id": "sym-e0f8b501a2a8c071a44eace1d252ca52aa5f3e2d2778a0556f92545befed92ff",
+      "signature": "Falah.Domain.Printing.PrintRules.ComposeCollectionInstruction(bool, bool, Falah.Domain.Common.Money)",
+      "range": [
+        406,
+        425
+      ],
+      "caller": "ComposeDeliveryOrderTicket line 318 and ComposeDriverDispatchTicket line 359.",
+      "callees": "TicketLayout.Rule/MoneyLine and TicketText constructors only.",
+      "actual_behavior": "If cash-on-delivery, prints supplied amount; else if electronic payment pending, warns it is unconfirmed and not to hand over; otherwise prints prepaid/no collection. Branches on supplied flags and amount, performs no reclassification, query, or write.",
+      "financial_relevance": "FINANCIAL_PRESENTATION with strongest direct human-action relevance: may guide collection or release. The cited caller derives amount as max(0,total-paid) and COD with CheckoutRules; no defect proven here."
+    },
+    {
+      "stable_id": "sym-5f4e6e86d94cd61241387a3242b762d812b4e9679c29d0c3eddaeb4c09378740",
+      "signature": "Falah.Domain.Printing.PrintRules.DescribePaymentMethod(Falah.Domain.Financial.PaymentMethod)",
+      "range": [
+        464,
+        472
+      ],
+      "caller": "ComposeCashierTotals line 257 and ComposeTotals line 397.",
+      "callees": "Enum switch; no external calls.",
+      "actual_behavior": "Maps Cash/Card/InstaPay/Wallet/Multi to Arabic labels and falls back to enum ToString for unknown value.",
+      "financial_relevance": "FINANCIAL_PRESENTATION_SUPPORT: label-only, can affect human interpretation but does not alter method, amount, tender or ledger state."
+    }
+  ],
+  "accounting_effect_assessment": {
+    "writes": "None in the ten reviewed PrintRules methods. They construct TicketElement and ComposedTicket values; no DB/context/service dependencies or persistence calls.",
+    "upstream_values": "PrintJobQueryService reads orders/items AsNoTracking and copies stored piastre values to Money. Delivery/dispatch collection amount is max(0,total-paid); COD classification is delegated to CheckoutRules, reused by checkout according to source comments.",
+    "downstream_effect": "A physical receipt/dispatch slip can influence a human cashier/driver. That operational relevance is why these are financial-presentation functions; it does not demonstrate a ledger mutation, incorrect collection, or defect.",
+    "counterevidence_and_limit": "No method here recomputes order amounts from the displayed components. This batch did not audit all upstream checkout persistence or physical printer output, and no tests were run."
+  },
+  "analyzed_ids": [
+    "sym-ef3f9f2ed75e468cf22ef31c93b5f01e2871d6278f4bb3af2b5a90866ecdf1ae",
+    "sym-a351329f8a343a30737e6b02af7e1f286006717468b4b193a7910246b53e55cc",
+    "sym-4c4a46c0a454ba87768a1792ea8ca383c65ad458bb0e8a3c25b67c7bef90a068",
+    "sym-414caa833061f2c487be830db6a2b04699a9c38dbeec5cae6a53275f11bd80de",
+    "sym-077cc40a76a3964f7882c8b0461b426c8865cc747f4c06df106676e23cb3c496",
+    "sym-695d0b0fc9a412b1c6219c3588152c306c328d6785d5ee9750a0608d16af7777",
+    "sym-a1b0356cef90b6be1df774c4e53b9b6d1462d50cc8b56d39e56d8cbd3ecedcbf",
+    "sym-3a47cbd8f29a1b6f5670568f6965983235085c03a8024888f1c8cf51bb72478c",
+    "sym-e0f8b501a2a8c071a44eace1d252ca52aa5f3e2d2778a0556f92545befed92ff",
+    "sym-5f4e6e86d94cd61241387a3242b762d812b4e9679c29d0c3eddaeb4c09378740"
+  ],
+  "pending_relevant_queue_count": 84,
+  "pending_relevant_queue_source": "Derived as the 94 exact IDs in the saved residual handoffs with dispositions FINANCIAL_PRESENTATION, FINANCIAL_PRESENTATION_SUPPORT, FINANCIAL_PRESENTATION_AUDIT_MARKING, FINANCIAL_PRESENTATION_WARNING, PRESENTATION_ONLY_OR_INDIRECT, or FINANCIAL_PRESENTATION_AUDIT, less the 10 analyzed IDs. See pending_relevant_ids property appended after derivation.",
+  "limitations": [
+    "Static source only.",
+    "No tests run.",
+    "No runtime, SQL/provider, API or physical printer behavior verified.",
+    "This batch's 10 callable analyses do not change the global 8,804 substantive-depth status or 327-file completion gate."
+  ],
+  "pending_relevant_ids": [
+    "sym-00759ae2c2172a131a01b2e5b318cbd84f0f1ea06d14969cc8a7024a5d9387b7",
+    "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+    "sym-0a2d46bfba857733a9fcc943ae9a973e55be1de2c9f3fcc2dd36f570816019d8",
+    "sym-0b6e3bbdb8f25d0f906213d9c5272cc5b9ad3b212d0555d2577998ed095da2c1",
+    "sym-0dea86126f84db914fae54490e34ffa959f8d0dc2dc99153512ad435929e6586",
+    "sym-0e89a2f33ddd9bd0153d2c14c12a41fe40c961301e4915169dad8d5b7b9c69d3",
+    "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+    "sym-12caec188e668627d143f874382357cbd7e56d0a6454f43330866056ae3c5ebb",
+    "sym-15e22c415f59e2e756c0fca35f40baec27fcabf8dc5bd6a3061d9f02832a6281",
+    "sym-18cafeccb4e8b74540fe727ccfa17761c59f135c6f878d4e60ac65c9d649ba89",
+    "sym-1abd25cadaf889820b2dce1949645e50b9bd4e0e25c88a819ff3bd8f761f6a88",
+    "sym-1aca6f097cfe49a340df18b29561a832e401f0aeda27e676b7d0b7138396ce3b",
+    "sym-1ecfc0a46a4ff535ede556b351019e7b251c05b1e9ac847bea69e42df5d65819",
+    "sym-1ee92b37b87b522d3b8dd50b289b3de1d4a01239f2914d353927979179ce1bd2",
+    "sym-23da0b45e4164917169060adc3329ed18c2adb008b6ca2486fc181f00c99d328",
+    "sym-25feaf1735a0ac547b0637b0715cf862f157b4fa5c98b9cea5c411b3512aecf9",
+    "sym-2679747f78547e6796b6ff1233c7d73cbd6d1a08195b62d2c2bbe6151a60b37b",
+    "sym-288709211262d2afcbb8d962725ae7d3c6c4a634ed55d610373c9da7305f1d1a",
+    "sym-2b4a41d6126cf616df59838f4a536165203b837c4931950b027d5ea7e3db6f96",
+    "sym-2ce2dc03ad514a699a680c72815c82e9c6946204d4169b1df9f81830c779ef18",
+    "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a",
+    "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed",
+    "sym-40dbc5c24a604b7b3ed6ef6749a13f0f652daaeb2db18ad9d7c9795d653eca3f",
+    "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9",
+    "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90",
+    "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245",
+    "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89",
+    "sym-5742b07959753ad1947e6783759d2e282c4a001f8c3289ec22a367b917ad6286",
+    "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168",
+    "sym-62de151e444df725435d1f41f8eb9f260b56f1f80bf7c1798ff12c1e063a078d",
+    "sym-6c03bda4a838e0362bc8222a32c318e754b31a776a565edfd0693c6c682815c1",
+    "sym-70de7a2711a7e070047f6fb39bff0debb9c322d2845bd5482de3326d54990dc4",
+    "sym-70fcf024ebcd66208c4d8e75c8f908d25e2c52ca06a7a07e335aafca03a2a50a",
+    "sym-7416f9be0e5e18e3f12dc9fe70291d6bcaad53a6ea21268b8ce5ac315f6ed313",
+    "sym-770982e2e7dac5b5bfbbb35322473d1acef9a103024becbc72aa19ef329bf387",
+    "sym-77865f1b79a9809e6659dc558788bcd8b94d3b0689553284c1d1af2cd1f20698",
+    "sym-791a215431df977b542324f1d6c30df66047064ec23e0550b44531e7f1853d0f",
+    "sym-7de267adc6d5ea614202a0ac280d89e3d7d92834416c422edff2b0dc40f0436c",
+    "sym-80371f8d36740fe7bf1eecd6b8a99d23056a55d12e24d0c385bfb20555d49875",
+    "sym-85f8c7eb34deca96a636dba2214a40c26ec2de23f993e175f91e420d08fca331",
+    "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+    "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+    "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+    "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+    "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d",
+    "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+    "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+    "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+    "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+    "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+    "sym-a57ae20ea32acb1cb86514516aea44b270cafec7c803b9e1c76c8f72455c07ca",
+    "sym-b0e426b0a9c2ffb3ec1e20a652d085e49e861a3112f2b069c4f9f76b36f05e33",
+    "sym-b38c92e2aa1cef5dc2976f7656370635af13578727943866471415a065f89f2c",
+    "sym-b407e27ee608a533415e75d0cf6ff371c1953ad8e832ed46648943aa63eaba94",
+    "sym-b5d02765cc73eb502bce00fe1d7fa69e5d505e4ab7d3528c6cbe64df1db3be99",
+    "sym-b72cee84fa9eb3496d45c0e7ea3ef2d3e77413091522986f2fe040b4a149bc11",
+    "sym-bc1982a176b054923f1a82a06a7f7fd41994f3b60f8a71cd9b7ffafb828d1e0b",
+    "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+    "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+    "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+    "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+    "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+    "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+    "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+    "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+    "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+    "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+    "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+    "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+    "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8",
+    "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+    "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+    "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+    "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+    "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+    "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+    "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+    "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+    "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+    "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+    "sym-f805f241abf3b0bf1b21618393033650c96e27a67a4a4aaebf7065a83890e0c0",
+    "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+    "sym-fed148bcba2be9afb960a340a25bf41eb48c4ed2acb6cc24138b8d16c79e4fab",
+    "sym-ffa25b5be7db6378758309023b1d9190ad95017c67dffcea4a6b0fea10d701a5"
+  ]
+}

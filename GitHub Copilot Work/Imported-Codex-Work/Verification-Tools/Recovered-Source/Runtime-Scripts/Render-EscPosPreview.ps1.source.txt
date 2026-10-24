@@ -1,0 +1,37 @@
+param([switch]$Live)
+$ErrorActionPreference='Stop'
+Add-Type -AssemblyName System.Drawing
+$inputDirectory=if($Live){Join-Path $PSScriptRoot 'live-print-output\Receipt'}else{Join-Path $PSScriptRoot 'print-output'}
+$outputDirectory=if($Live){Join-Path $PSScriptRoot 'receipt-preview'}else{Join-Path $PSScriptRoot 'print-output'}
+New-Item -ItemType Directory -Path $outputDirectory -Force|Out-Null
+$ticket = Get-ChildItem -LiteralPath $inputDirectory -Filter '*.escpos' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if (!$ticket) { throw 'No generated ESC/POS file exists.' }
+$bytes=[IO.File]::ReadAllBytes($ticket.FullName)
+$page=0
+for($offset=0; $offset -lt $bytes.Length-8; $offset++) {
+    if($bytes[$offset] -ne 0x1d -or $bytes[$offset+1] -ne 0x76 -or $bytes[$offset+2] -ne 0x30 -or $bytes[$offset+3] -ne 0) { continue }
+    $widthBytes=[int]$bytes[$offset+4]+256*[int]$bytes[$offset+5]
+    $height=[int]$bytes[$offset+6]+256*[int]$bytes[$offset+7]
+    $count=$widthBytes*$height
+    if($widthBytes -le 0 -or $height -le 0 -or $offset+8+$count -gt $bytes.Length) { throw 'Invalid raster dimensions in generated output.' }
+    $bitmap=[Drawing.Bitmap]::new($widthBytes*8,$height,[Drawing.Imaging.PixelFormat]::Format1bppIndexed)
+    try {
+        $palette=$bitmap.Palette
+        $palette.Entries[0]=[Drawing.Color]::White
+        $palette.Entries[1]=[Drawing.Color]::Black
+        $bitmap.Palette=$palette
+        $rect=[Drawing.Rectangle]::new(0,0,$bitmap.Width,$bitmap.Height)
+        $data=$bitmap.LockBits($rect,[Drawing.Imaging.ImageLockMode]::WriteOnly,[Drawing.Imaging.PixelFormat]::Format1bppIndexed)
+        try {
+            for($row=0;$row -lt $height;$row++) {
+                [Runtime.InteropServices.Marshal]::Copy($bytes,($offset+8+$row*$widthBytes),[IntPtr]::Add($data.Scan0,$row*$data.Stride),$widthBytes)
+            }
+        } finally { $bitmap.UnlockBits($data) }
+        $page++
+        $path=Join-Path $outputDirectory "preview-$page.png"
+        $bitmap.Save($path,[Drawing.Imaging.ImageFormat]::Png)
+        Write-Output "Decoded actual ESC/POS raster: $($bitmap.Width)x$height, page $page, $path"
+    } finally { $bitmap.Dispose() }
+    $offset+=7+$count
+}
+if($page -eq 0) { throw 'No bitmap raster was found in generated output.' }

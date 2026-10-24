@@ -1,0 +1,105 @@
+{
+  "id": "financial-integrity-current-reconciliation-followup",
+  "created_utc": "2026-10-21",
+  "assignment": "Independent bounded reconciliation of the latest coordinator quality/coverage artifacts, finance report, canonical payroll gate, and prior exact-range handoff.",
+  "decision": "Residual 213 symbol dispositions are complete; finance completion remains INCOMPLETE. Payroll exact ranges are present and current hashes match, but the gate retains stale candidate-level missing markers. Report has explicit current counts but substantive-depth and report synchronization gaps remain.",
+  "exact_membership": {
+    "denominator": 8804,
+    "prior_union_receipts": 7602,
+    "continuation_ids": 989,
+    "residual_ids": 213,
+    "verified_sum": 8804,
+    "unmatched_or_duplicate_ids": 0,
+    "residual_id_check": "213 batch entries, 213 unique; no duplicate/missing/unknown/pending; coordinator validates 213/213 hashes, spans and symbol IDs.",
+    "qualification": "Membership of evidence and residual dispositions is exact; it is not proof that all 8,804 callable bodies have independently certified semantic depth."
+  },
+  "file_scope": {
+    "financial_report_files": 327,
+    "file_report_entries": 327,
+    "ledger_coverage_complete": false,
+    "substantive_depth": "NOT_INDEPENDENTLY_CERTIFIED_FOR_ALL applicable callables",
+    "interpretation": "327 is a file-report denominator, not a callable/function-depth coverage certificate. Residual triage does not close older 7,602 and 989 receipt-quality review."
+  },
+  "payroll_range_gate": {
+    "gate_at": "2026-10-21T03:43:44.789Z",
+    "top_level_missing_exact_ranges": 0,
+    "correction": {
+      "status": "PASSED_METADATA_AND_SOURCE_HASH",
+      "path_count": 8,
+      "range_count": 12,
+      "callable_context_count": 14,
+      "missing_exact_ranges_after": 0,
+      "limitation": "This validates references and source hashes, not the accounting requirement or runtime combined-payout behavior."
+    },
+    "expected_paths": 8,
+    "paths_present": 8,
+    "range_count": 12,
+    "context_count": 14,
+    "hash_validation": "All 8 references are present in canonical gate; each current worktree SHA-256 independently matches the canonical reference, and exact ranges are in the payroll range handoff. Correction status PASSED_METADATA_AND_SOURCE_HASH; zero errors.",
+    "inconsistency": "The gate candidate still has an 8-entry missing_exact_references array with old reasons, even though each path now has evidence_ranges, top-level references_missing_exact_ranges=0, and payroll_range_correction says missing_exact_ranges_after=0. Treat the correction as effective but regenerate/normalize the derived gate to remove stale candidate-level markers or clearly mark them historical.",
+    "ranges_handoff": "Codex Work/Sub-Agents/Handoffs/financial-payroll-overlap-range-and-residual-reconciliation.json"
+  },
+  "finding_reference_assessment": {
+    "result": "The original 8 missing exact range gaps have been repaired in the current gate references; no missing path is absent. A stale duplicate marker remains in the gate JSON as above. Broader gate is metadata-only: 39 records/119 source paths and zero mapping errors do not prove every finding has adequate semantic evidence or implementation-ready acceptance criteria."
+  },
+  "payroll_overlap": {
+    "status": "Conditional cross-flow/policy question; no confirmed duplicate pay.",
+    "source_supported_mechanics": "Standalone PayEmployee can pay Settlement from current running employee balance independent of payroll run. CreatePayroll selects period ledger entries and freezes NetPayable. PayrollRules.CalculatePayrollLines excludes Settlement from payroll earning/deduction calculations, and PayPayroll pays frozen lines in a separate atomic financial transaction. Thus source shows potential sequence overlap if policy permits standalone payment after the period payroll is frozen, but does not establish actual sequence or violation.",
+    "counterevidence": "Distinct flows/permissions and clear documented business rule for standalone anytime payout coexist with separately gated payroll. Existing standalone and payroll integration tests cover each path separately; no same-period combined sequence test was identified. Coordinator cross-check corroborates handler mechanics.",
+    "disposition": "Do not assert a duplicate-pay defect. Requires explicit owner policy on intended standalone/payroll interaction and a combined-sequence test if overlap should be prevented."
+  },
+  "report_reconciliation": {
+    "current_note": "Top note at 2026-10-21 says 7,602 + 989 + 213 = 8,804 exact membership; 213 dispositions; payroll refs 8 paths/12 ranges/14 contexts; 39 registry records, severity 16/22/1.",
+    "historical_snapshot_handling": "Report now explicitly labels body below as historical (7,516/1,288 at 2026-10-20 03:07); intermediate validation 7,524/1,280 (03:08); union snapshot 7,602/1,202 pending (03:11). Chronology reconciles the figures; retain them only as historical, not current totals.",
+    "current_table_gap": "Report itself says historical findings table omits FIN-029 and FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001; table is not synchronized to the current 39-record registry. FIN-029 should be reconciled as potential corroboration/duplicate of FIN-013, not double-counted without distinct mechanism.",
+    "other_doc_gaps": [
+      "Report still preserves 35/95 generated-context count; current reconciliation says reconcile inventory or omit as historical.",
+      "Report needs final repair specifications / acceptance criteria and duplicate/corroboration cleanup; current coverage lists independent cross-review of material findings incomplete.",
+      "327 file entries and 8,804 membership do not certify substantive analysis for every applicable declaration."
+    ],
+    "readiness": "NOT_IMPLEMENTATION_READY: metrics are now explicitly time-qualified and count arithmetic reconciles, but registry/table synchronization, generated-context denominator, depth claims, repair specs, and independent material-finding cross-review remain incomplete."
+  },
+  "residual_scope": {
+    "status": "COMPLETE_FOR_213_ID_QUEUE_ONLY",
+    "counts": {
+      "NOT_APPLICABLE_TO_FINANCE": 99,
+      "FINANCIAL_PRESENTATION": 45,
+      "FINANCIAL_PRESENTATION_SUPPORT": 5,
+      "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+      "FINANCIAL_PRESENTATION_WARNING": 5,
+      "PRESENTATION_ONLY_OR_INDIRECT": 28,
+      "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+      "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+      "FINANCIAL_PRESENTATION_AUDIT": 8
+    },
+    "quality_status": "RESIDUAL_QUEUE_COMPLETE_AT_SYMBOL_DISPOSITION_AND_METADATA_LEVEL; full financial completion gate remains open.",
+    "semantic_custody": "Coordinator SEM-MIRROR-026 corroborates likely shift-scope presentation defect: all-open custody warning on slip without ShiftId, against shift-scoped helper/tests/comments; no expected-cash/ledger effect, runtime or owner-policy decision."
+  },
+  "remaining_repair_ready_documentation_gaps": [
+    "Normalize or regenerate gate so candidate missing_exact_references no longer contradicts zero top-level missing; preserve corrected evidence ranges and 8 path/hash mapping.",
+    "Update current findings table to include FIN-029 and payroll-overlap candidate; reconcile FIN-029/FIN-013 as corroborating versus distinct root causes.",
+    "Resolve or remove historical 35/95 generated-context claims against current inventory.",
+    "Add final material finding repair specifications and implementation-ready acceptance criteria, then perform independent cross-review."
+  ],
+  "non_documentation_gates": [
+    "Independent substantive-depth review for all applicable callables remains incomplete; not repairable by receipt count alone.",
+    "SQL Server/provider concurrency/idempotency tests not run.",
+    "Payroll combined-period sequence test and owner policy decision unexecuted/unanswered.",
+    "Print hardware Arabic correctness not physically tested; custody warning scope policy not finalized."
+  ],
+  "source_artifact_hashes": {
+    "Codex Work/Deep-Audit/Database-and-Finance/financial-residual-213-coordinator-quality-check.json": "5A9799C73DB752C27466B7FDA31FB320F596779B427E045CDF79F1D8D9329AD0",
+    "Codex Work/Deep-Audit/Database-and-Finance/financial-current-coverage-reconciliation.json": "0B942B2DC3E8C1A17DCAB82A131BDD7CD4E0CF712E950B8B6EF37864AFE63DE4",
+    "Codex Work/Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json": "77FAEE4640C2EAE955E559557FBAD67D9A057AFDCF39EB275AB39392FF3620E1",
+    "Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md": "488AB57726FFD8CFADC78D264E546EE3E4F53BD5F5EB23BABB9012748814DC2A",
+    "Codex Work/Sub-Agents/Handoffs/financial-payroll-overlap-range-and-residual-reconciliation.json": "37E82120D937FC6F1A0C5A15B77CBC8B6E37F4BFF375ACD915A113B8ECC130ED",
+    "Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json": "28686F6CAC08360B8687321044F8C8C61770837F8D17ADDD5D5BC48120014563",
+    "Codex Work/Sub-Agents/Handoffs/financial-residual-213-reconciliation-checkpoint.json": "839074444F10A0519E33F358C8E8B78BF388FD401BB800367F20BE71BAC93388",
+    "Codex Work/Sub-Agents/Results/financial-current-union-progress.json": "30560E0B7B7E170BF9D8A99B508AF1FCE3F74DBBB438B5BA9AEEEFEB53CEF240",
+    "Codex Work/Sub-Agents/Results/financial-ledger.json": "C8CE20EC079770C0555005CD5E80560F6B1D8015412B9EC62B8FE6F1D3FDAA63"
+  },
+  "limits": [
+    "No shared report, canonical registry, gate, source, runtime, or DB changes.",
+    "Static/persisted evidence only."
+  ]
+}

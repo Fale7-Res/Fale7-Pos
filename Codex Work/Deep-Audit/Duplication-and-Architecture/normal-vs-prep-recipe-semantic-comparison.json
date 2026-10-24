@@ -1,0 +1,470 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-038",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T07:55:38.074448+00:00",
+  "scope": "Bounded semantic comparison of normal menu recipes and prep/batch recipes: request/handler lifecycle, costing consumers, cycle protection, routes, client evidence, and integration tests. This is not a full inventory or concurrency reproduction.",
+  "decision": "The similar whole-line-set save pattern is intentional structural reuse for two distinct recipe models. Normal recipes link a Product/variant and contribute food/package cost for sold menu items; prep recipes produce an inventory item at a positive batch yield and recursively resolve ingredient costs. Both require positive line quantities, authorize menu_manage, replace the saved line set in one DB transaction, and project their own DTO. Prep recipes alone need output-quantity validation and graph-cycle admission because CostingRules recursively follows CostSource.Prep inputs; the costing engine independently returns unknown on a detected cycle. Existing tests cover self-cycle, multi-recipe cycle, shared-ingredient acceptance, and active empty normal recipe rejection. The cycle guard reads the existing active graph before opening the write transaction, so concurrent opposite-edge write-skew remains the pre-existing FIN-CAND-PREPGRAPH-001 candidate; no duplicate finding created. No behavioral defect arises merely from the asymmetric validations.",
+  "finding_candidate": null,
+  "related_existing_findings": [
+    "FIN-CAND-PREPGRAPH-001"
+  ],
+  "severity": "NO_NEW_FINDING; existing candidate remains MEDIUM / concurrency conditional",
+  "confidence": "High for the compared source behavior and tested sequential cases; no provider-specific concurrency conclusion.",
+  "manual_reasoning": {
+    "commonality": "SaveRecipeHandler.HandleAsync and SavePrepRecipeHandler.HandleAsync both validate request essentials, resolve actor from request.ActorUserId, construct optional ManagerApproval, call AuthorizationPolicy.AuthorizeCommand(menu_manage, requireApproval:true), derive deterministic create ID from RequestId, replace all lines for an update, SaveChanges and commit, then return a DTO. This supports consistent authoring semantics but not shared business meaning.",
+    "normal_recipe": "A normal recipe is keyed by RecipeId, references ProductId, stores Kind and YieldUnitsPerBaseUnit per line, and may only be empty when inactive. Save synchronizes Product.RecipeId when active and clears its own link when deactivated. CostingRules.ComputeRecipeCost applies line kind and unit conversion; ReportingQueryService.GetFoodCostReportAsync resolves sold product/variant recipe IDs.",
+    "prep_recipe": "A prep recipe is keyed by PrepRecipeId, produces OutputInventoryItemId at OutputQuantityMilliUnits, and stores ingredient quantity only. Both batch output and inputs must be positive. Before transaction it rejects direct self-consumption and walks other active output-to-input edges to reject a sequential cycle. CostingRules resolves only active prep recipes for CostSource.Prep and carries a resolving set; a recursion cycle returns Unknown/null instead of unbounded recursion.",
+    "routes_and_callers": "Program maps POST /api/recipes to SaveRecipeHandler and POST /api/prep-recipes to SavePrepRecipeHandler. Search across client projects located the normal RecipesViewModel.SaveAsync submission. No SavePrepRecipeRequest or SavePrepRecipeAsync reference was located in the searched client source; this means the available prep write route has no located in-repo UI caller, not proof of absence from external clients or deployment-specific tooling.",
+    "tests": "InventoryVerticalSliceTests sequentially reject direct and indirect prep cycles; allow shared ingredients; and reject an active normal recipe with no ingredients. Those cases support intended asymmetry but do not test simultaneous opposing saves or SQL Server isolation/locking.",
+    "duplicate_assessment": "Retain the two handlers and model-specific validators. A shared helper is optional only for the mechanical authorize-and-replace pattern; consolidation is not warranted by this comparison because product linkage, output yield, line semantics, and graph admission differ.",
+    "existing_candidate_reconciliation": "FIN-CAND-PREPGRAPH-001 remains a concurrency candidate: two concurrent saves may each validate against the preexisting graph before either transaction writes. The source establishes check-before-transaction; whether SQL provider isolation and actual overlapping EF transactions permit both commits requires an isolated SQL Server interleaving test. CostingRules cycle fallback mitigates recursive failure by returning unknown cost, but does not enforce graph integrity.",
+    "cross_component": "Normal item recipes may consume prep-cost inventory items through IngredientUnitCost, while prep recipes describe the nested batch graph. The reporting path resolves a sold line to a normal recipe, then normal recipe lines may resolve through prep recipes; the two handlers are connected through costing but are not duplicate implementations of the same recipe operation."
+  },
+  "counterevidence": [
+    "The source comments explicitly identify different concepts: product recipe versus inventory-producing batch.",
+    "Sequential cycle and empty-active normal recipe cases have integration test source coverage.",
+    "Cycle detection in CostingRules degrades to Unknown rather than proving process termination or money loss."
+  ],
+  "recommended_action": "Keep model-specific behavior. For the existing cycle-admission candidate, use a disposable SQL Server database and a barrier-controlled two-request test that creates A→B and B→A after both pretransaction reads; record isolation level, SQL provider, lock behavior, and final persisted graph. If both can commit, serialize graph validation/writes or enforce an equivalent transactional graph invariant; add a regression test. Separately confirm whether prep recipe authoring is intentionally API-only or a UI is expected.",
+  "required_tests": [
+    "Existing sequential direct/indirect cycle, shared-ingredient, and active-empty normal recipe tests remain passing.",
+    "Two concurrent requests with opposing prep graph edges are synchronized after validation; assert no persisted active cycle under the intended invariant.",
+    "Normal product/variant food-cost link remains correct for active/deactivated recipes.",
+    "Nested normal recipe → CostSource.Prep cost resolves using batch yield and unknown/cycle semantics.",
+    "Authenticated/approved route behavior is verified through the real test host."
+  ],
+  "acceptance_criteria": [
+    "Normal and prep recipe domains remain separately represented and validated.",
+    "An active normal recipe cannot be stored empty.",
+    "Prep batch output and line quantities remain positive.",
+    "Sequential graph cycles are rejected and runtime cycle fallback remains Unknown.",
+    "If owner intends acyclic active prep graphs, concurrent writes cannot persist a cycle.",
+    "Any expected prep authoring UI is documented and reachable; if API-only is intended, it is a conscious deployment choice."
+  ],
+  "runtime": "NOT_EXECUTED in this comparison; integration test source inspected only. No application tests, SQL Server concurrency test, or UI launched.",
+  "limits": [
+    "Search was targeted to the handlers, route declarations, cost consumers and client request symbols; no proof of all external callers.",
+    "No SQL Server/provider isolation test or simultaneous request reproduction.",
+    "No UI behavior inspected visually.",
+    "No full-source review credit granted by this comparison."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs",
+      "source_sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "worktree_sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "source_git_blob_sha256": "b86797c7ddaf58100d4acd1f9872655204613e9791d356f2ce0083683918cf7b",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          31,
+          100
+        ],
+        [
+          102,
+          103
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4e3ec84e8dd264668bf899fddffc9a2e275c696d735e6d9725ce7b409a1a5523",
+          "signature": "Falah.Infrastructure.Inventory.SaveRecipeHandler.HandleAsync(Falah.Application.Inventory.SaveRecipeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            31,
+            5,
+            100,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0c78ab634cf39eb4af3d59ba7c75ebb2652c6bc10e3ede9b2bac28cc1d011e68",
+          "signature": "Falah.Infrastructure.Inventory.SaveRecipeHandler.ToDto(Falah.Infrastructure.Persistence.Entities.RecipeEntity)",
+          "kind": "MethodDeclaration",
+          "span": [
+            102,
+            5,
+            103,
+            137
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
+      "source_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "worktree_sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "source_git_blob_sha256": "415b04d985dd8a6b80f3afac975de6c8077927312bad79dab4c59b0f65bea90e",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          25,
+          74
+        ],
+        [
+          84,
+          110
+        ],
+        [
+          112,
+          114
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f08a25b1f2ddbfc7ae27b59736f0ba31b916547f3ff7ccb4759eb3f006d204f6",
+          "signature": "Falah.Infrastructure.Inventory.SavePrepRecipeHandler.HandleAsync(Falah.Application.Inventory.SavePrepRecipeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            74,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-16929df3b18ace24b5400bf287a8bfe8a53af5db705863f2233c1eed03842bfd",
+          "signature": "Falah.Infrastructure.Inventory.SavePrepRecipeHandler.AssertDoesNotConsumeItsOwnOutputAsync(string, Falah.Application.Inventory.SavePrepRecipeRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            110,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9b9bb8793388cb29ae0d20965493a62eeee58a937796bc102cb81a87f30fd1ae",
+          "signature": "Falah.Infrastructure.Inventory.SavePrepRecipeHandler.ToDto(Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity)",
+          "kind": "MethodDeclaration",
+          "span": [
+            112,
+            5,
+            113,
+            156
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "source_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+      "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          20,
+          56
+        ],
+        [
+          62,
+          83
+        ],
+        [
+          93,
+          129
+        ],
+        [
+          153,
+          177
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-176db03644bb706fafa9be43298cd41f4005b34a55b8ec9847e5738177ddc1f2",
+          "signature": "Falah.Domain.Inventory.CostingRules.IngredientUnitCost(Falah.Domain.Inventory.InventoryItem?, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            20,
+            5,
+            21,
+            59
+          ]
+        },
+        {
+          "stable_id": "sym-b43d69b3394282fe5cf2c2b2512f84b5f0685bdf7ccf6d33e5df792fa5aa1ceb",
+          "signature": "Falah.Domain.Inventory.CostingRules.IngredientUnitCost(Falah.Domain.Inventory.InventoryItem?, Falah.Domain.Inventory.CostingContext, HashSet<string>?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            28,
+            5,
+            56,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-08f630c44a6794b69650a33b3cd6760923f594890dccfabefd55ae19de0efaa5",
+          "signature": "Falah.Domain.Inventory.CostingRules.IsCircularPrep(Falah.Domain.Inventory.InventoryItem?, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            62,
+            5,
+            83,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7a3fb538ff11ae99469d5e66184433e55fc844057dddd831a164f508494c06c5",
+          "signature": "Falah.Domain.Inventory.CostingRules.ComputePrepRecipeCost(Falah.Domain.Inventory.PrepRecipe?, IReadOnlyList<Falah.Domain.Inventory.PrepRecipeLine>, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            93,
+            5,
+            95,
+            111
+          ]
+        },
+        {
+          "stable_id": "sym-68c38ec3666ab8a76cc483782c9d631d417de98e152305dea4d4c0b2b2259e38",
+          "signature": "Falah.Domain.Inventory.CostingRules.ComputePrepRecipeCost(Falah.Domain.Inventory.PrepRecipe?, IReadOnlyList<Falah.Domain.Inventory.PrepRecipeLine>, Falah.Domain.Inventory.CostingContext, HashSet<string>?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            97,
+            5,
+            129,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0fccbcb03ebdb3cbd0da721ead3b6b10776be0d555fbf87c22fb98146fb4221e",
+          "signature": "Falah.Domain.Inventory.CostingRules.ComputeRecipeCost(IReadOnlyList<Falah.Domain.Inventory.RecipeLine>, Falah.Domain.Inventory.CostingContext)",
+          "kind": "MethodDeclaration",
+          "span": [
+            153,
+            5,
+            177,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          349,
+          423
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-cc59a70a070600e7c96a563bfbf2511b1e17903006123d68c1600724d3207d51",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetFoodCostReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            349,
+            5,
+            423,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "source_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          393,
+          457
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3e873d6615dde2b81f92f53b7c18d7b811f0d6130d79f7295148e4e6b09f5a3c",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.A_batch_cannot_be_made_out_of_itself()",
+          "kind": "MethodDeclaration",
+          "span": [
+            393,
+            5,
+            405,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-30838921520f2db2f2810b2cd52d5d9c08c87c01734762cd0140d88277c26892",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.A_batch_cannot_close_a_loop_through_another_batch()",
+          "kind": "MethodDeclaration",
+          "span": [
+            407,
+            5,
+            425,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d4bd4ea7d1b65998996669ab9420707e24415a13d44726a88a1517310b39287a",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Two_batches_sharing_an_ingredient_are_still_allowed()",
+          "kind": "MethodDeclaration",
+          "span": [
+            427,
+            5,
+            446,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1d8428fe8ec8255246d735c3a4e1b3c8a14596e350a59bbf75ba59b1a1f8bcd5",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.An_active_recipe_cannot_be_saved_with_no_ingredients()",
+          "kind": "MethodDeclaration",
+          "span": [
+            448,
+            5,
+            457,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Inventory/RecipeRequests.cs",
+      "source_sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "worktree_sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "source_git_blob_sha256": "3a0099b774799cb401d8ecb6364bb8056bf159528a04442f3599e18e7a0c894f",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          13,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-125ee0ed239ffa7d3257d9c53741bccecd8b70fed80cf49938783f53f40f6d48",
+          "signature": "Falah.Application.Inventory.SaveRecipeRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            13,
+            1,
+            15,
+            121
+          ]
+        },
+        {
+          "stable_id": "sym-d3cf3186ac656e080a211ff0eeb96e36558768cf7a3e4cb1c6ee9a5b02aae70c",
+          "signature": "Falah.Application.Inventory.SavePrepRecipeRequest",
+          "kind": "RecordDeclaration",
+          "span": [
+            25,
+            1,
+            27,
+            138
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs",
+      "source_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34",
+      "worktree_sha256": "934d1252ffc1fc0e0d899bdc7e91f633f1f44ab8ccc8fecc4808753692d2be34",
+      "source_git_blob_sha256": "c88b68327a1dedffb8e51d694d288b8f08cd755ec2c4f0c829f29052d94ccf99",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          78,
+          99
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-86c2cc7d7c4cbe41faa7355dfeb99e6eeff72ff230f4d7af696e0f4954d3c792",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            82,
+            1,
+            91,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-f3247f37c09b277bd1a2c00b5fa1c1e62b13003706896149d3b2ae462225452d",
+          "signature": "Falah.Infrastructure.Persistence.Entities.PrepRecipeLineEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            93,
+            1,
+            99,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          1024,
+          1039
+        ],
+        [
+          1092,
+          1107
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-bde287cdb9daedb2de003f9768e115d2f098dae2ca17a1b8ee42f4d9e569eeed",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            1024,
+            29,
+            1039,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-82b05ba35b9429a2633c08c27a9d5d65c4e384f810ed79680d0287d1888798f3",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            1092,
+            34,
+            1107,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs",
+      "source_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "worktree_sha256": "24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63",
+      "source_git_blob_sha256": "d8f01752ae087dfaa73071182398a71df1366745d92f4dd9ca35b7b879f4e67a",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          531,
+          600
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f34d5ebff63ea29e2de78862fae9de4c2f0e22dce9f8330e5638efa6d08c775d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.SaveAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            531,
+            5,
+            600,
+            6
+          ]
+        }
+      ]
+    }
+  ]
+}

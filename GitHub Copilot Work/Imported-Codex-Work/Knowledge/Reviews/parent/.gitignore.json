@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": ".gitignore",
+  "source_git_blob_sha256": "a5ee576a69e0aee1ff0f4ecad0c2710a3983571781113a8d0142368f925893a5",
+  "worktree_sha256": "bf7cbc1c2a000cba0695330ab1b73a060175d45ba600191b1a07aaf468e7d1d8",
+  "reviewer": "parent",
+  "updated_at_utc": "2026-10-17T01:47:16.814270+00:00",
+  "responsibilities": "Repository hygiene for build/test/package caches, generated artifacts and file transport tickets.",
+  "symbols": [],
+  "callables": "NOT_APPLICABLE: no source callable declarations in this document/configuration",
+  "non_callable_analysis": {
+    "role": "Repository hygiene for build/test/package caches, generated artifacts and file transport tickets.",
+    "reasoning": "All26lines read. bin/obj/.nuget-packages/.vs and test caches are ignored; /artifacts/ is root-anchored while tickets/ and *.log apply broadly. These rules keep active LocalDB data and generated receipts private only while they remain under the approved ignored runtime tree. No blanket MDF/LDF or secret-file rule protects accidentally misplaced data; ignore rules are not access controls. Codex Work is not excluded. Existing rules must remain unchanged during audit.",
+    "relationships": [
+      "Git staging/normal documentation publication",
+      "artifacts/local-runtime database/receipt location",
+      "PrintAgent file transport default tickets"
+    ],
+    "tests": "git check-ignore on audit and dummy runtime paths was actually performed earlier; staged allowlist and content checks remain mandatory before final publication.",
+    "recommendation": "Keep runtime data in approved ignored paths and use final staged-content/credential gates. A later separately approved hygiene policy may add narrowly scoped secret/database patterns; no edit applied.",
+    "risks": "Ignore rules prevent accidental tracking, not local reads/exfiltration or printing; no database execution or runtime side effects in this file."
+  },
+  "reviewed_line_spans": [
+    [
+      1,
+      26
+    ]
+  ],
+  "status": "REVIEWED_STATIC_COMPLETE_FILE",
+  "scope_limit": "Full manual file read and specific claim reconciliation; no runtime acceptance inferred",
+  "remaining_callable_ids": []
+}

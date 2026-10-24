@@ -1,0 +1,1071 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-cef2430a353f40d2ebc812305e7da990e211183853509f0c3d3297d2cf7ddad5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.Id.get",
+        "span": [
+          12,
+          24,
+          12,
+          28
+        ],
+        "reasoning": "Getter exposes generated business-day identity used by movement attribution and close snapshots; same calendar date is not the primary key.",
+        "inputs": "Day entity containing string day PK.",
+        "outputs": "string day PK without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-b1bcb179e72e652947afcc52d426d992f2b92a03ffba79d20e2b2993f92e2445",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.Id.set",
+        "span": [
+          12,
+          29,
+          12,
+          33
+        ],
+        "reasoning": "Setter receives day-GUID from domain Open. PK uniqueness does not enforce one active day; FIN009 independent active-admission race remains.",
+        "inputs": "string day PK from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-71f63805c618ff542a3a96a6fa533e568c851c010e5d031a01f099e9286c2b8a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.BusinessDate.get",
+        "span": [
+          13,
+          36,
+          13,
+          40
+        ],
+        "reasoning": "Getter exposes chosen operational date, which may be explicit request date rather than current Cairo date.",
+        "inputs": "Day entity containing DateOnly operational date.",
+        "outputs": "DateOnly operational date without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-d5d42f01aabddebfd585a159c24ee03fd322ec070fcb6e09a5ea525b33394c9b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.BusinessDate.set",
+        "span": [
+          13,
+          41,
+          13,
+          45
+        ],
+        "reasoning": "Setter stores domain date unchanged on open and does not advance automatically at midnight. Existing active day policy must handle extended operation explicitly.",
+        "inputs": "DateOnly operational date from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-9f2232a768a9069abe4e282c89e3e81155963efb69b6b41dae4d517c75e68457",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenedBy.get",
+        "span": [
+          14,
+          30,
+          14,
+          34
+        ],
+        "reasoning": "Getter returns original domain OpenedBy value; actual open writer passes request.OpenedByUserId, so this field is user ID despite display-like name.",
+        "inputs": "Day entity containing string opener ID.",
+        "outputs": "string opener ID without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-69af659ff28f6297e5c88eb1e5af872e1a6987bb8467512a59fa4a19fac6a0eb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenedBy.set",
+        "span": [
+          14,
+          35,
+          14,
+          39
+        ],
+        "reasoning": "Setter copies day.OpenedBy generated from openedByUserId after authorization, not actorUser.Name. Consumers must not assume it is a historical display label.",
+        "inputs": "string opener ID from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-f955c603c69a2eb11b0266a35408c24f9cbf56409b252853d11f085664802c4f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenedAtUtc.get",
+        "span": [
+          15,
+          41,
+          15,
+          45
+        ],
+        "reasoning": "Getter exposes original UTC opening instant; close/reopen do not replace it and it is not current active-period start.",
+        "inputs": "Day entity containing DateTimeOffset original opening.",
+        "outputs": "DateTimeOffset original opening without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-f2f6ec9b0738ebec28f7ced05e4ca6e4e0ad5dd932f987c2072b41fc71882446",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenedAtUtc.set",
+        "span": [
+          15,
+          46,
+          15,
+          50
+        ],
+        "reasoning": "Setter copies initial now from domain open. Public entity does not make it immutable, but inspected close/reopen writers preserve it.",
+        "inputs": "DateTimeOffset original opening from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-0af5e8abc1ab35003acb41192ecc817068c4739915ff496965b1e22f40a9b4c4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.Status.get",
+        "span": [
+          16,
+          28,
+          16,
+          32
+        ],
+        "reasoning": "Getter is raw lifecycle state parsed/compared by operational commands. Closed, Reopened and Open affect admission differently, not a simple active bool.",
+        "inputs": "Day entity containing string day lifecycle.",
+        "outputs": "string day lifecycle without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-1f29e01e50a2b2c85632ff4c375607bb1979ba4d4722b5b4e2d99867e5bc09c8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.Status.set",
+        "span": [
+          16,
+          33,
+          16,
+          37
+        ],
+        "reasoning": "Setter initializes Open, close stages Closed, reopen stages Reopened after domain guards. No status concurrency token or filtered active-day uniqueness is present in inspected model.",
+        "inputs": "string day lifecycle from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-c5f760fbc3449bc2873fe2594bcc9f6d056d1f3643a42ebe48d6d5b272269dd5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.CloseRevision.get",
+        "span": [
+          17,
+          32,
+          17,
+          36
+        ],
+        "reasoning": "Getter reports latest close revision, separate from reopen RequestId and snapshot count.",
+        "inputs": "Day entity containing int latest close revision.",
+        "outputs": "int latest close revision without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-78a7e7153f46fa7d14a5d8f1b436af26be3b2de33d5992fd3d418d9cc6d297e2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.CloseRevision.set",
+        "span": [
+          17,
+          37,
+          17,
+          41
+        ],
+        "reasoning": "Setter initializes zero then copies new snapshot Count+1 on close; reopen preserves it. It does not serialize concurrent distinct close attempts; candidate outcome remains provider-dependent.",
+        "inputs": "int latest close revision from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-54ebf9d7d2077d1bba67b35baf0958c42b64a493b2bc061bfd366c8ab42f9bab",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.SnapshotId.get",
+        "span": [
+          18,
+          33,
+          18,
+          37
+        ],
+        "reasoning": "Getter points to current/prior archival close snapshot even when day is Reopened; it is not proof day is presently Closed.",
+        "inputs": "Day entity containing nullable snapshot pointer.",
+        "outputs": "nullable snapshot pointer without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-a52d823fe49ba8e8ca092106467a6b7342e1356cdb2f4dea9b9680dbd4d3211a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.SnapshotId.set",
+        "span": [
+          18,
+          38,
+          18,
+          42
+        ],
+        "reasoning": "Setter records new snapshot ID at close and is preserved on reopen while also copied to PreviousSnapshotId. Inspected day mapping has no authored FK to snapshot.",
+        "inputs": "nullable snapshot pointer from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-e39d178ba514dbcb007d5e3699faa7e2a10c8f88b0115a6466fe9a3a9d9528e5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenReason.get",
+        "span": [
+          19,
+          35,
+          19,
+          39
+        ],
+        "reasoning": "Getter exposes latest reopen reason retained on live day metadata, not full multi-reopen history.",
+        "inputs": "Day entity containing nullable reopen rationale.",
+        "outputs": "nullable reopen rationale without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-4c0b5931944489f4672dbee670c4d06c036648c81ffda55e560bcf748a0cded2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenReason.set",
+        "span": [
+          19,
+          40,
+          19,
+          44
+        ],
+        "reasoning": "Setter receives domain validated reopen reason; previous values can be overwritten on a later reopen while audit/snapshot history separately persists.",
+        "inputs": "nullable reopen rationale from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-6f1403f30671ac576e3e20dfd84e63293b08dc8e52e980b7801df552d8202823",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenedBy.get",
+        "span": [
+          20,
+          33,
+          20,
+          37
+        ],
+        "reasoning": "Getter exposes latest reopener actor.Name, unlike OpenedBy which actual writer stores user ID.",
+        "inputs": "Day entity containing nullable reopener name.",
+        "outputs": "nullable reopener name without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-e4ec5c2b9d8a7421d62e9f032528808b5ca0023967ee4bb1ba33d36b85428862",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenedBy.set",
+        "span": [
+          20,
+          38,
+          20,
+          42
+        ],
+        "reasoning": "Setter records actor.Name after permission-or-approval policy. It is historical attribution, not proof the displayed person is still authorized.",
+        "inputs": "nullable reopener name from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-536c3a902e33e59e7fa8ec7d1bcc120cd5ef8fb99a577aa64d34923c438fb18d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenRequestId.get",
+        "span": [
+          21,
+          35,
+          21,
+          39
+        ],
+        "reasoning": "Getter is unique replay key for creation; query uses it before user validation on retried open.",
+        "inputs": "Day entity containing string creation request key.",
+        "outputs": "string creation request key without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-f9101d0b11cf2973abca6b96284cd6ea7a250d579e08a8e4f372f29fe7312aeb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.OpenRequestId.set",
+        "span": [
+          21,
+          40,
+          21,
+          44
+        ],
+        "reasoning": "Setter stores request.RequestId unchanged. Unique index prevents duplicate key rows, not distinct request keys opening separate active days.",
+        "inputs": "string creation request key from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-2d32f0b90f799ed1cef0ae27e552612d6dbe55701142d4a7526fcb50df181899",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ClosedAtUtc.get",
+        "span": [
+          23,
+          42,
+          23,
+          46
+        ],
+        "reasoning": "Getter exposes most recent recorded close instant, which remains present on reopen along with prior metadata. It is not a separate persisted Closing-start lifecycle marker.",
+        "inputs": "Day entity containing nullable close UTC instant.",
+        "outputs": "nullable close UTC instant without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-89dfd63eec672ea6512e356d6c2ca3b08365c0321d6945c3e51e66c99fd41a20",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ClosedAtUtc.set",
+        "span": [
+          23,
+          47,
+          23,
+          51
+        ],
+        "reasoning": "Setter receives close now after successful evaluation. Reopen copies it to previous field but does not clear it in inspected source.",
+        "inputs": "nullable close UTC instant from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-ec831905eda3a4f3083d783745f1a964e6a7cc5f46581d003b7f52653c6fac11",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ClosedBy.get",
+        "span": [
+          24,
+          31,
+          24,
+          35
+        ],
+        "reasoning": "Getter returns latest closer-name snapshot even if day later reopens; status is needed to interpret it.",
+        "inputs": "Day entity containing nullable closer name.",
+        "outputs": "nullable closer name without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-0f71215d9178ad007212f4f90ebd1765c7e217926a108300a09156e7e5fda442",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ClosedBy.set",
+        "span": [
+          24,
+          36,
+          24,
+          40
+        ],
+        "reasoning": "Setter records actorUser.Name on close; reopen preserves then snapshots previous closer. It is not a stable user FK.",
+        "inputs": "nullable closer name from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-26fa0ef15e647a7164e16bb4138684e318d478ce4f7e1f53d7d96998e4ba0f05",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousSnapshotId.get",
+        "span": [
+          28,
+          41,
+          28,
+          45
+        ],
+        "reasoning": "Getter exposes snapshot pointer retained at latest reopen, not complete lineage by itself.",
+        "inputs": "Day entity containing nullable prior snapshot ID.",
+        "outputs": "nullable prior snapshot ID without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-7c7a77aacd717a2442862b99b3b0805dd5a0d23324633e465eea28eaad07e016",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousSnapshotId.set",
+        "span": [
+          28,
+          46,
+          28,
+          50
+        ],
+        "reasoning": "Setter copies current SnapshotId when reopening; subsequent close preserves that prior pointer while new SnapshotId advances. Full history uses snapshot rows.",
+        "inputs": "nullable prior snapshot ID from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-8fe6ff1c4a931509e6bbae98b227e28547fe8e3f1aef783f0369abd990af581a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousClosedAtUtc.get",
+        "span": [
+          29,
+          50,
+          29,
+          54
+        ],
+        "reasoning": "Getter retains close time at latest reopen separately from current close metadata after a subsequent reclose.",
+        "inputs": "Day entity containing nullable previous close time.",
+        "outputs": "nullable previous close time without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-567cb8b47e0e0011976ab4b71603a7453585ee8c2cfa36302dd1920e35c321de",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousClosedAtUtc.set",
+        "span": [
+          29,
+          55,
+          29,
+          59
+        ],
+        "reasoning": "Setter copies existing ClosedAtUtc on reopen; no fresh measurement occurs and null is possible if inconsistent legacy day has no close time.",
+        "inputs": "nullable previous close time from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-c6bbd227b266b2ddde3a768200f04d54afed12a844ff48a57f315f6fd112ad71",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousClosedBy.get",
+        "span": [
+          30,
+          39,
+          30,
+          43
+        ],
+        "reasoning": "Getter retains closer attribution captured at latest reopen, preventing later reclose from erasing that one previous value.",
+        "inputs": "Day entity containing nullable previous closer.",
+        "outputs": "nullable previous closer without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-16e4dcc02e698d14e64facdcf3c150a6ec405aed045b9705efad20e5e571c814",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.PreviousClosedBy.set",
+        "span": [
+          30,
+          44,
+          30,
+          48
+        ],
+        "reasoning": "Setter copies ClosedBy before later closes overwrite live closer. Multiple reopens still need audit/snapshot history because this is one slot.",
+        "inputs": "nullable previous closer from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-e4e6f17fc3b731719f04c9b2ed7f633c26a9ab03e686e6850a8f940185f87661",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenedAtUtc.get",
+        "span": [
+          31,
+          44,
+          31,
+          48
+        ],
+        "reasoning": "Getter exposes latest reopen instant used in DTO and operational history; it is not original opening or latest close timestamp.",
+        "inputs": "Day entity containing nullable reopen instant.",
+        "outputs": "nullable reopen instant without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-3d39159f7fac2da013902873a37806dc7e208c9469af91bee746c4762ee6dfb1",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenedAtUtc.set",
+        "span": [
+          31,
+          49,
+          31,
+          53
+        ],
+        "reasoning": "Setter stores now during admitted reopen along with reason/actor; same-request replay returns existing value instead of updating it.",
+        "inputs": "nullable reopen instant from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-19279facfeb778b2cedeb486ab85bbcee5a1a05b161c6196bfb5e30a9fbddf51",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenApprovalId.get",
+        "span": [
+          32,
+          39,
+          32,
+          43
+        ],
+        "reasoning": "Getter exposes optional supplied approval ID provenance, which may be null for valid permission alternative.",
+        "inputs": "Day entity containing nullable reopen approval reference.",
+        "outputs": "nullable reopen approval reference without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-dd02863910c0ea97caa5a0bf1766c7ba996ace65807576a8921210ac720dc530",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenApprovalId.set",
+        "span": [
+          32,
+          44,
+          32,
+          48
+        ],
+        "reasoning": "Setter stores request.ManagerApprovalId rather than generated approval result. Actual authorization occurs separately; field alone does not prove approval was issued/consumed.",
+        "inputs": "nullable reopen approval reference from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-22520f571e3fdf121c5442e224f482ac339bf0e3d8c90c6c4c07999814168fed",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenApprovedBy.get",
+        "span": [
+          33,
+          39,
+          33,
+          43
+        ],
+        "reasoning": "Getter exposes optional authorization result approver-name snapshot, distinct from reopener and raw approval ID.",
+        "inputs": "Day entity containing nullable approving name.",
+        "outputs": "nullable approving name without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-5ab3bea6652894eff56b987d21e81037e3f8a860ceff2d60c97b39941f1d1246",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenApprovedBy.set",
+        "span": [
+          33,
+          44,
+          33,
+          48
+        ],
+        "reasoning": "Setter copies authorization.Approver?.ApproverName, preserving permission-only null countercontrol rather than inventing mandatory manager requirement.",
+        "inputs": "nullable approving name from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-c2a9a55ca80d36b8c9eb1510f1be0d20e1342c8135613d2c95589ccafec2c44e",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenRequestId.get",
+        "span": [
+          39,
+          38,
+          39,
+          42
+        ],
+        "reasoning": "Getter allows same-task reopen replay only while Status is Reopened; it is not append-only history of every reopen key.",
+        "inputs": "Day entity containing nullable reopen request key.",
+        "outputs": "nullable reopen request key without lifecycle transition.",
+        "side_effects": "No side effects, authorization or query.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      },
+      {
+        "stable_id": "sym-64969b8538b7da5b1dbc1ca1219e48e461bd57fca673688ecdf7e93257f151d8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.BusinessDayEntity.ReopenRequestId.set",
+        "span": [
+          39,
+          43,
+          39,
+          47
+        ],
+        "reasoning": "Setter records latest successful request ID. No unique index on this field in inspected day model; receipt semantics are status/key condition, not global uniqueness.",
+        "inputs": "nullable reopen request key from day command/materialization.",
+        "outputs": "Field assignment only.",
+        "side_effects": "In-memory property mutation; command SaveChanges and audit/snapshot updates are external.",
+        "trust_boundaries": "Open/close/reopen domain transitions and permission-or-approval checks belong handlers. Stored status/provenance is not a current authority token or proof common admission serialization.",
+        "database": "DbContext137-141 PK plus unique OpenRequestId only; open35-54 active census then insert, close54-119 preTx state and archive writes, reopen31-98 mutable state/provenance. No SQL run.",
+        "printing_ui": "Open and reopen DTOs expose selected state metadata; snapshot financial report gate FIN027 separately qualified. No UI or printer action.",
+        "performance": "O(1) accessor. Active/other-day scans, snapshot counts and close computation are caller operations; no provider lock/query benchmark.",
+        "duplicates_conflicts": "FIN009 active-day uniqueness and FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 explicit admission gap remain; latter concurrent successful duplicate outcome unverified. Snapshot pointers are not a full history table.",
+        "issues_hypotheses": "No new accessor defect promoted. User-ID/name asymmetry and retained close metadata require consumer-aware labeling; no whole-system display failure asserted from field names.",
+        "tests_missing": "No tests executed. Need distinct open requests, same-task replay, repeated reopen/reclose lineage, retained closed metadata, actor provenance and provider concurrency regressions.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25-66",
+          "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54-119",
+          "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs:29-115",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:137-141"
+        ]
+      }
+    ]
+  }
+]

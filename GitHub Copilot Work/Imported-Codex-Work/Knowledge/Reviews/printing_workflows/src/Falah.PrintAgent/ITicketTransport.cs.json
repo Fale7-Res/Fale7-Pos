@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/ITicketTransport.cs",
+  "source_git_blob_sha256": "63b3a7260f1028c5f3fb424bfe1c48f2ca6401d140227e1f9bb5ecc4077804e4",
+  "worktree_sha256": "63b3a7260f1028c5f3fb424bfe1c48f2ca6401d140227e1f9bb5ecc4077804e4",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:31.558334+00:00",
+  "scope": "Every listed callable individually source-reasoned; interface declarations reviewed as contracts, not implementations",
+  "symbols": [
+    {
+      "stable_id": "sym-232afad22bd4059a8235f294d5a3b8ee728b60ab1fa50e1b3f5c9883303a2f96",
+      "status": "ANALYZED",
+      "reasoning": "Description getter contract exposes a human destination label for logs/errors. Implementations can include host, directory or queue name; interface itself does not redact or require any value. No getter body or hardware effect exists here.",
+      "inputs": "Transport instance",
+      "outputs": "string description",
+      "side_effects": "None in declaration; implementation getter effects separate",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "Could reveal local paths/hosts in server error logs; no credentials should be embedded",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor logs _transport.Description",
+        "Transport implementations"
+      ],
+      "evidence_source_span": [
+        13,
+        13
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-5b0659785b69b6e77342dc0613ba4ba750af769cfea27282f41e3301d4500d42",
+      "status": "ANALYZED",
+      "reasoning": "SendAsync contract accepts complete byte payload and cancellation, returns Task, and promises throws on failure. It does not define an acknowledgement level, cancellation guarantee or spooler job ID. Thus a fulfilled Task cannot universally mean paper physically printed.",
+      "inputs": "byte[] payload, CancellationToken",
+      "outputs": "Completion Task or propagated exception",
+      "side_effects": "Abstract contract; actual file/TCP/serial/spooler implementation effects distinct",
+      "trust_boundaries": "Station HTTP/filesystem/configuration and hardware acceptance are distinct trust boundaries; see individual reasoning",
+      "database": "No direct SQL in PrintAgent; HTTP reporting/authentication may write server records if actually invoked",
+      "printing_ui": "No physical verification performed; queuing, transport acceptance and paper completion must remain distinct",
+      "performance": "Sequential processing except explicitly described loops/HTTP waits; disk cost and retry limits reasoned individually",
+      "duplicates_conflicts": "Physical retry identity and HTTP report idempotency are distinct; no cross-machine lease",
+      "issues_hypotheses": "PRT-002 boolean completion ambiguity; PRT-003 implementations ignore cancellation",
+      "tests_missing": "Isolated fake transport/server or owned temp-file tests; no real auth/DB/printer actions. Specific missing cases stated in reasoning",
+      "verified_callers_callees": [
+        "PrintJobProcessor.ProcessAsync",
+        "Network/Serial/File/Windows SendAsync implementations"
+      ],
+      "evidence_source_span": [
+        17,
+        17
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

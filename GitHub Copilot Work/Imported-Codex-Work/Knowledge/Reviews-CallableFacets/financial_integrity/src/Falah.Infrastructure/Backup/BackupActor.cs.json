@@ -1,0 +1,30 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Backup/BackupActor.cs",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:09:11.795461+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "91a18a8b32a3acb28474d820446e49680fc6f9a309ac6cc5e1b92a57bb152d21",
+  "worktree_sha256": "91a18a8b32a3acb28474d820446e49680fc6f9a309ac6cc5e1b92a57bb152d21",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-902bc89bc4dc63d34d44fd7e12125ee4da53cc2b1900a13d3f3adf6cfbef96e2",
+      "status": "BEHAVIOR_ANALYZED",
+      "reasoning": "Readonly positional BackupActor record struct carries Id, Name and Role with generated value equality, copy and deconstruction. Constructor does not authenticate or authorize this identity; public Run backup methods trust the caller. Explicit System constant is scheduler attribution, not impersonated owner. Copies retain immutable string values; no credential or financial state stored.",
+      "inputs": "Actor ID/name/role.",
+      "outputs": "Generated value construction/copy/equality/deconstruction context.",
+      "side_effects": "No DB or filesystem operation.",
+      "trust_boundaries": "Authenticated operator Handle or trusted scheduler must supply truthful actor; record is attribution only.",
+      "database": "No DB identity constraint or actor lookup generated.",
+      "printing_ui": "Audit display only; no hardware.",
+      "performance": "Three string field comparisons/copy.",
+      "duplicates_conflicts": "System scheduler distinct from restaurant user identity; no synthetic generated method total.",
+      "issues_hypotheses": "No new finding; do not infer record Role grants backup permission.",
+      "tests_missing": "System vs operator attribution and copied fields.",
+      "verified_callers_callees": "CreateBackupHandle40/VerifyHandle35 construct operator; Run uses actor audit fields; ScheduledBackup caller covered root shard."
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

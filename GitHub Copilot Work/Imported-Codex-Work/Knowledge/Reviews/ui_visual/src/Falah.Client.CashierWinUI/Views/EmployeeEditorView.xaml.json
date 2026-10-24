@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/EmployeeEditorView.xaml",
+  "source_git_blob_sha256": "3213675e213c8e4db32610c6ad4f20bcd54278f7ab33030867e13b191a222bbc",
+  "worktree_sha256": "c210c522ba356a0473873c57eb968b237b785ae4fcf9460bac17d8219bc0bbe0",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:33:14.495753+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Employee roster editor for identity, compensation, lifecycle and delivery eligibility.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SelectCommand",
+      "reasoning": "Root explicit nested selection command,330px roster plus remaining editor; rows have name/number/job. No search filter in this view; large roster navigation requires manual scrolling."
+    },
+    {
+      "anchor": "HasForm",
+      "reasoning": "Form or empty instruction exclusive. Middle editor ScrollViewer and pinned save/footer support many fields; header/footer reduce available middle area with long errors."
+    },
+    {
+      "anchor": "CompensationType",
+      "reasoning": "All wage types remain visible, optional salary/overtime distinct from required daily/shift values. Numeric InputScope alone does not validate; all server fields disabled CanEdit."
+    },
+    {
+      "anchor": "LifecycleStatus",
+      "reasoning": "Work arrangement, lifecycle, active and can-deliver independent two-way controls. Potential contradictory combinations must be validated by VM/domain, not hidden in UI."
+    },
+    {
+      "anchor": "NationalId",
+      "reasoning": "National ID and biometric ID treated ordinary editable text; no real records inspected. UI authorization inherited CanEdit only, permission enforcement independently backend-reviewed."
+    },
+    {
+      "anchor": "SaveLabel",
+      "reasoning": "Retry-aware caption and CanEdit gating; errors/success wrap. No loading/error empty state over roster in this markup, so initial read failure presentation depends ActionError/VM; native not observed."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Test retained create/update restart, all compensation values roundtrip, long field headers/narrow widths, roster read failure and native focus trap. No callable declarations.",
+  "recommendations": "Keep compensation fields independent and validate lifecycle coherence server-side; expose roster load state and accessible action feedback.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

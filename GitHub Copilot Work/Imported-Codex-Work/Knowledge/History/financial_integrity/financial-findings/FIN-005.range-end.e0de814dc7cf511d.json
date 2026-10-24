@@ -1,0 +1,71 @@
+{
+  "id": "FIN-005",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+  "severity": "HIGH",
+  "confidence": "HIGH",
+  "status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+  "evidence_type": "STATIC_SOURCE_TRACE_NOT_RUNTIME_REPRODUCED",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "start": 36,
+      "end": 44,
+      "source_excerpt": "        var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)\n            .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)\n            ?? throw new InvalidOperationException(\"فاتورة الشراء غير موجودة.\");\n        if (purchase.Status == \"cancelled\") throw new DomainException(\"فاتورة الشراء غير متاحة للسداد.\");\n\n        var idempotencyKey = $\"purchase-payment-{purchase.Id}-{request.RequestId}\";\n        var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);\n        if (existingPayment is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);\n"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "start": 59,
+      "end": 80,
+      "source_excerpt": "        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()\n            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);\n        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(\n            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),\n            purchase.SupplierId, purchase.Id);\n\n        var amount = Money.FromPiastres(request.AmountPiastres);\n        PurchasingRules.AssertPurchasePayment(amount, outstanding);\n        if (!amount.IsPositive) throw new DomainException(\"مبلغ السداد يجب أن يكون أكبر من صفر.\");\n\n        var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)\n            ?? throw new DomainException(\"يجب تحديد حساب دفع فعلي.\");\n        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);\n\n        await using var transaction = await _db.Database.BeginTransactionAsync(ct);\n        try\n        {\n            // Read under a lock, inside the transaction, immediately before spending.\n            // Outside it, concurrent commands each read the same balance, each decide it covers\n            // them, and each write - which is how an account holding 30 paid out three separate\n            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.\n            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+      "start": 95,
+      "end": 115,
+      "source_excerpt": "            var remaining = outstanding - amount;\n            purchase.PaidPiastres += amount.Piastres;\n            purchase.RemainingAmountPiastres = remaining.Piastres;\n            purchase.PaymentStatus = remaining.Piastres == 0 ? \"paid\" : \"partially_paid\";\n            purchase.Status = purchase.PaymentStatus;\n            purchase.Payments.Add(new PurchasePaymentEntity\n            {\n                Id = $\"payment-{request.RequestId}\", IdempotencyKey = idempotencyKey, PurchaseId = purchase.Id,\n                SupplierId = purchase.SupplierId, AmountPiastres = amount.Piastres, PaymentAccountId = accountId,\n                TreasuryMovementId = movement.Id, OperationId = operationId, CreatedBy = actorUser.Name,\n                ApprovedBy = authorization.Approver?.ApproverName, CreatedAtUtc = now,\n            });\n\n            _db.SupplierLedgerEntries.Add(new SupplierLedgerEntryEntity\n            {\n                Id = $\"ledger-{idempotencyKey}\", IdempotencyKey = idempotencyKey, SupplierId = purchase.SupplierId,\n                Type = \"supplier_payment\", DebitPiastres = 0, CreditPiastres = amount.Piastres, PurchaseId = purchase.Id,\n                ReferenceId = purchase.Id, Reason = \"سداد لاحق لفاتورة مشتريات\", CreatedBy = actorUser.Name,\n                OperationId = operationId, TreasuryMovementId = movement.Id, CreatedAtUtc = now,\n            });\n"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "start": 277,
+      "end": 305,
+      "source_excerpt": "        modelBuilder.Entity<PurchaseEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            // Same idempotency contract as every other financial command in this codebase - a\n            // retried receivePurchase can never post the same invoice/stock/payment twice.\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(p => p.SupplierId).OnDelete(DeleteBehavior.Restrict);\n            b.HasMany(p => p.Lines).WithOne().HasForeignKey(l => l.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n            b.HasMany(p => p.Payments).WithOne().HasForeignKey(pp => pp.PurchaseId).OnDelete(DeleteBehavior.Cascade);\n        });\n        modelBuilder.Entity<PurchaseLineEntity>(b =>\n        {\n            b.HasKey(l => l.Id);\n            b.HasOne<InventoryItemEntity>().WithMany().HasForeignKey(l => l.InventoryItemId).OnDelete(DeleteBehavior.Restrict);\n        });\n        modelBuilder.Entity<PurchasePaymentEntity>(b =>\n        {\n            b.HasKey(p => p.Id);\n            b.HasIndex(p => p.IdempotencyKey).IsUnique();\n        });\n        modelBuilder.Entity<SupplierLedgerEntryEntity>(b =>\n        {\n            b.HasKey(e => e.Id);\n            b.HasIndex(e => e.IdempotencyKey).IsUnique();\n            // Every read of \"how much do we owe this supplier\" (or \"for this one invoice\") filters\n            // by exactly this - see PurchasingRules.SupplierOutstandingFromLedger.\n            b.HasIndex(e => new { e.SupplierId, e.PurchaseId });\n            b.HasOne<SupplierEntity>().WithMany().HasForeignKey(e => e.SupplierId).OnDelete(DeleteBehavior.Restrict);\n        });\n",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+      "start": 20,
+      "end": 60,
+      "source_excerpt": "public class PurchaseEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public string? InvoiceNumber { get; set; }\n    public long SubtotalPiastres { get; set; }\n    public long TotalPiastres { get; set; }\n    public long PaidPiastres { get; set; }\n    public long RemainingAmountPiastres { get; set; }\n    /// <summary>One of cash/instapay/bank/credit - \"credit\" (آجل) means nothing was paid at receipt\n    /// time; the invoice is carried entirely on the supplier ledger until a later payment.</summary>\n    public string PaymentMethod { get; set; } = default!;\n    /// <summary>The real treasury account the INITIAL payment (if any) was drawn from - null when\n    /// PaymentMethod is credit or Paid is zero. A purchase can later accumulate further payments\n    /// (see PurchasePaymentEntity) against different accounts; this column only records the first.</summary>\n    public string? PaymentAccountId { get; set; }\n    /// <summary>draft/received/partially_paid/paid/cancelled - mirrors PaymentStatus except a\n    /// fully-unpaid invoice reads \"received\", not \"unpaid\" (there is no distinct draft state used by\n    /// this system's checkout-free receiving flow).</summary>\n    public string Status { get; set; } = default!;\n    public string PaymentStatus { get; set; } = default!;\n    public string ReceivedBy { get; set; } = default!;\n    public string? Notes { get; set; }\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    /// <summary>The treasury movement for the INITIAL payment at receipt time only - null when\n    /// nothing was paid then. Later payments each carry their own movement id on their own\n    /// PurchasePaymentEntity row instead.</summary>\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n\n    /// <summary>When this invoice is due, as a business date. Null means no term was agreed - which\n    /// is a real and common state, not a missing value to guess at: an invoice with no due date is\n    /// never reported as overdue, it is reported as having no due date. Aging still ages it, by the\n    /// date it was received, because \"how long have we been carrying this\" is answerable either way.</summary>\n    public DateOnly? DueDate { get; set; }\n\n    public List<PurchaseLineEntity> Lines { get; set; } = new();\n    public List<PurchasePaymentEntity> Payments { get; set; } = new();\n}\n",
+      "source_git_blob_sha256": "8bee9148544c6025b177b748cef36ac65761b11b9d979df1c686d3bfceb289a3",
+      "worktree_sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+      "start": 75,
+      "end": 112,
+      "source_excerpt": "public class PurchasePaymentEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string PurchaseId { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    public long AmountPiastres { get; set; }\n    public string PaymentAccountId { get; set; } = default!;\n    public string TreasuryMovementId { get; set; } = default!;\n    public string OperationId { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? ApprovedBy { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}\n\n/// <summary>Ported from SupplierLedgerEntry - the supplier's own running account, debited by every\n/// invoice received and credited by every payment made against it. SupplierBalance/outstanding are\n/// always derived from this table (PurchasingRules.SupplierOutstandingFromLedger), never stored.</summary>\npublic class SupplierLedgerEntryEntity\n{\n    public string Id { get; set; } = default!;\n    public string IdempotencyKey { get; set; } = default!;\n    public string SupplierId { get; set; } = default!;\n    /// <summary>purchase_invoice (debit) or supplier_payment (credit) - the only two types this\n    /// system posts; supplier_return/adjustment exist in the reference app's type union but have no\n    /// command that produces them yet (no supplier-return flow in this pass).</summary>\n    public string Type { get; set; } = default!;\n    public long DebitPiastres { get; set; }\n    public long CreditPiastres { get; set; }\n    public string? PurchaseId { get; set; }\n    public string? ReferenceId { get; set; }\n    public string Reason { get; set; } = default!;\n    public string CreatedBy { get; set; } = default!;\n    public string? OperationId { get; set; }\n    public string? TreasuryMovementId { get; set; }\n    public DateTimeOffset CreatedAtUtc { get; set; }\n}\n",
+      "source_git_blob_sha256": "8bee9148544c6025b177b748cef36ac65761b11b9d979df1c686d3bfceb289a3",
+      "worktree_sha256": "8aa26b3ab1511f2975c893ee4e571305d0544a2a228f404d08313da740276978"
+    }
+  ],
+  "trigger_and_safe_repro_design": "Disposable DB invoice outstanding 100 EGP, source account 1000. Two requests different RequestIds both pre-read 100, each pays 80. Account lock serializes account only; second never refreshes invoice. Ledger receives total160 while invoice stale Paid80/Remaining20.",
+  "root_cause": "Business invariant checked outside transaction and unrelated account lock; purchase has no concurrency token or invoice row lock.",
+  "correction_design": "Acquire invoice UPDLOCK/HOLDLOCK in transaction before reading outstanding and tracked state; requery supplier invoice ledger under protection, validate then post/cache. Stable lock ordering relative to account and approvals; unique keys remain for replay.",
+  "regression_tests": "Barrier-controlled two distinct 80 payments against 100 from same and different accounts: one succeeds, one rejects, total <=100, caches equal ledger; same-request retry replays.",
+  "counterevidence_and_limits": "Treasury lock protects account from negative pooled balance but cannot make stale outstanding fresh. Different IDs legitimately bypass idempotency. No runtime reproduction performed.",
+  "independent_challenge": "printing_workflows independently traced all listed source paths; counterevidence searched: permission/approval and pooled balance do not prove collected funds, account locks do not refresh invoice outstanding, same-key dedup does not cover different operations. No runtime writes.",
+  "related_paths": [
+    "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+    "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+    "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs"
+  ],
+  "citation_correction": {
+    "at_utc": "2026-10-19T01:37:12.575433+00:00",
+    "reason": "Legacy DbContext309-328 was real Customer/Delivery source, irrelevant to Purchase concurrency. Correct Purchase/Payment/SupplierLedger mappings277-305 and actual fields now cited.",
+    "parent_evidence": "Deep-Audit/Database-and-Finance/Independent-Challenges/FIN005-model-reference-correction.json",
+    "historical_finding": "Knowledge\\History\\financial_integrity\\financial-findings\\FIN-005.b0539373452de868.json",
+    "disposition": "Finding survives qualified static challenge; no new count or runtime reproduction."
+  }
+}

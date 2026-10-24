@@ -1,0 +1,243 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-033",
+  "created_at_utc": "2026-10-21T07:27:45Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "scope": "Compare purchase due-date input at receipt against later invoice due-date edit across WinUI, API request, server route and infrastructure handler; selected from unmatched semantic-search leads.",
+  "decision": "The WinUI reuses one TryParseDueDate parser for both receipt-time and later-edit flows: blank maps to null; nonblank must exactly match yyyy-MM-dd invariant format. Receipt sends the parsed nullable DateOnly in ReceivePurchaseRequest. Later edit sends SetPurchaseDueDateRequest via PUT; server replaces body PurchaseId with route id, then handler resolves ActorUserId, authorizes purchasing_manage, loads the purchase, no-ops on unchanged date, otherwise updates DueDate, appends an audit event, and saves. This is intentional separation of creation and post-receipt term correction; there is no client/server date parsing divergence or money movement in the due-date handler. No new finding.",
+  "finding_candidate": "None; comparison records parity and no material defect observed.",
+  "severity": "INFORMATIONAL_NO_FINDING",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+      "worktree_sha256": "f3757fffbad1e70c6b4669f50d50f696c0043aa305821a7a540330704594a21f",
+      "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+      "line_ranges": [
+        [
+          166,
+          199
+        ],
+        [
+          485,
+          505
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6dc61bbd4bc2f034d90e4b823a814d06e38010951b629b14575d38de2d9cdfcb",
+          "signature": "PurchasingViewModel.SubmitDueDateAsync()",
+          "span": [
+            166,
+            5,
+            187,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1545947d38166c32cfa0c4e5e95d6f0139e68bb69232e2799ee0eb917dd0b492",
+          "signature": "PurchasingViewModel.TryParseDueDate(string, out DateOnly?)",
+          "span": [
+            191,
+            5,
+            199,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs",
+      "worktree_sha256": "c7e87bed31cf3433267829e56a0713e72f7f972c9923e26040088f1491639c0f",
+      "source_git_blob_sha256": "44455f4b2e62c51eb8a1d0ab188341d6849962aba501135bba43444a22523d09",
+      "line_ranges": [
+        [
+          34,
+          60
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-896c7802be7a41934ae737a18259169cd6fa9432133f8a22e01fd6c34b0b0dea",
+          "signature": "SetPurchaseDueDateHandler.HandleAsync(SetPurchaseDueDateRequest, CancellationToken)",
+          "span": [
+            34,
+            5,
+            60,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          496,
+          498
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9bf8a79059426ccafc6b0648bb64a8e359ef049d6dad41dd96ba8b14d8fa87ea",
+          "signature": "ApiClient.SetPurchaseDueDateAsync(SetPurchaseDueDateRequest, CancellationToken)",
+          "span": [
+            496,
+            5,
+            498,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          2216,
+          2224
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9e380515806e47a267bec667adb51e6ab8b20aaaad8e6578e9bf2a699e7e0ecc",
+          "signature": "PUT /api/purchases/{id}/due-date endpoint lambda",
+          "span": [
+            2216,
+            44,
+            2224,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "line_ranges": [
+        [
+          15,
+          17
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-84ba60f29c1934bebd2d73da7fb5f7987b53da388b1c803e9a27cbe35e5c8901",
+          "signature": "SetPurchaseDueDateRequest",
+          "span": [
+            34,
+            1,
+            35,
+            81
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "line_ranges": [
+        [
+          36,
+          75
+        ],
+        [
+          121,
+          129
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528",
+          "signature": "ReceivePurchaseHandler.HandleAsync(ReceivePurchaseRequest, CancellationToken)",
+          "span": [
+            36,
+            5,
+            229,
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "relevant_symbols": [
+    {
+      "stable_id": "sym-6dc61bbd4bc2f034d90e4b823a814d06e38010951b629b14575d38de2d9cdfcb",
+      "signature": "PurchasingViewModel.SubmitDueDateAsync()",
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+      "span": [
+        166,
+        187
+      ]
+    },
+    {
+      "stable_id": "sym-1545947d38166c32cfa0c4e5e95d6f0139e68bb69232e2799ee0eb917dd0b492",
+      "signature": "PurchasingViewModel.TryParseDueDate(string, out DateOnly?)",
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+      "span": [
+        191,
+        199
+      ]
+    },
+    {
+      "stable_id": "sym-9bf8a79059426ccafc6b0648bb64a8e359ef049d6dad41dd96ba8b14d8fa87ea",
+      "signature": "ApiClient.SetPurchaseDueDateAsync(SetPurchaseDueDateRequest, CancellationToken)",
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "span": [
+        496,
+        498
+      ]
+    },
+    {
+      "stable_id": "sym-896c7802be7a41934ae737a18259169cd6fa9432133f8a22e01fd6c34b0b0dea",
+      "signature": "SetPurchaseDueDateHandler.HandleAsync(SetPurchaseDueDateRequest, CancellationToken)",
+      "path": "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs",
+      "span": [
+        34,
+        60
+      ]
+    },
+    {
+      "stable_id": "sym-84ba60f29c1934bebd2d73da7fb5f7987b53da388b1c803e9a27cbe35e5c8901",
+      "signature": "SetPurchaseDueDateRequest",
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "span": [
+        34,
+        35
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "input": "TryParseDueDate is a single shared client method called by both receipt and due-date edit, accepts blank as null and uses invariant exact yyyy-MM-dd otherwise. This keeps client UI semantics aligned.",
+    "server": "The receipt handler stores request.DueDate at initial purchase creation as one invoice field. The separate edit handler is authorized and audit logged, but changes only DueDate and no money/account balance. Program route binds URL ID by overwriting PurchaseId in body before calling handler.",
+    "differences": "Creation receives manager approval workflow where required and records purchase/tender/stock; later date edit uses purchasing_manage authorization and audited metadata change only. These are intentionally different lifecycle commands, not divergent financial settlement mirrors.",
+    "counterevidence": "No evidence that past dates are disallowed; do not infer a business requirement. No unauthenticated endpoint conclusion from Program excerpt; auth middleware/policy must be reviewed in its own scope.",
+    "tests": "Parser blank/format boundaries; receipt persists null/date; update persists, clears, unchanged no-op, audit previous/new; route ID overrides mismatched body ID; role denial tests. None executed."
+  },
+  "recommendation": {
+    "action": "Keep the shared parser and distinct command responsibilities. Future tests should pin route/body identity binding and audit behavior; do not consolidate the receiving and later-edit handlers because the former creates financial and stock entries while the latter only changes terms.",
+    "acceptance": [
+      "Blank means no due date in both UI flows.",
+      "Nonblank client input accepts only invariant yyyy-MM-dd.",
+      "Later update requires purchasing_manage at handler boundary and creates no treasury/supplier ledger entry.",
+      "Route ID is authoritative for target purchase.",
+      "No tests or runtime verification claimed."
+    ]
+  },
+  "reviewer": "Main coordinator bounded semantic comparison; not independent challenge.",
+  "limitations": [
+    "One focused semantic path from unmatched lexical leads; not exhaustive search of 244 lead paths.",
+    "No API or SQL runtime test."
+  ]
+}

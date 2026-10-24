@@ -1,0 +1,734 @@
+{
+  "updated_at_utc": "2026-10-17T21:58:12.677761+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "source_files_searched": 468,
+  "discovery_method": "Lexical candidate API search; not semantic call graph or proof of absence. Each matched location reconciled to explicit manual boundary evidence where covered.",
+  "pattern_categories": {
+    "explicit_native": "\\[(?:DllImport|LibraryImport)\\s*\\(|\\bMarshal\\.(?:AllocHGlobal|Copy|FreeHGlobal|GetLastWin32Error)\\s*\\(|WinRT\\.Interop\\.",
+    "explicit_process_or_code_loading": "\\bProcess\\s*\\.\\s*Start\\s*\\(|new\\s+(?:Process|ProcessStartInfo)\\s*\\(|Assembly\\s*\\.\\s*(?:Load|LoadFrom|LoadFile)\\s*\\(|NativeLibrary\\.|GetTypeFromProgID\\s*\\(|GetTypeFromCLSID\\s*\\(|Activator\\s*\\.\\s*CreateInstance\\s*\\(|AssemblyLoadContext|Reflection\\.Emit|CSharpScript|SetWindowsHook",
+    "local_runtime_type_resolution": "\\bType\\s*\\.\\s*GetType\\s*\\(",
+    "timer_and_delay_calls": "new\\s+DispatcherTimer\\b|\\bTask\\s*\\.\\s*Delay\\s*\\(",
+    "network_transport_construction": "new\\s+(?:HttpClient|TcpClient|UdpClient|Socket)\\b",
+    "filesystem_explicit_calls": "\\bFile\\.(?:ReadAllText|WriteAllText|WriteAllBytesAsync|Move|Delete|Copy)\\s*\\(|Directory\\.(?:CreateDirectory|EnumerateFiles|Delete)\\s*\\(|OpenStreamForReadAsync\\s*\\(",
+    "hosted_registration": "AddHostedService\\s*<",
+    "framework_image_fetch": "\\bUriSource\\s*=",
+    "serial_transport": "new\\s+SerialPort\\s*\\("
+  },
+  "counts": {
+    "framework_image_fetch": 2,
+    "network_transport_construction": 5,
+    "filesystem_explicit_calls": 28,
+    "local_runtime_type_resolution": 2,
+    "timer_and_delay_calls": 11,
+    "explicit_native": 12,
+    "serial_transport": 1,
+    "hosted_registration": 1
+  },
+  "hits": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+      "line": 321,
+      "category": "framework_image_fetch",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-011"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+      "line": 30,
+      "category": "network_transport_construction",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-009"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 44,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 73,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 74,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 89,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 100,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 102,
+      "category": "local_runtime_type_resolution",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 120,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs",
+      "line": 122,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs",
+      "line": 24,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-013"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+      "line": 31,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-012"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+      "line": 24,
+      "category": "network_transport_construction",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-010"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+      "line": 23,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-013"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/MainViewModel.cs",
+      "line": 29,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-012"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Converters/Converters.cs",
+      "line": 814,
+      "category": "framework_image_fetch",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-011"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs",
+      "line": 22,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-003"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs",
+      "line": 27,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-003"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "line": 30,
+      "category": "network_transport_construction",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-008"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 44,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 73,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 74,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 89,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 100,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 102,
+      "category": "local_runtime_type_resolution",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 120,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+      "line": 122,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "DYN-BOUNDARY-017"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ThemeService.cs",
+      "line": 74,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-018"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ThemeService.cs",
+      "line": 90,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-018"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ThemeService.cs",
+      "line": 92,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-018"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ThemeService.cs",
+      "line": 93,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-018"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs",
+      "line": 25,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-013"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs",
+      "line": 33,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-012"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+      "line": 51,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-019"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+      "line": 67,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "BG-BOUNDARY-014"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+      "line": 79,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "BG-BOUNDARY-014"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+      "line": 145,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "BG-BOUNDARY-014"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs",
+      "line": 50,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-015"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/AgentOptions.cs",
+      "line": 133,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "CFG-BOUNDARY-005"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+      "line": 149,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "TMR-BOUNDARY-016"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+      "line": 30,
+      "category": "network_transport_construction",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-004"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/Program.cs",
+      "line": 153,
+      "category": "timer_and_delay_calls",
+      "manual_boundary_ids": [
+        "BG-BOUNDARY-006"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/Transports.cs",
+      "line": 25,
+      "category": "network_transport_construction",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-002"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/Transports.cs",
+      "line": 53,
+      "category": "serial_transport",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-002"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/Transports.cs",
+      "line": 77,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-002"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/Transports.cs",
+      "line": 85,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "NET-BOUNDARY-002"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+      "line": 51,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-007"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+      "line": 62,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-007"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+      "line": 67,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-007"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/UnreportedAttemptStore.cs",
+      "line": 68,
+      "category": "filesystem_explicit_calls",
+      "manual_boundary_ids": [
+        "FS-BOUNDARY-007"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 64,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 67,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 76,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 85,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 95,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 98,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 101,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 104,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 107,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 110,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+      "line": 113,
+      "category": "explicit_native",
+      "manual_boundary_ids": [
+        "NAT-BOUNDARY-001"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "line": 118,
+      "category": "hosted_registration",
+      "manual_boundary_ids": [
+        "BG-BOUNDARY-014"
+      ],
+      "status": "WITHIN_EXPLICIT_MANUAL_SOURCE_BOUNDARY_SPAN"
+    }
+  ],
+  "remaining_discovered_unreviewed": [],
+  "manual_boundary_records": [
+    {
+      "id": "NAT-BOUNDARY-001",
+      "category": "Native Windows spooler interop",
+      "batch": "batch-01-native-print-network.json",
+      "classification": "LEGITIMATE_NARROW_NATIVE_BOUNDARY_WITH_RELIABILITY_LIMITS"
+    },
+    {
+      "id": "NET-BOUNDARY-002",
+      "category": "Network/serial/file print destinations",
+      "batch": "batch-01-native-print-network.json",
+      "classification": "EXPLICIT_CONFIGURED_DESTINATION_REQUIRES_CONFIG_TRUST"
+    },
+    {
+      "id": "NAT-BOUNDARY-003",
+      "category": "WinRT picker/user-selected image read",
+      "batch": "batch-01-native-print-network.json",
+      "classification": "EXPLICIT_USER_FILE_READ_NATIVE_WINDOW_BINDING"
+    },
+    {
+      "id": "NET-BOUNDARY-004",
+      "category": "Print Agent HTTP API",
+      "batch": "batch-01-native-print-network.json",
+      "classification": "EXPLICIT_CONFIGURED_API_CREDENTIAL_BOUNDARY"
+    },
+    {
+      "id": "CFG-BOUNDARY-005",
+      "category": "Local print agent configuration/destination/secret",
+      "batch": "batch-02-agent-config-loop-storage.json",
+      "classification": "LOCAL_CONFIG_CONTROLLED_SECRETS_AND_DESTINATIONS"
+    },
+    {
+      "id": "BG-BOUNDARY-006",
+      "category": "Print test mode and periodic queue worker",
+      "batch": "batch-02-agent-config-loop-storage.json",
+      "classification": "EXPLICIT_PERIODIC_PRINT_WORKER_WITH_OPERATIONAL_SIDE_EFFECTS"
+    },
+    {
+      "id": "FS-BOUNDARY-007",
+      "category": "Unreported print journal",
+      "batch": "batch-02-agent-config-loop-storage.json",
+      "classification": "LEGITIMATE_RECOVERY_STORAGE_WITH_FILESYSTEM_TRUST"
+    },
+    {
+      "id": "NET-BOUNDARY-008",
+      "category": "Active Cashier shared HTTP transport and authority",
+      "batch": "batch-03-client-http-image.json",
+      "classification": "EXPLICIT_ENV_CONFIGURED_API_TRANSPORT"
+    },
+    {
+      "id": "NET-BOUNDARY-009",
+      "category": "CallCenter shared HTTP transport",
+      "batch": "batch-03-client-http-image.json",
+      "classification": "EXPLICIT_ENV_CONFIGURED_API_TRANSPORT"
+    },
+    {
+      "id": "NET-BOUNDARY-010",
+      "category": "Legacy WPF API boundary",
+      "batch": "batch-03-client-http-image.json",
+      "classification": "LEGACY_EXPLICIT_HTTP_CLIENT_CONTRACT_LIMIT"
+    },
+    {
+      "id": "NET-BOUNDARY-011",
+      "category": "Native image URL fetch outside bearer HttpClient",
+      "batch": "batch-03-client-http-image.json",
+      "classification": "SOURCE_SUPPORTED_IMAGE_AUTH_BOUNDARY_GAP_PENDING_INDEPENDENT_CHALLENGE"
+    },
+    {
+      "id": "TMR-BOUNDARY-012",
+      "category": "Health DispatcherTimer in three clients",
+      "batch": "batch-04-visible-client-timers.json",
+      "classification": "INTENTIONAL_VISIBLE_HEALTH_TIMER_NOT_BACKDOOR_PROOF"
+    },
+    {
+      "id": "TMR-BOUNDARY-013",
+      "category": "Header clock DispatcherTimer in three clients",
+      "batch": "batch-04-visible-client-timers.json",
+      "classification": "INTENTIONAL_DISPLAY_CLOCK_ONLY"
+    },
+    {
+      "id": "BG-BOUNDARY-014",
+      "category": "Scheduled backup startup/check/pruning worker",
+      "batch": "batch-05-background-maintenance-retries.json",
+      "classification": "INTENTIONAL_CONFIGURED_MAINTENANCE_WITH_REAL_WRITE_DELETE_EFFECTS"
+    },
+    {
+      "id": "TMR-BOUNDARY-015",
+      "category": "Financial lock-contention read retry",
+      "batch": "batch-05-background-maintenance-retries.json",
+      "classification": "BOUNDED_CONCURRENCY_RECOVERY_DELAY"
+    },
+    {
+      "id": "TMR-BOUNDARY-016",
+      "category": "Print report retry and durable uncertain output",
+      "batch": "batch-05-background-maintenance-retries.json",
+      "classification": "BOUNDED_REPORT_RETRY_WITH_DURABLE_UNCERTAINTY"
+    },
+    {
+      "id": "DYN-BOUNDARY-017",
+      "category": "Local retained JSON type resolution and storage, both active clients",
+      "batch": "batch-06-local-journal-type-resolution.json",
+      "classification": "LOCAL_TYPE_RESOLUTION_WITHOUT_ALLOWLIST_NO_RCE_PROOF"
+    },
+    {
+      "id": "FS-BOUNDARY-018",
+      "category": "Cashier theme preference file",
+      "batch": "batch-06-local-journal-type-resolution.json",
+      "classification": "FIXED_LOCAL_NONSECRET_APPEARANCE_STORE"
+    },
+    {
+      "id": "FS-BOUNDARY-019",
+      "category": "Authorized backup directory and SQL-controlled disk paths",
+      "batch": "batch-07-backup-file-destination.json",
+      "classification": "PRIVILEGED_EXPLICIT_BACKUP_FILE_DESTINATION_POLICY_LIMIT"
+    },
+    {
+      "id": "NAT-BOUNDARY-020",
+      "category": "Managed GDI+/installed-font raster boundary",
+      "batch": "batch-08-managed-gdi-renderer.json",
+      "classification": "LEGITIMATE_MANAGED_NATIVE_GRAPHICS_RESOURCE_BOUNDARY"
+    }
+  ],
+  "scope_limitations": [
+    "HTTP transport constructions reviewed, not every endpoint wrapper/body or external library internal network request.",
+    "Structured ORM/SQL engine network/filesystem side effects in separate SQL boundary report; no database connection performed.",
+    "System.Drawing/native OS/font implementations not internally audited.",
+    "Build/install scripts, binaries, generated packages and external service configuration outside this production-src runtime-boundary assignment.",
+    "No process creation/explicit assembly loader matches found by these patterns does not prove absent aliased/reflection-generated or external-library behavior."
+  ],
+  "expanded_probe_results": {
+    "periodic_or_other_timer": {
+      "pattern": "PeriodicTimer|System\\.(?:Threading|Timers)\\.Timer|new\\s+Thread\\s*\\(|Task\\.Run\\s*\\(|FileSystemWatcher|BackgroundWorker",
+      "matches": [],
+      "classification": "Discovery only; absent lexical API spelling is not semantic absence proof."
+    },
+    "additional_transport": {
+      "pattern": "WebSocket|WebRequest|WebClient|FtpWebRequest|UdpClient|NamedPipeClientStream|HttpRequestMessage|SocketsHttpHandler",
+      "matches": [],
+      "classification": "Discovery only; absent lexical API spelling is not semantic absence proof."
+    },
+    "registry_hook_or_shell": {
+      "pattern": "GetTypeFromCLSID|GetTypeFromProgID|ComImport|ShellExecute|ProcessStartInfo|Process\\.Start|SetWindowsHook|Registry\\.SetValue|AssemblyResolve|AssemblyLoadContext",
+      "matches": [],
+      "classification": "Discovery only; absent lexical API spelling is not semantic absence proof."
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-064",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:09:33.271Z",
+  "reviewer": "root coordinator",
+  "title": "Daily summary net shift difference versus per-shift reconciliation",
+  "scope": "Bounded semantic comparison of cashier daily-summary netting, individual shift display, and the server aggregate for one business date.",
+  "decision": "For ordinary in-range monetary values and a shared day cohort, the daily net formula is consistent with the signed per-shift cash differences: server sums positive differences as overage and absolute negative differences as shortage; the daily summary subtracts shortage from overage; the shift-history row exposes each signed difference. No divergent calculation or new defect is confirmed.",
+  "behavior": {
+    "server": "GetBusinessDayReconciliationAsync selects shifts by BusinessDate, sums positive CashDifferencePiastres into overage and absolute negative values into shortage.",
+    "clientDaily": "NetShiftDifferencePiastres = ShiftsOveragePiastres - ShiftsShortagePiastres.",
+    "clientShift": "ShiftRow.Difference retains CashDifferencePiastres; the row classifies zero/negative/positive as balanced/deficit/surplus and offers absolute difference for display.",
+    "proof": "For finite values excluding signed-long overflow, sum(max(d,0)) - sum(abs(min(d,0))) equals sum(d). The daily and per-shift views are different aggregations/granularities, not duplicate business writes."
+  },
+  "counterevidence_and_limits": {
+    "cohort": "Server daily summary aggregates shifts whose BusinessDate equals the day. The individual shift view may present a broader history filter; parity applies only to rows for the same business date.",
+    "edge": "The server calls Math.Abs on negative long values and the client exposes Math.Abs for absolute display. Signed-long minimum overflow was not tested and no valid domain range evidence was established in this comparison; no defect is asserted.",
+    "intent": "Different daily net and per-shift signed presentation is useful and should remain distinct unless reporting requirements say otherwise.",
+    "tests": "No test execution. Required unit/integration coverage: positive, negative, zero, nullable difference; mixed balanced/shortage/overage same-day shifts; total net equals sum signed differences; extreme-value policy if long bounds are supported."
+  },
+  "recommendation": "Keep the daily net KPI and individual shift signed detail separate. Add a focused test that day-level overage minus shortage equals the sum of same-day signed differences. Confirm/encode allowed monetary bounds before deciding how signed-long minimum values should be handled.",
+  "required_tests": [
+    "Day with only balanced shifts yields zero net.",
+    "Shortage-only and overage-only day report expected signed net.",
+    "Mixed multi-shift day net equals sum of each same-day signed CashDifferencePiastres, with opposite deviations not hidden from detailed rows.",
+    "Null CashDifference contributes zero.",
+    "Document and test maximum supported cash-difference range if values can approach Int64 boundaries."
+  ],
+  "related_findings": [],
+  "related_prior_comparisons": [
+    "SEM-MIRROR-063",
+    "SEM-MIRROR-011"
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs",
+      "line_ranges": [
+        [
+          58,
+          58
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dca636d756daa4c22e5a723d88b5fee7235681ba4a795621143d4de178ed9794",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.NetShiftDifferencePiastres",
+          "kind": "PropertyDeclaration",
+          "span": [
+            58,
+            5,
+            58,
+            126
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "b4951f4250aece845c172b95f03ff3e8c4b7f96cb41d53827bb9b158f96cd3e3",
+      "worktree_sha256": "b4951f4250aece845c172b95f03ff3e8c4b7f96cb41d53827bb9b158f96cd3e3",
+      "source_text_matches_baseline": true,
+      "evidence": "The cashier daily summary derives the day net as aggregate overage minus aggregate shortage.",
+      "excerpt": "    public long NetShiftDifferencePiastres => (Summary?.ShiftsOveragePiastres ?? 0) - (Summary?.ShiftsShortagePiastres ?? 0);"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs",
+      "line_ranges": [
+        [
+          193,
+          197
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d66c3f57c0e2c0f2484ada3aaa80741ceb23167781ee84545bfd2c01ca05a5aa",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ShiftRow.Difference",
+          "kind": "PropertyDeclaration",
+          "span": [
+            193,
+            9,
+            193,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-5d1d4646f12d6fe8ff7b3c635d887a3dcc2045dfbb752e37b69d48c2f76964b6",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ShiftRow.IsBalanced",
+          "kind": "PropertyDeclaration",
+          "span": [
+            194,
+            9,
+            194,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-40ee1246669a3a0a37f213fea876bafe47755cfd8474c2456dd1937524076d28",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ShiftRow.IsDeficit",
+          "kind": "PropertyDeclaration",
+          "span": [
+            195,
+            9,
+            195,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-54f9a32f78ef7cae1f5e05d711ff5f45afaebec0d780215da0d98db00569b669",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ShiftRow.IsSurplus",
+          "kind": "PropertyDeclaration",
+          "span": [
+            196,
+            9,
+            196,
+            61
+          ]
+        },
+        {
+          "stable_id": "sym-0496cd9bc39d68823dff324871f051055e8ef5df22493e52629630c444b49e48",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ShiftRow.AbsoluteDifferencePiastres",
+          "kind": "PropertyDeclaration",
+          "span": [
+            197,
+            9,
+            197,
+            72
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "worktree_sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "source_text_matches_baseline": true,
+      "evidence": "The shift history row exposes signed CashDifferencePiastres and derives balanced/deficit/surplus and absolute display value.",
+      "excerpt": "        private long Difference => _dto.CashDifferencePiastres ?? 0;\n        public bool IsBalanced => IsClosed && Difference == 0;\n        public bool IsDeficit => IsClosed && Difference < 0;\n        public bool IsSurplus => IsClosed && Difference > 0;\n        public long AbsoluteDifferencePiastres => Math.Abs(Difference);"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "line_ranges": [
+        [
+          164,
+          208
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetBusinessDayReconciliationAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            164,
+            5,
+            208,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_text_matches_baseline": true,
+      "evidence": "The server scopes shifts to the requested business day, sums positive differences as overage, and sums absolute negative differences as shortage.",
+      "excerpt": "    public async Task<BusinessDayReconciliationDto> GetBusinessDayReconciliationAsync(string businessDayId, CancellationToken ct = default)\n    {\n        var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == businessDayId, ct)\n            ?? throw new InvalidOperationException(\"يوم العمل غير موجود.\");\n\n        var orderEntities = await _db.Orders.AsNoTracking().Include(o => o.Items)\n            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.BusinessDayId == businessDayId).ToListAsync(ct);\n        var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();\n        var sales = SalesRules.ComputeSalesReport(\n            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct));\n\n        var expensesTotal = await _db.Expenses.AsNoTracking().Where(e => e.BusinessDayId == businessDayId).SumAsync(e => (long?)e.AmountPiastres, ct) ?? 0;\n\n        var movements = await _db.TreasuryMovements.AsNoTracking()\n            .Where(m => m.BusinessDayId == businessDayId && m.Status == nameof(MovementStatus.Posted)).ToListAsync(ct);\n        long Balance(string accountId) => movements.Sum(m => (m.DestinationAccountId == accountId ? m.AmountPiastres : 0) - (m.SourceAccountId == accountId ? m.AmountPiastres : 0));\n        var treasury = new TreasuryBalancesDto(Balance(TreasuryAccounts.Main), Balance(TreasuryAccounts.Drawer),\n            Balance(TreasuryAccounts.Bank), Balance(TreasuryAccounts.InstaPay), Balance(TreasuryAccounts.Wallet));\n\n        var dayShifts = await _db.Shifts.AsNoTracking().Where(s => s.BusinessDate == day.BusinessDate).ToListAsync(ct);\n        var shiftsExpected = dayShifts.Sum(s => s.ExpectedCashPiastres ?? 0);\n        var shiftsActual = dayShifts.Sum(s => s.ActualCashPiastres ?? 0);\n        var shortage = dayShifts.Where(s => (s.CashDifferencePiastres ?? 0) < 0).Sum(s => Math.Abs(s.CashDifferencePiastres ?? 0));\n        var overage = dayShifts.Where(s => (s.CashDifferencePiastres ?? 0) > 0).Sum(s => s.CashDifferencePiastres ?? 0);\n\n        // Only cash actually collected by a driver is restaurant money awaiting settlement - a\n        // failed/returned order's original amount never creates a fictitious cash shortage here.\n        var dayOrderIds = orderEntities.Select(o => o.Id).ToHashSet();\n        var unsettledCustodies = await _db.DriverCustodies.AsNoTracking()\n            .Where(c => c.Status != nameof(CustodyStatus.Settled)).ToListAsync(ct);\n        var expectedDriverCash = unsettledCustodies.Where(c => dayOrderIds.Contains(c.OrderId)).Sum(c => c.CollectedPiastres);\n        var settledDriverCash = await _db.TreasuryMovements.AsNoTracking()\n            .Where(m => m.BusinessDayId == businessDayId && m.Type == \"driver_settlement\" && m.Status == nameof(MovementStatus.Posted))\n            .SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;\n\n        // Ported from reconcileBusinessDay's purchasing.paidPiastres in lib/control-layer-domain.mjs\n        // - a real gap found during the legacy-parity audit. Sourced from the same posted-movements\n        // list already loaded above (Type \"purchase_payment\", posted by both ReceivePurchaseHandler's\n        // pay-at-receipt leg and PayPurchaseHandler's later settlements).\n        var purchasingPaid = movements.Where(m => m.Type == \"purchase_payment\").Sum(m => m.AmountPiastres);\n\n        return new BusinessDayReconciliationDto(day.Id, day.BusinessDate.ToString(\"yyyy-MM-dd\"), ToDto(sales), expensesTotal,\n            treasury, expectedDriverCash, settledDriverCash, dayShifts.Count, shiftsExpected, shiftsActual, shortage, overage,\n            purchasingPaid);\n    }"
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "line_ranges": [
+        [
+          44,
+          51
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d946d6fafd1cc27dd37cb92e836bb688939fb51fc06a059181865ee0bcf39fdd",
+          "signature": "Falah.Application.Reports.DailySummaryDto",
+          "kind": "RecordDeclaration",
+          "span": [
+            48,
+            1,
+            51,
+            41
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "0a615dd0d71fc11bd9382cf3d832a4e116620c4b13b804a2431458cfb1f6d160",
+      "worktree_sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "source_text_matches_baseline": true,
+      "evidence": "The API DTO exposes day-level ShiftsShortagePiastres and ShiftsOveragePiastres, which the client nets.",
+      "excerpt": "/// <summary>Ported from DailySummaryScreen.tsx - the printable end-of-day sheet. Reuses\n/// GetBusinessDayReconciliationAsync's own sales/expenses/shift-discrepancy figures rather than\n/// re-deriving them, and adds only what that reconciliation doesn't already carry: employee-ledger\n/// totals and the names of whoever actually worked a shift that day (for the signature block).</summary>\npublic sealed record DailySummaryDto(\n    string BusinessDayId, string BusinessDate, SalesReportDto Sales, long ExpensesTotalPiastres,\n    long ShiftsShortagePiastres, long ShiftsOveragePiastres, EmployeeLedgerTotalsDto EmployeeLedger,\n    IReadOnlyList<string> CashierNames);"
+    }
+  ],
+  "runtime_executed": false,
+  "limitations": "Static source comparison only. No runtime/API/database/visual test. Same-date aggregation contract inferred from source; cross-shift accounting policy not independently specified."
+}

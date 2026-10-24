@@ -1,0 +1,154 @@
+{
+  "id": "UI-017",
+  "disposition": "SURVIVES_SOURCE_CHALLENGE_WITH_GLOBAL_GATE_QUALIFICATION",
+  "severity_assessment": "HIGH payroll recovery availability; no duplicate payroll disbursement demonstrated.",
+  "evidence": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 22,
+      "endLine": 40,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": null,
+      "evidence": "Transition/pay restore in initializers; constructor sets session/date only, not SelectedRun or IsPayOpen."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 113,
+      "endLine": 131,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": null,
+      "evidence": "CanAdvance requires NextStatus derived from null SelectedRun. CanOpenPay requires CanEditAction, false for any recovered request."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 152,
+      "endLine": 180,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": {
+        "stable_id": "sym-d8bf1ed900eeabccfa68d5dc8a5c9674e0958ab26f6c7104f59fb12d7c66874b",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.LoadAsync()",
+        "startLine": 151,
+        "endLine": 156,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Public LoadAsync refuses retained request; only private ReloadAsync would populate Runs/SelectedRun."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 225,
+      "endLine": 248,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": {
+        "stable_id": "sym-5a49cd373f4013657869a505f0c8f6606649b81a74ebbd9db339ac5cd0e5bfe5",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.SelectRun(Falah.Application.Employees.PayrollRunDto)",
+        "startLine": 224,
+        "endLine": 225,
+        "startColumn": 5,
+        "endColumn": 102
+      },
+      "evidence": "SelectRun requires CanEditAction; create-run is a counterexample with explicit retained retry, but rejects transition/pay pending."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 267,
+      "endLine": 299,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": {
+        "stable_id": "sym-207c98338e4f9a050bec89bf2e913a893c96c50e63058074b89a6626377503ae",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.AdvanceRunAsync()",
+        "startLine": 266,
+        "endLine": 300,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "AdvanceRunAsync checks CanAdvance before looking at retained transition; authoritative monotonic read fallback exists but unreachable on fresh VM."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 320,
+      "endLine": 357,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": {
+        "stable_id": "sym-f97344e05c027590235a58ea2eb0665e5c65e26c9d8db9b6638f96f6d7182e6c",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OpenPay()",
+        "startLine": 319,
+        "endLine": 326,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "OpenPay requires CanOpenPay; PayRunAsync checks IsPayOpen before recovered DTO, and fresh value is false."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/PayrollView.xaml",
+      "startLine": 129,
+      "endLine": 137,
+      "source_git_blob_sha256": "aa4ff8884875a9052c1fb8dad6c6666cc41b80c9fd1513f712480944c6a7cb89",
+      "worktree_sha256": "4842e9bfbd64f181656205f57c2e8787dea17d8f62f7c1f035141b31f123f5de",
+      "symbol": null,
+      "evidence": "Advance action visibility derived from null NextStatusLabel, payment entry depends on selected approved run."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/PayrollView.xaml",
+      "startLine": 200,
+      "endLine": 218,
+      "source_git_blob_sha256": "aa4ff8884875a9052c1fb8dad6c6666cc41b80c9fd1513f712480944c6a7cb89",
+      "worktree_sha256": "4842e9bfbd64f181656205f57c2e8787dea17d8f62f7c1f035141b31f123f5de",
+      "symbol": null,
+      "evidence": "Pay retry control nested under transient IsPayOpen overlay."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "startLine": 26,
+      "endLine": 32,
+      "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+      "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+      "symbol": {
+        "stable_id": "sym-c16103ee748f2db8b374fa343ee41e84f85634871bc9f502d1201a4557dd5bfb",
+        "kind": "MethodDeclaration",
+        "qualifiedSymbol": "Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnIsBusyChanged(bool)",
+        "startLine": 26,
+        "endLine": 32,
+        "startColumn": 5,
+        "endColumn": 6
+      },
+      "evidence": "Management pending registration happens only when IsBusy changes; constructor does not notify. Thus global lock/navigation freeze is not established merely by recovered request."
+    }
+  ],
+  "preconditions": [
+    "Unresolved transition or payroll payment DTO survives process restart.",
+    "Reopening payroll constructs fresh VM; no external injected transient selection/dialog state."
+  ],
+  "counterevidence": [
+    "Same-process transition/payment preserves context and has idempotent/reconciliation handling.",
+    "Create payroll run has separate explicit retained retry and is not affected by this exact recovery defect.",
+    "No constructor call registers recovered payroll as a global management operation; do not overclaim globally blocked navigation/close.",
+    "No database restore, payroll write, or payout executed."
+  ],
+  "affected_workflows": [
+    "Payroll transition recovery",
+    "Payroll payment recovery"
+  ],
+  "recommended_remediation": "Route retained transition/pay by original run identity through explicit recovery actions independent of transient selection/pay modal; register recovered pending state consistently.",
+  "required_tests": [
+    "Fresh VM with retained transition exposes retry even when Runs empty and SelectedRun null.",
+    "Fresh VM with retained pay exposes original payment context without allowing new account choice.",
+    "Assert constructor pending registration and navigation rules separately from action reachability."
+  ],
+  "reviewer": "ui_independent_challenge",
+  "timestamp_utc": "2026-10-17T12:44:23.585546+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "method": "Independent manual source and XAML reachability challenge; no runtime interaction",
+  "runtime_or_exploit_verification": "NOT_EXECUTED",
+  "independent_scope": "Finding-local review, not exhaustive file/function certification"
+}

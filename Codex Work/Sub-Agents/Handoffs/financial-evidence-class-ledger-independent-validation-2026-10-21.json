@@ -1,0 +1,54 @@
+{
+  "artifact_kind": "financial_evidence_class_ledger_independent_validation",
+  "id": "financial-evidence-class-ledger-independent-validation-2026-10-21",
+  "created_utc": "2026-10-21T11:28:00Z",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Independently inspect the new per-callable evidence-class ledger and method, validate its counts/classifications, and determine whether an exact first pending in-scope callable can be selected without repeating completed source reviews.",
+  "decision": "COUNTS_VALID; 989_IDENTITY_CLASS_CAN_BE_CROSSWALKED; NO_DEFENSIBLE_UNREVIEWED_CALLABLE_QUEUE_YET",
+  "artifacts_checked": [
+    {"path":"Codex Work/Deep-Audit/Database-and-Finance/financial-per-callable-evidence-class-ledger.json","sha256":"f7c3bab0af07dc1a9799010af4160be98db17c5233abe9678f3392483104d90e","role":"8,804-row current source callable inventory and evidence-class ledger; quality limits explicit."},
+    {"path":"Codex Work/Verification-Tools/build_financial_per_callable_evidence_ledger.py","sha256":"8a888633a8eb273303a9589da07f8531ab69d6d532affc1469dada398f3423d7","role":"Read-only derivation method; parses source-symbol indices, current author receipts, and exact residual-213 queue; does not consume continuation manifest."},
+    {"path":"Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-receipt-manifest-reconciliation.json","sha256":"34a46194d235f9bc8ec23fb699473a665976fa39ca2f4a9ff6a6d783e095b6a1","role":"Exact 989 continuation IDs with saved handoff line pointers and authority rows."},
+    {"path":"Codex Work/Sub-Agents/Results/financial-residual-213-reconciliation-queue.json","sha256":"48959f2eca8b65e23f94b71e1d5ddebbfdab212a4eb18bbcd232fb2ea5e6e56a","role":"Exact 213 residual disposition IDs."},
+    {"path":"Codex Work/Sub-Agents/Results/financial-symbol-remaining.json","sha256":"57b704de88a1444979ec0d235df0022721a929aa27001afac47389ef943e8219","role":"Historical indexed 4,253 analyzed IDs and 4,551 remaining; no historical 4,102 category ID map."}
+  ],
+  "independent_count_checks": {
+    "ledger_rows": 8804,
+    "unique_ledger_stable_ids": 8804,
+    "author_receipt_present_quality_ungraded": 7602,
+    "aggregate_continuation_cohort_identity_unresolved": 989,
+    "residual_disposition_present_depth_not_certified": 213,
+    "class_sum": 8804,
+    "indexed_4253_ids_in_author_receipt_class": 4253,
+    "manifest_continuation_ids": 989,
+    "continuation_manifest_intersection_with_989_ledger_class": 989,
+    "continuation_only_in_ledger_class": 0,
+    "continuation_only_in_manifest": 0,
+    "continuation_sets_equal": true,
+    "residual_queue_ids": 213,
+    "residual_intersection_with_ledger_class": 213,
+    "residual_sets_equal": true,
+    "duplicate_ledger_ids": 0
+  },
+  "classification_assessment": {
+    "author_receipt_class": "Correct for exact current receipt identity, but nonempty reasoning and COMPLETE_STATIC_CALLABLE_REVIEW labels remain ungraded for adequacy/accuracy.",
+    "continuation_class": "The ledger's AGGREGATE_CONTINUATION_COHORT_IDENTITY_UNRESOLVED label is conservative but can be refined: its exact 989 IDs are a one-to-one match to the saved continuation receipt manifest, which provides each ID's handoff path/line and authority source path/signature/span. This establishes identity linkage, not uniform reasoning depth.",
+    "residual_class": "Correctly identifies exact 213 disposition records while preserving the explicit limit that a disposition is not automatically substantive depth certification.",
+    "historical_4102": "Still unmapped to stable IDs; indexed 4,253 IDs match receipt membership, but the 151-count difference cannot be assigned to addition, reclassification, overlap, or drift.",
+    "method_limit": "The generator validates source universe hashes and receipt membership, then labels missing author-receipt IDs minus exact residual IDs as the 989 class. It does not ingest the continuation manifest or grade any reasoning content."
+  },
+  "next_callable_decision": {
+    "selected": false,
+    "reason": "The exact 989 class is not an unreviewed queue: every member has a saved continuation handoff pointer, though per-ID reasoning adequacy is not uniformly graded. The 7,602 author class has current callable notes but no quality grades, and the 213 residual class records dispositions/selected supplemental analyses without complete depth certification. Selecting a callable as genuinely unreviewed would require content-quality adjudication or would risk repeating completed source work.",
+    "first_exact_pending_financial_production_callable": "UNKNOWN; no evidence-quality status currently distinguishes unreviewed production callables from previously reviewed callables with ungraded evidence.",
+    "additional_reconciliation_needed": [
+      "Join the 989 exact continuation manifest IDs and evidence pointers into the ledger as per-ID continuation evidence, while retaining a separate depth/quality grade.",
+      "For all 8,804 IDs, grade linked evidence as substantive current source reasoning, limited/file-level reasoning, identity/disposition only, or absent, with exact pointer and reviewer-quality result.",
+      "Crosswalk the historical 4,102 method categories to stable IDs or explicitly retire that snapshot as non-crosswalkable historical reporting.",
+      "Derive an ordered financial production-source queue from IDs whose evidence is absent or fails the substantive-depth criterion, excluding already-reviewed IDs and honoring paused printing scope."
+    ]
+  },
+  "source_reviews": "No application source bodies were re-reviewed; this was ledger/method and membership reconciliation only. No tests executed.",
+  "constraints_observed": {"application_source_changed":false,"tests_executed":false,"database_or_runtime_touched":false,"shared_registry_or_canonical_report_changed":false,"git_publication":false},
+  "completion": "Ledger identity/counts independently validated with the 989 membership label correction. A defensible next source-review batch remains blocked on per-ID depth/quality classification rather than missing membership data."
+}

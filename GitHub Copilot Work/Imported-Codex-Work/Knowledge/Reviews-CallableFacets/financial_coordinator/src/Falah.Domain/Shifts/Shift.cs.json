@@ -1,0 +1,39 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Shifts/Shift.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.462728+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-22983764ae857ca2b6a9f0e98c991c00644ec4a0c206bfcf67de9c52362d93b6",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Shifts.Shift.BlindCloseResult.IsBalanced::get()",
+      "span": [
+        83,
+        9,
+        83,
+        53
+      ],
+      "reasoning": "Tests precomputed Difference.IsZero only. PrepareBlindClose checks open status and nonnegative actual, derives difference and approval requirement. IsBalanced does not independently validate expected cash, other custody obligations or manager approval; not a global day reconciliation certificate.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Tests precomputed Difference.IsZero only. PrepareBlindClose checks open status and nonnegative actual, derives difference and approval requirement. IsBalanced does not independently validate expected cash, other custody obligations or manager approval; not a global day reconciliation certificate.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+  "worktree_sha256": "e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [
+    "sym-50339ce702303644f3ecfa03d9be8e6a371a5fe571bc57c478b3ea0fecdbc59f"
+  ],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

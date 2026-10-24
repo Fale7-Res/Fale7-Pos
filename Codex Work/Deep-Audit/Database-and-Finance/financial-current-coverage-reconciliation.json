@@ -1,0 +1,459 @@
+{
+  "artifact_kind": "financial_current_coverage_reconciliation",
+  "as_of_utc": "2026-10-21T07:21:24Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "authoritative_callable_universe": {
+    "denominator": 8804,
+    "prior_union_review_receipt_count": 7602,
+    "prior_union_pending_count": 1202,
+    "continuation_exact_ids": 989,
+    "residual_exact_ids": 213,
+    "unique_membership_after_reconciliation": 8804,
+    "unmatched_or_duplicate_ids": 0,
+    "qualification": "Exact ID membership and saved disposition coverage only; not a claim that all 8,804 functions have coordinator-verified substantive depth."
+  },
+  "residual_213": {
+    "source_queue": "../../Sub-Agents/Results/financial-residual-213-reconciliation-queue.json",
+    "completion_manifest": "../../Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json",
+    "checkpoint": "../../Sub-Agents/Handoffs/financial-residual-213-reconciliation-checkpoint.json",
+    "items": 213,
+    "unique": 213,
+    "missing": 0,
+    "unknown": 0,
+    "duplicates": 0,
+    "pending": 0,
+    "aggregate_dispositions": {
+      "NOT_APPLICABLE_TO_FINANCE": 99,
+      "FINANCIAL_PRESENTATION": 45,
+      "FINANCIAL_PRESENTATION_SUPPORT": 5,
+      "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+      "FINANCIAL_PRESENTATION_WARNING": 5,
+      "PRESENTATION_ONLY_OR_INDIRECT": 28,
+      "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+      "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+      "FINANCIAL_PRESENTATION_AUDIT": 8
+    },
+    "source_hash_and_range_validation": {
+      "checked_by": "main coordinator",
+      "entries": 213,
+      "hash_mismatches": 0,
+      "invalid_spans": 0
+    },
+    "specialist_scope": "Static source reasoning/triage; financial report composition includes read-only ShiftClose and other payment/reporting print display paths; no physical print or runtime verification.",
+    "depth_reconciliation": {
+      "status": "INDIVIDUAL_DISPOSITIONS_AND_TARGETED_PRINT_SOURCE_REVIEW_COMPLETE; GLOBAL_FUNCTION_DEPTH_OPEN",
+      "agent_handoff": "Sub-Agents/Handoffs/financial-residual-213-depth-reconciliation-latest.json",
+      "coordinator_quality": "Deep-Audit/Database-and-Finance/financial-residual-213-coordinator-quality-check.json",
+      "coordinator_cross_check": "Deep-Audit/Database-and-Finance/financial-residual-213-print-semantics-coordinator-challenge.json",
+      "counts": {
+        "not_finance": 99,
+        "presentation_or_adjacent": 94,
+        "no_accounting_mutation": 13,
+        "not_applicable_financial_posting": 7,
+        "total": 213
+      },
+      "selected_source_reviews": 94,
+      "selected_current_hash_matches": 9,
+      "range_bounds_valid": true,
+      "sha_note": "One malformed/truncated handoff hash for OrderAutoPrintService; source-index hash matches current file. No source/test diff from baseline.",
+      "conditional_concerns": [
+        "Close-slip breakdown recomputes from current rows while headline is frozen; post-close mutability/revision policy unresolved.",
+        "Global driver-custody warning in close slip versus shift-filtered helper; owner intent unresolved."
+      ],
+      "money_moving_paths_found": 0,
+      "qualification": "Disposition and targeted relevant-source check do not certify substantive analysis of all 8,804 or the 327 file-report scope.",
+      "last_coordinator_batch": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-10-coordinator.json",
+      "as_of_utc": "2026-10-21T07:26:05Z"
+    }
+  },
+  "file_coverage": {
+    "financial_scope_files": 327,
+    "report_entries": 327,
+    "unique_files": 327,
+    "ledger_status_all": "REVIEWED_STATIC_COMPLETE_FILE",
+    "all_hashes_match_current_worktree": true,
+    "hashes_matched": 327,
+    "missing_reasoning_records": 0,
+    "missing_significant_method_lists": 0,
+    "invalid_reviewed_line_spans": 0,
+    "substantive_function_depth": "NOT_INDEPENDENTLY_CERTIFIED_FOR_ALL",
+    "ledger_coverage_complete": false,
+    "qualification": "Coordinator checked ledger uniqueness, source hashes, status fields, nonempty reasoning/method fields, and line-range bounds. This is a consistency gate, not fresh semantic re-review of every report/function."
+  },
+  "payroll_exact_reference_gate": {
+    "finding": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+    "paths_corrected": 8,
+    "ranges": 12,
+    "function_index_contexts": 14,
+    "missing_exact_ranges_after": 0,
+    "errors": [],
+    "gate": "financial-evidence-symbol-reference-gate.json",
+    "qualification": "Source metadata resolved; payroll policy and combined payment runtime remain unverified.",
+    "independent_challenge": "Sub-Agents/Handoffs/financial-payroll-candidate-independent-challenge-latest.json",
+    "independent_challenge_sha256": "a98b5ba100a3bc052f9018ea306409d20694fbb4d8b886c43fafe3842052484d",
+    "disposition": "Source-supported separate settlement/payroll flows; duplication not runtime-proven; owner policy remains open."
+  },
+  "finding_registry": {
+    "path": "../MASTER_FINDINGS.json",
+    "master_records": 75,
+    "financial_records": 43,
+    "severity_counts": {
+      "HIGH": 16,
+      "MEDIUM": 23,
+      "LOW": 4
+    },
+    "qualification": "Includes source-supported behavior candidates, conditional risks and aliases; counts are not confirmed-defect counts."
+  },
+  "stale_snapshots": {
+    "older_report_body": "7516/8804 and 1288 missing at 2026-10-20T03:07:25Z",
+    "intermediate_validation": "7524/8804 and 1280 missing at 2026-10-20T03:08:48Z",
+    "union_snapshot": "7602/8804 before continuation at 2026-10-20T03:11:56Z",
+    "treatment": "Historical snapshots preserved; they are not current coverage.",
+    "older_callable_method_snapshot_2026_10_17": {
+      "path": "Sub-Agents/Results/financial-coverage-methods.json",
+      "as_of_utc": "2026-10-18T00:55:54.210816+03:00",
+      "original_callable_scope": 8804,
+      "manually_classified_receipts": 4102,
+      "remaining_at_that_snapshot": 4702,
+      "manual_receipt_breakdown": {
+        "MANUAL_SOURCE_REASONING": 1456,
+        "MANUAL_CHANGED_BLOCK_AND_CURRENT_CONTEXT": 114,
+        "EXACT_SOURCE_EQUIVALENCE_PLUS_MANUAL_CURRENT_MODEL_CONTEXT": 2456,
+        "MANUALLY_REASONED_AUTO_ACCESSOR_FIELD_SPECIFIC": 76
+      },
+      "independent_function_depth_total": "UNKNOWN",
+      "treatment": "Historical 4,102/8,804 manual-category snapshot; superseded as a queue-count snapshot by later exact-ID union and continuation manifests, but does not become proof that later receipts all have equivalent manual reasoning."
+    },
+    "older_exact_symbol_queue_snapshot_2026_10_17": {
+      "path": "Sub-Agents/Results/financial-symbol-remaining.json",
+      "as_of_utc": "2026-10-18T01:08:06.215993+03:00",
+      "analyzed_ids": 4253,
+      "remaining_ids": 4551,
+      "unique_scope_paths": 327,
+      "treatment": "Historical exact indexed remainder snapshot; later union reconciliation dated 2026-10-20 supersedes its queue membership, while substantive analysis status remains independently uncertain."
+    },
+    "latest_exact_union_2026_10_20": {
+      "path": "Sub-Agents/Results/financial-current-union-progress.json",
+      "as_of_utc": "2026-10-20T06:11:56.305416+03:00",
+      "original_scope": 8804,
+      "union_receipts": 7602,
+      "pending_before_continuation": 1202,
+      "reviewer_counts": {
+        "financial_coordinator": 1216,
+        "financial_integrity": 6448
+      },
+      "treatment": "Latest pre-continuation exact-ID union; continuation 989 IDs plus residual 213 reconcile the 1,202 IDs by exact identity. Coverage reconciles membership, not review depth."
+    }
+  },
+  "remaining_gates": [
+    "Substantive function-depth remains UNKNOWN: the 2026-10-17 manual-reasoning snapshot (4,102) and indexed analyzed-ID snapshot (4,253) differ by 151 with no stable-ID crosswalk; 989 continuation receipt IDs are membership/status records without per-ID reasoning in the scanned handoffs. Exact genuinely analyzed total and exact remaining substantive-analysis queue are not recoverable from current ledgers. Build a stable-ID-to-reasoning-evidence ledger before claiming function coverage.",
+    "Reconcile 327/327 financial file-report entries against genuine file/function and workflow reasoning; presence is not proof.",
+    "SQL Server/provider concurrency, idempotency, open/close races, payroll combined sequence, and database-backed integration tests were not executed.",
+    "Owner policy for standalone employee settlement overlapping frozen payroll remains unresolved; duplicate payout is unproven.",
+    "Cross-review material findings for semantic validity and historical behavior preservation; metadata checks do not independently validate source meaning.",
+    "No coordinator certification of substantive callable depth across all 8,804 declarations.",
+    "Supplemental presentation residual queue: 30/94 financially relevant IDs have separate substantive batch reasoning and 64 exact IDs remain; this is not merged into the 8,804 primary receipt union and does not close global financial depth."
+  ],
+  "status": "INCOMPLETE — exact receipt membership reconciled; substantive depth across 8,804 callable universe UNKNOWN; selected 94-item supplement 94/94 reviewed; 327-file report scope is structural only; SQL/provider/runtime and broad semantic-mirror gaps remain.",
+  "reference_reconciliation_2026_10_21": {
+    "master_record_source_refs": 279,
+    "exact_ranges_present": 358,
+    "missing_ranges": 0,
+    "metadata_validator": "PASS",
+    "validator_path": "Verification-Tools/validate_financial_evidence_metadata.py",
+    "validator_at_utc": "2026-10-21T09:38:51.078752+03:00",
+    "canonical_registry_sha256": "3658928b4d61995f586c0bd166047e3657bdf0ecd802ef25fb7da6d57e82d38d",
+    "distinct_source_paths": 126,
+    "qualification": "Mechanical source/hash/stable-symbol/range binding only; no semantic truth or callable-depth certification."
+  },
+  "repair_readiness": {
+    "records_total": 42,
+    "records_with_structured_repair_evidence": 42,
+    "records_with_impact": 42,
+    "records_with_remediation": 42,
+    "records_with_regression_tests": 42,
+    "records_with_acceptance_criteria": 42,
+    "records_with_counterevidence_or_limits": 42,
+    "records_with_explicit_limit_or_policy": 36,
+    "distinct_roots": 41,
+    "canonical_alias": {
+      "FIN-013": "FIN-029"
+    },
+    "source_reference_validation": {
+      "references": 279,
+      "exact_ranges": 358,
+      "missing_exact_ranges": 0,
+      "source_metadata_gate": "PASS",
+      "source_paths": 126
+    },
+    "qualification": "Schema-aware field presence only; not semantic adequacy or finding truth."
+  },
+  "callable_review_depth": {
+    "manual_classified_receipts_latest_dated_snapshot": 4102,
+    "manual_receipt_breakdown": {
+      "MANUAL_SOURCE_REASONING": 1456,
+      "MANUAL_CHANGED_BLOCK_AND_CURRENT_CONTEXT": 114,
+      "EXACT_SOURCE_EQUIVALENCE_PLUS_MANUAL_CURRENT_MODEL_CONTEXT": 2456,
+      "MANUALLY_REASONED_AUTO_ACCESSOR_FIELD_SPECIFIC": 76
+    },
+    "independent_function_depth_total": "UNKNOWN",
+    "exact_membership_and_disposition": 8804,
+    "substantive_semantic_review_of_all_8804": "NOT_CERTIFIED",
+    "qualification": "The historical 4,102 manual-reasoning bucket is retained with timestamp; later 7,602 union/989 continuation/213 residual records close ID membership but are not all the same evidence class. Do not report a single genuine function-reviewed count for 8,804.",
+    "reconciliation_artifact": "../../Sub-Agents/Handoffs/financial-analyzed-callable-count-reconciliation-2026-10-21.json",
+    "historical_snapshot_conflict": {
+      "manual_reasoning_snapshot": 4102,
+      "manual_reasoning_snapshot_at_utc": "2026-10-18T00:55:54.210816+03:00",
+      "indexed_analyzed_id_snapshot": 4253,
+      "indexed_snapshot_at_utc": "2026-10-18T01:08:06.215993+03:00",
+      "difference": 151,
+      "stable_id_crosswalk": "UNAVAILABLE",
+      "result": "DO_NOT_ADD_OR_TREAT_AS_CURRENT_COMPLETION"
+    },
+    "continuation_989_quality": {
+      "source": "../../Sub-Agents/Handoffs/financial-analyzed-callable-count-reconciliation-2026-10-21.json",
+      "exact_ids": 989,
+      "handoff_files_scanned": 59,
+      "symbol_array_rows_with_status_only_or_identity_fields": 496,
+      "stable_ids_without_per_id_reasoning": 383,
+      "other_receipt_shapes": 110,
+      "creditable_as_individually_reasoned_callables_from_this_scan": 0,
+      "qualification": "Do not credit the 989 exact ID manifest as individual reasoning without per-ID analysis evidence."
+    },
+    "exact_remaining_genuine_analysis_queue": "UNKNOWN",
+    "current_genuine_analyzed_count": "UNKNOWN",
+    "creditable_continuation_callable_receipts_from_bounded_shape_scan": 0,
+    "supplemental_manual_review_batches": [
+      {
+        "id": "financial-continuation-payroll-tests-20261021-review",
+        "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+        "callable_ids": 36,
+        "verification_artifact": "payroll-test-callable-review-quality-check.json",
+        "agent_handoff": "../../Sub-Agents/Handoffs/financial-continuation-payroll-tests-20261021-review.json",
+        "ids_were_in_primary_author_receipt_pending_queue_at_assignment": true,
+        "tests_executed": false,
+        "counted_in_primary_author_receipt_union": false,
+        "qualification": "Exact test-callable review only; does not alter primary author-receipt union, implementation handler coverage, execute tests, or resolve global crosswalk."
+      }
+    ],
+    "current_author_receipt_gate": {
+      "author_receipt_union": 7602,
+      "original_callable_universe": 8804,
+      "author_receipt_missing": 1202,
+      "source": "../../Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json",
+      "qualification": "Current structural author-receipt validator; nonempty fields and IDs do not prove semantic depth. Thirty-six pending payroll test callable IDs now have separate substantive test-source review evidence; that evidence is not merged into the original author-receipt union."
+    }
+  },
+  "latest_validation": {
+    "at_utc": "2026-10-21T07:21:24Z",
+    "supplemental_financial_review": {
+      "selected_total": 94,
+      "reviewed": 80,
+      "pending": 14,
+      "batch_count": 8,
+      "reviewed_ids_unique": 80,
+      "primary_union_changed": false
+    },
+    "status": "STATIC_REVIEW_ONLY_NO_TESTS"
+  },
+  "latest_agent_reconciliation": "../../Sub-Agents/Handoffs/financial-integrity-continuation-current-gap-reconciliation-2026-10-21.json",
+  "supplemental_substantive_review_batches": {
+    "scope": "Selected financially relevant residual presentation/reporting callables, separated from original 8,804 author-receipt union",
+    "selected_queue_total": 94,
+    "reviewed_unique_ids": 94,
+    "remaining_exact_ids": 0,
+    "remaining_ids": [],
+    "batch_records": [
+      {
+        "batch": 1,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-01.json",
+        "sha256": "d56a682f82d4d6fef0f63eaea3f389b7215df2625a91d29df04a3ba0cfb121c8",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 84,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 2,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-02.json",
+        "sha256": "ef456e4ad4830ebdd251a99f2233e11193f2956ae581efdf32d3063c09d90ae7",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 74,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 3,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-03.json",
+        "sha256": "9ca92d2e47ef0f40ae7c1d1edc2987e3dd35e627815fe55ced2ae9c7cac94d62",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 64,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 4,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-04.json",
+        "sha256": "d63b7c84c972e70ad6f20eeee26737ec114457e964fedcc9bd017e09ba5d74cd",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 54,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 5,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-05.json",
+        "sha256": "81b786dd1c350346d87ab3852feff4bb6fff4abd51b24d201beac388ae4a93c7",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 44,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 6,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-06.json",
+        "sha256": "77fb7fec5c149d8ccf40c0c36104d4af27e89b29543af95874356a40c46f2cd8",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 34,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "financial_integrity_continuation"
+      },
+      {
+        "batch": 7,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-07-coordinator.json",
+        "sha256": "4034a01f40c8f17b219c0e5fd8c5700102742e6eaf7cbc5420df17b166649a1a",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 24,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "/root coordinator"
+      },
+      {
+        "batch": 8,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-08-coordinator.json",
+        "sha256": "9fc06e0a8703ceebca6c586ae8ff6ff3ea7cd7bcebe343d2e4616358beff6bb5",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 14,
+        "reviewer": "/root coordinator",
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false
+      },
+      {
+        "batch": 9,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-09-coordinator.json",
+        "sha256": "0a448cc3d355837aa69729af978f10637bc146ec6daf672f31a2c8bc14050536",
+        "reviewed_unique_ids": 10,
+        "remaining_after_batch": 4,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "main_coordinator"
+      },
+      {
+        "batch": 10,
+        "artifact": "Sub-Agents/Handoffs/financial-residual-213-substantive-batch-10-coordinator.json",
+        "sha256": "c8e150f808c49144a2f7600c9d0381193d6f8d248593c76fcb33a1ca91de680a",
+        "reviewed_unique_ids": 4,
+        "remaining_after_batch": 0,
+        "primary_author_receipt_union_credit": false,
+        "tests_executed": false,
+        "reviewer": "main_coordinator"
+      }
+    ],
+    "reviewed_ids": [
+      "sym-ef3f9f2ed75e468cf22ef31c93b5f01e2871d6278f4bb3af2b5a90866ecdf1ae",
+      "sym-a351329f8a343a30737e6b02af7e1f286006717468b4b193a7910246b53e55cc",
+      "sym-4c4a46c0a454ba87768a1792ea8ca383c65ad458bb0e8a3c25b67c7bef90a068",
+      "sym-414caa833061f2c487be830db6a2b04699a9c38dbeec5cae6a53275f11bd80de",
+      "sym-077cc40a76a3964f7882c8b0461b426c8865cc747f4c06df106676e23cb3c496",
+      "sym-695d0b0fc9a412b1c6219c3588152c306c328d6785d5ee9750a0608d16af7777",
+      "sym-a1b0356cef90b6be1df774c4e53b9b6d1462d50cc8b56d39e56d8cbd3ecedcbf",
+      "sym-3a47cbd8f29a1b6f5670568f6965983235085c03a8024888f1c8cf51bb72478c",
+      "sym-e0f8b501a2a8c071a44eace1d252ca52aa5f3e2d2778a0556f92545befed92ff",
+      "sym-5f4e6e86d94cd61241387a3242b762d812b4e9679c29d0c3eddaeb4c09378740",
+      "sym-15e22c415f59e2e756c0fca35f40baec27fcabf8dc5bd6a3061d9f02832a6281",
+      "sym-00759ae2c2172a131a01b2e5b318cbd84f0f1ea06d14969cc8a7024a5d9387b7",
+      "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+      "sym-0b6e3bbdb8f25d0f906213d9c5272cc5b9ad3b212d0555d2577998ed095da2c1",
+      "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+      "sym-0e89a2f33ddd9bd0153d2c14c12a41fe40c961301e4915169dad8d5b7b9c69d3",
+      "sym-18cafeccb4e8b74540fe727ccfa17761c59f135c6f878d4e60ac65c9d649ba89",
+      "sym-0dea86126f84db914fae54490e34ffa959f8d0dc2dc99153512ad435929e6586",
+      "sym-0a2d46bfba857733a9fcc943ae9a973e55be1de2c9f3fcc2dd36f570816019d8",
+      "sym-12caec188e668627d143f874382357cbd7e56d0a6454f43330866056ae3c5ebb",
+      "sym-1ee92b37b87b522d3b8dd50b289b3de1d4a01239f2914d353927979179ce1bd2",
+      "sym-1ecfc0a46a4ff535ede556b351019e7b251c05b1e9ac847bea69e42df5d65819",
+      "sym-25feaf1735a0ac547b0637b0715cf862f157b4fa5c98b9cea5c411b3512aecf9",
+      "sym-1aca6f097cfe49a340df18b29561a832e401f0aeda27e676b7d0b7138396ce3b",
+      "sym-2b4a41d6126cf616df59838f4a536165203b837c4931950b027d5ea7e3db6f96",
+      "sym-2ce2dc03ad514a699a680c72815c82e9c6946204d4169b1df9f81830c779ef18",
+      "sym-23da0b45e4164917169060adc3329ed18c2adb008b6ca2486fc181f00c99d328",
+      "sym-1abd25cadaf889820b2dce1949645e50b9bd4e0e25c88a819ff3bd8f761f6a88",
+      "sym-2679747f78547e6796b6ff1233c7d73cbd6d1a08195b62d2c2bbe6151a60b37b",
+      "sym-288709211262d2afcbb8d962725ae7d3c6c4a634ed55d610373c9da7305f1d1a",
+      "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a",
+      "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed",
+      "sym-40dbc5c24a604b7b3ed6ef6749a13f0f652daaeb2db18ad9d7c9795d653eca3f",
+      "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9",
+      "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90",
+      "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245",
+      "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89",
+      "sym-5742b07959753ad1947e6783759d2e282c4a001f8c3289ec22a367b917ad6286",
+      "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168",
+      "sym-62de151e444df725435d1f41f8eb9f260b56f1f80bf7c1798ff12c1e063a078d",
+      "sym-6c03bda4a838e0362bc8222a32c318e754b31a776a565edfd0693c6c682815c1",
+      "sym-70de7a2711a7e070047f6fb39bff0debb9c322d2845bd5482de3326d54990dc4",
+      "sym-70fcf024ebcd66208c4d8e75c8f908d25e2c52ca06a7a07e335aafca03a2a50a",
+      "sym-7416f9be0e5e18e3f12dc9fe70291d6bcaad53a6ea21268b8ce5ac315f6ed313",
+      "sym-770982e2e7dac5b5bfbbb35322473d1acef9a103024becbc72aa19ef329bf387",
+      "sym-77865f1b79a9809e6659dc558788bcd8b94d3b0689553284c1d1af2cd1f20698",
+      "sym-791a215431df977b542324f1d6c30df66047064ec23e0550b44531e7f1853d0f",
+      "sym-7de267adc6d5ea614202a0ac280d89e3d7d92834416c422edff2b0dc40f0436c",
+      "sym-80371f8d36740fe7bf1eecd6b8a99d23056a55d12e24d0c385bfb20555d49875",
+      "sym-85f8c7eb34deca96a636dba2214a40c26ec2de23f993e175f91e420d08fca331",
+      "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+      "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+      "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+      "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+      "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d",
+      "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+      "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+      "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+      "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+      "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+      "sym-a57ae20ea32acb1cb86514516aea44b270cafec7c803b9e1c76c8f72455c07ca",
+      "sym-b0e426b0a9c2ffb3ec1e20a652d085e49e861a3112f2b069c4f9f76b36f05e33",
+      "sym-b38c92e2aa1cef5dc2976f7656370635af13578727943866471415a065f89f2c",
+      "sym-b407e27ee608a533415e75d0cf6ff371c1953ad8e832ed46648943aa63eaba94",
+      "sym-b5d02765cc73eb502bce00fe1d7fa69e5d505e4ab7d3528c6cbe64df1db3be99",
+      "sym-b72cee84fa9eb3496d45c0e7ea3ef2d3e77413091522986f2fe040b4a149bc11",
+      "sym-bc1982a176b054923f1a82a06a7f7fd41994f3b60f8a71cd9b7ffafb828d1e0b",
+      "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+      "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+      "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+      "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+      "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+      "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+      "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+      "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+      "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+      "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+      "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+      "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+      "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8"
+    ],
+    "result": "Eight source-specific batches reviewed 80/94 selected presentation/support IDs; 14 exact pending. Batches 7–8 completed by coordinator after financial continuation usage limit. Supplemental receipts not credited to original author union.",
+    "separate_callcenter_challenge": "Sub-Agents/Handoffs/financial-callcenter-cancelled-order-payment-line-independent-challenge-2026-10-21.json",
+    "primary_author_receipt_union_changed": false,
+    "source_tests_executed": false,
+    "runtime_database_ui_or_physical_print_tests": false,
+    "qualification": "Selected supplementary reasoning only. These 30 do not certify the 94 queue, the 8,804 global callable universe, or all 327 financial file reports.",
+    "batch_count": 10,
+    "primary_union_changed": false
+  }
+}

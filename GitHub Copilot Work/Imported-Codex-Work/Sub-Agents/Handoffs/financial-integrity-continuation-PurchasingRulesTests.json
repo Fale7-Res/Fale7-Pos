@@ -1,0 +1,36 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:17:26.2904666Z",
+  "path": "tests/Falah.Domain.Tests/PurchasingRulesTests.cs",
+  "stable_ids": [
+    "sym-aaa52c9e029f689992864d474c6eb3b64263c615a96ac314de992706dca33241",
+    "sym-86d8bcbb0ebad16523840830dd555292b1e8698ff6362c2589e6ff8e628e4670",
+    "sym-e3fde891315283129158abf02e8994344af4b46c35591adf530044a2ff36138b",
+    "sym-d70e61800d328e3b99162f3e230ed4cdd8fc0220ed96079232fd2bc2ce724562",
+    "sym-71a226b8bc76aff6a9ab99e86b19ea91bfa8c57c4094cbe4a19751ebf7ef23bd",
+    "sym-4e73cb93062c620559dbc1e46020e2babb1304d6f1ad883f280c2b4bfd851adb",
+    "sym-ee9c3f785220e8eacd0009b90e9899883499927efa40c147d88bc31b52099b4d",
+    "sym-8b70b12e4b3f3b84769675f60e3b79974631a7601e6f9f3cb007924e9977bfe7",
+    "sym-44e9da3271f69330101d9361d408ec569ff342095ccac88414669d6dfbd2afd0",
+    "sym-6b0e8ddbaec8bf79fddf423ed61c28b8af0cd7677cf20af9df36c717b474eccd",
+    "sym-9a26cda8fe39a8cc467857aeaa6f07a22795adae327db37b31f9e86a964b8a30",
+    "sym-2eec62f86fade7daf7c92ab59088d3259e2c824f08306ffca713b33a47325f90",
+    "sym-0920f0b041137f213b4158430b3d1ad0e96e8c289c3806dc296c20e71df6d26f"
+  ],
+  "queued_count": 13,
+  "reconciliation": {
+    "current_union_remaining": 13,
+    "coordinator_database_reports_matches": 0,
+    "outside_union": 0,
+    "note": "Coordinator database/report coverage does not list these test-symbol IDs; authoritative union confirms all 13 remain callable."
+  },
+  "source_hashes": {
+    "tests/Falah.Domain.Tests/PurchasingRulesTests.cs": "CF9C5244C2BDA72D0D9021368974D7ADB85B1A0D0DCE2E5F69D0564C77760496",
+    "src/Falah.Domain/Inventory/PurchasingRules.cs": "E11CCC80B8FB47C7D534BB3595E4553FBFDE47EAE93EB0EB6BA007F1C7ED2524"
+  },
+  "assessment": "Tests cover piastre line rounding, latest positive purchase receipt, no purchase price, payment range, allowed payment channel, credit without a treasury account, rejection of unsupported methods, and supplier-ledger attribution/outstanding. The 499.5 example rounds to 500 under midpoint-to-even and away-from-zero, so it does not distinguish midpoint policy. Static path review found no new issue in these tests; existing ledger already records the broader stale-outstanding concurrency risk and last-purchase cost semantics. No duplicate candidate promoted.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Read-only source inspection; no tests, transactions, database calls, or writes executed.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

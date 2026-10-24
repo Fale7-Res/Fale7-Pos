@@ -1,0 +1,113 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:56:20.1009119Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+  "symbol_count": 8,
+  "symbols": [
+    {
+      "stable_id": "sym-91b6298c85856226f74355e005bcd129bc3556bbbd4331d12af4d9f758f85150",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashCountAndSettings.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        73,
+        10
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3f5ec80c9ccc7c8b1fbbbec9d3303b89c9605acbd2a7badfc6e823098d86209c",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        16,
+        26,
+        28,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9f4bd276db7ee3faabd1365416074cc453906a791d4bfbdec6b8059615f047a1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        30,
+        32,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-ea3bfe73c860f605400705bb7464cefa91cf5cfba43eae7b46a27590d3c0ef95",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        31,
+        67,
+        31,
+        76
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-be9f1ba8b480d48939a8efe6ba47cf2bd41ee7daf210b40a2a93ce63aa58740a",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        36,
+        26,
+        63,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6f4535ea5ac407ad4560667f1a28288418cc15aa48a29e5f2d84c3b8474a7fe8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        64,
+        30,
+        67,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-076940855e7f0c6a6f5a67d66501686abc7d8cc31d09565bc60c1d00d699a685",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        66,
+        53,
+        66,
+        62
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6572887e9b6fc16ed32cbda0c00e48fc03b677fc01bcad27468d7cf31e0d904a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddCashCountAndSettings.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        76,
+        9,
+        83,
+        10
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Creates CashDenominationCounts with JSON rows and derived total/expected/difference facts, but no FK to BusinessDays or Shift and only a nonunique BusinessDayId index; creates Settings as plain keyed records with no database singleton key beyond Id. These may be intended application-owned relationships/singleton admission; entity/handler check is required before calling them defects. No check constraints or migration data writes beyond schema creation.",
+  "source_ranges": "Entire source read: Up 12-73, Down 76-83.",
+  "execution": "Read-only source review; no migration/provider/database/tests.",
+  "shard_reconciliation": {
+    "financial_integrity": "/8 exact IDs present",
+    "financial_coordinator": "/8 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

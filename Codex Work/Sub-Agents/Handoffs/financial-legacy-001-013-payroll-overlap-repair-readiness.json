@@ -1,0 +1,934 @@
+{
+  "artifact": "financial-legacy-001-013-and-payroll-overlap-repair-readiness",
+  "created_utc": "2026-10-21",
+  "scope": "Normalized repair-readiness supplement for FIN-001..FIN-013 and FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001. Derived only from existing canonical source_record details and linked saved evidence; no source reread or shared registry edits.",
+  "record_source": "Codex Work/Sub-Agents/Results/financial-findings.json",
+  "candidates": [
+    {
+      "id": "FIN-001",
+      "title": "Mixed cash/electronic checkout cannot confirm its electronic leg",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "lines": [
+            148,
+            154
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "lines": [
+            253,
+            275
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+          "lines": [
+            75,
+            84
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "lines": [
+            24,
+            38
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "lines": [
+            69,
+            73
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Mixed cash/electronic checkout can post the immediate tender but reject confirmation of the deferred electronic leg because both paths claim the same completed sale journal key; electronic collection may remain unconfirmed.",
+      "proposed_remediation": "Journal idempotency per stable payment-leg identity. Atomically transition pending electronic leg to confirmed and post exactly one leg movement; preserve whole-order and replay semantics without deleting an existing journal as a workaround.",
+      "regression_tests": [
+        "Mixed cash+InstaPay and card+Wallet checkout, confirmation, retry, and concurrent confirm; verify exact tender totals and one movement per leg.",
+        "Replay same request and verify stable movement identity."
+      ],
+      "acceptance_criteria": [
+        "Each tender leg can complete independently and exactly once.",
+        "Confirmed electronic state and its movement commit atomically; channel totals reconcile."
+      ],
+      "counterevidence": [
+        "Canonical record says mixed split makes DefersAllMoney false; existing confirmation integration covers only single InstaPay.",
+        "No runtime reproduction in saved evidence."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-ConfirmElectronicPaymentTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-OrderPaymentQueriesTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-002",
+      "title": "Cancelling pending mixed electronic payment hides collected cash without reversal",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "lines": [
+            200,
+            213
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+          "lines": [
+            39,
+            57
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+          "lines": [
+            29,
+            47
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "lines": [
+            255,
+            267
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Cancelling an order with an already-collected immediate split leg can mark whole order cancelled and remove it from sales reporting while leaving collected cash without reversal, making drawer/revenue totals inconsistent.",
+      "proposed_remediation": "Model tender-leg cancellation/outstanding replacement; or require approved refund/reversal for already collected legs before full order cancellation. Keep collected cash represented until a real reversal; state explicit inventory waste policy.",
+      "regression_tests": [
+        "Cancel cash+electronic and card+electronic orders; reconcile treasury, operational cash, and reports.",
+        "Race cancel against confirm and require one terminal tender outcome.",
+        "Verify refund only when funds are actually returned."
+      ],
+      "acceptance_criteria": [
+        "Cancelled order/payment state preserves every collected tender until a matching reversal exists.",
+        "Order, tender, treasury, and report totals reconcile after either winning race."
+      ],
+      "counterevidence": [
+        "Current integration cancel helper creates only single InstaPay; it does not exercise mixed split.",
+        "Inventory non-reversal may be deliberate legacy policy and is outside core cash issue."
+      ],
+      "unresolved_owner_policy": [
+        "Confirm intended cancellation/refund semantics for immediate collected legs and inventory waste."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-ConfirmElectronicPaymentTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-OrderPaymentQueriesTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-003",
+      "title": "Refund can debit money for an order that was never collected",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+          "lines": [
+            78,
+            92
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+          "lines": [
+            102,
+            120
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "lines": [
+            220,
+            233
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Refund handler can use order total less prior refunds rather than settled collection provenance, allowing an authorized refund against an unpaid/pending order if source path permits; pooled account balance only ensures liquidity, not collection.",
+      "proposed_remediation": "Derive refundable limit from settled tender legs less prior refunds; require source collection proof. Route pending orders through cancellation. Revalidate under the same order lock and reject unpaid refunds in the domain invariant.",
+      "regression_tests": [
+        "Unpaid COD, pending electronic, confirmed paid, partial collected, and unsupported mixed cases.",
+        "Race refund with cancel/confirm and concurrent refunds; rejected cases create no refund/movement and balances remain unchanged."
+      ],
+      "acceptance_criteria": [
+        "Cumulative refunds never exceed the order’s actually settled amount per tender leg.",
+        "Rejected unpaid refund leaves no partial writes; valid refund atomically records refund and outflow."
+      ],
+      "counterevidence": [
+        "Approval permission does not prove collection. Pooled protected balance checks cash availability only. Multi case already rejected; paid single-method refund remains supported."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-OrderRefundTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-RefundVerticalSliceTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-004",
+      "title": "Historical cash refund omitted from current-shift expected cash",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Domain/Orders/RefundRules.cs",
+          "lines": [
+            39,
+            43
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+          "lines": [
+            95,
+            110
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+          "lines": [
+            42,
+            68
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+          "lines": [
+            31,
+            51
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "A cash refund executed during current shift B for a sale from shift A may reduce lifetime/order net while the drawer reconciliation for B omits the refund outflow or allocates it to the original sale; expected cash and actual drawer diverge.",
+      "proposed_remediation": "Compute drawer flow from posted operational cash movements or join refund rows by OperationalShiftId; avoid double deduction for same-shift refunds and preserve immutable closed shift snapshots. Separate original sale period from refund execution period.",
+      "regression_tests": [
+        "Historical shift A sale refunded in B; verify B actual/expected and final close balance reconcile.",
+        "Same-shift partial cash refund counted exactly once.",
+        "Historic noncash refund and cross-business-day reports preserve attribution; idempotent retry."
+      ],
+      "acceptance_criteria": [
+        "Each refund cash outflow appears once in the shift/business period in which it was executed.",
+        "Historical closed shift snapshot remains immutable; current operational drawer reconciles to movements."
+      ],
+      "counterevidence": [
+        "Refund rules explicitly promise historical immutability and current shift is required. Existing domain test checks operational shift selection but not reconciliation composition."
+      ],
+      "unresolved_owner_policy": [
+        "Confirm report presentation of original sale period versus refund execution period if business reports aggregate them differently."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-OrderRefundTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-ShiftTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-005",
+      "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+          "lines": [
+            36,
+            44
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+          "lines": [
+            59,
+            80
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+          "lines": [
+            95,
+            115
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "lines": [
+            277,
+            305
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+          "lines": [
+            20,
+            60
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+          "lines": [
+            75,
+            111
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Two distinct authorized settlements can each read the same invoice outstanding and overpay supplier; invoice cache may then diverge from ledger. Source-account locking can preserve cash solvency while invoice obligation is exceeded.",
+      "proposed_remediation": "Within one transaction lock the invoice row before loading outstanding and tracked balance, recompute from supplier-invoice ledger under that lock, validate and atomically post settlement/cache. Define stable invoice/account/approval lock order; retain request idempotency.",
+      "regression_tests": [
+        "Barrier: two different 80 settlements against outstanding 100, both same account and different accounts; at most one succeeds, total <=100 and cache equals ledger.",
+        "Same request replay returns committed result."
+      ],
+      "acceptance_criteria": [
+        "For each invoice, committed settlements never exceed current outstanding.",
+        "Cached paid/outstanding fields match ledger under serialized settlements.",
+        "Retries remain idempotent and deadlock policy is bounded."
+      ],
+      "counterevidence": [
+        "Treasury lock protects pooled source balance but not invoice freshness. Distinct request IDs legitimately bypass same-key idempotency. No race was executed."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PurchasingVerticalSliceTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-006",
+      "title": "Generic payroll transition marks run Paid without paying treasury or employee ledger",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "lines": [
+            25,
+            58
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "lines": [
+            12,
+            26
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "lines": [
+            65,
+            78
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Generic status transition can label an approved payroll run Paid without dedicated payout’s treasury movement and employee ledger settlement; status is not proof of disbursement.",
+      "proposed_remediation": "Reject Paid as a generic transition target. Only the dedicated payout command can set Paid after atomically persisting treasury movement, journal, employee settlements, paid lines and audit; coordinate with cancel transition using a run-level lock/CAS.",
+      "regression_tests": [
+        "Generic Approved->Paid is rejected and writes nothing.",
+        "Dedicated pay atomically creates expected movement and each settlement.",
+        "Actor without payroll_pay cannot set Paid through generic route.",
+        "Concurrent cancel/pay results in exactly one consistent terminal state."
+      ],
+      "acceptance_criteria": [
+        "Paid status is equivalent to completed committed payout effects.",
+        "No API path can mark paid without required payroll_pay authorization and all financial rows."
+      ],
+      "counterevidence": [
+        "Dedicated payroll payout path exists. UI narrower next-status list is not server-side guard; canonical record cites route accepting arbitrary status string."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PayrollVerticalSliceTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PayrollRulesTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-007",
+      "title": "Backup filenames collide within a second and WITH FORMAT can overwrite prior backup",
+      "severity": "MEDIUM",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+          "lines": [
+            51,
+            64
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
+          "lines": [
+            76,
+            84
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
+          "lines": [
+            127,
+            151
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Two backup creations within timestamp resolution can target the same physical filename; later WITH FORMAT may overwrite a previously recorded backup or fail, while retention may count multiple records for one path.",
+      "proposed_remediation": "Use collision-resistant immutable backup identity and exclusive create/no-overwrite destination semantics; preserve record-to-file identity. Retention should validate distinct canonical paths and never delete a file still referenced by a retained record.",
+      "regression_tests": [
+        "Parallel same-time filename generation returns distinct IDs/paths.",
+        "Existing destination collision refuses overwrite.",
+        "Retention with duplicate path references preserves all retained valid backups.",
+        "Later isolated SQL/media test only with explicit approval."
+      ],
+      "acceptance_criteria": [
+        "Each successful backup record resolves to a unique immutable artifact.",
+        "A collision cannot silently overwrite a prior artifact; retention cannot delete a retained target."
+      ],
+      "counterevidence": [
+        "SQL concurrency could cause one backup failure rather than overwrite; either violates an unconditional no-collision guarantee. Physical behavior not runtime-tested."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-BackupVerticalSliceTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-008",
+      "title": "Restore pending-journal check does not exclude active or newly accepted financial work",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "lines": [
+            83,
+            86
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "lines": [
+            113,
+            119
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "lines": [
+            148,
+            167
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "lines": [
+            29,
+            47
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "lines": [
+            275,
+            279
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Restore’s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
+      "proposed_remediation": "Use a database-backed maintenance admission lease respected by all mutating handlers and background workers; drain in-flight operations, pause workers, take safety backup, restore and verify, clear stale pools/caches/sessions as designed, then resume only after durable outcome recording.",
+      "regression_tests": [
+        "Pure coordinator test: after maintenance lease acquired, new writes are rejected and prior writes drained.",
+        "Dedicated disposable instance restore with approved fault injection and proof of last acknowledged sale recovery.",
+        "Exercise job/API writers and restore failures; never use user-active database."
+      ],
+      "acceptance_criteria": [
+        "Restore cannot begin until writers are excluded/drained.",
+        "Every accepted operation is either included in pre-restore safety point or has an explicit replay/recovery record.",
+        "Failure leaves a known healthy database and maintenance mode controlled."
+      ],
+      "counterevidence": [
+        "SINGLE_USER rollback eventually excludes connections but only after the gap; does not prove safe quiescence. Existing source candidate says no runtime test."
+      ],
+      "unresolved_owner_policy": [
+        "Define deployment maintenance ownership, writer inventory, recovery point and restore failure/resume procedure before implementation."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-BackupVerticalSliceTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-restore-outcome-challenge.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-009",
+      "title": "Concurrent different open-day requests create multiple active business days",
+      "severity": "MEDIUM",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+          "lines": [
+            34,
+            55
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "lines": [
+            137,
+            141
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "lines": [
+            22,
+            29
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Concurrent requests with distinct open-day IDs can both pass read-before-write admission, leaving multiple active business days; queries/gates selecting first active day may attach new finance to inconsistent periods.",
+      "proposed_remediation": "Represent single active ownership with a database-enforced singleton/unique active-state key acquired transactionally by open and reopen. Reconcile existing duplicate active rows explicitly before constraint migration; make read gate fail closed if invariant is corrupt.",
+      "regression_tests": [
+        "Concurrent opens with distinct IDs: exactly one active day; same request replay returns same day.",
+        "Race reopen versus open; exactly one active day.",
+        "Corrupt duplicate fixture makes gate fail closed and emits diagnosable error."
+      ],
+      "acceptance_criteria": [
+        "At most one active day exists across app processes.",
+        "Open/reopen admission and all active-day readers use the same ownership invariant."
+      ],
+      "counterevidence": [
+        "Unique OpenRequestId handles only same-request replay, not distinct commands; no database race run."
+      ],
+      "unresolved_owner_policy": [
+        "Specify whether Closing and Reopened count as active for ownership and gate semantics before defining index/predicate."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-DefaultOpeningCashTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-010",
+      "title": "Collected sales report drops immediate money from pending mixed payments",
+      "severity": "MEDIUM",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Domain/Reports/SalesRules.cs",
+          "lines": [
+            55,
+            70
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+          "lines": [
+            34,
+            47
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "tests/Falah.Domain.Tests/CheckoutRulesTests.cs",
+          "lines": [
+            109,
+            124
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Sales report may subtract full order amount while an electronic leg is pending even though immediate cash/card leg was collected, understating collected sales/revenue and contradicting channel reconciliation.",
+      "proposed_remediation": "Compute pending collection as the pending leg amount(s) and separately report gross/net sale recognition from tender settlement timing. Do not infer collection solely from order IsPaid or subtract whole order for partial pending tender.",
+      "regression_tests": [
+        "Mixed cash/electronic and card/electronic pending: collected amount equals immediate leg and pending equals deferred leg.",
+        "After confirm, totals conserve order amount across channels.",
+        "Compare report totals to treasury movements and payment query for each state."
+      ],
+      "acceptance_criteria": [
+        "For each order, collected plus pending amounts reconcile to eligible tender total; no collected leg disappears while another awaits confirmation."
+      ],
+      "counterevidence": [
+        "Idempotency and unrelated locks do not address report arithmetic. Saved evidence is static; no financial writes."
+      ],
+      "unresolved_owner_policy": [
+        "Confirm whether report metric is cash collected or accrual sales revenue; keep the two metrics explicitly separate if both are required."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-SalesRulesTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-OrderPaymentQueriesTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-011",
+      "title": "Shift opening and purchase receipt check protected account balance before their transactions",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+          "lines": [
+            49,
+            71
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
+          "lines": [
+            77,
+            86
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+          "lines": [
+            39,
+            49
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "lines": [
+            73,
+            97
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Shift opening float and/or purchase receipt may authorize against stale Main account balance because protective lock query occurs before transaction; competing outflow may spend same available funds, potentially allowing negative pooled account or failed/partial admission.",
+      "proposed_remediation": "Start transaction before protected account balance load/check and hold lock through float/receipt writes; establish consistent account/shift/invoice lock order; make retries safe and preserve real concurrency errors.",
+      "regression_tests": [
+        "Barrier-controlled open-float versus withdrawal/expense/purchase distinct requests; account never negative and exactly feasible operation set commits.",
+        "Same open request replay and single-active-shift invariant still hold.",
+        "Verify purchase receipt document/inventory/financial rows atomic."
+      ],
+      "acceptance_criteria": [
+        "Protected balance read and spend are in one transaction with effective lock lifetime.",
+        "No successful concurrent commits exceed available balance; rejected command has no partial effects."
+      ],
+      "counterevidence": [
+        "Normal routes have no ambient transaction; an explicit caller transaction could change lock lifetime but is not present in routed path. Same request idempotency and single-open shift do not serialize distinct spends."
+      ],
+      "unresolved_owner_policy": [
+        "Confirm supported database provider and transaction/lock strategy before implementation."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-ShiftTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PurchasingVerticalSliceTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-012",
+      "title": "Attendance correction credits do not enter calculated payroll",
+      "severity": "HIGH",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+          "lines": [
+            92,
+            117
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "lines": [
+            95,
+            109
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll’s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
+      "proposed_remediation": "Reconcile both credit and debit sides of Adjustment into payroll net; preserve correction attribution and original earning basis if required; keep payroll freeze semantics explicit.",
+      "regression_tests": [
+        "Payroll input with prior Deduction debit plus correcting Adjustment credit restores expected net.",
+        "Attendance correction followed by payroll calculation and report agrees with employee ledger.",
+        "Correction before run creation and after run freeze follow documented policy."
+      ],
+      "acceptance_criteria": [
+        "Every eligible period employee-ledger credit/debit included exactly once in payroll liability.",
+        "Payroll line and ledger are consistent; post-freeze correction follows explicit reopen/adjustment policy."
+      ],
+      "counterevidence": [
+        "Correction must be within period before run creation for current flow; frozen lines after creation are separate. CreatePayroll passes type/credit/debit through unchanged per saved challenge."
+      ],
+      "unresolved_owner_policy": [
+        "Specify handling for corrections posted after payroll run calculation/approval: reopen, delta adjustment, or next-period treatment."
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-AttendanceVerticalSliceTests.json",
+        "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PayrollRulesTests.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-013",
+      "title": "Owner dashboard adds outgoing stock instead of subtracting it",
+      "severity": "MEDIUM",
+      "canonical_confidence": "HIGH",
+      "canonical_status": "CONFIRMED_STATIC_INDEPENDENT_REVIEW",
+      "source_of_record": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "source_excerpt_artifact": "Codex Work/Sub-Agents/Results/financial-findings.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "lines": [
+            297,
+            314
+          ],
+          "excerpt_present": true,
+          "sha256": "not_recorded_in_legacy_source_record"
+        }
+      ],
+      "impact": "Owner dashboard may add positive-magnitude Out movements to stock total rather than subtracting them, overstating stock and misclassifying low-stock items.",
+      "proposed_remediation": "Use shared signed stock-balance rule or apply direction sign in query projection; align dashboard with inventory overview and count-adjustment/waste semantics.",
+      "regression_tests": [
+        "Seed positive-magnitude In and Out movements plus count adjustments/waste; dashboard balance and low-stock set equal inventory overview.",
+        "Cover zero/negative normalized inputs and multiple movement kinds."
+      ],
+      "acceptance_criteria": [
+        "Dashboard stock projection equals canonical inventory balance for every item.",
+        "Out never increases available quantity; count corrections are treated per shared domain rule."
+      ],
+      "counterevidence": [
+        "Canonical record says InventoryRules and pure tests establish positive Out magnitudes; independent challenge was not saved on legacy record. A related later inventory dashboard challenge exists but is distinct in ID."
+      ],
+      "unresolved_owner_policy": "No explicit owner-policy decision identified in the linked canonical record; source record is insufficient to invent one.",
+      "linked_saved_evidence": [
+        "Codex Work/Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json"
+      ],
+      "limitations": "Existing canonical source-record excerpts and linked saved evidence only; no live source reread, hashes recomputed, tests, runtime, or database operations in this supplement."
+    },
+    {
+      "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+      "title": "Standalone employee settlements are not netted from frozen period payroll",
+      "severity": "HIGH",
+      "confidence": "HIGH_SOURCE_BEHAVIOR_MEDIUM_REALIZATION_POLICY_AND_RUNTIME_UNVERIFIED",
+      "status": "SOURCE_CONFIRMED_CROSS_FLOW_RISK_POLICY_RECONCILIATION_PENDING",
+      "source_of_record": "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-quality-review.json",
+      "exact_source_ranges": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+          "ranges": [
+            [
+              16,
+              30
+            ],
+            [
+              74,
+              107
+            ],
+            [
+              113,
+              140
+            ]
+          ],
+          "sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+          "ranges": [
+            [
+              42,
+              63
+            ],
+            [
+              65,
+              88
+            ]
+          ],
+          "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878"
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "ranges": [
+            [
+              83,
+              110
+            ]
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "ranges": [
+            [
+              84,
+              108
+            ],
+            [
+              136,
+              163
+            ]
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        }
+      ],
+      "impact": "If standalone Settlement is a prepayment of earnings already included in the same frozen payroll, paying both paths can disburse the same obligation twice; source flow shows this mechanism but does not establish the accounting policy or an actual duplicate payout.",
+      "proposed_remediation": "Owner decision first. If settlements prepay same-period earnings, derive remaining liability from an explicit period/earning obligation and apply settlements both before payroll calculation and after run freeze; if the two paths are mutually exclusive, enforce atomic exclusion on both. Preserve frozen-run, replay, audit, source-balance, and historical-record behavior.",
+      "regression_tests": [
+        "Create earnings, settle same obligation standalone, then create/approve/pay payroll; total disbursement must satisfy owner-approved invariant.",
+        "Create/approve payroll, apply standalone settlement, then pay frozen payroll; same invariant.",
+        "Unrelated-period settlement must not be netted.",
+        "Repeat and concurrent requests with distinct IDs; validate exactly-once employee ledger and treasury effects in approved disposable SQL Server integration DB."
+      ],
+      "acceptance_criteria": [
+        "Written owner policy defines relationship between standalone Settlement and period payroll obligation.",
+        "Tests implement that policy across both sequence orders, period boundaries, retries and concurrent requests.",
+        "No duplicate obligation disbursement if policy treats Settlement as prepayment; otherwise distinct obligation is explicitly represented and reported."
+      ],
+      "counterevidence": [
+        "Standalone PayEmployee locks employee ledger balance and atomically posts Settlement plus treasury movement.",
+        "Code comments describe a separate any-time payment mode, which may imply intentional independence.",
+        "Payroll calculation omits Settlement and PayPayroll pays frozen NetPayable, but absence in reviewed paths does not establish system-wide policy or all-path exclusivity.",
+        "Coordinator cross-check expressly keeps duplicate payment conditional and reports no combined SQL/runtime sequence."
+      ],
+      "unresolved_owner_policy": [
+        "Is standalone employee Settlement a prepayment against earnings included in period payroll, or a distinct payable obligation?",
+        "If it is a prepayment, how should settlement after payroll freeze affect already-approved NetPayable: block, adjust/reopen, or record a separate recovery?"
+      ],
+      "linked_saved_evidence": [
+        "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-quality-review.json",
+        "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-coordinator-cross-check.json",
+        "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-source-lead.json"
+      ],
+      "limitations": "Source-confirmed flow and atomicity only; policy, actual sequence, SQL/provider behavior and duplicate-payment realization unverified. Do not promote to confirmed duplicate-payment defect."
+    }
+  ],
+  "source_hash_policy": "Legacy FIN-001..013 records retain exact source excerpt ranges but do not record per-source worktree SHA-256. This supplement marks hashes as not recorded rather than recomputing from current source. Payroll-overlap ranges/hashes are copied from its saved candidate artifact.",
+  "runtime": "No tests, build, API, SQL/database, or runtime operations executed.",
+  "disclaimer": "Remediations and tests are proposals, not implemented changes. Policy unknowns remain explicit; no inference is made where source evidence does not settle business intent."
+}

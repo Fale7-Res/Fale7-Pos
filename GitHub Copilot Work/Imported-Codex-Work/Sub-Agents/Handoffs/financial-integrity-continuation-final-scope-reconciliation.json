@@ -1,0 +1,165 @@
+{
+  "artifact_kind": "financial_integrity_continuation_scope_reconciliation",
+  "id": "FIN-CONTINUATION-SCOPE-RECONCILIATION-2026-10-20",
+  "created_at_utc": "2026-10-20T11:15:00Z",
+  "status": "CONTINUATION_RECONCILED_NOT_GLOBAL_AUDIT_COMPLETE",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "purpose": "Reconcile only this continuation receipts and remaining scope against persistent authoritative financial evidence. This is not a completion certificate for the broader financial/database audit.",
+  "continuation_work": {
+    "cumulative_callable_receipts_recorded_in_own_queue": 989,
+    "receipt_merge_status": "The continuation queue tracks 989 reviewed receipts and 213 retained out-of-scope rows. Do not add the 989 to global union totals without coordinator merge/reconciliation.",
+    "latest_reconciled_batches": [
+      {
+        "path": "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs",
+        "union_id_match": true,
+        "receipt_count": 56,
+        "coordinator_completed_overlap": 0,
+        "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PurchasingVerticalSliceTests.json"
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+        "union_id_match": true,
+        "receipt_count": 59,
+        "coordinator_completed_overlap": 0,
+        "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-RefundVerticalSliceTests.json"
+      }
+    ],
+    "source_mode": "Static source and test review. No tests executed, runtime use verified, source edited, database touched, or transaction run.",
+    "batch_conclusions": [
+      "Purchasing tests cover positive-sign receipt/payment flows, treasury/ledger assertions, permissions, overpayment, and same-request retry/concurrency; they do not test negative signed line inputs or distinct-key concurrent settlement.",
+      "Refund tests include distinct-request concurrent refunds on one order and assert total refunds stay capped at order value; handler/aggregate source confirms row locking and amount bounds. No new refund defect found in this file.",
+      "A bounded older-client decimal rounding challenge and other narrowly scoped source challenges are linked below; they remain static candidate evidence, separate from callable queue counts."
+    ]
+  },
+  "continuation_queue_scope": {
+    "in_scope_callable_symbols_remaining": 0,
+    "authoritative_rows_retained_as_paused_or_out_of_scope": 213,
+    "groups": [
+      {
+        "count": 161,
+        "group": "direct /Printing/ symbols"
+      },
+      {
+        "count": 10,
+        "group": "EscPosTicketRendererTests"
+      },
+      {
+        "count": 10,
+        "group": "MenuQrRenderingTests"
+      },
+      {
+        "count": 2,
+        "group": "TicketDtoText"
+      },
+      {
+        "count": 12,
+        "group": "CustomerRulesTests"
+      },
+      {
+        "count": 18,
+        "group": "ProductImageRulesTests"
+      }
+    ],
+    "next_in_scope_operation": "None within the financial-only queue for this continuation. This is not completion of the global financial audit."
+  },
+  "bounded_challenges": [
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-purchase-line-sign-validation-challenge.json",
+      "id": "FIN-CAND-PURCHASE-LINE-SIGNED-INPUT-001",
+      "disposition": "Source confirms signed quantity/cost gap; runtime and realized financial impact unverified."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-payroll-read-authorization-challenge.json",
+      "id": "FIN-CAND-PAYROLL-READ-AUTHORIZATION-001",
+      "disposition": "Authenticated payroll reads lack source permission gates in inspected path; policy intent/runtime unverified."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-payroll-overlap-challenge.json",
+      "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+      "disposition": "Cross-flow overlap mechanics are source-confirmed; whether standalone Settlement and frozen period Payroll payouts overlap under intended policy/usage is unconfirmed."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-cashier-money-input-challenge.json",
+      "id": "FIN-CAND-CASHIER-LEGACY-DECIMAL-ROUNDING-001",
+      "disposition": "Legacy client midpoint/precision mismatch has a bounded maximum difference of one piastre per conversion; deployment and use unverified."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json",
+      "id": "FIN-CAND-INVENTORY-DASHBOARD-UNSIGNED-BALANCE-001",
+      "disposition": "Separate static semantic cross-check; runtime remains unverified."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/SEM-MIRROR-021-reopened-business-day-dashboard-independent-challenge.json",
+      "id": "SEM-MIRROR-021",
+      "disposition": "Separate dashboard semantic challenge; no shared registry changed."
+    },
+    {
+      "handoff": "Codex Work/Sub-Agents/Handoffs/SEM-MIRROR-022-exception-count-independent-challenge.json",
+      "id": "SEM-MIRROR-022",
+      "disposition": "Separate exception-count semantic challenge; no shared registry changed."
+    }
+  ],
+  "global_audit_status": {
+    "authoritative_union_count": 7602,
+    "authoritative_global_remaining_count": 1202,
+    "authoritative_union_updated_at_utc": "2026-10-20T03:11:56Z",
+    "paused_direct_printing_symbols": 161,
+    "source": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json",
+    "financial_findings_registry_count": 13,
+    "financial_ledger_file_reports": 327,
+    "financial_ledger_remaining_file_reports": 0,
+    "financial_ledger_coverage_complete": false,
+    "broader_report_status": "IN_PROGRESS - completion gate NOT SATISFIED",
+    "completion_claim": "Not made. The continuation 989 receipts are not a global merge, and the broader 1202-item authoritative queue remains unresolved.",
+    "older_report_divergence": "The current-financial-validation.json snapshot at 2026-10-20T03:08:48Z reports 7,524 receipts / 1,280 missing; DATABASE_AND_FINANCIAL_INTEGRITY.md at 03:07:25Z says 7,516 / 1,288; the later authoritative union says 7,602 / 1,202. These timestamps and denominators differ. This handoff preserves the later union as queue authority and does not attempt to reconcile or rewrite shared reports."
+  },
+  "outside_this_continuation_remit": [
+    "Completing or certifying the full 8,804-symbol independent financial audit, including the 1,202 symbols still remaining in the global authoritative union.",
+    "Reviewing the 213 retained printing, ticket, customer, and product-image receipts under this financial-only assignment.",
+    "Runtime/API/UI acceptance, production deployment or actual cashier usage, provider-specific SQL locking/concurrency, live database state, and physical hardware behavior.",
+    "Promotion, deduplication, or canonical-registry changes for the bounded challenge candidates; those require the coordinator normal reconciliation and any policy clarification.",
+    "Changing historical financial report counters or merging continuation receipts into the canonical global union."
+  ],
+  "source_references": [
+    {
+      "sha256": "C8C4C4EB49EC76991B0E08CA27994E69746301698753275B47844D7B32824698",
+      "path": "Codex Work/Sub-Agents/Results/financial-integrity-continuation-queue.json"
+    },
+    {
+      "sha256": "30560E0B7B7E170BF9D8A99B508AF1FCE3F74DBBB438B5BA9AEEEFEB53CEF240",
+      "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json"
+    },
+    {
+      "sha256": "CCB5D31705DD4BB1060E5A59008D496EA89CD6A365A2FEE2BFE175D164A404C9",
+      "path": "Codex Work/Sub-Agents/Results/financial-findings.json"
+    },
+    {
+      "sha256": "C8CE20EC079770C0555005CD5E80560F6B1D8015412B9EC62B8FE6F1D3FDAA63",
+      "path": "Codex Work/Sub-Agents/Results/financial-ledger.json"
+    },
+    {
+      "sha256": "447F3BBD81CFC9F8FEE355D1E6D3FECBE7B249CDF515E1A5338480299878BDF5",
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/current-financial-validation.json"
+    },
+    {
+      "sha256": "B1A52AA2222EA1B4BAB85F5D8BF8E1E8BF8192E72C9C899EDBD7253008F7447D",
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md"
+    },
+    {
+      "sha256": "8BA6C933E491B4CC47B5B3E318D49B75E053DBB54F6842BB186A6D2D994AA12A",
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-PurchasingVerticalSliceTests.json"
+    },
+    {
+      "sha256": "88DA4FEBC14AF30F8B7B38CD08B726D965F9BECE2F3779E69E0B9E5C76926D2A",
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-RefundVerticalSliceTests.json"
+    }
+  ],
+  "no_changes": {
+    "source_modified": false,
+    "runtime_tests_run": false,
+    "database_written": false,
+    "transactions_run": false,
+    "shared_registry_modified": false,
+    "git_commit_or_push": false
+  }
+}

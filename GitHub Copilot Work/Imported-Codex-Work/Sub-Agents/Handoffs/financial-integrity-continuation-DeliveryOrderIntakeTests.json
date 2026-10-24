@@ -1,0 +1,113 @@
+{
+  "artifact_kind": "financial_integrity_symbol_batch_handoff",
+  "batch": "DeliveryOrderIntakeTests",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:30:52.508Z",
+  "static_only": true,
+  "runtime_or_tests_executed": false,
+  "source_or_database_modified": false,
+  "receipt": {
+    "symbols_reviewed": 11,
+    "ids": [
+      "sym-6197d1014bd4b0427c245047dc7a707a348d9d9fddeeacf9b5229ea4d1a079ea",
+      "sym-94089c2198e9901000168e7514b3317760cf35b31ce294a6b21d91eabfadc486",
+      "sym-f97bfb4f543efc1b74d4ea0e25ae53b8c0f584ad9cd2996ccc5146720f93b025",
+      "sym-dd298a26d4e182ac7ce4e911054648bb53df393ab5b7d388df6ec0b24408b1ae",
+      "sym-72a5ab3170cc106101c2c8d21a1532e58cd1beeab63f4980c1eef82c98907bf1",
+      "sym-d745eadfa47836e10f408878a3d7a2cb090a0a5b4651cb6d9fabf63111991f78",
+      "sym-37dd23253389bf28876b99286742760d1018bda5a8058a60c30258111919d69c",
+      "sym-5f4677f948309ff2017188ffeba6e3ddb57a59857c6c3dfc6e36503aee3a0469",
+      "sym-d7b276cd819d5c56032b1ccae1bac6278f6d45096ae4a3be97b04b29b6474821",
+      "sym-cca074d7eac2fed5c97bf71dc7e0c4949736236f68c6f04ff35c2f339a54bd50",
+      "sym-c1fb109287438d7a7bc50f818342219476882354fbdd82988cf6fb59cfd82aab"
+    ],
+    "union_pending_matches": 11,
+    "coordinator_completed_matches": 0,
+    "outside_union": 0,
+    "authoritative_union_total": 7602,
+    "authoritative_remaining_total": 1202
+  },
+  "evidence": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryOrderIntakeTests.cs",
+      "ranges": [
+        "25-56",
+        "58-138"
+      ],
+      "sha256": "84CC05FC71D3DF8BA3720A3EED99F16CEC9C749962CBD5F0A5C864B8BD9A4530",
+      "observation": "11 callable symbols cover setup, request construction, delivery field checks, snapshots, and the auto-created delivery row. The helper supplies DeliveryFeePiastres=1000 and DeliveryServiceId=svc-1; initialization seeds user/product/open shift and does not seed a DeliveryService. It asserts persistence of client-supplied fee/name/id, but does not challenge service existence/activity/fee authority."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "ranges": [
+        "65-68",
+        "81-90",
+        "142-143",
+        "173-185"
+      ],
+      "sha256": "FF9F45F38B96377EF8F065884820752AA8483F9038B2141ED390222EAC83413C",
+      "observation": "Checkout wraps request.DeliveryFeePiastres directly as Money; for delivery it only validates non-empty service ID through DeliveryRules and composes address; it prices with that fee and snapshots request service ID/name. No service entity lookup/Active check/fee resolution in the examined flow."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "ranges": [
+        "35-39"
+      ],
+      "sha256": "A594CE2AA6AB60D232942EF4AF790C0DD7C2A90B49DB772E277EAF79D5AF84D4",
+      "observation": "Payable total includes caller-provided deliveryFee; negative result clamps to zero, with no fee validation in this rule."
+    },
+    {
+      "path": "src/Falah.Application/Orders/CheckoutOrderRequest.cs",
+      "ranges": [
+        "21-36",
+        "55-56"
+      ],
+      "sha256": "66CD885AF3B6DDF84EA4A1629232490BA92E333BE7626715BE8614587B91DAE1",
+      "observation": "Request carries DeliveryFeePiastres and free-form service ID/name."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+      "ranges": [
+        "24-30"
+      ],
+      "sha256": "42B35DD12C3663583C3DDD69E2B15F86968043295A9EDE98B2EFCEBAA10627FB",
+      "observation": "Catalog exposes active service IDs, names, and fees to delivery-facing clients; separate all-services management query exists."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "ranges": [
+        "26-53",
+        "74-77",
+        "89-120"
+      ],
+      "sha256": "5E9B303C467A1E3A74DEAD4F035D7F867CB4F0DC6DDE654B42C1DC4AECAD2A01",
+      "observation": "Delivery managers create/update catalog fee and active flag; handler comments say historical orders snapshot service id/name/fee at checkout, supporting (but not conclusively proving) catalog-authoritative intent."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "ranges": [
+        "9-15",
+        "32-34"
+      ],
+      "sha256": "D9464AAAF7664D362A7600E49DF95DC7794847563C08B3D55DADC9AC5DFC588E",
+      "observation": "UI documentation says selection reuses backend delivery services list rather than client fee guesses; viewmodel holds selected service DTO."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "ranges": [
+        "345-377"
+      ],
+      "sha256": "066C11322CCA65D746B3C082A7E58573AC8430F5431B21B359F6D5B192224E5A",
+      "observation": "Normal UI sends selected service DTO fee/id/name in checkout request."
+    }
+  ],
+  "bounded_assessment": {
+    "mechanics": "SOURCE_CONFIRMED: the authenticated checkout path accepts caller-supplied delivery fee and service snapshot instead of resolving an active catalog service and current fee.",
+    "condition": "The integrity impact depends on the intended pricing authority. Normal UI follows the backend active-service list; an API caller with checkout authorization can send a different fee or unrelated/inactive service ID/name.",
+    "effect": "If catalog price is authoritative, a caller can lower the collected payable total (including to zero with sufficiently negative fee because ComputePayableTotal clamps) or overstate it; the persisted order snapshot can disagree with catalog. No runtime occurrence or policy-approved override was established.",
+    "counterevidence": "Normal UI selects a backend-returned service fee; delivery service maintenance is permission-gated and the service update comment describes checkout-time snapshots. These establish a clear intended catalog workflow, while leaving authority/override policy unstated. No matching issue text was found in financial-findings.json.The test class XML comment at lines 8-15 says the Cashier app has no delivery order-type UI; the current WinUI Delivery viewmodel and Checkout viewmodel provide that path, so that part of the test comment is stale. This does not change the source-confirmed request fee trust gap.",
+    "tests": "The test fixture supplies svc-1 and fee 1000 without a DeliveryService seed and expects them persisted; it therefore exercises required-field validation and snapshot behavior, not catalog binding. No tested inactive, unknown-service, or tampered-fee case identified.",
+    "classification": "CONDITIONAL_STATIC_SOURCE_GAP; resolve against intended pricing policy before promoting to confirmed financial finding. Static-only; no runtime or database tests executed.",
+    "recommendation": "If active catalog fees are authoritative, resolve service ID server-side, require active status, use its fee/name, and add integration cases for unknown/inactive service and a tampered fee. If negotiated overrides are intended, specify and authorize/audit them explicitly."
+  }
+}

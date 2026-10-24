@@ -1,0 +1,74 @@
+{
+  "artifact_kind": "independent_semantic_challenge",
+  "id": "FIN-CAND-INVENTORY-DASHBOARD-UNSIGNED-BALANCE-001",
+  "reviewer": "financial_integrity_continuation",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:00:06.1045294Z",
+  "decision": "CONFIRMED_STATIC_BEHAVIORAL_DIVERGENCE",
+  "severity": "MEDIUM",
+  "confidence": "HIGH_SOURCE_BEHAVIOR_MEDIUM_OPERATIONAL_EFFECT",
+  "runtime": "NOT_EXECUTED",
+  "condition": "At least one positive-quantity StockMovement with Direction=Out exists for an active inventory item.",
+  "behavior": "OwnerDashboardQueryService.LoadStockAsync sums QuantityMilliUnits only, ignoring Direction. InventoryQueryService.GetInventoryOverviewAsync signs In as +quantity and all other directions as -quantity; InventoryRules.StockBalanceMilliUnits uses the same direction-aware contract. RecordWasteHandler, InventoryDeductionService (order usage and packaging), and outbound count adjustment persist positive QuantityMilliUnits with Direction=Out. Receipt writers use positive quantities with Direction=In. This confirms sign is carried by Direction, not signed quantity.",
+  "effect": "For In 5,000 and Out 4,000, dashboard projection is 9,000 while canonical inventory balance is 1,000. At minimum 2,000, dashboard excludes the item from low-stock results and understates the low-stock count. Inventory overview agrees with the 1,000 balance.",
+  "recommendation": "Reuse the direction-aware calculation or shared query helper for owner-dashboard stock, and cover dashboard/overview parity for In+Out, Out-only, and count-adjustment Out cases.",
+  "counterevidence": [
+    "Inventory overview is direction-aware and is the appropriate comparison baseline; this is isolated to owner-dashboard duplicate aggregation.",
+    "InventoryVerticalSliceTests.cs:123-134 verifies low-stock for a 3,000 In receipt against minimum 5,000. Lines 536-555 (source review) verify a 10,000 In receipt minus a positive-quantity 2,000 Out count adjustment yields 8,000 in overview. These tests support direction semantics but do not exercise dashboard stock.",
+    "OwnerDashboardVerticalSliceTests has no inventory stock/low-stock assertion; no test execution was performed.",
+    "No inspected writer stores negative QuantityMilliUnits to encode direction; quantity validation requires positive magnitudes for adjustment/waste and purchase receipt/usage paths."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "lines": "297-315",
+      "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+      "git_blob_sha1": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "role": "unsigned owner dashboard sum and low-stock threshold"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "lines": "388-430",
+      "sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "git_blob_sha1": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "role": "direction-aware overview balance"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+      "lines": "50-52",
+      "sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "git_blob_sha1": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "role": "domain balance contract"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+      "lines": "59-63,142-149",
+      "sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "git_blob_sha1": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "role": "positive-magnitude count adjustment and waste movements"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "lines": "48-64,84-96",
+      "sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "git_blob_sha1": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "role": "positive-magnitude order/packaging Out usage"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "lines": "165-175",
+      "sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "git_blob_sha1": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "role": "positive-magnitude purchase In receipt"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "lines": "123-134,536-555",
+      "sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "git_blob_sha1": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "role": "inventory low stock and In-minus-Out overview tests; no dashboard parity"
+    }
+  ],
+  "execution": "Read-only source and test inspection; hashes verified; no tests, SQL, database writes, runtime UI, or source edits.",
+  "canonical_registry": "UNCHANGED"
+}

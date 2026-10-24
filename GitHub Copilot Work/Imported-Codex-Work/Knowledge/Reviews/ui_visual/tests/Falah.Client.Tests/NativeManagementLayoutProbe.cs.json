@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs",
+  "source_git_blob_sha256": "faac9344c780d29618b3e3d408cb1c3543aa68e1d747f595a748c0828345f562",
+  "worktree_sha256": "faac9344c780d29618b3e3d408cb1c3543aa68e1d747f595a748c0828345f562",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:57:05.954194+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Native management test harness source-only review, fixture limitations explicit.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-51266c7b782cfc909e4d5e59fb5a9087f305e603d2e1724d524e6cbda074da0c",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Verification.NativeManagementLayoutProbe.FixtureHandler.SendAsync(HttpRequestMessage, CancellationToken)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        20,
+        9,
+        27,
+        10
+      ],
+      "reasoning": "Fixture rejects all nonGET methods, returns synthetic user details for users/all and permission-like objects for every other GET. No route-accurate fallback or auth; this probe must never be reported real app/database connectivity.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No live records or writes; unsupported GETs may yield incorrect shape if probe path expands.",
+      "tests_missing": "No live records or writes; unsupported GETs may yield incorrect shape if probe path expands. NOT_EXECUTED.",
+      "verified_callers_callees": "FixtureHandler; JsonContent.Create"
+    },
+    {
+      "stable_id": "sym-ff18d9441708dda3e567ddf889c6572de47a13581f10c5bfb0c83098474ce359",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Verification.NativeManagementLayoutProbe.RunAsync(Window, Grid)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        29,
+        5,
+        85,
+        6
+      ],
+      "reasoning": "Loops6 resolution/scale cases times4 attendance/user-create states, constructs source VMs with isolated HTTP fixture and long Arabic/error text, creates real views, resizes host/window, delays35ms then UpdateLayout and named bounds checks. Records errors per case. Checks card/scroll/footer geometry only, not field labels contrast, focus, keyboard, screen reader, actual OS DPI or financial workflow. This subagent did not execute probe.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Synthetic scaled dimensions are not proof real device DPI; constructor side effects must remain fixture-confined. Native result provenance parent-owned.",
+      "tests_missing": "Synthetic scaled dimensions are not proof real device DPI; constructor side effects must remain fixture-confined. Native result provenance parent-owned. NOT_EXECUTED.",
+      "verified_callers_callees": "AttendanceView; UsersView; FixtureHandler; Bounds; AppWindow.Resize"
+    },
+    {
+      "stable_id": "sym-a0ee27b6d6a22420d13dd8565625fd203ba23b05b800bead8278eceaf191ae75",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Verification.NativeManagementLayoutProbe.Bounds(FrameworkElement, UIElement)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        86,
+        5,
+        87,
+        122
+      ],
+      "reasoning": "Transforms element local ActualWidth/Height rectangle into ancestor coordinate space with TransformToVisual; assumes element exists and realized, exceptions caught by outer case.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Does not detect overlapping children within scroll viewport or text clipping.",
+      "tests_missing": "Does not detect overlapping children within scroll viewport or text clipping. NOT_EXECUTED.",
+      "verified_callers_callees": "FrameworkElement.TransformToVisual.TransformBounds"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

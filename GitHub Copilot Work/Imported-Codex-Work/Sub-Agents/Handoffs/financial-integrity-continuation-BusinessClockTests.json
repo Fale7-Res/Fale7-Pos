@@ -1,0 +1,77 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:58:39.8281067Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/BusinessClockTests.cs",
+  "symbol_count": 5,
+  "symbols": [
+    {
+      "stable_id": "sym-0221d3f55081787eddb3eccfab45b64eaf8f321d57480a873fbb8b7d6b7baaae",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.BusinessClockTests.Cairo_timezone_resolves_on_this_machine()",
+      "span": [
+        8,
+        5,
+        12,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9f8b9b6f7873aa95ca1dcc86e4916b895595aeec317a5203ff3f03064b4e636b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.BusinessClockTests.Late_night_utc_instant_still_falls_on_the_correct_cairo_calendar_date()",
+      "span": [
+        14,
+        5,
+        22,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-90ef15cd753f5b321d639ef840e3470e12e63f401ba8283f916e09bec604126b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.BusinessClockTests.Just_before_midnight_cairo_is_still_the_earlier_business_date()",
+      "span": [
+        24,
+        5,
+        30,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-9d7b5aef6f76b1800ecba7b2bf737860342586650a2b741451b4233692c9eb21",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.BusinessClockTests.The_utc_range_for_a_business_date_starts_at_the_previous_days_22_00_utc()",
+      "span": [
+        32,
+        5,
+        39,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b48a64f6ebcea9471791fd832c0d020524dcfeb620eb36f268ad548d9020624b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.BusinessClockTests.Every_instant_at_or_after_the_range_start_and_before_the_end_reports_that_business_date()",
+      "span": [
+        41,
+        5,
+        51,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests exercise Cairo business-date conversion at 21:59/22:00 UTC boundaries and verify half-open UTC range behavior for a business date. Test expectations encode UTC+2 for those sample dates; no tests run and no financial-source issue concluded from the tests alone.",
+  "source_ranges": "Entire source read.",
+  "execution": "Read-only test-source review; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/5 exact IDs present",
+    "financial_coordinator": "/5 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

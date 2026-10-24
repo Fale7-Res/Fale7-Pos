@@ -1,0 +1,238 @@
+{
+  "artifact_kind": "financial_callable_quality_review",
+  "batch": "Batch16",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Review UpdateDeliveryServiceHandler.HandleAsync against current source and author receipt; trace API/client/query/checkout effects and test source; cross-reference FIN-016 only, without changing shared files.",
+  "date": "2026-10-24",
+  "overlay_snapshot": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "d7fcb9c6f76b22c841758f440410b84e0f97011ea3b138194b3c7e413bc0293e",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7756,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 65
+    },
+    "total": 8804,
+    "selected_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Re-read at Batch16; Batch15 snapshot preserved in overlay_snapshot_at_batch15."
+  },
+  "callable": {
+    "stable_id": "sym-2830ac09bc4141af91d2ceacac2801f14355e83890c6a125e8f93452510b62d6",
+    "signature": "Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+    "lines": [
+      89,
+      122
+    ],
+    "current_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+    "baseline_git_blob_sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01"
+  },
+  "original_receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs.json",
+    "sha256": "ad861063ba350feaddb87901e5603abcf4257c6b274cc45e64713a04e5d0fb85",
+    "author": "financial_integrity",
+    "status": "ANALYZED",
+    "span": [
+      89,
+      5,
+      122,
+      6
+    ],
+    "claim_summary": "Actor/approval authorization, service lookup, optional normalized name plus clash check, nullable fee/active updates, no fee sign/range validation, no historical order rewrite, no row-version/name transaction, and nullable fee cannot be cleared through this request shape."
+  },
+  "source_reasoning": {
+    "actor_and_target": "At 91-103, loads ActorUserId from Users, derives its Actor, optionally resolves manager approval, and calls AuthorizationPolicy.AuthorizeCommand for delivery_manage with requireApproval=true. At 105-106, loads the target entity by request.ServiceId or throws not-found. Program.cs:1201-1209 overwrites body ServiceId from the route and maps domain errors to 422 and missing entities to 404.",
+    "patch_semantics": "At 108-115, request.Name null preserves the existing name; supplied name is normalized, blank values are rejected, and a currently observed case-insensitive normalized-name collision on another ID is rejected. At 117-119, it assigns Name and applies FeePiastres only when the nullable value is nonnull; Active is similarly optional. Therefore the current DTO cannot distinguish omitted fee from explicit null and cannot clear an existing nullable fee. There is no negative or magnitude check on a supplied fee. SaveChanges and DTO return occur at 120-121.",
+    "effects": "The handler only updates DeliveryServiceEntity. It does not read or write Orders, checkout records, stock, drawer, treasury or journals. The service query returns stored FeePiastres unchanged (DeliveryQueryService.cs:24-26). CashierViewModel loads active services (CashierViewModel.Delivery.cs:80-93) and copies the selected fee into DeliveryFeePiastres (CashierViewModel.Checkout.cs:348-361). CheckoutOrderHandler turns the client request value into Money (65-73) and includes it in the plan (142-143); CheckoutRules adds fee/subtracts comp and clamps negative payable at zero (35-39). A negative fee can therefore be persisted by an authorized API update and later pass through the ordinary selected-service cashier path; the update operation itself is configuration-only.",
+    "counterevidence": "DeliveryDirectoryViewModel.SaveServiceAsync uses CashInput.TryParse and rejects parsed values below zero before sending its create/update request (180-208). This guards the ordinary management UI only; the server handler does not repeat the constraint. Authorization remains required, so this is not an authorization bypass. Updating a service row does not itself rewrite any old order; source comments in DeliveryServiceRequests.cs:3-10 describe order data as frozen at checkout. No SQL/provider execution was performed.",
+    "concurrency": "Name clash is a read-before-save check (112-115) with no explicit transaction/lock in this handler. Examined model config shows DeliveryServiceEntity only receives its Id primary key (FalahDbContext.cs:318-320); creation migration has Name nvarchar(max), nullable bigint fee and only the Id primary key (20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs:39-53; prior Batch15 review). The entity has no rowversion property in DeliveryEntities.cs:10-18. Distinct concurrent renames may both pass the check; last-writer behavior on the same row and SQL uniqueness/collation effects remain unexecuted. Treat as a conditional configuration race, not observed duplicate persistence or financial movement.",
+    "existing_finding_overlap": "FIN-016 already covers the signed delivery fee submitted to checkout and its conditional payable/comp effect. This handler is another catalog ingress point for that same fee path. The ordinary editor rejects negative input, while direct authorized API requests are not checked here. No separate FIN finding is proposed; no refund evidence changed, and FIN-003 is not implicated.",
+    "receipt_disposition": "The original receipt is corroborated by current source. This review confirms its fee validation and null-patch notes, and adds a concrete client/query path to the existing FIN-016 flow. Concurrency remains a source hypothesis only."
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "lines": [
+        89,
+        122
+      ],
+      "sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "role": "Reviewed callable body."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "lines": [
+        1201,
+        1209
+      ],
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "role": "Route ID binding and exception mapping."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryDirectoryViewModel.cs",
+      "lines": [
+        180,
+        208
+      ],
+      "sha256": "32572081689e600ee9740614b02ea4b1d75573739357c1c6a39ac0dc83049c31",
+      "role": "Client blocks negative fee in ordinary form and emits nullable update DTO."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+      "lines": [
+        24,
+        30
+      ],
+      "sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+      "role": "Stored fee returned to readers unchanged."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "lines": [
+        80,
+        93
+      ],
+      "sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "role": "Cashier reads active services."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "lines": [
+        348,
+        361
+      ],
+      "sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "role": "Selected fee passed into checkout request."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "lines": [
+        65,
+        73
+      ],
+      "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "role": "Request fee converted directly into Money."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "lines": [
+        142,
+        143
+      ],
+      "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "role": "Converted fee enters checkout plan."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "lines": [
+        35,
+        39
+      ],
+      "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "role": "Signed fee arithmetic covered by FIN-016."
+    },
+    {
+      "path": "src/Falah.Application/Delivery/DeliveryServiceRequests.cs",
+      "lines": [
+        3,
+        15
+      ],
+      "sha256": "4ba55a39d229b6c4ae2ac34f03a94122ddb5ae3e066c1320cdac129071ecee59",
+      "role": "Nullable FeePiastres request and documented snapshot semantics."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+      "lines": [
+        7,
+        18
+      ],
+      "sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "role": "Nullable fee field; no row version in entity."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "lines": [
+        318,
+        320
+      ],
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "role": "Examined service model defines only primary key."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+      "lines": [
+        39,
+        53
+      ],
+      "sha256": "b1cef59c4078965490fe0405705c5305dd6ca8f66227f3a34ac07bdf3de37feb",
+      "role": "Examined storage schema; no fee/name constraint in creation migration."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "lines": [
+        982,
+        1033
+      ],
+      "sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "role": "Positive edit and soft-deactivation test source; tests not executed."
+    },
+    {
+      "path": "Codex Work/Deep-Audit/MASTER_FINDINGS.json",
+      "finding_id": "FIN-016",
+      "role": "Existing signed checkout-fee finding; file not edited or re-hashed in this batch."
+    }
+  ],
+  "tests": {
+    "source_path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+    "source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+    "existing_scenarios": [
+      {
+        "lines": [
+          999,
+          1016
+        ],
+        "scenario": "Positive-fee update request is sent; asserted result is only that a different order's DeliveryServiceId remains svc-1. It does not assert updated fee or same-service historical fee snapshot."
+      },
+      {
+        "lines": [
+          1018,
+          1033
+        ],
+        "scenario": "Deactivation removes the service from active query and retains it in all-services query."
+      }
+    ],
+    "missing_scenarios": [
+      "Negative and extreme update fee rejected server-side.",
+      "Null versus omitted fee semantics and clearing behavior.",
+      "Same-service old-order numeric fee remains frozen while subsequent new order receives changed fee.",
+      "Concurrent conflicting rename and same-row overlapping updates."
+    ],
+    "executed": []
+  },
+  "remaining_actions": [
+    "Owner: confirm nonnegative fee and any upper-bound policy; UI currently assumes fee >= 0 but policy artifact not independently re-read in this bounded task.",
+    "If confirmed, validate sign/range at the server update boundary, keep zero/positive cases, and test rejection without config mutation.",
+    "Owner/API contract: decide if fee can be cleared. Current nullable DTO treats null as no-op; add explicit tri-state patch if clearing is required.",
+    "Add same-service order snapshot assertions and, if duplicate rename prevention is a requirement, enforce/test it under the deployed provider including concurrent conflicting names."
+  ],
+  "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED_IN_REVIEWER_OWNED_EVIDENCE; no shared promotion. FIN-016 overlap; no separate finding proposed.",
+  "limitations": [
+    "Static source/test-source review only; no tests run.",
+    "No HTTP, SQL, database, concurrency, checkout, cash, inventory, or journal execution.",
+    "Provider collation/isolation and external schema constraints were not inspected at runtime.",
+    "This reviewer-owned receipt does not edit shared overlay, master, or report."
+  ],
+  "next_queue": "No global next item selected from overlay membership alone; this assigned delivery-service update slice is complete. Coordinator should provide a risk-ranked financial callable if further source-quality review is wanted.",
+  "overlay_snapshot_at_batch15": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "b8e7d74004a2fded858333c91e81a0e64f588eaf420e9434983e0274311b614a",
+    "counts": {
+      "SUBSTANTIVE_REVIEW_VERIFIED": 64,
+      "EXISTING_REASONING_UNVERIFIED": 7757,
+      "IDENTITY_ONLY": 983,
+      "total": 8804
+    },
+    "selected_status": "EXISTING_REASONING_UNVERIFIED",
+    "changed_by_reviewer": false
+  }
+}

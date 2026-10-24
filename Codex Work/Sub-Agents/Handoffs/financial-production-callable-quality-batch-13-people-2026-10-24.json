@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_batch_13",
+  "created_at_utc": "2026-10-24T11:52:22.231493+00:00",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Review LoadPeopleAsync after Batch12; source, receipt, DTO, writer, UI and test-source check only.",
+  "live_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "3f7f408f7a12ed97d75cbeecb94aad51a88fe9971fb558ba1049a5d5d42e2fbe",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7759,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 62
+    },
+    "target_status": "EXISTING_REASONING_UNVERIFIED",
+    "shared_overlay_edited": false
+  },
+  "review": {
+    "stable_id": "sym-4d76ba6fec41f9f17ac074c55daebae49691b1ebf2cf0b38bee9724f64d150e2",
+    "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+    "verdict": "Receipt reasoning corroborated; no class promotion by this reviewer.",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadPeopleAsync(Falah.Domain.Common.BusinessDateRange, long, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_line_range": [
+      358,
+      372
+    ],
+    "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+    "source_index_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "receipt_author": "financial_coordinator",
+    "receipt_status": "ANALYZED",
+    "receipt_reasoning": "Attendance record count/status/late-minute totals use date interval and caller-supplied wage total. Count is employee-days, not distinct employees; reversed raw dates empty. No payroll creation/payment invoked.",
+    "source_evidence": [
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          58,
+          68
+        ],
+        "symbol": "OwnerDashboardQueryService.GetAsync",
+        "behavior": "Computes wages.Total using normalized UTC range and passes raw BusinessDateRange plus that total to LoadPeopleAsync."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          186,
+          203
+        ],
+        "symbol": "LoadWagesPostedAsync",
+        "behavior": "Selects six wage/earning ledger entry types by CreatedAtUtc in [start,end), sums CreditPiastres and returns posting count."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          358,
+          372
+        ],
+        "symbol": "LoadPeopleAsync",
+        "behavior": "Filters AttendanceRecords using raw inclusive DateOnly bounds, counts rows by status, sums LateMinutes, and copies caller-provided aggregate wages into PeopleDto. No grouping by employee or wage-to-attendance join."
+      },
+      {
+        "path": "src/Falah.Application/Reports/OwnerDashboardDtos.cs",
+        "sha256": "0cbcea3fcb9e03851fe45a316b0fdd6f2b2655f0b95795db98eac04137a822da",
+        "lines": [
+          160,
+          167
+        ],
+        "symbol": "PeopleDto",
+        "behavior": "Contains attendance-record count/status counts/late minutes and aggregate WagesPostedPiastres; no distinct headcount or per-employee wages."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+        "sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+        "lines": [
+          56,
+          79
+        ],
+        "symbol": "AttendanceRecordEntity",
+        "behavior": "Comment and entity state one record per EmployeeId/Date with DateOnly distinct from CreatedAtUtc."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+        "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+        "lines": [
+          49,
+          80
+        ],
+        "symbol": "BiometricCheckInHandler.HandleAsync",
+        "behavior": "Upserts by employee and business date; Daily compensation posts deterministic daily wage ledger entry for employee/date/shift."
+      },
+      {
+        "path": "src/Falah.Domain/Common/BusinessClock.cs",
+        "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+        "lines": [
+          47,
+          53,
+          58,
+          77
+        ],
+        "symbol": "BusinessDateRange.ToUtcRange / UtcRangeForBusinessDates",
+        "behavior": "UTC conversion normalizes reversed endpoints by swapping them; raw DateOnly From/To are not changed."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs",
+        "sha256": "5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0",
+        "lines": [
+          336,
+          339
+        ],
+        "symbol": "RebuildAttention",
+        "behavior": "Attendance warning uses absent plus missing-fingerprint row counts."
+      },
+      {
+        "path": "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml",
+        "sha256": "b1e10c421627332741e9a70078b354f25e02df46ce74180bd1902007641415c9",
+        "lines": [
+          358,
+          374
+        ],
+        "symbol": "Owner dashboard People panel",
+        "behavior": "Displays present/late/absent/missing-fingerprint counts and late minutes; inspected bindings do not display WagesPostedPiastres."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+        "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+        "lines": [
+          58,
+          69,
+          123,
+          155
+        ],
+        "symbol": "AttendanceVerticalSliceTests",
+        "behavior": "Tests biometric check-in daily wage posting and duplicate/manual retry semantics; does not test PeopleDto."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+        "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+        "lines": [
+          20,
+          42,
+          59,
+          61
+        ],
+        "symbol": "OwnerDashboardVerticalSliceTests",
+        "behavior": "Dashboard integration suite does not assert attendance totals or wages posted in PeopleDto."
+      }
+    ],
+    "assessment": "For normal forward ranges, receipt reasoning is accurate: counts are attendance records (employee-days under the per-employee/date unique invariant), not distinct employees. WagesPostedPiastres is independently summed from ledger credits upstream and copied into the DTO; no payroll is created/paid here. For reversed dates, wages use normalized UTC bounds but attendance uses raw inclusive DateOnly bounds, so attendance is empty while the wage amount can cover the normalized span. This is the same reversed-range policy inconsistency already tracked by FIN-CAND-REPORT-RANGE-001, not a separate finding.",
+    "counterevidence_and_limits": [
+      "The model documents one row per employee/date and check-in posts the corresponding daily wage, supporting the attendance employee-day interpretation.",
+      "DTO and UI show a summary attendance panel; inspected UI does not claim a per-employee wage association.",
+      "No runtime data/provider behavior checked; no test run.",
+      "No common snapshot across attendance and ledger reads is shown; live concurrent consistency remains unverified."
+    ],
+    "remaining_actions": [
+      "No callable-specific defect recommendation for normal forward ranges. Preserve employee-day vs distinct-employee wording in dashboard/report contract.",
+      "Cross-reference reversed raw DateOnly versus normalized UTC mismatch under FIN-CAND-REPORT-RANGE-001; reject or normalize once at boundary.",
+      "Add dashboard test for one and multiple employee-days plus corresponding ledger wages, and reversed-range test under existing shared range candidate."
+    ],
+    "tests_executed": false,
+    "provenance": "Independent source review of financial_coordinator receipt; no shared overlay/report edit."
+  },
+  "batch12_reconciliation": {
+    "coordinator_promoted_LoadStockAsync": true,
+    "current_overlay_counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7759,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 62
+    },
+    "prior_checkpoint_counts_stale": {
+      "SUBSTANTIVE_REVIEW_VERIFIED": 61,
+      "EXISTING_REASONING_UNVERIFIED": 7760,
+      "IDENTITY_ONLY": 983
+    }
+  },
+  "next_exact_candidate": {
+    "stable_id": "sym-dbdd95c4da9dbcb373b6d0985e39424bd207c0b2ac2f5d6df4e0e08d2a9c8490",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadHealthAsync(CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "line_range": [
+      374,
+      419
+    ],
+    "status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Health/operational report helper; check financial materiality before continuing financial-only selection."
+  },
+  "limits": [
+    "Static source/test-source review; no tests run.",
+    "No app source/tests/config/data/database/runtime/shared report/registry/Git modifications.",
+    "Callable-specific review does not certify the complete financial workflow."
+  ]
+}

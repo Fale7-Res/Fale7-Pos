@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+  "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+  "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T22:07:01.200341+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-95f9ce44865c5209b28f0de64653534fa714d44894356bf7038c37e225902aa3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.TransitionPayrollHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        18,
+        5,
+        22,
+        6
+      ],
+      "reasoning": "Stores context and approval registry without modifying run or starting transaction. No audit logger injected, so lifecycle path does not append audit event in this file.",
+      "inputs": "Context/registry",
+      "outputs": "Handler",
+      "side_effects": "May update run state in production; static audit only.",
+      "database": "None",
+      "trust_boundaries": "employees_manage base; additional payroll_approve for targetApproved, not for targetPaid.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant number of run/user lookups; no collections.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN006 generic Approved->Paid path bypasses real financial payout; independently confirmed.",
+      "tests_missing": "DI; lifecycleaudit expectations policy",
+      "verified_callers_callees": "Assignments20-21; noAuditLog field."
+    },
+    {
+      "stable_id": "sym-128250b24837355ebdc762f8a8c3519e0919428ebcde0745c506e389d6f6b92a",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)",
+      "span": [
+        24,
+        5,
+        61,
+        6
+      ],
+      "reasoning": "Parses target enum case-insensitive then requires employees_manage, loads current run and validates domain transition. Extra payroll_approve gate occurs only for targetApproved; targetPaid allowedfromApproved by rules and persists just Status. No treasury/settlement/paid timestamp appears here: FIN006 actual payout bypass. Reads status without concurrency token check/transaction, so competing transitions require separate race trace, not assumed safe.",
+      "inputs": "Transition request/ct",
+      "outputs": "PayrollRunDto",
+      "side_effects": "May update run state in production; static audit only.",
+      "database": "Users/run reads, Save57 updates run status/approved/review fields",
+      "trust_boundaries": "employees_manage base; additional payroll_approve for targetApproved, not for targetPaid.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant number of run/user lookups; no collections.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN006 generic Approved->Paid path bypasses real financial payout; independently confirmed.",
+      "tests_missing": "Approved->Paid no monetary record; unauthorized approve; competing Cancel vs payment pendingtrace",
+      "verified_callers_callees": "PayrollRules18; status54; Save58? source count exact entry24-60; PayPayrollHandler actual monetary path."
+    },
+    {
+      "stable_id": "sym-e28b2abc7756ddf3b2073a02f2b3f6e275e88a5b26059f95e93aa3013902d8ef",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        76,
+        29,
+        108
+      ],
+      "reasoning": "Loads user matching supplied actor and then mapper permission check. Uses persisted role not callerrole. Missing actor fails before run state update.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "May update run state in production; static audit only.",
+      "database": "Users AsNoTracking",
+      "trust_boundaries": "employees_manage base; additional payroll_approve for targetApproved, not for targetPaid.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant number of run/user lookups; no collections.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN006 generic Approved->Paid path bypasses real financial payout; independently confirmed.",
+      "tests_missing": "Unknown/inactive/session mismatch parent scope",
+      "verified_callers_callees": "Lookup29; Authorize32."
+    },
+    {
+      "stable_id": "sym-ca7acb7952f823ebbc4f38240566da65e4296628669a55fa4c8fe2766dd9bfa9",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        34,
+        61,
+        34,
+        94
+      ],
+      "reasoning": "Loads tracked requested run then parses persisted status; malformed legacy status throws Enum.Parse exception ratherthan DomainException. No locked recheck after later approval lookup or Save.",
+      "inputs": "Run/requestID",
+      "outputs": "Boolean",
+      "side_effects": "May update run state in production; static audit only.",
+      "database": "PayrollRuns read",
+      "trust_boundaries": "employees_manage base; additional payroll_approve for targetApproved, not for targetPaid.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant number of run/user lookups; no collections.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN006 generic Approved->Paid path bypasses real financial payout; independently confirmed.",
+      "tests_missing": "Unknown run, invalid stored status, concurrent transition",
+      "verified_callers_callees": "currentStatus36; AssertTransition37."
+    },
+    {
+      "stable_id": "sym-290d9ec132ecbc0cc1ae110c5a39b7ca050c92a98281a5363ee9f014c2ea3dba",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        45,
+        87,
+        45,
+        129
+      ],
+      "reasoning": "Approver lookup performed only for targetApproved with provided key. Registry-authorized result name usedforApprovedBy; rawpresentation alone notacceptedfallback. TargetPaid never enters this branch.",
+      "inputs": "User/approverID",
+      "outputs": "Boolean",
+      "side_effects": "May update run state in production; static audit only.",
+      "database": "Users read",
+      "trust_boundaries": "employees_manage base; additional payroll_approve for targetApproved, not for targetPaid.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Constant number of run/user lookups; no collections.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN006 generic Approved->Paid path bypasses real financial payout; independently confirmed.",
+      "tests_missing": "Wrong/expired approval vs directpermission",
+      "verified_callers_callees": "ManagerApproval47-48; Authorize50."
+    }
+  ],
+  "remaining_callable_ids": []
+}

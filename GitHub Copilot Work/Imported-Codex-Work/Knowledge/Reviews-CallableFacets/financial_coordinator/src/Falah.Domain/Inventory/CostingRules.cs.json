@@ -1,0 +1,42 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:47:57.155608+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-b4218901b8d1a1cacd0684ed39bbf07e39563bd43fa85e17283976ef67cabe9e",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Inventory.CostingRules.RecipeCostResult.IsComplete::get()",
+      "span": [
+        150,
+        9,
+        150,
+        80
+      ],
+      "reasoning": "Returns LineCount>0 AND KnownLineCount==LineCount. Empty recipe is incomplete even when Missing empty; partial known cost never becomes complete from rounding CompletenessPercent. This property describes recipe line coverage only, not separately applied once-per-order packaging. Reporting GetFoodCostReport uses this for each dish, then misses packaging in aggregate counters (separate candidate).",
+      "inputs": "Existing immutable result LineCount and KnownLineCount",
+      "outputs": "Boolean exact-count completeness",
+      "side_effects": "None, pure backing-property comparisons",
+      "trust_boundaries": "Relies on internally consistent counts; no actor or monetary permission decision.",
+      "database": "None",
+      "printing_ui": "Report marker only, no UI operation",
+      "performance": "Two constant-time comparisons, no scan or allocation",
+      "duplicates_conflicts": "Strict positive linecount equality differs from ProfitabilityRules zero-sales complete policy deliberately. Do not replace by Missing.Count==0.",
+      "issues_hypotheses": "Order-level packaging aggregate coverage is separate candidate; this recipe getter correctly prevents empty-recipe fake zero-cost margin.",
+      "tests_missing": "Empty recipe false;1/1true;1/0false; inconsistent overcount false; aggregate packaging missing test separately.",
+      "verified_callers_callees": "ComputeRecipeCost returns actual counts; ReportingQueryService406 checks cost.IsComplete before known-lines increment408."
+    }
+  ],
+  "source_git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+  "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [
+    "sym-04781f0f9779ebeac9474ca1848c76c39fad49d7684daf2216681a8fc6770b38",
+    "sym-311ee87093f4428b58aef09f091c1a713f4eb46778d51e6bd9da74f9c3b0bcac",
+    "sym-a0d8cce24350d172fba69f82932c998d0272ac9ba8b52446730193edf70a5033",
+    "sym-daa9e5cc134cfa30941cc7632196863565c378eab867cc5822c6bc4670d8bccb"
+  ],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

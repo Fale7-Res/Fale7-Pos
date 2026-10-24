@@ -1,0 +1,135 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Models/CartLine.cs",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T22:01:21.275700+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-b297f115f3eab0b06f56cbbef76d97d807f4770d7624fc266158dbf41c49ba0b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CartLine.LineTotalPiastres::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        29,
+        5,
+        29,
+        67
+      ],
+      "reasoning": "Returns cached unit price times quantity using unchecked long arithmetic; display estimate only, no authoritative order price sent. Negative/excessive quantities depend owning command/server policy.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Boundary arithmetic and external quantity edits need tests.",
+      "tests_missing": "Boundary arithmetic and external quantity edits need tests. NOT_EXECUTED.",
+      "verified_callers_callees": "UnitPricePiastres; Quantity; checkout item DTO excludes price"
+    },
+    {
+      "stable_id": "sym-66986fcb5e3c2eef9c9f6012c7486b094cc75cb0daedc52166e070e7a46a9234",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CartLine.LineTotalDisplay::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        30,
+        5,
+        30,
+        76
+      ],
+      "reasoning": "Converts line estimate piastres to decimal pounds by100 and formats2 decimals with current interpolation culture. No rounding beyond standard display format.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Culture and extreme/negative display unobserved.",
+      "tests_missing": "Culture and extreme/negative display unobserved. NOT_EXECUTED.",
+      "verified_callers_callees": "LineTotalPiastres; decimal100"
+    },
+    {
+      "stable_id": "sym-6dbdc7b338723e1f2568f429f51491d5dfa99e83a546e471caad557429d82768",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CartLine.UnitPriceDisplay::get()",
+      "exact_kind": "ExpressionBodiedPropertyGetter",
+      "exact_span": [
+        31,
+        5,
+        31,
+        76
+      ],
+      "reasoning": "Displays cached unit price divided decimal100 with2 decimals and pound suffix; stale menu values can differ from authoritative checkout result.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "No financial authority inferred from display.",
+      "tests_missing": "No financial authority inferred from display. NOT_EXECUTED.",
+      "verified_callers_callees": "UnitPricePiastres"
+    }
+  ],
+  "source_git_blob_sha256": "f75937aed2cca8ca1dbbe5034aaccb3afc00efc2efa79d869db0ea89416e17fd",
+  "worktree_sha256": "f75937aed2cca8ca1dbbe5034aaccb3afc00efc2efa79d869db0ea89416e17fd",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-d877aff6c21499d54acabfa0f5e47c0efd1f01962270686f04235ea5b4631efa",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CartLine._quantity::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        24,
+        17,
+        24,
+        30
+      ],
+      "reasoning": "Observable Quantity starts1 and invokes authored OnQuantityChanged which notifies line total numeric/display. It does not clamp quantity or notify parent aggregate automatically; owner explicit commands/subscriptions must recompute.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Record exact client-specific parent callback ownership separately; generator does not enforce bounds.",
+      "tests_missing": "Record exact client-specific parent callback ownership separately; generator does not enforce bounds. NOT_EXECUTED.",
+      "verified_callers_callees": "OnQuantityChanged; Cashier/CallCenter quantity commands"
+    },
+    {
+      "stable_id": "sym-e264efd3539ae757574bd47e73dfeb5458ac6713499647a6158cff599af85b17",
+      "status": "BEHAVIOR_ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Models.CartLine._notes::observable-property-generator-input",
+      "exact_kind": "ToolkitObservablePropertyGeneratorInput",
+      "exact_span": [
+        27,
+        21,
+        27,
+        27
+      ],
+      "reasoning": "Observable Notes provides nullable editable string with ordinary property notification; no authored normalization, size cap, persistence or pending-operation guard in this field input.",
+      "inputs": "Exact source expression/field/attribute and owning state described in reasoning",
+      "outputs": "Getter result or contextual generated API semantics described in reasoning",
+      "side_effects": "Source-only audit; no application/native/authentication/DB/printer operation performed.",
+      "trust_boundaries": "Presentation/generated command affordances are not authoritative backend validation or permission enforcement.",
+      "database": "No database operations executed; source HTTP effects described only.",
+      "printing_ui": "Native layout/accessibility/theme/printing NOT_OBSERVED by this reviewer.",
+      "performance": "Per-expression enumeration/allocation or event/command work described; no profiling.",
+      "duplicates_conflicts": "Additive facets preserve original exact source receipts; generated contexts not individually counted authored methods.",
+      "issues_hypotheses": "Server validates length; editing pending intent blocked by owner, not setter.",
+      "tests_missing": "Server validates length; editing pending intent blocked by owner, not setter. NOT_EXECUTED.",
+      "verified_callers_callees": "CartLine.Notes; checkout items snapshot"
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

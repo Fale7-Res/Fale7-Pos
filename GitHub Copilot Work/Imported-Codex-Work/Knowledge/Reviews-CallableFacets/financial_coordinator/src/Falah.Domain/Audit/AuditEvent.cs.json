@@ -1,0 +1,39 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Audit/AuditEvent.cs",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:28:53.436328+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-6448d66cf527d267f7e7dcd72d3d2d378b4f89974be40fe21d3cf4ece5ab0f8c",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Audit.InMemoryAuditLog.Events::get()",
+      "span": [
+        52,
+        5,
+        52,
+        69
+      ],
+      "reasoning": "Returns List.AsReadOnly wrapper around live _events. Caller cannot directly mutate via exposed collection, but later Append changes observed view; no copied immutable snapshot or thread synchronization. This is documented in-memory test implementation, not production EF log.",
+      "inputs": "Current object state, or explicitly described static clock/configuration dependency; no operational data read.",
+      "outputs": "Expression result from exact source getter; financial consequence qualified in reasoning.",
+      "side_effects": "No persisted write, backup dispatch, financial command, migration or printer operation by this review.",
+      "trust_boundaries": "Not independently an actor/permission boundary; normal constructor/resolver/handler invariants remain separate.",
+      "database": "No explicit DB query or write in these getters; EF/runtime consumers not invoked.",
+      "printing_ui": "Result can support presentation/tests; no native window observation or physical printing claimed.",
+      "performance": "Constant-size access/conversion; AsReadOnly creates wrapper and clock/config calls retain their real external costs.",
+      "duplicates_conflicts": "BusinessDateRange date normalization differs across consumers; backup properties intentionally share Setting parser.",
+      "issues_hypotheses": "Returns List.AsReadOnly wrapper around live _events. Caller cannot directly mutate via exposed collection, but later Append changes observed view; no copied immutable snapshot or thread synchronization. This is documented in-memory test implementation, not production EF log.",
+      "tests_missing": "Boundary/invariant tests appropriate to described behavior; no integration or financial state-changing tests executed.",
+      "verified_callers_callees": "Getter and surrounding declared producer/parser source inspected; production runtime outcomes not inferred from syntax."
+    }
+  ],
+  "source_git_blob_sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d",
+  "worktree_sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d",
+  "generated_behavior_inputs": [],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [
+    "sym-1e8ce8813667bc218da349f112a98b98811fe8823e5373b55aef511a8dcd8cd3"
+  ],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

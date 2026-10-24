@@ -1,0 +1,168 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-business-day-reconciliation-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T08:07:49.5492138Z",
+  "assignment": "Substantively review ReportingQueryService.GetBusinessDayReconciliationAsync from source, including called helpers/writers, endpoint permission, DTO, and existing tests. Receipt status alone is not analysis credit.",
+  "callable": {
+    "stable_id": "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetBusinessDayReconciliationAsync(string, CancellationToken)",
+    "span": "164-208",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+  },
+  "source_reasoning": "The service fetches BusinessDay by exact ID and returns NotFound through its endpoint if absent. It loads non-cancelled orders by BusinessDayId, maps them to domain orders, and calls LoadOrderIdsWithCashOutsideRestaurantAsync plus SalesRules.ComputeSalesReport. It sums expenses by BusinessDayId. It loads posted treasury movements by BusinessDayId and computes per-account net source/destination deltas. It fetches shifts by BusinessDate, then sums stored ExpectedCash, ActualCash, absolute negative CashDifference and positive CashDifference. It builds dayOrderIds from non-cancelled day orders, reads all non-settled driver-custody rows and sums CollectedPiastres for those IDs. Separately it sums posted driver_settlement movements with the day ID, and computes purchasingPaid from already-loaded posted movements of purchase_payment type. It returns these values in BusinessDayReconciliationDto. This is read-only multi-query projection; source contains no transaction/snapshot around the awaits.",
+  "call_chain": [
+    {
+      "callee": "LoadOrderIdsWithCashOutsideRestaurantAsync",
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "span": "66-81",
+      "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "reason": "Starts from orders CheckoutRules.IsCashOnDelivery identifies as cash delivery with positive payable; removes order IDs with a Settled DriverCustody."
+    },
+    {
+      "callee": "CheckoutRules.IsCashOnDelivery",
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "span": "44-45",
+      "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "reason": "Shared classification predicate prevents the reporting helper from reimplementing COD eligibility."
+    },
+    {
+      "callee": "SalesRules.ComputeSalesReport",
+      "path": "src/Falah.Domain/Reports/SalesRules.cs",
+      "span": "34-89",
+      "sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9",
+      "reason": "Computes frozen order/refund totals and payment-method channels; pending electronic and COD custody are excluded from collected sales using the helper result."
+    },
+    {
+      "callee": "OrderPaymentQueries.PaymentMethodTotals",
+      "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "span": "26-55",
+      "sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "reason": "Supplies payment channel totals used by SalesRules."
+    }
+  ],
+  "endpoint": {
+    "path": "src/Falah.Server/Program.cs",
+    "span": "2013-2019",
+    "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+    "behavior": "Requires reports_view or all through RequireReportsAccessAsync; missing user is 404, insufficient permission is 422; missing business-day ID is caught and returned as 404."
+  },
+  "permission_helper": {
+    "path": "src/Falah.Server/Program.cs",
+    "span": "2282-2290",
+    "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+    "behavior": "Looks up user and checks reports_view/all."
+  },
+  "dto": {
+    "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+    "span": "26-36",
+    "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+    "behavior": "Carries sales, expenses, a TreasuryBalancesDto, delivery expected/settled custody, shift count and stored expected/actual/discrepancy totals, plus purchasing paid."
+  },
+  "writers": [
+    {
+      "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+      "span": "94-110",
+      "sha256": "4bfd99bd7218545ca0d51b0caf4ec94a056c6e3802bf3bf7a7cb5baf02c96aa2af",
+      "behavior": "On delivered result, updates existing custody CollectedPiastres and variance; failed order does not collect cash."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+      "span": "105-140",
+      "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "behavior": "Requires active business day for settlement; posts driver_settlement movement to Main with that businessDayId; marks selected custodies Settled in same transaction."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+      "span": "110-149",
+      "sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de",
+      "behavior": "Persists closed shift ExpectedCash, ActualCash, CashDifference; cash_shortage/cash_overage and shift_handover treasury movements are created with BusinessDayId null and ShiftId set."
+    },
+    {
+      "path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "span": "25-55",
+      "sha256": "6be465799c1b5b0953d01a69cdee1c731aaba0029e91a82bf956e1c63ccafecc",
+      "behavior": "Accepts explicit BusinessDate and blocks only when an active business day exists, then inserts a new generated day ID."
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "span": "40-43",
+      "sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "behavior": "BusinessDayRules.Open checks only for any active day; it does not reject an existing closed day with same BusinessDate."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "span": "137-152",
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "behavior": "BusinessDay unique index is OpenRequestId only; BusinessDate index is non-unique."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+      "span": "10-23,64-88",
+      "sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e",
+      "behavior": "BusinessDay stores BusinessDate; ShiftEntity stores BusinessDate but no BusinessDayId."
+    }
+  ],
+  "tests": {
+    "reporting": {
+      "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+      "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+      "ranges": "145-165",
+      "coverage": "Basic day report checks one order, sales, expense and shift count; unknown day returns 404. It does not assert TreasuryBalances, driver custody totals, purchases, shortages/overages, a reports_view denial on this endpoint, or distinct BusinessDay IDs sharing one BusinessDate."
+    },
+    "delivery": {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "sha256": "2cf833e812d290b7bfcb7c83f07d02c36da9a072ea9394120a12c8690c8134f",
+      "ranges": "1095-1131",
+      "coverage": "Delivery lifecycle test verifies a cash-on-delivery order moves from CashWithDrivers to CollectedSales after driver settlement. It calls /api/reports/sales, not business-day reconciliation, and stays within one day."
+    },
+    "permission_counterevidence": "ReportingVerticalSliceTests.cs:101-107 tests reports_view denial on /api/reports/sales; business-day endpoint calls the same RequireReportsAccessAsync helper, but has no direct endpoint-specific denial test in the inspected file.",
+    "tests_executed": false
+  },
+  "observations": [
+    {
+      "id": "BD-RECON-SHIFT-COHORT-001",
+      "confidence": "SOURCE_CONFIRMED_PREDICATE_DIVERGENCE;IMPACT_CONDITIONAL",
+      "behavior": "Sales, expenses and treasury entries are scoped by BusinessDayId, while shift totals are selected only by BusinessDate. OpenBusinessDay accepts an explicit date, active-day check blocks active rows only, BusinessDayRules.Open has no duplicate-date check, and database has no unique BusinessDate index. Thus after one day ID for date D is closed, source permits opening another day ID for D; reports for either ID include shifts from both IDs with date D because shifts carry only BusinessDate.",
+      "potential_impact": "If distinct business-day IDs for one calendar date are allowed and meant to have separate reconciliation, ShiftCount, expected/actual cash, shortage and overage on either report can include shifts from the other day record. If same-date IDs are intended as a single calendar-date cohort, date aggregation may be by design. The product invariant is not stated or enforced in inspected source.",
+      "counterevidence": "ShiftEntity has no BusinessDayId and shifts are naturally calendar-date records; same-date day rows may be operationally prohibited outside this handler or intentionally share date-level shift scope. No such external policy/runtime evidence was checked.",
+      "recommendation": "Clarify one-record-per-date invariant. Either enforce unique BusinessDate across day records (respecting reopen behavior) or persist/link shift BusinessDayId and scope by that identifier. Add scenario test with sequential same-date day records and assert intended shift cohort."
+    },
+    {
+      "id": "BD-RECON-TREASURY-SCOPE-002",
+      "confidence": "SOURCE_CONFIRMED_DAY_FLOW_ONLY;LABEL/POLICY_UNRESOLVED",
+      "behavior": "Treasury fields sum only net Posted movement deltas whose BusinessDayId equals the report ID. They exclude all prior-day balances and also exclude shift-close movements because CloseShiftHandler writes shift_handover and shortage/overage entries with BusinessDayId null.",
+      "potential_impact": "The result is day-tagged net movement, not account balance at close. If DTO consumers interpret TreasuryBalancesDto in a business-day reconciliation as end-of-day balances, historical carry-forward and shift close postings are absent. OwnerDashboard CurrentTreasuryAsync separately sums all posted movement rows, showing the code distinguishes current balance aggregation.",
+      "counterevidence": "A business-day reconciliation may intentionally show movement totals attributable to the day, not account ending balances. DTO has generic TreasuryBalancesDto shape and reference reconciliation semantics were not independently inspected here. No direct UI labels/consumer inspected.",
+      "recommendation": "Clarify and name business-day Treasury fields as net activity if intended; otherwise calculate correct opening-plus-day net movement and consistently attribute shift-close movements."
+    },
+    {
+      "id": "BD-RECON-CUSTODY-COHORT-003",
+      "confidence": "SOURCE_CONFIRMED_DISTINCT_COHORTS;POLICY_UNRESOLVED",
+      "behavior": "DeliveryExpectedCustody sums CollectedPiastres of currently unsettled custody for the selected day orders; DeliverySettledCustody sums posted settlement movements assigned to the settlement day ID. SettleDriverCustodyHandler tags a settlement with the currently active businessDayId and marks prior custody rows Settled.",
+      "potential_impact": "A prior-day order settled today ceases to appear in prior-day outstanding amount, while its cash appears in today settlement amount; those values are not same-cohort components and should not be subtracted as if they reconcile one day order cohort.",
+      "counterevidence": "The fields may deliberately report outstanding custody versus cash settled during that day as separate operational measures. DTO names do not assert a direct equation. Existing tests do not cover cross-day settlement.",
+      "recommendation": "Document whether expected means outstanding-now by sale-day cohort and settled means event-day receipts. If intended to reconcile one cohort, expose separate order cohort/settlement event ranges."
+    }
+  ],
+  "receipt_context": {
+    "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+    "sha256": "fe05e42d2d07c073c0448e752e44fd61612247c4725b523e40f0650dc8b8d112d",
+    "stable_id": "sym-5101f4e3ae13491e2dd038d8824b93aaf3789a0f0fa0a1810ec572e4121b51d5",
+    "status": "ANALYZED",
+    "interpretation": "Read for current ledger context only. Independent source reasoning in this handoff comes from source inspection above; no credit assigned to receipt status alone."
+  },
+  "overall": "Static source challenge complete. Callable has reports_view gating and read-only projections, and its ordinary one-day sales/expense test is basic. One conditional shift cohort divergence and two report-semantics questions are source-supported; no runtime or database outcome is claimed, and no shared finding was promoted.",
+  "next_queue": {
+    "stable_id": "sym-8e7d2d3022c4e54a707da81cfbed1f2b7649a5c8349ec0d39552c5ae760f702",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetDailySummaryAsync(string, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "215-239",
+    "note": "Next source-order callable; substantive review required even if existing receipt says analyzed."
+  },
+  "limitations": [
+    "No tests executed; no source, DB, runtime, configuration, shared registry/report, or Git changes.",
+    "No deployed data, external serialization or owner policy evidence inspected.",
+    "No defect is promoted to the shared finding registry."
+  ]
+}

@@ -1,0 +1,1064 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/AgentOptions.cs",
+  "source_git_blob_sha256": "7b940f8aed07130a6af1cf621aa3a1dfcf5c1174d3b34051ad11df2076802a5f",
+  "worktree_sha256": "678b4396c34d4b3885fa2d17087b8ef31c5c303820da18c97cb3cd4ec31cb5a7",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:31:24.176679+00:00",
+  "scope": "19 properties getter/setter individually reasoned plus four methods; no propertyvalue secrets copied",
+  "symbols": [
+    {
+      "stable_id": "sym-0ac7196e9947903b33768a3ee7af1e48038554ab45c14542afb44081ae6840ec",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of ServerBaseAddress without validation, normalization or I/O. HTTP server base URI read by PrintServerClient constructor. Validate only nonblank, not absolute URI/scheme validity. No authentication metadata in URI should be logged; invalidURI fails later.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through HTTP server base URI read by PrintServerClient constructor",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate only nonblank, not absolute URI/scheme validity. No authentication metadata in URI should be logged; invalidURI fails later.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "HTTP server base URI read by PrintServerClient constructor",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        13,
+        13
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-cf14ce544cf26dfa5e22b8a8c43e89128073fd9724d566361a9cc092c9f0e1b8",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into ServerBaseAddress unchanged; it performs no validation or side effect beyond this object. HTTP server base URI read by PrintServerClient constructor. Validate only nonblank, not absolute URI/scheme validity. No authentication metadata in URI should be logged; invalidURI fails later.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through HTTP server base URI read by PrintServerClient constructor",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate only nonblank, not absolute URI/scheme validity. No authentication metadata in URI should be logged; invalidURI fails later.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "HTTP server base URI read by PrintServerClient constructor",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        13,
+        13
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e44f4c8275c83a334181d081a6b67c3d2aa510e48c74c787d79cf5924474bffc",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of Route without validation, normalization or I/O. Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this. Setter accepts arbitrary aliases/numeric enum text; Validate canonicalizes defined values. Uncanonicalized direct consumers could split route identity.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Setter accepts arbitrary aliases/numeric enum text; Validate canonicalizes defined values. Uncanonicalized direct consumers could split route identity.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        16,
+        16
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e69a6516d4e06aad548227446676734abaa79f9627498ed424deb5703c7dd55f",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into Route unchanged; it performs no validation or side effect beyond this object. Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this. Setter accepts arbitrary aliases/numeric enum text; Validate canonicalizes defined values. Uncanonicalized direct consumers could split route identity.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Setter accepts arbitrary aliases/numeric enum text; Validate canonicalizes defined values. Uncanonicalized direct consumers could split route identity.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Validate parses PrintRoute then canonicalizes; mutex,polling and journal identity use this",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        16,
+        16
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-bb2ce002afc8d161cc3d91f24fc8a91727d4bb9d83fb818091994b9454521540",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of ReportedByUserId without validation, normalization or I/O. Reported in attempt request and log; middleware requires it match PIN-selected user. Validate only nonblank; comment promises PINbelongs user but loader cannot establish it; actual server mismatch rejects report if different.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Reported in attempt request and log; middleware requires it match PIN-selected user",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate only nonblank; comment promises PINbelongs user but loader cannot establish it; actual server mismatch rejects report if different.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Reported in attempt request and log; middleware requires it match PIN-selected user",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        20,
+        20
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-932d4818d24018e83ed04320460df7c3cf7eb4f1d0456d8d6a8658a474281bc2",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into ReportedByUserId unchanged; it performs no validation or side effect beyond this object. Reported in attempt request and log; middleware requires it match PIN-selected user. Validate only nonblank; comment promises PINbelongs user but loader cannot establish it; actual server mismatch rejects report if different.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Reported in attempt request and log; middleware requires it match PIN-selected user",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate only nonblank; comment promises PINbelongs user but loader cannot establish it; actual server mismatch rejects report if different.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Reported in attempt request and log; middleware requires it match PIN-selected user",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        20,
+        20
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e2848d0f0a1d61c6063410fdcdac6310427f59c26db1b601beeb4b520d42111e",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of Pin without validation, normalization or I/O. PrintServerClient.AuthenticateAsync startup only. Sensitive secret; nonblank validation only. Never include property value in audit notes. Reauthentication absent after sessionloss.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through PrintServerClient.AuthenticateAsync startup only",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Sensitive secret; nonblank validation only. Never include property value in audit notes. Reauthentication absent after sessionloss.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "PrintServerClient.AuthenticateAsync startup only",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        25,
+        25
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-5d636ae04b8595bc32c17a8440338698cf3dc606413d8b9e25c4e060100bbbe2",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into Pin unchanged; it performs no validation or side effect beyond this object. PrintServerClient.AuthenticateAsync startup only. Sensitive secret; nonblank validation only. Never include property value in audit notes. Reauthentication absent after sessionloss.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through PrintServerClient.AuthenticateAsync startup only",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Sensitive secret; nonblank validation only. Never include property value in audit notes. Reauthentication absent after sessionloss.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "PrintServerClient.AuthenticateAsync startup only",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        25,
+        25
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f5b6a7d67135a60d89a58d232a296004ae7e6a9ead9583497b68e44d65308d7f",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of Transport without validation, normalization or I/O. CreateTransport switch network/serial/windows/file. Case-insensitive switch via ToLowerInvariant; null assigned outside nullablecontract can throw Validate; unknown strings rejected. File is simulation, not paper.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through CreateTransport switch network/serial/windows/file",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Case-insensitive switch via ToLowerInvariant; null assigned outside nullablecontract can throw Validate; unknown strings rejected. File is simulation, not paper.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "CreateTransport switch network/serial/windows/file",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        28,
+        28
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-303ae77911d97d0a23c94bb8686164c22f9ed7b001e37084174898563fc29bc9",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into Transport unchanged; it performs no validation or side effect beyond this object. CreateTransport switch network/serial/windows/file. Case-insensitive switch via ToLowerInvariant; null assigned outside nullablecontract can throw Validate; unknown strings rejected. File is simulation, not paper.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through CreateTransport switch network/serial/windows/file",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Case-insensitive switch via ToLowerInvariant; null assigned outside nullablecontract can throw Validate; unknown strings rejected. File is simulation, not paper.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "CreateTransport switch network/serial/windows/file",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        28,
+        28
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6874edc093294a168bcf023402c6475f0c264e17882d520d67cfce814dd09ffc",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of PrinterHost without validation, normalization or I/O. NetworkTicketTransport TCP destination. Only required for network; no hostallowlist/normalization; port and timeout separate. No connection performed during review.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through NetworkTicketTransport TCP destination",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only required for network; no hostallowlist/normalization; port and timeout separate. No connection performed during review.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "NetworkTicketTransport TCP destination",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        30,
+        30
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-7c60271a933e62f83d2c37a90824b8dc78f9a2be749ed99159fb8e331e868f6d",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into PrinterHost unchanged; it performs no validation or side effect beyond this object. NetworkTicketTransport TCP destination. Only required for network; no hostallowlist/normalization; port and timeout separate. No connection performed during review.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through NetworkTicketTransport TCP destination",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only required for network; no hostallowlist/normalization; port and timeout separate. No connection performed during review.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "NetworkTicketTransport TCP destination",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        30,
+        30
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-60801e9596660e51613a7bd2b2e5770b1369778de9f1a61ca06e14de050d96de",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of PrinterPort without validation, normalization or I/O. NetworkTicketTransport endpoint port. No bounds validation0..65535 here; invalidvalues fail connect. RAW default transport is not a status/physical-ack protocol.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through NetworkTicketTransport endpoint port",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No bounds validation0..65535 here; invalidvalues fail connect. RAW default transport is not a status/physical-ack protocol.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "NetworkTicketTransport endpoint port",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        31,
+        31
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-89883b24f0f541aba2d76c990b2c51b7cceac1e3570a0a82226b54c3d6e651a2",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into PrinterPort unchanged; it performs no validation or side effect beyond this object. NetworkTicketTransport endpoint port. No bounds validation0..65535 here; invalidvalues fail connect. RAW default transport is not a status/physical-ack protocol.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through NetworkTicketTransport endpoint port",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No bounds validation0..65535 here; invalidvalues fail connect. RAW default transport is not a status/physical-ack protocol.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "NetworkTicketTransport endpoint port",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        31,
+        31
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-2e04b27ec57421538be4737c75db115c131cfb286ed2ff5be4484d510f2aecb2",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of SerialPort without validation, normalization or I/O. SerialTicketTransport COM path. Only nonblank when serial selected; no deviceaccess until Send. Port path validity deferred to SerialPort.Open.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through SerialTicketTransport COM path",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only nonblank when serial selected; no deviceaccess until Send. Port path validity deferred to SerialPort.Open.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "SerialTicketTransport COM path",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        32,
+        32
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-a3cda87f788af0b6ce6c4907b8aa9a8a220f4faa3965754e4edc76e3b352b54b",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into SerialPort unchanged; it performs no validation or side effect beyond this object. SerialTicketTransport COM path. Only nonblank when serial selected; no deviceaccess until Send. Port path validity deferred to SerialPort.Open.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through SerialTicketTransport COM path",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only nonblank when serial selected; no deviceaccess until Send. Port path validity deferred to SerialPort.Open.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "SerialTicketTransport COM path",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        32,
+        32
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-2648ab526bc30b156f797652a37f39d37cf958dc68251fa0c48bdf421ecebb78",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of SerialBaudRate without validation, normalization or I/O. SerialTicketTransport SerialPort constructor. No allowedbaud/range validation; invalid or mismatched rate fails/truncates output at runtime. Cannot assert hardwarecompatible from config.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through SerialTicketTransport SerialPort constructor",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No allowedbaud/range validation; invalid or mismatched rate fails/truncates output at runtime. Cannot assert hardwarecompatible from config.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "SerialTicketTransport SerialPort constructor",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        33,
+        33
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8e9c48c0734fa71b04743d3a452b2a799e459f3d2d5b26b3bf591b483034f9fb",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into SerialBaudRate unchanged; it performs no validation or side effect beyond this object. SerialTicketTransport SerialPort constructor. No allowedbaud/range validation; invalid or mismatched rate fails/truncates output at runtime. Cannot assert hardwarecompatible from config.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through SerialTicketTransport SerialPort constructor",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No allowedbaud/range validation; invalid or mismatched rate fails/truncates output at runtime. Cannot assert hardwarecompatible from config.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "SerialTicketTransport SerialPort constructor",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        33,
+        33
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-da9c9c55e38ac8cc1695a1ce076a04aa81548c55352275ce1893fec0dd9ce08c",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of WindowsPrinterName without validation, normalization or I/O. WindowsSpoolerTicketTransport queue name. Only nonblank requirement when windows; queueidentity must be precise. RAW send selects realqueue; configread doesnot verify installedqueue.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through WindowsSpoolerTicketTransport queue name",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only nonblank requirement when windows; queueidentity must be precise. RAW send selects realqueue; configread doesnot verify installedqueue.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "WindowsSpoolerTicketTransport queue name",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        37,
+        37
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-095f079decaaeacfafa00f320cc74e6600dca966ff9fe3995e98d4d15e0fbed6",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into WindowsPrinterName unchanged; it performs no validation or side effect beyond this object. WindowsSpoolerTicketTransport queue name. Only nonblank requirement when windows; queueidentity must be precise. RAW send selects realqueue; configread doesnot verify installedqueue.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through WindowsSpoolerTicketTransport queue name",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Only nonblank requirement when windows; queueidentity must be precise. RAW send selects realqueue; configread doesnot verify installedqueue.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "WindowsSpoolerTicketTransport queue name",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        37,
+        37
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-0172c0ec8321b799eea44de35ef30d293b44f8d191aef611c046731413e57e2f",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of FileOutputDirectory without validation, normalization or I/O. FileTicketTransport constructor creates output directory. No path restriction/nonblank normalization. Directoryrelative to process CWD; changingserviceCWD changes destination. File success mustnot imply paper.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through FileTicketTransport constructor creates output directory",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No path restriction/nonblank normalization. Directoryrelative to process CWD; changingserviceCWD changes destination. File success mustnot imply paper.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "FileTicketTransport constructor creates output directory",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        38,
+        38
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f855d92ce82f28a194d956babee6f4f0ce3817b774130c4b771de74a02d3dd1b",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into FileOutputDirectory unchanged; it performs no validation or side effect beyond this object. FileTicketTransport constructor creates output directory. No path restriction/nonblank normalization. Directoryrelative to process CWD; changingserviceCWD changes destination. File success mustnot imply paper.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through FileTicketTransport constructor creates output directory",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No path restriction/nonblank normalization. Directoryrelative to process CWD; changingserviceCWD changes destination. File success mustnot imply paper.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "FileTicketTransport constructor creates output directory",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        38,
+        38
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-ff98b0694b75854f10bf815eb5074ff1e3235450ea73960259007a6c15918620",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of PollSeconds without validation, normalization or I/O. Program computes Task.Delay interval. Validate enforces>=1, avoiding busyloop/negative delay. Large value accepted; operational backlog can grow without printerfailure.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Program computes Task.Delay interval",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate enforces>=1, avoiding busyloop/negative delay. Large value accepted; operational backlog can grow without printerfailure.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Program computes Task.Delay interval",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        40,
+        40
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-17edf68f40b7b0953ccb357c31a4f5834d538acee8b2a19fb4501a2c09d6dd5f",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into PollSeconds unchanged; it performs no validation or side effect beyond this object. Program computes Task.Delay interval. Validate enforces>=1, avoiding busyloop/negative delay. Large value accepted; operational backlog can grow without printerfailure.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through Program computes Task.Delay interval",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Validate enforces>=1, avoiding busyloop/negative delay. Large value accepted; operational backlog can grow without printerfailure.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "Program computes Task.Delay interval",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        40,
+        40
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-0046c1def7216a2d67910605145c6004b066b30e8130f4046cccb0f1de7debf8",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of TransportTimeoutSeconds without validation, normalization or I/O. HTTPtimeout,TCPtimeout and serialWriteTimeout configuration. No range validation; int->TimeSpan valid but downstream accepts restrictions; doesnot bound synchronousWindowsOpen/End orserialOpen/Flush.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through HTTPtimeout,TCPtimeout and serialWriteTimeout configuration",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No range validation; int->TimeSpan valid but downstream accepts restrictions; doesnot bound synchronousWindowsOpen/End orserialOpen/Flush.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "HTTPtimeout,TCPtimeout and serialWriteTimeout configuration",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        41,
+        41
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-7d8bc9ace0e933c57a0a64ff5274c8103d45d6ce057779a336d845bc62b7fdaf",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into TransportTimeoutSeconds unchanged; it performs no validation or side effect beyond this object. HTTPtimeout,TCPtimeout and serialWriteTimeout configuration. No range validation; int->TimeSpan valid but downstream accepts restrictions; doesnot bound synchronousWindowsOpen/End orserialOpen/Flush.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through HTTPtimeout,TCPtimeout and serialWriteTimeout configuration",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No range validation; int->TimeSpan valid but downstream accepts restrictions; doesnot bound synchronousWindowsOpen/End orserialOpen/Flush.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "HTTPtimeout,TCPtimeout and serialWriteTimeout configuration",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        41,
+        41
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-ca95fee6c054919cc3d229bf5416a45b8a40bfc695d110c91f26ec468cd4b98e",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of TextEncoding without validation, normalization or I/O. ResolveEncoding registers provider then Encoding.GetEncoding. Unknown string fails before normalprinting. Correctcodepage alone cannot guarantee Arabicshaping; nonWindows imagefallback uses text.",
+      "inputs": "Current stored string",
+      "outputs": "Stored string",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through ResolveEncoding registers provider then Encoding.GetEncoding",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Unknown string fails before normalprinting. Correctcodepage alone cannot guarantee Arabicshaping; nonWindows imagefallback uses text.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "ResolveEncoding registers provider then Encoding.GetEncoding",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        47,
+        47
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-4847e37a429450881725caa9ebf2c1ad717b8f8d3ed472131e04a38bc9c192a1",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied string into TextEncoding unchanged; it performs no validation or side effect beyond this object. ResolveEncoding registers provider then Encoding.GetEncoding. Unknown string fails before normalprinting. Correctcodepage alone cannot guarantee Arabicshaping; nonWindows imagefallback uses text.",
+      "inputs": "Assigned string",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through ResolveEncoding registers provider then Encoding.GetEncoding",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Unknown string fails before normalprinting. Correctcodepage alone cannot guarantee Arabicshaping; nonWindows imagefallback uses text.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "ResolveEncoding registers provider then Encoding.GetEncoding",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        47,
+        47
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-57a62a7488ecfffe039fb8cc1dc2caea8906c52d0ee31fb0c079adcb1e2e050b",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of CodePageTableId without validation, normalization or I/O. EscPosTicketRenderer ESC t command selector. byte type bounds0..255 but firmwaretable semantics unvalidated; null skips selecttable. Doesnot alterimagepath.",
+      "inputs": "Current stored byte?",
+      "outputs": "Stored byte?",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through EscPosTicketRenderer ESC t command selector",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "byte type bounds0..255 but firmwaretable semantics unvalidated; null skips selecttable. Doesnot alterimagepath.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "EscPosTicketRenderer ESC t command selector",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        53,
+        53
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-fda984b19b74d42899530cfed4ca19df1ef5c19698400ca61d47d3b0ba02afe6",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied byte? into CodePageTableId unchanged; it performs no validation or side effect beyond this object. EscPosTicketRenderer ESC t command selector. byte type bounds0..255 but firmwaretable semantics unvalidated; null skips selecttable. Doesnot alterimagepath.",
+      "inputs": "Assigned byte?",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through EscPosTicketRenderer ESC t command selector",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "byte type bounds0..255 but firmwaretable semantics unvalidated; null skips selecttable. Doesnot alterimagepath.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "EscPosTicketRenderer ESC t command selector",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        53,
+        53
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-bc5503a14221594e44cee46194d70b3cacd9bfaac0cb617fbdc41af971d9ac64",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of RenderAsImage without validation, normalization or I/O. PrintJobProcessor/Program choose bitmap only if Windows. False selects text renderer; true onnonWindows silently fallsbacktext. Setting isnot proof Arabicpaperreadability.",
+      "inputs": "Current stored bool",
+      "outputs": "Stored bool",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through PrintJobProcessor/Program choose bitmap only if Windows",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "False selects text renderer; true onnonWindows silently fallsbacktext. Setting isnot proof Arabicpaperreadability.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "PrintJobProcessor/Program choose bitmap only if Windows",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        59,
+        59
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-f6d34b4fa6e96d4123b47e8ff88442a9053d9be9619fb4e8e2afaba1ddbfefec",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied bool into RenderAsImage unchanged; it performs no validation or side effect beyond this object. PrintJobProcessor/Program choose bitmap only if Windows. False selects text renderer; true onnonWindows silently fallsbacktext. Setting isnot proof Arabicpaperreadability.",
+      "inputs": "Assigned bool",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through PrintJobProcessor/Program choose bitmap only if Windows",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "False selects text renderer; true onnonWindows silently fallsbacktext. Setting isnot proof Arabicpaperreadability.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "PrintJobProcessor/Program choose bitmap only if Windows",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        59,
+        59
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6a2ec6e4d35e4f7f5522e075595ae127a9ca1fe4fe8c666ab2db05e341fc89e2",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of ImageWidthDots without validation, normalization or I/O. BitmapTicketRenderer paper width. No positive/minimum/maximum validation; huge ornegative widths can failallocate/exhaustmemory. Width differs independent savedPrinterWidth setting.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer paper width",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No positive/minimum/maximum validation; huge ornegative widths can failallocate/exhaustmemory. Width differs independent savedPrinterWidth setting.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer paper width",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        66,
+        66
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-fa5b955c9efb0769c378cef1d74e256aad6a055c2be2dc2a0b1e69c222f9cc5a",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into ImageWidthDots unchanged; it performs no validation or side effect beyond this object. BitmapTicketRenderer paper width. No positive/minimum/maximum validation; huge ornegative widths can failallocate/exhaustmemory. Width differs independent savedPrinterWidth setting.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer paper width",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No positive/minimum/maximum validation; huge ornegative widths can failallocate/exhaustmemory. Width differs independent savedPrinterWidth setting.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer paper width",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        66,
+        66
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-840a4cbc032a3b0cd72d0b6470f21a83a15963438f81711141cbf1f2f6dfdc08",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of ImageMarginDots without validation, normalization or I/O. BitmapTicketRenderer content inset each side. No nonnegative/2margin<width guard; narrowcontent ornegativepadding corruptslayout/throws. Must validatewithwidth, notalone.",
+      "inputs": "Current stored int",
+      "outputs": "Stored int",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer content inset each side",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No nonnegative/2margin<width guard; narrowcontent ornegativepadding corruptslayout/throws. Must validatewithwidth, notalone.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer content inset each side",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        70,
+        70
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8d1f91c9fb29284a6d665b51a2073917e073720b477337b05c58445d5bff7ad2",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied int into ImageMarginDots unchanged; it performs no validation or side effect beyond this object. BitmapTicketRenderer content inset each side. No nonnegative/2margin<width guard; narrowcontent ornegativepadding corruptslayout/throws. Must validatewithwidth, notalone.",
+      "inputs": "Assigned int",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer content inset each side",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "No nonnegative/2margin<width guard; narrowcontent ornegativepadding corruptslayout/throws. Must validatewithwidth, notalone.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer content inset each side",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        70,
+        70
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-589f0d27113633b626826295507923e77536ba817352077c647cc3356ba7a01c",
+      "status": "ANALYZED",
+      "reasoning": "Getter returns current backing value of ThickenStrokes without validation, normalization or I/O. BitmapTicketRenderer one-dot dilation/inverse protection. Pure renderoption default; thermalink policy hardwaredependent. QR bits stampedafterthickening to preserve modules; doesnot change money/queue.",
+      "inputs": "Current stored bool",
+      "outputs": "Stored bool",
+      "side_effects": "None",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer one-dot dilation/inverse protection",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Pure renderoption default; thermalink policy hardwaredependent. QR bits stampedafterthickening to preserve modules; doesnot change money/queue.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer one-dot dilation/inverse protection",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        77,
+        77
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-6747d7fcdb0bb0ce8e917a567d8a747b52476b092685f56fcf8b916b18afaad0",
+      "status": "ANALYZED",
+      "reasoning": "Setter stores caller/config-supplied bool into ThickenStrokes unchanged; it performs no validation or side effect beyond this object. BitmapTicketRenderer one-dot dilation/inverse protection. Pure renderoption default; thermalink policy hardwaredependent. QR bits stampedafterthickening to preserve modules; doesnot change money/queue.",
+      "inputs": "Assigned bool",
+      "outputs": "Updated in-memory property",
+      "side_effects": "Backing property assignment only",
+      "trust_boundaries": "Localstation configuration is caller-controlled until Validate; secretPin must remain private",
+      "database": "NOT_APPLICABLE: no SQL",
+      "printing_ui": "Station transport/rendering behavior through BitmapTicketRenderer one-dot dilation/inverse protection",
+      "performance": "Constant time propertyaccess; consumer cost separate",
+      "duplicates_conflicts": "Settings DTO printerwidth/copies do not automatically synchronize with this independent station config",
+      "issues_hypotheses": "Pure renderoption default; thermalink policy hardwaredependent. QR bits stampedafterthickening to preserve modules; doesnot change money/queue.",
+      "tests_missing": "Setter/getter roundtrip and actual Validate/consumer boundary fixture; no device/API executed",
+      "verified_callers_callees": [
+        "BitmapTicketRenderer one-dot dilation/inverse protection",
+        "AgentOptions.Load JSON binding",
+        "AgentOptions.Validate when applicable"
+      ],
+      "evidence_source_span": [
+        77,
+        77
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-8da4f456ab213a3661110579783244d668d4f873099c0619029b08e726f78f50",
+      "status": "ANALYZED",
+      "reasoning": "Registers CodePagesEncodingProvider globally then resolves the configured encoding name. UTF/legacy codepages become available; unrecognized name throws before loop instead of explicit configuration error list. Encoding selection cannot shape Arabic or match firmware code table by itself.",
+      "inputs": "TextEncoding property",
+      "outputs": "Encoding instance or exception",
+      "side_effects": "Global .NET encoding provider registration only if method actually run; not executed here",
+      "trust_boundaries": "Config string->runtime encoding; no wire contentvalidation",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Used text ESC/POS renderer only; image bitmap shaping independent",
+      "performance": "Encoding registration/lookup before polls; no perjobre-registration at caller",
+      "duplicates_conflicts": "Distinct from ESC t firmware table; must test paired codepage semantics",
+      "issues_hypotheses": "Invalidencoding crashes startup outside Validate; nonWindowsfallback textfidelity",
+      "tests_missing": "Invalidname/1256/UTF8 lookup fixtures without hardware",
+      "verified_callers_callees": [
+        "Program normal processor construction",
+        "Program test-print text path",
+        "Encoding.RegisterProvider/GetEncoding"
+      ],
+      "evidence_source_span": [
+        79,
+        84
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-9c02a8102d3284c6ddbb61f5399e4cab2580c7fc6548c71f5826586706fbf4d5",
+      "status": "ANALYZED",
+      "reasoning": "Creates exactly one transport from configured lowercase name. Windows guarded by OS check; network/serial constructors retain destination; file constructor immediately creates directory. Unknown transport throws. It doesnot prove destination reachable or paperready.",
+      "inputs": "Transport and destination/timeout properties",
+      "outputs": "ITicketTransport or InvalidOperationException",
+      "side_effects": "File branch can create localdirectory; Windows/network/serial creation has no send",
+      "trust_boundaries": "Config destination chooses realprinter orfile; mustnot be called indiscriminately for audit",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Builds actual outputchannel, not preview; file simulates only",
+      "performance": "Constant construction except directoryI/O; networkconnect deferred",
+      "duplicates_conflicts": "Same route may have multiple transports on differentstations; no server lease",
+      "issues_hypotheses": "No cancellation supplied to construction; unsupportedplatform orbadtimeout may throw",
+      "tests_missing": "Constructor-selection tests using isolatedtempdirectory; no realprinter",
+      "verified_callers_callees": [
+        "Program.CreateTransport usage",
+        "NetworkTicketTransport",
+        "SerialTicketTransport",
+        "WindowsSpoolerTicketTransport",
+        "FileTicketTransport"
+      ],
+      "evidence_source_span": [
+        86,
+        95
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-e9e187b77d546deba95f207d65456655904aa38622eca3bf6c4d07472b712ad4",
+      "status": "ANALYZED",
+      "reasoning": "Builds list of configerrors: nonblankserver/user/PIN, parses defined route and canonicalizes valid enumaliases, validates selectedtransport required destination and windowsOS, PollSeconds>=1. Doesnot validate URI, port/baud/timeout orimagewidth/margin constraints. Unknowntransport errors before transportconstruction in Program.",
+      "inputs": "Mutable AgentOptions properties",
+      "outputs": "IReadOnlyList<string> problems; Route may change",
+      "side_effects": "Canonicalizes Route on success; no files/network/DB",
+      "trust_boundaries": "Local configuration boundary; PINpresence not correctness/userbinding",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Prevents absentqueue path but cannot prove physicalprinter; imageplatformflag not rejected",
+      "performance": "Bounded comparisons/enum parsing; constant small errorlist",
+      "duplicates_conflicts": "Numeric enumaliases accepted ifdefined; canonicalization aligns mutex/journal/poll spelling",
+      "issues_hypotheses": "Validationgap notes peraccessor; no secretvalue emitted in messages",
+      "tests_missing": "Existing routealias tests; add invalidimage/timeouts/URI/transport/null misuse",
+      "verified_callers_callees": [
+        "Program validates before test/normalmode",
+        "Enum.TryParse/IsDefined",
+        "OperatingSystem.IsWindows"
+      ],
+      "evidence_source_span": [
+        97,
+        128
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    },
+    {
+      "stable_id": "sym-5307622c73acb364be576e80ea6e6ef260a0a41123088255f4b63d3732bf8dd7",
+      "status": "ANALYZED",
+      "reasoning": "Missing config returns default AgentOptions, otherwise reads wholeJSON and deserializes case-insensitively; nullroot returns defaults. Itdoesnot catch malformedJSON/I/Oexceptions and doesnot call Validate itself. Defaultvalues can selectfile unless shipped config overridesphysicalqueue, so caller must inspect actualconfig.",
+      "inputs": "Config path",
+      "outputs": "AgentOptions instance or I/O/JSONerror",
+      "side_effects": "File read only if actually executed",
+      "trust_boundaries": "Localfile JSON->mutable property setters; no schema/secretvault",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Defaults and shippedphysicaltransport differ; not a harmlessprinterprobe",
+      "performance": "Wholefile allocation; ordinarysmallconfigassumed no cap",
+      "duplicates_conflicts": "PropertyNameCaseInsensitive here is unrelated ASPserverJsonOptions and cannot be counterevidence for SEC001",
+      "issues_hypotheses": "Malformedconfiguration fails startup before nice Validate output; nonblankinvalidvalues survive until Validate/consumer",
+      "tests_missing": "Missing/empty/null/malformed/casevariant JSON isolatedfile tests; no auth/printer",
+      "verified_callers_callees": [
+        "Program AgentOptions.Load",
+        "System.Text.Json JsonSerializer.Deserialize<AgentOptions>"
+      ],
+      "evidence_source_span": [
+        130,
+        138
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+  "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+  "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-17T21:56:55.089108+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-7877ff7be737b4c8d80d6b53511a0276f2087eca4100b4ebcfce260836a628dc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+      "span": [
+        15,
+        5,
+        19,
+        51
+      ],
+      "reasoning": "Display query loads only Posted movements touching source ORdestination account, no explicittransaction/locks, mapsdomain andreturns list. Displaybalancecanchangebetweenreads, appropriate non-authoritativeview but notspenddecision withoutUpdatevariant. No date/currency/amount aggregation server-side, historysize memorycost.",
+      "inputs": "DbContext/accountID/ct",
+      "outputs": "ReadOnlyList domain movements task",
+      "side_effects": "Query/mapping/closed-set validation only; no transfer or SQL executed during audit.",
+      "database": "Reads TreasuryMovements AsNoTracking",
+      "trust_boundaries": "Account identifier membership is not actor permission or liquidity; caller must validate financial purpose.",
+      "printing_ui": "NOT_APPLICABLE: no printing.",
+      "performance": "Movement-derived balance materializes every posted row touching account; OR predicate without account indexes may lock/scan broadly; no queryplan benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN011 callers invoke lock query before transaction; SQLrange lock useful only heldwithin caller transaction. Do not infer application-specific sp_getapplock from this raw range-lock implementation.",
+      "tests_missing": "Posted-vsDraft filters, accountincoming/outgoing/selftransfer semantics, largehistory",
+      "verified_callers_callees": "Where17 thenSelectTreasuryMapper19; FinancialRulesbalanceconsumer strictqueued."
+    },
+    {
+      "stable_id": "sym-f9689c980a6e26fd8ea34e594eb2f2322967860ee57b05ef9af9f47076c92d0e",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        17,
+        20,
+        17,
+        141
+      ],
+      "reasoning": "Posted AND account in source/destination filters both money directions; selftransferrowappears once, correctonlyifFinancialRulesdebits+creditsboth ratherthanif/else. Unknownaccountnotrejectedhere, couldreturnzero.",
+      "inputs": "Movement/account",
+      "outputs": "Boolean SQLpredicate",
+      "side_effects": "Query/mapping/closed-set validation only; no transfer or SQL executed during audit.",
+      "database": "Read TreasuryMovements",
+      "trust_boundaries": "Account identifier membership is not actor permission or liquidity; caller must validate financial purpose.",
+      "printing_ui": "NOT_APPLICABLE: no printing.",
+      "performance": "Movement-derived balance materializes every posted row touching account; OR predicate without account indexes may lock/scan broadly; no queryplan benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN011 callers invoke lock query before transaction; SQLrange lock useful only heldwithin caller transaction. Do not infer application-specific sp_getapplock from this raw range-lock implementation.",
+      "tests_missing": "Source==destination andinvalidaccount misuse; sums/historybounds",
+      "verified_callers_callees": "Where17; IsKnownAccount79 separate."
+    },
+    {
+      "stable_id": "sym-dcf4f03b1d7e7f077cd54e46cd31fba4ecbfd39421bf16174a7d08bf0b50c402",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+      "span": [
+        37,
+        5,
+        46,
+        51
+      ],
+      "reasoning": "ForUpdate executes parameterized SELECT UPDLOCK,HOLDLOCK over Posted rows touching account, no explicitBeginTransaction orruntimeassert. InsideambientTx holds update/rangelocks throughcommit andpreventscompetinginsertsuntilserializedbalance recheck; withoutTx SQLstatementimplicitlocksreleasedbefore laterSpend =>FIN011. AsNoTracking only EFtracking, notSQL lockremoval. BroadORrange cancreatecontention/deadlocks acrossaccounts; retriescallerowned. No sp_getapplockinthissource.",
+      "inputs": "DbContext/account/ct",
+      "outputs": "ReadOnlyList movements task",
+      "side_effects": "Query/mapping/closed-set validation only; no transfer or SQL executed during audit.",
+      "database": "Readwith SQLServer update/rangelock in caller transaction",
+      "trust_boundaries": "Account identifier membership is not actor permission or liquidity; caller must validate financial purpose.",
+      "printing_ui": "NOT_APPLICABLE: no printing.",
+      "performance": "Movement-derived balance materializes every posted row touching account; OR predicate without account indexes may lock/scan broadly; no queryplan benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN011 callers invoke lock query before transaction; SQLrange lock useful only heldwithin caller transaction. Do not infer application-specific sp_getapplock from this raw range-lock implementation.",
+      "tests_missing": "Emptyaccount phantom inserts, twoopposite transfers/lockorder, outsideTxmisuse FIN011 and contentionretry",
+      "verified_callers_callees": "SQL40-43; sourceexplicitcallertransactioncomment33-34; OpenShift/Receive preTx rootconfirmed."
+    },
+    {
+      "stable_id": "sym-19c5348fccc69d16fc45848ee355be54edb3fd31b9cabbf5807b510ca23f7c26",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryMapper.ToDomain(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity)",
+      "span": [
+        51,
+        5,
+        54,
+        100
+      ],
+      "reasoning": "Maps entity fields including source/dest/status/amount/ref/day/shift andactor into TreasuryMovement, parsing Status enum and Moneyinteger. Doesnotvalidateamountpositive/accountmembership/postedstatus; malformedpersistedstatus throwsthroughbalanceview. No rate/currencytransform.",
+      "inputs": "TreasuryMovementEntity",
+      "outputs": "Domain TreasuryMovement",
+      "side_effects": "Query/mapping/closed-set validation only; no transfer or SQL executed during audit.",
+      "database": "No DBoperation itself",
+      "trust_boundaries": "Account identifier membership is not actor permission or liquidity; caller must validate financial purpose.",
+      "printing_ui": "NOT_APPLICABLE: no printing.",
+      "performance": "Movement-derived balance materializes every posted row touching account; OR predicate without account indexes may lock/scan broadly; no queryplan benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN011 callers invoke lock query before transaction; SQLrange lock useful only heldwithin caller transaction. Do not infer application-specific sp_getapplock from this raw range-lock implementation.",
+      "tests_missing": "Roundtripallfinancialfields, unknownStatus andnegativehistoricamounts",
+      "verified_callers_callees": "Properties52-54; querySelect19/46 invokesmapper; enumparsercase-sensitive."
+    },
+    {
+      "stable_id": "sym-ea31223013d91193b1e93056259e0fdd85eed7a24322f7145732a297b1427fc3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryAccountValidation.IsKnownAccount(string)",
+      "span": [
+        79,
+        5,
+        79,
+        92
+      ],
+      "reasoning": "Closed-set account membership Main/Drawer/Bank/InstaPay/Wallet, no normalization/caseinsensitivecomparer supplied (HashSetdefault). ExternalCapitalAccounts excludesDrawer/Wallet, ValidDepositTypes separate. IsKnown alone permitsDrawer forcallers unlesspurpose-specificchecks; sourceofallowedDrawerpaymentquestions musttracehandlers.",
+      "inputs": "Account ID",
+      "outputs": "Boolean",
+      "side_effects": "Query/mapping/closed-set validation only; no transfer or SQL executed during audit.",
+      "database": "No database",
+      "trust_boundaries": "Account identifier membership is not actor permission or liquidity; caller must validate financial purpose.",
+      "printing_ui": "NOT_APPLICABLE: no printing.",
+      "performance": "Movement-derived balance materializes every posted row touching account; OR predicate without account indexes may lock/scan broadly; no queryplan benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "FIN011 callers invoke lock query before transaction; SQLrange lock useful only heldwithin caller transaction. Do not infer application-specific sp_getapplock from this raw range-lock implementation.",
+      "tests_missing": "Unknown/case IDs anddifferentallowedpurpose sets; calleraccountselectionpolicy",
+      "verified_callers_callees": "AllAccounts62, ExternalCapitalAccounts69, ValidDepositTypes74, IsKnownAccount79. Receive/Payout map independently restricts purchasing cash to Main; not Drawer."
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,166 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-063",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:04:00Z",
+  "reviewer": "root coordinator",
+  "title": "Employee financial report versus daily-statement employee projection",
+  "scope": "Bounded comparison of employee ledger balance and flow projections exposed by two report routes; static source and existing reasoning receipt review only.",
+  "decision": "Shared all-time running-balance invariant is consistent: GetFinancialReportAsync computes credits minus debits per active employee, while DailyStatementQueryService calls the shared EmployeeQueryService.GetBalanceAsync. This is not a divergent balance formula and no financial defect is confirmed. The projections intentionally differ by period and likely purpose: employee financial report accepts a date range and groups all active employees into earnings/additions/deductions/advances/payments; daily statement uses one business date and includes the full ListAsync employee cohort. A possible reporting-requirement gap remains because DailyEmployeeRowDto lacks Salary, ExtraShift, OtherEarning and Adjustment buckets even though BuildEmployeeRowsAsync comments that it reports every ledger type actually posted. No test match for these report projections was found in the tracked tests search. Whether those daily fields should be present is unconfirmed.",
+  "behavior": {
+    "shared": "Running employee balance is all-time ledger credits minus debits in both paths. Daily statement delegates the balance computation to the shared GetBalanceAsync method.",
+    "divergent": "Employee financial report includes active employees only and range-scoped six flow buckets; daily statement takes one date, uses ListAsync without an active filter, and exposes a smaller set of daily buckets. This changes displayed cohort/categories, not the underlying ledger.",
+    "counterevidence": "Different report contracts and one-day versus range scope can justify these differences. DTO is explicitly a daily summary. The source comment says every ledger type actually posted, but no owner requirement proves a specific field set. Existing FIN-012 concerns payroll inclusion of Adjustment credits and is distinct; no duplicate finding is created.",
+    "intent": "Running-balance sharing is explicit. Cohort and field differences are not proven intentional or erroneous; confirm the daily statement field contract before treating omissions as a defect."
+  },
+  "recommendation": "Keep separate report shapes unless product requirements call for parity. Confirm with the owner whether a daily row must expose Salary, ExtraShift, OtherEarning and Adjustment for the selected date; if yes, add typed fields and category totals from ledger data, otherwise narrow the misleading completeness comment. Preserve all-time balance semantics and active/inactive cohort rules explicitly.",
+  "required_tests": [
+    "Seed one employee with each ledger entry type on a selected business date; assert the daily DTO contract for each type.",
+    "Compare range and daily employee reports for credit-minus-debit balance after each entry type; balance must remain all-time and equal.",
+    "Include inactive employee with a historical balance and assert whichever cohort policy is approved.",
+    "Boundary test date filtering at business-day UTC start/end; no runtime test was run during this audit."
+  ],
+  "related_findings": [
+    "FIN-012 (related policy area only; not the same issue)"
+  ],
+  "related_prior_comparisons": [
+    "SEM-MIRROR-036",
+    "SEM-MIRROR-057",
+    "SEM-MIRROR-063"
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "line_ranges": [
+        [
+          25,
+          59
+        ],
+        [
+          61,
+          62
+        ],
+        [
+          72,
+          79
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3689200e3441f8f78fb46ebc7cc4cd8a35092a1591d917f5bfcd026b9b2da1e2",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.GetFinancialReportAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            59,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669",
+          "signature": "Falah.Infrastructure.Employees.EmployeeQueryService.GetBalanceAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            74,
+            5,
+            79,
+            6
+          ]
+        }
+      ],
+      "evidence": "GetFinancialReportAsync filters active employees, calculates range buckets by ledger type and computes all-time balance as credits minus debits. GetBalanceAsync independently returns the same all-time credit-minus-debit invariant for a given employee.",
+      "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+      "source_text_matches_baseline": true
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "line_ranges": [
+        [
+          60,
+          89
+        ],
+        [
+          155,
+          186
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-614ab289e4921fb6f639a0e3b95468ad9b5b3e6934d4fbf87b092f225058f33c",
+          "signature": "Falah.Infrastructure.Reports.DailyStatementQueryService.BuildEmployeeRowsAsync(DateOnly, DateTimeOffset, DateTimeOffset, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            155,
+            5,
+            187,
+            6
+          ]
+        }
+      ],
+      "evidence": "Daily statement composes one business date, retrieves employees via ListAsync (which does not filter IsActive), shows one-day ledger categories, and calls the shared GetBalanceAsync for running balance; it does not duplicate the running-balance arithmetic.",
+      "source_git_blob_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "worktree_sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "source_text_matches_baseline": true
+    },
+    {
+      "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+      "line_ranges": [
+        [
+          69,
+          81
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "DailyEmployeeRowDto exposes daily wage, overtime, bonus, deduction, advances, withdrawal, payroll settlement, current balance and settlement; it has no dedicated fields for Salary, ExtraShift, OtherEarning or Adjustment.",
+      "source_git_blob_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "worktree_sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "source_text_matches_baseline": true
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "line_ranges": [
+        [
+          702,
+          706
+        ],
+        [
+          1990,
+          1995
+        ]
+      ],
+      "relevant_symbols": [],
+      "evidence": "Both report routes call RequireReportsAccessAsync. Employee financial report takes optional from/to; daily statement takes businessDate. This supports different intended cohorts and reporting scopes but does not settle daily-category completeness. Current worktree uses CRLF while baseline blob uses LF; normalized source text matches exactly.",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_text_matches_baseline": true,
+      "line_endings_normalized_for_comparison": true
+    }
+  ],
+  "receipt_evidence": [
+    {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/EmployeeQueryService.cs.json",
+      "sha256": "0de308df38fc04688a6a717bd7e90d4c5f8400d9bda8b4234f3cce3c1a126de5",
+      "reviewed_symbols": [
+        "sym-3689200e3441f8f78fb46ebc7cc4cd8a35092a1591d917f5bfcd026b9b2da1e2",
+        "sym-c647dbba58ed1df29aff022b923d2be0540d354f42f3bc2ac07e8a2e60416669"
+      ],
+      "reasoning_summary": "Financial report computes all-time balance and notes active-only cohort, range categories, Adjustment-credit reporting caveat."
+    },
+    {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs.json",
+      "sha256": "0b278235cb8abfd816658b31ef7a4f87da1b61e61476d8fe00dcaa9cc0cc6abb",
+      "reviewed_symbols": [
+        "sym-614ab289e4921fb6f639a0e3b95468ad9b5b3e6934d4fbf87b092f225058f33c"
+      ],
+      "reasoning_summary": "Daily statement calls GetBalanceAsync but omits four ledger types from its DTO and has an N+1 balance read pattern; prior receipt marks requirement gap, not money-loss claim."
+    }
+  ],
+  "tests_search": {
+    "command": "rg -n \"EmployeeFinancialReport|DailyStatement\" tests",
+    "result": "No matching tracked test source lines returned; search is limited to those names and is not proof no indirect test exists."
+  },
+  "runtime_executed": false,
+  "limitations": "Static comparison only. No endpoint, database, UI, employee ledger or runtime behavior executed. Report requirements for daily categories and active/inactive employee inclusion are unspecified. No new canonical finding created."
+}

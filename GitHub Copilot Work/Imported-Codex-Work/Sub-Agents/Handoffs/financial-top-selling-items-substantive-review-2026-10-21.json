@@ -1,0 +1,139 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-top-selling-items-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T08:30:00Z",
+  "assignment": "Review GetTopSellingItemsAsync against actual source, business-date range semantics, route permission, DTO/client presentation, and existing tests. Use current index/receipt ID. No tests or runtime mutations.",
+  "stable_id": "sym-2ef0b6c617019b77da486f78b5f323f3d23e99481f4282ad6ca9adaab7c5f06b",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetTopSellingItemsAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "241-263 (Range helper and callable)",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "sha256": "fe05e42d2d07c073c0448e752e44fd61612247c4725b523e40f0650dc8b8d112d",
+      "status": "ANALYZED",
+      "use": "Identity/comparison only; this handoff records independent source reasoning."
+    }
+  },
+  "source_behavior": {
+    "control_and_data_flow": "Range(from,to) maps from to the Cairo business date's UTC start and to to that business date's exclusive UTC end. The query reads OrderItems with AsNoTracking, inner-joins orders by OrderId, filters orders with Status != nameof(OrderStatus.Cancelled) and optional CreatedAtUtc lower/upper bounds, then materializes rows. It groups by frozen ProductName, sums item Quantity and TotalPricePiastres, projects TopSellingItemDto, and sorts descending by quantity. It does not write state.",
+    "financial_meaning": "TotalPiastres is the sum of stored order-line totals. It is not net revenue after order-level discount/refund, tax, or cash collection. Quantity ranking is explicit. Grouping by product name, rather than ProductId, is documented as parity with the reference panel; same-name variants/products therefore coalesce by intended key.",
+    "date_range": "For both dates present, filters are a half-open interval [Cairo midnight from, Cairo midnight after to], inclusive of the selected business dates. `from` alone leaves End null and therefore selects every later date; `to` alone selects all history through that date. No inverted-range validation exists, so from > to normally yields no matching rows. The client ReportsViewModel resolves and passes both dates for its selected range, but the route accepts each nullable parameter independently."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "span": "31-41, 67-80",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "behavior": "UtcRangeForBusinessDate defines Cairo-local midnight through the next midnight as [Start,End). BusinessDateRange.Resolve separately documents `from` alone as the same day. That single-date contract differs from ReportingQueryService.Range's open-ended `from` behavior; intended API semantics for partially specified ranges remain unclear."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "2029-2030, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/top-items accepts nullable from/to, calls RequireReportsAccessAsync, then returns this DTO list. The permission helper permits `reports_view` or `all`; it returns not-found for an unknown actor and unprocessable for missing permission."
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "span": "53",
+      "sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "behavior": "TopSellingItemDto exposes ProductName, Quantity and TotalPiastres; the monetary member has no contract label distinguishing line sales from net or collected sales."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "span": "47-54",
+      "sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "behavior": "OrderStatus.ToWireString persists `cancelled` in lowercase."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+      "span": "48-55",
+      "sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "behavior": "The cancelled order writer persists order.Status through ToWireString, hence lowercase `cancelled`. Other order status writers use the same mapping."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "span": "579-581",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "behavior": "Client sends actorUserId/from/to to the top-items route and deserializes IReadOnlyList<TopSellingItemDto>."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs",
+      "span": "90-107, 244-246, 270-274",
+      "sha256": "17626c2a401c42d2abfd3ee72d3ce305180871f1dd24ba0f495691de6ef6daf1",
+      "behavior": "The report view resolves a selected range and passes both dates to the client. It copies returned rows into TopItems without changing the totals."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml",
+      "span": "176-199",
+      "sha256": "2d8f72800401c26c5b183a8bc308881f5e757abb550a5eaa9504266b719cd852",
+      "behavior": "The panel labels monetary total generically as `الإجمالي` and displays TotalPiastres as currency beside quantity. It does not call it collected/net sales, but also does not explain that it is a sum of order-line totals."
+    }
+  ],
+  "test_evidence": {
+    "path": "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs",
+    "sha256": "aadfd8e50005f491d00bb119f296951c4ac3f059d371297242b033498d0cf651",
+    "coverage": [
+      {
+        "span": "170-177",
+        "test": "Top_selling_items_and_category_sales_aggregate_across_orders",
+        "asserts": "A normal cash sale contributes a top-items row with the expected TotalPiastres. It does not test grouping key, date boundaries, cancellation, refunds, discounts or partial date parameters."
+      },
+      {
+        "span": "526-548",
+        "test": "Report endpoint range/shift regression scenario",
+        "asserts": "For a normal order and explicit two-date range, top-items contains expected line total; the test's wrong/right shift assertions concern sales endpoint only. It does not verify top-items cancellation or date boundary exclusion."
+      }
+    ],
+    "counterevidence_test": {
+      "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+      "span": "232-248",
+      "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+      "coverage": "A cancelled pending electronic order disappears from the daily statement's sales and sold-products outputs. Those are different queries and do not prove top-items cancellation filtering."
+    },
+    "provider_context": "FalahApiFactory uses a real SQL Server integration database. The source does not set an explicit database collation, and no collation was queried during this static review. Tests were not run."
+  },
+  "assessment": {
+    "disposition": "CONDITIONAL_RISK; NO_CONFIRMED_FINANCIAL_DEFECT",
+    "findings": [
+      {
+        "topic": "Cancelled status comparison",
+        "source_confirmed": "Writer persists lowercase `cancelled`; query compares against `nameof(OrderStatus.Cancelled)`, which is `Cancelled`.",
+        "impact": "On a case-sensitive SQL Server collation, a cancelled row would satisfy `Status != 'Cancelled'` and could remain in top-item quantity and line totals. On a case-insensitive collation, this predicate excludes it. Actual production/test DB collation is not established by source evidence here.",
+        "recommendation": "Use the lowercase persisted wire value (or a centralized query-safe constant/converter) and add a top-items test that cancels a pending electronic order and asserts its row/amount disappears. Until collation is confirmed, retain as conditional rather than confirmed."
+      },
+      {
+        "topic": "One-sided date ranges",
+        "source_confirmed": "The method helper implements open-ended bounds, while BusinessDateRange.Resolve documents a lone `from` as one day; the endpoint allows nullable dates independently.",
+        "impact": "A caller supplying only `from` can receive all sales after that date instead of a single-day report. The current WPF Reports screen passes both bounds, but other API callers can omit one.",
+        "recommendation": "Clarify API contract and align Range with it; test from-only, to-only, boundary instants and from > to. This is a contract ambiguity, not asserted as a defect while open-ended semantics may be intentional."
+      },
+      {
+        "topic": "Metric label/financial interpretation",
+        "source_confirmed": "The sum is order-line TotalPricePiastres, not discounts/refunds/net-collected cash; UI shows generic `Total` / `الإجمالي`.",
+        "impact": "A reader could interpret this as net sales. The endpoint is a product ranking and the implemented sum is consistent with line-sales aggregation; the source does not establish a policy that it must be cash/net.",
+        "recommendation": "If this is intended as a financial amount rather than item-ranking context, rename/document the field as line sales and keep net/collection metrics on the reconciled sales report. No accounting defect concluded."
+      }
+    ],
+    "counterevidence": [
+      "Grouping by ProductName is explicitly documented in the method and matches the intended reference panel, so coalescing same-name IDs is not a newly inferred defect.",
+      "The report is read-only and does not affect money movement or persisted accounting state.",
+      "Top-items emits line sales for ranking; DTO/model do not claim this is payroll, cash collection or audited net revenue.",
+      "The current ReportsViewModel passes both date bounds, limiting the one-sided-range concern for that client path."
+    ],
+    "runtime_limits": "Static source review only. No database collation query, HTTP invocation, SQL execution, test execution or data mutation."
+  },
+  "next_callable": {
+    "stable_id": "sym-a888476d680eb31b8afc8d6b17ee1dadf32426a83f8f4d4fbb4067fcb15ebf84",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSoldProductsAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "272-297",
+    "note": "Next top-level reporting callable in source order; nested lambda IDs inside the reviewed method remain separate index entries."
+  },
+  "limitations": [
+    "No tests executed.",
+    "No source, database, runtime, shared registry/report, or Git changes.",
+    "This review does not certify broader financial callable or file coverage."
+  ]
+}

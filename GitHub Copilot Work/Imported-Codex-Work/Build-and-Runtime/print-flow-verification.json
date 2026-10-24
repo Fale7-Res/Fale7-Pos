@@ -1,0 +1,38 @@
+{
+  "Database": "Fale7CSharp_Test",
+  "Transport": "file",
+  "OrderNumber": "#0128",
+  "Jobs": [
+    {
+      "id": "printjob-auto-fale7csharp-localtest-sale-20261016-Receipt",
+      "route": "Receipt",
+      "status": "Succeeded",
+      "attemptCount": 1
+    },
+    {
+      "id": "printjob-fale7csharp-localtest-callcenter-reprint-CallCenter",
+      "route": "CallCenter",
+      "status": "Succeeded",
+      "attemptCount": 1
+    }
+  ],
+  "ReceiptFiles": [
+    {
+      "Name": "ticket-20261016-055137-844.escpos",
+      "Length": 35370
+    },
+    {
+      "Name": "ticket-20261016-055138-377.escpos",
+      "Length": 92914
+    }
+  ],
+  "CallCenterFiles": [
+    {
+      "Name": "ticket-20261016-055246-973.escpos",
+      "Length": 50058
+    }
+  ],
+  "ExtraTestWrites": "One CallCenter reprint job, its reprint audit record and print-attempt records; no additional sale.",
+  "PhysicalPrinting": "Never started",
+  "VerifiedAtUtc": "2026-10-16T05:53:36.1555034+00:00"
+}

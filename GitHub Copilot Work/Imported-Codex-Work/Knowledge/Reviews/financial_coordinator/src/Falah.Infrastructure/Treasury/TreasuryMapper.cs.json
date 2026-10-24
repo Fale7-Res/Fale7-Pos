@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
+  "source_git_blob_sha256": "3961e1899724b15b8610dc38406128331e657e73f428c2fee42fa8b520ae9237",
+  "worktree_sha256": "818d64bdb94fa957779a83a090b9921c0902b716c2e69564cac25772ac5e0400",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:29:21.867188+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_RUNTIME_LIMITS",
+  "evidence": "Manual complete source read and per-operation reasoning; no executing application.",
+  "symbols": [
+    {
+      "stable_id": "sym-7877ff7be737b4c8d80d6b53511a0276f2087eca4100b4ebcfce260836a628dc",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+      "span": [
+        15,
+        5,
+        19,
+        51
+      ],
+      "reasoning": "Display helper materializes only Posted movements touching requested source OR destination, no-tracking, then maps all selected entities into domain objects. No held balance lock and no transaction requirement: safe for display snapshot but insufficient for spending. Grows with full account history; no SQL aggregate or paging; no benchmark claim.",
+      "inputs": "Exact declared arguments/captured request, DB context and ct in source span",
+      "outputs": "Declared result, nullable Task entity/domain list or query predicate; see explicit reasoning",
+      "side_effects": "Only HandleAsync performs financial writes in production; source review executed no handler. Other methods query/map/store dependencies as explicitly described.",
+      "database": "Transaction/read/lock boundaries described individually above; no DB accessed during audit.",
+      "trust_boundaries": "Server actor/approval validation and persisted monetary facts; accessors/query predicates are not authentication.",
+      "printing_ui": "No hardware/UI call in these files. Result feeds treasury UI through API.",
+      "performance": "No measurement. Account history materialization and contention paths require SQL plan/load testing; simple projection/predicate constant per row.",
+      "duplicates_conflicts": "Compare Deposit inbound/no source lock against Withdrawal outbound/transaction lock. Helpers deliberately share lookup shape while result/source/type differ.",
+      "issues_hypotheses": "FIN011 caller transaction requirement and FIN017 validated-attribution counterexample documented; no new unproven defect inflated.",
+      "tests_missing": "Pure mapping/account-boundary tests; disposable authorized SQL idempotency/conflict/lock ordering and rollback tests; no audit DB writes.",
+      "verified_callers_callees": "Actual complete files read; TreasuryRequests, ApprovalRegistry.AuthorizeCommand and TreasuryMapper source inspected. Unread deeper FinancialRules/factory behavior not independently certified in this batch."
+    },
+    {
+      "stable_id": "sym-f9689c980a6e26fd8ea34e594eb2f2322967860ee57b05ef9af9f47076c92d0e",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        17,
+        20,
+        17,
+        141
+      ],
+      "reasoning": "Display query predicate restricts Posted status and account endpoint equality. Two OR branches intentionally include transfers once per matched row; does not compute balance itself.",
+      "inputs": "Exact declared arguments/captured request, DB context and ct in source span",
+      "outputs": "Declared result, nullable Task entity/domain list or query predicate; see explicit reasoning",
+      "side_effects": "Only HandleAsync performs financial writes in production; source review executed no handler. Other methods query/map/store dependencies as explicitly described.",
+      "database": "Transaction/read/lock boundaries described individually above; no DB accessed during audit.",
+      "trust_boundaries": "Server actor/approval validation and persisted monetary facts; accessors/query predicates are not authentication.",
+      "printing_ui": "No hardware/UI call in these files. Result feeds treasury UI through API.",
+      "performance": "No measurement. Account history materialization and contention paths require SQL plan/load testing; simple projection/predicate constant per row.",
+      "duplicates_conflicts": "Compare Deposit inbound/no source lock against Withdrawal outbound/transaction lock. Helpers deliberately share lookup shape while result/source/type differ.",
+      "issues_hypotheses": "FIN011 caller transaction requirement and FIN017 validated-attribution counterexample documented; no new unproven defect inflated.",
+      "tests_missing": "Pure mapping/account-boundary tests; disposable authorized SQL idempotency/conflict/lock ordering and rollback tests; no audit DB writes.",
+      "verified_callers_callees": "Actual complete files read; TreasuryRequests, ApprovalRegistry.AuthorizeCommand and TreasuryMapper source inspected. Unread deeper FinancialRules/factory behavior not independently certified in this batch."
+    },
+    {
+      "stable_id": "sym-dcf4f03b1d7e7f077cd54e46cd31fba4ecbfd39421bf16174a7d08bf0b50c402",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+      "span": [
+        37,
+        5,
+        46,
+        51
+      ],
+      "reasoning": "Spending helper uses fixed FromSqlRaw template with bound status/account placeholders and UPDLOCK,HOLDLOCK, then no-tracking materialization and mapping. No transaction is opened or asserted here: caller must already hold one for locks to survive this statement. Thus same helper is safe inside Withdrawal56-64 but cannot protect later writes for pretransaction OpenShift/ReceivePurchase callers (FIN011). Lock granularity/deadlocks/empty-range behavior require approved SQL execution; no plan measured.",
+      "inputs": "Exact declared arguments/captured request, DB context and ct in source span",
+      "outputs": "Declared result, nullable Task entity/domain list or query predicate; see explicit reasoning",
+      "side_effects": "Only HandleAsync performs financial writes in production; source review executed no handler. Other methods query/map/store dependencies as explicitly described.",
+      "database": "Transaction/read/lock boundaries described individually above; no DB accessed during audit.",
+      "trust_boundaries": "Server actor/approval validation and persisted monetary facts; accessors/query predicates are not authentication.",
+      "printing_ui": "No hardware/UI call in these files. Result feeds treasury UI through API.",
+      "performance": "No measurement. Account history materialization and contention paths require SQL plan/load testing; simple projection/predicate constant per row.",
+      "duplicates_conflicts": "Compare Deposit inbound/no source lock against Withdrawal outbound/transaction lock. Helpers deliberately share lookup shape while result/source/type differ.",
+      "issues_hypotheses": "FIN011 caller transaction requirement and FIN017 validated-attribution counterexample documented; no new unproven defect inflated.",
+      "tests_missing": "Pure mapping/account-boundary tests; disposable authorized SQL idempotency/conflict/lock ordering and rollback tests; no audit DB writes.",
+      "verified_callers_callees": "Actual complete files read; TreasuryRequests, ApprovalRegistry.AuthorizeCommand and TreasuryMapper source inspected. Unread deeper FinancialRules/factory behavior not independently certified in this batch."
+    },
+    {
+      "stable_id": "sym-19c5348fccc69d16fc45848ee355be54edb3fd31b9cabbf5807b510ca23f7c26",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryMapper.ToDomain(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity)",
+      "span": [
+        51,
+        5,
+        54,
+        100
+      ],
+      "reasoning": "ToDomain copies movement identity/idempotency/operation, type, account endpoints, signed amount, references, day/shift, reasons/attribution/time and parses MovementStatus string. Money.FromPiastres permits signed data; Enum.Parse throws for corrupt persisted status. No normalization, DB write or privilege check in mapper.",
+      "inputs": "Exact declared arguments/captured request, DB context and ct in source span",
+      "outputs": "Declared result, nullable Task entity/domain list or query predicate; see explicit reasoning",
+      "side_effects": "Only HandleAsync performs financial writes in production; source review executed no handler. Other methods query/map/store dependencies as explicitly described.",
+      "database": "Transaction/read/lock boundaries described individually above; no DB accessed during audit.",
+      "trust_boundaries": "Server actor/approval validation and persisted monetary facts; accessors/query predicates are not authentication.",
+      "printing_ui": "No hardware/UI call in these files. Result feeds treasury UI through API.",
+      "performance": "No measurement. Account history materialization and contention paths require SQL plan/load testing; simple projection/predicate constant per row.",
+      "duplicates_conflicts": "Compare Deposit inbound/no source lock against Withdrawal outbound/transaction lock. Helpers deliberately share lookup shape while result/source/type differ.",
+      "issues_hypotheses": "FIN011 caller transaction requirement and FIN017 validated-attribution counterexample documented; no new unproven defect inflated.",
+      "tests_missing": "Pure mapping/account-boundary tests; disposable authorized SQL idempotency/conflict/lock ordering and rollback tests; no audit DB writes.",
+      "verified_callers_callees": "Actual complete files read; TreasuryRequests, ApprovalRegistry.AuthorizeCommand and TreasuryMapper source inspected. Unread deeper FinancialRules/factory behavior not independently certified in this batch."
+    },
+    {
+      "stable_id": "sym-ea31223013d91193b1e93056259e0fdd85eed7a24322f7145732a297b1427fc3",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Treasury.TreasuryAccountValidation.IsKnownAccount(string)",
+      "span": [
+        79,
+        5,
+        79,
+        92
+      ],
+      "reasoning": "IsKnownAccount tests membership in fixed five-account set; null/unknown not admitted by Contains. General account existence differs intentionally from stricter three-account external capital set; do not consolidate away purpose-specific policy.",
+      "inputs": "Exact declared arguments/captured request, DB context and ct in source span",
+      "outputs": "Declared result, nullable Task entity/domain list or query predicate; see explicit reasoning",
+      "side_effects": "Only HandleAsync performs financial writes in production; source review executed no handler. Other methods query/map/store dependencies as explicitly described.",
+      "database": "Transaction/read/lock boundaries described individually above; no DB accessed during audit.",
+      "trust_boundaries": "Server actor/approval validation and persisted monetary facts; accessors/query predicates are not authentication.",
+      "printing_ui": "No hardware/UI call in these files. Result feeds treasury UI through API.",
+      "performance": "No measurement. Account history materialization and contention paths require SQL plan/load testing; simple projection/predicate constant per row.",
+      "duplicates_conflicts": "Compare Deposit inbound/no source lock against Withdrawal outbound/transaction lock. Helpers deliberately share lookup shape while result/source/type differ.",
+      "issues_hypotheses": "FIN011 caller transaction requirement and FIN017 validated-attribution counterexample documented; no new unproven defect inflated.",
+      "tests_missing": "Pure mapping/account-boundary tests; disposable authorized SQL idempotency/conflict/lock ordering and rollback tests; no audit DB writes.",
+      "verified_callers_callees": "Actual complete files read; TreasuryRequests, ApprovalRegistry.AuthorizeCommand and TreasuryMapper source inspected. Unread deeper FinancialRules/factory behavior not independently certified in this batch."
+    }
+  ],
+  "remaining_callable_ids": []
+}

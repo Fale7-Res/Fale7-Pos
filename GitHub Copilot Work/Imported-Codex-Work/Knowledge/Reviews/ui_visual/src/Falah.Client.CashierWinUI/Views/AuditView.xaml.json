@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/AuditView.xaml",
+  "source_git_blob_sha256": "9940906778e799bbf0efb38281129837298f83a8223164d54eb06031dbdbea8c",
+  "worktree_sha256": "08ede66e41202c7c4823b988a653729671f0cf204916007aab57c873bbf8ac86",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:03.789560+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Read-only audit event filter/list presentation.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "LoadCommand",
+      "reasoning": "Header refresh icon has no explicit AutomationProperties.Name/content text; retry has label. Client read-only markup alone cannot prove server append-only enforcement."
+    },
+    {
+      "anchor": "SelectedCategory",
+      "reasoning": "Category/severity2way filters distinct from event source; server filter behavior belongs VM/API. Horizontal180px combos may fit normal workspace but no breakpoint here."
+    },
+    {
+      "anchor": "TimestampUtc",
+      "reasoning": "LocalTimestampConverter displays local timestamp; table retains action, actor, details and severity. Fixed130+170+120+110 plus detail star can squeeze detail at small widths; vertical-only scrolling lacks horizontal overflow remedy."
+    },
+    {
+      "anchor": "Events",
+      "reasoning": "ItemsControl in ScrollViewer eagerly realizes event rows, no virtualization. BoundedAPI count must prevent excessive long-log native cost; no performance measurement."
+    },
+    {
+      "anchor": "Severity",
+      "reasoning": "Textual Arabic label plus pill color helps non-color users. StatusToPillBrush concrete theme resolver inherits UI004; native contrast unverified."
+    },
+    {
+      "anchor": "HasNoEvents",
+      "reasoning": "Distinct loading/error/empty states with retry. HasEvents may preserve old rows during refresh; VM flag semantics must ensure correct presentation."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need refresh accessible name, narrow table/text scale, long details, native row performance and filter-response races; XAML has no callable symbols.",
+  "recommendations": "Name icon-only refresh and verify table adaptation/virtualization with real bounded datasets. No log or source mutation performed.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

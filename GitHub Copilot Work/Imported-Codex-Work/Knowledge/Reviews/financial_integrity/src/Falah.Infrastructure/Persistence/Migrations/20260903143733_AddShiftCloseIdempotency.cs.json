@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs",
+  "source_git_blob_sha256": "a969ceaf461eb6b1fe372bb70fa75e053684a19e142550bdde45aa65af1f0b9a",
+  "worktree_sha256": "706b113b8bdd32af04959e0e8035ca49914e6396e129506dcf1e0ca3ad6d5be5",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:07:04.739741+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-aa65fa0720a247b00848f20000be15017148b0501d41ddba9921f1192a5bbd23",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddShiftCloseIdempotency.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        11,
+        9,
+        37,
+        10
+      ],
+      "reasoning": "Up appends three nullable Shifts columns: CloseRequestId bounded nvarchar450 supports indexed key, handover/reconciliation references remain nullable unbounded strings. Filtered unique CloseRequestId excludes NULL so many open shifts coexist. It adds no movement FKs, does not backfill old close receipts or serialize financial writes; CloseShift writer supplies IDs. Existing close-request collisions would need provider validation, migration not executed.",
+      "inputs": "MigrationBuilder supplied by EF migration orchestration.",
+      "outputs": "Appended schema migration operations; no domain result.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs:11-37",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    },
+    {
+      "stable_id": "sym-a2318770102b0ed9f0ad0e782365e0e0f8962dd51ca5c8c38195c1e0f6966e3e",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddShiftCloseIdempotency.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        40,
+        9,
+        57,
+        10
+      ],
+      "reasoning": "Down first removes the filtered replay index then drops CloseRequestId and both movement-link columns. This erases stored close replay/provenance metadata while leaving treasury facts; it is not lossless operational rollback or reversal of cash handover. Only dependency-aware migration orchestration can invoke safely, and audit executes none.",
+      "inputs": "MigrationBuilder supplied by EF migration orchestration.",
+      "outputs": "Appended schema migration operations; no domain result.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs:40-57",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,50 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T22:09:56.201Z",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_ATTRIBUTION_ONLY",
+  "candidate_key": "DRIVER_VARIANCE_APPROVAL_ACTUAL_APPROVER_NOT_RETAINED",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
+      "worktree_sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "git_blob_sha256": "9d73b7f839304f8bd8a88300579e900569067df432ed41f1cb2b9edbed69ae5e"
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
+      "worktree_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce",
+      "git_blob_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce"
+    }
+  ],
+  "method": "Exact source was independently read during DriverSettlement property review; bounded approval path rechecked. No additional author receipts or runtime/SQL/API test.",
+  "preconditions": [
+    "Actor has own delivery_manage but lacks delivery_settlement_approve and all; all would grant the strict permission too.",
+    "Actual versus sum Collected differs, reason nonblank, and valid issued manager approval for delivery_settlement_approve is presented.",
+    "For treasury attribution example actual cash is positive; zero-actual case has no movement but still archive/audit attribution."
+  ],
+  "trace": [
+    "Settle56 AuthorizeCommand base gate returns no Approver when own delivery_manage, per ApprovalRegistry73.",
+    "Settle57 therefore assigns approvedByName=actorUser.Name before discrepancy gate.",
+    "Settle93-102 strict gate validates matching issued action through registry and consumes it; return AuthorizationResult is ignored. Local baseApproval.Action literal delivery_manage does not defeat real action check because ValidateApproval91-96 fetches issued approval by ID.",
+    "Settle120 movement ApprovedBy,161 DriverSettlement ApprovedBy,169 audit AuthorizedBy all use earlier actor fallback. Timeline150 also uses approvedByName."
+  ],
+  "impact": "A genuinely manager-approved settlement discrepancy is stored/displayed as approved by actor, losing actual manager provenance from these financial rows. Strict authorization remains enforced; not unauthorized transfer, insufficient-funds bypass, forged manager or duplicate payment.",
+  "counterevidence": [
+    "If actor has own strict permission, actor fallback can accurately represent permission-authorized action.",
+    "If base gate is approval fallback for delivery_manage, one approval generally cannot also satisfy distinct strict action after consumed; chosen scenario deliberately actor owns base permission and uses strict manager token.",
+    "Existing issued approval registry retains manager identity/consumed record, but settlement rows do not store its ID and displayed ApprovedBy remains actor; separate forensic recovery may be possible.",
+    "FIN017 already covers financial approver attribution/claim versus authority. This is a related actual-approver-discard variant; prefer one family/extension unless coordinator determines separate remediation/root-cause warrants ID."
+  ],
+  "recommendation": "Capture strict AuthorizationResult when variance gate runs and use its verified Approver name/ID for discrepancy attribution, preserving accurate own-permission actor fallback. Retain explicit approval ID and actor separately if required by audit contract.",
+  "regression_tests": [
+    "Base-permission actor lacking strict with valid strict manager token: all settlement/movement/audit/event attribution names actual verified manager while actor field remains operator.",
+    "Own strict actor/no token: actor fallback retained and no fabricated manager.",
+    "Wrong-action/consumed/invalid token still rejects all writes; positive and zero actual cases remain atomic."
+  ],
+  "limits": "Source-only corroboration. No actual role/permission mutation, approval issue/consume, financial settlement, SQL or UI operation executed."
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+  "source_git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+  "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:41:00.764410+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_QUERY_SCOPE_LIMITS",
+  "evidence": "Manual whole-file and per-function/lambda reasoning. No financial operation executed.",
+  "symbols": [
+    {
+      "stable_id": "sym-515778a2b93e835cfb95986c0bdefa8d9edf32a70c620a67955d3c82c006f3db",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int)",
+      "span": [
+        35,
+        5,
+        60,
+        6
+      ],
+      "reasoning": "Gross profit withholds cost/profit/percentages if sold lines positive but none known. Partial known food cost still produces upper-bound profit with IsComplete false. Empty sales deemed complete; positive revenue required for percentages. Caller must supply sane counts and known-cost sum; knownLineCount>=sold treats excess count complete, no count validation here.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-3b30b9f7f2919b08de4a132e96cee459d12fcc85f9f2432077b3ed317b50900d",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Reports.ProfitabilityRules.ComputeOperatingMargin(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int, int)",
+      "span": [
+        84,
+        5,
+        106,
+        6
+      ],
+      "reasoning": "Operating result subtracts only recorded known food, expenses and wages; intentionally not full net profit. Unknown all food withholds result; partial coverage exposes incomplete upper bound. WagePostingCount0 withholds wage percentage but result still subtracts supplied wages and IsComplete only reflects food counts. Labor completeness/owner interpretation needs policy, not automatically defect because documented recorded-cost scope.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-a98c029839dd322de597c1456299dec56eb269c514da898d7554f388e5464927",
+      "status": "ANALYZED",
+      "signature": "Percent(Falah.Domain.Common.Money)",
+      "span": [
+        90,
+        9,
+        92,
+        20
+      ],
+      "reasoning": "Local percent returns rounded double fraction only when net sales positive; otherwise null (not misleading0percent). Negative cost/result values remain signed.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-70970b84d2bc9cc7da3db879d52cb42cca9a3dd08ba84385876b2701a97306e2",
+      "status": "ANALYZED",
+      "signature": "WagePercent()",
+      "span": [
+        94,
+        9,
+        94,
+        80
+      ],
+      "reasoning": "No wage postings yields null labor ratio even when numeric wage0; with postings delegates percentage. Does not by itself withhold whole operating result or alter completeness.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    }
+  ],
+  "remaining_callable_ids": []
+}

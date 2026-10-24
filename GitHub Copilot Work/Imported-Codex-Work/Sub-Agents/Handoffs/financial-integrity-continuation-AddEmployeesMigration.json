@@ -1,0 +1,113 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:57:10.7728259Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+  "symbol_count": 8,
+  "symbols": [
+    {
+      "stable_id": "sym-4969c4b3c5d2e8b273c936a5130912be4d3da2f9c0e02bfc04469fb0c9d2d4da",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddEmployees.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        92,
+        10
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8a711fa4d95c12cd75e3faa3590094e231b5d9885fbfcc92ae670716c4c235fb",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        16,
+        26,
+        36,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-7ed0dc1d65dfe4e70762be327cff7ef3e2f09d4894ff08e2406152cbef129cd1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        37,
+        30,
+        40,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0ca142ed9d153d6eebadb50d0711805106d18d4a7a165e288b11dd71f58f95f8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        39,
+        66,
+        39,
+        75
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2cb4b927b62752d81778978fb9b6398ed8f113aec09812b98ebfffc707297718",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        44,
+        26,
+        69,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-24d94dc5ad759eb584f9fa5a9496453e60859e00103e0026621b3726fbabfa32",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        70,
+        30,
+        73,
+        18
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2081b640ddfc9e2fad45300e360e25cdc28f4e759d22a56702a99a7a068085e8",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        72,
+        54,
+        72,
+        63
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8679b0dcc7e82919986174b3a2e439c028201b9a4dd0f99b34438ac27435c70a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddEmployees.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        95,
+        9,
+        102,
+        10
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Creates employee master data with unique EmployeeNumber and ledger rows with nullable IdempotencyKey plus filtered unique index for nonnull keys. EmployeeLedgerEntries.EmployeeId and Employee.UserId are plain text with no FKs; monetary debit/credit/balance values and Type are also app-enforced. These shapes permit orphans/invalid representations at DB level but existing handlers and soft-deactivation design provide app-level controls; no source-only defect inferred. Down drops ledger table and employee table; rollback is data destructive and not executed.",
+  "source_ranges": "Entire source read: Up 12-92, Down 95-102.",
+  "execution": "Read-only source review; no provider/database/migration/tests.",
+  "shard_reconciliation": {
+    "financial_integrity": "/8 exact IDs present",
+    "financial_coordinator": "/8 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

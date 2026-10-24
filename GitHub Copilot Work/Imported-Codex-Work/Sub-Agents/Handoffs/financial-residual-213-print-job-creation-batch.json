@@ -1,0 +1,284 @@
+{
+  "id": "financial-residual-213-print-job-creation-batch",
+  "created_utc": "2026-10-21",
+  "input_queue": "Codex Work/Sub-Agents/Results/financial-residual-213-reconciliation-queue.json",
+  "batch": {
+    "reviewed": 13,
+    "CreatePrintJobsHandler": 10,
+    "DocumentPrintJobs": 1,
+    "OrderAutoPrintService": 2,
+    "pending_before": 84,
+    "pending_after": 71
+  },
+  "entries": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-f551f123a7019a809f78102e2ae2d138b3860616f5cfce1e8a7c6ba8f6dbfabd",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.CreatePrintJobsHandler.CreatePrintJobsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Audit.IAuditLog)",
+      "span": [
+        30,
+        5,
+        30,
+        109
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-98d59816766ac625a3e02dedf1b8907a60da00c6556f8aa682d19845057f20f0",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.CreatePrintJobsHandler.HandleAsync(Falah.Application.Printing.CreatePrintJobsRequest, CancellationToken)",
+      "span": [
+        32,
+        5,
+        93,
+        6
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-b03b964e09b6506fa5a1c70a246cd6f8445a93ac886aac1ec6c87c8415436e8b",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        35,
+        20,
+        35,
+        63
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-8b1691484fcc9a3ab27dfa93895fc754b6f93bfaeabed193301cae52efbcfd93",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        46,
+        61,
+        46,
+        73
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-77a6e5bc9a5b2afae566730b60c474558af7e620d7004e0e8c12ec87646af4fb",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        46,
+        95,
+        46,
+        123
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-211644d246c13b3d43c5462607f550c98ad6486201a2de7ecfa2b3623eafa6b1",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        48,
+        76,
+        48,
+        108
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-d7c241ae6cd5cb69094bad7be1ac0819dfe4e312053ba2393e7818f4dd1b08c7",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        52,
+        68,
+        52,
+        93
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-31b3ea6b65cf7609860dc6ed66b36366029deec6ddc63bc2c45914fdab962d35",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        60,
+        34,
+        65,
+        10
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-ad5a84a583234bc3d05367cddad5ac29bdc098c2cc705baa8d768cb100e49676",
+      "kind": "SimpleLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        87,
+        67,
+        87,
+        110
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+      "stable_id": "sym-ce2568ee8f70ac42fa56f9061077a63775e3e0eb4911d29da584beae4f593d6d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.CreatePrintJobsHandler.ToDto(Falah.Infrastructure.Persistence.Entities.PrintJobEntity)",
+      "span": [
+        95,
+        5,
+        96,
+        138
+      ],
+      "source_sha256": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+      "review": {
+        "flow": "idempotent print-job creation",
+        "actual_control_data_flow": "Validates route, loads order/actor, derives kitchen route from frozen PreparationStation, creates Pending PrintJob rows keyed by RequestId+route; audit only for reprint; SaveChanges commits jobs, no Order/payment/inventory/treasury mutation.",
+        "financial_relevance": "Financially adjacent presentation/availability; transaction touches only print-job and optional audit records; source XML explicitly says does not touch financial truth.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs",
+      "stable_id": "sym-5bd17fb3f2558ed9484a5ce64004530d3b1e4a3d75d0f058410ff5bbef0e8306",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.DocumentPrintJobs.Build(Falah.Domain.Printing.PrintDocumentKind, string, string, string, DateTimeOffset, string?)",
+      "span": [
+        22,
+        5,
+        42,
+        6
+      ],
+      "source_sha256": "DADE9CFF80994F1CBFC9885F07FD45ACEA492D31F2D2068C1DDE1097C11DB772",
+      "review": {
+        "flow": "document job projection",
+        "actual_control_data_flow": "Builds deterministic pending PrintJob entity for shift-open/shift-close/expense document; request id is auto-kind-document id unless reprint request id supplied; no save or accounting mutation in this method.",
+        "financial_relevance": "Ensures financial cash/expense slips can be queued with parent business write; construction alone changes no state.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "stable_id": "sym-9313542e48965b47814eeb8c445a8276c57e01425f381a32009ad25db6529fa8",
+      "kind": "ConstructorDeclaration",
+      "signature": "Falah.Infrastructure.Printing.OrderAutoPrintService.OrderAutoPrintService(Falah.Infrastructure.Printing.CreatePrintJobsHandler, Falah.Infrastructure.Settings.SettingsQueryService, Microsoft.Extensions.Logging.ILogger<Falah.Infrastructure.Printing.OrderAutoPrintService>)",
+      "span": [
+        35,
+        5,
+        41,
+        6
+      ],
+      "source_sha256": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F27609484A542",
+      "review": {
+        "flow": "post-checkout automatic printing",
+        "actual_control_data_flow": "Reads settings, conditionally requests receipt and preparation tickets; optionally holds kitchen tickets for unconfirmed electronic transfers; uses auto-checkout request key; catches/logs all exceptions and returns false without failing committed sale.",
+        "financial_relevance": "Explicitly outside sale transaction; ticket failure cannot roll back paid order; false exposes missing print to caller, order remains reprintable.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    },
+    {
+      "path": "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+      "stable_id": "sym-bf73ddf0b2517152a6d52e705c53183483c6bd5ef8b1f1d1f4fc4cead5837255",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Infrastructure.Printing.OrderAutoPrintService.TryPrintAsync(Falah.Application.Orders.CheckoutOrderRequest, Falah.Application.Orders.CheckoutOrderResult, CancellationToken)",
+      "span": [
+        46,
+        5,
+        94,
+        6
+      ],
+      "source_sha256": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F27609484A542",
+      "review": {
+        "flow": "post-checkout automatic printing",
+        "actual_control_data_flow": "Reads settings, conditionally requests receipt and preparation tickets; optionally holds kitchen tickets for unconfirmed electronic transfers; uses auto-checkout request key; catches/logs all exceptions and returns false without failing committed sale.",
+        "financial_relevance": "Explicitly outside sale transaction; ticket failure cannot roll back paid order; false exposes missing print to caller, order remains reprintable.",
+        "disposition": "NO_ACCOUNTING_MUTATION_CONFIRMED",
+        "static_only": true
+      }
+    }
+  ],
+  "source_hashes": {
+    "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs": "AC7A5A9AEFBA464DFB2444C86D6A5BB22149455B2F82856F3FEA4971931FF941",
+    "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs": "DADE9CFF80994F1CBFC9885F07FD45ACEA492D31F2D2068C1DDE1097C11DB772",
+    "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs": "0A7282C6766D2A7B446739D56984950D87AB69F52F88DD3BE88F27609484A542"
+  },
+  "limitations": [
+    "Static analysis only; no runtime/DB/printing execution.",
+    "Only residual stable IDs in the listed files reviewed."
+  ]
+}

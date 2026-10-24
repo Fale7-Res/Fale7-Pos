@@ -1,0 +1,739 @@
+{
+  "at_utc": "2026-10-19T21:53:50.285Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-011",
+  "title": "Live reconciliation versus frozen close-snapshot contracts",
+  "status": "BOUNDED_SOURCE_COMPARISON_COMPLETE_ONE_CORROBORATED_PERMISSION_FINDING_ONE_PROVIDER_UNVERIFIED_REVISION_RISK",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "worktree_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "source_git_blob_sha256": "b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255",
+      "line_ranges": [
+        [
+          34,
+          38
+        ],
+        [
+          54,
+          64
+        ],
+        [
+          87,
+          120
+        ],
+        [
+          162,
+          165
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b472134562dd7a7b4d0157ba9bb6ab21f6dc5d47dc5020a7c730af60d0b0cdb4",
+          "signature": "Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.CloseBusinessDayRequest, CancellationToken)",
+          "span": [
+            34,
+            5,
+            129,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d132407d04b3f57da7a0328f558a1ac793bf4b8c9159a92ae5dad0c141e801e6",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            95,
+            37,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-90ddb2ca836f80aca30ae124ee6a2de997e5b88aa78e6e54de9e33f5f96d41f2",
+          "signature": "lambda expression",
+          "span": [
+            54,
+            62,
+            54,
+            96
+          ]
+        },
+        {
+          "stable_id": "sym-e79a819052c8e51d9f32fc4c63fe516884ae7b390462f0ea9ee1a08db1b79dd4",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            83,
+            89,
+            113
+          ]
+        },
+        {
+          "stable_id": "sym-00d078e5d71310913334f4034b306f3e8c4d24aaf523608bb9dce18f24afa794",
+          "signature": "lambda expression",
+          "span": [
+            91,
+            75,
+            91,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-984b79f3246ebb840de99c5ce08937762a76d7d787feaac0def4e88f6bd7d3d9",
+          "signature": "lambda expression",
+          "span": [
+            92,
+            55,
+            92,
+            85
+          ]
+        },
+        {
+          "stable_id": "sym-c633b631336165de759a4ba32ac991c8c9adb8a0f7a03f6d2c80f055e098d32a",
+          "signature": "lambda expression",
+          "span": [
+            93,
+            37,
+            93,
+            84
+          ]
+        },
+        {
+          "stable_id": "sym-a673e146b1261457b740b8266109940a901cb01b2fb56c1ff2a13bbda0afc4b6",
+          "signature": "lambda expression",
+          "span": [
+            93,
+            56,
+            93,
+            76
+          ]
+        },
+        {
+          "stable_id": "sym-c72439b7ff7cca5a7b3a3ef5b587af85e69c858cbaed8b1760631e14708b4f51",
+          "signature": "lambda expression",
+          "span": [
+            102,
+            77,
+            102,
+            144
+          ]
+        },
+        {
+          "stable_id": "sym-66eee726e292f53f93e6af0188966e47d27127a7d82b927d369eccd8fae3359b",
+          "signature": "Falah.Infrastructure.ControlCenter.CloseBusinessDayHandler.ToDto(Falah.Infrastructure.Persistence.Entities.BusinessDayCloseSnapshotEntity, bool)",
+          "span": [
+            162,
+            5,
+            165,
+            79
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "worktree_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "source_git_blob_sha256": "2ba6e827c2db885018094250fe907c5d78dd87c3d7112513d3624b92bcadfc15",
+      "line_ranges": [
+        [
+          42,
+          53
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-af76dc71d1cc6c045d674614cf60a6e579e6a04fa6f91625a0782093fc463750",
+          "signature": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.GetLatestCloseSnapshotAsync(string, CancellationToken)",
+          "span": [
+            42,
+            5,
+            48,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e5de25e51b322576ad4aaf6e25c4c0feda6948d2d6dd71aa104eb9afe5c0854a",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            20,
+            45,
+            76
+          ]
+        },
+        {
+          "stable_id": "sym-294b4b5e11f77ab8badd716d5de3a86e631be81abd0a2f2d1a05bc4eaffbd170",
+          "signature": "lambda expression",
+          "span": [
+            46,
+            32,
+            46,
+            52
+          ]
+        },
+        {
+          "stable_id": "sym-6d74bc781e3f338b47f20dea87925eb738877a4131634a9ffd905159f4fb604f",
+          "signature": "Falah.Infrastructure.ControlCenter.ControlCenterQueryService.ListCloseSnapshotsAsync(string, CancellationToken)",
+          "span": [
+            50,
+            5,
+            53,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-ad8da9fd4f8a7027984e29c44750c2fd48b51cc25b73c4bac23193dce1d01972",
+          "signature": "lambda expression",
+          "span": [
+            51,
+            67,
+            51,
+            104
+          ]
+        },
+        {
+          "stable_id": "sym-ba3d626b0f34b88770a647afaf23d55fd74d75c3cf664b5d012604926f4178b5",
+          "signature": "lambda expression",
+          "span": [
+            52,
+            22,
+            52,
+            42
+          ]
+        },
+        {
+          "stable_id": "sym-3c57b7dfac38d72b9750e94ad9e1561ce45ce9173856304db54bc7c1c53ac592",
+          "signature": "lambda expression",
+          "span": [
+            53,
+            21,
+            53,
+            78
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs",
+      "worktree_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+      "source_git_blob_sha256": "97e4427ded182f726e97ed7a1bc362cdaf4b94a3ab009635317fc36f0f9b0e57",
+      "line_ranges": [
+        [
+          69,
+          98
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7f7926930b1d96d08b14f64c04c966e2b241703a0ee2e8e8b1f270d8ede20ce6",
+          "signature": "Falah.Infrastructure.ControlCenter.ReopenBusinessDayHandler.HandleAsync(Falah.Application.BusinessDay.ReopenBusinessDayRequest, CancellationToken)",
+          "span": [
+            29,
+            5,
+            111,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9341ed8fe62bc6f28a150d4def992fea4581176f178141e6342d7177b7beaa7d",
+          "signature": "lambda expression",
+          "span": [
+            86,
+            80,
+            86,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-c0d2a57ed413699221836539ed5264817a70d7ab7e18e14f4ea8685bec1c7e73",
+          "signature": "lambda expression",
+          "span": [
+            86,
+            114,
+            86,
+            123
+          ]
+        },
+        {
+          "stable_id": "sym-4cd4a027117babeb44cb3ba4f534e3669086708b2d7369ab040b2824272b2f2f",
+          "signature": "lambda expression",
+          "span": [
+            87,
+            75,
+            87,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs",
+      "worktree_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+      "source_git_blob_sha256": "d6d8f05a2959343b0824dcb3d4f1d57bd342469fc8e0bc57a539b3cfe08402d1",
+      "line_ranges": [
+        [
+          13,
+          16
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Application/Reports/ReportingDtos.cs",
+      "worktree_sha256": "39c9da5ec2dfc6012cf6b630b0f9d8a8924c54016c991ceacaad1632ec308726",
+      "source_git_blob_sha256": "0a615dd0d71fc11bd9382cf3d832a4e116620c4b13b804a2431458cfb1f6d160",
+      "line_ranges": [
+        [
+          32,
+          36
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs",
+      "worktree_sha256": "79a3002b009480d7197f057aedd49d82b6ab2a27646a6a7f1bd2e91796fbaae9",
+      "source_git_blob_sha256": "01a20063ad42ea2c09228b5197682d9d6f806ec31e751b863b230078a362f38f",
+      "line_ranges": [
+        [
+          84,
+          135
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-52393e71286e4ffa4497930f1e2739d8fc228b312ffafe7f32d9e10682ebb118",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ReloadAsync()",
+          "span": [
+            84,
+            5,
+            145,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1154fa26fb42373c693e86b2a25df414c38cbae9576c68baad7b0968c5e86ad8",
+          "signature": "lambda expression",
+          "span": [
+            96,
+            48,
+            96,
+            75
+          ]
+        },
+        {
+          "stable_id": "sym-9a5fa9ea19b20f87dea643135760121171f75f1ef2886f936b6719eec852ab4b",
+          "signature": "lambda expression",
+          "span": [
+            113,
+            54,
+            113,
+            79
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs",
+      "worktree_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+      "source_git_blob_sha256": "0f7aca8ebf32a8b423ec7145e4f2e7856ebc8e03d528310ed6fa3a53c721eb73",
+      "line_ranges": [
+        [
+          19,
+          33
+        ],
+        [
+          120,
+          134
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fad9ad3273e1c130176139e1b9ee33b86b723fc3e72468f77639c409c739eb66",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadReconciliationAsync(string)",
+          "span": [
+            28,
+            5,
+            34,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-73a027ee98acd42c73b0dbc22c05d7ecd84b0714c3938645447407965cc27450",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadSnapshotAsync(string)",
+          "span": [
+            128,
+            5,
+            134,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml",
+      "worktree_sha256": "cc8d56dbe18e27540467b08b2453908e87330acba5535f43bacf8764f1812aea",
+      "source_git_blob_sha256": "ed23bd5b189f84cb0646e92cd197c5450db0d80b9d02c904d6d7af611b942eee",
+      "line_ranges": [
+        [
+          101,
+          137
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          137,
+          141
+        ],
+        [
+          400,
+          405
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-9858b7c2de9dc87a4c7c2c0b1050d1beb95466c44c54a0c43bc0835fcf17460b",
+          "signature": "Falah.Infrastructure.Persistence.FalahDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)",
+          "span": [
+            76,
+            5,
+            480,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-83e87963690239f68232a633d72f95d2e717595c01b7d297aa93a16714a3663a",
+          "signature": "lambda expression",
+          "span": [
+            137,
+            48,
+            141,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-da0a6f52e513182dafe7ab5370664e1bc4894b6b13badc4b3ef3e21377f0ebc3",
+          "signature": "lambda expression",
+          "span": [
+            139,
+            22,
+            139,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-ce0faa435c5fd92da6b56b718b4966ecec75c2eeffcc91aac46d9174f47ba400",
+          "signature": "lambda expression",
+          "span": [
+            140,
+            24,
+            140,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-af743740b94a893f8dcf069a39c30446500a5392206f91d09b48b9b60c135260",
+          "signature": "lambda expression",
+          "span": [
+            400,
+            61,
+            405,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-b8bb7d5805cd7e18ad38e6462b16e56c22303e907d22b1c810695a82ed5958ba",
+          "signature": "lambda expression",
+          "span": [
+            402,
+            22,
+            402,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-d7aaff3ed21cd3b76756adda145b1a4482b6b4dd5e7414c3f97aecde2a5d61da",
+          "signature": "lambda expression",
+          "span": [
+            403,
+            24,
+            403,
+            44
+          ]
+        },
+        {
+          "stable_id": "sym-844297a62e077b7c1691b9b6937cd6f8e6d64c0cc5196bfdb6748bc275fe67c2",
+          "signature": "lambda expression",
+          "span": [
+            404,
+            68,
+            404,
+            88
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          301,
+          303
+        ],
+        [
+          317,
+          323
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-eac97cc3c0b36dbc208bdea82880cf55734ab9df90df8e4ffa60425ef2bc61a4",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetBusinessDayReconciliationAsync(string, string, CancellationToken)",
+          "span": [
+            301,
+            5,
+            303,
+            138
+          ]
+        },
+        {
+          "stable_id": "sym-d9d90c20819fa04d0c0839dbbf6e616316462539924041c9af0f88b160e3dd45",
+          "signature": "lambda expression",
+          "span": [
+            302,
+            75,
+            303,
+            132
+          ]
+        },
+        {
+          "stable_id": "sym-5adc4dd9ca78d317ccef24e5dbef1d2afbf1c3ffa66cabb97e6ec7c9fa0b7070",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetLatestCloseSnapshotAsync(string, CancellationToken)",
+          "span": [
+            317,
+            5,
+            319,
+            97
+          ]
+        },
+        {
+          "stable_id": "sym-2f8664d2146d91d2bdb1e66dd7c0c6d331c3803a63d4bff4cf1d72e496e73c44",
+          "signature": "lambda expression",
+          "span": [
+            318,
+            78,
+            319,
+            91
+          ]
+        },
+        {
+          "stable_id": "sym-fbfb1b2216015fc2a47588081b3a6c70ed853461a772ef0a0ab6bfb1d78dd64e",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetCloseSnapshotsAsync(string, CancellationToken)",
+          "span": [
+            321,
+            5,
+            323,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-01e58414092f8ceb3273e1d3b41a616b3f7c276f66cf6a9fb6cdc5b7242dfa3a",
+          "signature": "lambda expression",
+          "span": [
+            322,
+            93,
+            323,
+            92
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          251,
+          251
+        ],
+        [
+          421,
+          428
+        ],
+        [
+          2013,
+          2018
+        ],
+        [
+          2282,
+          2289
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0fa7ccbd03b5492521bf29037a49d4fe74a524a9a438d9821b6ef6f0c2fa1f0e",
+          "signature": "lambda expression",
+          "span": [
+            421,
+            53,
+            425,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-eee6642b4af7cdfcb182fefa4022c54046fe3c8693484ebf7e371aba4ab9c91e",
+          "signature": "lambda expression",
+          "span": [
+            427,
+            54,
+            428,
+            60
+          ]
+        },
+        {
+          "stable_id": "sym-bd8bdaee35c0dd8d6fbe9ecfe6a3294063a145a1ffa87a794c2f24fe6416082e",
+          "signature": "lambda expression",
+          "span": [
+            2013,
+            46,
+            2019,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-c5ef6984ff177df2d8e64c494e693585e2e87dd0e0cf3a450c4ac8aa67be157b",
+          "signature": "RequireReportsAccessAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)",
+          "span": [
+            2282,
+            1,
+            2290,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-06c3373aaaed682227c3d5265bb76dc40f94440581c5f3d4872b4dabb31dc2e7",
+          "signature": "lambda expression",
+          "span": [
+            2284,
+            66,
+            2284,
+            90
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+      "line_ranges": [
+        [
+          31,
+          88
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-04d66e974d86cfe40ecd2600727864c93965f3416bb13be9a5ea38ee6ffa9f7a",
+          "signature": "Falah.Server.AuthenticationMiddleware.InvokeAsync(HttpContext, Falah.Infrastructure.Authorization.SessionService)",
+          "span": [
+            30,
+            5,
+            82,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0f9ed05c595e559bcd74e7f95ddd900021d7c02ee3b647dca160bff19200bf76",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            42,
+            36,
+            97
+          ]
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "question": "Does frozen report silently recompute live money?",
+      "conclusion": "No in inspected projection. Close87 gets same BusinessDayReconciliationDto live report service and100 serializes with defaultJSON; DTO retains rawJSON. Client125-126 deserializes same shared DTO defaultJSON and XAML labels read-only frozen snapshot. Reload fetches snapshot only forClosed; reopened UI hides it while history/pointer remains in storage. No roundtrip/UIexecution performed."
+    },
+    {
+      "question": "Does normal live/frozen JSON casing differ?",
+      "conclusion": "No source mismatch established: embedded JSON written/read defaultserializer with sharedApplicationDTO; outerHTTPserialization does not itself reinterpret embeddedstring. Future DTOversion/corruptJSON and repeatedgetterparsing remain test/design limitations, not current proved defect."
+    },
+    {
+      "question": "Do financial read permissions match?",
+      "conclusion": "Not at inspected boundaries. LiveVM19-32 checksreports_view, liveendpoint2013-2018 invokes helper2282-2289. Frozenroutes421-428 directlyquery, clientload125-135 andXAML102-130 do not applysameguard. Sharedmiddleware requiresvalidsession, not reportspermission. No anonymous/userdata/APIrequest executed."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "FIN-CAND-CLOSE-SNAPSHOT-REVISION-001",
+      "severity_proposed": "MEDIUM",
+      "status": "INDEPENDENT_SOURCE_ADMISSION_GAP_QUALIFIED_DUPLICATE_COMMIT_NOT_CONFIRMED",
+      "root_cause": "Daystatus admission54-59 beforeTx64; revisionCount91 anddemotion92-93 do not establish explicit perday serializer or unique(day,revision)/oneAuthoritative invariant in model400-405.",
+      "schedule": [
+        "Two otherwisevalid authorizeddistinctRequestIds load sameOpen day beforeeitherclosecommits.",
+        "Both evaluate blockers/reconciliation andreadsameCount; both ExecuteUpdate demotions complete before firstsnapshotinsert, on an initial no-snapshot day.",
+        "Pause B beforeSave118, allowA Save/Commit fully, thenresumeB Save withstaledaytrackedvalues. DistinctsnapshotPKs/restrictFK do not bythemselves rejectB."
+      ],
+      "predicted_impact": "Potential duplicate revisions/multipleAuthoritative snapshots and ambiguous latestOrderByCloseRevision ties; financial archive inconsistency, not directmoneywrite. No actual SQLschedule/EFgeneratedcommandorder reproduction.",
+      "counterevidence": [
+        "SameRequestId PK/replay protects identicalcloseattempt; sequential freshclose aftervisibleClosed fails statusguard.",
+        "Provider locks/EFordering and possible writeconflicts may rejectsomeinterleavings; no SQLlockgraph/defaultdeployment serializer verified.",
+        "Existing closeday-admission deposit candidate is distinct: this is close-versus-close archive cardinality, not latefinancialmovement."
+      ],
+      "tests_required": [
+        "Disposable-provider barriers beforeCount/demotion/Save fordistinctsameDayrequests; samekeycontrol, existinghistory/reopenrevision control; assertoneAuthoritative andunique revision."
+      ]
+    },
+    {
+      "id": "FIN-LEAD-SNAPSHOT-REPORTS-ACCESS-001",
+      "severity_proposed": "MEDIUM",
+      "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_PRECONDITIONS",
+      "root_cause": "Frozen financial payload routes and clientdisplay do not reuse live reconciliation reports_view gate; same embeddedpayload contains sales/treasury/expense/shift figures.",
+      "preconditions": [
+        "Valid active authenticatedsession with neitherall norreports_view, existingfinancial snapshot/dayID. No accountcreation/logins/access performed."
+      ],
+      "counterevidence": [
+        "Session middleware blocksanonymous/invalid sessions. This is readprivacy/permission consistency, not anonymousaccess or unauthorizedfinancialwrite.",
+        "Currentrole presets/deployment may grantreports_view broadly orowner mayintendbroaderarchive access; confirmpolicy. Current liveguard/UIcomment provide intendedrestriction evidence, not actualprivatebusinessincident.",
+        "SEC003 concerns employeeprofiles andSEC001 actorbinding; preserve relatedsharedauthorization family without duplicating eitherexistingfinding."
+      ],
+      "tests_required": [
+        "Authorizeddisposablefixture session withandwithoutreports_view comparing live/latest/history frozen routes; no realaccounts/businessdata.",
+        "Clientcloseddayload withcontrol_center-only permissions; ensuredenied financialfigures are absent andvalidreportviewer stillseesarchive."
+      ],
+      "canonical_id": "FIN-027"
+    }
+  ],
+  "recommended_design": [
+    "Preserve frozenarchivefinancialfigures and explicitrevisionlineage; independentlycoordinatecloseadmission anduniqueness ifcandidate survives providerchallenge.",
+    "Apply consistent financialreportaccess policy to bothlive andfrozenpayloads, using verifiedsessionidentity; do not merelyhideXAML.",
+    "ExplicitDTOschema/version/errorhandling forarchivecompatibility and testing withoutsilentlyinventedfigures."
+  ],
+  "scope_limits": [
+    "No newfinancialcallablereceipts orcanonicalfindings yet.",
+    "Onlyfinancialsnapshotcontracts; no generalSecurity/UIvisual/Printing specialist resumed.",
+    "No API/DB/close/reopen/JSONcomponent/nativeUItest executed; thisisauditsourcecomparison."
+  ],
+  "new_financial_callable_receipts": 0,
+  "independent_challenge": {
+    "artifact": "Sub-Agents/Handoffs/financial-snapshot-contract-independent-challenge.json",
+    "reviewer": "financial_integrity original specialist",
+    "status": "Two source dispositions independently read; distinct provider qualifications preserved"
+  }
+}

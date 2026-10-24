@@ -1,0 +1,109 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:07:23.8743097Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/OrderReconstituteTests.cs",
+  "symbol_count": 7,
+  "symbols": [
+    {
+      "stable_id": "sym-6e6d09ac31cc5008051769a97da487d3830f9a8e7b662707254c01cdff7e2854",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.Item(decimal)",
+      "span": [
+        12,
+        5,
+        13,
+        143
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-58b258195e950b1d47fb814965ffb82c265777aae34c02db826b707d069ba345",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.FreshOrder(decimal)",
+      "span": [
+        15,
+        5,
+        20,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-0642257805f1c03874d77850608d112f01d060919d0bb8d9640e2dcf22e8db7e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.Reconstitute(Falah.Domain.Orders.Order)",
+      "span": [
+        22,
+        5,
+        28,
+        72
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-73392ad3c717859fbdd0a52dc73a9e81d6fe46c2f57ee44af5bd264944281c65",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.Reconstituted_order_preserves_every_persisted_field()",
+      "span": [
+        30,
+        5,
+        41,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-8eb41b9bf1b5097493550620b46b2ec05126976114079856a92435c65f834779",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.A_reconstituted_order_enforces_the_exact_same_refund_invariants_as_a_freshly_created_one()",
+      "span": [
+        43,
+        5,
+        51,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fb41b0971341f0ca904d03001107dc938c4635c73614768656575a117c717807",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        50,
+        40,
+        50,
+        73
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b361e10acdb6b8c4c428b9db571e33d759da5e81598ded507c212a225771375f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderReconstituteTests.A_reconstituted_order_that_already_has_partial_refunds_computes_the_correct_remaining_balance()",
+      "span": [
+        53,
+        5,
+        66,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover reconstituting an order, a bounded over-refund rejection, preservation of a partial refund and completion at the exact remaining amount. Order.Reconstitute copies the financial and operational fields, refund amount and refunds collection, with optional cancellation and tax/discount snapshot fields. The test helper does not pass those optional fields and the “every persisted field” test asserts only Id, Total, Status, IsPaid and RefundAmount, so cancellation/tax/discount rehydration is not covered here; source assignment itself is present. Existing source shard records an encapsulation concern: Refunds exposes the underlying List through IReadOnlyList and a caller cast could bypass RefundAmount synchronization; actual reachable cast/use remains unknown. No new defect promoted; FIN-003 remains the existing unpaid-refund finding.",
+  "source_ranges": "OrderReconstituteTests.cs: 1-64; Order.cs: 119-171 (Reconstitute), 217-224 (refund gate), existing financial_integrity Order.cs callable facet.",
+  "execution": "Read-only source and finding review; no tests/runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/OrderReconstituteTests.cs": "86818B18E449DC9393F7A219A9FA1B92069A044270A8F3E22C4931BE616B93F9",
+    "src/Falah.Domain/Orders/Order.cs": "4F93EBCBA865636BBD00A6D6EDBAAB1453F72ACB35D220DE129D3BA8F47B1C4B"
+  },
+  "existing_finding_references": [
+    "FIN-003",
+    "Order.cs callable facet: Refunds collection encapsulation concern; exploitation path unverified."
+  ],
+  "shard_reconciliation": {
+    "financial_integrity": "0/7 exact IDs present",
+    "financial_coordinator": "0/7 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

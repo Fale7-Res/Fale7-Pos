@@ -1,0 +1,89 @@
+{
+  "at_utc": "2026-10-18T09:06:35.405541+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "projects": [
+    {
+      "path": "src/Falah.Application/Falah.Application.csproj",
+      "sha256": "62fb88c38db785226ef66d2979537acf4ee196e9488b66c59441f1a028ab82cc",
+      "target_frameworks": [
+        "net8.0"
+      ],
+      "project_references": [
+        "src/Falah.Domain/Falah.Domain.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Falah.Client.CallCenterWinUI.csproj",
+      "sha256": "5e3a0470db8a927590f9143731d7c7c82098a9dab28080dceb8951f2d3ea1179",
+      "target_frameworks": [
+        "net8.0-windows10.0.19041.0"
+      ],
+      "project_references": [
+        "src/Falah.Application/Falah.Application.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Falah.Client.Cashier.csproj",
+      "sha256": "75b1d126b7408dd31450e3de3a196d229637f7fae4f653d9a6775f0d6b6159f7",
+      "target_frameworks": [
+        "net8.0-windows"
+      ],
+      "project_references": [
+        "src/Falah.Application/Falah.Application.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Falah.Client.CashierWinUI.csproj",
+      "sha256": "9b01f2a3ad96a5ae266ab05ce415745d4d2ae4c2d3b4dfa477f56738bfbd21c3",
+      "target_frameworks": [
+        "net8.0-windows10.0.19041.0"
+      ],
+      "project_references": [
+        "src/Falah.Application/Falah.Application.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Falah.Domain.csproj",
+      "sha256": "e151f959964eb450a5b86b72765e3f9c505645fa9516eae485743d2b43911c8e",
+      "target_frameworks": [
+        "net8.0"
+      ],
+      "project_references": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Falah.Infrastructure.csproj",
+      "sha256": "da2f6a85d74663422ce703e3599276bf18c451c10becac10fc594de2c783ad42",
+      "target_frameworks": [
+        "net8.0"
+      ],
+      "project_references": [
+        "src/Falah.Domain/Falah.Domain.csproj",
+        "src/Falah.Application/Falah.Application.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.PrintAgent/Falah.PrintAgent.csproj",
+      "sha256": "b5e6fadcc1fe27aefff4101601931076b8478c427f2cfe2bb6f90450e73802a3",
+      "target_frameworks": [
+        "net8.0"
+      ],
+      "project_references": [
+        "src/Falah.Application/Falah.Application.csproj"
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Falah.Server.csproj",
+      "sha256": "55f7bff58994fb70b32aeb3562ccaa0324bbe00517d503b1fe012bef616e6961",
+      "target_frameworks": [
+        "net8.0"
+      ],
+      "project_references": [
+        "src/Falah.Domain/Falah.Domain.csproj",
+        "src/Falah.Application/Falah.Application.csproj",
+        "src/Falah.Infrastructure/Falah.Infrastructure.csproj"
+      ]
+    }
+  ],
+  "cycles": [],
+  "scope": "Actual eight src csproj ProjectReference edges only, not all DI/type/runtime reference cycles. No builds performed."
+}

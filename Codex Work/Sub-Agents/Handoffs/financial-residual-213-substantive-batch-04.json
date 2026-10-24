@@ -1,0 +1,346 @@
+{
+  "artifact_kind": "substantive_callable_review_batch",
+  "id": "financial-residual-213-substantive-batch-04",
+  "created_utc": "2026-10-21T06:59:24Z",
+  "assignment": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-04-assignment.json",
+  "source_queue": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-03.json",
+  "queue_order": "First 10 exact remaining IDs in prior saved order, no skips/redo",
+  "decision": "10/10 source-specific substantive reviews. Source paths cover shift-close unpaid warning, expense summaries, driver dispatch lookup/name, expense account label, reprint persistence/idempotency, and renderer/layout helpers. Reprint persists print/audit metadata only; source endpoint comment and existing integration test counter financial repost. No defect established.",
+  "reviewed_callables": [
+    {
+      "flow": "Counts current-shift orders that are unpaid, not cancelled, and have null ElectronicPaymentStatus; appends count warning if >0. AsNoTracking, no write.",
+      "conclusion": "Read-only warning filter; no accounting defect established.",
+      "body_range": [
+        221,
+        223
+      ],
+      "callee": "EF CountAsync on Orders",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "counterevidence": "Electronic-pending orders have separate warning at 212-214; cancelled orders excluded. PrintRulesTests lines 594-616 test display plumbing, not DB predicate branches.",
+      "signature": "lambda: unpaid-order CountAsync predicate",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "LoadCloseWarningsAsync, called by ComposeShiftCloseSlipAsync lines 202-203",
+      "relevance": "Direct financial handover warning; method summary lines 206-207 says warning does not block close.",
+      "span": [
+        222,
+        25,
+        222,
+        128
+      ],
+      "stable_id": "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a"
+    },
+    {
+      "flow": "Filters shift expenses paid from drawer; groups by category, sums AmountPiastres, converts to Money, sorts summaries descending by amount.",
+      "conclusion": "Read-only financial presentation sort; no defect found.",
+      "body_range": [
+        195,
+        200
+      ],
+      "callee": "LINQ sort after AsNoTracking expenses are filtered/grouped/projected",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "counterevidence": "Handover test at PrintRulesTests lines 594-621 checks supplied figures and labels, but not this query/sort.",
+      "signature": "lambda: OrderByDescending key l => l.Amount.Piastres",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeShiftCloseSlipAsync expense summary",
+      "relevance": "Cash-close presentation order; not drawer total calculation or mutation.",
+      "span": [
+        199,
+        81,
+        199,
+        102
+      ],
+      "stable_id": "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed"
+    },
+    {
+      "flow": "If any cell bold, bolds whole row, emits joined cell text and line feed; produces bytes only.",
+      "conclusion": "Pure rendering; no accounting mutation; readability unverified.",
+      "body_range": [
+        68,
+        73
+      ],
+      "callee": "Any predicate selects Bold command; then CharacterSize and concatenated encoded cell text",
+      "sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be",
+      "counterevidence": "Renderer comments lines 63-67 say text mode lacks real columns/Arabic shaping and image renderer is main path; physical output unverified. PrintAgentTests cell DTO bold assertions around lines 246-316.",
+      "signature": "lambda: row.Cells.Any(c => c.Bold)",
+      "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+      "caller": "EscPosTicketRenderer.Render TicketRow case; PrintJobProcessor selects ESC/POS renderer at lines 100-103 when configured",
+      "relevance": "Indirect money-text emphasis, values unchanged.",
+      "span": [
+        70,
+        53,
+        70,
+        64
+      ],
+      "stable_id": "sym-40dbc5c24a604b7b3ed6ef6749a13f0f652daaeb2db18ad9d7c9795d653eca3f"
+    },
+    {
+      "flow": "Read-only resolves current driver name or falls through to unknown; later reassignment history may restore old name lines 321-327.",
+      "conclusion": "Identity presentation; no accounting defect established.",
+      "body_range": [
+        317,
+        319
+      ],
+      "callee": "AsNoTracking Drivers Where(Id) Select(Name).FirstOrDefaultAsync",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "counterevidence": "COD and outstanding amount derive separately via CheckoutRules and frozen order totals lines 332-344.",
+      "signature": "lambda: driver-name projection d => d.Name",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeDriverDispatchAsync fallback for null DriverNameAtHandover and non-null DriverId",
+      "relevance": "Indirect delivery collection/custody identity only; no COD calculation or custody mutation.",
+      "span": [
+        318,
+        122,
+        318,
+        133
+      ],
+      "stable_id": "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9"
+    },
+    {
+      "flow": "Same request ID replays existing job(s). New request validates non-order ShiftOpen, closed ShiftClose, or Expense; adds PrintJob and AuditEvent and saves. No order/payment/treasury/expense/shift/inventory state write.",
+      "conclusion": "Operational print/audit writes only; no financial repost in source/test evidence (test not executed).",
+      "body_range": [
+        27,
+        74
+      ],
+      "callee": "request-id print query; actor/document validation; DocumentPrintJobs.Build; IAuditLog.Append; SaveChanges; replay query",
+      "sha256": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+      "counterevidence": "Program comment lines 2066-2068 explicitly says never re-posts; SlipPrintingAndReprintTests lines 155-180 assert idempotent replay and unchanged FinancialFootprint.",
+      "signature": "ReprintDocumentHandler.HandleAsync(ReprintDocumentRequest,CancellationToken)",
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "caller": "POST /api/print-jobs/reprint-document Program.cs lines 2066-2074",
+      "relevance": "Financial document reproduction and audit trail; invariant is no posting of represented transaction.",
+      "span": [
+        27,
+        5,
+        74,
+        6
+      ],
+      "stable_id": "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90"
+    },
+    {
+      "flow": "Returns display string only.",
+      "conclusion": "Display mapping only; known cases consistent, no mutation.",
+      "body_range": [
+        241,
+        250
+      ],
+      "callee": "switch maps TreasuryAccounts IDs to names; null/empty unspecified; unknown ID preserved",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "counterevidence": "Mapped drawer/main/bank/InstaPay cases align labels to named constants; SlipPrintingAndReprintTests lines 145-148 checks drawer label plus amount.",
+      "signature": "PrintJobQueryService.DescribePaymentAccount(string?)",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeExpenseSlipAsync line 237 passes label with amount/category and other expense facts to ComposeExpenseTicket",
+      "relevance": "Communicates account on expense voucher; can affect manual interpretation, not posting.",
+      "span": [
+        242,
+        5,
+        250,
+        7
+      ],
+      "stable_id": "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245"
+    },
+    {
+      "flow": "Loads delivery as input for driver identity, delivery notes, dispatch context; does not write.",
+      "conclusion": "Read-only dispatch lookup; no accounting defect established.",
+      "body_range": [
+        313,
+        316
+      ],
+      "callee": "AsNoTracking Deliveries.FirstOrDefaultAsync; throws when missing",
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "counterevidence": "COD/amount-to-collect computed independently from frozen order totals and shared CheckoutRules at lines 332-344; reassignment history restores handover identity.",
+      "signature": "lambda: delivery lookup d => d.OrderId == order.Id",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "caller": "ComposeDriverDispatchAsync selected by ticket route dispatcher line 135",
+      "relevance": "Indirect collection/custody presentation; lookup selects delivery tied to order.",
+      "span": [
+        315,
+        80,
+        315,
+        106
+      ],
+      "stable_id": "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89"
+    },
+    {
+      "flow": "Pairs caller-provided strings into cells; no parse/round/calculate/persist.",
+      "conclusion": "Pure layout helper; no monetary mutation/computation.",
+      "body_range": [
+        155,
+        164
+      ],
+      "callee": "Constructs TicketRow of label 60% start / amount 40% end, passes bold/size",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "counterevidence": "Money values formatted by callers; tests assert cell bold/alignment and handover figures in PrintRulesTests.",
+      "signature": "TicketLayout.MoneyLine(string,string,bool,TicketTextSize)",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "PrintRules callers include receipt totals/payment, shift close components/difference, expense voucher: PrintRules.cs lines 243-258, 555-577, 606 (hash 1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9)",
+      "relevance": "Core financial text layout, human readability on receipt/close/voucher.",
+      "span": [
+        158,
+        5,
+        164,
+        18
+      ],
+      "stable_id": "sym-5742b07959753ad1947e6783759d2e282c4a001f8c3289ec22a367b917ad6286"
+    },
+    {
+      "flow": "Checks shift ID exists; unlike ShiftClose arm line 45, does not require ClosedAtUtc; permits reprinting opening slip for extant shift.",
+      "conclusion": "Read-only existence gate; distinction matches opening document; no mutation.",
+      "body_range": [
+        40,
+        49
+      ],
+      "callee": "AsNoTracking Shifts.AnyAsync",
+      "sha256": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+      "counterevidence": "Endpoint comment says no repost; integration reprint test uses open shift and verifies unchanged financial footprint.",
+      "signature": "lambda: ShiftOpen existence s => s.Id == request.DocumentId",
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "caller": "ShiftOpen switch arm within HandleAsync after kind/actor validation",
+      "relevance": "Financial-document validation only; cannot reopen/close or post cash.",
+      "span": [
+        43,
+        58,
+        43,
+        89
+      ],
+      "stable_id": "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168"
+    },
+    {
+      "flow": "Returns single title element from caller-supplied text.",
+      "conclusion": "Pure presentation; no accounting effect.",
+      "body_range": [
+        140,
+        142
+      ],
+      "callee": "Creates TicketText bold, centered, large",
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "counterevidence": "Caller supplies title; helper does not validate title against underlying document. Handover test asserts title lines 607-610.",
+      "signature": "TicketLayout.SlipTitle(string)",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "caller": "PrintRules.SlipHeading line 632, used by slip composers",
+      "relevance": "Identifies financial slip type for human readers.",
+      "span": [
+        141,
+        5,
+        142,
+        97
+      ],
+      "stable_id": "sym-62de151e444df725435d1f41f8eb9f260b56f1f80bf7c1798ff12c1e063a078d"
+    }
+  ],
+  "analyzed_ids": [
+    "sym-327a57c32abceb7b8bce2656f9842887fd43f0ebb157ededd17717168eca2e2a",
+    "sym-3d21fb04f6f3471046b8d9b88946fa27ea0cca74aaf5d9dc556548ac806a36ed",
+    "sym-40dbc5c24a604b7b3ed6ef6749a13f0f652daaeb2db18ad9d7c9795d653eca3f",
+    "sym-43b7da4d2c4065bdf9e25a6ce0b4811695412bdc5f4e98ccc198dfc099cd45f9",
+    "sym-4764f498cacdb07472e818f55fa09c158a69364a4f1289045519e2c11f454b90",
+    "sym-4df26fe59dba7cf973745ee4ed03ff989465e22430f05fcdb45215132be37245",
+    "sym-54d73f13c2fb7aa92c4927aef022d9c1036fc53b03a73f5e00896ffe43559a89",
+    "sym-5742b07959753ad1947e6783759d2e282c4a001f8c3289ec22a367b917ad6286",
+    "sym-5d3f4ca389acbe8a2c735ac1d39fc0f61e452034dda7bd87430cfa1a08ee8168",
+    "sym-62de151e444df725435d1f41f8eb9f260b56f1f80bf7c1798ff12c1e063a078d"
+  ],
+  "remaining_relevant_ids": [
+    "sym-6c03bda4a838e0362bc8222a32c318e754b31a776a565edfd0693c6c682815c1",
+    "sym-70de7a2711a7e070047f6fb39bff0debb9c322d2845bd5482de3326d54990dc4",
+    "sym-70fcf024ebcd66208c4d8e75c8f908d25e2c52ca06a7a07e335aafca03a2a50a",
+    "sym-7416f9be0e5e18e3f12dc9fe70291d6bcaad53a6ea21268b8ce5ac315f6ed313",
+    "sym-770982e2e7dac5b5bfbbb35322473d1acef9a103024becbc72aa19ef329bf387",
+    "sym-77865f1b79a9809e6659dc558788bcd8b94d3b0689553284c1d1af2cd1f20698",
+    "sym-791a215431df977b542324f1d6c30df66047064ec23e0550b44531e7f1853d0f",
+    "sym-7de267adc6d5ea614202a0ac280d89e3d7d92834416c422edff2b0dc40f0436c",
+    "sym-80371f8d36740fe7bf1eecd6b8a99d23056a55d12e24d0c385bfb20555d49875",
+    "sym-85f8c7eb34deca96a636dba2214a40c26ec2de23f993e175f91e420d08fca331",
+    "sym-87dae4e1dd09c65e3a75bbfe174d1fa8c7bde6adfdac317c2a256e50a1600723",
+    "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+    "sym-90ce3ef079041a4bdd5caf73d1ac5e60fcdb359878b6001d4440c0cd472bf4ce",
+    "sym-958a6e31168a32d880c6d3fa05b4c2b4219fb5c7689069d4967414bc5b536e14",
+    "sym-97af67cf73f301c725a01566b630f76a3f1f45be812b5524cd8856096683c67d",
+    "sym-9a58225ee9d2912562513a6522f348e6bce200fb15b91aed4da7af74eba86272",
+    "sym-9cab29c3b48f364137358a0784671c3285745ae6594830f1b3b398679fa01d76",
+    "sym-9d5aae5c745734109fd6b08cd197e5f53aa618a310eaedc18db11b3954c89fa5",
+    "sym-a2693ecaaf70225c30937e1ddc03286425ca45fc9781649ad002166a3a9df66c",
+    "sym-a3fb10a37652fcd30673b4a1dfe5853f8124dcebc36e54aeb03331ad0d871adb",
+    "sym-a57ae20ea32acb1cb86514516aea44b270cafec7c803b9e1c76c8f72455c07ca",
+    "sym-b0e426b0a9c2ffb3ec1e20a652d085e49e861a3112f2b069c4f9f76b36f05e33",
+    "sym-b38c92e2aa1cef5dc2976f7656370635af13578727943866471415a065f89f2c",
+    "sym-b407e27ee608a533415e75d0cf6ff371c1953ad8e832ed46648943aa63eaba94",
+    "sym-b5d02765cc73eb502bce00fe1d7fa69e5d505e4ab7d3528c6cbe64df1db3be99",
+    "sym-b72cee84fa9eb3496d45c0e7ea3ef2d3e77413091522986f2fe040b4a149bc11",
+    "sym-bc1982a176b054923f1a82a06a7f7fd41994f3b60f8a71cd9b7ffafb828d1e0b",
+    "sym-be26473c57a1ce9fb61d9a833ed43d3e7e106753d817e719782c9f5d0695cd2b",
+    "sym-bf01ec4b100853c32799b58037316fd20dd33eae7af6c8925ecd0ef0c7a4ef09",
+    "sym-c24acc12b4a9d682dcb9e48c7c832cfb4763b2bbe85c1002bdd0d4180e7d6bfe",
+    "sym-c2b965bad0b6f1e4189b04961b8a8959ca057a3e7c85621cee84d4a8b809b574",
+    "sym-c405d94b788b68145944315d4dda0074d20ac01bbaff6d92f052b50b90d4e718",
+    "sym-c58d53f17b2d60f9d1e0cbddfb46238114267b1c759feb3b9a514f825700ad30",
+    "sym-c6bc507c3aa79c3ce6553098e9f48fa3f6b32684f15dd74b58c6d12e8dbae5b8",
+    "sym-c6c35414bbde799042a631976851a461fe2429b8300783a20c661265078d5669",
+    "sym-c9684c687165c80b08890735fd7f24068b5d772eb207c8157f417c0bdbe432af",
+    "sym-cb59fad94e86197afc287f714964f73f22478500d94d0a31c3733fbd46a243e5",
+    "sym-cdfb17cc20a3762c49ae2cb680a01d556c09779999eadc1fc555c0e67e46d889",
+    "sym-cdfb6b1076c5ae748d3702b6945e902c0086fdf482f758c939e163052746e508",
+    "sym-cf439e0dc663c06e876d2871ea722b1dfdd870e5d50a9301be4611d29d0270e8",
+    "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+    "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+    "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+    "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+    "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+    "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+    "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+    "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+    "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+    "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+    "sym-f805f241abf3b0bf1b21618393033650c96e27a67a4a4aaebf7065a83890e0c0",
+    "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+    "sym-fed148bcba2be9afb960a340a25bf41eb48c4ed2acb6cc24138b8d16c79e4fab",
+    "sym-ffa25b5be7db6378758309023b1d9190ad95017c67dffcea4a6b0fea10d701a5"
+  ],
+  "remaining_relevant_count_after_batch": 54,
+  "source_hashes": [
+    {
+      "sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs"
+    },
+    {
+      "sha256": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs"
+    },
+    {
+      "sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be",
+      "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs"
+    },
+    {
+      "sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs"
+    },
+    {
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "path": "src/Falah.Server/Program.cs"
+    },
+    {
+      "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9",
+      "path": "src/Falah.Domain/Printing/PrintRules.cs"
+    },
+    {
+      "sha256": "487f40bf8b069060e7e5dce6bf4dde033f0cfb0af52593ae6bdc8697ed39d911",
+      "path": "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs"
+    },
+    {
+      "sha256": "5f27a9a4e14f4f98cacbf6fcc6bb3b50ba05c3fc41e5e058577d9f39f365036c",
+      "path": "tests/Falah.Domain.Tests/PrintRulesTests.cs"
+    },
+    {
+      "sha256": "971c4739d41221b832270de9d7e29a23dfbf37d9d0201f649067690db86d0163",
+      "path": "tests/Falah.Server.IntegrationTests/PrintAgentTests.cs"
+    }
+  ],
+  "primary_author_receipt_union": "Unchanged; supplemental batch is not original receipt credit.",
+  "tests": "No tests executed; existing tests reviewed as counterevidence only.",
+  "limitations": [
+    "Static only; no runtime/database/provider or printer execution.",
+    "Physical readability and deployed renderer path remain unverified.",
+    "No source, tests, runtime, DB, shared registry or report changed.",
+    "Does not establish full 8,804 callable or 327 file substantive coverage."
+  ]
+}

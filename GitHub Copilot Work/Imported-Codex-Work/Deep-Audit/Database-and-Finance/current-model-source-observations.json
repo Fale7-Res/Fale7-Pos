@@ -1,0 +1,18 @@
+{
+  "at_utc": "2026-10-18T04:19:37.477699+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+  "hash": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+  "source_read": "All481lines read; per-original-callable receipts and supplemental getters to follow before final file-depth promotion.",
+  "observations": [
+    "Orders/Shift/Delivery application-managed Version concurrency tokens and Approval.Consumed token declared; PayrollRun/BusinessDay not declared concurrency protected in model.",
+    "Unique request/operation keys on orders/refunds/treasury/expense/stock/supplier ledger/payment; no active-business-day singleton analogous Shift.Status filtered unique.",
+    "Payroll period unique filtered non-Cancelled prevents two LIVE runs but does not coordinate stale terminal state transitions.",
+    "OrderItem ProductId/VariantId Restrict FKs prevent deleting sold menu identities normally.",
+    "PayrollLine only primary key+PayrollRunId index in explicit model; missing explicit run/employee relation is integrity gap requiring snapshot/entity-convention/deployed-schema validation, not proof existing orphan financial data.",
+    "PrintJobs intentionally no Order FK; do not treat all absent relations generically as defects.",
+    "No CheckConstraint financial sign/bounds guards declared in this current model; application invariants still relevant, signed general Money must not be globally forbidden."
+  ],
+  "runtime_schema_checked": false,
+  "next": "Persist DbSet supplemental getter evidence and actual entity configuration callable reasoning; no migration/DB operation."
+}

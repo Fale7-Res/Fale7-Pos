@@ -1,0 +1,290 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-067",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:24:00Z",
+  "reviewer": "root coordinator",
+  "title": "Inventory waste client preflight versus server validation, idempotency, valuation and audit severity",
+  "scope": "Compare the WinUI waste submission path with API dispatch, RecordWasteHandler, InventoryRules, PurchasingRules, and existing vertical-slice test source. Search lead was unreviewed and absent from the 66 prior semantic group source references; this is one bounded request-path comparison, not repository-wide inventory certification.",
+  "decision": "No client/server validation divergence was confirmed for reviewed waste quantity, reason, and loss-type contract: client preflights positive quantity and nonblank reason, while server independently validates positive quantity, nonblank reason, and membership in Waste/Spoilage/Breakage before recording. The server is authoritative; UI omits some server-only checks by design. Cost valuation uses latest positive purchase unit cost and persists its result with the movement; missing cost stays null. Critical/warning threshold matches test-source expectations. Existing duplicate-request tests cover sequential and concurrent same-key single-write behavior in the test provider, but no tests were run here. No new canonical finding from this comparison.",
+  "behavior": {
+    "client": "SubmitWasteAsync first retries retained payload, then checks parsed quantity > 0 and nonempty reason, obtains inventory_manage approval as needed, and sends loss type, request ID, item, actor and approval. The allowed-type UI selection path is command-gated; client checks are usability preflight.",
+    "server": "Handler performs idempotency lookup, parses only enum values accepted by AssertWasteInput (Waste/Spoilage/Breakage), requires positive quantity and nonblank reason, then loads actor/item, authorizes inventory_manage/approval, calculates from latest positive purchase receipt cost, creates one outbound StockMovement and appends audit record before SaveChanges. Unique idempotency key plus conflict reload handles duplicate same-key writes.",
+    "valuation": "ValueStockLoss uses latest positive actual purchase unit cost; cost is captured at posting, and absence of a qualifying purchase remains null rather than fabricated zero. The test source documents balance may go negative to preserve real-versus-recorded discrepancy capture.",
+    "severity": "Handler assigns critical when quantity >= 10,000 milli-units; existing tests expect critical at threshold and warning below it."
+  },
+  "counterevidence_and_limits": {
+    "security": "The handler idempotency lookup occurs before its actor authorization call. The route delegates to this handler; this comparison did not establish all endpoint-level authorization middleware or whether unauthenticated callers can reach it. Treat replay-before-authorization as a security review lead requiring the dedicated Security phase, not as a confirmed bypass here.",
+    "idempotency": "Tests assert same-key sequential and concurrent requests create exactly one movement under the test host/provider, but payload-conflict behavior for reusing one RequestId with different item/quantity was not tested or adjudicated. No SQL Server concurrency behavior is proven.",
+    "business_policy": "Allowing stock to become negative is explicitly documented and supported by test source; do not change without owner requirement. No maximum waste quantity was found or assumed.",
+    "tests": "Existing tests were inspected only; none executed. No database/runtime/financial operation performed."
+  },
+  "recommendation": "Keep authoritative enum, positive-quantity, reason, and inventory_manage checks at the server/domain boundary even when WinUI preflights them. Preserve latest-purchase frozen-cost and null unknown-cost semantics unless owner approves a costing-policy change. In the separate Security review, determine whether the route has a required authenticated principal before the handler replay branch, and verify replay authorization/data disclosure. Define whether reusing one RequestId with a different payload must be rejected; if so, persist/compare a request fingerprint.",
+  "required_tests": [
+    "API/domain tests reject zero/negative quantity, blank reason, and each non-loss movement enum before movement/audit writes.",
+    "Each loss type remains accepted with positive quantity; client still blocks malformed quantity/reason and retains retry payload after uncertain response.",
+    "No purchase history yields null unit/loss value; latest positive purchase receipt determines frozen unit/loss value.",
+    "Same RequestId same payload sequential and concurrent requests create exactly one movement and return consistent replay result against deployed SQL Server.",
+    "Reusing same RequestId with different item/quantity either rejects by documented contract or explicitly returns original immutable result; assert no second write.",
+    "Authorization middleware plus handler replay path does not disclose movement/item/loss details to an unauthorized principal.",
+    "10,000 milli-units remains critical and values below threshold warning."
+  ],
+  "related_findings": [
+    "Existing inventory/idempotency findings should be cross-checked; no new ID created in this comparison."
+  ],
+  "runtime_executed": false,
+  "limitations": "Static source plus test-source comparison only; no integration tests executed. Test source indicates test-host sequential/concurrent same-key coverage but does not establish deployed SQL Server isolation/unique-key behavior. Security reachability of preauthorization replay requires full endpoint pipeline review. RequestId payload binding and owner-defined upper quantity policy remain unresolved.",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs",
+      "source_git_blob_sha256": "f4b10e775cc1d438dd99f57a7e3bb9368fe412822c7cc82f8046685bc8aa95e8",
+      "worktree_sha256": "98aff22180ad51c50fed3c9bc5a3e3a5cffd2f233d026b6bf8f774600d5e6d74",
+      "line_ranges": [
+        [
+          638,
+          674
+        ],
+        [
+          676,
+          694
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-71419bd06889f8b94d11fdbba5953b9ffa9af90bfe07052ba155d69665447d48",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitWasteAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            638,
+            5,
+            674,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9281f0d9f37db862103a0f54f9fecb68e42d1b8456ebc640153586735e490bcb",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CompleteWasteAsync(Falah.Application.Inventory.RecordWasteRequest)",
+          "kind": "MethodDeclaration",
+          "span": [
+            676,
+            5,
+            694,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Client retained-request path retries pending payload, validates parsed quantity > 0 and required reason, resolves inventory_manage approval, constructs RecordWasteRequest, sends through API and refreshes after success. UI types are selected through gated commands; it is not authoritative."
+    },
+    {
+      "path": "src/Falah.Application/Inventory/StockMovementRequests.cs",
+      "source_git_blob_sha256": "7b0a7cea219d68cf44f1c34e7d998226805dff9a7bad1591633d0d7b46d8af63",
+      "worktree_sha256": "7b0a7cea219d68cf44f1c34e7d998226805dff9a7bad1591633d0d7b46d8af63",
+      "line_ranges": [
+        [
+          13,
+          23
+        ]
+      ],
+      "relevant_symbols": [],
+      "source_text_matches_baseline": true,
+      "evidence": "Request/result shape carries RequestId, item ID, milli-unit quantity, loss type, reason, actor and optional approval; no separate client contract enforces an upper quantity."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "line_ranges": [
+        [
+          1003,
+          1014
+        ]
+      ],
+      "relevant_symbols": [],
+      "source_text_matches_baseline": true,
+      "evidence": "POST route delegates request to RecordWasteHandler and maps domain/conflict/not-found errors."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+      "source_git_blob_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "worktree_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "line_ranges": [
+        [
+          106,
+          171
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d98954049c5db16e36f45f67c34dfbf08b8b2db79eca98864db370f2db670aa0",
+          "signature": "Falah.Infrastructure.Inventory.RecordWasteHandler.HandleAsync(Falah.Application.Inventory.RecordWasteRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            106,
+            5,
+            171,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Server replay lookup, loss-type parse, domain validation, actor/item lookup, authorization, latest purchase retrieval, valuation, outbound movement and audit write in SaveChanges; concurrency/idempotency relies on unique key plus conflict reload."
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+      "source_git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+      "line_ranges": [
+        [
+          18,
+          38
+        ],
+        [
+          50,
+          52
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-287d8af3454ee2ee3f8413d5e666352957faa3e4dc060185e3625ad52489ce98",
+          "signature": "Falah.Domain.Inventory.InventoryRules.AssertWasteInput(long, string, Falah.Domain.Inventory.StockMovementType)",
+          "kind": "MethodDeclaration",
+          "span": [
+            33,
+            5,
+            38,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Authoritative allowed loss types and positive quantity/nonempty reason rules; stock balance sums signed directions and does not impose nonnegative balance, consistent with discrepancy recording intent."
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "line_ranges": [
+        [
+          16,
+          21
+        ],
+        [
+          70,
+          75
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5d3fcdc70dfff8ecd440bdd947931fe6b5b10a10280dd1c8071a7588ea11e35a",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.LastPurchaseUnitCost(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            21,
+            31
+          ]
+        },
+        {
+          "stable_id": "sym-44b746e7b150924d083985248e31aed0592b5c3eab2ff830bcbe592ac9e82f24",
+          "signature": "Falah.Domain.Inventory.PurchasingRules.ValueStockLoss(long, Falah.Domain.Common.Money?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            74,
+            5,
+            75,
+            100
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Loss valuation freezes latest positive actual purchase cost and returns unknown/null absent qualifying cost; no later recalc of historical movement."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+      "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+      "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+      "line_ranges": [
+        [
+          200,
+          279
+        ],
+        [
+          751,
+          775
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1bf0272f594bbcc557202ae384d03dded8fda03ec9ff0c162272284e6eb48563",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Waste_with_no_purchase_history_records_the_quantity_without_a_loss_value()",
+          "kind": "MethodDeclaration",
+          "span": [
+            214,
+            5,
+            225,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fec597a3831fbf60c1b4abf50cec31f47512c2ff330d12fb565c59797d15dfa5",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Retrying_the_same_waste_request_id_never_posts_twice()",
+          "kind": "MethodDeclaration",
+          "span": [
+            236,
+            5,
+            250,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-31dd1da8ec079c7eb0ae17b4483910d29d1e09ab86ab41ad3f8530ba5a552537",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Concurrent_waste_requests_with_the_same_request_id_post_exactly_once()",
+          "kind": "MethodDeclaration",
+          "span": [
+            252,
+            5,
+            267,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0411c35dcdc87d82620541c941f993155d7a261b9ef7af85bf141e2f878958e6",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Waste_is_never_checked_against_the_current_balance_and_may_drive_it_negative()",
+          "kind": "MethodDeclaration",
+          "span": [
+            269,
+            5,
+            279,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d4d549cdebbe019a5152d3f51abf75f1025cad89b4eb0c175322d6ee50bc0002",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Waste_at_or_above_ten_base_units_is_audited_as_critical()",
+          "kind": "MethodDeclaration",
+          "span": [
+            751,
+            5,
+            762,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0d6486574695b0f9d431c8e9d1ef21d1ff82fdc6a8a8bf090559c2a3b3ef4f19",
+          "signature": "Falah.Server.IntegrationTests.InventoryVerticalSliceTests.Waste_below_ten_base_units_is_audited_only_as_warning()",
+          "kind": "MethodDeclaration",
+          "span": [
+            764,
+            5,
+            775,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Existing tests assert latest-purchase valuation, unknown cost, invalid loss type, duplicate/concurrent same RequestId single-write behavior, negative stock allowance, and critical/warning threshold. Inspected, not executed."
+    }
+  ]
+}

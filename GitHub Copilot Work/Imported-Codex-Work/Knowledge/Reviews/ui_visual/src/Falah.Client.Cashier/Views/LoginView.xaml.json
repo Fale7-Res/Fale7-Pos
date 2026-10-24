@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Views/LoginView.xaml",
+  "source_git_blob_sha256": "ee6949eb110557636be5379d335094cc863e3537dc7fc7b937dba13ae4e4fb61",
+  "worktree_sha256": "ee6949eb110557636be5379d335094cc863e3537dc7fc7b937dba13ae4e4fb61",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:30:58.801792+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Legacy WPF dark PIN keypad and login action.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "PinDisplay",
+      "reasoning": "Bound display withMinHeight34 but no visibleemptyentryborder; errors wrap. Raw PIN not in markup."
+    },
+    {
+      "anchor": "UniformGrid",
+      "reasoning": "3columns4rows inheritsRTL fromUserControl, unlike activeWinUI explicitLTRkeypad. Source predicts mirrored visualdigit order; nativeconfirmation unobserved."
+    },
+    {
+      "anchor": "BoolToLoginLabelConverter",
+      "reasoning": "Busy label bound to submit command; digits/clear/backspace relyVMguards not IsEnabledbusy binding. Backspaceglyph no explicitaccessiblename."
+    },
+    {
+      "anchor": "Width=\"440\"",
+      "reasoning": "Fixed440/padding40 no ScrollViewer risks smallviewport/largetextclipping. Decorative red PINforeground and dark backdrop needpairwisecontrast tests."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED; no real authentication. No callabledeclarations. Legacykeypadorder/scaling/keyboard/accessiblenames remain native-test gaps.",
+  "recommendations": "Give numeric keypad explicitLTR and accessible actions only in approvedlegacyfix; activeWinUI alreadyexplicitLTR.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,218 @@
+{
+  "artifact_kind": "coordinator_substantive_financial_relevance_batch",
+  "id": "financial-residual-213-substantive-batch-09-coordinator",
+  "created_utc": "2026-10-21T07:24:21Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "source_queue": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-08-coordinator.json remaining_relevant_ids",
+  "queue_order": "First 10 exact IDs in saved order",
+  "decision": "Ten callable contexts inspected. Two query lambdas confirm the shift-close driver-custody warning aggregates all Open custodies globally. Whether attribution is wrong is policy-conditional; no ledger mutation found.",
+  "reviewed_callables": [
+    {
+      "stable_id": "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+      "signature": "lambda: shift-close reprint eligibility",
+      "path": "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs",
+      "span": [
+        45,
+        17,
+        45,
+        108
+      ],
+      "source_sha256": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+      "responsibility": "Reprint eligibility for a closed shift.",
+      "reasoning": "Read-only AnyAsync requires the shift ID and ClosedAtUtc non-null before creating a reprint job. It neither closes a shift nor moves money. Authorization is at the outer handler boundary, not proven by this predicate. No defect established.",
+      "impact": "Presentation/reprint eligibility only.",
+      "missing_tests": "Handler tests for missing/open/closed shift, replay and authorization; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+      "signature": "Falah.Domain.Printing.EscPosTicketRenderer.SelectCodePageTable(byte)",
+      "path": "src/Falah.Domain/Printing/EscPosTicketRenderer.cs",
+      "span": [
+        125,
+        5,
+        125,
+        91
+      ],
+      "source_sha256": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be",
+      "responsibility": "Encode ESC/POS ESC t n code-page selection.",
+      "reasoning": "Returns ESC, ASCII t, and the supplied table ID. It performs no model capability validation; caller emits it only for a supplied nullable ID before text. Firmware compatibility is explicitly device-specific; no accounting side effect.",
+      "impact": "Potential print compatibility only.",
+      "missing_tests": "Byte-level command unit test and model-specific Arabic rendering test remain unexecuted.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+      "signature": "Falah.Domain.Printing.TicketLayout.CashierItemRow(Falah.Domain.Printing.TicketItem)",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "span": [
+        106,
+        5,
+        113,
+        25
+      ],
+      "source_sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "responsibility": "Compose item row with name/variant, quantity and line total.",
+      "reasoning": "Formats the supplied TicketItem into distinct weighted cells: optional variant appended to product name, Quantity.ToString(), and TotalPrice.Egp. It does not recalculate checkout or mutate order/inventory. Local numeric formatting and long text affect presentation and need tests; no posting defect.",
+      "impact": "Receipt display only; money computed upstream.",
+      "missing_tests": "Arabic/culture, decimal digit, precision, long name and paper layout tests; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+      "signature": "lambda: expense lookup by PrintJob.OrderId",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "span": [
+        230,
+        91,
+        230,
+        108
+      ],
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "responsibility": "Find expense represented by a print job.",
+      "reasoning": "No-tracking FirstOrDefaultAsync looks up the expense by ID and passes cancellation; missing row throws in composition. It does not approve, post, reverse, or mutate the expense. Access policy belongs at the request boundary.",
+      "impact": "Expense voucher composition only.",
+      "missing_tests": "Existing/missing expense composition and endpoint authorization tests; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+      "signature": "lambda: cashier user lookup by shift.OpenedByUserId",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "span": [
+        158,
+        78,
+        158,
+        102
+      ],
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "responsibility": "Read cashier name for shift slip.",
+      "reasoning": "No-tracking query uses the opened-by identity on the loaded shift. Caller falls back to the stored ID when user row is absent and uses it to construct printable identity only. No payroll, cash attribution or user mutation; authorization is outside this display lookup.",
+      "impact": "Printed identity only.",
+      "missing_tests": "Missing-user fallback and authorization-boundary tests; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+      "signature": "Falah.Domain.Printing.TicketLayout.Field(string, string)",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "span": [
+        138,
+        5,
+        138,
+        99
+      ],
+      "source_sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "responsibility": "Create label/value display text.",
+      "reasoning": "Interpolates the supplied label and value into TicketText; no normalization, money conversion or side effect. Bidi, width and clipping belong to the rendering path, not ledger logic.",
+      "impact": "Printed display only.",
+      "missing_tests": "Text helper and Arabic bidi/render width tests; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+      "signature": "Falah.Domain.Printing.TicketLayout.Brand(string)",
+      "path": "src/Falah.Domain/Printing/TicketLayout.cs",
+      "span": [
+        33,
+        5,
+        34,
+        99
+      ],
+      "source_sha256": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908",
+      "responsibility": "Render restaurant name as centered bold large ticket text.",
+      "reasoning": "Returns a TicketText from the supplied name with formatting only. BrandTitle is a separate intentional size/style variant; no duplicated financial rule or side effect.",
+      "impact": "Ticket presentation only.",
+      "missing_tests": "Layout unit and paper width tests; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+      "signature": "lambda: DriverCustody.Status == Open",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "span": [
+        217,
+        20,
+        217,
+        43
+      ],
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "responsibility": "Select open driver custodies for shift-close warning.",
+      "reasoning": "Predicate filters only Status == Open; there is no shift, employee, or business-day constraint. Enclosing close-slip method reports their count and sum. This confirms global scope. If custody warning should be scoped to the closing cashier/day, unrelated drivers can contaminate the paper reconciliation explanation; if intended as a restaurant-wide warning, behavior is deliberate. Not included in expected cash calculation.",
+      "impact": "Conditional attribution/presentation issue; no balance posting or mutation demonstrated.",
+      "missing_tests": "Owner policy decision and multi-shift custody display test; not executed.",
+      "status": "SOURCE_CONFIRMED_SCOPE_CONDITIONALLY_RELEVANT_FINANCIAL_PRESENTATION"
+    },
+    {
+      "stable_id": "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+      "signature": "lambda: earliest delivery reassignment after dispatch PrintJob.CreatedAtUtc",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "span": [
+        325,
+        24,
+        325,
+        44
+      ],
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "responsibility": "Order reassignment events chronologically for queued driver ticket reconstruction.",
+      "reasoning": "Parent query filters reassignment history for this delivery after job creation then chooses the earliest ChangedAtUtc row. Caller uses OldDriverName to reconstruct the driver attached when job queued rather than the current delivery owner. Read-only; ties, history retention and timestamp semantics are assumptions.",
+      "impact": "Driver ticket attribution, no ledger effect.",
+      "missing_tests": "Queued ticket followed by one/multiple reassignment, timestamp ties and missing OldDriverName cases; not executed.",
+      "status": "SUBSTANTIVE_SOURCE_REVIEW_NO_FINANCIAL_MUTATION"
+    },
+    {
+      "stable_id": "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05",
+      "signature": "lambda: project ExpectedPiastres from open DriverCustody",
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "span": [
+        217,
+        50,
+        217,
+        72
+      ],
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "responsibility": "Project open custody amounts for aggregate close-slip warning.",
+      "reasoning": "Projects ExpectedPiastres to a local list; caller sums values only for a warning. Combined with status-only predicate, all open custodies are included regardless of shift. This corroborates global warning scope but not a financial settlement or balance mutation. Conditional concern pending intended scope.",
+      "impact": "Potentially confusing close-slip warning; no accounting effect shown.",
+      "missing_tests": "Same policy and multi-shift display test; not executed.",
+      "status": "SOURCE_CONFIRMED_SCOPE_CONDITIONALLY_RELEVANT_FINANCIAL_PRESENTATION"
+    }
+  ],
+  "analyzed_ids": [
+    "sym-cf79d55efa295d843440b1432dd823a9e113fff82fe13ba1ab71f5791455708f",
+    "sym-cfdfcf2fd80d62e8eb71a274d97a0e069fadebb16a23ee7930d5093712c45a03",
+    "sym-d0cf522f39601d4ed7ed29a1c0792cad4acfc0e469ab7df4a4d168fdb4298d4f",
+    "sym-da859719c754fb6574920cfd8e69a62bbb5c090aa0c3a106948c3adf3d9b8f0d",
+    "sym-dc27d1f52a04bd9f6dc45e25a4acd21b454ac91615e6e5562c12ad13cfdfcb12",
+    "sym-dc9dcf413b2cd4399b79245105ff1eaad99671c19bc77f0dc73014dc1d9acdb3",
+    "sym-e034aef6afa65e577899ba8aa1eb358bcc45b1443d4b3b7d38c9eb8ea309e3d7",
+    "sym-f45adf715e02112d6fa0ee6beb5c51ff8bf8cdbe9bc6801c9d83cf7ae707bfd7",
+    "sym-f486812f682124a7b11879c5ff3294c6004b424cc64c6641df0987a571ee9208",
+    "sym-f6fb1856fd5be16b6276089fe1016731efc6d1bf9005c53442aaeed3f32aae05"
+  ],
+  "remaining_relevant_ids": [
+    "sym-f805f241abf3b0bf1b21618393033650c96e27a67a4a4aaebf7065a83890e0c0",
+    "sym-fa45083a9aab18b038cbb83f512898244760596494d8cfd8735fd1154e476345",
+    "sym-fed148bcba2be9afb960a340a25bf41eb48c4ed2acb6cc24138b8d16c79e4fab",
+    "sym-ffa25b5be7db6378758309023b1d9190ad95017c67dffcea4a6b0fea10d701a5"
+  ],
+  "remaining_relevant_count_after_batch": 4,
+  "tests": {
+    "source_inspected": true,
+    "executed": false,
+    "runtime_database": false,
+    "physical_print": false
+  },
+  "limitations": [
+    "Supplemental selected queue only; not global 8,804-callable depth.",
+    "Not a replacement for paused printing reliability audit.",
+    "Driver-custody warning scope depends on owner policy; no database/runtime or paper test."
+  ],
+  "source_hashes": {
+    "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+    "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs": "6410ccea64cadcf7b37be00f368207ffdda5bc074ddd6b3290e20f1cfa91238f",
+    "src/Falah.Domain/Printing/EscPosTicketRenderer.cs": "01f404ef1b4785c2668d7263a1beaae5e8ea16ca1fc04d814d333ad69ae0f5be",
+    "src/Falah.Domain/Printing/TicketLayout.cs": "39637ca707f513b00b85c4ba8995e381509ab6a4a99e3434091485f0217cd908"
+  }
+}

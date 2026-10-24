@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Expenses/ExpenseRequests.cs",
+  "source_git_blob_sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+  "worktree_sha256": "662f77c18749b832c04e7eac87d58c4447cd68c1f12a6c77b9c62239028da254",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-16T17:37:32.297694+00:00",
+  "scope": "Explicit tiny exception constructor/accessor contracts individually inspected; no inference of downstream handler correctness",
+  "symbols": [
+    {
+      "stable_id": "sym-37555422c78b34b43958181a2a437db6a74371d83d1738578114c823333bd4b6",
+      "status": "ANALYZED",
+      "reasoning": "ExpenseConflictException constructor forwards supplied message to Exception unchanged; it introduces no inner exception, HTTP status, identity validation or retry behavior. The distinct exception type selects expense command conflict409 in endpoint catches. Throwing it is not by itself proof a transaction rolled back or operation never committed.",
+      "inputs": "string message",
+      "outputs": "ExpenseConflictException instance",
+      "side_effects": "Exception message allocation only",
+      "trust_boundaries": "Exception content crosses handler->HTTP error boundary; no authentication semantics",
+      "database": "No direct SQL; rollback must occur at actual handler transaction",
+      "printing_ui": "Operator error/blocked-close display only; no printing",
+      "performance": "Constant construction/getter; message/list allocation belongs caller",
+      "duplicates_conflicts": "Typed exceptions distinguish catch mapping; not duplicate financial commands",
+      "issues_hypotheses": "Operator message can carry caller/DB-derived details; callers must avoid secrets. The type does not make arbitrary retries safe.",
+      "tests_missing": "Catch/status/message serialization and blockers-list fixture; no runtime test executed",
+      "verified_callers_callees": [
+        "expense command conflict409",
+        "System.Exception(message)",
+        "Program explicit typed catch when present"
+      ],
+      "evidence_source_span": [
+        22,
+        22
+      ],
+      "review_method": "Actual source reasoning; no runtime verification"
+    }
+  ],
+  "remaining_callable_ids": []
+}

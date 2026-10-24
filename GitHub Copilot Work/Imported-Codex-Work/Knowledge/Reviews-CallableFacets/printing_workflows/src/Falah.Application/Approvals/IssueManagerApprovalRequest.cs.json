@@ -1,0 +1,75 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Approvals/IssueManagerApprovalRequest.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:05:06.151808+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "d525bbbc6bc48c2a37c71247e0335de1af4fa09dcfc56bbcc5b3f77ddc00be73",
+  "worktree_sha256": "0e09a943a6383f4b9f8d0c20555a0df5444fe136f43ba81074afaaa14cf5baa7",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-a4ef7090f8357ea976477774f17efbe14edbf916232e135b8c3aa63046d658a4",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Approvals.IssueManagerApprovalRequest::record-generated-behavior",
+      "source_span": [
+        10,
+        10
+      ],
+      "reasoning": "IssueManagerApprovalRequest positional record carries secret Pin,Action and nullable Reason. Compiler constructor/init/with neither authenticates nor verifies action;handler enumerates active users and PBKDF-verifies supplied Pin before registry authority. Generated ToString/PrintMembers would include plaintext Pin,so request must not be logged wholesale;no actual request-object logging sink established by inspected handler/API paths. Scalar string equality compares secret normally,not constant-time authentication;code correctly uses PinHasher rather than record equality.",
+      "inputs": "Plaintext approver Pin,action string,reason optional from authenticated station JSON.",
+      "outputs": "Request JSON,record equality/copy/ToString behavior;not approval issuance itself.",
+      "side_effects": "Record construction no DB;handler persists approval separately.",
+      "trust_boundaries": "Secret input boundary,caller cannot specify authoritative approver ID through this contract;ToString confidentiality potential only unless actual log sink found.",
+      "database": "IssueManagerApprovalHandler26-46 loads users,verifies and SaveChanges;record no DB.",
+      "printing_ui": "Approval PIN dialog data is transient request;no physical printing or ticket contains this record.",
+      "performance": "Small scalar record;expensive per-active-user hash checking belongs handler,not generated equality.",
+      "duplicates_conflicts": "with copy duplicates Pin string reference into another object,not zeroization. Duplicate request can issue new approval because no request id by contract.",
+      "issues_hypotheses": [
+        "Generated ToString secret hazard,not demonstrated current leak",
+        "Nullability not runtime validation;handler coalesces null Pin"
+      ],
+      "tests_missing": [
+        "ToString redaction expectation,wrong action/PIN rejection through existing tests only;no auth endpoint executed"
+      ],
+      "verified_callers_callees": [
+        "IssueManagerApprovalRequest.cs10",
+        "IssueManagerApprovalHandler.HandleAsync26-46",
+        "CashierWinUI/ApiClient.IssueManagerApprovalAsync675-677",
+        "Program.cs1456 approval endpoint"
+      ]
+    },
+    {
+      "stable_id": "sym-ea8e3e6b57f660bea824e38dcf0f747b836d867aba95b6ee769978b415f1dad0",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Approvals.IssueManagerApprovalResult::record-generated-behavior",
+      "source_span": [
+        15,
+        16
+      ],
+      "reasoning": "IssueManagerApprovalResult returns ApprovalId,server-resolved approver ID/name,Action and ApprovedAtUtc. All scalar strings/time so generated equality/copy preserves value comparison,but result is not itself proof token unused or still valid;later command registry consumption checks persistent identity/action/state. No Pin included,which narrows output secret exposure. ApprovalId remains bearer-like authorization material and generated ToString includes it;do not indiscriminately log response.",
+      "inputs": "Five values from actual registry-created approval,not caller-supplied identity.",
+      "outputs": "Serialized approval response for subsequent command approval fields.",
+      "side_effects": "Allocation only;issuance and later consumption outside record.",
+      "trust_boundaries": "Server-to-client authorization capability boundary;with-copy modifying Action does not change registry real action.",
+      "database": "Handler persists approval before creating result;record has no registry access.",
+      "printing_ui": "Manager name attribution displayed but not a second identity login or paper approval.",
+      "performance": "Constant scalar copy/hash;no generated expiry/network callback.",
+      "duplicates_conflicts": "Value equality cannot tell replay/consumed/expired;same token fields copied into requests remain one approval,not newly minted capability.",
+      "issues_hypotheses": [
+        "Do not treat result timestamp or modified with-copy as registry validation"
+      ],
+      "tests_missing": [
+        "JSON contains no Pin,registry rejects modified action/reuse/expiry independently;no live API test"
+      ],
+      "verified_callers_callees": [
+        "IssueManagerApprovalRequest.cs15-16",
+        "IssueManagerApprovalHandler.cs42-46",
+        "AuthorizationPolicy.IssueManagerApproval/AuthorizeCommand",
+        "EfApprovalRegistry consume paths"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

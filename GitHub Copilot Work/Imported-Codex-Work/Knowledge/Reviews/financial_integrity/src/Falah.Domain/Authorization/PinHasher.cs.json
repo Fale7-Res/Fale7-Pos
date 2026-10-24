@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Authorization/PinHasher.cs",
+  "source_git_blob_sha256": "dea709e111adf03d56624a80fcf330ba2cb63540f3d70acaa97e91bdba1f40b6",
+  "worktree_sha256": "dea709e111adf03d56624a80fcf330ba2cb63540f3d70acaa97e91bdba1f40b6",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T08:55:16.260666+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-e7bba1c6068d3485845549e0301a21d590a5994141a92395642cb0ab807997ba",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.PinHasher.Hash(string, int)",
+      "span": [
+        25,
+        5,
+        29,
+        6
+      ],
+      "reasoning": "Validates new/changed PINshapeandstrength beforedelegating HashWithoutValidation; caller-configurableiterations notbounded locally, BCL rejectsnonpositive. Stores perrowcount tosupportfutureworkfactorchanges. No verification oruseridentity here.",
+      "inputs": "PIN string/iterationcount",
+      "outputs": "HashedPin",
+      "side_effects": "Hash creates randomsalt/CPU work in production; audit didnotexecute PIN operations. Verify/validation producevalueor exception.",
+      "database": "No DBcall here; hash/salt/iterations persistence external.",
+      "trust_boundaries": "Lowentropy PIN protectedatrestbyPBKDF2; transport/rate-limit/uniqueness/actorbinding parent securityownership.",
+      "printing_ui": "No printing/UI/hardware.",
+      "performance": "PBKDF2 proportional to storediterations/hashlength and numbercandidateusers; no benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Malformed persisted Base64/iterations canthrow, no hostile DBwrite exploitproved. No credentials copied into report.",
+      "tests_missing": "Invalidshape/repeateddigits, iterations0/negative, standardhashverify regression outsidecurrentauditexecution",
+      "verified_callers_callees": "AssertValidPin27; HashWithoutValidation28; CreateUser70/ChangePin52 call Hash."
+    },
+    {
+      "stable_id": "sym-4d821569441ef5903e0d07375b79c6d835e0b1bd61bc75802c9d5d744ada12b4",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.PinHasher.HashWithoutValidation(string, int)",
+      "span": [
+        37,
+        5,
+        42,
+        6
+      ],
+      "reasoning": "Getscryptographic16byterandomsalt, derives32bytesPBKDF2-HMACSHA256 with suppliediterations andreturns Base64hash/salt/count. Intentionally skipsPINpolicyforlegacybackfill; current source search has onlyHashdelegation, noactual startupbackfillinvocation proved. Randomizedoutput shoulddiffersamePIN.",
+      "inputs": "PIN/iterations",
+      "outputs": "HashedPin",
+      "side_effects": "Hash creates randomsalt/CPU work in production; audit didnotexecute PIN operations. Verify/validation producevalueor exception.",
+      "database": "No DBcall here; hash/salt/iterations persistence external.",
+      "trust_boundaries": "Lowentropy PIN protectedatrestbyPBKDF2; transport/rate-limit/uniqueness/actorbinding parent securityownership.",
+      "printing_ui": "No printing/UI/hardware.",
+      "performance": "PBKDF2 proportional to storediterations/hashlength and numbercandidateusers; no benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Malformed persisted Base64/iterations canthrow, no hostile DBwrite exploitproved. No credentials copied into report.",
+      "tests_missing": "Randomsalt uniqueness, invaliditerations, legacyweakPIN preservation, nullhandling",
+      "verified_callers_callees": "RandomNumberGenerator39; Pbkdf240; record41. Startupmigration/backfill gap separately securityreviewed."
+    },
+    {
+      "stable_id": "sym-4f09047ab1c4f842f7c224bf601235af32a050736bc3688a569f7145db4f1415",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.PinHasher.Verify(string, string, string, int)",
+      "span": [
+        47,
+        5,
+        53,
+        6
+      ],
+      "reasoning": "Decodes persisted salt/hashBase64 thenPBKDF2 outputlength equalsstoredexpectedlength andfixed-timecompares bytes. No PINstrengthcheck onlogin intentionally supportslegacyPIN. Corrupt/empty/hugehash/salt oriterationsmaythrow/expensive; trustedDBmetadata normallyauthoritative. No currentriskseverity recommendation withoutrootsecuritycontext.",
+      "inputs": "CandidatePIN/persistedhash/salt/iterations",
+      "outputs": "Boolean orparse/cryptoexception",
+      "side_effects": "Hash creates randomsalt/CPU work in production; audit didnotexecute PIN operations. Verify/validation producevalueor exception.",
+      "database": "No DBcall here; hash/salt/iterations persistence external.",
+      "trust_boundaries": "Lowentropy PIN protectedatrestbyPBKDF2; transport/rate-limit/uniqueness/actorbinding parent securityownership.",
+      "printing_ui": "No printing/UI/hardware.",
+      "performance": "PBKDF2 proportional to storediterations/hashlength and numbercandidateusers; no benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Malformed persisted Base64/iterations canthrow, no hostile DBwrite exploitproved. No credentials copied into report.",
+      "tests_missing": "Valid/wrong candidate, corruptBase64, zero-lengthhash, iterationsbounds; constanttimeclaim limited tobytecomparison notwholelogin",
+      "verified_callers_callees": "Convert49-50; PBKDF251; FixedTimeEquals52; Program1856/ApprovalHandler36/ChangePin38/Uniqueness21 call Verify."
+    },
+    {
+      "stable_id": "sym-bba4b7699bb0d419916e80ba49fe2f0c65fcf388022d5438e956bc8b144b6463",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Authorization.PinHasher.AssertValidPin(string)",
+      "span": [
+        59,
+        5,
+        65,
+        6
+      ],
+      "reasoning": "Rejectsnull/empty, lengthoutside4..6 ornonASCII digits, thenall-samedigit viaDistinctcount1. Doesnotinvententropystrength beyonddocumentedexistingpolicy. ShortcircuitprotectsnullandDistinct onlyrunsaftervalidshape. No secretloggingorDBwrite.",
+      "inputs": "PIN string",
+      "outputs": "Void/DomainException",
+      "side_effects": "Hash creates randomsalt/CPU work in production; audit didnotexecute PIN operations. Verify/validation producevalueor exception.",
+      "database": "No DBcall here; hash/salt/iterations persistence external.",
+      "trust_boundaries": "Lowentropy PIN protectedatrestbyPBKDF2; transport/rate-limit/uniqueness/actorbinding parent securityownership.",
+      "printing_ui": "No printing/UI/hardware.",
+      "performance": "PBKDF2 proportional to storediterations/hashlength and numbercandidateusers; no benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "Malformed persisted Base64/iterations canthrow, no hostile DBwrite exploitproved. No credentials copied into report.",
+      "tests_missing": "Null/empty,lengthboundaries, Unicode digits, repeateddigits, mixedASCII",
+      "verified_callers_callees": "Condition61; Distinct63; Hash27 invokes."
+    }
+  ],
+  "remaining_callable_ids": []
+}

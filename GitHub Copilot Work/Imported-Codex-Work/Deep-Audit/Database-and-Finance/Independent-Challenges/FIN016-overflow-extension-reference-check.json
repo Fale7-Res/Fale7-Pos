@@ -1,0 +1,199 @@
+{
+  "at_utc": "2026-10-19T02:01:19.882Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "original_challenge": "Sub-Agents/Handoffs/financial-pricing-overflow-fin016-extension.json",
+  "sha256": "695247829185e40893a541058e42ced0c0590f0b843dae988032dda7bbe417ab",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+      "git_blob_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "worktree_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-798c0df56a69e47a1ec4d4f56598a240b51443092a04cb9492850e71b2e96bd5",
+          "signature": "Falah.Infrastructure.Orders.MenuPricingService.ResolveAsync(IReadOnlyList<Falah.Application.Orders.CheckoutItemRequest>, DateTimeOffset, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            68,
+            6
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+      "git_blob_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "worktree_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-4043fa258d8bf43c6a05f266e4deb5b0b3015107932148158ffeaa0d6fdb6b69",
+          "signature": "Falah.Domain.Pricing.ItemPricingRules.Resolve(string, Falah.Domain.Common.Money, string?, IEnumerable<Falah.Domain.Pricing.PriceRule>, DateTimeOffset, TimeZoneInfo)",
+          "kind": "MethodDeclaration",
+          "span": [
+            19,
+            5,
+            27,
+            6
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Domain/Common/Money.cs",
+      "git_blob_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "worktree_sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-dfe2052fe432d9a1cf07032050f47700c64355309d46286d70758c51e2806f91",
+          "signature": "Falah.Domain.Common.Money.operator *(Falah.Domain.Common.Money, long)",
+          "kind": "OperatorDeclaration",
+          "span": [
+            34,
+            5,
+            34,
+            86
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+      "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-628f1878df6d05e54af226a2e2f0d34ee84ca307ce7d6ebd175651f312f5bfe9",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            33,
+            38,
+            33,
+            64
+          ]
+        },
+        {
+          "stable_id": "sym-4d345e01c2382c8a77c8b8bfc4da2bf2e9bc4c162913ebc88d7d58d85dc32f09",
+          "signature": "Falah.Domain.Orders.CheckoutRules.ComputePayableTotal(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            39,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-77e1899a5d7a3b40aa3a4e3d0d8fce70eeef75f5b96da6c0dd568170c7eb7a06",
+          "signature": "Falah.Domain.Orders.CheckoutRules.BuildPlan(Falah.Domain.Orders.OrderType, Falah.Domain.Financial.PaymentMethod, IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money, Falah.Domain.Financial.TaxRule?, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, IReadOnlyList<Falah.Domain.Financial.PaymentSplit>?, string?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            115,
+            6
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderItem.cs",
+      "git_blob_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "worktree_sha256": "40564bd8e0dfa5ed1009d804ecf9a731c00d60c87cc6dd08cb092cea5a18007b",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-c57c166e789e42fcd1d6ffbe5459d6d2f12547aaf0c50939b3e02df10a1557a1",
+          "signature": "Falah.Domain.Orders.OrderItem",
+          "kind": "RecordDeclaration",
+          "span": [
+            12,
+            1,
+            26,
+            40
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+      "git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+      "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+          "signature": "Falah.Infrastructure.Orders.InventoryDeductionService.DeductForOrderAsync(string, string, IReadOnlyList<Falah.Infrastructure.Orders.MenuPricingService.ResolvedItem>, string, DateTimeOffset, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            21,
+            5,
+            67,
+            6
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Menu/ProductHandlers.cs",
+      "git_blob_sha256": "72586c396821ff033030936f49f62c5dee957038d129fac80a11040cb88706a3",
+      "worktree_sha256": "98b29b5ace01d781c176b352b054b561973281e4e923c23cb0794412c6107247",
+      "source_reference_identities": [
+        {
+          "stable_id": "sym-99d37e9ae9d11289aecdd0bdd4d8a713b5d916321af029c601973ef08de74539",
+          "signature": "Falah.Infrastructure.Menu.CreateProductHandler.HandleAsync(Falah.Application.Menu.CreateProductRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            29,
+            5,
+            73,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-112a1946d81795e246ca17e4b44e49448d1d866075c4939502c3ae5ad0b3aae6",
+          "signature": "lambda expression",
+          "kind": "SimpleLambdaExpression",
+          "span": [
+            51,
+            48,
+            54,
+            14
+          ]
+        }
+      ],
+      "reference_scope": "Existing exact declaration identities for independent source evidence; not new function review receipts."
+    }
+  ],
+  "conclusion": "Source hashes/selected symbol identities verified. Retain extreme configured-price/menu_manage precondition, no SQL/reproduction, same FIN016 remediation extension not additional confirmed defect count.",
+  "provenance_update": {
+    "at_utc": "2026-10-19T02:01:19.882Z",
+    "previous_artifact_sha256": "ffaa9b79ba80f6cbf80b3184a00bf07a8504c7a6789a5f17a1ed700097f8630b",
+    "reason": "Original financial owner corrected narrative catalog/offer/multiplication citations to53/55/60; root re-read actual MenuPricing51-62. Original source bytes unchanged, previous derivative retained."
+  }
+}

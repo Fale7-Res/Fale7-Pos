@@ -1,0 +1,31 @@
+# Run only after the user's approval for creating this isolated instance/database.
+$ErrorActionPreference = 'Stop'
+$instanceName = 'Fale7CSharpDev'
+$databaseName = 'Fale7CSharp_Test'
+$localDbTool = (Get-Command SqlLocalDB.exe -ErrorAction Stop).Source
+$sqlTool = (Get-Command sqlcmd.exe -ErrorAction Stop).Source
+$existingInstances = @(& $localDbTool info)
+if ($LASTEXITCODE -ne 0) { throw 'Cannot enumerate LocalDB instances.' }
+if ($existingInstances.Trim() -contains $instanceName) { throw 'Dedicated instance already exists; refusing to reuse an unknown instance.' }
+& $localDbTool create $instanceName 17.0 -s
+if ($LASTEXITCODE -ne 0) { throw 'LocalDB instance creation/start failed. No existing instance will be used.' }
+& $localDbTool info $instanceName
+if ($LASTEXITCODE -ne 0) { throw 'Cannot verify newly created instance.' }
+$dataDirectory = Join-Path $PSScriptRoot 'data'
+New-Item -ItemType Directory -Path $dataDirectory -Force | Out-Null
+$dataFile = (Join-Path $dataDirectory "$databaseName.mdf").Replace("'", "''")
+$logFile = (Join-Path $dataDirectory "${databaseName}_log.ldf").Replace("'", "''")
+if ((Test-Path -LiteralPath (Join-Path $dataDirectory "$databaseName.mdf")) -or (Test-Path -LiteralPath (Join-Path $dataDirectory "${databaseName}_log.ldf"))) { throw 'Database files already exist; refusing to overwrite.' }
+$sql = @"
+IF DB_ID(N'$databaseName') IS NOT NULL
+    THROW 51000, 'Test database already exists; refusing to modify it.', 1;
+CREATE DATABASE [$databaseName]
+ON PRIMARY (NAME = N'${databaseName}_data', FILENAME = N'$dataFile', SIZE = 64MB, FILEGROWTH = 64MB)
+LOG ON (NAME = N'${databaseName}_log', FILENAME = N'$logFile', SIZE = 32MB, FILEGROWTH = 32MB);
+SELECT name, state_desc FROM sys.databases WHERE name = N'$databaseName';
+"@
+& $sqlTool -S "(localdb)\$instanceName" -E -d master -l 30 -b -Q $sql
+if ($LASTEXITCODE -ne 0) { throw 'Isolated database creation failed. Do not fall back to another database.' }
+[pscustomobject]@{ Instance=$instanceName; Database=$databaseName; Engine='17.0'; Purpose='Isolated Fale7 POS local test only'; CreatedAtUtc=[DateTimeOffset]::UtcNow.ToString('O') } |
+    ConvertTo-Json | Set-Content -LiteralPath (Join-Path $PSScriptRoot 'initialized-test-database.json')
+Write-Output 'Only the dedicated new LocalDB instance and named test database were initialized. Migrations run when the test server starts.'

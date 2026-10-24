@@ -1,0 +1,173 @@
+{
+  "artifact_kind": "coordinator_independent_static_challenge",
+  "id": "top-selling-report-casing-range-crosscheck-2026-10-21",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_utc": "2026-10-21T08:24:49.372653+00:00",
+  "reviewer": "main Codex coordinator; distinct from financial continuation reviewer",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          241,
+          263
+        ],
+        [
+          272,
+          297
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c98e25bee74eaf3592ccc6a54d40fdec1af8f891e31f63bb88f49275fe3cc96f",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.Range(DateOnly?, DateOnly?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            241,
+            5,
+            246,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2ef0b6c617019b77da486f78b5f323f3d23e99481f4282ad6ca9adaab7c5f06b",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetTopSellingItemsAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            251,
+            5,
+            263,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a888476d680eb31b8afc8d6b17ee1dadf32426a83f8f4d4fbb4067fcb15ebf84",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSoldProductsAsync(DateOnly?, DateOnly?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            272,
+            5,
+            297,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "source_sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "source_git_blob_sha256": "2b8b7326e580341dee9b67975c4edd735541f3f015a9c4c6a161e2425185c6c8",
+      "line_ranges": [
+        [
+          47,
+          56
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-70d86ed215d60b54af652294af9d1ed0e4ea6852ea2db5a3183cac4246fd840f",
+          "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderStatus)",
+          "kind": "MethodDeclaration",
+          "span": [
+            47,
+            5,
+            56,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderMapper.cs",
+      "source_sha256": "37619395348335292dd8dc7469e4f21488033d3816b097ad9b55451a6af20a9d",
+      "source_git_blob_sha256": "5c422ab8a49ac985c1100ef28c17d38529ae973a4df1bd215025e461e9ba2f8c",
+      "line_ranges": [
+        [
+          84,
+          144
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37e36207f2bbeeb19cdc3671900aa7a5c797a678ca631e1dc066901329c69d4c",
+          "signature": "Falah.Infrastructure.Orders.OrderMapper.ToEntity(Falah.Domain.Orders.Order)",
+          "kind": "MethodDeclaration",
+          "span": [
+            84,
+            5,
+            144,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "source_sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "source_git_blob_sha256": "d3234dc2325ec28e31d3b92bd4349aba2a8b4a09282c67f82f8b00a79f09e519",
+      "line_ranges": [
+        [
+          65,
+          71
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e1c014effa052606c357e045ee55fc777813d7f8d11e7901aa80af1ad332168b",
+          "signature": "Falah.Domain.Common.BusinessDateRange.Resolve(DateOnly?, DateOnly?, DateOnly?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            65,
+            5,
+            71,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          2028,
+          2031
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "source_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          1,
+          190
+        ]
+      ],
+      "relevant_symbols": []
+    }
+  ],
+  "conclusions": {
+    "cancelled_status_filter": {
+      "source_confirmed": "OrderEnumMapping serializes OrderStatus.Cancelled as lowercase \"cancelled\"; OrderMapper persists the wire value. ReportingQueryService compares stored Status against nameof(OrderStatus.Cancelled), yielding \"Cancelled\" in the LINQ predicate.",
+      "impact": "Whether SQL Server treats those strings equal depends on the database/column collation; no local DB collation was read and no query was run. This remains a conditional source risk, not confirmed exclusion failure.",
+      "disposition": "Coordinator corroborates the source discrepancy; cannot independently confirm runtime row filtering. Keep provisional pending known test DB/deployment collation and an isolated query test."
+    },
+    "one_sided_date_range": {
+      "source_confirmed": "ReportingQueryService.Range sets start from from and end null when to is absent. BusinessDateRange.Resolve documentation defines from-only as same-day.",
+      "counterevidence": "These are distinct contracts: general report range endpoints may intentionally support open-ended ranges, while Resolve encodes a single requested business-date selection. No API requirement was found that forces them to match.",
+      "disposition": "Requirement ambiguity only; do not recommend changing Range absent owner decision. Add tests/docs to clarify API from-only/to-only semantics."
+    },
+    "paired_aggregation": {
+      "source_confirmed": "TopSelling and SoldProducts share exact cancellation and [start,end) predicate and group by ProductName; SoldProducts adds current product/category lookups, order counts and Cairo peak hour. This makes their product inclusion and period cohorts align by source.",
+      "limits": "GetSoldProducts review remains assigned to finance agent; coordinator comparison is targeted and does not certify all report endpoints."
+    }
+  },
+  "runtime": "NOT_EXECUTED",
+  "next_action": "Reconcile this targeted challenge with the financial agent GetSoldProducts handoff and any existing canonical finding before changing MASTER_FINDINGS."
+}

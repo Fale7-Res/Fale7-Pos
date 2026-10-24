@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs",
+  "source_git_blob_sha256": "37961059653dc7c24ff65684d8cec113ef0423d7486953bf808ed6e767762df3",
+  "worktree_sha256": "37961059653dc7c24ff65684d8cec113ef0423d7486953bf808ed6e767762df3",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-18T09:13:48.734275+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manual bounded source read and individual exact span reasoning; no execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-543a78d0df2466c3a20e9982d8ccff87fb57a7215e8f60e7f9347310a6665642",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.CompleteChecklistItemHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)",
+      "span": [
+        18,
+        5,
+        22,
+        6
+      ],
+      "reasoning": "Stores context and registry, no checklist or day lookup until Handle. There is no audit logger or explicit transaction object in this constructor.",
+      "inputs": "Dependencies",
+      "outputs": "Handler",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "None",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "DI scope",
+      "verified_callers_callees": "Assignments20-21."
+    },
+    {
+      "stable_id": "sym-3b7658d6cc2c188e9015e8c19dd5fdaa90c7987acbcb4e2bbb07101f0409f3cf",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.HandleAsync(Falah.Application.BusinessDay.CompleteChecklistItemRequest, CancellationToken)",
+      "span": [
+        24,
+        5,
+        52,
+        6
+      ],
+      "reasoning": "Authorizes actor, checks item/day existence then upserts one completion by day+item. Complete true refreshes time/name on every call, false clears both; same value is semantic idempotence, not byte-identical replay. Does not require day Open, item Active/Required/Closing or current revision, so permitted user can edit historical checklist state after frozen snapshot. Snapshot remains historical by design; no claim ledger or close blocker bypass. Two first inserts may collide with composite key and no replay catch, a concurrency availability lead requiring actual model confirmation.",
+      "inputs": "Toggle request/ct",
+      "outputs": "Task",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "Users/items/day reads then completion insert/update Save51",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "Repeated true time semantics; concurrent first insert; inactive item/closed day; snapshot versus live checklist",
+      "verified_callers_callees": "Actor26/28; item30/day32; existing36; write38-49; Save51."
+    },
+    {
+      "stable_id": "sym-0b1a46c964e14cd9a81f52258aad8c884821a8eaa55032ae2f2c64a181436b18",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        26,
+        76,
+        26,
+        108
+      ],
+      "reasoning": "Finds actual user by request actor then direct permission check. No separately supplied actor display name reaches completion attribution.",
+      "inputs": "User/actor ID",
+      "outputs": "Boolean",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "Users no-tracking read",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "Unknown/denied actor and session binding",
+      "verified_callers_callees": "Lookup26; policy28; CompletedBy42/49."
+    },
+    {
+      "stable_id": "sym-04549ce785ba323012fd2e2803be34c9f1cb0426cd0017886e1598c7fc1a1696",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        30,
+        80,
+        30,
+        107
+      ],
+      "reasoning": "Loads exact checklist item existence, without phase/active/required filter. This allows recording optional/inactive item completion but close evaluator only requires active Closing required items.",
+      "inputs": "Checklist item/request ID",
+      "outputs": "Boolean",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "ChecklistItems read",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "Inactive and opening items; close requirement intersection",
+      "verified_callers_callees": "Lookup30; BusinessDayCloseEvaluator33-37 filters required Closing."
+    },
+    {
+      "stable_id": "sym-61335209a8c2abcba71e92ec948c3ce958cc6eb1f645138efdb2a2b4285b65cd",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        32,
+        77,
+        32,
+        111
+      ],
+      "reasoning": "Loads day by exact ID, no status predicate; state mutation can target Closed day with permission. It does not reopen day or revise authoritative close snapshot.",
+      "inputs": "Day/request ID",
+      "outputs": "Boolean",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "BusinessDays no-tracking read",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "Unknown/Closed/Reopened day",
+      "verified_callers_callees": "Lookup32; upsert keyed day36."
+    },
+    {
+      "stable_id": "sym-b613bd7d27946ec7fd6e7731ba5cec2e571720104a184da80c7377e98a94b5ac",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        36,
+        75,
+        36,
+        128
+      ],
+      "reasoning": "Matches both day and item to preserve separate completion per day. Different items/days do not overwrite one another, while concurrent same pair can both observe absent until database constraint decides.",
+      "inputs": "Completion/day/item",
+      "outputs": "Boolean",
+      "side_effects": "May upsert checklist state; no money, stock or hardware operation. Audit performed no DB call.",
+      "database": "ChecklistCompletions tracked read",
+      "trust_boundaries": "business_day_close permission required; no approval fallback passed by this handler.",
+      "printing_ui": "NOT_APPLICABLE: no UI/hardware call.",
+      "performance": "Fixed small query count. No retry loop or benchmark.",
+      "duplicates_conflicts": "No declaration conflict observed; replay/concurrency limits explicitly recorded.",
+      "issues_hypotheses": "No new promoted finding. Checklist toggle affects close prerequisites, but close still independently evaluates actual money/shift/journal blockers.",
+      "tests_missing": "Same item different day and concurrent first same pair",
+      "verified_callers_callees": "Existing36; key mapping must confirm before race promotion."
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,613 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "tests/Falah.Client.Tests/CloseoutRegressionTests.cs",
+  "source_git_blob_sha256": "d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c",
+  "worktree_sha256": "d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:46:16.623123+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Client pickup identity, safe-drop immutable retry, dated-report reload, reprint route and opening-float regressions.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "SendAsync(HttpRequestMessage request, CancellationToken ct)",
+      "reasoning": "Forwards fixture HTTP request to delegate, ignoring cancellation. Does not allow accidental actual network because HttpClient uses this handler."
+    },
+    {
+      "anchor": "Json(string text, HttpStatusCode status = HttpStatusCode.OK)",
+      "reasoning": "Wraps supplied literal JSON/status UTF8application/json; no schema completeness guarantee. Fixture bodies intentionally sparse."
+    },
+    {
+      "anchor": "Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)",
+      "reasoning": "Creates synthetic all-permission manager+shift at fixture.invalid without real token. Returns AppSession for real VM exercise; no live login."
+    },
+    {
+      "anchor": "Pickup_checkout_sends_the_identity_collected_by_the_form()",
+      "reasoning": "Pickup form fields travel checkout body, no delivery area/fee.422 stops fixture before sale. Verifies identity contract but no real order persisted."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Deserializes checkout request into typed DTO then returns422. Synthetic contact details, no real customer data."
+    },
+    {
+      "anchor": "Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()",
+      "reasoning": "ControlCenter safedrop100 then unknown, close refused; edit200 then retry same serialized body. Live VM snapshot behavior only."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Captures safedrop body then throwsHttpRequestException. Label loss does not implement committed server state."
+    },
+    {
+      "anchor": "Daily_statement_reloads_if_the_date_changes_while_loading()",
+      "reasoning": "Task gates first query, moves date, releases503, asserts queuedsecondquery includesselecteddate and loadingfalse. Ensures reload scheduling afterfailure."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Captures query, first call signals/awaits gate, all calls return503 fixtureerror. Deterministic ordering without real network."
+    },
+    {
+      "anchor": "Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()",
+      "reasoning": "Two staged422 errors, switchesdate before firstreturns, asserts staleerror neverpublished and selectederror final. Strong publication test for errorpath, not full success snapshot."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Firstcall waitsfirstrelease returnsstaleday422; second signals/waits andreturnsselectedday422. Error labels differentiated for test."
+    },
+    {
+      "anchor": "The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()",
+      "reasoning": "Executes3realVM reprintcommands againstfakeendpoint, asserts documentkind/ID/reason and3distinctintentkeys. No shift/expense write routes called. Does not test ambiguous reprint retry."
+    },
+    {
+      "anchor": "Record(HttpRequestMessage request)",
+      "reasoning": "Captures typedReprintDocumentRequest+path andreturns validemptyjobs success. Isolates reprintcommands from actualagent."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Assert each of3capturedcalls targets documentreprintpath; excludes additionalmutationendpoint dispatch inthisfixturesequence."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Projects DocumentKind for ordered expected ShiftOpen/ShiftClose/Expense comparison. Pure DTOselection, no mutation."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Projects DocumentId to compare exact original shift/expense target IDs. Ensures clienttargetmapping, notserverownership."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Asserts everyreprint reason nonwhitespace, no claim reasoncontent meaningful. Pure assertion."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Projects RequestId thenDistinct.Count3 verifies separate userintents getdifferentkeys. Doesnotrequire differentkeyonretry; unknownretry needssamekey."
+    },
+    {
+      "anchor": "The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()",
+      "reasoning": "Settings150000piastres offers1500.00, availablemain500000permits; usertypes1750, request175000.422preventsfixtureactualshift. Doesnotcover unknown-outcome UI016."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Routesettings/mainbalanceGET provide syntheticvalues; openPOSTdeserializesbody andreturns422, others404. Exactknownroutes, no actualbusinesswrite."
+    },
+    {
+      "anchor": "The_offered_float_is_capped_by_what_the_main_treasury_holds()",
+      "reasoning": "Configured1500EGP but main400EGP displays400.00 afterdialogload. Verifies offereddefaultcap only, not reservation or servermoney transfer."
+    },
+    {
+      "anchor": "SimpleLambdaExpression",
+      "reasoning": "Returns settings150000 and balance40000 completedJSON; unknownroutes404. No requestmutation or realnetwork."
+    }
+  ],
+  "tests_and_limits": "SOURCE_REVIEW_ONLY. All22 callable spans including each lambda/localfunction individually reconciled. No tests executed; fixtures cannot prove physical printing, realcommit or process recovery.",
+  "recommendations": "Add explicit timeout to gated tests and restart/token/backendcommit cases without productiondata.",
+  "symbols": [
+    {
+      "stable_id": "sym-a51f1d1f6b7eae1f77407ca7138337072baa2ada3d613602369d0e9cb265fe5b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)",
+      "exact_span": [
+        16,
+        9,
+        16,
+        131
+      ],
+      "reasoning": "Forwards fixture HTTP request to delegate, ignoring cancellation. Does not allow accidental actual network because HttpClient uses this handler.",
+      "inputs": "request/ct",
+      "outputs": "fixtureTask",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Cancellation transport behavior not simulated.",
+      "tests_missing": "Cancellation transport behavior not simulated.",
+      "verified_callers_callees": "HttpClient→Handler→send"
+    },
+    {
+      "stable_id": "sym-35709affd52892ac54a6538ce842efd0c94a9c81753fdc6189ededa600cab904",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Json(string, System.Net.HttpStatusCode)",
+      "exact_span": [
+        18,
+        5,
+        19,
+        94
+      ],
+      "reasoning": "Wraps supplied literal JSON/status UTF8application/json; no schema completeness guarantee. Fixture bodies intentionally sparse.",
+      "inputs": "text/status",
+      "outputs": "response",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Malformed schema can hide real response shape issues.",
+      "tests_missing": "Malformed schema can hide real response shape issues.",
+      "verified_callers_callees": "test handlers→Json"
+    },
+    {
+      "stable_id": "sym-6e0d8bc17f7d5fd3f5521ca98cb3565c516c5296c55bca4c523745711284dcb2",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Session(Func<HttpRequestMessage, Task<HttpResponseMessage>>)",
+      "exact_span": [
+        20,
+        5,
+        22,
+        97
+      ],
+      "reasoning": "Creates synthetic all-permission manager+shift at fixture.invalid without real token. Returns AppSession for real VM exercise; no live login.",
+      "inputs": "senddelegate",
+      "outputs": "session",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Cross-user bearer isolation and durable store partition missing.",
+      "tests_missing": "Cross-user bearer isolation and durable store partition missing.",
+      "verified_callers_callees": "ApiClient/HttpClient/Handler"
+    },
+    {
+      "stable_id": "sym-ff023da7a318bbb50da3ff6fdbddcc374bfc7ee2a812520f4926d9c955f4bf13",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Pickup_checkout_sends_the_identity_collected_by_the_form()",
+      "exact_span": [
+        24,
+        5,
+        44,
+        6
+      ],
+      "reasoning": "Pickup form fields travel checkout body, no delivery area/fee.422 stops fixture before sale. Verifies identity contract but no real order persisted.",
+      "inputs": "synthetic pickupcart/name/phone/tender",
+      "outputs": "captured request assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No pickup date lifecycle/reset or stale lookup test.",
+      "tests_missing": "No pickup date lifecycle/reset or stale lookup test.",
+      "verified_callers_callees": "SubmitPaymentCommand→CheckoutAsync"
+    },
+    {
+      "stable_id": "sym-1abb8a7f67faf46498e36eb161e7c00863717219a481c61fac1690bd10dc7759",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        28,
+        47,
+        31,
+        10
+      ],
+      "reasoning": "Deserializes checkout request into typed DTO then returns422. Synthetic contact details, no real customer data.",
+      "inputs": "request body",
+      "outputs": "sentDTO;fake422",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No actual backend validation/commit.",
+      "tests_missing": "No actual backend validation/commit.",
+      "verified_callers_callees": "ReadFromJsonAsync<CheckoutOrderRequest>"
+    },
+    {
+      "stable_id": "sym-08290459c762a3b212b6eba567f4141def1054187bd7ac1a16d143c8f621809b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()",
+      "exact_span": [
+        46,
+        5,
+        66,
+        6
+      ],
+      "reasoning": "ControlCenter safedrop100 then unknown, close refused; edit200 then retry same serialized body. Live VM snapshot behavior only.",
+      "inputs": "draft amount/reason",
+      "outputs": "pending/edit/close and identical body assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No process restart or global close/navigation.",
+      "tests_missing": "No process restart or global close/navigation.",
+      "verified_callers_callees": "SubmitSafeDropCommand; CloseSafeDropCommand"
+    },
+    {
+      "stable_id": "sym-c659e3498394d54d11394696da31e623cbd00e4120ce0669ea4ca48d5f08d932",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        50,
+        53,
+        53,
+        10
+      ],
+      "reasoning": "Captures safedrop body then throwsHttpRequestException. Label loss does not implement committed server state.",
+      "inputs": "request content",
+      "outputs": "appendbody+throw",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No server transaction proof.",
+      "tests_missing": "No server transaction proof.",
+      "verified_callers_callees": "Handler→ReadAsStringAsync"
+    },
+    {
+      "stable_id": "sym-4e90e649b6dc845215d230d179edb8cd851f50ddd959cb84e7fde739b8dd1561",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_reloads_if_the_date_changes_while_loading()",
+      "exact_span": [
+        68,
+        5,
+        88,
+        6
+      ],
+      "reasoning": "Task gates first query, moves date, releases503, asserts queuedsecondquery includesselecteddate and loadingfalse. Ensures reload scheduling afterfailure.",
+      "inputs": "firstresponse gate/datechange",
+      "outputs": "2query assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Success DTO stale publication separate nexttest.",
+      "tests_missing": "Success DTO stale publication separate nexttest.",
+      "verified_callers_callees": "LoadAsync; PreviousDayCommand"
+    },
+    {
+      "stable_id": "sym-e0a6cb11eb082affb668a62058ef7287816cf75f31e6c4212ccc9f47f1c870b0",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        74,
+        54,
+        78,
+        10
+      ],
+      "reasoning": "Captures query, first call signals/awaits gate, all calls return503 fixtureerror. Deterministic ordering without real network.",
+      "inputs": "requestquery; gates",
+      "outputs": "capturedqueries/fake503",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No timeout on gates may hang if regression prevents call.",
+      "tests_missing": "No timeout on gates may hang if regression prevents call.",
+      "verified_callers_callees": "DailyStatement.LoadAsync HTTPfixture"
+    },
+    {
+      "stable_id": "sym-ce3a4484b492292c1399a50366ebda10ed16c5dd88b998f3964a8e6567785460",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()",
+      "exact_span": [
+        89,
+        5,
+        117,
+        6
+      ],
+      "reasoning": "Two staged422 errors, switchesdate before firstreturns, asserts staleerror neverpublished and selectederror final. Strong publication test for errorpath, not full success snapshot.",
+      "inputs": "tworesponse gates",
+      "outputs": "stale/error assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No success payload/mixed-section test.",
+      "tests_missing": "No success payload/mixed-section test.",
+      "verified_callers_callees": "PreviousDayCommand;LoadAsync"
+    },
+    {
+      "stable_id": "sym-07bc61d875ab6c348e335213637e194f594dbd8fd32ef89f3ff549b948813bb4",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        97,
+        54,
+        105,
+        10
+      ],
+      "reasoning": "Firstcall waitsfirstrelease returnsstaleday422; second signals/waits andreturnsselectedday422. Error labels differentiated for test.",
+      "inputs": "request ignored;counter/gates",
+      "outputs": "fakeerrors and signals",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "TaskCompletionSource no timeout/cancellation.",
+      "tests_missing": "TaskCompletionSource no timeout/cancellation.",
+      "verified_callers_callees": "HTTPfixture invokedtwice"
+    },
+    {
+      "stable_id": "sym-25efaac2e0b89ef302d1b5c5af94f9e9725f743542a29fea9a36f3b56f46cce7",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()",
+      "exact_span": [
+        121,
+        5,
+        151,
+        6
+      ],
+      "reasoning": "Executes3realVM reprintcommands againstfakeendpoint, asserts documentkind/ID/reason and3distinctintentkeys. No shift/expense write routes called. Does not test ambiguous reprint retry.",
+      "inputs": "synthetic closedshift+expense",
+      "outputs": "3route/payload assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No physicalpaper/serverroute fanout evidence.",
+      "tests_missing": "No physicalpaper/serverroute fanout evidence.",
+      "verified_callers_callees": "ReprintShiftOpen/Close; ReprintExpense"
+    },
+    {
+      "stable_id": "sym-926dcc9b51736752f682d94d533e19011a39359caddacfffe6b06b53c84c7ea8",
+      "status": "ANALYZED",
+      "exact_signature": "Record(HttpRequestMessage)",
+      "exact_span": [
+        125,
+        9,
+        130,
+        10
+      ],
+      "reasoning": "Captures typedReprintDocumentRequest+path andreturns validemptyjobs success. Isolates reprintcommands from actualagent.",
+      "inputs": "request",
+      "outputs": "callslist+fake200",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Noresponse-loss or realjobstate.",
+      "tests_missing": "Noresponse-loss or realjobstate.",
+      "verified_callers_callees": "Handler→ReadFromJsonAsync"
+    },
+    {
+      "stable_id": "sym-7f8ad3f6b32c8976dc016655a5119a6e70fd307cd5d0f37a217dd740e64432d0",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        145,
+        27,
+        145,
+        88
+      ],
+      "reasoning": "Assert each of3capturedcalls targets documentreprintpath; excludes additionalmutationendpoint dispatch inthisfixturesequence.",
+      "inputs": "capturedcall",
+      "outputs": "assert routeequal",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Doesnotestablish backendendpoint side effects.",
+      "tests_missing": "Doesnotestablish backendendpoint side effects.",
+      "verified_callers_callees": "Assert.All"
+    },
+    {
+      "stable_id": "sym-44522f4b0e9fd198893f7cf6a6c4732e71ccdabe868273964d853c9829497e06",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        146,
+        83,
+        146,
+        107
+      ],
+      "reasoning": "Projects DocumentKind for ordered expected ShiftOpen/ShiftClose/Expense comparison. Pure DTOselection, no mutation.",
+      "inputs": "call",
+      "outputs": "documentkind",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No invalidkind coverage.",
+      "tests_missing": "No invalidkind coverage.",
+      "verified_callers_callees": "calls.Select→Assert.Equal"
+    },
+    {
+      "stable_id": "sym-83e30dbaebf8603b6a3fd014fc8189afefd8146bc310a5ec3aeb89bb2b114e76",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        147,
+        78,
+        147,
+        100
+      ],
+      "reasoning": "Projects DocumentId to compare exact original shift/expense target IDs. Ensures clienttargetmapping, notserverownership.",
+      "inputs": "call",
+      "outputs": "documentID",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No permission/foreigndocument test.",
+      "tests_missing": "No permission/foreigndocument test.",
+      "verified_callers_callees": "calls.Select→Assert.Equal"
+    },
+    {
+      "stable_id": "sym-ef27caa6daff5a2fde462badd9917e3091461bc9e4b6eb1fc066158e6a6f8afa",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        148,
+        27,
+        148,
+        86
+      ],
+      "reasoning": "Asserts everyreprint reason nonwhitespace, no claim reasoncontent meaningful. Pure assertion.",
+      "inputs": "call.Body.Reason",
+      "outputs": "assertnotblank",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No max length/localization rationale coverage.",
+      "tests_missing": "No max length/localization rationale coverage.",
+      "verified_callers_callees": "Assert.All→string.IsNullOrWhiteSpace"
+    },
+    {
+      "stable_id": "sym-1431729388475870e4ea62607a9b5b1ee5629762533bd89cccf07814c8e8da0a",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        150,
+        38,
+        150,
+        59
+      ],
+      "reasoning": "Projects RequestId thenDistinct.Count3 verifies separate userintents getdifferentkeys. Doesnotrequire differentkeyonretry; unknownretry needssamekey.",
+      "inputs": "call",
+      "outputs": "requestID",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No replayidentity test.",
+      "tests_missing": "No replayidentity test.",
+      "verified_callers_callees": "calls.Select→Distinct→Count"
+    },
+    {
+      "stable_id": "sym-48221002c91df61e230430492d8fa336e68487a0b92801b5c42f6d16438e7506",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()",
+      "exact_span": [
+        154,
+        5,
+        182,
+        6
+      ],
+      "reasoning": "Settings150000piastres offers1500.00, availablemain500000permits; usertypes1750, request175000.422preventsfixtureactualshift. Doesnotcover unknown-outcome UI016.",
+      "inputs": "configuredfloat/mainbalance/useroverride",
+      "outputs": "modal/default/request assertions",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Restart/freshIDs, zero/insufficientbalance races missing.",
+      "tests_missing": "Restart/freshIDs, zero/insufficientbalance races missing.",
+      "verified_callers_callees": "OpenOpenShiftModalCommand; ConfirmOpenShiftCommand"
+    },
+    {
+      "stable_id": "sym-5847babe8bf3c8c2d726cc067e1ff4706604cf16437eac4aeb92fe44347e87f5",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        158,
+        31,
+        170,
+        10
+      ],
+      "reasoning": "Routesettings/mainbalanceGET provide syntheticvalues; openPOSTdeserializesbody andreturns422, others404. Exactknownroutes, no actualbusinesswrite.",
+      "inputs": "requestpath/body",
+      "outputs": "fixtureDTOs/capturedopen",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "No currentday validation/serverbalancechange.",
+      "tests_missing": "No currentday validation/serverbalancechange.",
+      "verified_callers_callees": "ReadFromJsonAsync<OpenShiftRequest>"
+    },
+    {
+      "stable_id": "sym-14bef0f9885a6e93c4c4cccf4875b843a984b30a1c09dcee9d361900630afeed",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Tests.CloseoutRegressionTests.The_offered_float_is_capped_by_what_the_main_treasury_holds()",
+      "exact_span": [
+        186,
+        5,
+        201,
+        6
+      ],
+      "reasoning": "Configured1500EGP but main400EGP displays400.00 afterdialogload. Verifies offereddefaultcap only, not reservation or servermoney transfer.",
+      "inputs": "syntheticsettings/balance",
+      "outputs": "floatdisplayassertion",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Concurrenttreasurychange afterread notcovered.",
+      "tests_missing": "Concurrenttreasurychange afterread notcovered.",
+      "verified_callers_callees": "OpenOpenShiftModalCommand"
+    },
+    {
+      "stable_id": "sym-d6044e590e764325f9d8b7d8feb384f0fdb66fe0c2181e2d466d6ae9c728b4c8",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        189,
+        31,
+        195,
+        10
+      ],
+      "reasoning": "Returns settings150000 and balance40000 completedJSON; unknownroutes404. No requestmutation or realnetwork.",
+      "inputs": "requestpath",
+      "outputs": "fakeGETresponse",
+      "side_effects": "Synthetic HTTP fixture/VM/assertion state only; source review, NOT_EXECUTED",
+      "trust_boundaries": "Fixture contracts cannot prove server authorization or real transport",
+      "database": "NOT_APPLICABLE direct DB; no live data touched",
+      "printing_ui": "No native UI/physical printer invoked; real VM command bodies tested by fixture only",
+      "performance": "Bounded test data; actual service latency/scale UNKNOWN",
+      "duplicates_conflicts": "Exact syntax span and signature reconciled; no legacy heading promotion",
+      "issues_hypotheses": "Cancellation/transportfailure absent.",
+      "tests_missing": "Cancellation/transportfailure absent.",
+      "verified_callers_callees": "Session→Handler→Json"
+    }
+  ],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

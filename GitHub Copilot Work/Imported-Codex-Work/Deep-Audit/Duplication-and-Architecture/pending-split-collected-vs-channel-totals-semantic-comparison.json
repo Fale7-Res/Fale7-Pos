@@ -1,0 +1,216 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-052",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-21T10:54:30Z",
+  "reviewer": "/root coordinator",
+  "title": "Pending split-payment report collection versus realized payment-channel and drawer totals",
+  "scope": "Bounded cross-layer comparison of SalesRules collected-sales arithmetic, shared OrderPaymentQueries channel/refund accounting, reporting-service delegation, shift cash reconciliation, and existing SalesRules tests. Corroborates existing FIN-010; does not create a duplicate finding or validate live accounting.",
+  "decision": "SOURCE_CORROBORATES_FIN-010; SPLIT_PAYMENT_CHANNEL_TOTALS_INCLUDE_IMMEDIATE_LEGS_WHILE_COLLECTED_SALES_SUBTRACTS_FULL_ORDER_WHEN_ANY_ELECTRONIC_LEG_PENDING",
+  "behavior": {
+    "sales_report": "SalesRules computes netSales as Total minus refunds. When ElectronicPayment is Pending it adds the entire order Total to pendingElectronicSales and subtracts that from collectedSales. This condition does not branch on PaymentMethod.Multi or subtract only the unconfirmed split amount.",
+    "channel_totals": "OrderPaymentQueries recognizes Multi with SplitPayments and adds each non-electronic split leg immediately; it adds the InstaPay/wallet leg only when matching ElectronicPayment is Confirmed. Therefore a split order with 100 EGP cash + 100 EGP pending InstaPay can report 100 EGP cash channel while collectedSales removes the 200 EGP total and reports zero collected for that order.",
+    "drawer_crosscheck": "ShiftReconciliation uses CashSalesFromOrders from the same OrderPaymentQueries helper. Its expected cash therefore includes the immediate cash split leg (subject to the query’s source rules), while SalesRules collectedSales can omit that leg. This is a projection inconsistency already represented by FIN-010, not an additional canonical finding.",
+    "query_path": "ReportingQueryService loads orders for the selected range and delegates calculation to SalesRules; the discrepancy is in domain aggregation, not a second API-side formula."
+  },
+  "cross_file_call_chain": [
+    "ReportingQueryService.GetSalesReportAsync -> SalesRules.ComputeSalesReport -> OrderPaymentQueries.PaymentMethodTotals for per-channel figures; ShiftReconciliation.ComputeBreakdownAsync -> OrderPaymentQueries.CashSalesFromOrders for drawer cash."
+  ],
+  "counterevidence_and_limits": [
+    "The source comment in SalesRules intends pending electronic amounts to be excluded from collected receipts; it does not establish that the whole order total is uncollected for split orders.",
+    "OrderPaymentQueries and shift reconciliation comments explicitly count immediate split cash/card legs, supporting that the discrepancy is a projection mismatch.",
+    "FIN-001 separately records an inability to confirm mixed cash/electronic payment in the inspected flow; this comparison does not establish persistence of a completed mixed payment in production.",
+    "Existing tests in the cited ranges cover pure pending electronic, ordinary card, and pure COD/pending orders; they do not cover mixed immediate/pending legs. Tests were not run.",
+    "No database, runtime, or financial data was touched."
+  ],
+  "existing_finding": "FIN-010",
+  "new_finding_created": false,
+  "future_action": "Repair FIN-010 by subtracting only the actually pending amount attributable to a multi-payment order, while preserving current full-total behavior for single-method pending electronic orders and COD exclusion. Before implementation, confirm the intended SalesReport.CollectedSales contract with the report owner. Add a domain regression for cash/card plus pending InstaPay/wallet and ensure channel totals, collected total, shift expected cash, refunds, and COD do not double-count or diverge.",
+  "tests": {
+    "executed": "NONE; static source inspection only",
+    "needed": [
+      "Domain test: 100 EGP cash + 100 EGP pending InstaPay split; channel cash remains 100, pending remains 100, collected is 100 if this is the agreed invariant.",
+      "Control test: pure 200 EGP pending electronic remains collected zero until confirmation.",
+      "Control test: confirmed mixed split aggregates to 200 total across channels and collectedSales; compare channel sum to collectedSales for a non-COD order.",
+      "Test partial refund semantics for multi orders and confirm no double subtraction between split legs and RefundAmount.",
+      "Query-level regression: report and shift drawer cash include the immediate cash leg exactly once."
+    ]
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/Reports/SalesRules.cs",
+      "worktree_sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9",
+      "source_git_blob_sha256": "7a52c3e29e9185471415dadfd81a28ee329811c653974a31a314f9baed147737",
+      "line_ranges": [
+        [
+          34,
+          85
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7d7698043ffceaa924a6de50e9895269872cfd1788ed61046b8457d6a6377ee4",
+          "signature": "Falah.Domain.Reports.SalesRules.ComputeSalesReport(IReadOnlyList<Falah.Domain.Orders.Order>, IReadOnlySet<string>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            34,
+            5,
+            85,
+            6
+          ]
+        }
+      ],
+      "evidence": "SalesRules computes collectedSales by subtracting each pending electronic order's entire Total at lines 55-68, then reports payment-channel totals separately via OrderPaymentQueries at 70-84."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "worktree_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "source_git_blob_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "line_ranges": [
+        [
+          26,
+          54
+        ],
+        [
+          71,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8d4c1f9bbd505fd48eee24237ff27f9801da8afca94d7459fd1550db5fd53f7",
+          "signature": "Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            54,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9ce2bb347d6384cf1dfbc0019fca416da2cd0b2a6ba2096c05fde5a6cb0100db",
+          "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+          "kind": "MethodDeclaration",
+          "span": [
+            71,
+            5,
+            81,
+            6
+          ]
+        }
+      ],
+      "evidence": "For PaymentMethod.Multi with split details, counts each immediate cash/card leg and only a confirmed InstaPay/wallet leg; multi refunds are deliberately not netted in channel totals."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "source_git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "line_ranges": [
+        [
+          88,
+          94
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-36e001dc1cc77647c350f1028bc5ba7bca6054b45b387f698bfd726673352c1c",
+          "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSalesReportAsync(Falah.Domain.Common.BusinessDateRange?, string?, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            88,
+            5,
+            94,
+            6
+          ]
+        }
+      ],
+      "evidence": "Loads orders for the selected range and delegates report arithmetic to SalesRules; no separate collection arithmetic is introduced here."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+      "line_ranges": [
+        [
+          42,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7ed2e0ab03eb8d7f4a2148489b9bde49f6c70d0185fbde5b6997ea0436403cce",
+          "signature": "Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeBreakdownAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, Falah.Domain.Common.Money, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            42,
+            5,
+            81,
+            6
+          ]
+        }
+      ],
+      "evidence": "Shift expected cash consumes the shared CashSalesFromOrders result, so the immediate cash leg is represented in drawer reconciliation independently from the sales report collectedSales aggregate."
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/SalesRulesTests.cs",
+      "worktree_sha256": "9be0e1bcf37a53487a3157d4ce299c39b0c893feb461f793425bd3983680c52a",
+      "source_git_blob_sha256": "36504a299b03be33d99ffd038993819cc19466fcb56c352ed464d332d887f3b2",
+      "line_ranges": [
+        [
+          82,
+          96
+        ],
+        [
+          128,
+          135
+        ],
+        [
+          182,
+          196
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ed5c005d42393995479a7d894b712ee1866cfaabafe53263a96fe0a155a7f2c3",
+          "signature": "Falah.Domain.Tests.SalesRulesTests.A_pending_electronic_sale_is_excluded_from_collected_sales_but_still_counts_in_net_sales()",
+          "kind": "MethodDeclaration",
+          "span": [
+            81,
+            5,
+            96,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-88b0f2d85fc8e53ab23a473cd306c86263e2e25526bb8a8dcaae5ba082456259",
+          "signature": "Falah.Domain.Tests.SalesRulesTests.Payment_channel_totals_match_OrderPaymentQueries_exactly()",
+          "kind": "MethodDeclaration",
+          "span": [
+            128,
+            5,
+            135,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3660f136bb9fe7cb0483be1dac779c02f5bd831c72b41e4464731a3e4cfdd619",
+          "signature": "Falah.Domain.Tests.SalesRulesTests.Pending_electronic_and_cash_on_delivery_are_excluded_independently()",
+          "kind": "MethodDeclaration",
+          "span": [
+            184,
+            5,
+            196,
+            6
+          ]
+        }
+      ],
+      "evidence": "Tests cover a pure pending electronic order, an ordinary card channel, and separate pure COD/pending orders; no mixed immediate cash/card plus pending electronic split assertion is present."
+    }
+  ],
+  "limitations": [
+    "Static reasoning only; no tests run.",
+    "Mixed-payment confirmation route has separate existing FIN-001 concern; this comparison does not assert an end-to-end persisted split can reach every payment state.",
+    "Expected SalesReport contract for mixed pending legs should be confirmed; examples state a proposed invariant rather than an owner-specified requirement."
+  ]
+}

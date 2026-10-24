@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml",
+  "source_git_blob_sha256": "0350e2896a073b98a122c39ac4e91290134a8965added42578b72d602bbd27e6",
+  "worktree_sha256": "0350e2896a073b98a122c39ac4e91290134a8965added42578b72d602bbd27e6",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:38:51.315470+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Read-only operational daily sheet from server reconciliation and employee ledger.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "HasSummary",
+      "reasoning": "Single vertically scrollable max900 sheet, no date selector or print/export button. Source comment explicitly identifies report-print pipeline gap; no actual printer output available from this view."
+    },
+    {
+      "anchor": "Settings.SubName",
+      "reasoning": "Restaurant identity fromSettings but appends fixed24hour-service claim, not settings-derived. Signature lines are blank visual pen lines, not authenticated approvals."
+    },
+    {
+      "anchor": "Summary.Sales.NetSalesPiastres",
+      "reasoning": "Net sales plus payment channels/ordercount and ordertype breakdown distinct fields. Six equal columns with padded cards use unwrapped labels, risk crowding at narrow widths/large fonts. Collected versus pending transfer not made explicit here as on owner dashboard."
+    },
+    {
+      "anchor": "NetShiftDifferencePiastres",
+      "reasoning": "Cash section displays expenses, employee cashout combined and shift difference; totals sourceVM/server. Cannot infer full cash reconciliation merely because same sheet presents these three."
+    },
+    {
+      "anchor": "Summary.EmployeeLedger.OvertimePiastres",
+      "reasoning": "Label says overtime hours but binding is money converted to EGP. Source-confirmed unit/label mismatch; number is not an hour count. Adjacent wage/advance/withdrawal are currency appropriately."
+    },
+    {
+      "anchor": "CashierNamesDisplay",
+      "reasoning": "Actual cashier names plus cashier title, manager/owner signature lines fixed140width. No persisted signature/auth state, no name invented."
+    },
+    {
+      "anchor": "HasNoBusinessDay",
+      "reasoning": "Distinct legitimate no-businessday with ControlCenter instruction; spinner/error/retry. No mock fallback document. Refresh icon lacks explicit accessible name."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. Need cross-report reconciliation, timezone/currentday selection, six-column scaling, overtime units, pending-money label and actual report-print requirements. No callable declarations.",
+  "recommendations": "Correct overtime unit copy in approved fix; disclose read-only/no print/export capability and avoid hardcoded24hour claim if restaurant hours differ.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

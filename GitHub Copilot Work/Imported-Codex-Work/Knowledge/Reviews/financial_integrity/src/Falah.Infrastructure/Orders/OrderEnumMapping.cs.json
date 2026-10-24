@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+  "source_git_blob_sha256": "2b8b7326e580341dee9b67975c4edd735541f3f015a9c4c6a161e2425185c6c8",
+  "worktree_sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-19T09:06:26.886803+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-d10aa3e126105592e7eace629cb2cb9d0042101bed0bfff8210fced58244c746",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ParseOrderType(string)",
+      "span": [
+        8,
+        5,
+        17,
+        7
+      ],
+      "reasoning": "Explicit lowercase-invariant parser accepts pickup and historic dine_in/dinein aliases, takeaway/delivery, rejects unknown rather than treating unsupported as delivery. Does not trim or null-check, so whitespace/null fail; DTO validation/error handling external. New output canonicalizes old alias to pickup.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ParseOrderType(string)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    },
+    {
+      "stable_id": "sym-528d8ad9565c6ed28691affb9e3fe37809c2c76b73588d42828deb5662067a33",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ParsePaymentMethod(string)",
+      "span": [
+        19,
+        5,
+        27,
+        7
+      ],
+      "reasoning": "Explicit lowercase-invariant payment parser permits Cash/Card/InstaPay/Wallet/Multi names only; arbitrary numeric enum strings rejected, positive control relative bare TryParse tax. No amount or collection-status validation, domain caller handles invariants.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ParsePaymentMethod(string)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    },
+    {
+      "stable_id": "sym-1efc6363dbfcfa962a2d152115c51b5a1c378b0eb829e5b06a380e72e694ded1",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderType)",
+      "span": [
+        29,
+        5,
+        35,
+        7
+      ],
+      "reasoning": "Closed switch emits lowercase pickup/takeaway/delivery, throws unsupported numeric enum instead of fallback. Legacy dinein aliases only input, never newlywritten.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderType)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    },
+    {
+      "stable_id": "sym-4552ded4261ddb5863bed890e0adbf86597979d7ad40ee4914d2bbdaa58cd061",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Financial.PaymentMethod)",
+      "span": [
+        37,
+        5,
+        45,
+        7
+      ],
+      "reasoning": "Closed payment enum switch emits canonical lowercase channel inclmulti, throws unsupported. No automatic conversion of pending electronic to cash; payment meaning preserved.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Financial.PaymentMethod)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    },
+    {
+      "stable_id": "sym-70d86ed215d60b54af652294af9d1ed0e4ea6852ea2db5a3183cac4246fd840f",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderStatus)",
+      "span": [
+        47,
+        5,
+        56,
+        7
+      ],
+      "reasoning": "Closed state switch emits lowercase order status. Consumers comparing uppercase CLRstrings must normalize; providerSQLcollation cannotbeassumed to fix UI. Related FIN019 presentationextension, no newfinding.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.OrderStatus)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    },
+    {
+      "stable_id": "sym-c74df37d737953a9692d7d3060ac3c00f038b1deb14d9421cf8da760aa2998b4",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.ElectronicPaymentStatus)",
+      "span": [
+        58,
+        5,
+        64,
+        7
+      ],
+      "reasoning": "Electronic status wirecontract deliberatelylowercase pending/confirmed/cancelled and throws unknownenum. Actual lowerpending strengthens FIN019 clientcomparisonextension, not a reason to changefinancialstate blindly.",
+      "inputs": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.ElectronicPaymentStatus)",
+      "outputs": "Typed enum, canonicalwirestring, Actor, aggregate, DTO or new EF entity asdeclared",
+      "side_effects": "Pure mapping/allocation; no own query, Save, journal, financialoperation or printercall.",
+      "trust_boundaries": "Persistedfacts/internaldomaininput, strict enumclosedsets; rawJSONdeserialization/unloadednavigation requirecallercontract. Actorconstructionnotauthorization.",
+      "database": "No queries/writes bymapper; new entitiescallertracked. Idempotency/cachedamountinvariantsheldbycaller andconstraints, not mapper.",
+      "printing_ui": "DTO and frozenitem/stationfacts laterusedbyUI/printing; noactualrender/spool.",
+      "performance": "Linearitem/refund/splitleg allocations+JSONparse, no sizecap/benchmark. No measuredSQLplan.",
+      "duplicates_conflicts": "WirelowercasevsdomainPascalCase deliberate, FIN019 consumercaseextensionretained. Freshmappernotgeneralwholeaggregateupdate/replayproof.",
+      "issues_hypotheses": "No newpromotedfinding. JSONcorruption/navigationloading and physicalitemIDvslogicaloperationidentity arequalifiedcontracts; nofictionalduplicatepostingreproduced.",
+      "tests_missing": "Allwireenumroundtrips/legacyaliases/unknownnumeric; frozenprices/status/refunds/tax; structuredaddressentitypreservation; null/malformedsplitJSON; unloadednavigations; newitemIDs; calleratomicrefundFKfixup.",
+      "verified_callers_callees": "Full EnumMapping8-64 +OrderMapper19-203 (tail164-203 rereaduntruncated). Mapper->Order.Reconstitute69, explicitenumparsers, Moneywrapping/JSON; no source/runtimewrites."
+    }
+  ],
+  "remaining_callable_ids": []
+}

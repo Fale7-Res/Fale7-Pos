@@ -1,0 +1,107 @@
+{
+  "artifact_kind": "financial_integrity_symbol_batch_handoff",
+  "batch": "OwnerDashboardVerticalSliceTests",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-20T10:34:31.901Z",
+  "static_only": true,
+  "runtime_or_tests_executed": false,
+  "database_created_or_modified": false,
+  "source_or_database_modified": false,
+  "receipt": {
+    "symbols_reviewed": 17,
+    "ids": [
+      "sym-a694a34a4f0e758729c10a64962042862db62c31936d05e5270fa89143c9b07a",
+      "sym-10663eca4923e65b541ca3dcbfd5de58ed22425031e1da5ab1a8c9df8ebb2a8a",
+      "sym-f332125aae7eac413a5959910457247f4692f6b696632b2feba5a0590fdc3732",
+      "sym-ad9d78c9de75744043ddcdce0b39174d4a792c5e9296340d354e0a3aa344b8fc",
+      "sym-5ce0dd3c1e2e99e4d21a6ddd9722ee4eebe08d5d95843a86cf6b8b4ea2245585",
+      "sym-024da6bf9633a43477a37f79d9ce21372a5ee147b57967c47c97a4a246793732",
+      "sym-29de15827cb2b3a1a9f4e7007035183db5e320e64d82d96fdec5e24a67f2991a",
+      "sym-0d5dd1770bd89ff1611018b92281beeec2f061bbdaa7cd14858d6719c7194243",
+      "sym-3adde730752519b0970d8c508b161b946276638ad9d0696964fcafde4e4f4097",
+      "sym-9afbe58d8890d2e10fe3cf92220ea055d6a5e6fd55c144210a3ae31b237d0694",
+      "sym-c01750a52c94db8585b1c77836afa67b61c4dee488869eff176330d872cf5516",
+      "sym-f24ac499bcb49ac8f3826ac9f3572e5f6821a73535bee735015d1f65139d482c",
+      "sym-d8e6b6c88fb85ddd1a0aec3f40c9fc880253c9d5c04cc692be5b6b1ed73d00e5",
+      "sym-0da68d8e225e2e37f7390ac997968e8b304db69afc208fe189ebb0ee586e6834",
+      "sym-73461c9768cef9a3c93a001d6162647ccf16d177e261f691edd3e881f3387fcd",
+      "sym-ad4b6b4554f1782158a193afa9e63bb1fbcd88958e06c29691dcdfec3024a00d",
+      "sym-359b12ddb1b077d39d3b0fe81088397517951e97d8cd44447552f40cadc1631f"
+    ],
+    "union_pending_matches": 17,
+    "coordinator_completed_matches": 0,
+    "outside_union": 0,
+    "authoritative_union_total": 7602,
+    "authoritative_remaining_total": 1202
+  },
+  "prior_challenge_cross_references": [
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/SEM-MIRROR-021-reopened-business-day-dashboard-independent-challenge.json",
+      "scope": "An_open_shift_and_its_blockers_are_surfaced_as_work_to_do method; cross-referenced prior bounded challenge, no repeated analysis."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json",
+      "scope": "Inventory/low-stock dashboard parity; this test file asserts no inventory item and does not rebut FIN013."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+      "ranges": [
+        "28-61",
+        "65-92",
+        "94-111",
+        "113-149",
+        "151-181",
+        "183-192",
+        "194-206"
+      ],
+      "sha256": "AC90773E9C322596DF77B62F2F257BE17F16C11B63D7AFB8AA9FAF76732ED0E6",
+      "observations": [
+        "Owner dashboard permission test supplies a cashier without report permission; aggregate headline assertions compare sales report totals; profitability test expects unknown cost rather than a zero-cost margin.",
+        "Trend tests assert previous-week business date, null percent when prior sales are zero, 24 hourly buckets for a single date, and 7 daily buckets including zero days.",
+        "Treasury assertion explicitly treats TreasuryNow as current rather than selected-period data.",
+        "Open-shift/blocker method is covered by SEM-MIRROR-021 handoff and was not reanalyzed.",
+        "No-backup test asserts null backup fields and also checks printer-route health; only backup assertion was reviewed here. Printer-route assertions are explicitly out of scope and remain paused. No inventory stock/low-stock assertion exists in this file."
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "ranges": [
+        "38-70",
+        "76-107",
+        "111-169",
+        "205-233",
+        "374-385"
+      ],
+      "sha256": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+      "observation": "Dashboard composes the same sales/expense/refund/food-cost report calls, delegates profitability to rules, builds hourly/daily series, sums posted movements for current treasury, and reports last successful backup metadata. Relevant attention/stock methods were already handled by separate challenges."
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "ranges": [
+        "18-61",
+        "75-108"
+      ],
+      "sha256": "912310FAD5A965CF46B0B84C20C78B44059E61475BFC60569D950014527B038F",
+      "observation": "When sold lines exist but no costs are known, gross and operating profit, food-cost ratio are withheld as null; when no trade exists, percentages remain null for non-positive sales."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "ranges": [
+        "1976-1983",
+        "2282-2289"
+      ],
+      "sha256": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6",
+      "observation": "Endpoint resolves date/range and calls shared reports access guard before dashboard query."
+    }
+  ],
+  "assessment": {
+    "decision": "NO_NEW_FINANCIAL_OR_DATABASE_INTEGRITY_FINDING_FROM_REMAINING_DASHBOARD_ASSERTIONS",
+    "source_confirmed": "The tests exercise arithmetic composition, known-versus-unknown cost reporting, period comparison, and report permission; implementation paths shown correspond to those expectations.",
+    "cross_reference": "SEM-MIRROR-021 re-open/day attention assessment and SEM-MIRROR-019 inventory-dashboard balance assessment are retained separately; this batch did not duplicate those findings.",
+    "counterevidence_and_limits": "No database-backed assertions were executed. Test comparisons for headline figures deliberately use the same report service calls as the dashboard. Printer route health portion of the backup test was not audited. This batch does not establish behavior under concurrent writes, extreme periods, or live data.",
+    "runtime": "NOT_EXECUTED",
+    "recommendation": "No change recommended from the newly reviewed test assertions; retain the independent semantic findings separately."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Application/Printing/ProductStationRequests.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:08:06.288524+00:00",
+  "facets": [],
+  "source_git_blob_sha256": "640ebb48c65fb395976807001487d5a2d5e6984f8effef341063955e39a021f6",
+  "worktree_sha256": "640ebb48c65fb395976807001487d5a2d5e6984f8effef341063955e39a021f6",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-c5f77cadd1bcc62fbde314ba0666b5b046c8b1bb6c4b8583315f54c7ed4df34d",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.Application.Printing.SetProductStationRequest::record-generated-behavior",
+      "source_span": [
+        8,
+        8
+      ],
+      "reasoning": "SetProductStationRequest contains nullable Station and claimed ActorUserId. Generated constructor/copy accepts any string but SetProductStationHandler validates onlyCharcoal/Grill or clearsnull;menu_manage authority server-selected actor. Parent correction retained:cleared station does not fall back to SendToGrill in actual frozen station routing. Property shape is config command,not print preview/send.",
+      "inputs": "Station?,ActorUserId.",
+      "outputs": "Narrow station-setting JSON body.",
+      "side_effects": "No update until handler.",
+      "trust_boundaries": "SEC001 body actor privilege sink;path product ID supplied separately not in this record.",
+      "database": "Handler27-45 product update;record no DB.",
+      "printing_ui": "Clearing disables station ticket for future authoritative station snapshots;old order frozen station unchanged.",
+      "performance": "Constant scalar copy/hash.",
+      "duplicates_conflicts": "with Station same actor no new privilege;no RequestId on contract,repeat save possible.",
+      "issues_hypotheses": "No legacy SendToGrill fallback claim;parent rejected earlier subclaim.",
+      "tests_missing": [
+        "Null/empty clear,invalid/nonkitchen route,menu permission,old order frozen station and no physical output"
+      ],
+      "verified_callers_callees": [
+        "ProductStationRequests.cs8",
+        "SetProductStationHandler.cs27-45",
+        "PrintRules.DetermineKitchenRoutes",
+        "printing-parent-decisions.json1548 correction"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

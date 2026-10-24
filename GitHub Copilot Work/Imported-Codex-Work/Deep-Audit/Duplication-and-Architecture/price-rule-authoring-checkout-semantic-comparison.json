@@ -1,0 +1,363 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-068",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:43:18.878Z",
+  "reviewer": "root coordinator",
+  "title": "Cashier price-rule authoring versus server validation and checkout-time application",
+  "scope": "Bounded comparison of the cashier price-rule construction path, application contract, server write handler/domain validation, persistence shape, authoritative checkout pricing, and existing integration-test source. This candidate came from the previously inventoried but manually unreviewed Pricing lead. It is not a repository-wide pricing or clone-clearance claim.",
+  "decision": "No client/server rule-validation divergence or stale-rule charging defect was confirmed in the reviewed path. Cashier preflight constrains ordinary input; server/domain independently enforce nonblank name, nonempty known product set, positive fixed price, valid weekday range and offers_manage authorization. Checkout does not trust client amounts and revalidates requested rule against current server rule/product/time; invalid/stale rule falls back to list price, then freezes resolved price/rule metadata. No new finding. Existing source documents intentional midnight wrapping, one-sided time restriction ignored, and overlapping offers allowed; do not infer different policy.",
+  "behavior": {
+    "client": "MenuEditorViewModel.CreateRequest validates common fields, positive price for price-bearing editor, parseable optional time endpoints, one or more selected products, and transmits selected days or null. This is a client preflight.",
+    "serverWrite": "SavePriceRuleHandler uses authorization, validates core contract through PricingRules.AssertPriceRuleInput, confirms product existence and replaces persisted product/day associations within a transaction. The time-window endpoints are typed TimeOnly?; domain source explicitly treats a half-configured window as unrestricted and inverted endpoint as a midnight-crossing window.",
+    "checkout": "MenuPricingService loads authoritative product/variant catalog prices and active rules. ItemPricingRules.Resolve calls PricingRules.ValidateAppliedRule at checkout time, falling back to server list price when no valid requested rule applies; it creates order-item values from resolved values rather than a client amount.",
+    "persistence": "PriceRuleEntity stores fixed price piastres, nullable time endpoints, active flag and child products/days; handler normalizes duplicate product/day IDs before persistence."
+  },
+  "counterevidence_and_limits": {
+    "negative": "No evidence in this comparison that the cashier supplies the charged price or that a stale/inactive rule remains applicable. Existing test source covers active override, inactive fallback and frozen historical price.",
+    "intentional_policy": "Domain comments explicitly say overlap rejection would invent policy; window logic intentionally supports midnight wrap and ignores half-configured windows. This comparison does not challenge those owner/product policies.",
+    "test_gaps": "Existing tests do not cover invalid/nonpositive fixed price, invalid weekday, half-configured endpoint semantics, overlapping matching offers, rule expiry between selection and checkout, or same RequestId reused with changed payload. These are candidate regression tests, not proof of current bug.",
+    "runtime": "Test sources were inspected only. No build/test, API runtime, database, concurrency, deployment, or financial operation was run.",
+    "scope": "This is one bounded, lead-driven semantic comparison, not exhaustive review of all price consumers or all historical/dead code."
+  },
+  "recommendation": "Keep server/domain validation and checkout-time authoritative revalidation. Preserve frozen-order behavior. Add tests for explicit edge cases if product intends to lock current semantics, and decide/request documented policy for one-sided windows, overlaps and expired offer selection. Never accept a client-computed price; preserve server resolution and historical OrderItem snapshots. Investigate request-ID payload mismatch separately under idempotency/security review.",
+  "required_tests": [
+    "API rejects zero/negative fixed price and weekday outside 0..6 without persisting rule/audit row.",
+    "A valid active price rule applies only when server-side product/day/time validation permits it; inactive or out-of-window rule charges list price and records no applied rule.",
+    "A rule edited/deactivated after order creation does not alter existing order item list/effective amount or applied-rule snapshot.",
+    "Tests characterize start-only/end-only as unrestricted and inverted endpoints as midnight-wrapping only if those documented rules remain intended.",
+    "Overlapping matching offers exercise deterministic explicit selection and do not silently select a different price; define expected selection behavior before asserting.",
+    "Reusing one request ID with changed rule payload is tested against the receipt contract if that contract promises payload binding."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs",
+      "source_git_blob_sha256": "5ccf3b79ac5c4843a7af0d39c3d7d1327a6c7e21c5dc724bf89583569d11964d",
+      "worktree_sha256": "18449ab63e886ec4a5a507bfa408d9f31315fb0dd091e3ac2114060ae5ea43de",
+      "line_ranges": [
+        [
+          317,
+          352
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-77e147bdc08bdade74a3c1729f06e69111c970f5bf34b2ad37d53179f65b40bb",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.MenuEditorViewModel.CreateRequest()",
+          "kind": "MethodDeclaration",
+          "span": [
+            317,
+            5,
+            352,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "CreateRequest enforces nonblank name, positive fixed price through HasPrice, parses optional start/end independently, requires at least one selected product, maps no selected weekdays to null, and constructs SavePriceRuleRequest; it is a client preflight."
+    },
+    {
+      "path": "src/Falah.Application/Pricing/PriceRuleRequests.cs",
+      "source_git_blob_sha256": "0b43050f59d43e7766aff8404ae48344f1d7e5f8d6247b79a1fadc1f94f6ec97",
+      "worktree_sha256": "0b43050f59d43e7766aff8404ae48344f1d7e5f8d6247b79a1fadc1f94f6ec97",
+      "line_ranges": [
+        [
+          3,
+          16
+        ]
+      ],
+      "relevant_symbols": [],
+      "source_text_matches_baseline": true,
+      "evidence": "Request/DTO carries fixed price in piastres, optional weekday/time bounds, actor and approval identities; no business validation is encoded in the record itself."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs",
+      "source_git_blob_sha256": "2501d954ed35e8198337f035eb72b458807500921b80d35b32442a789b1f065d",
+      "worktree_sha256": "8f7ac5174b9572d5ed3f3c1093b5e41ae4f5c8c8c37a086a0cfee71aed033ce6",
+      "line_ranges": [
+        [
+          30,
+          90
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-99fed5477510385b52d07739fe6ab7b48acd97b98cace3bc198fe99bea4b7b23",
+          "signature": "Falah.Infrastructure.Pricing.SavePriceRuleHandler.HandleAsync(Falah.Application.Pricing.SavePriceRuleRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            30,
+            5,
+            91,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Server handler is authoritative: transaction and command receipt, distinct product IDs, Money conversion and domain input validation precede actor loading, offers_manage approval authorization, existence check, replacement persistence, audit append and commit. Server validates price >0, nonempty known products and weekday range. TimeOnly? fields have no ordering rule; domain policy permits wraparound/partial-window behavior."
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/PricingRules.cs",
+      "source_git_blob_sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b",
+      "worktree_sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b",
+      "line_ranges": [
+        [
+          12,
+          25
+        ],
+        [
+          35,
+          42
+        ],
+        [
+          68,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e32f2db60cdf0eb126284c24c7b099affb7498038736be2a8b06708c4de2a755",
+          "signature": "Falah.Domain.Pricing.PricingRules.IsActiveAt(Falah.Domain.Pricing.PriceRule, DateTimeOffset, TimeZoneInfo)",
+          "kind": "MethodDeclaration",
+          "span": [
+            12,
+            5,
+            25,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-c287e9f29f67af2e0be1cdf5c0adaab36ad721c539579cedfc630a0473dce6d4",
+          "signature": "Falah.Domain.Pricing.PricingRules.ValidateAppliedRule(string, string?, IEnumerable<Falah.Domain.Pricing.PriceRule>, DateTimeOffset, TimeZoneInfo)",
+          "kind": "MethodDeclaration",
+          "span": [
+            35,
+            5,
+            42,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-1e6b39455b39fff17f3ddf0b65e88a24ab6faffa06080be1d7818e461529805c",
+          "signature": "Falah.Domain.Pricing.PricingRules.AssertPriceRuleInput(string, IReadOnlyCollection<string>, Falah.Domain.Common.Money, IReadOnlyCollection<int>?)",
+          "kind": "MethodDeclaration",
+          "span": [
+            74,
+            5,
+            81,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Domain behavior: active/day filters use supplied timezone; complete same-day windows are inclusive and inverted windows wrap midnight; if either endpoint is absent, time restriction is ignored. Requested rule is applied only when matching product and currently applicable. Input validation rejects blank name, no products, nonpositive fixed price, and day values outside 0..6. The source explicitly rejects overlap policy invention."
+    },
+    {
+      "path": "src/Falah.Domain/Pricing/ItemPricingRules.cs",
+      "source_git_blob_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "worktree_sha256": "47248fb19dfcb29d219a349e99e1e60995bccd12a84afbd4139b081467161303",
+      "line_ranges": [
+        [
+          19,
+          27
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-4043fa258d8bf43c6a05f266e4deb5b0b3015107932148158ffeaa0d6fdb6b69",
+          "signature": "Falah.Domain.Pricing.ItemPricingRules.Resolve(string, Falah.Domain.Common.Money, string?, IEnumerable<Falah.Domain.Pricing.PriceRule>, DateTimeOffset, TimeZoneInfo)",
+          "kind": "MethodDeclaration",
+          "span": [
+            19,
+            5,
+            27,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Resolved selection uses validated requested rule fixed price; stale/disabled/nonmatching selection falls back to catalog list price and clears applied-rule metadata."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/MenuPricingService.cs",
+      "source_git_blob_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "worktree_sha256": "fc4e2b53a630a68888ab62ff53008af569a82209c4b1f43f36407503917eb1da",
+      "line_ranges": [
+        [
+          25,
+          68
+        ],
+        [
+          70,
+          75
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-798c0df56a69e47a1ec4d4f56598a240b51443092a04cb9492850e71b2e96bd5",
+          "signature": "Falah.Infrastructure.Orders.MenuPricingService.ResolveAsync(IReadOnlyList<Falah.Application.Orders.CheckoutItemRequest>, DateTimeOffset, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            25,
+            5,
+            68,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9b7b9167bef190c6835181ba9e2dbcf86ca08af338b133df7ab1313c99862a08",
+          "signature": "Falah.Infrastructure.Orders.MenuPricingService.ToDomainRule(Falah.Infrastructure.Persistence.Entities.PriceRuleEntity)",
+          "kind": "MethodDeclaration",
+          "span": [
+            70,
+            5,
+            74,
+            58
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "At checkout server loads current catalog/active rules, validates quantity/product/variant and resolves the requested rule at checkout time; it freezes list/effective prices and applied rule metadata on OrderItem. Request does not carry a client-chosen price."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PricingEntities.cs",
+      "source_git_blob_sha256": "cef7ef0c0d3daa6a59754bac354c738c0cf108739bc4c4ac05bd3ce0cae579bf",
+      "worktree_sha256": "cef7ef0c0d3daa6a59754bac354c738c0cf108739bc4c4ac05bd3ce0cae579bf",
+      "line_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "relevant_symbols": [],
+      "source_text_matches_baseline": true,
+      "evidence": "Persistence model stores fixed price as piastres, nullable start/end, Active, and normalized child product/day rows. No DB time-window or positive-price constraint was observed in this entity excerpt; application handler/domain validation supplies these input checks."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs",
+      "source_git_blob_sha256": "4aa06d65f469d7efb99341f408561e7747edbba975788d61782b9fa100d8992d",
+      "worktree_sha256": "53f5c23c7f83daca94e2aa452fe130a6770de729a17724bddb1ddc88484bf096",
+      "line_ranges": [
+        [
+          289,
+          355
+        ],
+        [
+          360,
+          373
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-09b424da24a3f1d0e865c4d64384fa67f418598e0374f2f927252153213428d4",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Creating_a_price_rule_succeeds_and_is_readable_back()",
+          "kind": "MethodDeclaration",
+          "span": [
+            289,
+            5,
+            302,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9db4bd916c81eaed670a56c544ba12928c78ea19d46ad70186334035342112b5",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Saving_a_price_rule_for_an_unknown_product_is_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            304,
+            5,
+            310,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-da315e72e8c36bca1a20fcdf31cee62933bb57a2b5bab6c99f184e11aeed47f8",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Saving_a_price_rule_with_no_products_is_rejected()",
+          "kind": "MethodDeclaration",
+          "span": [
+            312,
+            5,
+            318,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f6f1fec09976200c9d429a4d9383a04646dd673aca4f3784da02f805423bea55",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Saving_a_price_rule_without_offers_manage_requires_a_valid_approval()",
+          "kind": "MethodDeclaration",
+          "span": [
+            320,
+            5,
+            336,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9462320cea66d9c8dc70cc2c90ad16a435c4e9591e866422477eb91b18c0697c",
+          "signature": "Falah.Server.IntegrationTests.MenuManagementVerticalSliceTests.Saving_a_price_rule_with_an_existing_rule_id_updates_it_in_place()",
+          "kind": "MethodDeclaration",
+          "span": [
+            338,
+            5,
+            355,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Test source exercises create/read, unknown product and empty product rejection, permission/approval, update-in-place and audit event. It does not assert invalid fixed price, weekday range, one-sided time semantics, overlap selection policy or idempotency payload conflict. Tests not run."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs",
+      "source_git_blob_sha256": "22c34ee767445893b62f4a58b60118b8643f832597c8579d8254d454dab81e91",
+      "worktree_sha256": "bfce384120a53119d0cfe3574a2c0780ba61e65f7aeca6fbf6978e4c54489dc3",
+      "line_ranges": [
+        [
+          63,
+          88
+        ],
+        [
+          226,
+          245
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1725c33ca8456a94babe6dba622f1f59b0a6634ff28c3069be6c643adbcc3e54",
+          "signature": "Falah.Server.IntegrationTests.MenuPricingInventoryTests.A_valid_active_price_rule_overrides_the_list_price_and_is_recorded_on_the_order_item()",
+          "kind": "MethodDeclaration",
+          "span": [
+            63,
+            5,
+            77,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-075147eb06ad5e2e60c9c88c5b1aeda3cfc2ff4022005192e2d98ea1d72c6b02",
+          "signature": "Falah.Server.IntegrationTests.MenuPricingInventoryTests.An_inactive_price_rule_is_ignored_and_the_list_price_is_charged()",
+          "kind": "MethodDeclaration",
+          "span": [
+            79,
+            5,
+            88,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-4e4c623dc36d38e1a689d5c1e936de6bf31faf668a5a10917d7503e747acea74",
+          "signature": "Falah.Server.IntegrationTests.MenuPricingInventoryTests.Deactivating_a_price_rule_after_the_sale_never_changes_the_old_orders_frozen_price()",
+          "kind": "MethodDeclaration",
+          "span": [
+            226,
+            5,
+            245,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Test source exercises active rule override and frozen applied rule metadata, inactive rule fallback to list price, and preservation of old sale price after rule deactivation. Tests not run."
+    }
+  ]
+}

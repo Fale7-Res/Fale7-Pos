@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/ThemeResources.cs",
+  "source_git_blob_sha256": "ecffb4313571b1c3065fbc5c6b2d38af692bb72c80f79f759a716374b78c1b5b",
+  "worktree_sha256": "ecffb4313571b1c3065fbc5c6b2d38af692bb72c80f79f759a716374b78c1b5b",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:40:48.093882+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Explicit theme lookup body read, semantic/native limitations retained.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Services/ThemeResources.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-fdb2b74c171d2abbd6818a5ea2a78018e0e719291e93ba41b151f9b93657de6b",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.ThemeResources.Get(string)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        18,
+        5,
+        34,
+        6
+      ],
+      "reasoning": "Chooses Dark only when main root ActualTheme is Dark, otherwise Light; probes Application.Resources.ThemeDictionaries directly for key then app flat resources. Does not recursively walk merged theme dictionaries explicitly or subscribe caller brush to subsequent theme changes. Colors are merged dictionaries, so lookup semantics and concrete converter brush lifetime remain UI004 source risk requiring independent/native confirmation.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "UI004 theme lookup/change behavior; no visual state observed.",
+      "tests_missing": "UI004 theme lookup/change behavior; no visual state observed. NOT_EXECUTED.",
+      "verified_callers_callees": "Application.Current.Resources; App.MainAppWindow.Content.ActualTheme; TryGetValue"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

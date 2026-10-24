@@ -1,0 +1,1283 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-b867e6419e7bab7a0e5c9f76908f0227a22bd1b2d1e3168052dbf51071eab7b8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.Id.get",
+        "span": [
+          88,
+          24,
+          88,
+          28
+        ],
+        "reasoning": "Getter identifies immutable transfer history replay row derived from reassignment RequestId, separate from generic timeline event GUID.",
+        "inputs": "Timeline/history entity containing string reassignment PK.",
+        "outputs": "string reassignment PK exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-6f47eb9f5357d81757bb06b097fc94f5ff400213f88019b35f2bed7992b916f4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.Id.set",
+        "span": [
+          88,
+          29,
+          88,
+          33
+        ],
+        "reasoning": "Setter records historyId; PK prevents duplicate same-request history row but no actor/target payload binding follows from key alone.",
+        "inputs": "string reassignment PK from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-7f7686219ff4d619495c9f59b31d6095e2d2aaf76198e4c7216c2c042075ea23",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OrderId.get",
+        "span": [
+          89,
+          29,
+          89,
+          33
+        ],
+        "reasoning": "Getter associates transfer record with original order rather than new financial order.",
+        "inputs": "Timeline/history entity containing string original order ID.",
+        "outputs": "string original order ID exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-a399f7c12cb5bd19872900223c8741706c7037734065a4104cabbcc89f53df42",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OrderId.set",
+        "span": [
+          89,
+          34,
+          89,
+          38
+        ],
+        "reasoning": "Setter copies delivery.OrderId, preserving original sale identity; reassignment does not create another order or charge.",
+        "inputs": "string original order ID from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-f97a6dbac68a18d242f604918f0eca0f911c40875c9cf47ddeaf524e781a01b0",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.DeliveryId.get",
+        "span": [
+          90,
+          32,
+          90,
+          36
+        ],
+        "reasoning": "Getter scopes transfer history query and index to one delivery lifecycle.",
+        "inputs": "Timeline/history entity containing string delivery subject.",
+        "outputs": "string delivery subject exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-691ab19a08ff8e914819168e5bc4087c9eb0641a46911e503c8b1cb97b08fe13",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.DeliveryId.set",
+        "span": [
+          90,
+          37,
+          90,
+          41
+        ],
+        "reasoning": "Setter copies locked delivery identity. Model declares delivery index but no authored FK in reassignment block, so relation meaning comes from writer.",
+        "inputs": "string delivery subject from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-b6f4f5518cb37ba076c2a1163cb6b5206963908490d2a389dafcd25bbcb48fb3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OldDriverId.get",
+        "span": [
+          91,
+          34,
+          91,
+          38
+        ],
+        "reasoning": "Getter exposes prior optional driver identity, allowing unassigned predecessor to remain null.",
+        "inputs": "Timeline/history entity containing nullable predecessor driver ID.",
+        "outputs": "nullable predecessor driver ID exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-a28a30ef8cce19e3fbdf544e389858d62b7abcbc113eb37db460e884012b7526",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OldDriverId.set",
+        "span": [
+          91,
+          39,
+          91,
+          43
+        ],
+        "reasoning": "Setter copies delivery.DriverId before reassignment; it does not keep following current driver after update.",
+        "inputs": "nullable predecessor driver ID from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-081d843ea11d3112bba1da50824144d6adf4b0b1fb80f5fd6ddaba73535472a2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OldDriverName.get",
+        "span": [
+          92,
+          36,
+          92,
+          40
+        ],
+        "reasoning": "Getter exposes old driver display resolved at reassignment time, not necessarily original handover snapshot.",
+        "inputs": "Timeline/history entity containing nullable old-driver name.",
+        "outputs": "nullable old-driver name exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-7e38c985a80323bdcdaa298ace5d40a4973ffb81288666a587a6c69c1e3ed69a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.OldDriverName.set",
+        "span": [
+          92,
+          41,
+          92,
+          45
+        ],
+        "reasoning": "Setter stores oldDriver?.Name from current driver lookup; missing driver can yield null even when old ID exists in inconsistent external data.",
+        "inputs": "nullable old-driver name from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-8d791f7cc4bdf65251dde83ef70303111afd9a0de5dac9e5c55cecd371bb6bb7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.NewDriverId.get",
+        "span": [
+          93,
+          33,
+          93,
+          37
+        ],
+        "reasoning": "Getter identifies target driver accepting responsibility, separate from actor issuing change.",
+        "inputs": "Timeline/history entity containing string new-driver ID.",
+        "outputs": "string new-driver ID exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-91dafacf8ab225247db9f8363124ccd2ef60b315c9ff3a57cbe75fea38af101d",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.NewDriverId.set",
+        "span": [
+          93,
+          38,
+          93,
+          42
+        ],
+        "reasoning": "Setter copies verified newDriver.Id; existing unsettled custody is relabeled to same driver rather than duplicated.",
+        "inputs": "string new-driver ID from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-a9363e27d580ccbccd9a9b958be87237ebd0e5e1951b62f531bf75f0a176fc87",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.NewDriverName.get",
+        "span": [
+          94,
+          35,
+          94,
+          39
+        ],
+        "reasoning": "Getter freezes new driver name at transfer time, distinct from a later rename.",
+        "inputs": "Timeline/history entity containing string new-driver name.",
+        "outputs": "string new-driver name exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-4bb11ddf759e015b436aa74598b559cc604506d163ad6af24fb6f71c0f966f86",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.NewDriverName.set",
+        "span": [
+          94,
+          40,
+          94,
+          44
+        ],
+        "reasoning": "Setter snapshots newDriver.Name along with delivery.DriverNameAtHandover; subsequent current-name query preference must be evaluated by consumer.",
+        "inputs": "string new-driver name from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-9517e0805014dbbfcece83979203a95a6e74e5f361c769ab6fda0c6e53c16f05",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.Reason.get",
+        "span": [
+          95,
+          28,
+          95,
+          32
+        ],
+        "reasoning": "Getter exposes required transfer explanation for audit/history, not authority to transfer paid cash automatically.",
+        "inputs": "Timeline/history entity containing string transfer rationale.",
+        "outputs": "string transfer rationale exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-7113e5b5c6bc073324cb39460b215fe68b5cf621ef62ca019434bc4261a52a49",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.Reason.set",
+        "span": [
+          95,
+          33,
+          95,
+          37
+        ],
+        "reasoning": "Setter stores trimmed request reason. Handler authorization/state guards remain required; property does not transfer responsibility.",
+        "inputs": "string transfer rationale from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-4cfe234b82dafd65ea8f52d67f4c42fe010f711040bfb43e7e969293bd6b7e55",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.ChangedBy.get",
+        "span": [
+          96,
+          31,
+          96,
+          35
+        ],
+        "reasoning": "Getter exposes changing actor name distinct from OldDriver/NewDriver names.",
+        "inputs": "Timeline/history entity containing string actor name.",
+        "outputs": "string actor name exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-04d3958105bbae52d07fd750d89e833f853c035d6d5422c37290268ded1ce9fa",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.ChangedBy.set",
+        "span": [
+          96,
+          36,
+          96,
+          40
+        ],
+        "reasoning": "Setter copies actorUser.Name after command policy; this is presentation attribution, not a stable user FK or approver receipt.",
+        "inputs": "string actor name from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-029d9febf604b46d6c369ec86b5104faf105b74d4e67d2c63e6c13bac86dbb92",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.ChangedAtUtc.get",
+        "span": [
+          97,
+          42,
+          97,
+          46
+        ],
+        "reasoning": "Getter returns transfer event instant, not original assignment or settled time.",
+        "inputs": "Timeline/history entity containing DateTimeOffset transfer time.",
+        "outputs": "DateTimeOffset transfer time exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-5f63eb8abfcb1f108281fb4f8f34cfe669081409b3a544cd1c9820b6245f2e7c",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryReassignmentEntity.ChangedAtUtc.set",
+        "span": [
+          97,
+          47,
+          97,
+          51
+        ],
+        "reasoning": "Setter stores now used for delivery assignment metadata and audit in same transaction. No global monotonic ordering enforced by auto-property.",
+        "inputs": "DateTimeOffset transfer time from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-929a422830c87e9e4673de8d70a08620f980b16109769c7668c3e32f2eff921f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Id.get",
+        "span": [
+          105,
+          24,
+          105,
+          28
+        ],
+        "reasoning": "Getter identifies timeline event, sometimes deterministic command replay ID and sometimes generated GUID; not all event IDs share same dedupe contract.",
+        "inputs": "Timeline/history entity containing string timeline event PK.",
+        "outputs": "string timeline event PK exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-b3ba3443bd2f678780f58119b17feab6c35411a05b0ad923d4ae208df9dd9715",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Id.set",
+        "span": [
+          105,
+          29,
+          105,
+          33
+        ],
+        "reasoning": "Setter uses assignment/result RequestId-derived ID in those writers, GUID for reassignment/settlement timeline rows whose main operation dedupes separately.",
+        "inputs": "string timeline event PK from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-e6bfc9c1dbee0264b7cf6755d3d5031e742733a59c1573975c18a982d0236a66",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.DeliveryId.get",
+        "span": [
+          106,
+          32,
+          106,
+          36
+        ],
+        "reasoning": "Getter scopes full timeline by delivery, backed by model index.",
+        "inputs": "Timeline/history entity containing string delivery timeline key.",
+        "outputs": "string delivery timeline key exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-b03359bbc13321c968693ee1c8a00a704e8acd640b960beccac99a5fb8ffd4b7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.DeliveryId.set",
+        "span": [
+          106,
+          37,
+          106,
+          41
+        ],
+        "reasoning": "Setter copies affected delivery ID in dispatch/outcome/settlement writers; model block defines index rather than FK in inspected source.",
+        "inputs": "string delivery timeline key from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-53f300415f4f34cd0c1e8088b6bbdd7c49d981b3f9c30cc396a49a9303809da7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.OrderId.get",
+        "span": [
+          107,
+          29,
+          107,
+          33
+        ],
+        "reasoning": "Getter links event to commercial order without independently freezing its financial totals.",
+        "inputs": "Timeline/history entity containing string order correlation.",
+        "outputs": "string order correlation exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-6672b772b7d4ab3b556e1dc015d8dd00a061dd2d3dec1ee6bf86963541895beb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.OrderId.set",
+        "span": [
+          107,
+          34,
+          107,
+          38
+        ],
+        "reasoning": "Setter copies delivery/order context identity. Event is evidence of operational touch, not another treasury posting.",
+        "inputs": "string order correlation from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-e9724ba6913411c1b0007133aa014c38429837f2f80c164e71621d0c1ca3bf19",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.DriverId.get",
+        "span": [
+          108,
+          31,
+          108,
+          35
+        ],
+        "reasoning": "Getter optionally attributes driver involved in event; null can occur before assignment and is not equal to Actor identity.",
+        "inputs": "Timeline/history entity containing nullable driver ID.",
+        "outputs": "nullable driver ID exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-91afa6614c76577d918048f29b313850b249592042b8ad19455e46fc185a64fd",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.DriverId.set",
+        "span": [
+          108,
+          36,
+          108,
+          40
+        ],
+        "reasoning": "Setter snapshots current/new/settlement driver per event writer, preserving event attribution independently of later reassignment.",
+        "inputs": "nullable driver ID from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-f2948dd10ba2ebd5f2dc0eaa29a2aad002f9a3b1a14e7f92fe8fba780270c9e4",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.TripId.get",
+        "span": [
+          109,
+          29,
+          109,
+          33
+        ],
+        "reasoning": "Getter optionally identifies auto-trip correlation; settlement timeline writer omits it despite other dispatch events carrying it.",
+        "inputs": "Timeline/history entity containing nullable trip correlation.",
+        "outputs": "nullable trip correlation exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-5e316446a3475992d9797f8fff5d209f88956831a6c79f5bf5065a21c577d041",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.TripId.set",
+        "span": [
+          109,
+          34,
+          109,
+          38
+        ],
+        "reasoning": "Setter copies delivery.TripId where applicable. Nullable field does not prove complete formal trip aggregate exists or was implemented.",
+        "inputs": "nullable trip correlation from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-74f733e88cc4e75da4e836d15eb441a6b6b66a628abcb4d5ee7a5020b08746db",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Type.get",
+        "span": [
+          110,
+          26,
+          110,
+          30
+        ],
+        "reasoning": "Getter classifies assignment/reassignment/lowercase result/settlement variations for timeline display, not a single enum serializer.",
+        "inputs": "Timeline/history entity containing string event kind.",
+        "outputs": "string event kind exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-74145b7c92f700ecc14fcc9d3c652166bfa0f116f9d8094044ff93b3e8d149c7",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Type.set",
+        "span": [
+          110,
+          31,
+          110,
+          35
+        ],
+        "reasoning": "Setter writes handler-specific literal/ToLowerInvariant result; no property validation enforces action naming or legal delivery transition.",
+        "inputs": "string event kind from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-8d8ddaa047e696cd4d20c732e92c918e86eba736c8c4b5af56d5ff60fd8b1a70",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Reason.get",
+        "span": [
+          111,
+          29,
+          111,
+          33
+        ],
+        "reasoning": "Getter exposes nullable event rationale; assignment omits reason, results/transfers/settlements may include supplied explanations.",
+        "inputs": "Timeline/history entity containing nullable event reason.",
+        "outputs": "nullable event reason exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-4aa9b25b89aef7ec721785c11dd2d882b703f8225e1e19f9d6d37513e809ef5f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Reason.set",
+        "span": [
+          111,
+          34,
+          111,
+          38
+        ],
+        "reasoning": "Setter copies caller text, trimmed in reassignment but not universally normalized in all inspected writers. Required-reason policy belongs corresponding command.",
+        "inputs": "nullable event reason from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-3c34ecdc980c9ccdeedb85c6d6206de5ebf94ef8d29f4588e3b723453df63c1b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.AmountPiastres.get",
+        "span": [
+          112,
+          35,
+          112,
+          39
+        ],
+        "reasoning": "Getter is optional context-dependent amount: assignment amount-to-collect, outcome reported collection, or absent settlement per-order event. It is not always actual treasury collection.",
+        "inputs": "Timeline/history entity containing nullable contextual piastres.",
+        "outputs": "nullable contextual piastres exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-32f57d06abf0b5d00d25f06d67d5fdff326c8cea568d6d36b9977059c9b4adcf",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.AmountPiastres.set",
+        "span": [
+          112,
+          40,
+          112,
+          44
+        ],
+        "reasoning": "Setter stores selected contextual value; null on settlement event does not mean no driver-wide financial receipt because DriverSettlement/TreasuryMovement store totals separately.",
+        "inputs": "nullable contextual piastres from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-52be46804082e8a51c4e83295922fd77a55436317268f490fb965c9785e99abb",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Actor.get",
+        "span": [
+          113,
+          27,
+          113,
+          31
+        ],
+        "reasoning": "Getter exposes acting user name, distinct from driver and optional approving manager.",
+        "inputs": "Timeline/history entity containing string actor display name.",
+        "outputs": "string actor display name exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-c91d1bd01bd2035263121ce290405b22a184eec9a2be17825430a5e7f1ef4c50",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Actor.set",
+        "span": [
+          113,
+          32,
+          113,
+          36
+        ],
+        "reasoning": "Setter copies actorUser.Name; no stable actor FK or authentication occurs in field assignment.",
+        "inputs": "string actor display name from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-d38a686f7b6855d4b814d2455ba5edf49e8dabf1a5d47f9eb46dd92946b13933",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Approver.get",
+        "span": [
+          114,
+          31,
+          114,
+          35
+        ],
+        "reasoning": "Getter provides optional approving name snapshot, not registry ID or evidence named manager approved every event.",
+        "inputs": "Timeline/history entity containing nullable approver label.",
+        "outputs": "nullable approver label exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-6d5425ed244bd888ddb80d367785c34e0bfbd8b6a969660f697145dff563a0b5",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.Approver.set",
+        "span": [
+          114,
+          36,
+          114,
+          40
+        ],
+        "reasoning": "Setter uses supplied approval?.ApproverName in several writers and approvedByName in settlement. Existing attribution FIN017 qualification retained, no new permission bypass.",
+        "inputs": "nullable approver label from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-77dff325b7fdc3a0fefd05a69ca05f9ed6ffbf58b2b5a380588eb1432432ee6b",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.OperationId.get",
+        "span": [
+          115,
+          34,
+          115,
+          38
+        ],
+        "reasoning": "Getter optionally correlates settlement timeline events with driver settlement idempotency key; assignment/result/reassignment writers shown omit it.",
+        "inputs": "Timeline/history entity containing nullable operation correlation.",
+        "outputs": "nullable operation correlation exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-50f42b8d8ab5ddb8515471575e58653d5d28a3fe239691ad590500704af86b3a",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.OperationId.set",
+        "span": [
+          115,
+          39,
+          115,
+          43
+        ],
+        "reasoning": "Setter records settlement key only where provided. No universal nonnull operation linkage or event uniqueness beyond Id follows.",
+        "inputs": "nullable operation correlation from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-fd7da9adcae01262e094d3a600b141edcc9b193e06a46cd4515f60b357ec28b2",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.CreatedAtUtc.get",
+        "span": [
+          116,
+          42,
+          116,
+          46
+        ],
+        "reasoning": "Getter orders timeline by event time but equal timestamps need explicit consumer tie-break, not assumed insertion order.",
+        "inputs": "Timeline/history entity containing DateTimeOffset event instant.",
+        "outputs": "DateTimeOffset event instant exposed without operational transition.",
+        "side_effects": "No side effects or query.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      },
+      {
+        "stable_id": "sym-62af2e130e9b066502e8a0cc980e078d9bb25e68afaddabb3276337b5b2989d3",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity.CreatedAtUtc.set",
+        "span": [
+          116,
+          47,
+          116,
+          51
+        ],
+        "reasoning": "Setter copies operation now in same transaction. There is no event-update writer in inspected paths, but public setter/schema alone does not enforce append-only immutability.",
+        "inputs": "DateTimeOffset event instant from verified transfer/event writer.",
+        "outputs": "Field assignment only.",
+        "side_effects": "EF tracked assignment; parent command stages history/event with delivery/custody mutation. No movement, stock or printer action inside property.",
+        "trust_boundaries": "Operational command authorization/state admission controls event creation, not names or action strings. Event amount/reason is contextual evidence rather than independent physical/cash proof.",
+        "database": "DbContext345-357 reassignment/event PK and DeliveryId indexes, no authored FK/append-only constraint in those blocks. Reassign88-138 updates existing custody driver and stages history/event in same transaction. No SQL executed.",
+        "printing_ui": "Timeline can feed delivery screen and dispatch reprint context; actual hardware dispatch ticket is separate staged PrintJob. No UI/printer execution in this review.",
+        "performance": "O(1) accessor; indexed delivery timeline reads and serialization belong caller. No timing/retention or database throughput benchmark.",
+        "duplicates_conflicts": "History immutable-by-writer differs from mutable Delivery row; entity public setters are not database immutability enforcement. Existing FIN019 custody consequence is not addressed merely by timeline evidence.",
+        "issues_hypotheses": "No new accessor finding. Approver attribution, contextual event amounts and current versus frozen driver names preserve existing qualified issues and do not claim duplicate payment.",
+        "tests_missing": "No tests run. Regression should preserve same-request dedupe, old/new driver snapshots, no duplicate custody on reassignment, per-event amount meaning and complete chronological timeline across settlement.",
+        "verified_callers_callees": [
+          "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:88-149",
+          "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:98-114",
+          "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs:127-135",
+          "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs:144-162",
+          "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:345-357"
+        ]
+      }
+    ]
+  }
+]

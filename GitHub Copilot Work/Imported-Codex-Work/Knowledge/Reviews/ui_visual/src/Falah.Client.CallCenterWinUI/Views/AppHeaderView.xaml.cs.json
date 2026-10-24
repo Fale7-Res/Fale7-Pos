@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/Views/AppHeaderView.xaml.cs",
+  "source_git_blob_sha256": "e70dba7108106dc5dfd4929ae0c837e4d0443b3c4d2ddb3c88590446cfdf4f65",
+  "worktree_sha256": "e70dba7108106dc5dfd4929ae0c837e4d0443b3c4d2ddb3c88590446cfdf4f65",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:39:16.819811+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "CallCenter view event/constructor exact-body review with source-only state, command and lifetime reasoning.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/Views/AppHeaderView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-849932b4bac6358cd4e1889cde20fbca5c64ec3901b15f285e51e8c9ba3f7864",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.AppHeaderView.AppHeaderView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        13,
+        5,
+        16,
+        6
+      ],
+      "reasoning": "Initializes header XAML; DataContext HeaderViewModel does not own application lock, so visual delegates lock intent through event.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Verify header binding and native button accessibility.",
+      "tests_missing": "Verify header binding and native button accessibility. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent; LockRequested"
+    },
+    {
+      "stable_id": "sym-bb437b4746c97a8673830bfff57f836a3c8f778dc1157e9e864ebffe4dafff33",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.Views.AppHeaderView.OnLockClicked(object, Microsoft.UI.Xaml.RoutedEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        18,
+        5,
+        18,
+        114
+      ],
+      "reasoning": "Raises LockRequested if subscribed; no direct token clearing or navigation occurs in this handler. MainWindow owns command wiring and lock policy.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Lock session semantics require parent/root auth analysis, not inferred from label.",
+      "tests_missing": "Lock session semantics require parent/root auth analysis, not inferred from label. NOT_EXECUTED.",
+      "verified_callers_callees": "LockRequested?.Invoke; MainWindow header wiring"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

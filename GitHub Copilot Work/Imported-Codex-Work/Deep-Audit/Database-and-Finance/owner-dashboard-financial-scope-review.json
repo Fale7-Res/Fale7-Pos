@@ -1,0 +1,20 @@
+{
+  "at_utc": "2026-10-18T04:33:08.444031+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+  "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+  "receipts": 114,
+  "runtime_executed": false,
+  "confirmed_prior_finding": "FIN013 raw stock quantity direction; not a new duplicate finding",
+  "source_candidate_references": [
+    "reverse-date-range-source-lead.json",
+    "packaging-completeness-candidate.json"
+  ],
+  "policy_questions": [
+    "Current position intentionally global versus selected period flow.",
+    "Open-only dashboard day lookup versus Reopened/Closing active-day rule; source semantics needs specific challenge.",
+    "Invoice-cohort current Paid is not selected-period cash outflow; label and writer correctness need verification.",
+    "Missing loss value shown0 while count retained; cost coverage presentation question."
+  ],
+  "next": "Trace open-day dashboard mismatch and settlement Posted invariant; do not claim runtime-confirmed inconsistency."
+}

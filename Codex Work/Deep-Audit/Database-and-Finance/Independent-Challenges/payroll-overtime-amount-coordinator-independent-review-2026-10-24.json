@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_independent_financial_callable_review",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-24T12:51:23.083Z",
+  "reviewer": "root coordinator",
+  "independent_of": "financial_integrity_continuation",
+  "callable": {
+    "stable_id": "sym-35771f9335c189af64a8a80880cdfe014e5323d667a208d401cbff41d823dfc1",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money, int, double, double)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      55,
+      61
+    ],
+    "source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "source_symbol_index": "Codex Work/Knowledge/Source-Symbols/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "receipt_sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "specialist_handoff": "Codex Work/Sub-Agents/Handoffs/financial-payroll-overtime-amount-quality-review-2026-10-24.json"
+  },
+  "classification": "SUBSTANTIVE_REVIEW_VERIFIED for source behavior; conditional payroll-policy question and runtime boundary behavior remain unverified; no new confirmed finding",
+  "independent_validation": {
+    "source_hash_match": true,
+    "index_identity_span_match": true,
+    "receipt_identity_span_match": true,
+    "linked_source_and_test_reference_hashes_match": true,
+    "linked_ranges_in_bounds": true,
+    "reference_files_checked": 11,
+    "failed_checks": 0,
+    "method": "Coordinator independently read the callable, NormalHourlyRate, biometric checkout caller, correction request/route/handler, settings writer/defaults, payroll ledger consumer, and cited test-source ranges; compared them to the specialist handoff and original receipt. No tests were executed."
+  },
+  "verified_behavior": [
+    "NormalHourlyRate returns zero for nonpositive workday hours; otherwise integer-divides daily-wage piastres, truncating any remainder.",
+    "For overtimeHours <= 0 the result has the calculated rate and zero amount. For positive hours, amount is Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier), default midpoint-to-even, then converted to Money piastres.",
+    "The pure helper does not validate a negative/non-finite multiplier or bound positive hours. Runtime conversion/overflow behavior was not tested.",
+    "Biometric check-out floors overtime hours to zero and only writes a positive amount as a deterministic employee/date ledger credit; its negative calculated amount would be suppressed.",
+    "Attendance correction is manager-authorized and transaction-scoped; it computes new minus old overtime amount and applies a signed ledger adjustment. If an authorized setting were negative, the sign can reverse conditionally. No evidence found that such a setting exists in deployed data.",
+    "Payroll later consumes employee ledger entries; the payroll creation handler does not call this helper directly."
+  ],
+  "test_source_review": {
+    "domain": "PayrollRulesTests.cs:47-62 covers zero and conventional 20,000/10*2*1.5 = 6,000 piastres only.",
+    "attendance": "AttendanceVerticalSliceTests.cs:100-109 checks a zero-overtime check-out; inspected correction cases do not assert malformed multiplier or precise signed overtime deltas.",
+    "payroll": "PayrollVerticalSliceTests.cs:93-109 confirms an already-posted 6,000-piastre overtime credit is consumed into the payroll line.",
+    "executed": false
+  },
+  "counters_and_limits": [
+    "Default settings inspected are positive (10-hour day, multiplier 1.5).",
+    "No policy/documentation evidence establishes permitted multiplier, workday, rate, or overtime-hour bounds.",
+    "No incident, database record, deployed configuration, SQL Server behavior, overflow/non-finite behavior, or live API request was inspected."
+  ],
+  "disposition": {
+    "new_finding": false,
+    "reason": "No actual invalid configuration or governing policy was established; concern remains conditional. Do not duplicate an existing finding based only on a theoretical input boundary.",
+    "owner_question": "Define allowed finite/nonnegative range for overtime multiplier, valid workday-hours range and correction overtime-hours bounds.",
+    "if_policy_requires_bounds": "Validate settings writes and attendance-correction inputs consistently, then test zero/negative/non-finite/extreme inputs, rate truncation and midpoint rounding, and signed old/new adjustment direction if policy requires."
+  },
+  "remaining_action": "No further review of this callable body is required unless new contradictory evidence appears. Keep policy and runtime boundaries in the financial completion limitations; continue the next unverified material payroll callable.",
+  "tests_executed": false,
+  "application_source_modified": false,
+  "database_or_runtime_modified": false
+}

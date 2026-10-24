@@ -1,0 +1,97 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-7mfr-774f-w5r9",
+  "retrieved_at_utc": "2026-10-17T01:52:53.831835+00:00",
+  "http_status": 200,
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 01:52:55 GMT",
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": "W/\"30f5b1042e2a6523bfbcb0582bdc9810ceed85daeb38e3ee059273a703f3beec\"",
+    "Last-Modified": "Wed, 11 Jan 2023 05:06:33 GMT"
+  },
+  "raw_body_utf8": "{\"ghsa_id\":\"GHSA-7mfr-774f-w5r9\",\"cve_id\":\"CVE-2017-11770\",\"url\":\"https://api.github.com/advisories/GHSA-7mfr-774f-w5r9\",\"html_url\":\"https://github.com/advisories/GHSA-7mfr-774f-w5r9\",\"summary\":\"Improper Certificate Validation\",\"description\":\".NET Core 1.0, 1.1, and 2.0 allow an unauthenticated attacker to remotely cause a denial of service attack against a .NET Core web application by improperly parsing certificate data. A denial of service vulnerability exists when .NET Core improperly handles parsing certificate data, aka \\\".NET CORE Denial Of Service Vulnerability\\\".\",\"type\":\"reviewed\",\"severity\":\"high\",\"repository_advisory_url\":null,\"source_code_location\":\"\",\"identifiers\":[{\"value\":\"GHSA-7mfr-774f-w5r9\",\"type\":\"GHSA\"},{\"value\":\"CVE-2017-11770\",\"type\":\"CVE\"}],\"references\":[\"https://nvd.nist.gov/vuln/detail/CVE-2017-11770\",\"https://access.redhat.com/errata/RHSA-2017:3248\",\"https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2017-11770\",\"http://www.securityfocus.com/bid/101710\",\"http://www.securitytracker.com/id/1039787\",\"https://github.com/advisories/GHSA-7mfr-774f-w5r9\"],\"published_at\":\"2022-04-12T00:07:34Z\",\"updated_at\":\"2023-01-11T05:06:33Z\",\"github_reviewed_at\":\"2022-04-12T00:07:34Z\",\"nvd_published_at\":null,\"withdrawn_at\":null,\"vulnerabilities\":[{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"System.Security.Cryptography.X509Certificates\"},\"vulnerable_version_range\":\">= 4.0.0, < 4.1.2\",\"first_patched_version\":\"4.1.2\",\"vulnerable_functions\":[]},{\"package\":{\"ecosystem\":\"nuget\",\"name\":\"Microsoft.NETCore.App\"},\"vulnerable_version_range\":\">= 1.0.0, < 2.0.3\",\"first_patched_version\":\"2.0.3\",\"vulnerable_functions\":[]}],\"cvss_severities\":{\"cvss_v3\":{\"vector_string\":\"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"cvss_v4\":{\"vector_string\":null,\"score\":0.0}},\"cwes\":[{\"cwe_id\":\"CWE-295\",\"name\":\"Improper Certificate Validation\"}],\"credits\":[],\"comments\":0,\"cvss\":{\"vector_string\":\"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H\",\"score\":7.5},\"epss\":{\"percentage\":0.05423,\"percentile\":0.925}}",
+  "raw_bytes_sha256": "2ebcce63558b12e322dbe3d08196f4ca85b729ce54c4543b5f9d396171ce8f31",
+  "transport_bytes_sha256": "2ebcce63558b12e322dbe3d08196f4ca85b729ce54c4543b5f9d396171ce8f31",
+  "decompression": "none",
+  "data": {
+    "ghsa_id": "GHSA-7mfr-774f-w5r9",
+    "cve_id": "CVE-2017-11770",
+    "url": "https://api.github.com/advisories/GHSA-7mfr-774f-w5r9",
+    "html_url": "https://github.com/advisories/GHSA-7mfr-774f-w5r9",
+    "summary": "Improper Certificate Validation",
+    "description": ".NET Core 1.0, 1.1, and 2.0 allow an unauthenticated attacker to remotely cause a denial of service attack against a .NET Core web application by improperly parsing certificate data. A denial of service vulnerability exists when .NET Core improperly handles parsing certificate data, aka \".NET CORE Denial Of Service Vulnerability\".",
+    "type": "reviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-7mfr-774f-w5r9",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2017-11770",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2017-11770",
+      "https://access.redhat.com/errata/RHSA-2017:3248",
+      "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2017-11770",
+      "http://www.securityfocus.com/bid/101710",
+      "http://www.securitytracker.com/id/1039787",
+      "https://github.com/advisories/GHSA-7mfr-774f-w5r9"
+    ],
+    "published_at": "2022-04-12T00:07:34Z",
+    "updated_at": "2023-01-11T05:06:33Z",
+    "github_reviewed_at": "2022-04-12T00:07:34Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "System.Security.Cryptography.X509Certificates"
+        },
+        "vulnerable_version_range": ">= 4.0.0, < 4.1.2",
+        "first_patched_version": "4.1.2",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "nuget",
+          "name": "Microsoft.NETCore.App"
+        },
+        "vulnerable_version_range": ">= 1.0.0, < 2.0.3",
+        "first_patched_version": "2.0.3",
+        "vulnerable_functions": []
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 7.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-295",
+        "name": "Improper Certificate Validation"
+      }
+    ],
+    "credits": [],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 7.5
+    },
+    "epss": {
+      "percentage": 0.05423,
+      "percentile": 0.925
+    }
+  },
+  "status": "RETRIEVED"
+}

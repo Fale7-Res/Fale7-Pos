@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Independent source-quality review of PayrollRules.CalculateLatePenaltyHours(int,int,int); compare current code with saved reasoning, trace arithmetic callers through attendance/correction and payroll, inspect related test source. No tests executed.",
+  "stable_id": "sym-00c8631835d24ba42da8db099abc45ebf54f664042ebc6dc2e1d7214acb63529",
+  "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLatePenaltyHours(int, int, int)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [36, 40],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "classification": "SUBSTANTIVE_REVIEW_VERIFIED (reviewer-owned recommendation only; do not promote shared overlay)",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "reasoning_summary": "late<=grace gives zero; beyond grace through minute 60 gives min(1,maxPenaltyHours); after 60 gives maxPenaltyHours; negative max is not floored; grace above 60 can suppress the middle tier."
+  },
+  "arithmetic_and_units": {
+    "actual_expression": "if lateMinutes <= graceMinutes return 0; otherwise return lateMinutes <= 60 ? Math.Min(1, maxPenaltyHours) : maxPenaltyHours",
+    "returned_unit": "penalty-hours, not elapsed late-hours",
+    "positive_configuration_behavior": "For maxPenaltyHours >= 1 and 0<=graceMinutes<60: late<=grace => 0; grace<late<=60 => 1 penalty-hour; late>60 => maxPenaltyHours. For max=0 all penalties are zero.",
+    "boundaries": [
+      "late exactly equal to grace is zero; one minute above grace enters the penalty tier",
+      "minute 60 is in the one-hour tier; minute 61 selects maxPenaltyHours",
+      "graceMinutes >= 60 changes tier reachability: if grace is 60, minute 60 is exempt and minute 61 uses max; if grace > 60, lateness at or below grace is exempt, then lateness above grace uses max"
+    ],
+    "malformed_or_unusual_inputs": [
+      "Negative maxPenaltyHours can produce negative penalty-hours: middle tier returns Math.Min(1, negative), later tier returns the negative value directly.",
+      "Negative grace makes even zero/negative lateness exceed grace in some cases; normal attendance caller floors computed lateMinutes at zero, but the pure callable itself has no validation.",
+      "No clamping or domain exception occurs in this method. Whether negative max/grace settings are reachable through other write paths was not exhaustively proven; UpdateSettingsHandler directly assigns request values at lines 105-108 without local range checks, while request authorization still applies."
+    ]
+  },
+  "call_chain_and_financial_effect": [
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "CalculateLateDeduction",
+      "lines": [44, 51],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "effect": "Computes NormalHourlyRate, invokes reviewed penalty-hours rule, multiplies rate by hours and LatePenaltyMultiplier, rounds to piastres, returns hours/rate/amount."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs",
+      "symbol": "BiometricCheckInHandler.HandleAsync",
+      "lines": [44, 47],
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "effect": "Computes late minutes against current-day open shift and floors to >=0; lines 82-97 apply positive deductions only, posting a deterministic employee/date ledger Debit via EmployeeLedgerPoster and saving. A negative computed penalty amount is not posted by this caller."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "symbol": "CorrectAttendanceHandler.HandleAsync",
+      "lines": [82, 105],
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "effect": "Under employee-ledger lock, recalculates old/new late deduction amounts from corrected attendance and settings; posts signed Adjustment delta. With unusual negative settings, sign/delta semantics can invert or create a credit; no proof such settings are actually used."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "symbol": "CreatePayrollHandler.HandleAsync",
+      "lines": [42, 65],
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "effect": "Loads period EmployeeLedgerEntries, maps debit/credit facts and calls CalculatePayrollLines; it does not call the penalty rule directly. Attendance/correction ledger entries flow into payroll deduction inputs."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs",
+      "symbol": "UpdateSettingsHandler.HandleAsync",
+      "lines": [100, 108],
+      "sha256": "fcbeb3b2a7895001c185355dc1d9551d5efd4256d3b89a8805328e2a83eab79f",
+      "effect": "Assigns non-null LateGraceMinutes, MaxLatePenaltyHours and LatePenaltyMultiplier directly; no range validation is present in the inspected assignment block. Handler still requires settings_manage authorization except the sound-only case."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Settings/SettingsQueryService.cs",
+      "symbol": "SettingsQueryService.Defaults",
+      "lines": [20, 30],
+      "sha256": "c798b18a8beb69403b2392c9f12a7f567bd4a62568c7f8f5e0a533cb9ee8ae53",
+      "effect": "Default config includes grace 15, max penalty 2 hours, and positive multiplier; ordinary defaults avoid the malformed negative setting case."
+    }
+  ],
+  "tests_reviewed_static_only": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "lines": [11, 45],
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "Includes late at/below grace, 16/15, 60/15, 61/15, large lateness, and standard positive-config deduction. Missing negative/zero max, grace>=60, negative grace/late, settings-write validation, and correction-delta sign cases."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "lines": [71, 88],
+      "sha256": "003ae8b1a74111162a17d6e3f532638c21898a2e4871ace1d57f82da2eb40a66",
+      "coverage": "Source comments indicate the test exercises immediate/no-penalty path; it does not establish positive late-deduction posting or malformed-setting behavior."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+      "lines": [93, 109],
+      "sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+      "coverage": "Exercises daily wage/overtime/net payroll flow; not late-penalty boundary or correction-delta behavior."
+    }
+  ],
+  "counterevidence_and_limits": [
+    "SettingsQueryService defaults are positive and standard (grace 15, max 2); a negative-max concern is conditional on non-default settings, not an observed production incident.",
+    "BiometricCheckInHandler posts only positive amount, so this particular automatic path suppresses a negative result rather than issuing a credit.",
+    "CorrectAttendanceHandler uses a signed old/new amount delta; the unusual negative-setting outcome requires dedicated validation and cannot be asserted from current tests.",
+    "This callable is pure and has no direct persistence or permission boundary; risk comes through its callers/configuration. No source-independent policy establishes that grace>=60 or negative values are forbidden or intended."
+  ],
+  "recommendation": "Keep the piecewise rule as currently specified unless product/payroll policy says otherwise. Normalize or reject invalid settings at the authorized settings boundary (at minimum negative grace/max and non-finite/negative multiplier; whether grace>60 is invalid is an owner policy decision) and add domain plus integration cases for grace/max boundaries and correction old/new delta. Do not label as confirmed financial loss or auth bypass.",
+  "verdict": "Existing receipt arithmetic and main boundary observations are source-corroborated. Financial relevance is real because the returned penalty hours feed a persisted deduction and correction adjustment that payroll later consumes. The only concrete risk surfaced here is conditional configuration-boundary behavior (particularly negative max), with no runtime incidence established.",
+  "runtime_tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_registry_modified": false,
+  "next_action": "Wait for coordinator to reconcile this reviewer-owned quality result against the live overlay and provide the next exact queue item; no ordered global queue was independently asserted by this review."
+}

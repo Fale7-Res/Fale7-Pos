@@ -1,0 +1,29 @@
+from ui_incremental import *
+record(P+'ViewModels/MenuViewModel.cs','Live menu/tax/price overview, availability toggle and authoring editor host.',[
+('MenuViewModel','Constructs MenuEditor and reloads when Editor.Closed; same owner lifetime, no external event leak established. OpenEditor delegates existing authoring permissions.'),
+('MenuProductRow','Price is actual variant minimum or base, station label real preparation enum; IsAvailable separately mutable only after successful request.'),
+('ApplyFilter','Searches product/category client snapshot with CurrentCultureIgnoreCase; rebuilds observable list per keystroke. No backend query pagination, menu expected small but scale unmeasured.'),
+('LoadAsync','Menu then taxes/rules sequential. Applies menu before tax/rules finish; LoadError can show partially updated snapshot. Single busy guard returns rather than coalesces reload after Editor.Closed during load, so new changes can remain stale until manual refresh.'),
+('ToggleAvailabilityAsync','Requires menu_manage, captures target=!row state once; on success updates row. Unknown response leaves row stale but next identical toggle sends same target while row unchanged, idempotent intended setter. No journal/global busy gate; errors can be corrected with reload; effect not duplicate monetary posting.')],
+'Need concurrent editor-close/load and unknown availability response refresh tests. No menu settings changed.',
+'Coalesce pending reloads and retain clear snapshot/error messaging; avoid treating reference docs as current functionality because price editor now implemented.')
+record(P+'ViewModels/DeliveryDirectoryViewModel.cs','Driver/service authoring and reactivation with typed durable operations.',[
+('OpenAsync','Requires actual delivery_manage and no global pending; loads real active/inactive directory, resets service/PIN. Comment suggests manager approval alternative but CanOpen requires permission, so fallback unavailable ordinary navigation.'),
+('LoadAsync','Driver+service sequential fetch sets IsReady only after both; IsLoading callback registers pending if recovered _write. Constructor no initial recovery presentation/context.'),
+('SetTab','Refuses busy/pending and unknown tab; Service select/new also refuse pending. ResetServiceForm resets editing pointer, optional fee and active=true, not DB hard delete.'),
+('AddDriverAsync','Uses recovered generic _write first or validates name/CreateDriverRequest. ToggleDriver captures explicit desired active state. Each sends immutable original even if clicked another action during pending, correct retry but note string may describe wrong operation.'),
+('SaveServiceAsync','Blank fee means null, otherwise strict CashInput; request create/update includes actual name/fee/active/approval. Fresh create ignores ServiceActive false since create contract no active field (server default active); UI could show inactive choice for new service yet creates active, XAML visibility to verify.'),
+('CompleteAsync','Generic request dispatch maps4known DTOs, helper persists before send; success clears forms/PIN, reloads real state, Changed event updates parent. CanAct excludes busy/loading/notready but NOT pending, while individual commands use _write.Value safety.'),
+('ResolveApprovalAsync','Single server PIN approval when NeedsApproval; normally false due CanOpen permission. No local manufactured approver IDs.')],
+'Need recovered request operation label/form consistency, create service inactive control behavior and journal same-operator ownership. No driver/service writes run.',
+'Expose actual recovered command context, initial pending registration; align new-service active control with supported backend contract.')
+record(P+'ViewModels/EmployeeEditorViewModel.cs','Employee roster create/update with compensation and personnel fields.',[
+('Open','Requires employees_manage/no global pending, uses caller real roster no extra read. Sets HasForm=false even recovered _write exists; generic Save can retry but button visibility tied HasForm must be checked. NotifyState registers pending only after opening.'),
+('Select','Refuses busy/pending and null; copies every existing personnel/compensation field preserving null optional money vs zero. DateOnly wrapped UTC date for picker; conversion back uses HireDate.Date preserving chosen calendar date.'),
+('ResetForm','Clears PII/defaults new employee values; create form has IsActive even CreateEmployeeRequest lacks IsActive, so inactive new-entry UX may disagree server default if field shown.'),
+('TryOptionalMoney','Blank means null, nonblank strict CashInput. CreateRequest validates mandatory name/number/job/phone, compensation choice and rates, trim optional personnel strings; server must validate lifecycle/arrangement membership and compensation business rules.'),
+('CreateRequest','Builds exact UpdateEmployeeRequest for existing ID or Guid CreateEmployeeRequest. Every known finance/PII field transmitted deliberately; mutable fields no external process execution. Local Optional function only trim/null.'),
+('SaveAsync','Uses retained generic DTO first, not reconstructed form; success patches roster with authoritative returned DTO and emits Saved. _write journal includes NationalId/address/phone, confidential local data source surface; reviewer read no real records.'),
+('CanEdit','Checks permission and !busy but not _write.HasPending, so UI fields may change despite frozen payload; retry sends original, display may mislead. New/Select explicitly refuse pending. SendWrite switch only known employee DTO types.')],
+'No roster data written; require recovered editor target/retry visibility, unknown payload vs displayed edits, optional fields and unauthorized save tests.',
+'Freeze fields under pending and present original command; protected local journal for employee PII, restrict server permissions independently.')

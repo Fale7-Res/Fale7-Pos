@@ -1,0 +1,239 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Employees/Employee.cs",
+  "facets": [],
+  "generated_behavior_inputs": [
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "source_git_blob_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "worktree_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Employees.Employee::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Employees.Employee::record-generated-behavior",
+      "startLine": 37,
+      "startColumn": 1,
+      "endLine": 42,
+      "endColumn": 91,
+      "origin_declaration_stable_id": "sym-33e3b42a9e6db26ed828f33a293a7476424cb4947c6963ee1026971a7a7474a0",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "EmployeeNumber",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "JobTitle",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Phone",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "HireDate",
+          "type": "DateOnly",
+          "modifiers": ""
+        },
+        {
+          "name": "CompensationType",
+          "type": "CompensationType",
+          "modifiers": ""
+        },
+        {
+          "name": "DailyWage",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "ShiftValue",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "MonthlySalary",
+          "type": "Money?",
+          "modifiers": ""
+        },
+        {
+          "name": "UserId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CanDeliver",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Role",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "IsActive",
+          "type": "bool",
+          "modifiers": ""
+        },
+        {
+          "name": "Notes",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Address",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "NationalId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Department",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "EmploymentArrangement",
+          "type": "EmploymentArrangement?",
+          "modifiers": ""
+        },
+        {
+          "name": "FingerprintId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "LifecycleStatus",
+          "type": "EmployeeLifecycleStatus?",
+          "modifiers": ""
+        },
+        {
+          "name": "OvertimeRate",
+          "type": "Money?",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-26b43ae04ab925a39af57d5edc91cc1c361fd64d7084f4e93580cef31d497884",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "source_git_blob_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "worktree_sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "kind": "CompilerRecordBehavior",
+      "name": "Falah.Domain.Employees.EmployeeLedgerEntry::record-generated-behavior",
+      "qualifiedSymbol": "Falah.Domain.Employees.EmployeeLedgerEntry::record-generated-behavior",
+      "startLine": 49,
+      "startColumn": 1,
+      "endLine": 52,
+      "endColumn": 128,
+      "origin_declaration_stable_id": "sym-a21cc2fe7aebb2e5c01029b59906180d03875edda3f924927fd6ab7d34964764",
+      "status": "INDEXED_NOT_ANALYZED",
+      "positional_parameters": [
+        {
+          "name": "Id",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "EmployeeId",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Type",
+          "type": "LedgerEntryType",
+          "modifiers": ""
+        },
+        {
+          "name": "Description",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "Debit",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "Credit",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "BalanceAfter",
+          "type": "Money",
+          "modifiers": ""
+        },
+        {
+          "name": "RecordedBy",
+          "type": "string",
+          "modifiers": ""
+        },
+        {
+          "name": "AuthorizedBy",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ShiftId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "ReferenceId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "Hours",
+          "type": "double?",
+          "modifiers": ""
+        },
+        {
+          "name": "RateSnapshotPiastres",
+          "type": "long?",
+          "modifiers": ""
+        },
+        {
+          "name": "ValueSnapshotPiastres",
+          "type": "long?",
+          "modifiers": ""
+        },
+        {
+          "name": "PayrollRunId",
+          "type": "string?",
+          "modifiers": ""
+        },
+        {
+          "name": "CreatedAtUtc",
+          "type": "DateTimeOffset",
+          "modifiers": ""
+        }
+      ],
+      "scope": "Compiler-provided record constructors/properties/equality/copy/printing behavior; no invented count of generated methods.",
+      "stable_id": "sym-6a203fbce2f8ae5eb54a94d27caf88413743fd6072ae7cfc57aac2511039ac78",
+      "owner": "financial_integrity",
+      "review_status": "NOT_ANALYZED",
+      "counting_class": "GENERATED_BEHAVIOR_CONTEXT_NOT_INDIVIDUAL_METHOD_COUNT"
+    }
+  ]
+}

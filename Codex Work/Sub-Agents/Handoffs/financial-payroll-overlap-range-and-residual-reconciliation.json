@@ -1,0 +1,197 @@
+{
+  "id": "financial-payroll-overlap-range-and-residual-reconciliation",
+  "created_utc": "2026-10-21",
+  "source": "authorized residual-213 continuation",
+  "residual_queue": {
+    "authority_pending": 1202,
+    "exact_continuation_ids": 989,
+    "unmatched_unknown": 0,
+    "projected_remaining": 213,
+    "substantive_dispositions_saved": 213,
+    "pending_after_review": 0,
+    "checkpoint": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-reconciliation-checkpoint.json"
+  },
+  "eight_ref_review": {
+    "candidate_id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+    "gate_file": "Codex Work/Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json",
+    "gate_at_utc": "2026-10-20T10:01:23.649490+00:00",
+    "gate_missing_exact_ranges": 8,
+    "missing_gate_paths": [
+      "src/Falah.Server/Program.cs",
+      "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+      "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+      "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+      "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs"
+    ],
+    "all_eight_paths_verified": true,
+    "exact_reviewed_ranges": {
+      "src/Falah.Server/Program.cs": {
+        "sha256": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6",
+        "ranges": [
+          [
+            732,
+            746
+          ],
+          [
+            812,
+            817
+          ],
+          [
+            841,
+            850
+          ]
+        ],
+        "meaning": "Separate HTTP entry points for standalone employee settlement, period run creation, and payroll run payment.",
+        "current_hash_matches_read": true
+      },
+      "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs": {
+        "sha256": "59C3A4791465FA5638E881076DE6639A202DD2186F1187079EBCD24636FFD81F",
+        "ranges": [
+          [
+            76,
+            117
+          ]
+        ],
+        "meaning": "Reachable standalone payment dialog validates entered amount and sends PayEmployeeRequest.",
+        "current_hash_matches_read": true
+      },
+      "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs": {
+        "sha256": "8CF4E9F6EC47B2165413BC6EC1583F9261D08DB7F950BDC75B3EE84FC8FE31A0",
+        "ranges": [
+          [
+            332,
+            356
+          ]
+        ],
+        "meaning": "Separate approved-run payment UI sends PayPayrollRequest and displays batch total/count.",
+        "current_hash_matches_read": true
+      },
+      "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs": {
+        "sha256": "93B781B9B0D97EC14B8C8836F9AD1B47FB908295B1089E3A627B0994DCBB355C",
+        "ranges": [
+          [
+            46,
+            75
+          ],
+          [
+            96,
+            140
+          ]
+        ],
+        "meaning": "Validates individual account/idempotency/current balance and atomically posts Settlement ledger debit plus treasury movement.",
+        "current_hash_matches_read": true
+      },
+      "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs": {
+        "sha256": "339845A57FC7EC98268BBF79D4B204FBF1C029A3DA4CFF89771294522963E878",
+        "ranges": [
+          [
+            42,
+            87
+          ]
+        ],
+        "meaning": "Collects period ledger entries, calculates payroll lines, persists frozen run and lines.",
+        "current_hash_matches_read": true
+      },
+      "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs": {
+        "sha256": "D7A614F6752B5A33513B3CD4ECF1E4E1CFE0022D010822E38BB43160C40E4084",
+        "ranges": [
+          [
+            62,
+            74
+          ],
+          [
+            86,
+            163
+          ]
+        ],
+        "meaning": "Pays approved frozen payroll total and writes payroll payment movement plus per-line settlement status/ledger entries; separate transaction/idempotency.",
+        "current_hash_matches_read": true
+      },
+      "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs": {
+        "sha256": "CB3763CBDC7747E3B89F2DC6412191D59273294B2FAC911990EFEB52E52F9D77",
+        "ranges": [
+          [
+            226,
+            240
+          ]
+        ],
+        "meaning": "Tests standalone debit is typed Settlement, distinct from PayrollSettlement; no combined same-period payroll sequence.",
+        "current_hash_matches_read": true
+      },
+      "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs": {
+        "sha256": "D3A8443936A34A414715A735AFEB02214DCAF8ED22D7CA9B5E9B0C3DD2BBA1D8",
+        "ranges": [
+          [
+            191,
+            205
+          ]
+        ],
+        "meaning": "Tests payroll batch payment and treasury movement separately; no standalone-then-payroll same-period combined sequence.",
+        "current_hash_matches_read": true
+      }
+    },
+    "assessment": "The currently saved gate still has 8 missing exact ranges because no canonical evidence metadata was changed. This handoff supplies exact source-backed review ranges and current worktree hashes for each required path. It is a proposed evidence repair input, not a gate closure."
+  },
+  "counts": {
+    "authority_union": {
+      "at_utc": "2026-10-20T03:11:56.305416+00:00",
+      "total": 8804,
+      "reviewed": 7602,
+      "pending_before_continuation": 1202
+    },
+    "continuation_receipts": {
+      "count": 989,
+      "exact_unique_ids": 989,
+      "all_overlap_authority_pending": true
+    },
+    "derived": {
+      "reviewed": 8591,
+      "total": 8804,
+      "remaining": 213
+    },
+    "validation_snapshot": {
+      "at_utc": "2026-10-20T03:08:48.061444+00:00",
+      "financial_receipts": 7524,
+      "original_missing": 1280
+    },
+    "report_body": {
+      "updated_utc": "2026-10-20T03:07:25.813803+00:00",
+      "receipts": 7516,
+      "missing": 1288,
+      "scope": 327,
+      "generated_contexts": "35/95"
+    },
+    "report_latest_note": "The report top note dated 2026-10-21 records 7,602 + 989 = 8,591 / 8,804; its body remains the earlier 7,516 / 1,288 snapshot. The validation snapshot at 03:08:48 records 7,524 / 1,280, between the report body and union snapshot at 03:11:56. This chronology explains successive counts, but the canonical report body/table are stale and must be regenerated from one declared cutoff.",
+    "ledger": {
+      "scope": 327,
+      "reviewed": 327,
+      "remaining": 0,
+      "coverage_complete": false
+    },
+    "report_readiness": "Still not implementation-ready. The 989 receipt membership and all 213 residual triage do not certify substantive depth across every original callable. The report itself says file-report presence is not function-depth; global ledger coverage_complete=false. Runtime/provider behavior remains unexecuted. The 8 gate references have exact ranges now available in this handoff, but shared metadata/gate is unchanged."
+  },
+  "payroll_overlap": {
+    "conclusion": "Source-confirmed separate standalone Settlement and frozen payroll outflows. No confirmed duplicate-pay defect. Existing separate-path tests do not cover same-period combined execution; owner policy/actual sequence unresolved.",
+    "coordinator_cross_check": "Codex Work/Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-coordinator-cross-check.json"
+  },
+  "next_actions": [
+    "Canonical metadata owner can attach/verify the exact ranges above and rerun the reference gate; until then it remains 8 missing.",
+    "Regenerate finance report/body/table from a single declared 2026-10-21 union+continuation snapshot and reconcile displayed generated-context/finding denominators.",
+    "Report only substantive depth actually certified; receipts alone do not convert 327 file reports into callable-depth coverage.",
+    "Keep SQL/provider/runtime tests and payroll policy/combined-sequence validation explicitly unresolved."
+  ],
+  "source_artifact_hashes": {
+    "Codex Work/Deep-Audit/Database-and-Finance/DATABASE_AND_FINANCIAL_INTEGRITY.md": "9C3A776E9F5C4D40183601288FE648F7AFF0D9E786C40761445F23894ECA55C2",
+    "Codex Work/Deep-Audit/Database-and-Finance/financial-evidence-symbol-reference-gate.json": "73F9C5F831E9C1623B340D585F9C2DE096CAEC6D8259E1EE9A10F093A331A200",
+    "Codex Work/Deep-Audit/Database-and-Finance/current-financial-validation.json": "447F3BBD81CFC9F8FEE355D1E6D3FECBE7B249CDF515E1A5338480299878BDF5",
+    "Codex Work/Sub-Agents/Results/financial-current-union-progress.json": "30560E0B7B7E170BF9D8A99B508AF1FCE3F74DBBB438B5BA9AEEEFEB53CEF240",
+    "Codex Work/Sub-Agents/Results/financial-ledger.json": "C8CE20EC079770C0555005CD5E80560F6B1D8015412B9EC62B8FE6F1D3FDAA63"
+  },
+  "limits": [
+    "Static/persisted source only; no runtime/database tests.",
+    "No canonical report, registry, or shared gate changed."
+  ]
+}

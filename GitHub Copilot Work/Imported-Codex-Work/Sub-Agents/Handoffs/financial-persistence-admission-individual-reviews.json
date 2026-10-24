@@ -1,0 +1,155 @@
+[
+  {
+    "path": "src/Falah.Infrastructure/Persistence/CommandReceipt.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-aace77b0334408164edd477c5952e182d797f24706ca75d38623da6dfe44cd7f",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)",
+        "span": [
+          11,
+          5,
+          12,
+          71
+        ],
+        "reasoning": "Nonblank request IDs map deterministic audit-action-request key; missing/whitespace ID yields fresh random audit ID. The latter deliberately disables durable retry correlation, not financial idempotency proof. Action namespaces separate command receipts; raw delimiters not escaped but action strings internal constants, no user-selected action source here.",
+        "inputs": "Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)",
+        "outputs": "Deterministic/random receiptID or existing bound auditrow",
+        "side_effects": "ReceiptIdpure; Findquery locks currentTx auditrow/range, no ownwrite.",
+        "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+        "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      },
+      {
+        "stable_id": "sym-d4317200184d1b9fdd9a8d2b8419b63c26979c41d62aabcfe8ddd3e2e736d6b8",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)",
+        "span": [
+          14,
+          5,
+          24,
+          6
+        ],
+        "reasoning": "Requires caller currenttransaction or throws, locks audit ID range using parameterized FromSqlRaw UPDLOCK/ROWLOCK/HOLDLOCK, then checks existing receiptReferenceId andUserId match target/actor. Supports same-key replay and prevents reusing key across actor/target, not immutable payload equality or serialization of different request keys against one target. No ownSave/commit, caller must include mutation+audit+commit. No numeric/SQL string interpolation input; actual parameters passed. Missing audit receipt permits command; repeated callers depend unique audit identity/transaction lifetime.",
+        "inputs": "Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)",
+        "outputs": "Deterministic/random receiptID or existing bound auditrow",
+        "side_effects": "ReceiptIdpure; Findquery locks currentTx auditrow/range, no ownwrite.",
+        "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+        "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-19e519b9c3d199d1c0491a3ff3b0b0f8733b02d907cd992185d4acd71aa2f095",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "span": [
+          19,
+          5,
+          29,
+          6
+        ],
+        "reasoning": "Casts actual EF connection/transaction to SQLServer types and executes one UPDATE LastAllocated+1 OUTPUT for singletonId1. Atomic statement avoids read/write allocation race; command joins existing transaction when present but does not enforce nonnull, so caller contract matters for rollbackno-burn. Actual checkout145 beginsTx before156 allocate and commits279, independently verified. Missing singleton throws; long max SQL overflow fails rather than wraps. No separate year/day reset or all-time numbering guarantee outside thisrow; audit does not execute SQL.",
+        "inputs": "Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "outputs": "Allocated positive nextlong or exception",
+        "side_effects": "Production executes singletonSQLUPDATE incallertransaction; audit executesnone.",
+        "trust_boundaries": "Internalcaller action/target/actor orscopedSqlContext; existingtransaction boundaryexplicit.",
+        "database": "SQLServer-specific command/context; receipt enforcesTx, sequence joinsoptionalTx butactualCheckoutcallerhasone.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      }
+    ]
+  },
+  {
+    "path": "src/Falah.Infrastructure/Persistence/DemoDataSeeder.cs",
+    "symbols": [
+      {
+        "stable_id": "sym-2571207d3e16ea504cba60feae81508664bdb73b8fbcf30ec8cea3aaa1e16bba",
+        "status": "ANALYZED",
+        "signature": "Falah.Infrastructure.Persistence.DemoDataSeeder.SeedIfEmptyAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "span": [
+          14,
+          5,
+          214,
+          6
+        ],
+        "reasoning": "Entire body read in two bounded batches. Guard only Products.Any, not database-empty/environment flag. Ifanyproduct exists, skips users/categories/recipes/offers entirely; missingaccounts not repaired. IfnoProducts but otherrealmetadata/users exist, deterministic demoIDs can conflict or additional privileged demos can be inserted, so never infer safe unknownDB fromguard. Builds two salted demoaccounts (credential literals redacted from report), ten categories, inventoryingredient+one linkedrecipe and broadcatalog/variants plusactiveoffers; no owner, tax, settings, supplier, openingstock or treasuryfacts here. One finalSave213 covers trackedinserts implicitTx; no explicitstartup mutualexclusion, twoempty callerscanrace. Program206 migrates then212-214 RCSI ALTER before215seed, so startup not read-only deployment. No seedingrun byreviewer. Hardcoded menu prices are fixed sampledata, not evidence production menu complete or businessdataidentical.",
+        "inputs": "Falah.Infrastructure.Persistence.DemoDataSeeder.SeedIfEmptyAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)",
+        "outputs": "Tracked sampleentities or completedTask afterSave",
+        "side_effects": "Production startup mayinsert sampledata viaSave; no seeder/migration/applicationrun performed.",
+        "trust_boundaries": "Products-empty guard alone not safeexistingDBidentity; hardcodeddemoaccounts sourcecredentialvaluesexcludedfromreports.",
+        "database": "Alltracked seedrows finalsingleSave, no database-emptycheck orseedmutex. Programstartupmigrate/RCSI/seed sideeffects independentlyread, notexecuted.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      },
+      {
+        "stable_id": "sym-86d50d2be9bcd5afb6f8d8c8918492803034e2fbcd1943966f3b4f6647155cde",
+        "status": "ANALYZED",
+        "signature": "Simple(string, string, string, bool, int, long)",
+        "span": [
+          115,
+          9,
+          120,
+          16
+        ],
+        "reasoning": "LocalSimple adds available product with supplied deterministicid/category/name/sort, wholeEGP*100 and defaultGrillstation whenflagtrue. No dynamic input in observed callsites; allfixed positive smallprices read. Unchecked multiply no realistic seedconstantoverflow, not general safe helperforarbitraryinput. No Save here; outer seeder atomicSave persists.",
+        "inputs": "Simple(string, string, string, bool, int, long)",
+        "outputs": "Tracked sampleentities or completedTask afterSave",
+        "side_effects": "Production startup mayinsert sampledata viaSave; no seeder/migration/applicationrun performed.",
+        "trust_boundaries": "Products-empty guard alone not safeexistingDBidentity; hardcodeddemoaccounts sourcecredentialvaluesexcludedfromreports.",
+        "database": "Alltracked seedrows finalsingleSave, no database-emptycheck orseedmutex. Programstartupmigrate/RCSI/seed sideeffects independentlyread, notexecuted.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      },
+      {
+        "stable_id": "sym-fd71062e0ef5d6a9023db98f89d816976db05aade5b9fca3b627495d6cc7531a",
+        "status": "ANALYZED",
+        "signature": "WithVariants(string, string, string, bool, int, params (string Id, string Name, long PriceEgp)[])",
+        "span": [
+          122,
+          9,
+          132,
+          10
+        ],
+        "reasoning": "LocalWithVariants reads firstvariant forbaseprice, creates suppliedvariantIDs/names/prices*100 and addsproduct. Assumesnonemptyvariants, all actualfixedcalls135-197 verifiednonempty andmodestpositiveprices; no externallysuppliedarrayhere. MaintainsparentProductId, firstvariantbase notcomputedminimum, so displaybase may differ generalcheapestpolicy but fixedsamples consistent. No separateSave/financialstockposting.",
+        "inputs": "WithVariants(string, string, string, bool, int, params (string Id, string Name, long PriceEgp)[])",
+        "outputs": "Tracked sampleentities or completedTask afterSave",
+        "side_effects": "Production startup mayinsert sampledata viaSave; no seeder/migration/applicationrun performed.",
+        "trust_boundaries": "Products-empty guard alone not safeexistingDBidentity; hardcodeddemoaccounts sourcecredentialvaluesexcludedfromreports.",
+        "database": "Alltracked seedrows finalsingleSave, no database-emptycheck orseedmutex. Programstartupmigrate/RCSI/seed sideeffects independentlyread, notexecuted.",
+        "printing_ui": "Seedercreatesstationmetadata only, no physicaljob; othermethodsnoUI/printercalls.",
+        "performance": "Seedconstantcatalog+twoKDFs ifProductsempty; sequenceatomicrowupdate andreceiptrange-lock contention notbenchmarked.",
+        "duplicates_conflicts": "Sameoperationreceipt protectsreplay, notdifferent-keytargetedits. SeederdeterministicIDconflicts andwholeDBreadiness distinct fromProductemptyguard. No newfindingpromoted.",
+        "issues_hypotheses": "QualifiedstartupunknownDB/first-runrace andhelpertransactioncontracts, no source/runtimechanges or measuredfailure. Existingrootsecuritydemoaccountresponsibilityretained.",
+        "tests_missing": "Receipt actor/referenceconflict andpayloadpolicy, null/blankkey, rollback/commitresponse-loss; atomicsequence concurrent/rollback/missingrow/maxbound; seedemptyProductwithothermetadata, partiallyseededdb/twoinstances, existingProductmissingusers, no credentialexposure.",
+        "verified_callers_callees": "CommandReceiptfull11-24 read; Sequence19-29 andCheckout145-156 actualTxcall; Seeder14-214 allbody incllocalhelpers/calls, Program202-215 actualstartupMigrate/RCSI/Seed. No SQL/app invocation."
+      }
+    ]
+  }
+]

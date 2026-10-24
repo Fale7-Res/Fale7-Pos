@@ -1,0 +1,163 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.PrintAgent/BitmapTicketRenderer.cs",
+  "reviewer": "printing_workflows",
+  "updated_at_utc": "2026-10-17T22:01:24.736918+00:00",
+  "facets": [
+    {
+      "stable_id": "sym-02e05369838fe882a44d24992b7119e3816910f818b26e6f427924686f403643",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.BitmapTicketRenderer.QrSymbol.Size::get()",
+      "source_span": [
+        184,
+        184
+      ],
+      "reasoning": "QrSymbol.Size returns Modules.GetLength(0),the first dimension of the private matrix produced by EncodeQr. EncodeQr allocates square size=17+4*QR version and strips QRCoder quiet zone;Size therefore excludes quiet modules and is used by TotalDots and StampQr index bounds. Getter does not cache dimensions or validate null/rectangular matrices,which current sole construction path excludes. Array contents remain mutable despite record property init-only.",
+      "inputs": "Existing QrSymbol.Modules bool[,] reference.",
+      "outputs": "Integer first dimension;null matrix throws NullReferenceException if future internal caller violates construction invariant.",
+      "side_effects": "No writes/allocation/external effect.",
+      "trust_boundaries": "Private renderer data,not JSON DTO or authenticated input directly;QR payload already processed by EncodeQr.",
+      "database": "No database access.",
+      "printing_ui": "Bounds mx/my versus Size assume square matrix;current EncodeQr creates square,so no present rectangular out-of-bounds demonstrated.",
+      "performance": "Constant-time array length,called repeatedly per raster module;no benchmark run.",
+      "duplicates_conflicts": "No second dimension check;copy of record shares same matrix and getter reflects its fixed dimensions.",
+      "issues_hypotheses": [
+        "Future null/rectangular constructor use would invalidate stamp assumptions;not currently reachable"
+      ],
+      "tests_missing": [
+        "Pure null/rectangular internal fixture and maximum QR version dimensions;no physical printing"
+      ],
+      "verified_callers_callees": [
+        "BitmapTicketRenderer.cs184 Size",
+        "EncodeQr200-229 creates square",
+        "TotalDots186",
+        "StampQr537-550"
+      ]
+    },
+    {
+      "stable_id": "sym-46d9aa21beeb13a0a9d13d4814a068bd52bb470504e648361e09abcdbf268fda",
+      "status": "ANALYZED",
+      "source_name": "Falah.PrintAgent.BitmapTicketRenderer.QrSymbol.TotalDots::get()",
+      "source_span": [
+        186,
+        186
+      ],
+      "reasoning": "QrSymbol.TotalDots adds two QrQuietModules borders to Size then multiplies integer ModuleDots. Quiet modules constant4 and validated EncodeQr module size determine physical pixel square. RenderSegment uses this value for measured height and centered placement;StampQr uses same value loop bounds,so layout and raster agree. Getter makes no readability/width decision itself;EncodeQr rejects symbols that cannot fit content width.",
+      "inputs": "Size getter,ModuleDots init-only int,QrQuietModules4.",
+      "outputs": "Integer full square side including quiet border.",
+      "side_effects": "Pure calculation,no allocation or state change.",
+      "trust_boundaries": "Private QrSymbol constructor can accept arbitrary ModuleDots but actual EncodeQr enforces >=3 and fit;do not pretend getter validates external input.",
+      "database": "No SQL/persistence.",
+      "printing_ui": "Quiet-zone inclusion must happen once:upstream QRCoder border is stripped;this getter adds it back in printer dots.",
+      "performance": "Constant arithmetic;unchecked int multiplication theoretical overflow only with invalid future internal values.",
+      "duplicates_conflicts": "Measured height and stamp use same function;record with-copy shares Modules but copies ModuleDots scalar.",
+      "issues_hypotheses": [
+        "No current overflow/zero module path established through EncodeQr"
+      ],
+      "tests_missing": [
+        "Quiet-border exactly4modules each side,fit threshold and minimum-size QR;no printer execution"
+      ],
+      "verified_callers_callees": [
+        "BitmapTicketRenderer.cs186",
+        "EncodeQr200-229",
+        "RenderSegment274-275,374",
+        "StampQr537-550"
+      ]
+    }
+  ],
+  "source_git_blob_sha256": "2a392f1ff18c29ccaa257f7847ed0feefaa9324f130676385a136e6a1c7136dc",
+  "worktree_sha256": "5b5699ec13aeab84cbcb93079b027f63019eeeb60430d37ea02c940c4a17656a",
+  "generated_behavior_inputs": [
+    {
+      "stable_id": "sym-6d1363894d585acac920932a9069557f2b7ed03df646e2eea1f4605d1dd879ad",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.PrintAgent.BitmapTicketRenderer.Measured::record-generated-behavior",
+      "source_span": [
+        177,
+        178
+      ],
+      "reasoning": "Measured is a private positional record holding TicketElement,Height,optional Font,optional mutable CellFonts list,ContentWidth and optional QrSymbol. Generated constructor/init properties preserve supplied references;record equality/list equality is reference-based for Font/list/element objects rather than deep raster equality,and with-copy would share disposable resources. Actual RenderSegment creates per-element records then disposes Font and CellFonts after drawing;no observed with/equality use,so generated copy cannot be assumed safe resource ownership API. Generated ToString could describe record fields but is not used as ticket content.",
+      "inputs": "Element/Height/Font?/CellFonts?/ContentWidth/Qr? from RenderSegment measurement cases.",
+      "outputs": "Measurement descriptor;compiler-generated value members not individually counted.",
+      "side_effects": "Construction stores references;record itself not IDisposable and performs no disposal.",
+      "trust_boundaries": "Private trusted renderer context,not HTTP DTO;ticket data carries user text but Font allocation internal.",
+      "database": "No DB.",
+      "printing_ui": "DrawPill/DrawRow consume measured font/height;resource lifetime controlled by RenderSegment cleanup,not generated behavior.",
+      "performance": "One record allocation per ticket element plus lists/fonts;shallow equality is no substitute for visual comparison.",
+      "duplicates_conflicts": "Generated copies share Font/list;current no copy observed. Cleanup not in finally for all exceptional drawing paths remains original renderer concern.",
+      "issues_hypotheses": [
+        "Do not introduce with-copy as independent disposable ownership without design"
+      ],
+      "tests_missing": [
+        "Exception during draw/resource disposal and copy-sharing pure tests;no physical print"
+      ],
+      "verified_callers_callees": [
+        "BitmapTicketRenderer.cs177-178",
+        "RenderSegment258-395",
+        "DrawPill400",
+        "DrawRow424"
+      ]
+    },
+    {
+      "stable_id": "sym-372f3b0803bf43c210e7b6bc7f02f107a43f435bc089b49475f9004c097b402d",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.PrintAgent.BitmapTicketRenderer.QrSymbol::record-generated-behavior",
+      "source_span": [
+        182,
+        187
+      ],
+      "reasoning": "QrSymbol positional record stores mutable bool[,] Modules reference and ModuleDots scalar with init properties. Generated constructor does not enforce square/nonempty/non-null matrix or positive dot size;EncodeQr sole observed construction path supplies square matrix and validated size. Generated equality compares array reference,not contents;ToString does not serialize pixel matrix,so neither equality nor string is raster identity. A with-copy shares underlying matrix;getters Size/TotalDots are separately reviewed executable facets.",
+      "inputs": "Modules bool[,],ModuleDots int.",
+      "outputs": "Private QR rendering metadata,not wire contract.",
+      "side_effects": "Reference assignment/allocation only;no raster or printer operation from generated members.",
+      "trust_boundaries": "Internal QR encoder result;not directly deserialized externally.",
+      "database": "No SQL.",
+      "printing_ui": "StampQr uses bounds/module quiet-zone;mutating shared matrix would change both record copies rendering.",
+      "performance": "Array memory dominates record;no deep equality/hash traversal of pixels.",
+      "duplicates_conflicts": "Identical matrices independently allocated compare unequal;shared array mutation not reflected as new record identity.",
+      "issues_hypotheses": [
+        "Equality must not be used as rendered-content cache key without deep digest"
+      ],
+      "tests_missing": [
+        "Square/rectangular/null fixture,shared with-copy mutation,independent equal-content arrays;current path remains validated"
+      ],
+      "verified_callers_callees": [
+        "BitmapTicketRenderer.cs182-187",
+        "EncodeQr200-229",
+        "StampQr537-550"
+      ]
+    },
+    {
+      "stable_id": "sym-b943c690cd6e4004ada6f861fdcc5084e78112ad84e50d6cadf777a3038e0fae",
+      "status": "BEHAVIOR_ANALYZED",
+      "source_name": "Falah.PrintAgent.BitmapTicketRenderer.QrPlacement::record-generated-behavior",
+      "source_span": [
+        190,
+        190
+      ],
+      "reasoning": "QrPlacement is a private positional record of Symbol reference and integer Left/Top. Generated constructor/copy carries reference and coordinates without clipping;StampQr clips each target x/y against raster dimensions before writing. Equality delegates Symbol record equality,which remains matrix-reference based,so equal-looking codes are not necessarily equal placements. No generated member acknowledges print or writes pixels;placement is created in RenderSegment for later QR stamping.",
+      "inputs": "QrSymbol,int Left,int Top.",
+      "outputs": "Placement value descriptor used by raster stage.",
+      "side_effects": "Allocation only;no bitmap mutation until StampQr called.",
+      "trust_boundaries": "Private renderer math from contentWidth/y,not user-supplied JSON coordinates.",
+      "database": "No persistence.",
+      "printing_ui": "Bounds clipping counters out-of-paper pixel writes;negative placement truncates symbol rather than validation error.",
+      "performance": "Small allocation per QR;StampQr cost proportional TotalDots squared belongs explicit method.",
+      "duplicates_conflicts": "with-copy shares Symbol/matrix;coordinates copied as values. No observed placement equality/dedupe logic.",
+      "issues_hypotheses": [
+        "Clipping can produce unreadable cropped QR if upstream positioning invariant changes"
+      ],
+      "tests_missing": [
+        "Negative/offedge placements,symbol quiet zone and shallow equality;software bitmap fixture only"
+      ],
+      "verified_callers_callees": [
+        "BitmapTicketRenderer.cs190",
+        "RenderSegment374",
+        "StampQr537-550"
+      ]
+    }
+  ],
+  "remaining_getter_ids": [],
+  "remaining_generated_context_ids": [],
+  "scope": "Generated contexts are behavior accounting, not individually counted source/CLR methods."
+}

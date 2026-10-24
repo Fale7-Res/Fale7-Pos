@@ -1,0 +1,91 @@
+{
+  "artifact_kind": "financial_global_substantive_queue_reconciliation",
+  "id": "financial-integrity-continuation-global-queue-reconciliation-2026-10-21",
+  "created_utc": "2026-10-21T07:54:08Z",
+  "session_identity": "Replacement continuation /root/financial_integrity_continuation; persisted workspace evidence only; no claim to hidden original context.",
+  "decision": "NO_DEFENSIBLE_NEXT_CALLABLE_BATCH_FROM_CURRENT_GLOBAL_LEDGER",
+  "files_read": [
+    {
+      "path": "Codex Work/Conversation-Recovery/NEXT_ACTION.md",
+      "use": "scope, gate and agent status"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Checkpoints/financial-integrity-continuation.json",
+      "use": "latest own progress"
+    },
+    {
+      "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-current-coverage-reconciliation.json",
+      "use": "membership and selected supplemental status"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-analyzed-callable-count-reconciliation-2026-10-21.json",
+      "use": "evidence classes and missing stable-ID crosswalk"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-resume-reconciliation-2026-10-21.json",
+      "use": "selected queue exact-tail reconciliation"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-01.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-02.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-03.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-04.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-05.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-06.json",
+      "use": "completed selected queue evidence reference"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-07.json",
+      "use": "own batch; overlaps coordinator batch 7"
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-substantive-batch-07-coordinator.json",
+      "use": "coordinator batches 7-10 close selected queue"
+    }
+  ],
+  "current_ledger_values": {
+    "callable_universe": 8804,
+    "exact_receipt_membership": 8804,
+    "membership_mismatch": 0,
+    "receipt_membership_not_semantic_depth": true,
+    "selected_94_queue_reviewed": 94,
+    "selected_94_pending": 0,
+    "global_callable_coverage": null,
+    "global_substantive_status": "GENUINE_CURRENT_COUNT_UNKNOWN",
+    "current_genuine_analyzed_count": "UNKNOWN",
+    "exact_remaining_genuine_analysis_queue": "UNKNOWN; 4,551 is the stale 2026-10-17 indexed remainder, and 1,202 then 213 describe membership/disposition queues rather than remaining genuine analyses.",
+    "historical_method_classified_floor": "4102 explicit manually classified receipts as dated 2026-10-17, subject to the snapshot’s own non-exhaustive denominator and UNKNOWN independent depth.",
+    "historical_4102_vs_4253_difference": -151,
+    "stable_id_crosswalk": null
+  },
+  "blocker": "Current global ledger contains no exact ordered stable-ID pending analysis queue with evidence-quality classes. financial-current-coverage-reconciliation has null global_callable_coverage. Count reconciliation explicitly sets current genuine analyzed count and exact remaining genuine queue to UNKNOWN. Historical method-classified 4102 and indexed analyzed 4253 differ by 151 without stable-ID crosswalk; 7602 author receipts, 989 continuation IDs and 213 residual dispositions cannot be counted as semantic depth. The selected 94-ID presentation queue is complete and must not be reopened.",
+  "reconciliation_required": [
+    "Build canonical per-stable-ID ledger for 8804 callables with source path/signature/span/hash.",
+    "For every ID, link substantive reasoning evidence and class or mark membership-only, explicit N/A with rationale, or unreviewed.",
+    "Crosswalk historical 4102 manual categories to 4253 indexed IDs and document the 151 difference.",
+    "Join 7602 primary receipt IDs, 989 continuation IDs and 213 residual IDs to the same universe without treating membership as analysis credit.",
+    "Derive exact pending substantive queue from missing reasoning evidence before assigning next source batch.",
+    "Separately reconcile 327-file report scope and each file financial relevance/depth to callable evidence."
+  ],
+  "work_done": "Reconciled latest saved global ledger and own checkpoint; confirmed selected 94-ID queue complete and no exact continuation remainder persisted. No source body re-reviewed to avoid duplicate work.",
+  "source_batch": "None; no defensible exact batch available.",
+  "tests_runtime_database": "None.",
+  "usage_limit": "No usage-limit failure occurred in this turn.",
+  "changes": "Only reviewer-owned handoff and own checkpoint. Application source, tests, DB, runtime, shared report/registries, and Git untouched.",
+  "global_finance_gate": "OPEN; global substantive coverage UNKNOWN."
+}

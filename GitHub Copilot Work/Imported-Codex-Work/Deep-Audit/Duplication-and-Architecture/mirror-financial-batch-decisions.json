@@ -1,0 +1,167 @@
+{
+  "name": "Financial query/mapping and treasury/state helper comparisons",
+  "comparisons": [
+    {
+      "group_prefix": "179df3ec",
+      "reasoning": "Six sales-line/order-type timestamp predicates match exact noncancelled plus optional start/end. They serve product, hour, category and food-cost queries; reuse does not normalize dates or decide payment collection.",
+      "callers_context": "ReportingQueryService GetTopSellingItems/GetSoldProducts/GetProductHourlySales/GetCategorySales/GetFoodCostReport call private Range; raw selected spans and prior202callable receipts read.",
+      "financial_security_effects": "Shared scope excludes Cancelled, includes unpaid pending/COD per sales facts; reverse-date normalization discrepancy is outside this identical predicate and remains FIN-CAND-REPORT-RANGE-001.",
+      "recommendation": "Share a typed IQueryable sale-time scope if preserving projection/join semantics and optional open endpoints; no financial rule change.",
+      "tests": [
+        "All six components same date/cancellation cohort",
+        "Reversed range contract at one shared entry",
+        "Pending/COD versus collected-sales policy explicit"
+      ]
+    },
+    {
+      "group_prefix": "e941cb56",
+      "reasoning": "Five same FindExistingAsync bodies query NoTracking treasury movement by unique idempotency key. Prefixes, permissions, transaction placement and account movement policies live callers, not these helpers.",
+      "callers_context": "Each handler HandleAsync calls early and after rollback; BalanceLockContention closure calls same helper. Call sites verified CashierCashMovement46/117/123,Deposit34/92/98,SafeDrop36/103/109,Transfer32/105/111,Withdrawal33/95/101.",
+      "financial_security_effects": "Safe for shared lookup abstraction, not a shared financial authorization/replay proof; no actor or payload match in identical helper. DB key uniqueness is separate.",
+      "recommendation": "Consolidate lookup plumbing only; preserve key namespaces, command policy and unknown-outcome retry behavior.",
+      "tests": [
+        "Same-key committed replay",
+        "Rollback then sibling commit",
+        "No row returns null",
+        "Changed-payload same key contract"
+      ]
+    },
+    {
+      "group_prefix": "94a1ee0a",
+      "reasoning": "Two EF entity configuration lambda bodies define Id key and restrictive InventoryItem FK for PrepRecipeLine and PurchaseLine. Generic entity types and parent relationship differ despite body equality.",
+      "callers_context": "OnModelCreating263-267 versus287-291; entity parent cascade definitions elsewhere current model read.",
+      "financial_security_effects": "Typed configuration adapter reuse intentional; does not make prep quantities and purchase signs equivalent or enforce positive values. FIN018 input guards external.",
+      "recommendation": "Optional shared configuration helper parameterized type/interface only if EF relationship identity and delete restrictions stay intact.",
+      "tests": [
+        "Generated model/FK DeleteBehavior unchanged",
+        "No accidental shared table/entity type",
+        "Purchase and prep parent cascade preserved"
+      ]
+    },
+    {
+      "group_prefix": "d3ea2676",
+      "reasoning": "Three signed destination-minus-source treasury sum bodies identical; DailyStatement uses all-time Posted history, CloseEvaluator also all-time Posted for protected-negative checks, Reporting business-day report only selected BusinessDayId Posted movements.",
+      "callers_context": "Actual surrounding query filters read at DailyStatement141-148,CloseEvaluator61-76,Reporting177-180; current stock versus day flow contract documented.",
+      "financial_security_effects": "Different output meaning intentional: day flow can be negative though real all-time stock positive. Identical arithmetic cannot justify unifying data scopes or declaring account shortage.",
+      "recommendation": "Share pure sum helper only with explicit caller-supplied row scope; label current balance versus day net movement clearly.",
+      "tests": [
+        "Opening balance carried from prior day",
+        "Same-account nets zero",
+        "Pending excluded",
+        "Day net negative but total protected balance nonnegative"
+      ]
+    },
+    {
+      "group_prefix": "03a4999b",
+      "reasoning": "Open/Reopen projection into BusinessDayRecord same six-field body, but Open input already active-only while Reopen input all other IDs; current reopen target separately carries SnapshotId.",
+      "callers_context": "OpenHandle active query35-39;Reopen otherDayEntities65-68 and currentRecord69. Domain Reopen evaluates other active status from all supplied records.",
+      "financial_security_effects": "No snapshot identity lost on actual reopened target merely because other-day projection omits SnapshotId. No generic active-day uniqueness lock established by shared mapping.",
+      "recommendation": "One entity mapper with explicit optional snapshot is possible, preserving other-day exclusion and Domain status rules.",
+      "tests": [
+        "Open rejects any active day",
+        "Reopen ignores closed other days",
+        "Target snapshot retained",
+        "Unknown persisted enum fails deliberately"
+      ]
+    },
+    {
+      "group_prefix": "4fba33c6",
+      "reasoning": "DailyStatement and business-day report local Balance functions are whole-function clones wrapping same sum but capture different materialized movement lists.",
+      "callers_context": "DailyStatement all Posted history versus Reporting BusinessDayId Posted scope; nested sum clone also covered d3ea2676, do not count two defects.",
+      "financial_security_effects": "Captured scope is semantic difference even with identical local function body; current account stock versus period net both legitimate.",
+      "recommendation": "Reuse pure balance function with explicit collection and documented scope, not hidden context capture.",
+      "tests": [
+        "Prior-day opening float",
+        "Different business day ledger",
+        "No duplicate financial finding from nested clone"
+      ]
+    },
+    {
+      "group_prefix": "799dd3e1",
+      "reasoning": "BusinessDayGate and Open handler active-status predicates both Open/Closing/Reopened. Gate chooses first; Open validates list against Domain active-day rule, so same body does not guarantee deterministic single active day.",
+      "callers_context": "Gate.TryGetActive26 with FirstOrDefault;OpenHandle36 ToList then rule. FIN009 existing concurrent different open requests retained.",
+      "financial_security_effects": "Repeated policy should stay consistent; OwnerDashboard Open-only lookup is a separate ungrouped semantic concern, relayed to financial owner.",
+      "recommendation": "Central active-state definition or typed predicate, preserve need for durable uniqueness/admission guard independently.",
+      "tests": [
+        "Each active enum treated same",
+        "Multiple active rows detected or rejected",
+        "Closed excluded",
+        "Open-only dashboard scope clarified"
+      ]
+    },
+    {
+      "group_prefix": "7af017c9",
+      "reasoning": "Treasury and stock significant-action predicates both nonnull ApprovedBy and optional timestamp interval. Entity types and audit DTO mapping differ; one filter is not one monetary workflow.",
+      "callers_context": "Reporting.GetSignificantActions434 versus452, followed separate source-category/action mapping.",
+      "financial_security_effects": "Records with empty approver string still qualify !=null; no identity/issued-approval validation from query. Reporting source attribution is not independent permission proof.",
+      "recommendation": "Shared predicate shape only if typed expression translation and semantics stay explicit; do not unify distinct table queries as one event type.",
+      "tests": [
+        "Timestamp boundaries",
+        "Null versus empty attribution",
+        "Correct source category and reference"
+      ]
+    },
+    {
+      "group_prefix": "df604888",
+      "reasoning": "Inventory costing context and food-cost report map current inventory entities to same Domain InventoryItem ID/name/cost source/estimated price. Neither snapshots historical input cost on sold date.",
+      "callers_context": "Inventory.LoadCostingContext484-497 and Reporting.GetFoodCost375-383; both build CostingContext for shared Domain rules.",
+      "financial_security_effects": "Same map and current dependencies agree; Enum.Parse may throw on invalid stored string. No divergence or duplicated financial formula in this lambda.",
+      "recommendation": "Extract one shared current CostingContext loader only after preserving caller lifecycle and query scope; historical costing policy separate.",
+      "tests": [
+        "Same configured item estimate/source",
+        "Unknown enum data failure explicit",
+        "Historical sales current-cost caveat"
+      ]
+    },
+    {
+      "group_prefix": "216a31a3",
+      "reasoning": "Both current costing loaders convert purchase movement facts to Domain PurchaseReceipt with nonnull UnitCost. Surrounding filters require actual PurchaseReceipt and UnitCost!=null in both.",
+      "callers_context": "Inventory492-495 and Reporting379-382 filters/projection read; null-forgiving accessor justified by query guard, but not positivity there.",
+      "financial_security_effects": "Positive purchase-cost eligibility further applied PurchasingRules; no cost estimation divergence here. Same-time receipt ordering still provider/data policy, not proven mismatch.",
+      "recommendation": "One shared fact loader can avoid drift and repeated full history materialization; preserve nonnull filter and nullable annotations.",
+      "tests": [
+        "Null unit cost excluded",
+        "Negative/zero actual cost handled consistently",
+        "Latest receipt ordering ties"
+      ]
+    },
+    {
+      "group_prefix": "1a01c72e",
+      "reasoning": "Daily/hourly trend group value selector sums net total-refund and count identically. Group key differs Cairo date versus Cairo hour, and same-day hourly emits24fixed labels.",
+      "callers_context": "OwnerDashboard.LoadDailySeries120-121,LoadHourlySeries144-145 plus fully reviewed parent source.",
+      "financial_security_effects": "No separate payment formula introduced. Net curve includes uncollected orders by same noncancelled cohort; DST repeated hours merge and range reversed series difference outside selector.",
+      "recommendation": "Share net-group aggregation if worthwhile, preserve group-key/calendar semantics and zero-filled series.",
+      "tests": [
+        "Daily sum equals period headline under same row scope",
+        "Hourly DST repeated/absent hour",
+        "Refund cumulative timing policy"
+      ]
+    },
+    {
+      "group_prefix": "11522eac",
+      "reasoning": "LastPurchaseUnitCost and LastPurchaseAt share exact item/type/positive-cost eligibility and descending time ordering, then project price versus nullable timestamp.",
+      "callers_context": "PurchasingRules16-30 source read; costing context/current price consumers rely same receipt cohort.",
+      "financial_security_effects": "Intentional paired fields should describe same source receipt; separate enumeration can pick different tied timestamp rows/nonrepeatable input, no observed DB discrepancy.",
+      "recommendation": "Optionally select latest qualifying fact once then expose price/date pair, preserving last-positive-actual-purchase policy.",
+      "tests": [
+        "No purchase returns null pair",
+        "Zero/negative excluded",
+        "Tied timestamps deterministic agreed policy",
+        "Same source fact price/date"
+      ]
+    },
+    {
+      "group_prefix": "9b1fc077",
+      "reasoning": "Owner dashboard daily/hourly queries have identical noncancelled CreatedAt half-open bound predicates and projection. Shared row cohort, different grouping/padding produces chart shape.",
+      "callers_context": "LoadDailySeries111-132 and LoadHourlySeries134-154 source read, enclosing caller LoadTrend uses range.IsSingleDay.",
+      "financial_security_effects": "No authorization or money mutation here. Agreement of predicate does not repair reversed raw Days() or date overflow boundaries.",
+      "recommendation": "Consider one scoped row loader to prevent drift; preserve date/hour group and captured range.",
+      "tests": [
+        "Cancelled excluded in both",
+        "Same interval across DST",
+        "Single-day curve total equals daily total"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-financial-batch-evidence.json"
+}

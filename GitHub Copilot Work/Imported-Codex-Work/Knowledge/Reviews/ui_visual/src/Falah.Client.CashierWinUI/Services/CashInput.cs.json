@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Services/CashInput.cs",
+  "source_git_blob_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+  "worktree_sha256": "541677785c462ffd6ac45bae742ffca263f0779ec0deb0dc42d3364bead7748e",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T20:49:20.097928+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Re-read entire20line parser/formatter and exact3syntaxspans independently; priorfile report preserved.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/Services/CashInput.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-2c7354f95736e0fc30eda26f59cab2db70b8f9dfd400f7605ac878b5c4996d68",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.CashInput.TryParse(string?, out long)",
+      "exact_span": [
+        7,
+        5,
+        17,
+        6
+      ],
+      "reasoning": "Initializes out0, trims text, normalizes two Arabic digit ranges/Arabic decimal separator, parses decimal with only decimal-point style invariant. Rejects sign/group/exponent/currency, negative, overlong integer limit and nonzero fraction belowpiastre viaRound2!=value. AcceptedEGPmultiplies100m then casts long safely under bound. Allowszero and forms.5/1. as money-formatting policy; callers enforcepositive businessamount. Extremelylongprecisioninput may be rounded by decimal parser before comparison; not verified as current defect.",
+      "inputs": "nullabletext",
+      "outputs": "bool and long piastres, false alwaysout0",
+      "side_effects": "Pure parsing/formatting; outparameter only; no execution byreviewer",
+      "trust_boundaries": "Operatorstring→integerpiastres; business permission/amountlimit belongs caller/server",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Cashentry anddisplay; no physicalprinting",
+      "performance": "Linear normalization allocation forTryParse; constant decimalformat; no inputlength bound here",
+      "duplicates_conflicts": "LegacyWPF UI013different arithmetic notsamefunction; nolegacyheadingpromotion",
+      "issues_hypotheses": "Longprecisiondecimalrounding isunverifiedhypothesis; no newcanonicalfinding",
+      "tests_missing": "Boundarytests longMaxexact, extra fractional digits, Arabicdigits, rejected signs/groups; no actual runtime test executed.",
+      "verified_callers_callees": "Normalizationlambda; decimal.TryParse/Round; cashier checkout/settings/management input callers verified in priorreports"
+    },
+    {
+      "stable_id": "sym-3c6fabe579968563067d3d8550534ece4e8093c5f7a25ffbb66400bc352670db",
+      "status": "ANALYZED",
+      "exact_signature": "lambda expression",
+      "exact_span": [
+        10,
+        67,
+        12,
+        80
+      ],
+      "reasoning": "Character mapping checks ArabicIndic٠..٩ then Persian۰..۹, maps toASCII0..9; Arabic decimal separator٫ becomesdot, othercharacters preserved for strict decimal parser rejection. Oneinputchar→oneoutputchar, not Unicode normalization of all numeric characters. Linearoverinput length withSelect/Concat allocation.",
+      "inputs": "charc",
+      "outputs": "char",
+      "side_effects": "Pure parsing/formatting; outparameter only; no execution byreviewer",
+      "trust_boundaries": "Operatorstring→integerpiastres; business permission/amountlimit belongs caller/server",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Cashentry anddisplay; no physicalprinting",
+      "performance": "Linear normalization allocation forTryParse; constant decimalformat; no inputlength bound here",
+      "duplicates_conflicts": "LegacyWPF UI013different arithmetic notsamefunction; nolegacyheadingpromotion",
+      "issues_hypotheses": "Longprecisiondecimalrounding isunverifiedhypothesis; no newcanonicalfinding",
+      "tests_missing": "Arabic grouping٬ remains rejected, fullwidthdigits notnormalized; confirm desiredlocale policy.",
+      "verified_callers_callees": "TryParse→Trim.Select→string.Concat"
+    },
+    {
+      "stable_id": "sym-0e781f88be37f6c6e7c3669feac2930517675213538fa7596a9365123b51223d",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.Services.CashInput.Format(long)",
+      "exact_span": [
+        19,
+        5,
+        19,
+        116
+      ],
+      "reasoning": "Divides piastres by decimal100m and formats exactlytwo invariant decimals, preserving integer money withoutbinaryfloatingpoint. Supportsnegativeledgeramounts includinglongMin. Output intentionallyASCII/EGPnumericstring forstableparse/input, UI appendscurrency.",
+      "inputs": "longpiastres",
+      "outputs": "stringnumeric",
+      "side_effects": "Pure parsing/formatting; outparameter only; no execution byreviewer",
+      "trust_boundaries": "Operatorstring→integerpiastres; business permission/amountlimit belongs caller/server",
+      "database": "NOT_APPLICABLE",
+      "printing_ui": "Cashentry anddisplay; no physicalprinting",
+      "performance": "Linear normalization allocation forTryParse; constant decimalformat; no inputlength bound here",
+      "duplicates_conflicts": "LegacyWPF UI013different arithmetic notsamefunction; nolegacyheadingpromotion",
+      "issues_hypotheses": "Longprecisiondecimalrounding isunverifiedhypothesis; no newcanonicalfinding",
+      "tests_missing": "Roundtrip allpiastrelongboundaries andnegativeformat; TryParserejectsnegative bydesign so not symmetric.",
+      "verified_callers_callees": "decimaldivision; ToString invariant; VM display/tender defaults"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

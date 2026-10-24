@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "coordinator_independent_financial_callable_review",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-24T12:53:03.263Z",
+  "reviewer": "root coordinator",
+  "independent_of": "financial_integrity_continuation",
+  "callable": {
+    "stable_id": "sym-9f4985e65d0f8db068bf3f714512323ef09cf02e3fd3aa6e68cb81acc72da115",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLateDeduction(Falah.Domain.Common.Money, int, int, int, int, double)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      44,
+      51
+    ],
+    "source_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "receipt_sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "specialist_handoff": "Codex Work/Sub-Agents/Handoffs/financial-payroll-late-deduction-quality-review-2026-10-24.json"
+  },
+  "classification": "SUBSTANTIVE_REVIEW_VERIFIED for source behavior; malformed payroll-policy bounds remain conditional; FIN012 overlap is not a new finding",
+  "independent_validation": {
+    "source_hash_match": true,
+    "index_identity_span_match": true,
+    "receipt_identity_span_match": true,
+    "all_source_and_test_hashes_match": true,
+    "all_ranges_in_bounds": true,
+    "linked_references_checked": 7,
+    "failed_checks": 0,
+    "method": "Independently read CalculateLateDeduction, automatic attendance writer, attendance correction transaction and signed delta, payroll calculation inclusion rules and cited test-source spans. Compared to specialist handoff and callable receipt; FIN012 canonical record inspected. No tests executed."
+  },
+  "verified_behavior": [
+    "The helper composes integer-truncated NormalHourlyRate and CalculateLatePenaltyHours, multiplies by configured double multiplier, rounds with default Math.Round midpoint-to-even, casts to long and returns components; it does not itself persist.",
+    "Automatic check-in only calls for lateMinutes > grace and positive wage and posts only positive calculated amount as the deterministic daily Deduction debit. Negative/zero outcomes are suppressed in that path.",
+    "Attendance correction recomputes old/new deduction and maps new-minus-old positive to debit, negative to credit under manager authorization and a transaction. Negative max-hours or multiplier can conditionally invert that sign, but no evidence shows malformed configuration exists or is disallowed.",
+    "PayrollRules.CalculatePayrollLines includes Adjustment debits among deductions but does not include Adjustment credits as earnings; this is already represented by FIN-012 and must not be duplicated.",
+    "The expression multiplies long rate by int hours before double multiplier; extreme overflow/non-finite conversion behavior has not been executed and is not inferred."
+  ],
+  "tests_review": {
+    "domain": "PayrollRulesTests.cs:11-45 tests ordinary grace tiers and conventional deduction only.",
+    "attendance": "AttendanceVerticalSliceTests.cs:71-88 describes/executes a no-penalty case in test source; not a positive malformed-config scenario.",
+    "payroll": "PayrollVerticalSliceTests.cs:93-109 covers ordinary overtime-ledger consumption, not a correction-credit payroll inclusion.",
+    "executed": false
+  },
+  "canonical_overlap": {
+    "finding_id": "FIN-012",
+    "title": "Attendance correction credits do not enter calculated payroll",
+    "severity": "HIGH",
+    "disposition": "Retain FIN-012 as the single canonical correction-credit omission finding. This callable review corroborates its calculation-side context; do not add or broaden a duplicate finding. Current future repair/test criteria remain in MASTER_FINDINGS.json."
+  },
+  "limits": [
+    "Settings defaults inspected are 15-minute grace, maximum 2 penalty hours and multiplier 2.0; no stored configuration or incident inspected.",
+    "No owner payroll policy defines whether negative or extreme config values are invalid.",
+    "No test, runtime, SQL Server or database write executed."
+  ],
+  "new_finding": false,
+  "remaining_action": "No further review of this helper absent contradictory evidence. Keep the conditional malformed-settings policy question separate from FIN-012, and continue with the next unverified material payroll callable.",
+  "tests_executed": false,
+  "application_source_modified": false,
+  "database_or_runtime_modified": false
+}

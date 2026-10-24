@@ -1,0 +1,104 @@
+{
+  "artifact_kind": "financial_callable_substantive_review",
+  "created_at_utc": "2026-10-24T12:01:08Z",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Batch 14: independently quality-check one live EXISTING_REASONING_UNVERIFIED, materially financial production callable; preserve prior work and do not change the overlay/master/report/source/tests/data/runtime.",
+  "state_reconciliation": {
+    "coordinator_validation": "Codex Work/Deep-Audit/Database-and-Finance/financial-production-batch-13-coordinator-validation-2026-10-24.json",
+    "batch13_validated_symbol": "sym-4d76ba6fec41f9f17ac074c55daebae49691b1ebf2cf0b38bee9724f64d150e2 (OwnerDashboardQueryService.LoadPeopleAsync)",
+    "batch13_result": "Coordinator validated/promoted; no new finding; reversed-range behavior remains in FIN-CAND-REPORT-RANGE-001 scope.",
+    "live_overlay": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "live_overlay_sha256": "8e3d080eb2893bd3129b3106fab273dbf1040a2beac3d46ce5e59b085049554e",
+    "status_counts": {
+      "SUBSTANTIVE_REVIEW_VERIFIED": 63,
+      "EXISTING_REASONING_UNVERIFIED": 7758,
+      "IDENTITY_ONLY": 983,
+      "total": 8804
+    },
+    "selection_rationale": "Selected Order.ApplyRefund over the adjacent health/presentation read path because it gates accumulated refundable value and changes the order's refund total/status; it sits on the direct monetary entitlement transition. The live overlay marked this exact callable EXISTING_REASONING_UNVERIFIED. Its prior authored receipt had not been source-quality promoted."
+  },
+  "callable": {
+    "stable_id": "sym-b90e1805757f7674b897ad8aa3ea2233c933d06f04534c70530022d4d1107f12",
+    "signature": "Falah.Domain.Orders.Order.ApplyRefund(Falah.Domain.Orders.OrderRefund)",
+    "source_path": "src/Falah.Domain/Orders/Order.cs",
+    "current_source_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+    "source_line_range": [220, 232],
+    "source_span": [220, 5, 232, 6],
+    "source_reasoning_receipt": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Orders/Order.cs.json",
+    "receipt_sha256": "c86a1e38d8e6bb7e0c0e2e3e704ec7a50f65c9a84c69efa30aacb70fcbfcb205",
+    "receipt_author": "financial_integrity",
+    "receipt_reasoning_excerpt": "Rejects Cancelled and Multi, caps positive amount at Total - RefundAmount, appends refund/increments running total, marks Refunded when exhausted. No IsPaid/COD/pending-leg/collected-cap check (FIN003).",
+    "source_checked": true,
+    "review_verdict": "SUBSTANTIVE_REVIEW_VERIFIED_FOR_THIS_REVIEWER; confirms the receipt's source-described guard and FIN-003 overlap. This is an independent quality check, not a change to the shared overlay or canonical finding."
+  },
+  "source_evidence": [
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "ranges": [[216, 232]],
+      "behavior": "ApplyRefund rejects Cancelled and Multi; computes no payment-collected predicate; requires amount positive and <= Total - RefundAmount; appends the supplied OrderRefund, increments RefundAmount, and sets Refunded on equality to Total. Pure aggregate mutation, with no ledger or I/O effect itself."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "sha256": "ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085",
+      "ranges": [[45, 83], [85, 120], [130, 155]],
+      "behavior": "The route handler replays by refund-{RefundRequestId}; loads the order under SQL Server UPDLOCK/ROWLOCK/HOLDLOCK in a ReadCommitted transaction; authorizes orders_refund; caps request against order total remaining; verifies only the mapped source account's aggregate protected balance; creates the refund movement and child; calls ApplyRefund; saves order/refund/movement/audit together and commits. It does not check order.IsPaid, cash-on-delivery status, confirmed electronic leg, or order-specific collected amount before posting. Unique idempotency and same-order locking protect replay/concurrent over-refund, not payment entitlement."
+    },
+    {
+      "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "ranges": [[41, 78]],
+      "behavior": "Cash-on-delivery is Delivery + Cash + positive total; pending electronic legs are explicit claims. ComputeIsPaid returns false for cash-on-delivery/electronic-pending; DefersAllMoney confirms checkout intentionally posts no treasury money for these cases."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "ranges": [[248, 279]],
+      "behavior": "Checkout may deduct stock before settlement, but only creates sale movements and completes the financial journal when DefersAllMoney is false. This confirms deferred/uncollected states can exist without sale movement at checkout."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+      "sha256": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b",
+      "ranges": [[55, 88]],
+      "behavior": "Electronic payment confirmation is the separate operation that locks the order, requires the aggregate pending-leg transition, marks IsPaid, and posts the sale movement/journal. It is counterevidence against treating a pending leg as collected; it does not gate RefundOrderHandler."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "ranges": [[78, 99], [110, 114], [131, 135]],
+      "behavior": "Order version is an application-managed concurrency token; OrderRefund idempotency key and treasury movement idempotency key have unique indexes. These constrain concurrency/replays, not collected-vs-refundable entitlement."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "ranges": [[1395, 1407]],
+      "behavior": "POST /api/orders/refund invokes RefundOrderHandler and maps domain failures to UnprocessableEntity and idempotency conflicts to Conflict."
+    }
+  ],
+  "counterevidence_and_scope": {
+    "financial_controls_confirmed": "Requires orders_refund permission or manager approval; source account must have sufficient aggregate protected balance; refund amount cannot exceed order total remaining; row lock, concurrency token and unique idempotency indexes address duplicate/concurrent posting.",
+    "existing_tests": {
+      "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+      "sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+      "ranges": [[52, 93], [95, 151], [153, 180], [183, 238], [243, 259]],
+      "coverage": "Source contains full/partial/clamped refund checks, sequential and concurrent idempotency, different-key same-order cap, authorization denial, Multi rejection, references, frozen snapshot preservation, conflicting key atomicity, and insufficient drawer balance. Those tests support several protections but use paid takeaway cash for normal refund flow; no unpaid COD/pending electronic refund scenario was found in this file."
+    },
+    "canonical_overlap": "FIN-003 in Codex Work/Deep-Audit/MASTER_FINDINGS.json already covers the exact uncollected-order refund concern. Do not create a duplicate finding. The existing finding's current RefundOrderHandler worktree hash matches the inspected source (ca7d392...), while its historical source_git_blob_sha256 is c55ddef...; reconcile this provenance if needed. The canonical finding source range includes Order.cs 220-233 and RefundOrderHandler 78-92/102-120.",
+    "policy_uncertainty": "The source confirms a monetary refund can be built for deferred/unpaid state if the source treasury account has unrelated sufficient funds, because the server checks account balance but not order collection state. Whether a restaurant should refund a COD order before collection, how pending electronic payment should be handled, and whether a prior charge/capture or collected partial amount is required are business policy questions. Source-only evidence does not establish deployment, live incidence, or realized loss.",
+    "not_claimed": ["no authorization bypass", "no runtime proof", "no live database outcome", "no actual duplicate payment/loss demonstrated", "no test was executed"]
+  },
+  "quality_assessment": {
+    "status": "SUBSTANTIVE_REVIEW_VERIFIED",
+    "verified_reasoning": "The receipt accurately describes the domain guard and its missing collected-payment bound. Cross-file review confirms a reachable deferred checkout state and confirms settlement is performed separately; the refund handler's balance guard and concurrency protections do not establish collection for this specific order. Existing tests exercise safeguards but leave this eligibility boundary untested.",
+    "existing_finding_disposition": "Corroborates FIN-003; no new finding. Implementation recommendation should remain tied to the owner's policy for COD and pending electronic orders, then enforce/validate the chosen collection entitlement under the existing order lock.",
+    "remaining_actions": [
+      "Owner/policy decision: whether refunds before collection are forbidden for COD/pending electronic orders and whether a per-order collected amount is required.",
+      "Refresh/confirm FIN-003's exact current source hash metadata; current handler SHA-256 is ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085, distinct from the historical git-blob digest recorded there.",
+      "After policy is set, add API/domain regressions for unpaid COD, pending electronic, confirmed electronic, paid cash, partial collection/partial refund, plus concurrent cancel/confirm/refund, asserting no refund movement/refund child/order state change when entitlement fails."
+    ]
+  },
+  "tests_executed": [],
+  "source_or_runtime_changes": false,
+  "overlay_or_master_changed": false,
+  "next_exact_operation": "Coordinator: reconcile this source-backed FIN-003 challenge with the canonical finding's current source hash/reference metadata and owner-policy field; then choose the next material callable from the live EXISTING_REASONING_UNVERIFIED overlay. This batch's callable should not be re-reviewed unless source changes or policy/test evidence changes."
+}

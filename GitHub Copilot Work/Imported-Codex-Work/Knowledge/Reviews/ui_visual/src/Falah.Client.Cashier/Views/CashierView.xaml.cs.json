@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.Cashier/Views/CashierView.xaml.cs",
+  "source_git_blob_sha256": "19b5d5d7978c8b25fcfdacb44831954b3a7798b4762c9215dadad0ebbf6a332e",
+  "worktree_sha256": "19b5d5d7978c8b25fcfdacb44831954b3a7798b4762c9215dadad0ebbf6a332e",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T21:55:23.451527+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "CashierView legacy exact constructor source inspected.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.Cashier/Views/CashierView.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-7c598d5d7291a8c25d217c3c42fd4319f9970a80546f3d8063c3da1915282bdd",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.Cashier.Views.CashierView.CashierView()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        7,
+        5,
+        7,
+        51
+      ],
+      "reasoning": "This CashierView constructor only invokes InitializeComponent to create WPF XAML tree; bindings/commands and templates contain remaining visual behavior, not executable code-behind.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No native WPF layout or binding execution; prior XAML source report retained.",
+      "tests_missing": "No native WPF layout or binding execution; prior XAML source report retained. NOT_EXECUTED.",
+      "verified_callers_callees": "InitializeComponent"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

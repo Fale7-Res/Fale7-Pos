@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+  "source_git_blob_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+  "worktree_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T03:41:00.770217+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW_WITH_QUERY_SCOPE_LIMITS",
+  "evidence": "Manual whole-file and per-function/lambda reasoning. No financial operation executed.",
+  "symbols": [
+    {
+      "stable_id": "sym-a8d4c1f9bbd505fd48eee24237ff27f9801da8afca94d7459fd1550db5fd53f7",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        26,
+        5,
+        54,
+        6
+      ],
+      "reasoning": "Initializes four tracked channels, skips Cancelled, then for Multi counts cash/card leg immediately and electronic leg only if order electronic state Confirmed with matching method. Single method counts net Total-Refund only when IsPaid. Multi refund not netted intentionally; currently multi refund forbidden elsewhere, future support must change this contract. One electronic record cannot independently confirm two different electronic methods; FIN001 remedy must preserve both-leg state semantics. COD money not mapped to cash channel here, delivery settlement handles custody separately.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-2da4c62ea4e7f035efdd7778c63abccba49db9008875739e643b34ef6a67a4c8",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        50,
+        28,
+        56
+      ],
+      "reasoning": "ToDictionary creates one entry per tracked enum and initializes each Money.Zero. Identity selector and zero-value selector have distinct stable IDs; no payment traversal here. Specific lambda: m => m",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-0f883666956b0766baff65e321ba05fa802e83d44e2c1c6f15505614aa7b08ed",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        28,
+        58,
+        28,
+        73
+      ],
+      "reasoning": "ToDictionary creates one entry per tracked enum and initializes each Money.Zero. Identity selector and zero-value selector have distinct stable IDs; no payment traversal here. Specific lambda: _ => Money.Zero",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-55640e7b710a9b8370eff1c598ca77510b5e74479a5cc35218930a816f166318",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashSalesFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        58,
+        5,
+        59,
+        57
+      ],
+      "reasoning": "CashSalesFromOrders delegates sole channel accounting implementation then selects Cash; does not add COD settlement or subtract CashRefunds again.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    },
+    {
+      "stable_id": "sym-9ce2bb347d6384cf1dfbc0019fca416da2cd0b2a6ba2096c05fde5a6cb0100db",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>)",
+      "span": [
+        71,
+        5,
+        81,
+        6
+      ],
+      "reasoning": "Reporting-only sum of RefundAmount for noncancelled paid single Cash orders, skipping Multi. Drawer cash total already netted; caller must not subtract this refund display again. No refund posting or current-shift attribution performed.",
+      "inputs": "Frozen orders, caller-selected custody IDs, cost/count/amount facts or captured pure locals",
+      "outputs": "Pure report/channel dictionary/Money/nullable ratios/predicate as signature describes",
+      "side_effects": "Local dictionary and aggregates only; no persisted money mutation or live request executed.",
+      "database": "None; date/shift/cancellation/settlement scoping delegated to callers and not independently proven complete in this batch.",
+      "trust_boundaries": "Financial report inputs must come from authorized trustworthy queries; pure rules do not validate session or canonical source scopes.",
+      "printing_ui": "No physical/UI operation; cash-refund display amount must not be deducted a second time by caller.",
+      "performance": "Nested LINQ and repeated order enumeration; no SQL/materialization latency or memory profile measured.",
+      "duplicates_conflicts": "Single shared PaymentMethodTotals deliberately reused; Gross and Operating completeness differ by declared scope. Do not consolidate away unknown-vs-zero semantics.",
+      "issues_hypotheses": "FIN010 whole-order pending subtraction corroborated. Partial food cost and missing wages explicitly qualified; no automatic new profit defect asserted.",
+      "tests_missing": "Mixed pending/confirmed channels, all-zero/partial/unknown coverage, tax refund rounding and bounds, COD settlement set correctness, no double refund subtraction.",
+      "verified_callers_callees": "Complete three sources manually read; external query filtering/refund guards not newly certified. Existing findings preserved."
+    }
+  ],
+  "remaining_callable_ids": []
+}

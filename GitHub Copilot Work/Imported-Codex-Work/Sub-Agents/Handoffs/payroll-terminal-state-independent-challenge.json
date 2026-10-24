@@ -1,0 +1,73 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original financial specialist",
+  "at_utc": "2026-10-18T08:54:13.218908+00:00",
+  "method": "Independent bounded source challenge, retaining prior individually authored Payroll method receipts and newly reading root day/source/model evidence. No runtime/SQL/DB/HTTP operation executed.",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "originator": "root; this review is independent of root candidate construction",
+  "candidate_key": "PAYROLL_CANCEL_PAYMENT_STALE_STATUS_RACE",
+  "severity_assessment": "HIGH justified for authorized payout/cancel integrity; no duplicate-pay reproduction",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+      "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+      "git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+      "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4"
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+      "git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+      "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+    }
+  ],
+  "reasoning": [
+    "PayrollRules18 permits Approved->Cancelled and Approved->Paid but Paid/Cancelled terminal. This prevents a newly READ invalid transition; it does not protect status read earlier.",
+    "TransitionHandler34-37 reads/validates Approved, then55 writes Cancelled and59 saves, with no explicit transaction, run lock, rowversion or state predicate. Entity5-20 has no version, DbContext460-471 only ID/idempotency/live-period indexes.",
+    "PayHandler62-74 reads Approved before Tx111; locks source account insideTx118 but never refreshes run status; writes Paid149 and commits162. Its uniqueness keyed payroll-payment-run prevents duplicate payment, not concurrent status-only cancellation."
+  ],
+  "accepted_schedules": [
+    {
+      "steps": [
+        "Cancel request with employees_manage reads Approved and passes rules, pauses before mutation/save.",
+        "Pay request with payroll_pay, valid open day/source funds pays and commits run Paid + movement + employee settlements.",
+        "Cancel resumes mutation55 andSave59, setting Cancelled without modified financial fields."
+      ],
+      "effect": "Previously Paid financial facts remain while run terminal status becomes Cancelled. Existing PaidAt/TreasuryMovement fields not marked modified by cancelled stale context are ordinarily retained; not claiming EF overwrites entire row or erases payment."
+    },
+    {
+      "steps": [
+        "Pay reads Approved and lines, pauses before transaction.",
+        "Cancel commits Cancelled while no pay transaction open.",
+        "Pay resumes, obtains source liquidity lock, posts movement/settlements and changes run toPaid."
+      ],
+      "effect": "Payout admitted despite already committed cancellation. Assume NO new replacement live-period run before pay save."
+    }
+  ],
+  "rejected_or_qualified_claims": [
+    "Not a duplicate same-run payout finding: existing run-only journal/movement uniqueness remains counterevidence.",
+    "When a replacement active run has been inserted, filtered Period Live index may reject setting oldrunPaid; this is real counterexample to blanket schedule. Chosen schedule has no replacement.",
+    "Do not claim payment source liquidity lock missing; it is correctly insideTx. It serializes source funds, not run state.",
+    "Explicit EF generated SQL WHERE shape and actual isolation behavior not executed; source shows no authored concurrency token/state predicate. External global serialization unproved, configured API source has no common payment/cancel critical-section wrapper."
+  ],
+  "correction_design": "Serialize both state transitions and payout on same run row within transaction, or concurrency-token compare-and-swap with validated terminal transition; revalidate payable lines inside boundary. Preserve source locks and unique payout key with deterministic lock order.",
+  "regression_tests": [
+    "Barrier at cancel Approved-read then paycommit must reject cancelled overwritingPaid.",
+    "Barrier at pay Approved-read then cancelcommit must abort all payoutwrites.",
+    "Repeat with replacement run insertion and existing unique period filter; no unintended blockage/lostrecords.",
+    "Same-run same/different source requests still yield exactly one payout."
+  ]
+}

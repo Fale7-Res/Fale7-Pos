@@ -1,0 +1,241 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:11:05.0755233Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+  "symbol_count": 18,
+  "symbols": [
+    {
+      "stable_id": "sym-e679d1272fedebb2a0f644a910771ff675f29575fa4d003bb055451bea046253",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLatePenaltyHours_matches_the_owner_approved_tiers(int, int, int, int)",
+      "span": [
+        11,
+        5,
+        19,
+        102
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6d7b69cc0969727ef492dc455b8cc444346fe3079fcefa07cff1ec82bbd2034d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.NormalHourlyRate_is_zero_when_workday_hours_is_non_positive()",
+      "span": [
+        21,
+        5,
+        26,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6afb1bec50bea494021e9cd76588d97955c2f204d186d899c2b2df2ae496f120",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLateDeduction_computes_rate_hours_and_amount_together()",
+      "span": [
+        28,
+        5,
+        37,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fbefeb42aed95f287a5d55d00a309b30dae278131b13e99a3e676e92756fae7c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateLateDeduction_is_zero_within_grace()",
+      "span": [
+        39,
+        5,
+        45,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-dca78f0c8b2ec045c43303f6ed0a1f50cba321e522b5ba060958e08ceca7d4c2",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateOvertimeAmount_is_zero_for_non_positive_hours()",
+      "span": [
+        49,
+        5,
+        54,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-49ceba32e9f58b8de8d8c9a5dae399c7f1286bede1dad80138bf29c256e1ea89",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculateOvertimeAmount_applies_the_overtime_multiplier()",
+      "span": [
+        56,
+        5,
+        63,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-93ceca84e3cc7f068470153d50b9e28137ca42c60c0e18e38c6e947c46205077",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.AssertTransition_enforces_the_payroll_lifecycle(Falah.Domain.Payroll.PayrollRunStatus, Falah.Domain.Payroll.PayrollRunStatus, bool)",
+      "span": [
+        67,
+        5,
+        80,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b01f46bf46a7481f186367dadfa3bfd5d3f2acc024d0c8ef4d4fd5c8aaa384b6",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        79,
+        45,
+        79,
+        90
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6e4f0f9a7af059ef1a42a01f36c1378de1fbb1b83ca1492f4391965878575a01",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.OutstandingAdvance_nets_advances_against_prior_settlement_deductions_floored_at_zero()",
+      "span": [
+        84,
+        5,
+        93,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-5f71066106ea3f0c759e1fa31f761b8578f46af9bade23111080b4a24ef25e2b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.OutstandingAdvance_never_goes_negative()",
+      "span": [
+        95,
+        5,
+        104,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d973a5c8e7d964f1e66d1ad1ac9057e081003d34311f3772be807e81af6d484e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.DailyEmployee(string, bool, IReadOnlyList<(string, Falah.Domain.Common.Money, Falah.Domain.Common.Money)>, Falah.Domain.Common.Money, Falah.Domain.Common.Money)",
+      "span": [
+        108,
+        5,
+        110,
+        85
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e4b7f1520e715a0a737c2d3b48843878a5fe49ba11b8fcb867410f7b98f0cc26",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_sums_daily_wage_overtime_extra_shifts_bonuses_and_deductions()",
+      "span": [
+        112,
+        5,
+        133,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3463aa8bf693bf9d037873921cef38e32c06b3eecdf4fba5da74f214cdb4beb4",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_uses_the_monthly_salary_for_a_monthly_employee_not_period_entries()",
+      "span": [
+        135,
+        5,
+        143,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1c0ffaa44797b690ca929da80894b884ad2561fb98d03c0e044be94f0f388983",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_excludes_an_inactive_employee_with_no_earning_activity()",
+      "span": [
+        145,
+        5,
+        150,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-fc0b7113172357922598ac90a6315001cc74c6331ad63746683f5346ac5bab3d",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_includes_an_inactive_employee_if_they_still_earned_something_this_period()",
+      "span": [
+        152,
+        5,
+        158,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e4e688e3fd766a7f465394d82edc1643a1ce3574213f782211519d03072e2feb",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_rejects_an_advance_deduction_beyond_what_is_available()",
+      "span": [
+        160,
+        5,
+        166,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-e5116567d3b3654566ae49e310d5422ee477218c1a312a31ef39716ef06d3ec0",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        165,
+        40,
+        165,
+        97
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2f68b00873ac5c1a1a6ecfec0e267298a9c35ab8317951bff0734e7ec908a1f3",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.PayrollRulesTests.CalculatePayrollLines_never_produces_a_negative_net_payable()",
+      "span": [
+        168,
+        5,
+        174,
+        6
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover late penalty tiers, zero nonpositive hourly configuration, late deduction/overtime arithmetic and grace, payroll status transitions, advance balance floor and advance-deduction bound, daily/monthly payroll line composition, inactive employees, and nonnegative net pay. Existing findings remain controlling: the test-approved generic Approved→Paid transition is implicated by FIN-006 because the generic status handler can mark Paid without treasury/ledger payout; FIN-012 covers correction Adjustment credits omitted by payroll line calculation (which includes only Adjustment debits). These are already independently confirmed in the saved findings, so I added no duplicate. The test suite does not exercise correction credits or payout side effects. Source shard review of PayrollRules also has callable context notes, no independent exploit beyond authored FIN-012.",
+  "source_ranges": "PayrollRulesTests.cs: entire file; PayrollRules.cs: 18-29, 32-60, 64-73, 86-111, 119-128; financial-findings.json FIN-006 and FIN-012.",
+  "execution": "Read-only source/test and existing-finding review; no tests/runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/PayrollRulesTests.cs": "A5E81745063636BCA45F2880267B0C1664F3F92E674AAD59916F5AECD591701E",
+    "src/Falah.Domain/Payroll/PayrollRules.cs": "4A2B2460A8E991C874A4965B244FFA4F36D229D6460897D54968B6C0047F0F86"
+  },
+  "existing_finding_references": [
+    "FIN-006",
+    "FIN-012"
+  ],
+  "shard_reconciliation": {
+    "financial_integrity": "0/18 exact IDs present",
+    "financial_coordinator": "0/18 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

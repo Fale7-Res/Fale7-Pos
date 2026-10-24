@@ -1,0 +1,84 @@
+{
+  "manifest_version": "1.0",
+  "timestamp_utc": "2026-10-24T14:12:22Z",
+  "source_baseline": {
+    "commit_sha": "c35816ecae49633674775dd32061c6ee92f94aaf",
+    "git_head": "9beff52a6c9c6c4f7244cbd46dc449da91745582",
+    "total_tracked_files": 690,
+    "working_tree_matches_baseline": true
+  },
+  "original_audit_scope": {
+    "phases_count": 15,
+    "deliverables_count": 19,
+    "all_phases_covered": true,
+    "all_deliverables_prepared": true
+  },
+  "callable_inventory_and_evidence": {
+    "total_repository_callables": 11653,
+    "production_callables_src": 9205,
+    "test_callables_tests": 2439,
+    "tools_callables": 9,
+    "substantive_reviews_completed": 8852,
+    "generated_or_trivial_with_justification": 2801,
+    "unaccounted_callables": 0,
+    "registry_path": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json"
+  },
+  "material_findings": {
+    "total_findings": 77,
+    "high_severity": 32,
+    "medium_severity": 40,
+    "low_severity": 5,
+    "dispositions": {
+      "INDEPENDENTLY_CORROBORATED": 27,
+      "CORROBORATED_WITH_QUALIFICATIONS": 24,
+      "REQUIRES_RUNTIME_VERIFICATION": 21,
+      "REQUIRES_OWNER_BUSINESS_DECISION": 5
+    },
+    "registry_path": "GitHub Copilot Work/11-Master-Findings/RECONCILED_MASTER_FINDINGS.json"
+  },
+  "mirrored_code_and_architecture": {
+    "ast_clone_groups_dispositioned": 218,
+    "semantic_comparisons_recorded": 71,
+    "reconciled_contradiction": "Latest comparison is definitively SEM-MIRROR-071 (resolved from historical 066 record)",
+    "registry_path": "GitHub Copilot Work/04-Mirrored-Code-and-Architecture/CODE_DUPLICATION_AND_ARCHITECTURE.md"
+  },
+  "financial_workflow_coverage": {
+    "workflows_analyzed": 16,
+    "invariants_evaluated": 41,
+    "critical_flaws_proven": [
+      "FIN-001",
+      "FIN-002",
+      "FIN-003",
+      "FIN-005",
+      "FIN-006",
+      "FIN-013"
+    ],
+    "report_path": "GitHub Copilot Work/03-Financial-Integrity/DATABASE_AND_FINANCIAL_INTEGRITY.md"
+  },
+  "printing_subsystem_coverage": {
+    "routes_analyzed": 6,
+    "critical_flaws_proven": [
+      "PRT-001",
+      "PRT-002",
+      "PRT-003",
+      "PRT-004"
+    ],
+    "report_path": "GitHub Copilot Work/06-Printing/PRINTING_RELIABILITY_AND_PREVIEW.md"
+  },
+  "outstanding_runtime_verification": {
+    "sql_server_concurrency": "Multi-threaded race conditions in business day open and supplier settlements require active LocalDB execution.",
+    "physical_printing": "Xprinter XP-D200N hardware verification of 5-feed cut distance and bitmap rasterization requires physical device connection.",
+    "status": "EXPLICITLY_MARKED_UNEXECUTED_DUE_TO_SAFETY_POLICY"
+  },
+  "files_requiring_independent_codex_challenge": [
+    "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+    "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+    "src/Falah.Domain/Orders/Order.cs",
+    "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+    "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+    "src/Falah.Infrastructure/Dashboard/OwnerDashboardQueryService.cs",
+    "src/Falah.Server/Controllers/",
+    "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs",
+    "src/Falah.PrintAgent/Workers/PrintPollingWorker.cs"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "agent": "financial_integrity_continuation",
+  "updated_at_utc": "2026-10-24",
+  "status": "bounded_review_saved",
+  "assignment": {
+    "stable_id": "sym-9f4985e65d0f8db068bf3f714512323ef09cf02e3fd3aa6e68cb81acc72da115",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLateDeduction(Falah.Domain.Common.Money, int, int, int, int, double)",
+    "source": "src/Falah.Domain/Payroll/PayrollRules.cs:44-51",
+    "initial_status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "handoff_path": "Codex Work/Sub-Agents/Handoffs/financial-payroll-late-deduction-quality-review-2026-10-24.json",
+  "handoff_sha256": "acd594d77f2d17fc64dcfdb720dbe53053fd3b26876c5172d69de4aaa47ecd7e",
+  "disposition": "Receipt reasoning corroborated, including long multiplication before double widening and default ToEven rounding. Positive normal settings create deductions; biometric caller suppresses nonpositive result. Correction caller posts signed adjustments; malformed negative settings can reverse correction sign conditionally. Existing FIN012 overlap: Adjustment credits are not included in payroll earnings. No new finding recommended absent policy; numerical edge behavior remains static-only.",
+  "cross_references": [
+    "Codex Work/Sub-Agents/Handoffs/financial-payroll-settings-validation-correction-delta-review-2026-10-24.json",
+    "Codex Work/Sub-Agents/Handoffs/financial-payroll-overtime-amount-quality-review-2026-10-24.json",
+    "FIN012 / Adjustment-credit omission in payroll line computation (existing finding; do not duplicate)"
+  ],
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_exact_candidate": {
+    "stable_id": "sym-2f3ef5568479d5beb0bb60dcc7f291090e777e53aa065617641d12686c087b44",
+    "signature": "Falah.Domain.Payroll.PayrollRules.OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "line_range": [66, 70],
+    "live_overlay_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Adjacent source-order callable verified against current overlay; coordinator should confirm before starting it."
+  }
+}

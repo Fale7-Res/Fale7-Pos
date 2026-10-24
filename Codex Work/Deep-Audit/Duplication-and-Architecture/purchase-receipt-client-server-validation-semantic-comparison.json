@@ -1,0 +1,71 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-030",
+  "created_at_utc": "2026-10-21T09:10:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "scope": "Bounded comparison of WinUI purchase receipt entry validation and the authoritative server/domain purchase receipt path, including line amount calculation and posting consequences. Cross-references existing FIN-018; no duplicate finding created.",
+  "decision": "The WinUI cashier's SubmitReceiveAsync rejects each line unless quantity and unit cost parse to strictly positive values. The server ReceivePurchaseHandler accepts the DTO line values, calculates line totals from signed quantity and unit cost, and validates only that the aggregate paid amount is nonnegative and no greater than the aggregate invoice total; PurchasingRules.AssertPurchasePayment does not validate each line's sign. With two negative factors (for example, negative quantity and negative unit cost), their product yields a positive line total, so zero paid can satisfy aggregate validation. The posting path then creates a PurchaseLine, supplier invoice debit, and stock movement with Direction=In and the negative quantity value, which represents a stock reduction under direction-aware inventory aggregation. This is the already documented FIN-018 behavior and is a client/server validation divergence: UI guardrails are not repeated at the API trust boundary. Source supports the behavior; no HTTP/SQL/runtime posting was executed.",
+  "finding_candidate": "Existing FIN-018 only; do not allocate a new finding ID. The semantic mirror evidence demonstrates that the client validation is absent in the authoritative server path.",
+  "severity": "CROSS_REFERENCE_FIN-018_MEDIUM",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs",
+      "worktree_sha256": "f3757fffbad1e70c6b4669f50d50f696c0043aa305821a7a540330704594a21f",
+      "source_git_blob_sha256": "33b471f584fbd6eb5621807b28feaea76c127863f24f69ef399a016bb52bc14e",
+      "line_ranges": [[438, 467]],
+      "relevant_symbols": [{"stable_id": "sym-1dddfc25727d7f1205f9ce684b07e1d2955040a0af4516a41a59b70ca42bfbe3", "signature": "Falah.Client.CashierWinUI.ViewModels.PurchasingViewModel.SubmitReceiveAsync()", "span": [437, 5, 506, 6]}]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "line_ranges": [[36, 75], [121, 175]],
+      "relevant_symbols": [{"stable_id": "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528", "signature": "Falah.Infrastructure.Purchasing.ReceivePurchaseHandler.HandleAsync(Falah.Application.Purchasing.ReceivePurchaseRequest, CancellationToken)", "span": [36, 5, 229, 6]}]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "line_ranges": [[10, 11], [77, 83]],
+      "relevant_symbols": [
+        {"stable_id": "sym-07bd03e837172dc2925f7f402d126b06ee7d334a51b5c68027946018122746c5", "signature": "Falah.Domain.Inventory.PurchasingRules.PurchaseLineTotal(long, Falah.Domain.Common.Money)", "span": [10, 5, 11, 103]},
+        {"stable_id": "sym-fe2f5a4666db2ef9e2420389e5c48495bd0e63834623e55d5a026f72d7b70147", "signature": "Falah.Domain.Inventory.PurchasingRules.AssertPurchasePayment(Falah.Domain.Common.Money, Falah.Domain.Common.Money)", "span": [77, 5, 81, 6]}
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "line_ranges": [[15, 15], [23, 30]],
+      "relevant_symbols": [{"stable_id": "sym-6342b1763ed9cb1f348ae14507f86bf34205ca296e74a27002096f2597f3eb22", "signature": "Falah.Application.Purchasing.PurchaseLineRequest", "span": [15, 1, 15, 114]}]
+    }
+  ],
+  "manual_reasoning": {
+    "client": "The cashier UI validates parsed quantity > 0 and unitCost > 0 before constructing PurchaseLineRequest. This is useful UX validation but does not constrain direct API clients or tampered requests.",
+    "server_and_domain": "ReceivePurchaseHandler only rejects an empty Lines list, calculates each total as quantityMilliUnits * unitCostPiastres / 1000 with rounding, and calls AssertPurchasePayment on the aggregate paid/total values. The rule rejects negative paid and paid > total, but has no per-line quantity/cost checks. The request DTO is a passive record. The later transaction persists invoice, payment/journal, and stock receipt facts atomically; atomicity prevents partial posting but does not make an invalid signed line valid.",
+    "impact_and_counterevidence": "A signed-line request can make positive aggregate invoice debt coexist with a negative In-direction quantity, so supplier debt may increase while direction-aware stock balance decreases. FIN-018 records the conditions and independent static challenge. If purchase returns are a supported business operation, they require an explicit return/credit workflow and balanced supplier/stock semantics; the inspected receive-only request contract does not express one. Normal WinUI use blocks the values. No unauthorized access, runtime financial mutation, or successful API exploit is asserted.",
+    "tests": "Existing test sources and FIN-018 evidence are cross-referenced, not re-executed here. No server API test was executed during this comparison."
+  },
+  "recommendation": {
+    "action": "Resolve with the existing FIN-018 remediation: validate every receipt line at the authoritative server/domain boundary (strictly positive quantity and unit cost if this command represents a purchase receipt), before aggregate totals or journal creation. If returns are required, represent them with an explicit authorized return command and corresponding supplier credit/stock-out ledger semantics rather than signed purchase-receipt lines.",
+    "required_tests": [
+      "Direct handler/API receipt rejects negative quantity with positive cost, positive quantity with negative cost, and both-negative values before any purchase, supplier ledger, stock movement, treasury movement, or journal row persists.",
+      "Valid positive lines and zero/partial/full paid receipt behavior remain unchanged.",
+      "If a return workflow exists or is added later, test its explicit supplier credit and stock-out accounting independently from receipt.",
+      "Verify same-request replay and transaction rollback behavior for invalid inputs."
+    ],
+    "acceptance": [
+      "All invalid signed receipt lines are rejected by server-side invariant checks regardless of client implementation.",
+      "Rejected commands leave no financial or inventory posting artifacts.",
+      "Existing valid purchase, credit, and payment workflows remain behaviorally stable."
+    ],
+    "limitations": [
+      "No tests, API requests, database writes, or live financial operations were performed.",
+      "The exact owner-approved return policy remains unspecified; recommendation assumes ReceivePurchase means a positive receipt, consistent with inspected source comments and direction semantics."
+    ]
+  },
+  "reviewer": "Main coordinator source comparison; corroborates existing FIN-018 only. No independent reviewer assertion added by this artifact.",
+  "cross_reference": "Deep-Audit/MASTER_FINDINGS.json#FIN-018"
+}

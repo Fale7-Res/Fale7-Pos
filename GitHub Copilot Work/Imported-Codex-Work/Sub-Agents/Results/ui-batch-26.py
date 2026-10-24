@@ -1,0 +1,17 @@
+from ui_persistent import *
+record(P+'Views/PayrollView.xaml','Monthly payroll run selection, lines, transition and pay overlay.',[
+ ('CreateRunCommand','Period input disabled CanEditAction and creation visibility CanManage; refresh icon lacks accessible name. No generic recovered-operation retry button outside live run context.'),
+ ('Lines','Line table shows employee paid status, base, additions/subtractions breakdown and net. Fixed470px amount columns plus320px run pane squeezes name at narrow workspace. Eager rows, vertical-only scrolling.'),
+ ('AdvanceRunCommand','Next action visible only NextStatusLabel and enabled CanAdvance, both transient selected-run derived. This markup corroborates UI017 recovered transition cannot reach independent retry action when selection absent.'),
+ ('OpenPayCommand','Pay button gated approved/unpaid + CanOpenPay; dialog only IsPayOpen, SelectedRun period and account. No automatic markup hydration from retained pay DTO; UI017 persistence recovery remains source-confirmed risk.'),
+ ('PayRunCommand','Payment account disabled CanEditAction, submit static confirmation caption. Server debits and employee settlements promised explicitly, so financial write context is visible. No actual payout executed.'),
+ ('ActionNote','Literal white on TextPrimaryBrush toast repeats dark-theme contrast root; action error separate danger toast. No native focus trap or live announcement declared.')
+ ],'NOT_EXECUTED. Need new-process retained transition/pay UI recovery, reverse completion selected-line loads, wide monetary values, dark toast and narrow viewport. No callable XAML symbols.', 'Expose pending operation reconciliation independent of selected run/dialog; retain exact original target/account and semantic toast colors.')
+record(P+'Views/PrintingView.xaml','Read-only logical print queue/status and attention panel.',[
+ ('HeadlineState','Explicitly distinguishes queued software command from actual paper printed. No reprint, retry, test print or physical printer submission command in this view.'),
+ ('Queues','Horizontal StackPanel with each route min230px plus12gap, no wrap/horizontal ScrollViewer. Four current routes already require956px before card padding; native overflow at narrow workspace likely but unobserved. Six-route VM omission UI009 separate.'),
+ ('SelectRouteCommand','Route ID passed to root command; button displays pending/state/waiting/last success, combining textual state with color rather than color alone.'),
+ ('RouteJobs','Order/status/age/error list uses fixed410px columns plus error star alongside fixed380px attention pane. Source layout width pressure severe at small terminal sizes; native measurement needed.'),
+ ('HasNoPending','Empty queue text says all tickets were pulled, which is narrower than confirmed physical paper success and must be interpreted using banner. Failure/attention list remains independently visible.'),
+ ('NeedsAttention','Cross-route list shows logical route, age and errors, no automatic recovery action. Counts bound via Count for empty state. Loading/error overlays only selected jobs, route and attention areas may retain stale data on failure.')
+ ],'NOT_EXECUTED. No physical tickets. Need all6 routes,4route narrow width, stale error data, logical delivered versus physical success wording and accessible refresh icon tests. No callable declarations.', 'Use adaptive/wrapping route cards and queue widths; preserve explicit queue-versus-paper distinction and inspect PrintAgent independently.')

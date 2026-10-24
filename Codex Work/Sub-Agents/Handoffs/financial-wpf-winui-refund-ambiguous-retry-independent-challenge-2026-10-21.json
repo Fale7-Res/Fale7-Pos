@@ -1,0 +1,161 @@
+{
+  "artifact_kind": "independent_static_challenge",
+  "id": "SEM-MIRROR-029-CHALLENGE-01",
+  "created_at_utc": "2026-10-21T04:54:57Z",
+  "source_comparison": "Codex Work/Deep-Audit/Duplication-and-Architecture/wpf-winui-refund-ambiguous-retry-semantic-comparison.json",
+  "decision": "CORROBORATE_WITH_QUALIFICATION",
+  "scope": "Independent source-only challenge of WPF/WinUI refund retry semantics against server refund handler, unique persistence index, and checked-in integration-test source. No tests executed; no source or registry changed.",
+  "assessment": {
+    "confirmed_difference": "WPF SubmitRefundAsync creates rreq-{Guid.NewGuid()} for each invocation, invokes RefundAsync once, and resets IsRefunding in finally. WPF ApiClient posts and parses HTTP results but has no transport-exception-to-OutcomeUnknown conversion. WinUI builds a request only when _pendingRefund is null; CompleteRefundAsync stores it before send, retains it for OutcomeUnknown, and reuses it on the next submit. It rotates the ID only after success. This is an in-memory recovery context; durability across process restart is not established by these files.",
+    "financial_effect_bound": "A manual WPF re-submit after an ambiguous transport exception is a distinct idempotency command. If a prior partial refund committed, the second command may be another separately recorded refund, subject to the remaining-refund clamp and authorization. This is not evidence of an automatic retry, duplicate posting under one key, over-refund, or cash/account loss. Server locks the order and checks the protected source balance before recording the refund. A full already-refunded order has no positive remainder and is rejected.",
+    "server_and_test_counterevidence": "Server derives refund-{RefundRequestId}, checks for a prior record, uses a locked order row, clamps to remaining refundable, protects the source account, and persists refund/movement within a transaction; the persistence model has a unique IdempotencyKey index. Checked-in tests cover sequential same-ID replay, concurrent same-ID single refund, and different-ID concurrent attempts capped at the order total. These are source observations only; tests were not run.",
+    "overlap_and_separation": "This client recovery divergence is separate from FIN-CAND-REFUND-REPLAY-001. That candidate concerns same-key server replay behavior under overlapping full-refund requests: initial lookup precedes the order lock; if a sibling commits the full refund before the loser acquires the lock, the loser may observe zero remainder and fail before a unique-index conflict/replay path. The same-key concurrency test uses partial 8,000 refunds against a 20,000 order, so it does not establish the full-refund edge. Neither issue establishes duplicate financial movement. The WinUI pending request also remains process-local, so restart recovery is not proven.",
+    "deployment_and_policy": "WPF source inclusion is confirmed; active deployment/support and desired behavior after an ambiguous refund are not established. No client deployment/config evidence was checked. Conditional low reliability/policy concern only; do not promote to a confirmed financial loss finding without deployment and workflow evidence."
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs",
+      "sha256": "9f41d9133ed49ccb2e8dff94a43e70dc525500836f7c6c6e8ada4912bc1861dd",
+      "ranges": [
+        [
+          66,
+          106
+        ]
+      ],
+      "symbol": "SubmitRefundAsync",
+      "evidence": "Lines 81-90 create the request with a new rreq-Guid and send it. Lines 91-100 handle only returned ApiResult errors/success; lines 102-105 reset IsRefunding. No retained pending request/id is present in this method."
+    },
+    {
+      "path": "src/Falah.Client.Cashier/Services/ApiClient.cs",
+      "sha256": "0650e78e3cc745166f1f8894143cb6f930ec4c403a1d9002fb97804b9e99dd74",
+      "ranges": [
+        [
+          42,
+          67
+        ],
+        [
+          95,
+          99
+        ]
+      ],
+      "symbols": [
+        "ReadResultAsync<T>",
+        "RefundAsync"
+      ],
+      "evidence": "RefundAsync directly awaits PostAsJsonAsync and ReadResultAsync. ReadResultAsync maps HTTP statuses and catches malformed error-body parsing only. No transport exception mapping is shown on this command path."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+      "sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a",
+      "ranges": [
+        [
+          75,
+          122
+        ]
+      ],
+      "symbols": [
+        "OpenRefund",
+        "CancelRefund",
+        "SubmitRefundAsync",
+        "CompleteRefundAsync"
+      ],
+      "evidence": "Lines 84-85 prevent cancel/close while _pendingRefund exists. Lines 93-106 create only when no pending request, else reuse the same request. Lines 112-115 retain unresolved requests and clear after success or a non-unknown initial failure; line 117 rotates ID after success. No persistence mechanism is shown in this source span."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "ranges": [
+        [
+          92,
+          103
+        ],
+        [
+          112,
+          123
+        ],
+        [
+          209,
+          212
+        ]
+      ],
+      "symbols": [
+        "ReadAsync<T>",
+        "SendAsync<T>",
+        "RefundAsync"
+      ],
+      "evidence": "ReadAsync and SendAsync convert listed transport/serialization exceptions to OutcomeUnknown; SendAsync specifically tells the operator to retry the same data. RefundAsync routes through SendAsync."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+      "sha256": "ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085",
+      "git_blob_sha256": "c55ddefabc347194bc60b7907229bbcd0c0494fceb5b691115351c65ad1f3a7b",
+      "ranges": [
+        [
+          45,
+          63
+        ],
+        [
+          78,
+          106
+        ],
+        [
+          108,
+          152
+        ],
+        [
+          154,
+          165
+        ]
+      ],
+      "symbols": [
+        "HandleAsync",
+        "FindExistingAsync",
+        "ToResultAsync"
+      ],
+      "evidence": "Lines 47-50 derive and look up the request key before acquiring a transaction/order lock (56-63). Lines 78-83 clamp to refundable remainder; 91-93 check protected source balance; 102-106 construct the refund movement. Lines 108-135 apply/persist refund and movement and commit. Lines 137-150 roll back and retry lookup on constrained conflicts (with sibling wait for balance-lock contention). Lines 154-165 define replay lookup/result. The initial lookup is not repeated after obtaining the order lock before the business validation, leaving the noted same-key full-refund replay nuance distinct from duplicate posting."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "ranges": [
+        [
+          110,
+          114
+        ]
+      ],
+      "symbol": "OnModelCreating / OrderRefundEntity mapping",
+      "evidence": "The model declares a unique index over OrderRefund.IdempotencyKey."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
+      "sha256": "8dc121ce9a7c6f23b8363b1baae1c4df21fc64e011d2fbbaba65de531a96acd2",
+      "git_blob_sha256": "7a876cc78238f721872ed8a9c468a2f121b9e849217e1343e34c70a9752eae04",
+      "ranges": [
+        [
+          95,
+          128
+        ],
+        [
+          130,
+          151
+        ]
+      ],
+      "symbols": [
+        "Retrying_the_exact_same_refund_request_sequentially_never_creates_a_second_movement",
+        "Concurrent_refund_requests_with_the_same_idempotency_key_race_to_exactly_one_refund",
+        "Concurrent_refunds_for_different_amounts_on_the_same_order_never_overdraw_the_order_total"
+      ],
+      "evidence": "Test source asserts sequential and concurrent same-key exactly-once behavior and different-key concurrent cumulative cap. The same-key concurrent scenario requests 8,000 against a 20,000 order; it does not test two overlapping full-refund requests."
+    }
+  ],
+  "untested_or_unverified": [
+    "No tests executed; no runtime, SQL/provider, network-fault, or physical money workflow was exercised.",
+    "No test simulates WPF response loss after server commit followed by another manual submit.",
+    "No test verifies WinUI pending refund recovery after application restart or process termination.",
+    "No checked-in test in the cited range covers concurrent same-key requests whose amount fully consumes the order or an overlapping full-refund replay result.",
+    "WPF active deployment/support and the operator policy for ambiguous outcomes are unknown."
+  ],
+  "disposition": "Corroborate the source-described client difference and conditional recovery concern. Keep severity conditional/low; do not classify as duplicate-payment/over-refund or merge with FIN-CAND-REFUND-REPLAY-001. The latter remains a separate server replay-result edge, not evidence of multiple movement postings.",
+  "validation": "Read back from disk and parsed successfully with ConvertFrom-Json; all referenced current source SHA-256 values independently recomputed and matched the comparison metadata. No tests executed. No application files, runtime, database, or shared master registry modified."
+}

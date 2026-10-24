@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.cs",
+  "source_git_blob_sha256": "4fd92c1bbce063b10178cb3bf7e38550b75bc0b46e52b8bf9008184d043c9c7f",
+  "worktree_sha256": "6f263851d8621363661f5d289604facf1404e34aeadcbe2e3f648d869904840c",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:08:58.187336+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-5bb59eb16d76d30bf13b73a7bbe8b00aa5aee4cfd9356193e4edb700c29f1cea",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddEstimatedUnitCost.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        11,
+        9,
+        18,
+        10
+      ],
+      "reasoning": "Up adds nullable bigint EstimatedUnitCostPiastres without default. Existing inventory items remain unknown-cost unless actual purchase/prep fact supplies cost. No fabricated receipt, supplier liability, stock or treasury movement inserted; no positive estimate CHECK in this body.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit add/drop schema operations; no business DTO or financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Stored preferences/metadata can feed future client/print flow, but no runtime/physical output executed or verified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Schema add default/null and data loss on Down individually reasoned; fresh-install defaults are not proof historical metadata recovered.",
+      "tests_missing": "No migration tests run. Disposable provider upgrade/downgrade should verify existing NULL/default values, retained financial facts, expected report classification and documented metadata loss.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    },
+    {
+      "stable_id": "sym-2bdda15e2f52f5f1e1e660859ec22f06d9a1adf9f363b1c7c3c034c1b258a823",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddEstimatedUnitCost.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        21,
+        9,
+        26,
+        10
+      ],
+      "reasoning": "Down removes estimated cost placeholders from items, while actual purchase cost facts and supplier liabilities remain. Costing lacking real purchases may return Unknown afterwards; this is loss of management estimate metadata, not reversal of goods or cash.",
+      "inputs": "EF MigrationBuilder, existing schema/data at immediately preceding migration. No actual target database used.",
+      "outputs": "Appended explicit add/drop schema operations; no business DTO or financial posting.",
+      "side_effects": "Execution would alter schema and possibly discard data; audit only reads immutable baseline source and writes review evidence.",
+      "trust_boundaries": "Migration target identity and data-preservation approval required before execution; audit never invokes schema operations.",
+      "database": "SQL Server types/null/default/index transitions individually reasoned from entire Up/Down body. No SQL executed; deployed history and external backfill remain UNKNOWN.",
+      "printing_ui": "Stored preferences/metadata can feed future client/print flow, but no runtime/physical output executed or verified.",
+      "performance": "Column/index ALTER may lock or fail on existing values; no zero-downtime, table-volume or duration guarantee. No deployment benchmark.",
+      "duplicates_conflicts": "Historical migration metadata is distinct from current entity state and runtime data. No automatic migration correctness promotion from generated designer/equivalence or field names.",
+      "issues_hypotheses": "No new finding ID. Schema add default/null and data loss on Down individually reasoned; fresh-install defaults are not proof historical metadata recovered.",
+      "tests_missing": "No migration tests run. Disposable provider upgrade/downgrade should verify existing NULL/default values, retained financial facts, expected report classification and documented metadata loss.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs:11-42",
+        "Current entity declarations and mappers previously reviewed; EF migration orchestration is external caller, not executed here."
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

@@ -1,0 +1,359 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity",
+  "at_utc": "2026-10-19T09:20:06.174Z",
+  "status": "SOURCE_SCHEMA_COUNTEREVIDENCE_SEARCH_COMPLETE_NO_LEDGER_AMOUNT_OR_TYPE_CHECK_FOUND",
+  "scope": "Bounded ledger constraint check only, not whole-file/model callable promotion.",
+  "source_blocks_actually_read": [
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+      "worktree_sha256": "9be2994552c7d502c1dde718147ff6948f5d92d825fe6a20d2a0e6f9ae67f416",
+      "source_git_blob_sha256": "dae7749584b14b17ba8302da08b855f9de121bb60552caa1f9ff32e4268952df",
+      "line_ranges": [
+        [
+          12,
+          40
+        ],
+        [
+          75,
+          86
+        ]
+      ],
+      "source_excerpts": [
+        "        protected override void Up(MigrationBuilder migrationBuilder)\r\n        {\r\n            migrationBuilder.CreateTable(\r\n                name: \"EmployeeLedgerEntries\",\r\n                columns: table => new\r\n                {\r\n                    Id = table.Column<string>(type: \"nvarchar(450)\", nullable: false),\r\n                    EmployeeId = table.Column<string>(type: \"nvarchar(450)\", nullable: false),\r\n                    Type = table.Column<string>(type: \"nvarchar(max)\", nullable: false),\r\n                    Description = table.Column<string>(type: \"nvarchar(max)\", nullable: false),\r\n                    DebitPiastres = table.Column<long>(type: \"bigint\", nullable: false),\r\n                    CreditPiastres = table.Column<long>(type: \"bigint\", nullable: false),\r\n                    BalanceAfterPiastres = table.Column<long>(type: \"bigint\", nullable: false),\r\n                    RecordedBy = table.Column<string>(type: \"nvarchar(max)\", nullable: false),\r\n                    AuthorizedBy = table.Column<string>(type: \"nvarchar(max)\", nullable: true),\r\n                    ShiftId = table.Column<string>(type: \"nvarchar(max)\", nullable: true),\r\n                    ReferenceId = table.Column<string>(type: \"nvarchar(max)\", nullable: true),\r\n                    Hours = table.Column<double>(type: \"float\", nullable: true),\r\n                    RateSnapshotPiastres = table.Column<long>(type: \"bigint\", nullable: true),\r\n                    ValueSnapshotPiastres = table.Column<long>(type: \"bigint\", nullable: true),\r\n                    PayrollRunId = table.Column<string>(type: \"nvarchar(max)\", nullable: true),\r\n                    TreasuryMovementId = table.Column<string>(type: \"nvarchar(max)\", nullable: true),\r\n                    IdempotencyKey = table.Column<string>(type: \"nvarchar(450)\", nullable: true),\r\n                    CreatedAtUtc = table.Column<DateTimeOffset>(type: \"datetimeoffset\", nullable: false)\r\n                },\r\n                constraints: table =>\r\n                {\r\n                    table.PrimaryKey(\"PK_EmployeeLedgerEntries\", x => x.Id);\r\n                });\r",
+        "            migrationBuilder.CreateIndex(\r\n                name: \"IX_EmployeeLedgerEntries_EmployeeId\",\r\n                table: \"EmployeeLedgerEntries\",\r\n                column: \"EmployeeId\");\r\n\r\n            migrationBuilder.CreateIndex(\r\n                name: \"IX_EmployeeLedgerEntries_IdempotencyKey\",\r\n                table: \"EmployeeLedgerEntries\",\r\n                column: \"IdempotencyKey\",\r\n                unique: true,\r\n                filter: \"[IdempotencyKey] IS NOT NULL\");\r\n\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+      "worktree_sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917",
+      "source_git_blob_sha256": "45caa6a4242ae5749072b14d761a5a58039322b638574d8767270540512d9bd9",
+      "line_ranges": [
+        [
+          1173,
+          1242
+        ]
+      ],
+      "source_excerpts": [
+        "            modelBuilder.Entity(\"Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity\", b =>\r\n                {\r\n                    b.Property<string>(\"Id\")\r\n                        .HasColumnType(\"nvarchar(450)\");\r\n\r\n                    b.Property<string>(\"AuthorizedBy\")\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<long>(\"BalanceAfterPiastres\")\r\n                        .HasColumnType(\"bigint\");\r\n\r\n                    b.Property<DateTimeOffset>(\"CreatedAtUtc\")\r\n                        .HasColumnType(\"datetimeoffset\");\r\n\r\n                    b.Property<long>(\"CreditPiastres\")\r\n                        .HasColumnType(\"bigint\");\r\n\r\n                    b.Property<long>(\"DebitPiastres\")\r\n                        .HasColumnType(\"bigint\");\r\n\r\n                    b.Property<string>(\"Description\")\r\n                        .IsRequired()\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<string>(\"EmployeeId\")\r\n                        .IsRequired()\r\n                        .HasColumnType(\"nvarchar(450)\");\r\n\r\n                    b.Property<double?>(\"Hours\")\r\n                        .HasColumnType(\"float\");\r\n\r\n                    b.Property<string>(\"IdempotencyKey\")\r\n                        .HasColumnType(\"nvarchar(450)\");\r\n\r\n                    b.Property<string>(\"PayrollRunId\")\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<long?>(\"RateSnapshotPiastres\")\r\n                        .HasColumnType(\"bigint\");\r\n\r\n                    b.Property<string>(\"RecordedBy\")\r\n                        .IsRequired()\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<string>(\"ReferenceId\")\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<string>(\"ShiftId\")\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<string>(\"TreasuryMovementId\")\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<string>(\"Type\")\r\n                        .IsRequired()\r\n                        .HasColumnType(\"nvarchar(max)\");\r\n\r\n                    b.Property<long?>(\"ValueSnapshotPiastres\")\r\n                        .HasColumnType(\"bigint\");\r\n\r\n                    b.HasKey(\"Id\");\r\n\r\n                    b.HasIndex(\"EmployeeId\");\r\n\r\n                    b.HasIndex(\"IdempotencyKey\")\r\n                        .IsUnique()\r\n                        .HasFilter(\"[IdempotencyKey] IS NOT NULL\");\r\n\r\n                    b.ToTable(\"EmployeeLedgerEntries\");\r\n                });\r"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+      "line_ranges": [
+        [
+          447,
+          452
+        ]
+      ],
+      "source_excerpts": [
+        "        modelBuilder.Entity<EmployeeLedgerEntryEntity>(b =>\r\n        {\r\n            b.HasKey(e => e.Id);\r\n            b.HasIndex(e => e.EmployeeId);\r\n            b.HasIndex(e => e.IdempotencyKey).IsUnique().HasFilter(\"[IdempotencyKey] IS NOT NULL\");\r\n        });\r"
+      ]
+    }
+  ],
+  "mechanical_negative_search": {
+    "executable": "rg",
+    "args": [
+      "-n",
+      "-i",
+      "-g",
+      "*.cs",
+      "checkconstraint|check[[:space:]]*[(]|create[[:space:]]+trigger|CreditPiastres[[:space:]]*(>=|>)|DebitPiastres[[:space:]]*(>=|>)",
+      "src/Falah.Infrastructure/Persistence/Migrations"
+    ],
+    "result": {
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "examined_file_count": 69,
+    "file_hash_inventory": [
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+        "worktree_sha256": "5fe110d7121b655d758edfab04d72240aa80066214153c1af0eea54be6ea62e8"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.Designer.cs",
+        "worktree_sha256": "4f6ae5c93e030c2ddbab9e3201e10fa9fb45d75b0bb6e76497a4cead6132620f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs",
+        "worktree_sha256": "706b113b8bdd32af04959e0e8035ca49914e6396e129506dcf1e0ca3ad6d5be5"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs",
+        "worktree_sha256": "48c5d95700004c77b95e1206c642d18356a5dfa0161d4cf755901c714c3daed2"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs",
+        "worktree_sha256": "0b2db7efe2138b0c3f3d8896a6092012f07db22858a5e28e58af818a15a7cb4a"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs",
+        "worktree_sha256": "bf258381d959f7b11fae703f3601a33f58b174bbc5cfeea5946a306ff163d524"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs",
+        "worktree_sha256": "aca9d8bb983db0a698ccb6a18ef0e992f2853484e7f42ebcc421fcdce77358c1"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs",
+        "worktree_sha256": "53ccc194b0a477d89149acb63f9d40d991844e9841306e7446fbd424578025bb"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.cs",
+        "worktree_sha256": "b3da548ba9823579ab7c80d97efe9186bae0a367821d3a994c654a7753d44d3e"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs",
+        "worktree_sha256": "5345226e6cc6c9c9a210ef617e33b6f73a9aa09278b4b34278b86c7e9208b78b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.cs",
+        "worktree_sha256": "0ce0b33d7b153a9dd56ada3bb579f9b86a05ef4214ae47596bd8f30c184c225f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs",
+        "worktree_sha256": "8c04b2380c616947f972290907014f7480aa0ff1de2cfaa853997c7336dadb6a"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs",
+        "worktree_sha256": "cb5a87888005ec1e51221f85077402a68b501708bdac9f7203284a6cc0e4d608"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs",
+        "worktree_sha256": "1fd2cd955c8dd57d876bd151b58f0429ac358c7c023e88b2821854150770dcca"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs",
+        "worktree_sha256": "e131b7e88d5e6fb7c308e8a02b8fedb25e82401e504d19c00c4fdc4a226f5650"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs",
+        "worktree_sha256": "c60d31246e4db3f5160e4e0d265d9cde5a367d6a8b4ee5affa61af13c36e7f00"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs",
+        "worktree_sha256": "dc989b4bace8a81cd57b4986c22430dae47fa2b0ed08c02c5f598310d85e3860"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs",
+        "worktree_sha256": "a1bf8f8436a475941e9a3faf095f146b30d26e86d95e4a65336efc5bd8b1fb09"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs",
+        "worktree_sha256": "0a30e86649956f194452d079243b5ce105ba4a43c288af4f670ccb807ff4377f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs",
+        "worktree_sha256": "c46f1c8ce348152f376497a867f175a774fa3dabb32ff20fe7a7a9c7674c4e0a"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs",
+        "worktree_sha256": "8b2347c5748e57a162b99a175d66e146a9972d1e904b5b7e20a5f4651e1a29d7"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs",
+        "worktree_sha256": "d3057cf53a763b01727390fdebf2624d556d42010b8c80371acc652aa41b378b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs",
+        "worktree_sha256": "a58dcc1d19000077f1a337ea1d91a15768fb01d614784f55a417732312530685"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs",
+        "worktree_sha256": "7ea5f57e48b9b5c5b8e846d916550e1681dfad1f327bbcd73a83e90e20575505"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs",
+        "worktree_sha256": "580ab2d4a3ae6bd0140c0d3f66dbaa8cc8ea1c2e28323a65d61f3178e2cd1051"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs",
+        "worktree_sha256": "753bb76c2c5de269cbe191a144cfa85b34b0d78ed8340c5d153fa8ca1f177c1b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.cs",
+        "worktree_sha256": "9b9cee010e1adc05f33aa04bc77d60b5e9e8f47377da7d4a10054cdc291c1b2a"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs",
+        "worktree_sha256": "2bca4fea7f61c61133c19b92e6098d34901400492a5e7e1873cb517be9c7317b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.cs",
+        "worktree_sha256": "0fe11a59d6b2fb3dfd25673bb61fc0f0be1d93a6d4eab6ea833ca71efe02c09f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs",
+        "worktree_sha256": "b765fd34687b532d77466eb677dc482b09f901204c4ce781e0c5ea37f20a8847"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs",
+        "worktree_sha256": "0fbef2cb8121d1d15de4c69b0f37cd31c105e14879a69fbd0c174ed048e93805"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs",
+        "worktree_sha256": "612c356e319cb3c63fc2a6b6aca3967d349d8173eb1867bc435e6fc0d2b3fb15"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs",
+        "worktree_sha256": "68e8194ce95e0965f57bf9be97feca7c208daba51f4ff425574e24759d1ea64c"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs",
+        "worktree_sha256": "a8a19d6cd0ae1994fe3230386768d0031f58f7dba7cbc14bafb01cb730145b9b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs",
+        "worktree_sha256": "b1cef59c4078965490fe0405705c5305dd6ca8f66227f3a34ac07bdf3de37feb"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs",
+        "worktree_sha256": "99cb8a98160a204cbd00fc6ac66334a7b41c4e7d209e8b8570874eecd00c5837"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.cs",
+        "worktree_sha256": "22f7f5f68e4810bf5d71ef5c4bf820469d7700a8cefd57fd00527cb1897d667c"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs",
+        "worktree_sha256": "3baf46d4eb2075dec74cb9fb3d7b7c6280a63f93cff4074b521902b4566e3628"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs",
+        "worktree_sha256": "9be2994552c7d502c1dde718147ff6948f5d92d825fe6a20d2a0e6f9ae67f416"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs",
+        "worktree_sha256": "9dcc1ff3c4956f1e52c2c70b517dbff86d3380a5c5a49b9f63881b7003ce2f86"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.cs",
+        "worktree_sha256": "07f242cb95a5a260a38e5215ba489e4dd0db2823d24b5829bb03522a166795ce"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs",
+        "worktree_sha256": "4c2aa5848c02d243d487ea6f457946aa9d65aaf6221276fe2f86065cd277f6be"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs",
+        "worktree_sha256": "39b30ef5427bb0947417d9f749bcf2e14dca1210a905dc9d0e9e630905f759fe"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs",
+        "worktree_sha256": "d5007d2c08fc3799c7755a638f513e39fb7307746bf077363867f15e54c02063"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.cs",
+        "worktree_sha256": "3c75cf422a03e46bdc918d15f50228db56ef05f9830a668e11a4677a62edc35f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs",
+        "worktree_sha256": "087ba3340a3e21e8a91cb7db1d862743b9d5a8cea4044f50e5d81bcada2013b5"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.cs",
+        "worktree_sha256": "c4dd03f1c60e64704559b1a60b9a5de7c17776d3432bd771ec4cf1f399177d06"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs",
+        "worktree_sha256": "f5196e3b5572715efa5cdc437c6876847859f8c934508653aff42dcb93fbe4da"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.cs",
+        "worktree_sha256": "6f263851d8621363661f5d289604facf1404e34aeadcbe2e3f648d869904840c"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs",
+        "worktree_sha256": "ab5d0ef68b6c8b103fb5d257087d84ef62e2d4c1621d6ce2f090797a38f278fb"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.cs",
+        "worktree_sha256": "2bcf7c143d05a2802f447892c4f1014896016d204deb5efe377472b15b12ad42"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs",
+        "worktree_sha256": "7f473a9dff7066c05819bed202371000a7528a3c0d42f3744a7782a339689dae"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.cs",
+        "worktree_sha256": "d96ce29ca70892d1d1c7e0e386e29a8c7702fc75c8489d3ee9f537be8e87bb13"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs",
+        "worktree_sha256": "f64431efb76c8ed11d1967119e7dbf3953af2ada1c171189e1a8d18879d1478e"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.cs",
+        "worktree_sha256": "f4a03bdb9d779db9ed10dd3bd28f401a4e0fcddb55241f5b9eaf99205eddd7bb"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs",
+        "worktree_sha256": "b9c0d02487159027d11c4c28a72737b3037bb525903d421d262061223f6a4466"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.cs",
+        "worktree_sha256": "ddffe2c90a9380fe481aff2c9f6a1afe752cd8a22ddf6e4d5f1025d60d20a15b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs",
+        "worktree_sha256": "1b4fdaa29a43b8f773e5b1e832d4d65e16d5498fd06a91309f0dd1f2fa6760d3"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs",
+        "worktree_sha256": "1c505300965819d06f2ecc7ea359b3ab096baf9c233e488cf08d866945afa9c6"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs",
+        "worktree_sha256": "ba660aaf1cce2028eeb04e01626a73cd25fa8fd16bee40a64d81c18e0d0abb2b"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.cs",
+        "worktree_sha256": "1aac3a40f5c10c837ad11971f75b3816a515a0ac8be123ba9c15258dce6953f2"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs",
+        "worktree_sha256": "481c572ba7e33ee13af7521cc0fbfaab925c4bdaec5c06493446098e8998df33"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.cs",
+        "worktree_sha256": "74de714fcb8c53543073eff797e3ef09187d9471ebcdc70aefc2b2423b0e9662"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs",
+        "worktree_sha256": "50ef974c7b9784596517838b3d8e4a2af16bc591ddab0122ea0024ceb41a4678"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.cs",
+        "worktree_sha256": "4604e55aa3fc7a2ed88c26eb7dc53c87131a3ee1a3a38c3d49437351312701ca"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs",
+        "worktree_sha256": "d5921f9235d9680a773a2bd73f35b2ffdcefb7756a337abfee593d8c4100e387"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.cs",
+        "worktree_sha256": "37716c0cdfd79f1d4be37d046bee9f01591f6645cfa075d4b970afb801db1d5f"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs",
+        "worktree_sha256": "68b1c1bf6b69150abb661b48044cc178a28d1c65359e8246a198d744e8daae95"
+      },
+      {
+        "path": "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs",
+        "worktree_sha256": "093a3e5624243140c20cbec9e064d9cf76b814cd3c97e6371fad91821df64917"
+      }
+    ]
+  },
+  "conclusion": "Actual AddEmployees CreateTable declares Debit/Credit bigint and Type nvarchar(max), only ledgerPK in tableconstraints. Current snapshot fullledger block1173-1242 repeats scalarcolumns/PK/indexes, no CHECK. Current DbContext447-452 onlyPK/EmployeeId andnullableuniqueIdempotencyKey. Full migrations/designer/snapshot source search found no CHECK/CheckConstraint/createTrigger or direct nonnegativeCredit/Debit constraint hook. Thus no source-defined DB sign/category guard counters signed/undefinedType admission candidate.",
+  "limitations": [
+    "Actual deployedSQL constraints/triggers orout-of-repository provisioning UNKNOWN; no database connected or read.",
+    "No migration/schema executed, no SQLnegativeinsert tested.",
+    "Search inventory is mechanical coverage only;69 filehashes do not mean69files/callables newly analyzed.",
+    "Provider native bigint accepts signedvalues bytype, but this artifact claims source schemaabsence, not measured SQLacceptance."
+  ],
+  "new_callable_receipts": 0
+}

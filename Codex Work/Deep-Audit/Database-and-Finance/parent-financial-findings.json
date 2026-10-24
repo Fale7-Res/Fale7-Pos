@@ -12518,8 +12518,301 @@
         "FIN-004"
       ],
       "distinctness": "Related idempotent recovery family to FIN028 but different admission boundary/countercontrol: own permission and full-refund state exhaustion, subsequent retry works. Existing FIN003 entitlement/FIN004 attribution are different. No new ID assigned by specialist."
+    },
+    {
+      "id": "FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001",
+      "title": "Standalone employee settlements remain payable through frozen period payroll",
+      "severity": "HIGH",
+      "confidence": "SOURCE_CONFIRMED_CROSS_FLOW_MECHANICS;POLICY_AND_RUNTIME_UNVERIFIED",
+      "status": "SOURCE_CONFIRMED_CROSS_FLOW_RISK_POLICY_QUESTION_NOT_CONFIRMED_DUPLICATE_PAY_DEFECT",
+      "finding_classification": "CROSS_FLOW_ACCOUNTING_RISK_AND_REQUIREMENTS_QUESTION",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "sources": [
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "lines": [
+            732,
+            746,
+            810,
+            850
+          ],
+          "containing_symbols": []
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs",
+          "worktree_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+          "source_git_blob_sha256": "59c3a4791465fa5638e881076de6639a202dd2186f1187079ebcd24636ffd81f",
+          "lines": [
+            8,
+            15,
+            26,
+            54,
+            75,
+            117
+          ],
+          "containing_symbols": [
+            "sym-e70aeac0fc4b33e22cc9d8a9f16f572e3f1e88fe389a1b30dad6c9c6cefcc2a4"
+          ]
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs",
+          "worktree_sha256": "8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0",
+          "source_git_blob_sha256": "432a62de6fa95cb0d7e1eef8280deaf8f22d3dc88543d8999678c66c2634ddfa",
+          "lines": [
+            227,
+            264,
+            307,
+            350
+          ],
+          "containing_symbols": [
+            "sym-ec00e04435a209c2480ca6e9f0ced9f06d350341b60e3a0059f7c0231a90eacb",
+            "sym-26c8a933d130d79c6c6647f02d0345fce9c49a7af7e30149e0b4d72d4add56e1"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+          "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+          "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+          "lines": [
+            16,
+            30,
+            74,
+            107,
+            113,
+            140
+          ],
+          "containing_symbols": [
+            "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+          "worktree_sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+          "source_git_blob_sha256": "55956f6066b16043016fce4c432fc3f612686e776a2d52211ea0a33289e8d6b8",
+          "lines": [
+            42,
+            63,
+            65,
+            88
+          ],
+          "containing_symbols": [
+            "sym-11b6ef644071b6f6f4f0c59559406a7789fe39c2aec184fac9cf8c86ce152dc4"
+          ]
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "lines": [
+            83,
+            110
+          ],
+          "containing_symbols": [
+            "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb"
+          ]
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+          "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+          "lines": [
+            84,
+            108,
+            136,
+            163
+          ],
+          "containing_symbols": [
+            "sym-5b69406dd13cf2154ddc957717f25ad87ec327ec8c8f4c33d94e2a9463c6cb32"
+          ]
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
+          "worktree_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+          "source_git_blob_sha256": "cb3763cbdc7747e3b89f2dc6412191d59273294b2fac911990efeb52e52f9d77",
+          "lines": [
+            10,
+            15,
+            226,
+            240
+          ],
+          "containing_symbols": []
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
+          "worktree_sha256": "d3a8443936a34a414715a735afeb02214dcaf8ed22d7ca9b5e9b0c3dd2bba1d8",
+          "source_git_blob_sha256": "b2cbd0de829938e2007b3d5dff7f005689dea3de2426b73dd251606ad9527e91",
+          "lines": [
+            93,
+            109,
+            188,
+            206
+          ],
+          "containing_symbols": []
+        },
+        {
+          "path": "docs/IMPLEMENTATION_MATRIX.md",
+          "worktree_sha256": "28c1f130c8610878d5a08f08e6a024adae2e533e5fec258e70bfe5bbb2f1bc10",
+          "source_git_blob_sha256": "5873ea6890e641671dff2d60d47dc5b62a16f60375e8a2e0a6182fae2394f851",
+          "lines": [
+            98,
+            99
+          ],
+          "containing_symbols": []
+        }
+      ],
+      "root_cause": "PayrollRules computes payroll from earning categories and named deductions but ignores standalone Settlement debits. PayEmployee reduces current balance, while CreatePayroll freezes period net and PayPayroll pays that frozen amount without revalidating outstanding employee balance.",
+      "source_mechanism": "For a current-period earned amount of 20,000 piastres, standalone payout can debit 20,000 and reduce current balance to zero. The period payroll input still contains the earning; Settlement is not subtracted, so the frozen net can remain 20,000. Paying the run can issue another 20,000 treasury outflow and PayrollSettlement. This is source-derived arithmetic only.",
+      "impact": "If both payment modes are applied to the same earned obligation, the employee can receive the same earnings twice and the ledger can become negative by the duplicated amount. Real usage and intended treatment are unverified.",
+      "preconditions": [
+        "Same-period earnings are posted and included in payroll lines.",
+        "The same obligation is first settled using PayEmployee, before payroll creation or after the run is frozen.",
+        "An authorized user can use both employees_ledger and payroll_pay flows, or separate authorized users do so.",
+        "The approved payroll run is later paid from a sufficiently funded account."
+      ],
+      "counterevidence": [
+        "Source explicitly supports standalone payment without a payroll run and separately supports period payroll; the wording does not establish mutual exclusion.",
+        "Settlement and PayrollSettlement are distinct ledger classifications and the two paths have different permissions, but neither distinction itself nets or blocks the same obligation.",
+        "Financial continuation reviewer confirms source mechanics, but policy exclusivity, owner policy, live usage, and runtime reproduction are unverified.",
+        "Existing tests cover each payment path separately and do not exercise the combined same-period sequence.",
+        "FIN-006 (generic Paid transition) and FIN-012 (attendance correction credit excluded) are related payroll risks but distinct causes."
+      ],
+      "recommendation": "Clarify whether standalone Settlement is a prepayment of the same earnings included in period payroll. If both paths may cover one obligation, make payroll calculate and pay only the remaining liability, including the case where settlement occurs after a run is frozen; otherwise enforce and test exclusive payment modes for each period. Preserve the separate audit classifications.",
+      "required_regression_tests": [
+        "DailyWage then standalone settlement then create and pay the same-period payroll; verify total disbursement does not exceed the earned obligation.",
+        "Create/approve a run, then standalone settlement, then pay the frozen run; verify prior settlement cannot be paid again.",
+        "Test that unrelated-period settlements do not reduce the wrong payroll period.",
+        "Verify idempotent replays of both modes do not create duplicate treasury or employee ledger movements."
+      ],
+      "independent_verification": {
+        "reviewer": "financial_integrity_continuation",
+        "artifact": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-payroll-overlap-challenge.json",
+        "artifact_sha256": "8f92999aaa9338916cbfcb4e0633e68b43e45ba6160306de58b3ebe8cf8f62b3",
+        "disposition": "Retain as a source-confirmed cross-flow accounting risk / requirements question pending explicit policy and usage confirmation; do not promote duplicate-pay as a canonical defect from the available evidence.",
+        "scope": "Independent source challenge agrees overlap mechanics are real and finds no source exclusivity rule, but explicitly does not confirm duplicate-pay defect or severity from available evidence.",
+        "runtime": "NOT_EXECUTED"
+      },
+      "runtime_reproduction": "NOT_EXECUTED",
+      "evidence_artifact": "Deep-Audit/Database-and-Finance/standalone-payroll-obligation-overlap-quality-review.json",
+      "semantic_comparison": "Deep-Audit/Duplication-and-Architecture/payroll-settlement-overlap-semantic-comparison.json",
+      "related_findings": [
+        "FIN-006",
+        "FIN-012"
+      ],
+      "distinctness": "Not present as a duplicate-pay finding in canonical registry as of source dedup check; existing FIN-006 and FIN-012 concern different mechanisms."
+    },
+    {
+      "id": "FIN-029",
+      "title": "Owner dashboard stock projection ignores outbound movement direction",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_SOURCE_CONFIRMED_AND_INDEPENDENT_STATIC_CHALLENGE;RUNTIME_NOT_EXECUTED",
+      "status": "SOURCE_CONFIRMED_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "finding_classification": "INVENTORY_REPORTING_BALANCE_DIVERGENCE",
+      "sources": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+          "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+          "start_line": 297,
+          "end_line": 315,
+          "containing_symbols": [
+            "sym-d2884709cbea3a2b84342cb0d449f57930b897f0273d0ddf650d3c1ddb79cb6a"
+          ],
+          "evidence": "297-315"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+          "start_line": 388,
+          "end_line": 430,
+          "containing_symbols": [
+            "sym-cab777a5244823349b02bb866d9bf8139bc370fc7ae45f818788bd00488450b8"
+          ],
+          "evidence": "388-430"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+          "source_git_blob_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+          "worktree_sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+          "start_line": 50,
+          "end_line": 52,
+          "containing_symbols": [
+            "sym-dc419832540b07e5ffee07f6e49f05a8675f980a9af1a66ebc1a3e4ee061ba21"
+          ],
+          "evidence": "50-52"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+          "source_git_blob_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+          "worktree_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+          "start_line": 32,
+          "end_line": 149,
+          "containing_symbols": [
+            "sym-b18fb211d8ee45613669647900a80e392e197efd5d94e012bff95844cad4e76e",
+            "sym-d98954049c5db16e36f45f67c34dfbf08b8b2db79eca98864db370f2db670aa0"
+          ],
+          "evidence": "32-40, 59-63, 106-116, 142-149"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+          "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+          "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc",
+          "start_line": 48,
+          "end_line": 96,
+          "containing_symbols": [
+            "sym-15bec1c768e59f457124e27cda15e8d89d59ba5354abc3b44cbf27f8517adc81",
+            "sym-7cb1499dc461cea1564eb9848e4c5adcf3b24675b6b646b97ac3039d10c56048"
+          ],
+          "evidence": "48-64, 84-96"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+          "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+          "start_line": 165,
+          "end_line": 175,
+          "containing_symbols": [
+            "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528"
+          ],
+          "evidence": "165-175"
+        },
+        {
+          "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+          "source_git_blob_sha256": "c7b1c820977f71d5a1ea880c20898cd9913b4315317b2fb04344266d1229e67d",
+          "worktree_sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+          "start_line": 123,
+          "end_line": 150,
+          "containing_symbols": [
+            "sym-6eb9073972cd56ffdb506ca4d5319a7281a8c0fd8647270282a5f7d812678fdc"
+          ],
+          "evidence": "123-134, 138-150"
+        }
+      ],
+      "root_cause": "OwnerDashboardQueryService.LoadStockAsync groups stock movements and sums QuantityMilliUnits without applying Direction. Stock movement writers store positive magnitudes with Direction separately; canonical inventory projections subtract Out movements.",
+      "impact": "Dashboard stock balances can be overstated after consumption, waste, packaging usage, or outbound count adjustments. Low-stock rows/counts can be hidden. Example: In 5,000 plus Out 4,000 yields dashboard 9,000 while correct balance is 1,000.",
+      "preconditions": "An active inventory item has at least one positive-quantity Out movement. An alert discrepancy occurs when resulting correct balance is at/below the configured minimum while the unsigned sum exceeds it.",
+      "counterevidence": "The inventory overview and InventoryRules use direction-aware signs, and existing inventory tests verify low-stock/balance semantics including inbound plus outbound adjustment. The owner-dashboard test file has no stock parity assertion. Independent static challenge agrees. No runtime reproduction was performed.",
+      "recommendation": "Reuse a shared direction-aware stock balance projection for the owner dashboard and add integration coverage comparing dashboard and inventory overview after receipts, usage, and inbound/outbound count adjustments.",
+      "required_regression_tests": [
+        "Seed an active item with minimum 2,000; post In 5,000 and Out 4,000; verify dashboard and inventory overview both report 1,000 and low stock.",
+        "Post an outbound-only movement and verify the dashboard does not report it as positive stock.",
+        "Exercise positive In and Out count adjustments and ensure the dashboard signs both consistently with the inventory overview."
+      ],
+      "runtime_reproduction": "NOT_EXECUTED",
+      "independent_verification": {
+        "reviewer": "financial_integrity_continuation",
+        "artifact": "Sub-Agents/Handoffs/inventory-dashboard-independent-financial-challenge.json",
+        "artifact_sha256": "4697d4ffe515c6f974b0e6257192d775c6eca95195e0b5639f634ebb496047f9",
+        "disposition": "CONFIRMED_STATIC_BEHAVIORAL_DIVERGENCE",
+        "qualifications": "Source and test inspection only; no database/runtime execution."
+      },
+      "related_findings": [],
+      "distinctness": "A separate owner-dashboard aggregation defect; not a migration backfill issue or change to the direction-aware inventory overview."
     }
   ],
-  "at_utc": "2026-10-19T21:54:32.539Z",
-  "originator": "root"
+  "at_utc": "2026-10-20T09:55:02.144Z",
+  "originator": "main Codex coordinator; source challenge by financial_integrity_continuation"
 }

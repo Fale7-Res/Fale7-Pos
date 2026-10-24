@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Domain/Audit/AuditEvent.cs",
+  "source_git_blob_sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d",
+  "worktree_sha256": "b94a252734e220c6a494e7e45372a13b50a6a29578058a44d70999848e462e6d",
+  "reviewer": "financial_coordinator",
+  "updated_at_utc": "2026-10-18T04:31:04.638260+00:00",
+  "symbols": [
+    {
+      "stable_id": "sym-0c81311fbe8d492118f5a65a33a5752f64b6f2a3e51b8f2827158da80fbd12cc",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Audit.IAuditLog.Append(Falah.Domain.Audit.AuditEvent)",
+      "span": [
+        41,
+        5,
+        41,
+        40
+      ],
+      "reasoning": "Append-only write interface contract contains no read/update/delete methods, but cannot enforce immutable database permissions or validate event fields itself. Production atomicity depends on EF implementation sharing command transaction, not on this abstract declaration.",
+      "inputs": "Declared arguments and explicitly described object/configuration/clock state; no operational records inspected.",
+      "outputs": "Exact declared result or guard/append/worker effect described individually above.",
+      "side_effects": "Clock/pricing/audit source is read-only except in-memory Append. Scheduler production paths can create/verify/delete backup files and update records; none executed.",
+      "trust_boundaries": "Actor authorization belongs financial handlers; system backup identity is trusted scheduling policy, not a user permission bypass demonstrated here.",
+      "database": "No persistence in pure domain methods. Scheduler EF queries and SaveChanges specifically documented; no DB connection made by audit.",
+      "printing_ui": "Reporting date/price results support financial UI; no UI visual or printer workflow restarted.",
+      "performance": "Date helpers constant-time except Days iteration; backup cycles sequential with history pruning materialization, no measured resource claims.",
+      "duplicates_conflicts": "Cairo date resolver used across reports; normalization mismatch tracked separately. Pricing resolves central rule rather than duplicating offer math.",
+      "issues_hypotheses": "Append-only write interface contract contains no read/update/delete methods, but cannot enforce immutable database permissions or validate event fields itself. Production atomicity depends on EF implementation sharing command transaction, not on this abstract declaration.",
+      "tests_missing": "Boundary dates/DST/reversed scopes; invalid backup numeric configuration; verified-retention and filesystem/SaveChanges failures on authorized disposable fixture. No runtime execution claimed.",
+      "verified_callers_callees": "BusinessClock full source1-83; ItemPricing Resolve plus PricingRules validation source; scheduler1-158 plus BackupRules due/retention guards read. EF implementation/provider behavior not runtime verified."
+    },
+    {
+      "stable_id": "sym-6354f2d896f83ccfbd95cbd2044bbb4aa9f6af7b36a7040ed5295b687a59ec6c",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Audit.InMemoryAuditLog.Append(Falah.Domain.Audit.AuditEvent)",
+      "span": [
+        51,
+        5,
+        51,
+        74
+      ],
+      "reasoning": "InMemoryAuditLog appends supplied immutable record reference to private List; no automatic severity validation, persistence or locking. Events accessor is live read-only wrapper. Test reference log cannot prove production transactional audit rollback behavior.",
+      "inputs": "Declared arguments and explicitly described object/configuration/clock state; no operational records inspected.",
+      "outputs": "Exact declared result or guard/append/worker effect described individually above.",
+      "side_effects": "Clock/pricing/audit source is read-only except in-memory Append. Scheduler production paths can create/verify/delete backup files and update records; none executed.",
+      "trust_boundaries": "Actor authorization belongs financial handlers; system backup identity is trusted scheduling policy, not a user permission bypass demonstrated here.",
+      "database": "No persistence in pure domain methods. Scheduler EF queries and SaveChanges specifically documented; no DB connection made by audit.",
+      "printing_ui": "Reporting date/price results support financial UI; no UI visual or printer workflow restarted.",
+      "performance": "Date helpers constant-time except Days iteration; backup cycles sequential with history pruning materialization, no measured resource claims.",
+      "duplicates_conflicts": "Cairo date resolver used across reports; normalization mismatch tracked separately. Pricing resolves central rule rather than duplicating offer math.",
+      "issues_hypotheses": "InMemoryAuditLog appends supplied immutable record reference to private List; no automatic severity validation, persistence or locking. Events accessor is live read-only wrapper. Test reference log cannot prove production transactional audit rollback behavior.",
+      "tests_missing": "Boundary dates/DST/reversed scopes; invalid backup numeric configuration; verified-retention and filesystem/SaveChanges failures on authorized disposable fixture. No runtime execution claimed.",
+      "verified_callers_callees": "BusinessClock full source1-83; ItemPricing Resolve plus PricingRules validation source; scheduler1-158 plus BackupRules due/retention guards read. EF implementation/provider behavior not runtime verified."
+    },
+    {
+      "stable_id": "sym-f3b9ed4fb5c86fd1b28dabba881129e90a774d4f4f074e978a3276532c4ba15f",
+      "status": "ANALYZED",
+      "signature": "Falah.Domain.Audit.AuditRules.AssertValidSeverity(string)",
+      "span": [
+        59,
+        5,
+        63,
+        6
+      ],
+      "reasoning": "Validates severity using case-sensitive HashSet of info/normal/warning/critical and throws DomainException for unknown values. Does not validate actor/category/details, reject secrets inside arbitrary Details or automatically run on AuditEvent record construction.",
+      "inputs": "Declared arguments and explicitly described object/configuration/clock state; no operational records inspected.",
+      "outputs": "Exact declared result or guard/append/worker effect described individually above.",
+      "side_effects": "Clock/pricing/audit source is read-only except in-memory Append. Scheduler production paths can create/verify/delete backup files and update records; none executed.",
+      "trust_boundaries": "Actor authorization belongs financial handlers; system backup identity is trusted scheduling policy, not a user permission bypass demonstrated here.",
+      "database": "No persistence in pure domain methods. Scheduler EF queries and SaveChanges specifically documented; no DB connection made by audit.",
+      "printing_ui": "Reporting date/price results support financial UI; no UI visual or printer workflow restarted.",
+      "performance": "Date helpers constant-time except Days iteration; backup cycles sequential with history pruning materialization, no measured resource claims.",
+      "duplicates_conflicts": "Cairo date resolver used across reports; normalization mismatch tracked separately. Pricing resolves central rule rather than duplicating offer math.",
+      "issues_hypotheses": "Validates severity using case-sensitive HashSet of info/normal/warning/critical and throws DomainException for unknown values. Does not validate actor/category/details, reject secrets inside arbitrary Details or automatically run on AuditEvent record construction.",
+      "tests_missing": "Boundary dates/DST/reversed scopes; invalid backup numeric configuration; verified-retention and filesystem/SaveChanges failures on authorized disposable fixture. No runtime execution claimed.",
+      "verified_callers_callees": "BusinessClock full source1-83; ItemPricing Resolve plus PricingRules validation source; scheduler1-158 plus BackupRules due/retention guards read. EF implementation/provider behavior not runtime verified."
+    }
+  ],
+  "scope": "Explicit per-callable static financial reasoning; original reviewer shards retained; no live application execution.",
+  "remaining_callable_ids": []
+}

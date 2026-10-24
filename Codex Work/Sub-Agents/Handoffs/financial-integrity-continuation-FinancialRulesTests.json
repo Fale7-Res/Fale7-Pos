@@ -1,0 +1,197 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:02:30.2216820Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/FinancialRulesTests.cs",
+  "symbol_count": 15,
+  "symbols": [
+    {
+      "stable_id": "sym-d517ddfd56f4c79cb9ab2b84db38e33c4d0b836ce1865565de5018d6fc2d6f8e",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Split_allocation_matching_the_total_exactly_is_accepted()",
+      "span": [
+        11,
+        5,
+        16,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6ceda2e50c7066fc9c4ecff3e30cf6ab85752377b0563a1d626a06eaec33e5e9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Split_allocation_over_the_total_is_rejected_even_by_one_piastre()",
+      "span": [
+        18,
+        5,
+        23,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d0ec661ddc1bd69274a996d64774309b11c420b2e8be732b09c8f4889c40eaa2",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        22,
+        40,
+        22,
+        118
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a4d8643b33ddc2f049c7e1eb4afe7acdde82ac346ab598390a3204d6db8b95c1",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Split_allocation_rejects_a_duplicated_payment_method()",
+      "span": [
+        25,
+        5,
+        30,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-73f76ce3f791ffa65fc6e1e91f713a6fcbb9a510381f582fb4540b276435a54c",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        29,
+        40,
+        29,
+        118
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-bf51e0d7b1fee9d896c589915e781b630ac0781f8805043dcf4bbaa603fc861b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Sequence_allocation_never_goes_below_the_historical_floor_of_127()",
+      "span": [
+        32,
+        5,
+        36,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-808f89bddd772882a014f69732577ed427292015200bfdc8a72141b10dfc3132",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Sequence_allocation_recovers_from_a_lost_in_memory_counter_using_the_stored_max()",
+      "span": [
+        38,
+        5,
+        43,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-1dd800dd9cb77051a045ad9931561e6a95356bfd35d1dfa5cb4ac0009a3b1d86",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Order_number_is_formatted_as_a_zero_padded_four_digit_hash_tag()",
+      "span": [
+        45,
+        5,
+        49,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-d494f7c1f301e2b789fdff34726258263114a7ff49edeb8f1f5ce64b84471f26",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Treasury_balance_nets_incoming_against_outgoing_posted_movements_only()",
+      "span": [
+        51,
+        5,
+        61,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-6d4911b026cac13b0d8b740ed07e6a3ec73b63d26bc3a7616a2527b7e26fa0ba",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Discrepancy_within_threshold_needs_no_approval()",
+      "span": [
+        63,
+        5,
+        67,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-eafe316174e33f5389bd3b43eb3966b38420e7c9165995fe2eb84d296caf349b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Discrepancy_beyond_threshold_needs_approval_regardless_of_sign()",
+      "span": [
+        69,
+        5,
+        74,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-085725ee42000053e8d32af6fb947beaa4816fc22df0810a7d84b7e85051c489",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Protected_account_cannot_be_drawn_below_zero()",
+      "span": [
+        76,
+        5,
+        82,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-db70b487c77f01692f792cff55d737afc942a0d4d36fe562427b5844eb954169",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        80,
+        40,
+        81,
+        102
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-44daae156dce5304be6b622e8d42c9a0c72ac030ac5ece6dbeaaf1a45b265553",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.Wallet_account_is_not_protected_matching_the_original_omission()",
+      "span": [
+        84,
+        5,
+        90,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-f28c700707921e5c1ee8b3165ccb5004d2d44d455f27d0da9901357e4eb4b7f9",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.FinancialRulesTests.MakeMovement(string, string?, string?, Falah.Domain.Common.Money, Falah.Domain.Financial.MovementStatus)",
+      "span": [
+        92,
+        5,
+        93,
+        152
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static financial-rule tests cover exact split allocation, one-piastre overage rejection, duplicate split-method rejection, sequence recovery from stored max, order-number formatting, posted-only treasury balance, discrepancy approval in both signs, protected-account overdraft rejection, and the legacy tre-wallet nonprotected exception. Existing source explicitly documents wallet exclusion as legacy compatibility; this test alone does not establish a defect. No tests executed.",
+  "source_ranges": "Entire source read; cross-referenced FinancialRules.cs:50-52 and PaymentMethod.cs:14-17, plus canonical FIN-006/FIN-011 (adjacent context only).",
+  "execution": "Read-only test/source inspection; no tests run.",
+  "shard_reconciliation": {
+    "financial_integrity": "/15 exact IDs present",
+    "financial_coordinator": "/15 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

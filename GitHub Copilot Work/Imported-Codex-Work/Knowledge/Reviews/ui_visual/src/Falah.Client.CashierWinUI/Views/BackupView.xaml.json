@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/Views/BackupView.xaml",
+  "source_git_blob_sha256": "a69c02d8ab4f642832d5f2355175fd79ab15b3f4d9c0c046511de5ab5deedf7e",
+  "worktree_sha256": "c6093c396f78cdb2533a94d86a2f2bb60af5d110a34166bddb7e369612357486",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-16T17:34:12.737000+00:00",
+  "file_review_status": "ANALYZED_STATIC",
+  "file_reasoning": "Backup history, verification and guarded destructive restore UI.",
+  "resource_binding_reasoning": [
+    {
+      "anchor": "CanManage",
+      "reasoning": "Create action permission/busy gate; refresh icon lacks explicit accessible name. Last backup headline/detail plus restore history stay outside table loading overlays, requiring VM coherence during refresh."
+    },
+    {
+      "anchor": "Grid.Row=\"2\"",
+      "reasoning": "Banner explicitly says restore unavailable from this screen, yet each row has OpenRestoreCommand and full restore overlay below. This is stale contradictory user-facing safety guidance, not evidence restore absent."
+    },
+    {
+      "anchor": "FileNameConverter",
+      "reasoning": "Filename displayed, full path tooltip and requester ID. Verification/status labels use actual general converter Valid/Invalid mapping. Verify/restore row commands rely VM permission and pending gates."
+    },
+    {
+      "anchor": "ActionNote",
+      "reasoning": "Success toast literalwhite on TextPrimaryBrush repeats dark theme conditional low contrast; errorwhite on DangerBrush a separate pair. Both bottom overlays could compete if VM retains both flags."
+    },
+    {
+      "anchor": "IsRestoreOpen",
+      "reasoning": "Last declared overlay covers all4rows. Explicit irreversible data-loss warning, file path, mandatory reason, literal phrase and conditional managerPIN; label/CanSubmitRestore consistent across fields and button. No restore executed."
+    },
+    {
+      "anchor": "MaxWidth=\"620\"",
+      "reasoning": "Centered restore card has ScrollViewer but no MaxHeight/stretch constraint, unlike attendance bounded dialog. Available parent measure might constrain; native viewport check required, not asserted clipping."
+    },
+    {
+      "anchor": "RestoreManagerPin",
+      "reasoning": "PasswordBox max6 and permission visibility; no actual PIN inspected. Startup/service/global operation protections are backend/VM claims not independently guaranteed by warning text. UI014 Completed/Succeeded mismatch persists in reviewed VM."
+    }
+  ],
+  "tests_and_limits": "NOT_EXECUTED. No backup, restore, database or configuration mutation. Need unknown restore recovery, literal phrase, native focus, dark toast and misleading banner tests. XAML no callable declarations.",
+  "recommendations": "Correct safety copy in approved future change and verify end-to-end restore status vocabulary without production DB; pair semantic toast colors.",
+  "symbols": [],
+  "observation": "SOURCE_ONLY; no native screenshot/runtime evidence; no source or application state changed",
+  "remaining_callable_ids": []
+}

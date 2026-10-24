@@ -1,0 +1,234 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-031",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T09:45:00Z",
+  "scope": "Trace cancelled pending-electronic-payment state from domain transition through persistence, order lookup DTO, and Call Center payment/status presentation. Static source only; no UI/runtime/test execution.",
+  "decision": "Source-confirmed presentation contradiction candidate: a cancelled electronic-payment order is projected as Status=cancelled, IsPaid=false, ElectronicPaymentStatus=cancelled, while the Call Center payment line's fallback labels every non-pending, unpaid order as collection-on-delivery. The XAML also shows a separate cancelled status label, which mitigates but does not remove the contradictory collection instruction. No financial movement or ledger defect is established.",
+  "finding_candidate": "FIN-CAND-CANCELLED-LOOKUP-PAYMENT-LABEL-001",
+  "related_existing_finding": null,
+  "severity": "LOW_CANDIDATE",
+  "confidence": "HIGH_SOURCE_BEHAVIOR; OPERATIONAL_IMPACT_MEDIUM_UNVERIFIED",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "line_ranges": [
+        [
+          267,
+          282
+        ],
+        [
+          311,
+          334
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-723d6fe95040fac57e8c05b49824c24ed3948316e513befebae8628107bdc169",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.LookedUpPaymentLine",
+          "span": [
+            267,
+            5,
+            279,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f6b3bf1219bf1025a550d372b11462625b6fb1eb685637f5d65b6d154ae67203",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.LookupOrderAsync()",
+          "span": [
+            311,
+            5,
+            334,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml",
+      "worktree_sha256": "67022609cfa8b4a82b59f2b225725d921e8596defeda694af4a1a47bfef79eea",
+      "source_git_blob_sha256": "16e9dba5bd2305650d309c15a2ac58848e15e2d3820ae05ff1473b2ee02a06ed",
+      "line_ranges": [
+        [
+          143,
+          171
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+      "source_git_blob_sha256": "0714593ee3ceafda4b48658f6c7b61e95d0870e5c410117f79fae5dfcc95258d",
+      "line_ranges": [
+        [
+          187,
+          190
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-21028965f396d906deca6c207b5060063e19d8dce20b79b305185cd7afbdb322",
+          "signature": "Falah.Client.CallCenterWinUI.Services.ApiClient.LookupOrderByNumberAsync(string, CancellationToken)",
+          "span": [
+            187,
+            5,
+            190,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          1504,
+          1510
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderMapper.cs",
+      "worktree_sha256": "37619395348335292dd8dc7469e4f21488033d3816b097ad9b55451a6af20a9d",
+      "source_git_blob_sha256": "5c422ab8a49ac985c1100ef28c17d38529ae973a4df1bd215025e461e9ba2f8c",
+      "line_ranges": [
+        [
+          24,
+          39
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-befe1d3f1630133b43cc6299008617c13c0e6328716c3e9e6ef642656d9f250a",
+          "signature": "Falah.Infrastructure.Orders.OrderMapper.ToDto(Falah.Infrastructure.Persistence.Entities.OrderEntity)",
+          "span": [
+            24,
+            5,
+            39,
+            37
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Orders/Order.cs",
+      "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+      "line_ranges": [
+        [
+          200,
+          214
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ef81f7d92aa9f70da5294f622e8a1d04296d541608a4bded139916238b25beba",
+          "signature": "Falah.Domain.Orders.Order.CancelElectronicPayment(string, string, DateTimeOffset)",
+          "span": [
+            200,
+            5,
+            214,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+      "worktree_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "source_git_blob_sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7",
+      "line_ranges": [
+        [
+          31,
+          73
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0b5d57a5b0ec5aba75cfe63cb24b0e01523be02f05da5afb7ae358180f2bba2e",
+          "signature": "Falah.Infrastructure.Orders.CancelPendingElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.CancelPendingElectronicPaymentRequest, CancellationToken)",
+          "span": [
+            31,
+            5,
+            73,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs",
+      "worktree_sha256": "02835cdfbfd3b8f9b02340e8ebc0bbc556d1229cb05df953611fe5ae21595695",
+      "source_git_blob_sha256": "fd65f4bbdb0dd0a538e7249ee13d1f47787f32f5741a9f77a233a0c5d1d8ad77",
+      "line_ranges": [
+        [
+          147,
+          162
+        ]
+      ],
+      "relevant_symbols": []
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs",
+      "worktree_sha256": "926d37d8ddf52c6518a64537dfbeacfa307f37578c3493a486bf67a7756878f1",
+      "source_git_blob_sha256": "4bd3b0ccf0d46539b5d8b171e5f0f28ce26efba090564106f7348f7268356860",
+      "line_ranges": [
+        [
+          11,
+          22
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2280d8e35332729545b4e3a55b8121a31660ce61f56e478bcec8331490c1c9e0",
+          "signature": "Falah.Client.CallCenterWinUI.Converters.OrderStatusLabelConverter.Convert(object, Type, object, string)",
+          "span": [
+            13,
+            5,
+            22,
+            7
+          ]
+        }
+      ]
+    }
+  ],
+  "manual_reasoning": {
+    "state_transition": "Order.CancelElectronicPayment returns no movement and marks the entire order cancelled, IsPaid=false and electronic leg Cancelled. CancelPendingElectronicPaymentHandler maps these fields onto the entity and commits; saved integration-test source asserts Status cancelled, ElectronicPaymentStatus cancelled and zero TreasuryMovements for this scenario.",
+    "lookup_path": "CallCenter's LookupOrderAsync calls LookupOrderByNumberAsync; /api/orders/lookup selects by order number without excluding cancelled status; OrderMapper.ToDto preserves Status, IsPaid and ElectronicPaymentStatus.",
+    "presentation_rule": "LookedUpPaymentLine checks only pending first, then IsPaid, else emits 'تحصيل عند التسليم'. Thus a cancelled unpaid electronic order gets COD wording. XAML separately renders the status using OrderStatusLabelConverter and renders payment line immediately after total, muted unless pending.",
+    "impact_and_counterevidence": "An operator can see both 'ملغي' and 'تحصيل عند التسليم' for the same order; that is an internally contradictory collection instruction and could cause customer misinformation. The visible cancelled status materially mitigates risk. No ledger movement, live collection, UI observation or actual operator error is demonstrated.",
+    "classification": "Candidate low-severity cross-layer presentation inconsistency; source behavior and mapping are confirmed, but operational impact and owner-preferred wording need independent review. Not a confirmed money movement or accounting defect, and not a duplicate-payout claim."
+  },
+  "recommendation": "Make the payment-line projection state-aware: handle cancelled/voided order status before the unpaid fallback and show that no collection is due for that cancelled order; retain explicit pending, paid, and COD distinctions for active orders. Keep the order status label as independent state. Do not infer COD from IsPaid=false alone.",
+  "required_regression_tests": [
+    "Projection test: cancelled order + electronic status cancelled + IsPaid false must not render collect-on-delivery wording.",
+    "Controls: pending electronic remains 'not confirmed'; paid cash/card remains paid; active unpaid COD remains collect-on-delivery.",
+    "Call Center lookup view-model test verifies status and payment line together for cancelled and active orders."
+  ],
+  "acceptance_criteria": [
+    "No cancelled order is described by the payment line as collectible on delivery.",
+    "The payment line preserves the distinct pending electronic, settled, and active COD states.",
+    "Test cases cover projection logic without database or physical collection."
+  ],
+  "independent_challenge": {
+    "status": "PENDING_FINANCIAL_SPECIALIST_REVIEW",
+    "reviewer": "financial_integrity_continuation",
+    "scope": "Source-level challenge only; no runtime/UI test requested."
+  },
+  "limitations": [
+    "No tests were run.",
+    "No UI was launched or visually inspected.",
+    "No database query or financial operation was run.",
+    "Because the separate order status is visibly labelled Cancelled, actual operator impact remains uncertain."
+  ],
+  "reviewer": "Main Codex coordinator; one bounded manual cross-layer comparison; not independently challenged yet."
+}

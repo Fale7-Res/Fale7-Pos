@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs",
+  "source_git_blob_sha256": "276d1012dcaca0829aa0414cd0807c7a6837a4be060ce0ae726d22b45b573b71",
+  "worktree_sha256": "aca9d8bb983db0a698ccb6a18ef0e992f2853484e7f42ebcc421fcdce77358c1",
+  "reviewer": "financial_integrity",
+  "updated_at_utc": "2026-10-20T03:07:04.749314+00:00",
+  "file_review_status": "COMPLETE_STATIC_CALLABLE_REVIEW",
+  "evidence": "Manually read complete source and exact caller transaction chain; each symbol individually reasoned. No execution.",
+  "symbols": [
+    {
+      "stable_id": "sym-a4b5d0b1cf898284365392e766001c45ea55ca6fcaddd76ba07862b7015a9ef5",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddExpenses.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        12,
+        9,
+        54,
+        10
+      ],
+      "reasoning": "Up creates Expenses financial fact metadata, using bigint piastres, date business date, nullable day/movement/approver references and required shift/account/actor strings. It adds BusinessDate and ShiftId/PaidFromDrawer lookup indexes plus unique IdempotencyKey. No treasury/journal posting, FK or positive-amount CHECK in this body, so runtime AddExpense command owns those invariants.",
+      "inputs": "MigrationBuilder supplied by EF migration orchestration.",
+      "outputs": "Appended schema migration operations; no domain result.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs:12-54",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    },
+    {
+      "stable_id": "sym-1515748c9f38b35c78ffde747ad7ed6ab3641ffb619357b17a61f1d3202d4351",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        16,
+        26,
+        33,
+        18
+      ],
+      "reasoning": "Columns lambda defines expense ID and idempotency nvarchar450, Amount bigint, PaidFromDrawer bit, business date/dateoffset chronology and textual references. Nullable BusinessDayId/TreasuryMovementId allow representable legacy/unlinked states; SQL required columns are not proof of valid account, positive amount or actor authority. No default financial data inserted.",
+      "inputs": "Generated table/column builder parameter scoped to enclosing CreateTable.",
+      "outputs": "Column/constraint/key-selector metadata consumed by enclosing migration operation.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs:16-33",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    },
+    {
+      "stable_id": "sym-8a717fbe423e2dd1e29affed25e2789faf1b2a7cd68142e21f28df56bb03a454",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        34,
+        30,
+        37,
+        18
+      ],
+      "reasoning": "Constraints lambda declares only expense Id primary key, with no FK to shift, user, treasury movement or day. Runtime command validation supplies ordinary linkage; three later indexes improve reads/dedupe but do not validate those references or amount sign. Schema generation is static metadata here.",
+      "inputs": "Generated table/column builder parameter scoped to enclosing CreateTable.",
+      "outputs": "Column/constraint/key-selector metadata consumed by enclosing migration operation.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs:34-37",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    },
+    {
+      "stable_id": "sym-404ecd86172ea8778f09c08c83e0d7a21e3325dd0bb63702d08dcf73260af93c",
+      "status": "ANALYZED",
+      "signature": "lambda expression",
+      "span": [
+        36,
+        53,
+        36,
+        62
+      ],
+      "reasoning": "Nested selector x.Id identifies primary key column for expense table; does not select IdempotencyKey or enforce financial key uniqueness by itself. Unique business-event index is separately authored at44-48. Selector has no domain or physical cash side effect.",
+      "inputs": "Generated table/column builder parameter scoped to enclosing CreateTable.",
+      "outputs": "Column/constraint/key-selector metadata consumed by enclosing migration operation.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs:36-36",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    },
+    {
+      "stable_id": "sym-25d99c1ab92a74637f7039d611d9270102464425c8d90c91fc2c119a50f7567b",
+      "status": "ANALYZED",
+      "signature": "Falah.Infrastructure.Persistence.Migrations.AddExpenses.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+      "span": [
+        57,
+        9,
+        61,
+        10
+      ],
+      "reasoning": "Down drops Expenses, losing expense metadata and cache/report records but does not automatically undo linked outgoing treasury/journal facts. This is destructive schema reversal, not compensating transaction or safe restoration of restaurant data. Only analyzed source; no database rollback or migration applied.",
+      "inputs": "MigrationBuilder supplied by EF migration orchestration.",
+      "outputs": "Appended schema migration operations; no domain result.",
+      "side_effects": "If migration engine executes this body it changes schema and Down may destroy data. Audit only read source and generated evidence, did not invoke any migration or database.",
+      "trust_boundaries": "Migration execution requires explicitly verified target database and authorization; schema declarations do not validate runtime actor, physical cash, state transition or safe preexisting data.",
+      "database": "Exact SQL Server column/index/key types and dependency/rollback behavior reasoned from complete body. Current model/handlers were independently read earlier; deployed DB schema/provider execution is UNKNOWN.",
+      "printing_ui": "No renderer/transport/UI function; shift/expense metadata can support voucher composition but no ticket or physical print occurred.",
+      "performance": "Index purpose is bounded lookup/dedupe; CREATE/ALTER locking, table size and deployment duration unmeasured. No claimed zero downtime or safe online migration.",
+      "duplicates_conflicts": "Historical migration is distinct from current model; same-request schema uniqueness is not command payload binding, active-day census serialization or financial compensation. No function count from designer equivalence inferred.",
+      "issues_hypotheses": "No new finding from this declaration. Destructive Down and missing FKs/CHECKs recorded as actual migration limits, not claim unknown deployed DB accepts corruption.",
+      "tests_missing": "No migration/test execution. Need disposable SQL Server upgrade/downgrade with representative prior rows, NULL replay keys, duplicate-key rejection and verification no financial fact is silently orphaned by authorized rollback.",
+      "verified_callers_callees": [
+        "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs:57-61",
+        "EF migration orchestration: actual startup MigrateAsync known from Program; no runtime invocation in audit.",
+        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs:116-154"
+      ]
+    }
+  ],
+  "remaining_callable_ids": []
+}

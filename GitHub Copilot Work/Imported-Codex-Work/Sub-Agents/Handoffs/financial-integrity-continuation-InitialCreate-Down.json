@@ -1,0 +1,23 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T09:53:52.6012471Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs",
+  "stable_id": "sym-c11c8f64cf51cf2d38aefd74a6274b0afc7e21f9231a49280f2802b964d15cd6",
+  "signature": "Falah.Infrastructure.Persistence.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)",
+  "span": [
+    594,
+    9,
+    655,
+    10
+  ],
+  "status": "ANALYZED",
+  "reasoning": "Down removes all tables from the initial migration in dependency-safe order: dependent OrderItems/OrderRefunds before Orders, ProductVariants before Products, RecipeItems before Recipes/InventoryItems, and Orders before referenced Shifts/Users. Remaining tables are independent roots or are removed after dependents. It is a destructive rollback by design and would erase data if executed; no rollback was run. Initial schema also has no later migration dependencies in this method body.",
+  "evidence": "Source lines 594-655 read directly; PK/FK declarations reviewed in preceding Up batch.",
+  "execution": "Read-only source review; no migration, database operation or test.",
+  "shard_reconciliation": {
+    "financial_integrity": "0/1 exact stable ID already present",
+    "financial_coordinator": "0/1 exact stable ID already present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

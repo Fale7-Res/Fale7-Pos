@@ -1,0 +1,105 @@
+{
+  "id": "financial-residual-213-coordinator-quality-check",
+  "at_utc": "2026-10-21T03:47:00.998Z",
+  "reviewer": "/root",
+  "scope": "Independent metadata/identity cross-check of the five specialist-authored residual batches; targeted semantic source challenge for ShiftClose custody warning. This does not independently reread every individual function body.",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "queue": "Codex Work/Sub-Agents/Results/financial-residual-213-reconciliation-queue.json",
+  "specialist_manifest": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-completion-manifest.json",
+  "specialist_checkpoint": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-reconciliation-checkpoint.json",
+  "batch_handoffs": [
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-nonfinancial-tests-batch.json",
+      "sha256": "3e4f5a8b9795aee3d566970cb78a4df659521e8eb80d54678231ae980c15cb25",
+      "entries": 52
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-job-creation-batch.json",
+      "sha256": "19104ff2b4df24688e45b11c059d1d987462c99223281a5d82ffa2d7fc956037",
+      "entries": 13
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-query-and-rules-batch.json",
+      "sha256": "477a866fe93dd11513b3cad80ccb7c22655770f5da43c016741d508ae4121151",
+      "entries": 97
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-print-result-reprint-station-batch.json",
+      "sha256": "cc5344950a9cc457e40f4405d3073d3736d5b2e3fd28b3eac7f32737e7b9ccbf",
+      "entries": 19
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-residual-213-renderer-layout-batch.json",
+      "sha256": "ef96149cd5bf750a4a2763c1847aeb599398fd074f2a57d0bd329b127bf0a67a",
+      "entries": 32
+    }
+  ],
+  "identity_validation": {
+    "queue_ids": 213,
+    "batch_entries": 213,
+    "unique_batch_ids": 213,
+    "missing": 0,
+    "unknown": 0,
+    "duplicates": 0,
+    "all_ids_match_queue": true
+  },
+  "source_validation": {
+    "source_hashes_checked": 213,
+    "hash_mismatches": 0,
+    "spans_checked": 213,
+    "invalid_spans": 0,
+    "symbol_index_stable_id_signature_span_checked": 213,
+    "symbol_identity_errors": 0,
+    "git_baseline_path_diff": "clean for targeted source files",
+    "tests_run": false
+  },
+  "disposition_counts": {
+    "NOT_APPLICABLE_TO_FINANCE": 99,
+    "FINANCIAL_PRESENTATION": 45,
+    "FINANCIAL_PRESENTATION_SUPPORT": 5,
+    "FINANCIAL_PRESENTATION_AUDIT_MARKING": 3,
+    "FINANCIAL_PRESENTATION_WARNING": 5,
+    "PRESENTATION_ONLY_OR_INDIRECT": 28,
+    "NO_ACCOUNTING_MUTATION_CONFIRMED": 13,
+    "NOT_APPLICABLE_TO_FINANCIAL_POSTING": 7,
+    "FINANCIAL_PRESENTATION_AUDIT": 8
+  },
+  "semantic_cross_check": {
+    "id": "SEM-MIRROR-026",
+    "source_review": "Main coordinator read PrintJobQueryService, DeliveryRules, BusinessDayCloseEvaluator, entity relationships, CloseShiftHandler and domain/integration tests at cited ranges.",
+    "specialist_challenge": "Specialist concurs probable scope/presentation defect; no expected cash or ledger effect established; global warning may be intended; owner policy/runtime remain open.",
+    "artifact": "Codex Work/Deep-Audit/Duplication-and-Architecture/shift-close-custody-warning-scope-semantic-comparison.json"
+  },
+  "quality_status": "RESIDUAL_QUEUE_COMPLETE_AT_SYMBOL_DISPOSITION_AND_METADATA_LEVEL; full financial completion gate remains open.",
+  "limitations": [
+    "Specialist-authored per-symbol flow notes were not each independently re-reasoned by the coordinator.",
+    "No SQL Server/provider, API/runtime, or physical printer tests.",
+    "No owner policy on shift-scoped versus restaurant-wide custody warning.",
+    "This queue does not certify the older 7,602 authority receipts and 989 continuation receipts for semantic depth."
+  ],
+  "latest_agent_depth_reconciliation": {
+    "handoff": "Sub-Agents/Handoffs/financial-residual-213-depth-reconciliation-latest.json",
+    "coordinator_challenge": "Deep-Audit/Database-and-Finance/financial-residual-213-print-semantics-coordinator-challenge.json",
+    "agent_disposition": "COMPLETED",
+    "dispositions": {
+      "not_finance": 99,
+      "presentation_or_adjacent": 94,
+      "no_accounting_mutation": 13,
+      "not_applicable_posting": 7,
+      "total": 213
+    },
+    "money_moving_paths_found": 0,
+    "important_conditional_observations": [
+      "ShiftClose reprint persists headline but recomputes breakdown from current rows; post-close row mutability/revision policy unresolved.",
+      "ShiftClose warning counts global open driver custody while a domain helper is shift-filtered; owner warning scope unresolved."
+    ],
+    "independent_source_check": {
+      "records": 10,
+      "unique_paths": 10,
+      "range_bounds_valid": true,
+      "hash_matches_case_insensitive": 9,
+      "hash_mismatch_details": "OrderAutoPrintService handoff SHA was malformed/truncated; current source hash matches Knowledge/Source-Symbols index, source/test diff from baseline is empty."
+    },
+    "conclusion": "Residual-213 status is individually dispositioned and targeted source recheck found no residual accounting posting path. This does not certify substantive financial depth across all 8,804 callables or all 327 report files."
+  }
+}

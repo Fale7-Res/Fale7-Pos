@@ -1,0 +1,14 @@
+{
+  "candidate_id": "SEC-002",
+  "created_at_utc": "2026-10-17T18:31:05.424279+00:00",
+  "rubric": [
+    "Actual production App initializes file store before user VM request restoration.",
+    "PIN-bearing typed requests flow through durable owner-key helper before transport.",
+    "Actual serializer/file sink retains public PIN properties without encryption/redaction.",
+    "Lifecycle/ACL/local-access counterevidence and temp-file failures constrain exposure.",
+    "Disposition separates source-confirmed retention from unverified real files/access/exfiltration."
+  ],
+  "method": "Source-only per explicit owner/task authorization; no operational pending-file read or crafted login/API/DB action",
+  "skill": "codex-security:validation",
+  "output_policy": "User explicitly requires all audit evidence inside Codex Work; standalone source-only report, no plugin scan ID invented."
+}

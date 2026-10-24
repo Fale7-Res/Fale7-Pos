@@ -1,0 +1,86 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:21:38.6426862Z",
+  "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+  "stable_ids": [
+    "sym-a1401d86841bf083c20f4c1e3324fb566cacd6a67ff9b51aa0ccb434c52bf3ff",
+    "sym-7cdd3957e156e0383f80b757f2d92dcf524fa0b3046a2ea93a131250506c57dd",
+    "sym-f9797ef7bd794393bb0697778792e7511c3d89e12ab5079b23db3861207be1b7",
+    "sym-ecf5d2340f184c4523084f5f6cca48efed6dff7e96d24b7cd2209fd43f87b5fd",
+    "sym-294521c6c99d845cc4b0a1b96106a7e6cbdfb4402c1295dd5afa556758665d8a",
+    "sym-72389857acc2d3caf0847fb723a7a73ccdd02e11711aba29bde9edeac6da0565",
+    "sym-37a99fe649a897e4290e8b34ffea199451a423a56845609477b02fe88373e5bc",
+    "sym-2d2c0124b13d5c53373dc760dd66163c31eb5853986481533c8e3156dcf42906",
+    "sym-88910f32f3c69671424439c58e9be39d9931d9ed69a79e67f4f0b5e643bbc6c3",
+    "sym-74bf4ee30e844fd70bed9c51da751038c5dba44056aa8d8a48686c4ca1c1d552",
+    "sym-a563c2e6a4c386dc71be87587861f01f5efea28ea4bcd28cffe6f04e06b5742b",
+    "sym-7f6244fe5cd1e338479890713d460139839e8ecf8e641f618c65667a066d000d",
+    "sym-b0d6d12d4afa282f1de5e75c5d8930e18b9ed3a01de1e5cd8c1e42dc11d6aa9c",
+    "sym-e0478a84af5d7327e8657807cc65b558a94c54d0b2c009fb72da7f4e3279b46f",
+    "sym-4082524dab278b81640b29a2d554fb48e119922f355d24628e38199bb3b97c0f",
+    "sym-a6d9c9f7d2cb484ec759599b1db5cb7f86e7d55c856b840b1dbba004cb9a5c7b",
+    "sym-03158fe6fe2fb0184a9a0016169cd3d42548bfa2a57e374381d599616c736fbe",
+    "sym-4368590531be03cf6575ec24b25d5ea136784338ec4edf90449d838787d7dbba",
+    "sym-40b2bc86cf436a7b3b31182f92277aab343deaf380f5e0a052493debf861bd5c",
+    "sym-3ac2baccc0e73d3826ccbf86b6c5450612fca41acb3f09b0bc6967587227ee5d",
+    "sym-f9a7c4eacddf7445452fad4717a2b97ca9b3818b0ab5bc104f04a56a29987b2a",
+    "sym-9f921824dbcb0fdbe5db1bd321f588f56ac78134878680f8b55628eff28aa81a",
+    "sym-dfdf38e1c943fc1c9ab44b748d2071c3ce7b95674a769ae21a0d140ba8db0fc8",
+    "sym-b8625f79bd8976124e6f2534e07941c34265866debf861ff1523ae7c56012684",
+    "sym-f4e8ddce6e1a9a1bc84e9db46e6b2b8e106ad6b4a48b240af676ab2f3dd3dfa3",
+    "sym-f6ce47908ec826d8b6d8f94a7405a71e25b77fa5fb3d70a0811a3e616f3f76a5",
+    "sym-fd2fff244fdd362598b3a3c074ed57242dd9f1a3dff7c0d34219abfa528ea124",
+    "sym-9a70994d050fbd5d670c47065d2666a79e09b90484a980d0df097689917faf4e",
+    "sym-b3d5304cbbb94639252e072586249f6e06de3b1788b15e22edd29737f202659c",
+    "sym-3eee5f99295ffd252ba50cc0e556bcb62d4856d4c8a35b79d8e8c1cd1c040527",
+    "sym-9b19bb2c8c243c566c7e2cdfdb8730a5a46a88b58dc70adc43ecc639613f1f1d"
+  ],
+  "queued_count": 31,
+  "reconciliation": {
+    "current_union_remaining": 31,
+    "coordinator_database_reports": 0,
+    "outside_union": 0,
+    "note": "Authoritative union retains all IDs; coordinator reports shard does not index this test file."
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs": "003AE8B1A74111162A17D6E3F532638C21898A2E4871ACE1D57F82DA2EB40A66",
+    "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs": "E00E9FA8C36F3FA6A75E371C85307E1666803EF7CC57972513B868772A4225BA",
+    "src/Falah.Domain/Payroll/PayrollRules.cs": "4A2B2460A8E991C874A4965B244FFA4F36D229D6460897D54968B6C0047F0F86",
+    "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs": "FBB1200253239F442FDB0933ABB5270F12C7D404E5CD549150C71A66C96C6341"
+  },
+  "assessment": "The file covers attendance-derived daily wage credit and idempotence, correction authorization/reason, adjustment ledger posting, retries and serialization. It is relevant financial test scope. Counterevidence and existing findings: Checking_in_late_beyond_grace_posts... explicitly checks an immediate no-penalty path and asserts no Deduction, so it does not establish the positive late-penalty calculation. Upward overtime correction test proves an Adjustment credit is written; neither this file nor its tests execute payroll after such credit. PayrollRules.CalculatePayrollLines currently adds Adjustment debits to deductions but does not count Adjustment credits in base/overtime/extra/bonus earnings; EmployeeQueryService earning buckets similarly omit Adjustment credit, supporting existing FIN-012 lead. No duplicate candidate promoted. Test run/static runtime claims are not made.",
+  "source_references": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "lines": "71-88",
+      "claim": "Despite test name, comments and assertion only exercise the immediate no-penalty path."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs",
+      "lines": "205-218,267-284",
+      "claim": "Upward overtime correction creates an Adjustment credit; combined correction asserts signed running balances; no payroll calculation invoked in this file."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "lines": "90-120",
+      "claim": "Correction emits signed Adjustment debit/credit deltas for penalty/overtime changes."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "lines": "92-108",
+      "claim": "Payroll counts Adjustment debits as deductions but does not include Adjustment credits in its earning buckets."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+      "lines": "19-48",
+      "claim": "Financial report earnings buckets are defined over daily wage/salary/overtime/extra shift and bonuses/other earnings; Adjustment credits do not enter those buckets."
+    }
+  ],
+  "existing_findings": [
+    "FIN-012"
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only audit. No test execution, API calls, live DB, transactions or writes.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

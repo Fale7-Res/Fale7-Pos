@@ -1,0 +1,26 @@
+param([switch]$IncludeCallCenter)
+$ErrorActionPreference = 'Stop'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+if (!(Test-Path -LiteralPath (Join-Path $PSScriptRoot 'initialized-test-database.json'))) { throw 'Test environment is not initialized.' }
+$health = Invoke-RestMethod -Uri 'http://localhost:5151/health' -TimeoutSec 10
+if ($health.status -ne 'ok') { throw 'Backend is not healthy.' }
+$serverProcesses = @(Get-CimInstance Win32_Process -Filter "name = 'Falah.Server.exe'" | Where-Object { $_.ExecutablePath -eq (Join-Path $repoRoot 'src\Falah.Server\bin\Release\net8.0\Falah.Server.exe') })
+if ($serverProcesses.Count -ne 1) { throw 'Cannot uniquely identify the local test backend process.' }
+$backendId=$serverProcesses[0].ProcessId
+$listenerIds=@(Get-NetTCPConnection -LocalPort 5151 -State Listen | Select-Object -ExpandProperty OwningProcess -Unique)
+if($listenerIds.Count -ne 1 -or $listenerIds[0] -ne $backendId){throw 'Expected test backend does not own port 5151.'}
+& (Get-Command sqlcmd.exe).Source -S '(localdb)\Fale7CSharpDev' -E -d Fale7CSharp_Test -l 15 -b -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE host_process_id = $backendId AND database_id = DB_ID(N'Fale7CSharp_Test')) THROW 51000, 'Backend SQL target not verified.', 1;"
+if($LASTEXITCODE -ne 0){throw 'Backend SQL target verification failed.'}
+$previousUrl = [Environment]::GetEnvironmentVariable('FALAH_SERVER_URL', 'Process')
+try {
+    [Environment]::SetEnvironmentVariable('FALAH_SERVER_URL', 'http://localhost:5151', 'Process')
+    $selectedClients=@('CashierWinUI')
+    if($IncludeCallCenter){$selectedClients+='CallCenterWinUI'}
+    foreach ($client in $selectedClients) {
+        $exe = Join-Path $repoRoot "src\Falah.Client.$client\bin\x64\Release\net8.0-windows10.0.19041.0\Falah.Client.$client.exe"
+        $existing = @(Get-Process -Name "Falah.Client.$client" -ErrorAction SilentlyContinue)
+        if ($existing.Count -gt 0) { Write-Output "$client already running; no duplicate launched."; continue }
+        $process = Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -PassThru
+        Write-Output "$client PID: $($process.Id)"
+    }
+} finally { [Environment]::SetEnvironmentVariable('FALAH_SERVER_URL', $previousUrl, 'Process') }

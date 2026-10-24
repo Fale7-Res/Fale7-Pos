@@ -1,0 +1,268 @@
+{
+  "at_utc": "2026-10-19T01:43:52.069650+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "origin": "Latest owner continuation message, independent GitHub review summary only",
+  "retrieval_limit": "Original external full report/hidden reasoning not provided or retrieved. This is deduplication against existing evidence, not independent endorsement of all external assertions.",
+  "leads": [
+    {
+      "owner_supplied_summary": "Payroll transition Paid without financial settlement",
+      "canonical_ids": [
+        "FIN-006"
+      ],
+      "decision": "Existing source-backed finding; no new ID.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+          "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+          "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Payroll pay/cancel concurrency",
+      "canonical_ids": [
+        "FIN-CAND-PAYROLL-001"
+      ],
+      "decision": "Existing independently source-challenged stale-status schedule; actual SQL race unexecuted.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+          "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "source_git_blob_sha256": "0357eee7bc51fa07c2ea43e4c602264f1648bde13437ad3e35449fff5332dd55",
+          "worktree_sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "source_git_blob_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4",
+          "worktree_sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+          "source_git_blob_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04",
+          "worktree_sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Negative purchase quantity and unit cost",
+      "canonical_ids": [
+        "FIN-018"
+      ],
+      "decision": "Existing authorized both-negative receipt trace, not arbitrary unauthorized invoice access.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+          "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+          "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b"
+        },
+        {
+          "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+          "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+          "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+          "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+          "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+          "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+          "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Checkout after shift closure",
+      "canonical_ids": [
+        "FIN-015"
+      ],
+      "decision": "Existing independently source-challenged pretransaction open-shift admission window.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+          "source_git_blob_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87",
+          "worktree_sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "source_git_blob_sha256": "4bd2468030f58b4381166d58c8c6d0efa441a85264c37a5b179a7f794664e07e",
+          "worktree_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "source_git_blob_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b",
+          "worktree_sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b"
+        },
+        {
+          "path": "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs",
+          "source_git_blob_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962",
+          "worktree_sha256": "0271b40be055fa7130067dbbe7368bc7a48a21ec65bff8f05d47a0469b48c962"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+          "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+          "source_git_blob_sha256": "84ebc845f35151158a80f2d08cd76e78e98989c8b540eb5232604bee96541222",
+          "worktree_sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "source_git_blob_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a",
+          "worktree_sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs",
+          "source_git_blob_sha256": "52bd586642a7e1be07ddf41fe5ca8bb0e4b13c360edd2868bf48bf07cef3dc6d",
+          "worktree_sha256": "b7191bc0209e7a232df2cae9c195ac9b715c80cd13fd3937b4a7c8ed6debb10e"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "source_git_blob_sha256": "2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e",
+          "worktree_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
+          "source_git_blob_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159",
+          "worktree_sha256": "134fa819907e2c9083fc3ad1e3ab19e0e86b37e2f32d85ab90ce88b9ab61f159"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
+          "source_git_blob_sha256": "ffbba754ae11a250593b0eae4b581a9ba6a93211423f0a30aefb3d21173e176b",
+          "worktree_sha256": "58319fdf46c1a0f6181baba6ff711129913fbf4c64e7a00923fa2862d0ea36de"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+          "source_git_blob_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099",
+          "worktree_sha256": "cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Backup restore outcome classification",
+      "canonical_ids": [
+        "FIN-014"
+      ],
+      "decision": "Existing source trace for replace succeeded then MULTI_USER failure; destructive restore not run.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
+          "source_git_blob_sha256": "369592212fed4f69fe312de3e32a90020adeb54ce2848908829b5ca1639b61cd",
+          "worktree_sha256": "a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Authorization identity mismatch",
+      "canonical_ids": [
+        "SEC-001"
+      ],
+      "decision": "Existing independently traced/bounded binding finding. General security work remains paused; external summary is not a fresh exploit proof.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "source_git_blob_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+          "source_git_blob_sha256": "dca2fa2208e3fb99e4eb942798b4af0ac47543b248c25fa1e51ef8942be0d130",
+          "worktree_sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55"
+        },
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Employee data exposure",
+      "canonical_ids": [
+        "SEC-003"
+      ],
+      "decision": "Existing source-supported conditional disclosure finding, owner policy/deployment qualifications retained; security work paused.",
+      "current_source_identity_references": [
+        {
+          "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+          "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+          "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+          "source_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+          "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+          "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+          "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341"
+        },
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "new_source_review_claimed": false
+    },
+    {
+      "owner_supplied_summary": "Printing verification-script safety",
+      "canonical_ids": [],
+      "decision": "Insufficient original report/script identity supplied. Preserve as unverified paused printing/tool-safety lead; do not run script or restart printing investigation.",
+      "current_source_identity_references": [],
+      "new_source_review_claimed": false
+    }
+  ],
+  "new_finding_count": 0,
+  "new_function_receipts": 0,
+  "runtime_tests_executed": false
+}

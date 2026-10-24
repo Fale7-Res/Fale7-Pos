@@ -1,0 +1,124 @@
+{
+  "artifact_kind": "financial_analyzed_callable_count_reconciliation",
+  "id": "financial-analyzed-callable-count-reconciliation-2026-10-21",
+  "created_utc": "2026-10-21",
+  "status": "GENUINE_CURRENT_COUNT_UNKNOWN",
+  "purpose": "Bounded evidence-class reconciliation; no old review recreated and no source/runtime/tests/data changes.",
+  "historical_snapshots": {
+    "coverage_methods": {
+      "path": "Codex Work/Sub-Agents/Results/financial-coverage-methods.json",
+      "at_utc": "2026-10-17T21:55:54.210816+00:00",
+      "denominator": 8804,
+      "count": 4102,
+      "remaining": 4702,
+      "explicit_method_classification": {
+        "MANUAL_SOURCE_REASONING": 1456,
+        "MANUAL_CHANGED_BLOCK_AND_CURRENT_CONTEXT": 114,
+        "EXACT_SOURCE_EQUIVALENCE_PLUS_MANUAL_CURRENT_MODEL_CONTEXT": 2456,
+        "MANUALLY_REASONED_AUTO_ACCESSOR_FIELD_SPECIFIC": 76
+      },
+      "category_sum": 4102,
+      "denominator_not_exhaustive": true,
+      "independent_function_depth_total": "UNKNOWN"
+    },
+    "symbol_remaining": {
+      "path": "Codex Work/Sub-Agents/Results/financial-symbol-remaining.json",
+      "updated_at_utc": "2026-10-17T22:08:06.215993+00:00",
+      "scope_count": 327,
+      "analyzed_count": 4253,
+      "remaining_count": 4551,
+      "analyzed_ids_count": 4253,
+      "remaining_symbols_count": 4551,
+      "purpose": "Exact indexed remainder, NOT review proof. Legacy file completion is not callable completion."
+    },
+    "later_receipt_snapshot": {
+      "path": "Codex Work/Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json",
+      "at_utc": "2026-10-20T03:08:49.709575+00:00",
+      "source_index_original_callables": 8804,
+      "author_receipt_union": 7524,
+      "remaining": 1280,
+      "reviewer_counts": {
+        "financial_integrity": 6370,
+        "financial_coordinator": 1216
+      },
+      "gate": "PASS_SOURCE_SYMBOL_RECEIPT_STRUCTURE_ONLY",
+      "qualification": "The artifact explicitly defines these as structural author receipts, not independently verified semantic depth."
+    },
+    "latest_membership_snapshot": {
+      "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json",
+      "updated_at_utc": "2026-10-20T03:11:56.305416+00:00",
+      "universe": 8804,
+      "prior_union_exact_receipts": 7602,
+      "pending_ids": 1202,
+      "scope": "327 source files; author receipts, not independent final quality certification"
+    }
+  },
+  "method_categories": {
+    "explicit_manual_reasoning_categories": {
+      "MANUAL_SOURCE_REASONING": 1456,
+      "MANUAL_CHANGED_BLOCK_AND_CURRENT_CONTEXT": 114,
+      "EXACT_SOURCE_EQUIVALENCE_PLUS_MANUAL_CURRENT_MODEL_CONTEXT": 2456,
+      "MANUALLY_REASONED_AUTO_ACCESSOR_FIELD_SPECIFIC": 76
+    },
+    "total": 4102,
+    "rule": "Only this historical artifact explicitly categorizes the 4,102 as manual source reasoning, changed-block/current-context reasoning, source equivalence plus manual current model context, or manually reasoned field-specific auto-accessors. This supports a historical author-claimed manual-classification count, not a present-day independent quality certification or precise stable-ID set.",
+    "not_counted": [
+      "4253 indexed analyzed IDs: index/remainder bookkeeping with no matching analysis manifest or crosswalk to the 4102 categories.",
+      "7602 union receipts: exact ID membership, not semantic quality.",
+      "989 continuation IDs: exact tokens linked to pending authority rows, but handoff formats include ID-only/list-only receipts or generic file-level symbol statuses.",
+      "213 residual IDs: source-specific coverage dispositions, not function-analysis credit."
+    ]
+  },
+  "continuation_989": {
+    "manifest_path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-receipt-manifest-reconciliation.json",
+    "manifest_count": 989,
+    "files_scanned": 59,
+    "occurrences": 989,
+    "overlap_with_authority_pending": 989,
+    "disjoint_from_authority_pending": 0,
+    "overlap_with_7602_union_claim": 0,
+    "formats": {
+      "handoff_files_scanned": 59,
+      "files_with_symbol_arrays": 34,
+      "symbol_array_ids": 496,
+      "symbol_array_status_analyzed": 496,
+      "files_with_stable_ids_only": 18,
+      "stable_ids_only_count": 383,
+      "files_with_other_receipt_shapes": 7,
+      "exact_tokens_not_in_symbol_or_stable_id_arrays": 110,
+      "unique_ids_in_symbol_or_stable_id_arrays": 879,
+      "check": "496 + 383 = 879 listed IDs; the receipt manifest recovers 989 exact IDs, leaving 110 tokens from other handoff structures. Every symbol-array row has status ANALYZED, but the row itself only carries identity/signature/span/status; file-level summary and range context are not per-symbol reasoning."
+    },
+    "qualification": "The reconciler’s 989 exact matches establishes membership only. In the 59 underlying handoffs, 18 use stable_ids lists with no per-ID reasoning fields, 7 use other shapes, and 34 have symbol arrays with ANALYZED status and file summary/range metadata; the per-symbol records themselves carry status/signature/span, not individual reason text. Thus no quantitative subset beyond the historical 4102 categories can be safely credited as genuinely reasoned from this bounded scan."
+  },
+  "reconciliation": {
+    "comparison": "4102 manual-category count and 4253 indexed-ID count differ by 151. No per-ID crosswalk in the saved artifacts lets us compute overlap or determine whether the 151 represent additions, reclassification or counting drift. Cannot add 4102+989, 4253+989, or 7602+989+213 for substantive analysis.",
+    "defensible_historical_floor": "4102 explicit manually classified receipts as dated 2026-10-17, subject to the snapshot’s own non-exhaustive denominator and UNKNOWN independent depth.",
+    "current_genuine_analyzed_count": "UNKNOWN",
+    "exact_remaining_genuine_analysis_queue": "UNKNOWN; 4,551 is the stale 2026-10-17 indexed remainder, and 1,202 then 213 describe membership/disposition queues rather than remaining genuine analyses.",
+    "exact_membership_queue": "Later current membership reaches 8,804/8,804 from 7,602 union + 989 exact continuation IDs + 213 residual IDs, but these totals must not be used as analysis credit."
+  },
+  "artifacts_preventing_exact_reconciliation": [
+    {
+      "path": "Codex Work/Sub-Agents/Results/financial-coverage-methods.json",
+      "gap": "Category counts but no stable-ID membership list/category mapping."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Results/financial-symbol-remaining.json",
+      "gap": "Indexed analyzed_ids and remaining_symbols, but no per-ID semantic evidence or mapping to the 4102 method buckets."
+    },
+    {
+      "path": "Codex Work/Knowledge/Quality-Reviews/financial-independent-receipt-accounting.json",
+      "gap": "Per-file structural receipt counts and exact union, explicitly not semantic quality."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Handoffs/financial-integrity-continuation-receipt-manifest-reconciliation.json",
+      "gap": "Exact IDs/source pointers, but parser recovers tokens; it does not prove every per-symbol entry includes substantive reasoning."
+    },
+    {
+      "path": "Codex Work/Sub-Agents/Results/financial-current-union-progress.json",
+      "gap": "Only current pending IDs and union count; no verified analyzed-ID ledger with quality class."
+    }
+  ],
+  "next_action": "Coordinator should preserve dated snapshots and avoid a singular current analyzed count. If a defensible exact count is required, build a future source-backed stable-ID ledger where every ID links to reasoning evidence (or explicit N/A) and category, then crosswalk the 4102, 4253, 7602, 989 and 213 sets; do not recreate historical reviews or infer missing data."
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
+  "source_git_blob_sha256": "f593c13c1a64b9df886526c990093dd49c327498c7aec1e059ffe9e490c6a2c1",
+  "worktree_sha256": "0765214707a8c3d4e0f07b0feff9cb4f5c7bb278e666486088a51be222014dde",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:36:08.368894+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Read complete CashierApp startup source and4 exact accessor/startup spans. Stationjournal initialization and conditionalverificationbuilds onlystatic.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CashierWinUI/App.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-c15cb87922361a1edc8149ed33c29ffa2d95a8832e64e4dcfb5ed39f0a95c2b6",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.App.MainAppWindow.get",
+      "exact_kind": "GetAccessorDeclaration",
+      "exact_span": [
+        17,
+        43,
+        17,
+        47
+      ],
+      "reasoning": "Returnsstaticmainwindowforunpackagedfilepicker HWNDparenting. NullbeforeOnLaunched/verificationbranches; caller musthandle.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Probe/no-mainwindowpath notactualappclaim.",
+      "tests_missing": "Probe/no-mainwindowpath notactualappclaim. NOT_EXECUTED.",
+      "verified_callers_callees": "MenuEditorView picker host priorfile report"
+    },
+    {
+      "stable_id": "sym-0fe99475404f4168bb66088af1e66c915db2cd607c10fc0e05becab2532f68b3",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.App.MainAppWindow.set",
+      "exact_kind": "SetAccessorDeclaration",
+      "exact_span": [
+        17,
+        48,
+        17,
+        60
+      ],
+      "reasoning": "Privatestoresnormalmainwindowreferenceonlaunch; neverclearedClosed, processnormallyendsbutstaticreferenceholdswindowuntilshutdown. No externalsetter.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Windowclose/reopenlifetime code notavailablehere.",
+      "tests_missing": "Windowclose/reopenlifetime code notavailablehere. NOT_EXECUTED.",
+      "verified_callers_callees": "OnLaunched assignment"
+    },
+    {
+      "stable_id": "sym-b3ced77dc58e3a49c34019488454f50e4002dbd2572a256298baca2746172210",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.App.App()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        19,
+        5,
+        27,
+        6
+      ],
+      "reasoning": "Initializesresources thenconfigurescashier-localjournal beforeVMfieldinitializers recover. Defaultprofilefileconstructorcanabortstartup; noonErrorcallback so subsequentIOerrorssilentSEC002/persistencecontext.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No actualLocalAppDatafile read orwrite.",
+      "tests_missing": "No actualLocalAppDatafile read orwrite. NOT_EXECUTED.",
+      "verified_callers_callees": "FileRetainedRequestStore.DirectoryFor(cashier)"
+    },
+    {
+      "stable_id": "sym-02f172defc46fac59c13c9679198d79be5855abf9e07be0297b5f331a69959b1",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CashierWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        29,
+        5,
+        42,
+        6
+      ],
+      "reasoning": "NormalbranchcreatesMainWindow, setsMainAppWindow andactivates. FOOTER/SCREEN_LAYOUT_PROBEcompiledbranchescreateisolatedverificationwindowinstead; mustnotconfusebuildprobedatawithactualPOSruntime.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Parentownsactualbuildsymbols/nativeevidence; reviewerexecutesnone.",
+      "tests_missing": "Parentownsactualbuildsymbols/nativeevidence; reviewerexecutesnone. NOT_EXECUTED.",
+      "verified_callers_callees": "Window.Activate; conditionalprobeStart"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

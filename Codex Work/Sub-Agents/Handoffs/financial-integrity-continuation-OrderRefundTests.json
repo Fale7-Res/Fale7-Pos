@@ -1,0 +1,242 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:07:58.3984901Z",
+  "reviewer": "financial_integrity_continuation",
+  "path": "tests/Falah.Domain.Tests/OrderRefundTests.cs",
+  "symbol_count": 18,
+  "symbols": [
+    {
+      "stable_id": "sym-b3f113019efdb8ed1ec03ce10fc64cd4cfba358798b76ee17ae2fcbd5fbc2269",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Item(decimal)",
+      "span": [
+        13,
+        5,
+        14,
+        143
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-579e1d595dc1847be18bf3da3d6a2af885fe37cc8179f11947dcb1d15346013c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.MakeOrder(decimal, Falah.Domain.Financial.PaymentMethod)",
+      "span": [
+        16,
+        5,
+        21,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-4518d2e0163e4ce6d08d0122573a0e90e5da5bb34f1bd1ec4f8cdf57229cd9cc",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.MakeRefund(Falah.Domain.Common.Money)",
+      "span": [
+        23,
+        5,
+        24,
+        145
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-a994c353f4078ab8d1301156fa3c7e9ee545ec714486ce784f538fb390a3ba9b",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Partial_refund_keeps_the_order_completed_and_tracks_the_remaining_balance()",
+      "span": [
+        26,
+        5,
+        35,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-faeab07b39af1ab2670b79b22b45da652cfd6b640c68c912a881a7300c8814cf",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Refunding_the_full_remaining_amount_marks_the_order_refunded()",
+      "span": [
+        37,
+        5,
+        44,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b368459bc5e935e203392c13177a5a65f63edfd6af9bf85d9c22fb9857018f8a",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Two_partial_refunds_that_exactly_exhaust_the_order_mark_it_refunded()",
+      "span": [
+        46,
+        5,
+        55,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-b087d351d8579fb6d9fd2564e5d8b494725943a519188cd73c235d55a4c32450",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.A_refund_larger_than_what_remains_is_rejected()",
+      "span": [
+        57,
+        5,
+        64,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-dc1c2f4d3f1193fa98dd02c497ed83059b6fe93d6bc5703170927cc8d2145803",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        63,
+        40,
+        63,
+        96
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-3bfb93d1808102cf3a4f9de0340f6421c2f64932e27b5d1cd27e921189706861",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Multi_payment_orders_cannot_be_refunded_through_this_path()",
+      "span": [
+        66,
+        5,
+        75,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-995caf1130e61532f9496ab3f965c698a390bd8fe14c70a0b104193b6f56983d",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        74,
+        40,
+        74,
+        95
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-68343b5b350bf0d76d344fa528d49c65db081b991103ff58b2cd5d52e53c5e84",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.ClampRefundAmount_never_returns_more_than_what_remains()",
+      "span": [
+        77,
+        5,
+        82,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-03bf35c09abc0c13296a07bea78cd77fc4b50d499bf1e09ce56eb516b3038b9f",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Cash_refund_against_a_closed_original_shift_requires_an_open_shift_to_post_against()",
+      "span": [
+        84,
+        5,
+        89,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-55bf65811c20244e97379e8dfbbe40d304af3718970ad45c2a31b0a9d827d051",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        87,
+        40,
+        88,
+        122
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-dd1c92a6255b6f5b648676517c7fe65027e92ee3c3f64a78d847cede8e46c2f5",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Cash_refund_from_a_closed_shift_posts_against_the_currently_open_shift_not_the_original()",
+      "span": [
+        91,
+        5,
+        97,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-c6d9026bc217ec43d06b89ea199ce05066f378d9dd51824194adad1a0294b1ac",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Card_refund_from_a_closed_shift_does_not_require_an_open_shift()",
+      "span": [
+        99,
+        5,
+        104,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-2f990e58da6d7906cee2ba6c6170de0009bd6af1eaa4a787299e115968be991c",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Refund_from_a_still_open_original_shift_posts_against_that_same_shift()",
+      "span": [
+        106,
+        5,
+        112,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-bbee375183318d972aa415ed3e0e41000502f487fcd608b3f61340f973ba96cd",
+      "kind": "MethodDeclaration",
+      "signature": "Falah.Domain.Tests.OrderRefundTests.Cannot_cancel_an_order_that_already_has_a_refund()",
+      "span": [
+        114,
+        5,
+        118,
+        6
+      ],
+      "status": "ANALYZED"
+    },
+    {
+      "stable_id": "sym-49d310c50a97c5ad27504bcc5a2a85a858af206e705b56e4e4bda1a6371053dd",
+      "kind": "ParenthesizedLambdaExpression",
+      "signature": "lambda expression",
+      "span": [
+        117,
+        40,
+        117,
+        103
+      ],
+      "status": "ANALYZED"
+    }
+  ],
+  "summary": "Static tests cover partial and full refunds, exact exhaustion through repeated partial refunds, rejection of amounts above remaining, rejection of Multi refunds, clamping to remaining, cash/noncash operational-shift policy for closed originals, same-open-shift cash refunds, and cancellation prohibition after a refund. These align with Order.ApplyRefund and RefundRules. The test MakeOrder default is paid Cash; no test exercises pending/uncollected single-method orders. That gap matches existing FIN-003 (refund handler trusts total less prior refunds without proving collection). The closed-original cash rule is tested, but reconciliation impact is not; the integration gap is separately covered by FIN-004. No additional defect or duplicate promoted.",
+  "source_ranges": "OrderRefundTests.cs: 1-112; RefundRules.cs: 8-40; Order.cs: 217-234; existing source findings FIN-003 and FIN-004.",
+  "execution": "Read-only source/finding review; no tests/runtime executed.",
+  "source_sha256": {
+    "tests/Falah.Domain.Tests/OrderRefundTests.cs": "060CDCFCFC8295B99077A53DA4B23945696A605C3A2DBEB43074CB010507CABF",
+    "src/Falah.Domain/Orders/RefundRules.cs": "10BF926D5AD29FCC2D25B98CE32E523AE76769AE077BBD0D659B59443501FEB9",
+    "src/Falah.Domain/Orders/Order.cs": "4F93EBCBA865636BBD00A6D6EDBAAB1453F72ACB35D220DE129D3BA8F47B1C4B"
+  },
+  "existing_finding_references": [
+    "FIN-003",
+    "FIN-004"
+  ],
+  "shard_reconciliation": {
+    "financial_integrity": "0/18 exact IDs present",
+    "financial_coordinator": "0/18 exact IDs present",
+    "union_merge_status": "PENDING_PARENT_INTEGRATION"
+  }
+}

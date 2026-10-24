@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_callable_quality_batch_coordinator_validation",
+  "reviewed_at_utc": "2026-10-22",
+  "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "agent_handoff": "Codex Work/Sub-Agents/Handoffs/financial-production-callable-quality-batch-04-2026-10-22.json",
+  "agent_session": "/root/financial_integrity_continuation",
+  "agent_status_at_validation": "completed batch 04; same session available for follow-up",
+  "handoff_claimed_classification_sha256": "018dc1354e7876fdafd2ae6451ff1086464c2136dac11bae03f557298cbad935",
+  "actual_pre_merge_classification_sha256": "12f39e30882685d3f5a78dde5052e4b75ce8257762895988b215c039fa1550af",
+  "classification_snapshot_hash_match": false,
+  "hash_mismatch_disposition": "The handoff digest does not match the overlay bytes currently on disk. No historic snapshot matching the claimed digest was available. No identity was inferred from that digest; each selected record was independently validated against current overlay status, source path/signature/lines, source-symbol index, baseline blob-content SHA-256, worktree SHA-256, receipt path and receipt SHA-256 before promotion. Preserve as provenance limitation.",
+  "pre_merge_counts": {
+    "IDENTITY_ONLY": 983,
+    "EXISTING_REASONING_UNVERIFIED": 7791,
+    "SUBSTANTIVE_REVIEW_VERIFIED": 30,
+    "REVIEW_INCOMPLETE": 0,
+    "OUT_OF_FINANCIAL_SCOPE_WITH_REASON": 0
+  },
+  "validated_callables": [
+    {
+      "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+      "line_range": [
+        46,
+        154
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "baseline_blob_content_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified replay guard, employee-row and employee-ledger locks, protected treasury-source lock, settlement/movement/journal/audit single-save transaction and rollback/replay path against source. Day-open admission is outside the transaction and remains a separate admission-race question; no duplicate-payment runtime test was run.",
+      "tests_executed": [],
+      "remaining_action": "Provider-backed zero-ledger first-pay race and concurrent credit/BalanceAfter case remain untested here. Clarify inactive-employee and day-close admission contract. No payout incident asserted."
+    },
+    {
+      "stable_id": "sym-d06aba080949e4a74a4c7a42d8aa375ca994cad9851dcb0309f9d937b18a9556",
+      "path": "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs",
+      "signature": "Falah.Infrastructure.Inventory.SetEstimatedCostHandler.HandleAsync(Falah.Application.Inventory.SetEstimatedCostRequest, CancellationToken)",
+      "line_range": [
+        40,
+        65
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "baseline_blob_content_sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified authorization, item load, same-value no-op, nullable estimate update and audit/save path. Cross-checked costing fallback semantics: estimate is not purchase/stock/cash and zero/null have distinct behavior. Test execution not performed.",
+      "tests_executed": [],
+      "remaining_action": "Coverage for negative/null/zero/same-value and purchase/prep precedence was not established by inspected test range. Concurrent edit may log a stale PreviousValue. No new finding."
+    },
+    {
+      "stable_id": "sym-d98954049c5db16e36f45f67c34dfbf08b8b2db79eca98864db370f2db670aa0",
+      "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+      "signature": "Falah.Infrastructure.Inventory.RecordWasteHandler.HandleAsync(Falah.Application.Inventory.RecordWasteRequest, CancellationToken)",
+      "line_range": [
+        106,
+        171
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "baseline_blob_content_sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified replay, allowed loss types and positive quantity/reason rule, actor/approval, purchase-cost snapshot/value, Out movement plus audit SaveChanges, and duplicate-key recovery. Source supports no treasury movement and no current-stock cap; concurrency timing and broad DbUpdateException mapping remain untested.",
+      "tests_executed": [],
+      "remaining_action": "All purchase rows are materialized before latest selection; performance and equal timestamp policy unverified. No new finding beyond existing snapshot/error-classification questions."
+    },
+    {
+      "stable_id": "sym-a8b8d696b1c74cc3af4e925a1eadc96749766946cbf1358d5d34a9d90e1e8260",
+      "path": "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs",
+      "signature": "Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.HandleAsync(Falah.Application.Employees.RecordManualLedgerEntryRequest, CancellationToken)",
+      "line_range": [
+        28,
+        76
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "baseline_blob_content_sha256": "0aaa061bb34735cb398e7022e910874ec5176262ec71b40ecb4c1f61593220bf",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified lenient enum parse/canonical storage, positive amount/description, actor and permission, unlocked balance read, credit/debit and BalanceAfter snapshot, ledger insert/save. No treasury payout occurs. Numeric undefined enum parse and concurrent stale BalanceAfter remain hypotheses requiring targeted validation; review is sufficient to identify exact follow-up.",
+      "tests_executed": [],
+      "remaining_action": "Check numeric enum values against payroll/report consumers and decide whether to reject undefined values. Add concurrent distinct-entry BalanceAfter test if cached running balance is contractual. No treasury settlement conclusion."
+    },
+    {
+      "stable_id": "sym-ea22fe8a1814d1a059857eaec1fad0fe6a8504dc715a25edfceb259854df435c",
+      "path": "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs",
+      "signature": "Falah.Infrastructure.Treasury.SafeDropHandler.HandleAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)",
+      "line_range": [
+        33,
+        117
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "601f29ab9abe3dd644137bbf20383cf21ab60e040ff79c55a5b2c37cff292b76",
+      "baseline_blob_content_sha256": "e62d0246521ba79f96643dcf3644d3fa4523363924dcfba4003b38c14451283b",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified idempotency, positive amount/reason, actor/shift/approval, open-day gate, transaction-held drawer balance lock, Drawer-to-Main movement, journal/audit atomic save, rollback and same-key sibling replay. Closed-shift/day-close interleaving and changed-payload replay semantics remain untested/policy questions.",
+      "tests_executed": [],
+      "remaining_action": "Distinct-key provider balance race and close-day-vs-safe-drop admission test not shown in inspected spans. Share day-gate question with existing candidate; no realized posting or new finding."
+    },
+    {
+      "stable_id": "sym-f8a011d3fcef62980161367241b625088cc3ab4bdaebb6dd98bc5403e624acd6",
+      "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+      "signature": "Falah.Infrastructure.Treasury.TransferHandler.HandleAsync(Falah.Application.Treasury.TransferRequest, CancellationToken)",
+      "line_range": [
+        29,
+        119
+      ],
+      "prior_status": "EXISTING_REASONING_UNVERIFIED",
+      "new_status": "SUBSTANTIVE_REVIEW_VERIFIED",
+      "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+      "baseline_blob_content_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+      "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Treasury/TransferHandler.cs.json",
+      "receipt_sha256_verified": true,
+      "symbol_index_match": true,
+      "source_review_checked_by_coordinator": true,
+      "reasoning_validation": "Verified account/amount/reason validation, actor/approval, day gate, transaction-held source-balance lock, movement plus CashHandover/journal/audit atomic save and replay recovery. ReceivedBy is not proof of dual physical custody; closed-day admission and changed-payload replay remain open, with no provider concurrency test.",
+      "tests_executed": [],
+      "remaining_action": "Meaning of ReceivedBy and day-close admission are owner-contract questions. Provider/cancellation/handover rollback not tested here. Coordinator is separately reviewing TreasuryViewModel uncertain-outcome and process-restart request-key retention; cross-reference SEM-MIRROR treasury retry work rather than duplicate client review."
+    }
+  ],
+  "post_merge_counts": {
+    "IDENTITY_ONLY": 983,
+    "EXISTING_REASONING_UNVERIFIED": 7791,
+    "SUBSTANTIVE_REVIEW_VERIFIED": 30,
+    "REVIEW_INCOMPLETE": 0,
+    "OUT_OF_FINANCIAL_SCOPE_WITH_REASON": 0
+  },
+  "promotion_rule": "Promoted only these six manually source-checked records. Identity, receipt presence or hash matches alone were not treated as substantive review. Open follow-up questions remain in per-callable remaining_action.",
+  "tests_executed": [],
+  "runtime_database_or_print_actions": false,
+  "application_source_modified": false
+}

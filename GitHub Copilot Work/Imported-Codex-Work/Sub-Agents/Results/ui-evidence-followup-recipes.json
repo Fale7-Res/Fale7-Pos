@@ -1,0 +1,9 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "finding": "UI-018",
+  "status": "ADDITIONAL_SOURCE_CORROBORATION_NOT_NATIVE_TEST",
+  "evidence_path": "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml",
+  "evidence_anchor": "ListView ItemsSource=\"{Binding Recipes}\" SelectedItem=\"{Binding SelectedRecipe, Mode=TwoWay}\"",
+  "conclusion": "No selection disabled gate for detail loading or edit state exists in this ListView. Previous mitigation counterargument not supported by this XAML; source race remains. Native timing/write reproduction not performed.",
+  "independence": "Parent canonical challenger still required"
+}

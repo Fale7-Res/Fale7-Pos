@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "path": "src/Falah.Client.CallCenterWinUI/App.xaml.cs",
+  "source_git_blob_sha256": "be75bda41587b475e82dde243495617f4f5a911a7ce81043c8e710cf038f283d",
+  "worktree_sha256": "63bd32b07694b98e4d04fe82e84aac3bb5a41069e6269e4bc34438b8ecf72e53",
+  "reviewer": "ui_visual",
+  "updated_at_utc": "2026-10-17T18:36:08.358145+00:00",
+  "file_review_status": "ANALYZED_STATIC_EXACT_RECONCILIATION",
+  "file_reasoning": "Read complete CallCenterApp source;2 exact startup methods, normal/probecompilebranches differentiated without execution.",
+  "legacy_report_preserved": "Codex Work/Deep-Audit/File-Reports/src/Falah.Client.CallCenterWinUI/App.xaml.cs.md",
+  "symbols": [
+    {
+      "stable_id": "sym-452be973de4fe12f62b59e6193df950118fdacbf64248ba25e832bdd08858213",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.App.App()",
+      "exact_kind": "ConstructorDeclaration",
+      "exact_span": [
+        12,
+        5,
+        19,
+        6
+      ],
+      "reasoning": "Initializes XAML thenconfigurescallcenterstationjournal beforeanyorderdeskconstruction. FileStoreconstructorcreatesLocalAppData directory andcanthrowstartup ifpermissionfailure; noerrorcallbackpassedso laterIOerrorssilent. ReviewerdoesnotlaunchApp.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "No newdirectoryorcredentialsread byreview.",
+      "tests_missing": "No newdirectoryorcredentialsread byreview. NOT_EXECUTED.",
+      "verified_callers_callees": "FileRetainedRequestStore.DirectoryFor(callcenter)"
+    },
+    {
+      "stable_id": "sym-2a202fb4c9663775216ab91cb6ccece155b57c2fd262dd94f01c78f9fce983ec",
+      "status": "ANALYZED",
+      "exact_signature": "Falah.Client.CallCenterWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)",
+      "exact_kind": "MethodDeclaration",
+      "exact_span": [
+        21,
+        5,
+        30,
+        6
+      ],
+      "reasoning": "NormalbuildcreatesMainWindow/Activate; conditionalSCREEN_LAYOUT_PROBE insteadstartsverificationwindow. Compiletimebranchonly, noautoruntimeprobingfromreview. Retainswindowfieldforlifetime.",
+      "inputs": "Exact signature and captured VM/session/DTO state described in reasoning",
+      "outputs": "Return value, observable state, API task or event described in exact body",
+      "side_effects": "Source-only review; no UI, authentication, DB, financial operation or printer action executed.",
+      "trust_boundaries": "Client cached state and command affordances versus authoritative backend actor/permission/pricing/idempotency.",
+      "database": "No direct SQL executed; any HTTP/server write effects only described.",
+      "printing_ui": "Native layout/accessibility and physical printing NOT_OBSERVED.",
+      "performance": "Per-body collection/query/async costs described; no profiling performed.",
+      "duplicates_conflicts": "Existing file report preserved; explicit source spans, not legacy name-heading promotion. Canonical dedup parent-owned.",
+      "issues_hypotheses": "Publishedbuildconstants mustexcludeprobe foractualPOS, parentbuildmetadata check.",
+      "tests_missing": "Publishedbuildconstants mustexcludeprobe foractualPOS, parentbuildmetadata check. NOT_EXECUTED.",
+      "verified_callers_callees": "MainWindow; Window.Activate; conditionalNativeScreenLayoutProbe"
+    }
+  ],
+  "native_runtime": "NOT_EXECUTED",
+  "remaining_callable_ids": []
+}

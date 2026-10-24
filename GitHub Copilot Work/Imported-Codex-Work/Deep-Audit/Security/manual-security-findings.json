@@ -1,0 +1,414 @@
+{
+  "artifact_kind": "Ordinary manual audit findings; NOT plugin canonical output",
+  "findings": [
+    {
+      "id": "SEC-001",
+      "category": "Authentication/authorization identity binding",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "CONFIRMED_MECHANISM_AND_INDEPENDENT_STATIC_TRACE",
+      "live_privileged_operation_executed": false,
+      "status": "PARTIAL_AUDIT_VALIDATED_FINDING",
+      "sources": [
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "symbol": "FindActorMismatchAsync",
+          "start_line": 91,
+          "end_line": 124,
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+          "excerpt": "    private static async Task<string?> FindActorMismatchAsync(HttpContext context, string authenticatedUserId)\n    {\n        foreach (var field in ActorFields)\n        {\n            if (context.Request.Query.TryGetValue(field, out var values))\n            {\n                var claimed = values.ToString();\n                if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;\n            }\n        }\n\n        if (!context.Request.HasJsonContentType()) return null;\n\n        // Buffered so the endpoint's own model binding can still read the body afterwards.\n        context.Request.EnableBuffering();\n        try\n        {\n            using var document = await System.Text.Json.JsonDocument.ParseAsync(\n                context.Request.Body, cancellationToken: context.RequestAborted);\n            if (document.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object) return null;\n\n            foreach (var field in ActorFields)\n            {\n                if (document.RootElement.TryGetProperty(field, out var value)\n                    && value.ValueKind == System.Text.Json.JsonValueKind.String)\n                {\n                    var claimed = value.GetString();\n                    if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;\n                }\n            }\n        }\n        catch (System.Text.Json.JsonException)\n        {\n            // Malformed JSON is the endpoint's problem to report, not this middleware's."
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "symbol": "POST /api/users/{id}/permissions",
+          "start_line": 1951,
+          "end_line": 1957,
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+          "excerpt": "app.MapPost(\"/api/users/{id}/permissions\", async (string id, Falah.Application.Users.UpdateUserPermissionsRequest body, UpdateUserPermissionsHandler handler, CancellationToken ct) =>\n{\n    try\n    {\n        var request = body with { UserId = id };\n        await handler.HandleAsync(request, ct);\n        return Results.Ok();"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+          "symbol": "HandleAsync",
+          "start_line": 28,
+          "end_line": 44,
+          "worktree_sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55",
+          "excerpt": "    public async Task HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)\n    {\n        // Concurrent revocations must not each count the other administrator as a survivor.\n        await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);\n        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\n        var actor = OrderMapper.ToActor(actorUser);\n        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, \"users_manage\");\n\n        var target = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)\n            ?? throw new InvalidOperationException(\"المستخدم المستهدف غير موجود.\");\n        UserManagementRules.AssertTargetIsNotOwner(target.Role, \"تعديل صلاحيات\");\n\n        var grant = request.Grant.Distinct().ToList();\n        var revoke = request.Revoke.Distinct().ToList();\n        UserManagementRules.AssertKnownPermissions(grant.Concat(revoke));\n        UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, grant);"
+        },
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "symbol": "UpdateUserPermissionsRequest",
+          "start_line": 28,
+          "end_line": 29,
+          "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "excerpt": "public sealed record UpdateUserPermissionsRequest(\n    string UserId, IReadOnlyList<string> Grant, IReadOnlyList<string> Revoke, string ActorUserId);"
+        }
+      ],
+      "trigger": "Valid restricted bearer, known active privileged actor ID, alternate casing of JSON ActorUserId field on body-authorized route.",
+      "root_cause": "Case-sensitive JsonElement field check disagrees with web case-insensitive DTO binding; handlers authorize request actor instead of bearer actor.",
+      "impact": "Possible privileged permission grants and false actor attribution within target/permission constraints; no anonymous bypass asserted.",
+      "independent_evidence": "Codex Work/Sub-Agents/Handoffs/security-casing-challenge.md",
+      "executed_safe_validation": "Codex Work/Deep-Audit/Security/middleware-case-harness-results.json",
+      "recommendation": "Bind command actor exclusively to authenticated context; reject inconsistent/duplicate actor representations as defense in depth. No fix applied.",
+      "required_regression_tests": [
+        "Restricted versus privileged real fixture actors through full Minimal API pipeline",
+        "camel/Pascal/upper/duplicate JSON actor keys",
+        "Normal same-actor requests",
+        "No writable live database used for validation"
+      ],
+      "remaining_uncertainty": "Real HTTP transport and DB permission mutation not executed. Full188endpoint authorization impact and non-JSON binding cases not exhaustively traced. Ten isolated binding/middleware controls pass.",
+      "related_findings": [
+        "UI-020"
+      ],
+      "report": "Codex Work/Deep-Audit/Security/SECURITY_AND_BACKDOOR_AUDIT.md",
+      "additional_isolated_verification": {
+        "at_utc": "2026-10-17T01:45:21.033731+00:00",
+        "artifact": "Codex Work/Knowledge/Flows/SEC-001/minimal-api-binding-results.json",
+        "method": "Actual ASP.NET Minimal API RequestDelegateFactory in-memory binding with baseline middleware and DTO unchanged, fake session resolver",
+        "cases_executed": 10,
+        "assertions": "PASSED",
+        "live_handler_database_exploit": "NOT_EXECUTED",
+        "setup_correction": "Previous audit harness used non-API path; corrected only audit tool. Prior failures/timeout retained."
+      },
+      "title": "JSON actor casing mismatch permits body-selected authorization identity"
+    },
+    {
+      "id": "SEC-003",
+      "title": "Authenticated employee reads expose complete sensitive profiles without employee permission or self-access restriction",
+      "category": "Missing read authorization / personal and compensation information",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "HIGH",
+      "confidence": "HIGH_FOR_SOURCE_MECHANISM; DEPLOYED_IMPACT_AND_FIELD_POLICY_UNVERIFIED",
+      "status": "SOURCE_CONFIRMED_INDEPENDENT_STATIC_CHALLENGE; DEPLOYMENT_EXPOSURE_UNVERIFIED",
+      "root_cause": "AuthenticationMiddleware requires a valid session, but GET employees routes do not require employees_manage/reports_view or self-ownership. Query service returns full EmployeeDto, including compensation and personal identifier fields. Client navigation permission is not a server authorization boundary.",
+      "entry_points": [
+        "GET /api/employees",
+        "GET /api/employees/{employeeId}"
+      ],
+      "preconditions": [
+        "A valid authenticated session and reachable backend",
+        "Database contains employee profiles with sensitive fields; actual data presence not queried"
+      ],
+      "impact": "A station user without employee management rights can receive profile/salary/contact/national-identifier/fingerprint-reference fields through these unguarded server reads. FingerprintId is an identifier, not evidence that raw biometric templates are exposed. No anonymous access or code execution asserted.",
+      "verification": {
+        "source_confirmed": true,
+        "independent_review": "Printing reviewer revised Program route receipts685/687 separately identified full DTO exposure; parent independently read actual wrappers, AuthenticationMiddleware and entire EmployeeQueryService plus DTO and navigation gate.",
+        "parent_evidence": "Knowledge/Quality-Reviews/printing-parent-decisions.json",
+        "isolated_reproduction": "NOT_EXECUTED",
+        "live_end_to_end": "NOT_EXECUTED",
+        "private_records_read": false,
+        "independent_review_artifact": "Deep-Audit/Security/SEC003-independent-challenge.json",
+        "parent_artifact_validation": "Knowledge/Quality-Reviews/SEC003-parent-validation.json"
+      },
+      "counterevidence": [
+        "Valid session still required",
+        "Missing employee returns404",
+        "No PIN/password field in EmployeeDto",
+        "Owner may intentionally share a limited name picker; full sensitive profile projection is broader and should have explicit policy",
+        "No actual employee data contents or live response examined"
+      ],
+      "recommended_solution": "Enforce server-side permission and explicit field projection for employee read endpoints. Separate minimal authorized picker data from private HR/payroll profile data; define self-service scope explicitly. No implementation performed.",
+      "required_tests": [
+        "Restricted valid session without employee rights cannot read private profile fields or enumerate all employees",
+        "Manager/authorized payroll users see only policy-approved fields",
+        "Unknown ID404 and anonymous401 remain",
+        "Limited driver/name picker works without returning salary/address/nationalID/fingerprint reference",
+        "Explicit self-access and inactive employee policies tested"
+      ],
+      "regression_risks": [
+        "Attendance/driver/user pickers may currently rely on full list; preserve minimal authorized workflows",
+        "Audit/report permission distinctions must be owner-approved"
+      ],
+      "sources": [
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "start_line": 685,
+          "end_line": 691,
+          "symbol": "GET employee routes",
+          "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+          "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        },
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "start_line": 31,
+          "end_line": 81,
+          "symbol": "InvokeAsync",
+          "source_git_blob_sha256": "11672919bc8579df8e305e0a96e70fb8f4f1624ec08d3d0a69bc28b39753fa07",
+          "worktree_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+          "start_line": 61,
+          "end_line": 85,
+          "symbol": "ListAsync/GetAsync/ToDto",
+          "source_git_blob_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341",
+          "worktree_sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341"
+        },
+        {
+          "path": "src/Falah.Application/Employees/EmployeeRequests.cs",
+          "start_line": 24,
+          "end_line": 29,
+          "symbol": "EmployeeDto",
+          "source_git_blob_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0",
+          "worktree_sha256": "61ce8fbbe0c380340ded6e3de6be6863c9b328c094894bd8e54d5f32e32efdc0"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+          "start_line": 132,
+          "end_line": 132,
+          "symbol": "employees navigation gate",
+          "source_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+          "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9"
+        }
+      ],
+      "severity_qualification": {
+        "proposed": "HIGH",
+        "challenge": "HIGH is defensible for confidential full HR/national-ID/compensation data exposed to legitimate station users lacking HR rights. Do not present HIGH as an unconditional measured production impact. If all deployed accounts are equally HR-authorized or fields/data are absent, deployment impact differs; missing field/read boundary still exists in source.",
+        "confidence": "HIGH for absent source gate and projected fields; policy-specific and deployed exposure remain unverified",
+        "not_claimed": [
+          "anonymous access",
+          "PIN/password leakage through EmployeeDto",
+          "raw fingerprint templates",
+          "financial mutation",
+          "SQL injection",
+          "remote code execution",
+          "successful live extraction"
+        ]
+      },
+      "related_read_instances": [
+        {
+          "route": "GET /api/employees",
+          "lines": [
+            685,
+            685
+          ],
+          "callee": "EmployeeQueryService.ListAsync -> ToDto",
+          "scope": "All employee entities, including inactive; no self/permission filter",
+          "fields": "Complete EmployeeDto profile"
+        },
+        {
+          "route": "GET /api/employees/{employeeId}",
+          "lines": [
+            687,
+            691
+          ],
+          "callee": "EmployeeQueryService.GetAsync -> ToDto",
+          "scope": "Path employee identity; no link to authenticated UserId; unknown ID404",
+          "fields": "Complete EmployeeDto profile"
+        },
+        {
+          "route": "GET /api/employees/{employeeId}/ledger",
+          "lines": [
+            693,
+            694
+          ],
+          "callee": "ListLedgerEntriesAsync -> ToLedgerDto",
+          "scope": "All ledger rows for supplied employee, no employee permission/self gate",
+          "fields": "Description, credits/debits/running balance, actor/approver, shift/reference, hours/rate/value/payroll metadata"
+        },
+        {
+          "route": "GET /api/employees/{employeeId}/balance",
+          "lines": [
+            696,
+            697
+          ],
+          "callee": "GetBalanceAsync",
+          "scope": "Supplied employee ID; aggregates all-time credit minus debit; missing employee can yield0",
+          "fields": "EmployeeId and balancePiastres"
+        },
+        {
+          "route": "GET /api/attendance",
+          "lines": [
+            807,
+            808
+          ],
+          "callee": "ListAttendanceAsync -> ToAttendanceDto",
+          "scope": "Optional employee/date; omitted means all records, no self or attendance permission gate",
+          "fields": "Employee name, checkin/out, lateness, hours/overtime, corrections, reason and source"
+        },
+        {
+          "route": "GET /api/payroll-runs",
+          "lines": [
+            819,
+            819
+          ],
+          "callee": "PayrollQueryService.ListRunsAsync",
+          "scope": "All runs with no payroll read permission",
+          "fields": "Period/status, creator/approver/reviewer, timestamps, treasury/payment-account references"
+        },
+        {
+          "route": "GET /api/payroll-runs/{runId}",
+          "lines": [
+            821,
+            825
+          ],
+          "callee": "PayrollQueryService.GetRunAsync -> CreatePayrollHandler.ToDto",
+          "scope": "Supplied run ID; missing404; no read permission; helper body not revalidated in this challenge",
+          "fields": "PayrollRunDto type; list path confirms run metadata independently"
+        },
+        {
+          "route": "GET /api/payroll-runs/{runId}/lines",
+          "lines": [
+            827,
+            828
+          ],
+          "callee": "PayrollQueryService.ListLinesAsync",
+          "scope": "Every line in supplied run, no per-employee self filter",
+          "fields": "EmployeeId, base/overtime/extra/bonus/deduction/advance/net amounts, status/paid timestamp"
+        },
+        {
+          "route": "GET /api/control-center/audit-events",
+          "lines": [
+            524,
+            525
+          ],
+          "callee": "ControlCenterQueryService.ListAuditEventsAsync",
+          "scope": "Newest limit or100, optional date bounds are not exposed by this wrapper; no audit/control permission",
+          "fields": "Action/actor/entity/amount/operation/approver/reason/blocker codes/time"
+        }
+      ],
+      "related_scope_disposition": "Ledger/balance/payroll lines corroborate same confidentiality-boundary family; attendance/control-audit are source-confirmed ungated reads with policy-specific impact. Parent should normalize IDs or expand scope without deleting original narrower SEC-003 evidence. Do not auto-assign every sibling HIGH.",
+      "safe_sibling_counterexamples": [
+        {
+          "route": "GET /api/employees/financial-report",
+          "lines": [
+            702,
+            707
+          ],
+          "guard": "RequireReportsAccessAsync -> all or reports_view; absent actor query binds400, mismatched standard actor rejected by middleware; denied permission returns422",
+          "qualification": "Literal route is not equivalent to arbitrary employeeId lookup; this safe route does not protect sibling endpoints"
+        },
+        {
+          "route": "GET /api/audit/events",
+          "lines": [
+            531,
+            541
+          ],
+          "guard": "all or audit_view or control_center; requires actor query",
+          "qualification": "Different general audit table/projection from control-center trail; no claim that every general event leaks through narrow trail"
+        }
+      ]
+    },
+    {
+      "id": "SEC-002",
+      "title": "PIN-bearing user-management requests are durably stored as unencrypted JSON",
+      "category": "Local credential retention",
+      "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+      "severity": "MEDIUM",
+      "confidence": "HIGH_FOR_SOURCE_SERIALIZATION;DEPLOYMENT_EXPOSURE_UNVERIFIED",
+      "status": "SOURCE_CONFIRMED_BEHAVIOR_WITH_INDEPENDENT_STATIC_CHALLENGE",
+      "sources": [
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "source_git_blob_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "stable_id": "sym-ae825f93cdcb7b2bb2aee5611e3df48b65abb8af8a5b2614ff683e85186547b6",
+          "symbol": "Falah.Application.Users.CreateUserRequest",
+          "start_line": 8,
+          "end_line": 9
+        },
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "source_git_blob_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "worktree_sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c",
+          "stable_id": "sym-56475998e0b02171e4b23380c1536f2ad42f533956b381351b329b30c9340927",
+          "symbol": "Falah.Application.Users.ChangePinRequest",
+          "start_line": 23,
+          "end_line": 23
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+          "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+          "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+          "stable_id": "sym-22cc6f6d5a43a07429d224d9dbc8dedaffe997992b1ff4d5f7d3e68cbf63c1d9",
+          "symbol": "Falah.Client.CashierWinUI.ViewModels.UsersViewModel.CreateUserAsync()",
+          "start_line": 109,
+          "end_line": 137
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+          "source_git_blob_sha256": "63eced5b523342ededc72f205db0a82b23c2aea1bfc041eeb52de6444cf99645",
+          "worktree_sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6",
+          "stable_id": "sym-668fe7d416c76bd6bfdc131305b9fa5bf53eadec90c73a78b8b5f2a30b945645",
+          "symbol": "Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ChangePinAsync()",
+          "start_line": 147,
+          "end_line": 180
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs",
+          "source_git_blob_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+          "worktree_sha256": "7cf2985b1e7764377ea5c972efae4ae418790bab38ef8aeebfd5198f86b5a68b",
+          "stable_id": "sym-37892f3ec3dce1068241cae171cddc43d5d5d9cc6777030fcb21780eb68d88fd",
+          "symbol": "Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)",
+          "start_line": 34,
+          "end_line": 51
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+          "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+          "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+          "stable_id": "sym-4964a9a24fd133652373e1eb65e317a1c24e25f20dd6dfa1a90457dbcb900755",
+          "symbol": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.Save(string, object)",
+          "start_line": 59,
+          "end_line": 82
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+          "source_git_blob_sha256": "9165f3dcb7c04d08d89f4d746365d68d55c9b0a6db54f8532fedb742468e9fd6",
+          "worktree_sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303",
+          "stable_id": "sym-e7e8cd8786ac0b4111d192b4930818ea974358e7d294f0fbaf04c176b53574aa",
+          "symbol": "Falah.Client.CashierWinUI.Services.FileRetainedRequestStore.DirectoryFor(string)",
+          "start_line": 49,
+          "end_line": 51
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/App.xaml.cs",
+          "source_git_blob_sha256": "f593c13c1a64b9df886526c990093dd49c327498c7aec1e059ffe9e490c6a2c1",
+          "worktree_sha256": "0765214707a8c3d4e0f07b0feff9cb4f5c7bb278e666486088a51be222014dde",
+          "stable_id": "sym-b3ced77dc58e3a49c34019488454f50e4002dbd2572a256298baca2746172210",
+          "symbol": "Falah.Client.CashierWinUI.App.App()",
+          "start_line": 19,
+          "end_line": 27
+        }
+      ],
+      "evidence_chain": [
+        "App constructor configures actual cashier file store before view-model field initializers.",
+        "Users action DTO carries InitialPin or CurrentPin/NewPin; durable owner keys users.create and users.change-pin are explicit.",
+        "RetainedRequest.SendAsync persists first unresolved DTO before transport; ambiguous outcome retains the exact object.",
+        "FileRetainedRequestStore.Save serializes Payload=request without exclusion or encryption, writes plain text temp, then moves to station LocalApplicationData JSON."
+      ],
+      "preconditions": [
+        "Actual user-management operation with PIN-bearing fields and working durable store.",
+        "Access to the Windows profile journal, its filesystem copies/backup, or another permitted local collection mechanism while data remains."
+      ],
+      "counterevidence": [
+        "Windows profile ACLs constrain access; no ACL deficiency demonstrated.",
+        "First known result, including definite initial rejection, clears the journal; known successful resolution clears recovered records.",
+        "Unwritable persistence may leave no file; observed source behavior is not proof every real station has exposed records.",
+        "Separate station directories reduce cross-client mixing but are not credential encryption."
+      ],
+      "impact": "Credential values may survive transient UI entry in local unencrypted recovery state; no unauthenticated remote disclosure, arbitrary login or server PIN hash weakness established.",
+      "runtime_reproduction": "NOT_EXECUTED",
+      "operational_files_read": false,
+      "live_privileged_operation_executed": false,
+      "independent_verification": {
+        "artifact": "Codex Work/Deep-Audit/UI-UX/Independent-Challenges/SEC-002.json",
+        "reviewer": "ui_independent_challenge",
+        "scope": "Local plaintext serialization confirmed; actual deployment exposure and ACL access unverified"
+      },
+      "recommendation": "Design credential-free durable recovery/status using server-owned request identity; minimize secret retention. If unavoidable, choose approved per-user protected storage and explicit lifecycle, but encryption alone does not replace recovery design. No fix implemented.",
+      "required_regression_tests": [
+        "In-memory fake-store serialization tests asserting all PIN values absent from durable representations.",
+        "Create/change PIN known success, known initial failure, ambiguous timeout and recovered success without secret persistence.",
+        "User/station identity scoping, migration of preexisting journals only through explicitly authorized safe handling."
+      ],
+      "regression_risks": [
+        "Removing recovery fields without protocol change could strand ambiguous account creation/change or cause repeated credential changes."
+      ],
+      "related_findings": [
+        "UI-020"
+      ],
+      "remaining_uncertainty": "No actual journal, credential, filesystem ACL or deployed backup collected. Independent source challenge and owner retention policy remain pending.",
+      "additional_source_observation": "If temporary write succeeds but File.Move fails, exception is swallowed; Clear removes only main JSON. A leftover temp can retain same plaintext. No actual leftover file observed."
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "name": "Final12test temporal snapshots, replay and concurrency assertion contexts",
+  "comparisons": [
+    {
+      "group_prefix": "91287ffc",
+      "reasoning": "Three treasury Count cash_in by shift lambdas identical; one initial cash-in, one sequential same-key retry, one concurrent same-key race. Different test concurrency stimulus retained.",
+      "callers_context": "CashierCashMovement48/118/130 immediate count1andWasReplayed assertions plus enclosing method names read.",
+      "financial_security_effects": "Count scoped entire shift/type assumes isolated fixture, not exact request key. Shared count helper safe, do not merge serial/concurrent coverage or infer SQL tests executed.",
+      "recommendation": "Name helper countCashInForShift and keep independent sequential/concurrent scenarios.",
+      "tests": [
+        "Per-test shift isolation",
+        "Exact request key assertion where multiple cashins",
+        "Replay and concurrent outcome separately"
+      ]
+    },
+    {
+      "group_prefix": "d260dbc5",
+      "reasoning": "Before/after refund row reload lambdas exact same Include Items/no-tracking/order key, intentionally repeated within one frozen-fields test.",
+      "callers_context": "Refund202/206 with refund action between and frozen Total equality after.",
+      "financial_security_effects": "Temporal snapshots require DISTINCT materializations; reusing one tracked instance or cached fixture would make before/after assertion vacuous. Duplication intentional, no refactor debt inferred.",
+      "recommendation": "If helper extracted always execute fresh AsNoTracking query and include children; never cache return.",
+      "tests": [
+        "Before snapshot not reference-updated",
+        "Frozen lines/total/tax preserved",
+        "Refund-only fields allowed change"
+      ]
+    },
+    {
+      "group_prefix": "1c8f5976",
+      "reasoning": "Two fake client callbacks capture serialized body then throw HttpRequestException; scenarios differ retained cash movement versus refund.",
+      "callers_context": "CashierCorrectness74/121 and enclosing lost-response test names/next setup read.",
+      "financial_security_effects": "Simulates unknown outcome, not proof server actually committed. Source assertions can test identical retained bytes across invalid form changes; not DB/exactly-once backend evidence.",
+      "recommendation": "Share transport fault fixture while keeping operation-specific body equality and request-key assertions.",
+      "tests": [
+        "Body captured before fault",
+        "Retry unchanged despite form invalidity",
+        "No new request ID",
+        "Actual server idempotency tested separately"
+      ]
+    },
+    {
+      "group_prefix": "d236b8d8",
+      "reasoning": "Two Shift.Close throwing lambdas same arguments, but result comes large shortage versus large overage. Null reason/authority expected DomainException.",
+      "callers_context": "ShiftTests54-55/78-79 with RequiresManagerApproval assertions, actual Shift.Close103guard root read previously.",
+      "financial_security_effects": "Intentional sign-symmetry scenario, not duplicate redundant test. Confirms source policy requires reason/authority both signs; no actual manager/token authorization test by pure Domain call.",
+      "recommendation": "Use theory if preserving both distinct signed inputs and assertions; do not remove one sign case.",
+      "tests": [
+        "Shortage and overage above threshold",
+        "Equality threshold",
+        "Blank reason/authority",
+        "Handler approval validated separately"
+      ]
+    },
+    {
+      "group_prefix": "1227169a",
+      "reasoning": "Two InitializeAsync methods instantiate per-suite API factory and authenticated client then CompletedTask; same tiny setup only.",
+      "callers_context": "AuthTests15-20/CustomerVerticalSlice21-26 whole setup methods read.",
+      "financial_security_effects": "Authenticated fixture setup not evidence anonymous denial or real user identity tested. No factory/server instantiated by this audit.",
+      "recommendation": "Base fixture can avoid repetition but each test needs isolated factory/client and explicit auth purpose.",
+      "tests": [
+        "Auth denied cases separate unauthenticated client",
+        "Fixture disposal",
+        "No global mutable DB share"
+      ]
+    },
+    {
+      "group_prefix": "57a31129",
+      "reasoning": "Reprint test before/after order reload lambdas same NoTracking exact ID; financial footprint measured separately around reprint.",
+      "callers_context": "SlipPrinting208/218 immediate financial footprint and Total equality assertions.",
+      "financial_security_effects": "Deliberate temporal repetition; preserving separate snapshots essential. Does not prove physical print rendering/spooler or financial acceptance here; test NOT executed.",
+      "recommendation": "Reusable fresh reload helper, no memoization or tracked reused entity; keep footprint/field assertions.",
+      "tests": [
+        "No money/stock/order-state duplicate",
+        "Allowed print job count change",
+        "Before/after immutable snapshots"
+      ]
+    },
+    {
+      "group_prefix": "7287e499",
+      "reasoning": "Two shift readback lambdas same exact opened shift ID NoTracking, differing tests custom opening amount versus setting changed after opening.",
+      "callers_context": "DefaultOpeningCash77/91 assertion150000 and enclosing names read.",
+      "financial_security_effects": "Fixture duplicate query preserves distinct configuration snapshot cases; helper not evidence all default settings apply retroactively. No setting changed by audit.",
+      "recommendation": "Shared readback helper with independent configuration scenarios.",
+      "tests": [
+        "Requested override",
+        "Historical opening unaffected later setting",
+        "No hidden ambient default value"
+      ]
+    },
+    {
+      "group_prefix": "50e9b1c7",
+      "reasoning": "Two driver settlement movement count lambdas same driver/type; one same-key retry, other concurrent different request IDs for SAME custody.",
+      "callers_context": "Delivery797/819 count1and success-count assertions, parent scenario names verified.",
+      "financial_security_effects": "Different mechanisms: request idempotency versus custody state serialization. Do not remove concurrency test as duplicate merely same count query. Scope driver may count prior trips unless fixture isolated.",
+      "recommendation": "Shared typed count helper, preserve request-key and custody-state stimuli/assertions.",
+      "tests": [
+        "One custody per scenario",
+        "Same-key replay",
+        "Distinct-key race success count",
+        "Multiple trip history scope"
+      ]
+    },
+    {
+      "group_prefix": "968febb2",
+      "reasoning": "Two handover lookup lambdas same shift/type but exact expected facts differ balanced close versus small shortage.",
+      "callers_context": "ShiftClose89/111 plus source account versus actual49000 amount assertions.",
+      "financial_security_effects": "FirstAsync only proves at least one matching row; count uniqueness checked other tests. Reconciliation amount must use actual, not expected, so cases materially different.",
+      "recommendation": "Helper may fetch matching movement; add uniqueness assertion where required without collapsing scenarios.",
+      "tests": [
+        "Balanced close",
+        "Within-threshold shortage",
+        "Actual cash handover",
+        "Single handover count"
+      ]
+    },
+    {
+      "group_prefix": "333face1",
+      "reasoning": "Same shift_reconciliation reference lookup lambda used shortage and overage; subsequent type expected cash_shortage versuscash_overage.",
+      "callers_context": "ShiftClose105/122 immediate assertions read.",
+      "financial_security_effects": "Signed source/destination consequences intentionally opposite, identical lookup not identical financial scenario. Cannot infer correct direction merely type assertion without full remaining test, not reviewed whole test here.",
+      "recommendation": "Typed helper returns reconciliation fact; keep explicit debit versus credit amount/account assertions.",
+      "tests": [
+        "Shortage debit",
+        "Overage credit",
+        "Threshold auth separate",
+        "No duplicate reconciliation row"
+      ]
+    },
+    {
+      "group_prefix": "39702f83",
+      "reasoning": "Two handover Count lambdas same shift/type, one same-key concurrent close race, other new-key reclose rejection.",
+      "callers_context": "ShiftClose191/204 immediate Count1assertions and parent names read.",
+      "financial_security_effects": "Tests target separate idempotency and terminal-state protection; duplicate count assertion does not exhaust FIN015 checkout admission race. No live concurrency execution.",
+      "recommendation": "Shared count helper with both scenarios preserved, add checkout-versus-close schedule separately.",
+      "tests": [
+        "Same-key race",
+        "New-key alreadyclosed",
+        "Checkout after validated open gap",
+        "One handover"
+      ]
+    },
+    {
+      "group_prefix": "4d2a3c2d",
+      "reasoning": "Two local MakeRequest functions identical stable captured requestId deposit payload; one sequential retry, one six concurrent sends.",
+      "callers_context": "Treasury105/194 and immediate Post/Enumerable.Range calls read.",
+      "financial_security_effects": "Key MUST captured outside function, not regenerated per call; extracting factory with Guid inside would destroy test premise. Real requests only in test source, no audit execution.",
+      "recommendation": "Common immutable request builder taking explicit requestId; preserve per-scenario single key and fresh HTTP content.",
+      "tests": [
+        "Sequential replay",
+        "Six same-key submissions",
+        "Key remains identical",
+        "Different-key deposit close-admission separately"
+      ]
+    }
+  ],
+  "evidence_output": "Deep-Audit/Duplication-and-Architecture/mirror-tests-b-evidence.json"
+}

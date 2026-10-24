@@ -1,0 +1,88 @@
+{
+  "at_utc": "2026-10-17T22:03:23.1043229+00:00",
+  "tool": "Isolated linked-baseline Domain source arithmetic harness",
+  "framework": ".NET 10.0.12",
+  "cases": [
+    {
+      "name": "positive sale control",
+      "delivery_fee": 0,
+      "amount_paid": 10000,
+      "actual_payable": 10000,
+      "IsPaid": true,
+      "DefersAllMoney": false,
+      "expected_payable": 10000,
+      "assertion_passed": true,
+      "exception_type": null
+    },
+    {
+      "name": "positive fee control",
+      "delivery_fee": 500,
+      "amount_paid": 10500,
+      "actual_payable": 10500,
+      "IsPaid": true,
+      "DefersAllMoney": false,
+      "expected_payable": 10500,
+      "assertion_passed": true,
+      "exception_type": null
+    },
+    {
+      "name": "insufficient payment control",
+      "delivery_fee": 0,
+      "amount_paid": 0,
+      "expected_payable": null,
+      "assertion_passed": true,
+      "exception_type": "DomainException"
+    },
+    {
+      "name": "negative fee reduces amount",
+      "delivery_fee": -5000,
+      "amount_paid": 5000,
+      "actual_payable": 5000,
+      "IsPaid": true,
+      "DefersAllMoney": false,
+      "expected_payable": 5000,
+      "assertion_passed": true,
+      "exception_type": null
+    },
+    {
+      "name": "negative fee cancels amount",
+      "delivery_fee": -10000,
+      "amount_paid": 0,
+      "actual_payable": 0,
+      "IsPaid": true,
+      "DefersAllMoney": true,
+      "expected_payable": 0,
+      "assertion_passed": true,
+      "exception_type": null
+    },
+    {
+      "name": "negative fee below amount clamps",
+      "delivery_fee": -10001,
+      "amount_paid": 0,
+      "actual_payable": 0,
+      "IsPaid": true,
+      "DefersAllMoney": true,
+      "expected_payable": 0,
+      "assertion_passed": true,
+      "exception_type": null
+    },
+    {
+      "name": "unchecked positive fee overflow clamps",
+      "delivery_fee": 9223372036854775807,
+      "amount_paid": 0,
+      "actual_payable": 0,
+      "IsPaid": true,
+      "DefersAllMoney": true,
+      "expected_payable": 0,
+      "assertion_passed": true,
+      "exception_type": null
+    }
+  ],
+  "assertions": 7,
+  "failures": 0,
+  "limits": [
+    "Synthetic in-memory arithmetic only. No HTTP/server, SQL, user/session, inventory or financial ledger operation.",
+    "Links approved Domain source into a separate net10 audit executable; not a net8 deployment test or full authorization bypass reproduction.",
+    "Handler authorization/stock/persistence implications remain source traces, not runtime-verified application acceptance."
+  ]
+}

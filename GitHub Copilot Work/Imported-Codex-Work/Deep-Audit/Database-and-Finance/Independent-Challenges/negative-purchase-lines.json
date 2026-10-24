@@ -1,0 +1,116 @@
+{
+  "candidate_key": "PURCHASE_RECEIPT_ACCEPTS_NEGATIVE_QUANTITY_AND_UNIT_COST",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "root independent of financial originator",
+  "at_utc": "2026-10-18T03:23:05.424228+00:00",
+  "classification": "SOURCE_CORROBORATED_MEDIUM_INVALID_RECEIPT",
+  "sources": [
+    {
+      "path": "src/Falah.Application/Purchasing/PurchasingRequests.cs",
+      "lines": [
+        15,
+        29
+      ],
+      "source_git_blob_sha256": "e3cdc2188250bc49000e47a82ec855cf35c80a805cddfa6b004e9a9ac0ebd12d",
+      "worktree_sha256": "df5e41e3bdf5ffa195d24c3802d58d24795eecce197195f3e87ec308d208567b",
+      "symbols": []
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "lines": [
+        54,
+        79
+      ],
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "symbols": [
+        "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
+      "lines": [
+        121,
+        175
+      ],
+      "source_git_blob_sha256": "9c84406fc7cf89f60cc65b9b06c6324880ae5a29a296384c3052bf27771cc61b",
+      "worktree_sha256": "70287ac1d6a6d089586a8843b0472abd2dba4d0f1182e19563a9fd309fa11795",
+      "symbols": [
+        "sym-620234987330a17ea004705e0fc41543380133a23a39f515d331f17b3b681528"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "lines": [
+        10,
+        11
+      ],
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "symbols": [
+        "sym-07bd03e837172dc2925f7f402d126b06ee7d334a51b5c68027946018122746c5"
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/PurchasingRules.cs",
+      "lines": [
+        77,
+        98
+      ],
+      "source_git_blob_sha256": "f926aa4c3317e62750e2fb3d71a013cfce471c3604aa43009cfef69373c5567f",
+      "worktree_sha256": "e11ccc80b8fb47c7d534bb3595e4553fbfde47eae93eb0eb6ba007f1c7ed2524",
+      "symbols": [
+        "sym-fe2f5a4666db2ef9e2420389e5c48495bd0e63834623e55d5a026f72d7b70147"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "lines": [
+        20,
+        33
+      ],
+      "source_git_blob_sha256": "8c469abe1b385805570575d5d0cd96058622a4b2b91cc37ca4d45ef5b6ea1247",
+      "worktree_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "symbols": [
+        "sym-8db96d208b788eeb4c7c1b2f9f314e6bc9ebc69d3fdceaf0b10bb5642817b1f9"
+      ]
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "lines": [
+        2182,
+        2187
+      ],
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "symbols": [
+        "sym-606a29d033bfa1f938bee26ff1dccee2f1f985cb9b45de9024033ae31b6396fd"
+      ]
+    }
+  ],
+  "evidence": [
+    "Signed line DTO15 has no sign constraints; server2182 delegates to handler.",
+    "Receipt60-71 computes products and validates paid only, not quantity/cost. Product of negative quantity and negative unit price is positive, so unpaid credit receipt passes amount guard.",
+    "Writes PurchaseLine negative quantity/cost132, positive supplier invoice debit150, StockMovement direction In170 with negative quantity171. InventoryQuery26 sums negative In as stock reduction."
+  ],
+  "pure_arithmetic_example": "(-1000 milliunits) * (-100 piastres/unit) /1000 = +100 invoice debit. paid=0 and method credit passes AssertPurchasePayment and resolves null payment account. This example derived manually; executable test not claimed.",
+  "preconditions": "Authorized purchasing_manage actor or valid approval; valid supplier/item, open business day, fresh request key.",
+  "counterevidence": [
+    "Single negative factor makes total negative and zero paid > total is rejected; two negative factors preserve positive total and expose missing per-line guards.",
+    "Normal client may restrict input; server API is authoritative boundary.",
+    "All receipt facts transactionally commit or rollback; no partial commit claim.",
+    "LastPurchaseUnitCost filters nonpositive cost and may retain earlier valid basis; do not claim every costing view adopts negative price.",
+    "Could be intended return only with explicit accounting contract, but stock-out coupled positive supplier debt is not coherent return convention in inspected receive-only contract."
+  ],
+  "root_cause": "Aggregate payment validation substituted for per-line positive receipt quantity/nonnegative purchase cost validation.",
+  "impact": "Incorrect stock reduction labelled receipt and positive supplier debt for invalid purchase; unauthorized privilege escalation not claimed.",
+  "remediation": "Validate direction-specific quantity and unit price bounds before journal; explicitly separate approved return/credit-note semantics; preserve legitimate signed general Money/stock history.",
+  "required_tests": [
+    "Both-negative line rejected without stock/debt/journal",
+    "Single-negative and zero quantity/cost policy",
+    "Valid positive receipt, credit, payment bounds, idempotent retry",
+    "Approved disposable SQL fixture confirms absence of unintended records on rejected input"
+  ],
+  "runtime_test": "NOT_EXECUTED",
+  "schema_limit": "No check constraint found in current model/snapshot search; deployed database not queried."
+}

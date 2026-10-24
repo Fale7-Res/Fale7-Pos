@@ -1,0 +1,71 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:24:41.6282909Z",
+  "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+  "stable_ids": [
+    "sym-b78bcf55a2e42e484d7e218aa139202055204d8da69f974eba6b8d93e6ed16af",
+    "sym-9ad02297c55edf3d54b05c19037d8ec419febd8825944222a5ce047e09d7a12a",
+    "sym-8b0c0c3a0e4cb814ae44716ceb79dee7d7af9e157f41eff8650690193aed62e5",
+    "sym-f481a92c4ce01596cf1f8fde8a9dff560a23e182b0e4a0fe3f47d605ad792eb6",
+    "sym-a7899e538b61b5708fe384896b18b3b589239cb3c62e471cd8794b483529a2bb",
+    "sym-5ef02c77eace41633322ad4767bf117531cb8985e6b00a46d4df9baf3ce44c80",
+    "sym-88bf491b5e88700f0f20aa96248d3b628e1dfec4af8ec7ecfd403f82cd1d37f0",
+    "sym-d380e0cef92fdef3afd7febebbfa6c324bc433b0d998472899813d4a99b010fa",
+    "sym-930856a19b48b301a972c2680ab9babeb8b879593b86386774c6111132da1130",
+    "sym-f3cad870ad2d2f908b9dc179300d17fdcf0ecc14e64e3b061104fc7553ef8667",
+    "sym-9e780b051d277286d3d805177994972f446d40f734ed862b744df21a48d4651e",
+    "sym-ae3701cfc7d8c4ca07469dc30437358afb310c645b469360de7f2748690aa7a2",
+    "sym-a083dd1501cee3f715b43e44bf80616395304bfcf4b874384e8555f784724b27",
+    "sym-09dd0002a5a2e6bdda85144004f64c4e507f943e89f12df525ba7584639ad5fa",
+    "sym-6b8d8c459f91b0099fc5a1824e748b342106d73cf3bdda34da9e7dc6425707d7",
+    "sym-514c919b5aa9ba7ff5e3912f49e22c622c206b816a95f17145a14e2c174c2c84",
+    "sym-f60754f76f4b9719de3c10471b5fad6e291a88070a053208ba106d68387aeff5",
+    "sym-4f592d4617d717e6156827bad12a11581a5f5a09c36560db002772293a32fb86",
+    "sym-9647f9ba883a72ebe816fdaf85e50ed18fda399263ffe24068c264cab200c856",
+    "sym-bc4e3c7d85db8873d4dcb97dbe5090022d1f6b8df8c2078ca96c958311d64a9f",
+    "sym-f3d1a0510f31f8bc0720d8bbb85e6a36b94cf908faea4fa3a11e3224e3e68e77",
+    "sym-52b0ef42cd010a5bd83740b24072797b057182a5bda432eb176a2fdfc610e176",
+    "sym-ee224b1f054eb8b1dd4aae3876ae10f54f96983762fdb32b7913ead36217047c",
+    "sym-2843a6fd7cfe737d25419a2fe01b8f05941bb92ff343cc9b38f1cd61955ee61c",
+    "sym-62d724f243386ba6b94c1c53ddd2ca9956c541c9031a9ed8c2d8d190e9bea8b6",
+    "sym-7fad7339d83b1f9b85ca2ac896da87b157a0e813c5182b8f2c3be2e4f67ede03",
+    "sym-31e1d5c29fa74f52ec199a2a91701670e22000e3afcee1888065d16461744092",
+    "sym-483a5e2b8d4ccf7c94f389c30e1da573212dd0a0f08b4dcb7672ac7add104ca3",
+    "sym-afe72a3a7e9c7915a29f2f45fe5eb9bd655c30a331cb815018a12e25583ef9bd",
+    "sym-3b1df7b6b061dd0ea757c83720a39cfe4aed50295b1f57c188c1ed0ffa1badc5"
+  ],
+  "queued_count": 30,
+  "reconciliation": {
+    "current_union_remaining": 30,
+    "coordinator_database_reports": 30,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs": "7494487952ECD877F4A3D1EC22B62D70227D623364A6CC28E023BF693E7A781A",
+    "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs": "CE1184171F64CE4CE1F8399D26B6228592CE0C6767ADED0F4FF4140D35DBD6FD",
+    "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs": "CD1A406323EE3E43AC267321D1B9D8B42CC739FB7E18AD87FDC5CA9C2162F099"
+  },
+  "assessment": "Tests cover accepted cash_in/out directions, movement type and amount, permissions, positive source balance rejection, open-shift requirement, same-key replay/concurrency, and shift expected cash integration. Source confirms Main→Drawer for cash_in and Drawer→Main for cash_out, with source-account lock and expected-cash use of posted cash_in/cash_out. The helper computes main balance before cash_in but never asserts a matching after balance; tests also do not prove distinct-request liquidity concurrency. Existing ledger already records these test limitations and a possible open-shift/close race. No new finding promoted.",
+  "source_references": [
+    {
+      "path": "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs",
+      "lines": "38-166",
+      "claim": "Exact movement, guard, replay, and shift expected cash assertions; no after-main balance assertion in the cash_in test."
+    },
+    {
+      "path": "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs",
+      "lines": "40-132",
+      "claim": "Positive amount/reason, permission, shift, business-day and locked protected-balance checks; deterministic journal and movement posting."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
+      "lines": "55-67",
+      "claim": "Cash_in additions and cash_out withdrawals contribute with shift ID to expected drawer cash."
+    }
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only; no tests or database transactions run.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

@@ -1,0 +1,54 @@
+{
+  "artifact_kind": "independent_semantic_challenge",
+  "id": "SEM-MIRROR-022",
+  "candidate": "FIN-CAND-DASHBOARD-DERIVED-OPEN-EXCEPTION-COUNT-001",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewed_at_utc": "2026-10-20T10:10:33.3940280Z",
+  "reviewer": "financial_integrity_continuation",
+  "decision": "SOURCE_CONFIRMED_DERIVED_EXCEPTION_COUNT_OMISSION",
+  "assessment": "Confirmed the candidate/default-open flow and dashboard mismatch. ControlCenterRules.BuildExceptions recomputes current exceptions as records with no status. ControlCenterQueryService.GetExceptionsAsync overlays a persisted state when present and otherwise returns lowercase open. SetExceptionStatusHandler accepts and persists only lowercase acknowledged/resolved, and the repository has no other ControlExceptionStates writer or open-row seeder. The integration test creates a large-refund candidate, observes default open, then acknowledges and reads it back. OwnerDashboardQueryService instead counts only persisted rows where Status equals capitalized Open; it neither builds candidates nor defaults missing states. Thus a newly generated open candidate is absent from dashboard count; after action the persisted row is acknowledged/resolved. Case-insensitive SQL comparison cannot supply a missing candidate row. This strongly confirms a stale/ordinarily-zero dashboard projection. Counterevidence: the dedicated Control Center continues to surface and review dynamic exceptions; exact owner reliance and legacy manually inserted uppercase Open rows are unverified. Severity should remain candidate pending root disposition; runtime not executed.",
+  "source_references": [
+    {
+      "path": "src/Falah.Domain/ControlCenter/ControlCenterRules.cs",
+      "sha256": "01D20A713E2EF6020319D0F4341BEE09D77B57711F4A51A7C9B8E78B5E847652",
+      "lines": "1-5,39-85",
+      "claim": "Exception candidates are recomputed and their record omits review status."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs",
+      "sha256": "2BA6E827C2DB885018094250FE907C5D78DD87C3D7112513D3624B92BCADFC15",
+      "lines": "70-114",
+      "claim": "Builds candidate set, overlays persisted state by deterministic ID, defaults absent state to lowercase open."
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs",
+      "sha256": "45D356E72A7704B6CB36BDAA1803CFD68400ADC3E8E922C1F3606BA3ED1BFDEE",
+      "lines": "26-70",
+      "claim": "Valid state values are lowercase acknowledged/resolved; new persisted rows use request status."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "sha256": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+      "lines": "265-267,288-294",
+      "claim": "Counts persisted capitalized Open rows and exposes count without generating candidate set."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs",
+      "sha256": "66CC5719EC12A81881B02BA08468417F62E63B18E5FB63984FB79D2BFED06347",
+      "lines": "394-430",
+      "claim": "Large-refund candidate defaults to lowercase open, then persisted acknowledgment is overlaid."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "claim": "Only needed for writer/schema search; no status enum/default-open seeder found in inspected source."
+    }
+  ],
+  "counterevidence": [
+    "Control Center remains a valid live source for generated exceptions and actions; dashboard defect does not erase or block those records.",
+    "No dashboard endpoint execution or client binding inspection, so owner-facing reliance is unverified.",
+    "Legacy/manual uppercase Open rows could make a positive count, but no application writer creates them in inspected code; not established for deployed databases."
+  ],
+  "runtime": "NOT_EXECUTED",
+  "execution": "Read-only static source and test inspection. No database, API or UI execution.",
+  "recommendation": "Derive the dashboard count from the same dynamic candidates plus persisted acknowledgment/resolution overlay as ControlCenterQueryService, or share a query implementation; add dashboard assertions before/after acknowledgment and after the triggering condition disappears."
+}

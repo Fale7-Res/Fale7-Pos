@@ -1,0 +1,108 @@
+{
+  "artifact_kind": "financial_reporting_callable_substantive_review",
+  "id": "financial-sold-products-substantive-review-2026-10-21",
+  "created_utc": "2026-10-21T08:40:00Z",
+  "assignment": "Substantively review ReportingQueryService.GetSoldProductsAsync, trace its caller/route/DTO/tests, and compare its cancelled-state and date-range behavior with the preceding GetTopSellingItemsAsync handoff. Static only; no test execution or state changes.",
+  "stable_id": "sym-a888476d680eb31b8afc8d6b17ee1dadf32426a83f8f4d4fbb4067fcb15ebf84",
+  "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetSoldProductsAsync(DateOnly?, DateOnly?, CancellationToken)",
+  "source": {
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "265-297 (summary comment, Range helper and method)",
+    "sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+    "current_receipt": {
+      "path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.json",
+      "status": "ANALYZED",
+      "use": "Identity only; actual source bodies and cross-file flow were checked for this handoff."
+    }
+  },
+  "source_reasoning": {
+    "behavior": "The method calls the same Range(from,to) helper as GetTopSellingItemsAsync, then reads OrderItems with AsNoTracking and joins Orders by OrderId. It filters `Status != nameof(OrderStatus.Cancelled)` and CreatedAtUtc against optional [start,end) bounds, materializes the joined sales lines, then separately reads current Product.Id->CategoryId and Category.Id->Name maps. It groups by frozen ProductName, selects the first non-null category ID among the grouped current ProductId matches, computes peak Cairo hour by summed quantity, sums quantity, distinct OrderId count, and frozen line TotalPricePiastres, and sorts by amount descending. All operations are read-only; no accounting or inventory mutation occurs.",
+    "date_range": "Exactly matches the TopSelling finding: both bounds select the Cairo business-day half-open range; only `from` means all timestamps from that start forward; only `to` means all timestamps before the exclusive end; no explicit inverted-range validation. Unlike the general top-items route, the production caller inspected below always passes the same non-null business date as both bounds. Therefore the one-sided contract ambiguity is shared implementation behavior but is not exercised by this Daily Statement flow.",
+    "cancelled_filter": "Exactly matches TopSelling: the persisted wire state is lowercase `cancelled`, while the LINQ comparison uses nameof(OrderStatus.Cancelled), yielding `Cancelled`. EF translates the comparison into SQL, so equality behavior depends on database collation. The existing daily-statement integration source includes a cancellation scenario asserting that this sold-products section loses the cancelled order. The test factory is documented to use SQL Server, but this review did not run the test or inspect the database collation. This is counterevidence against a confirmed defect in that test configuration, not proof of production collation or runtime behavior.",
+    "financial_meaning": "This is the full product listing for a daily statement, not a money-moving path. TotalPiastres is line TotalPricePiastres and is not netted against order discounts or refunds; Quantity and OrderCount are gross order-line quantities/orders for non-cancelled rows. The DTO does not label totals as collected cash. Category is looked up from the current product/category tables, so an old sale can display a changed category or no category if product no longer exists; this is explicitly documented in the method and DTO as a current category classification rather than a frozen sale fact."
+  },
+  "cross_file_evidence": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs",
+      "span": "58-74",
+      "sha256": "2b948c2a68b54cf59d65995d85bd6556a6d43a329a93ff620cd9be0104987647",
+      "behavior": "GetAsync(DateOnly businessDate) creates BusinessDateRange.SingleDay(businessDate) and calls _reports.GetSoldProductsAsync(businessDate,businessDate,ct); it includes these rows in the assembled DailyStatementDto. This fixes both date parameters on the actual path."
+    },
+    {
+      "path": "src/Falah.Application/Reports/DailyStatementDtos.cs",
+      "span": "42-49",
+      "sha256": "f367370f6110c1272d2f1767eba4ce803b0030cf1f677b0d17b7cd7b8e58a2b0",
+      "behavior": "SoldProductLineDto contains ProductName, CategoryId/Name, Quantity, OrderCount, TotalPiastres and PeakHour. The DTO comment states product-name grouping is intentional and category comes from the current product lookup."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "span": "1990-1997, 2282-2290",
+      "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "behavior": "GET /api/reports/daily-statement accepts optional businessDate and is gated by RequireReportsAccessAsync before the query service call; the helper requires reports_view or all."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "span": "47-54",
+      "sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "behavior": "OrderStatus.ToWireString maps OrderStatus.Cancelled to lowercase `cancelled`."
+    },
+    {
+      "path": "src/Falah.Domain/Common/BusinessClock.cs",
+      "span": "31-41, 67-80",
+      "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208",
+      "behavior": "Cairo business date intervals use [midnight, next midnight). BusinessDateRange.SingleDay makes an explicit one-day range; its Resolve documentation says a lone `from` also means that single day, unlike the reporting Range helper. The actual SoldProducts caller passes both dates, so no mismatch occurs there."
+    }
+  ],
+  "adjacent_callables": {
+    "GetTopSellingItemsAsync": "Uses the same Range helper, joined OrderItems/Orders, same status predicate, same ProductName grouping and line amount/quantity source. It returns quantity-ranked top-item rows without categories/order count/peak hour. The conditional one-sided-date and collation observations therefore carry over verbatim, while SoldProducts' current caller fixes both dates.",
+    "GetProductHourlySalesAsync": "Adjacent report uses the same order-line/date/status filter and same ProductName grouping, then splits quantity/amount by Cairo hour. The next top-level callable in source order is this method."
+  },
+  "test_evidence": {
+    "path": "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs",
+    "sha256": "b00e6b33796ca461581648e37536c4b0367a30bd4bf6791efccd937a2a231d5c",
+    "tests": [
+      {
+        "span": "84-98",
+        "scenario": "Sold_products_list_is_complete_with_category_and_order_count_not_just_top_items",
+        "coverage": "Creates two same-name orders; verifies one product row, quantity two, two distinct OrderIds, summed TotalPiastres, valid Cairo peak hour, and matching hourly row. Does not cover deleted/reclassified category, discounts/refunds, or date boundaries."
+      },
+      {
+        "span": "232-249",
+        "scenario": "Pending_electronic_sale_counts_in_net_but_not_collected_and_disappears_once_cancelled",
+        "coverage": "Before cancel, product appears in SoldProducts; after cancel, asserts it disappears, with sales net/pending values zero. This tests SoldProducts through the actual daily-statement composition path and is useful counterevidence for the casing concern if executed on the relevant DB collation. Test was inspected but not run."
+      },
+      {
+        "span": "378-384",
+        "scenario": "Empty day report behavior",
+        "coverage": "Asserts SoldProducts empty when no sale rows exist."
+      }
+    ],
+    "route_permission_test": "The same test file has Daily_statement_requires_reports_view; it checks unauthorized actor receives 422. No direct standalone endpoint exists for SoldProducts; it is returned as part of daily-statement.",
+    "tests_executed": false
+  },
+  "comparison_to_top_selling_handoff": {
+    "path": "Codex Work/Sub-Agents/Handoffs/financial-top-selling-items-substantive-review-2026-10-21.json",
+    "conclusion": "Confirms the same status predicate and range helper. The actual caller differs: SoldProducts is only called from DailyStatementQueryService with the same date twice, so the one-sided range concern is not present in its live route path. Its cancellation test source is materially stronger counterevidence than top-items has, though still not a test execution or a production collation inspection."
+  },
+  "assessment": {
+    "disposition": "NO_CONFIRMED_DEFECT; SHARED_CONDITIONAL_COLLATION_RISK_AND_DOCUMENTED_GROSS_METRICS",
+    "findings": [],
+    "conditional_notes": [
+      "Case-sensitive SQL Server collation could cause lowercase `cancelled` not to equal `Cancelled`, leaving canceled lines visible. Existing DailyStatementVerticalSliceTests source asserts the row disappears after cancellation, so do not promote this as a confirmed defect without an actual failure or collation evidence. A robust source-level hardening would compare against the lowercase wire value and retain the existing cancellation test.",
+      "The generic TotalPiastres is gross line total and does not account for discounts/refunds; this matches the DTO's product-sales-list purpose and no policy requiring net collected value was found. Keep it distinct from sales reconciliation totals.",
+      "Current category lookup means historical product rows may be categorized using current metadata. This is explicitly acknowledged by source comments and not a new inconsistency candidate."
+    ],
+    "runtime_limits": "Static review only. No test execution, SQL query, database collation inspection, or state mutation."
+  },
+  "next_callable": {
+    "stable_id": "sym-239862d44490f5bff59178db495c11035116267e1e1652bea1e939ccecf307d2",
+    "signature": "Falah.Infrastructure.Reports.ReportingQueryService.GetProductHourlySalesAsync(DateOnly?, DateOnly?, CancellationToken)",
+    "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+    "span": "307-322"
+  },
+  "limitations": [
+    "No tests executed.",
+    "No app source, tests, database/runtime, shared registry/report, or Git changes.",
+    "Supplemental substantive evidence only; no global report coverage certification."
+  ]
+}

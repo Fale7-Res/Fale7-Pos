@@ -1,0 +1,741 @@
+{
+  "id": "SEM-MIRROR-004",
+  "at_utc": "2026-10-19T01:39:36.521171+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "/root coordinator",
+  "status": "MANUAL_SEMANTIC_COMPARISON_AND_INDEPENDENT_FINANCIAL_CHALLENGE_COMPLETE_WITH_LIMITS",
+  "title": "Delivery payment truth diverges between per-leg totals, DTO amount, wire state and client outcome default",
+  "scope": "Financial amount/state contract only; not restarting UI visual or printing audit. New semantic group outside218exact-body denominator.",
+  "sources": [
+    {
+      "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+      "worktree_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "source_git_blob_sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412",
+      "line_ranges": [
+        [
+          26,
+          55
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a8d4c1f9bbd505fd48eee24237ff27f9801da8afca94d7459fd1550db5fd53f7",
+          "signature": "Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)",
+          "span": [
+            26,
+            5,
+            54,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-2da4c62ea4e7f035efdd7778c63abccba49db9008875739e643b34ef6a67a4c8",
+          "signature": "lambda expression",
+          "span": [
+            28,
+            50,
+            28,
+            56
+          ]
+        },
+        {
+          "stable_id": "sym-0f883666956b0766baff65e321ba05fa802e83d44e2c1c6f15505614aa7b08ed",
+          "signature": "lambda expression",
+          "span": [
+            28,
+            58,
+            28,
+            73
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 26,
+          "end": 55,
+          "text": "    public static IReadOnlyDictionary<PaymentMethod, Money> PaymentMethodTotals(IEnumerable<Order> orders)\n    {\n        var totals = TrackedMethods.ToDictionary(m => m, _ => Money.Zero);\n\n        foreach (var order in orders)\n        {\n            if (order.Status == OrderStatus.Cancelled) continue;\n            var netTotal = order.Total - order.RefundAmount;\n\n            if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is { } splits)\n            {\n                foreach (var part in splits)\n                {\n                    var isElectronic = part.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet;\n                    var confirmed = order.ElectronicPayment is { Status: ElectronicPaymentStatus.Confirmed } leg && leg.Method == part.Method;\n                    if ((isElectronic && confirmed) || !isElectronic)\n                    {\n                        if (totals.ContainsKey(part.Method)) totals[part.Method] += part.Amount;\n                    }\n                }\n            }\n            else if (order.IsPaid && totals.ContainsKey(order.PaymentMethod))\n            {\n                totals[order.PaymentMethod] += netTotal;\n            }\n        }\n\n        return totals;\n    }\n"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs",
+      "worktree_sha256": "9fae8f656f096ef16f0dfb68904957037bd4e611b6ae4404bef215857d5a1b1b",
+      "source_git_blob_sha256": "2b8b7326e580341dee9b67975c4edd735541f3f015a9c4c6a161e2425185c6c8",
+      "line_ranges": [
+        [
+          58,
+          65
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-c74df37d737953a9692d7d3060ac3c00f038b1deb14d9421cf8da760aa2998b4",
+          "signature": "Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(Falah.Domain.Orders.ElectronicPaymentStatus)",
+          "span": [
+            58,
+            5,
+            64,
+            7
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 58,
+          "end": 65,
+          "text": "    public static string ToWireString(this ElectronicPaymentStatus status) => status switch\n    {\n        ElectronicPaymentStatus.Pending => \"pending\",\n        ElectronicPaymentStatus.Confirmed => \"confirmed\",\n        ElectronicPaymentStatus.Cancelled => \"cancelled\",\n        _ => throw new ArgumentOutOfRangeException(nameof(status)),\n    };\n}"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/OrderMapper.cs",
+      "worktree_sha256": "37619395348335292dd8dc7469e4f21488033d3816b097ad9b55451a6af20a9d",
+      "source_git_blob_sha256": "5c422ab8a49ac985c1100ef28c17d38529ae973a4df1bd215025e461e9ba2f8c",
+      "line_ranges": [
+        [
+          118,
+          122
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-37e36207f2bbeeb19cdc3671900aa7a5c797a678ca631e1dc066901329c69d4c",
+          "signature": "Falah.Infrastructure.Orders.OrderMapper.ToEntity(Falah.Domain.Orders.Order)",
+          "span": [
+            84,
+            5,
+            144,
+            7
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 118,
+          "end": 122,
+          "text": "        IsPaid = order.IsPaid,\n        ElectronicPaymentMethod = order.ElectronicPayment?.Method.ToWireString(),\n        ElectronicPaymentProvider = order.ElectronicPayment?.Provider,\n        ElectronicPaymentAmountPiastres = order.ElectronicPayment?.Amount.Piastres,\n        ElectronicPaymentStatus = order.ElectronicPayment?.Status.ToWireString(),"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs",
+      "worktree_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+      "source_git_blob_sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+      "line_ranges": [
+        [
+          14,
+          29
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-45a7529d884bb46e84011c46964256ac19f62c95931106fe9e2e56a1bee74ff3",
+          "signature": "Falah.Infrastructure.Delivery.DeliveryFactsComposer.Compose(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, Falah.Infrastructure.Persistence.Entities.OrderEntity)",
+          "span": [
+            13,
+            5,
+            38,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 14,
+          "end": 29,
+          "text": "    {\n        var total = Money.FromPiastres(order.TotalPiastres);\n        var refunded = Money.FromPiastres(order.RefundAmountPiastres);\n        return new DeliveryFacts(\n            Id: delivery.Id,\n            OrderId: order.Id,\n            OrderNumber: order.OrderNumber,\n            DriverId: delivery.DriverId ?? \"\",\n            Status: Enum.Parse<DeliveryStatus>(delivery.Status),\n            PaymentMethod: OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod),\n            // order.IsPaid is the single source of truth for \"has this order's money already\n            // changed hands\" - true immediately for card, true once ConfirmElectronicPayment fires\n            // for InstaPay/Wallet, and always false for cash-on-delivery until the driver actually\n            // collects it. Reusing it here (rather than re-deriving from ElectronicPaymentStatus)\n            // keeps this in lockstep with Order's own tested definition of \"paid\".\n            PaymentAlreadySettled: order.IsPaid,"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs",
+      "worktree_sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+      "source_git_blob_sha256": "e2b5553a921ea0d31937f6da513bde91613f88d0447576d6754f9c2a8b767fc7",
+      "line_ranges": [
+        [
+          40,
+          47
+        ],
+        [
+          58,
+          92
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-d8d436aa6deed1eccc852e4219438ebbdf0cecdea06c364a5fc351adf3ddde60",
+          "signature": "Falah.Infrastructure.Delivery.DeliveryQueryService.ListDispatchBoardAsync(CancellationToken)",
+          "span": [
+            42,
+            5,
+            49,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-1da4d64e58f8800e66eee8ee70b9f36dac3a2f7a0595df84c831fb64596e229b",
+          "signature": "lambda expression",
+          "span": [
+            43,
+            57,
+            49,
+            62
+          ]
+        },
+        {
+          "stable_id": "sym-fffc00ab365b2134d63a9d46534c86a6a5bc26f061d277723b2f7c4aa54e5244",
+          "signature": "Falah.Infrastructure.Delivery.DeliveryQueryService.QueryToDtos(IQueryable<Falah.Infrastructure.Persistence.Entities.DeliveryEntity>, CancellationToken)",
+          "span": [
+            58,
+            5,
+            75,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-75545a72b070d9872476ce53764ef7a20260029fb69457f1a07365d93054d3a1",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            46,
+            60,
+            65
+          ]
+        },
+        {
+          "stable_id": "sym-8e45a25f8290c5b513d03e3f2d9167cb89f96f7e5ff99851f35f67a091f2cbd2",
+          "signature": "lambda expression",
+          "span": [
+            61,
+            42,
+            61,
+            56
+          ]
+        },
+        {
+          "stable_id": "sym-d4f518150d31c1752923c6fcddf64d8a3ae92290d2aab796aab818eb48e52f30",
+          "signature": "lambda expression",
+          "span": [
+            62,
+            61,
+            62,
+            89
+          ]
+        },
+        {
+          "stable_id": "sym-74a7dcb34918b09a4cbc9352ca7aae7563ee4ff43c94e42ea867467f1433322c",
+          "signature": "lambda expression",
+          "span": [
+            62,
+            121,
+            62,
+            130
+          ]
+        },
+        {
+          "stable_id": "sym-eda9c34de0c35df62cebbdac9ad384dce1d20a342173c3df528170a0621bce5b",
+          "signature": "lambda expression",
+          "span": [
+            63,
+            42,
+            63,
+            69
+          ]
+        },
+        {
+          "stable_id": "sym-5773b638390e9f6a431d3421d0ba23e171abd776a6d5a4761aae7b0c05746dd4",
+          "signature": "lambda expression",
+          "span": [
+            63,
+            78,
+            63,
+            94
+          ]
+        },
+        {
+          "stable_id": "sym-b9e47f06907c08c611c5a67f71dc1d24feffc4b1e3bb08a17297ffedfabe24cd",
+          "signature": "lambda expression",
+          "span": [
+            64,
+            63,
+            64,
+            92
+          ]
+        },
+        {
+          "stable_id": "sym-6b87730e4a0ec644ab6c82ea473d7d20be4b021b7b4ee28e3494b09b59854743",
+          "signature": "lambda expression",
+          "span": [
+            64,
+            124,
+            64,
+            133
+          ]
+        },
+        {
+          "stable_id": "sym-1a72087035476b5bfd378998c7ba369faf94f588de9b11447ed3dfcc54badbef",
+          "signature": "lambda expression",
+          "span": [
+            66,
+            34,
+            74,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-c6a472eb4750fcf13ba829fdb56c5e880a852fd0164278aa2ccec94acfd2d804",
+          "signature": "Falah.Infrastructure.Delivery.DeliveryQueryService.GetOneAsync(string, CancellationToken)",
+          "span": [
+            77,
+            5,
+            92,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7f976cb9d0a9970b35e65d0c774d2f01ab451733852aa284b7c5a263124c7b7e",
+          "signature": "lambda expression",
+          "span": [
+            79,
+            80,
+            79,
+            103
+          ]
+        },
+        {
+          "stable_id": "sym-18a51d15d4296d0291a866bad0c2bbc0c1e2a4833270fa28d595879125572512",
+          "signature": "lambda expression",
+          "span": [
+            81,
+            64,
+            81,
+            93
+          ]
+        },
+        {
+          "stable_id": "sym-f9f27e33670fdc47f83e510f506715bb9c21931ccceb14d7d3712c6f518284e3",
+          "signature": "lambda expression",
+          "span": [
+            86,
+            79,
+            86,
+            109
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 40,
+          "end": 47,
+          "text": "    /// board. Read-only: composes exactly the same DeliveryDto the sibling queries already return,\n    /// adds no new business rule and writes nothing.</summary>\n    public Task<List<DeliveryDto>> ListDispatchBoardAsync(CancellationToken ct = default) =>\n        QueryToDtos(_db.Deliveries.AsNoTracking().Where(d =>\n            d.Status == nameof(DeliveryStatus.New) ||\n            d.Status == nameof(DeliveryStatus.Preparing) ||\n            d.Status == nameof(DeliveryStatus.Ready) ||\n            d.Status == nameof(DeliveryStatus.Assigned) ||"
+        },
+        {
+          "start": 58,
+          "end": 92,
+          "text": "    private async Task<List<DeliveryDto>> QueryToDtos(IQueryable<Persistence.Entities.DeliveryEntity> query, CancellationToken ct)\n    {\n        var deliveries = await query.OrderBy(d => d.CreatedAtUtc).ToListAsync(ct);\n        var orderIds = deliveries.Select(d => d.OrderId).ToList();\n        var orders = (await _db.Orders.AsNoTracking().Where(o => orderIds.Contains(o.Id)).ToListAsync(ct)).ToDictionary(o => o.Id);\n        var driverIds = deliveries.Where(d => d.DriverId is not null).Select(d => d.DriverId!).Distinct().ToList();\n        var drivers = (await _db.Drivers.AsNoTracking().Where(d => driverIds.Contains(d.Id)).ToListAsync(ct)).ToDictionary(d => d.Id);\n\n        return deliveries.Select(d =>\n        {\n            var order = orders[d.OrderId];\n            var facts = DeliveryFactsComposer.Compose(d, order);\n            var driverName = d.DriverId is not null && drivers.TryGetValue(d.DriverId, out var driver) ? driver.Name : d.DriverNameAtHandover;\n            return new DeliveryDto(d.Id, order.Id, order.OrderNumber, d.Status, d.DriverId, driverName,\n                facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, d.ShiftId, d.CreatedAtUtc,\n                order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress, order.ElectronicPaymentStatus);\n        }).ToList();\n    }\n\n    public async Task<DeliveryDto> GetOneAsync(string deliveryId, CancellationToken ct = default)\n    {\n        var delivery = await _db.Deliveries.AsNoTracking().FirstOrDefaultAsync(d => d.Id == deliveryId, ct)\n            ?? throw new InvalidOperationException(\"طلب الدليفري غير موجود.\");\n        var order = await _db.Orders.AsNoTracking().FirstAsync(o => o.Id == delivery.OrderId, ct);\n        var facts = DeliveryFactsComposer.Compose(delivery, order);\n        string? driverName = null;\n        if (delivery.DriverId is not null)\n        {\n            var driver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == delivery.DriverId, ct);\n            driverName = driver?.Name ?? delivery.DriverNameAtHandover;\n        }\n        return new DeliveryDto(delivery.Id, order.Id, order.OrderNumber, delivery.Status, delivery.DriverId, driverName,\n            facts.AmountToCollect.Piastres, facts.OrderTotal.Piastres, order.PaymentMethod, order.IsPaid, delivery.ShiftId, delivery.CreatedAtUtc,\n            order.CustomerName, order.CustomerPhone, order.DeliveryArea, order.DeliveryAddress, order.ElectronicPaymentStatus);\n    }"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+      "source_git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1",
+      "line_ranges": [
+        [
+          9,
+          21
+        ],
+        [
+          83,
+          89
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-7f74270bff495f8f65e9922bb01272134643b7a32d671e48a8e6176fa074dcf7",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.DeliveryCashResponsibility(Falah.Domain.Financial.PaymentMethod, bool, Falah.Domain.Common.Money)",
+          "span": [
+            11,
+            5,
+            12,
+            102
+          ]
+        },
+        {
+          "stable_id": "sym-944ad288b4dd0efc8daff84933ffa25e37d27cf3c837657f6fd0e161fe1613f7",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.CreateCashCustody(string, string, Falah.Domain.Delivery.DeliveryFacts, string, DateTimeOffset)",
+          "span": [
+            16,
+            5,
+            21,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0dfe8d37cfc70ba86be55f86c13f19adaa0a972e2cafd3acc8e559fec596e671",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.AssertCollectionAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money, string?)",
+          "span": [
+            81,
+            5,
+            86,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 9,
+          "end": 21,
+          "text": "    /// <summary>Cash payment method: the driver is responsible for the whole amount. Any other\n    /// method: responsible only if it has not already settled electronically.</summary>\n    public static Money DeliveryCashResponsibility(PaymentMethod paymentMethod, bool paymentAlreadySettled, Money amount) =>\n        paymentMethod == PaymentMethod.Cash ? amount : (paymentAlreadySettled ? Money.Zero : amount);\n\n    /// <summary>Returns null (no custody row needed) when there is nothing to collect - a genuinely\n    /// prepaid or fully-comped delivery.</summary>\n    public static DriverCustody? CreateCashCustody(string custodyId, string tripId, DeliveryFacts delivery, string driverId, DateTimeOffset createdAtUtc)\n    {\n        var expected = DeliveryCashResponsibility(delivery.PaymentMethod, delivery.PaymentAlreadySettled, delivery.AmountToCollect);\n        if (expected.IsZero) return null;\n        return new DriverCustody(custodyId, tripId, driverId, delivery.OrderId, delivery.Id, expected, Money.Zero, Money.Zero, Money.Zero, CustodyStatus.Open, createdAtUtc);\n    }"
+        },
+        {
+          "start": 83,
+          "end": 89,
+          "text": "        if (collected.IsNegative) throw new DomainException(\"المبلغ المحصل غير صالح.\");\n        if (expected != collected && string.IsNullOrWhiteSpace(reason))\n            throw new DomainException(\"فرق التحصيل يتطلب سببًا واضحًا ولا يمكن تسويته تلقائيًا.\");\n    }\n\n    /// <summary>\n    /// Driver custody is settled per BUSINESS DAY, or whenever the driver comes in to settle - never"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Application/Delivery/DeliveryRequests.cs",
+      "worktree_sha256": "1b3cfd319183da61331af6b771f45ef6b660a5ba10c88f3b348b1dcb07aef61c",
+      "source_git_blob_sha256": "149b0caa8ca0114aa461db8104c8276b1995cc65e1a5ecfdf0853f866b3926a8",
+      "line_ranges": [
+        [
+          71,
+          76
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 71,
+          "end": 76,
+          "text": "public sealed record DeliveryDto(\n    string DeliveryId, string OrderId, string? OrderNumber, string Status, string? DriverId, string? DriverName,\n    long AmountToCollectPiastres, long OrderTotalPiastres, string PaymentMethod, bool PaymentAlreadySettled,\n    string? ShiftId, DateTimeOffset CreatedAtUtc,\n    string? CustomerName = null, string? CustomerPhone = null, string? DeliveryArea = null,\n    string? DeliveryAddress = null, string? ElectronicPaymentStatus = null);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          58,
+          65
+        ],
+        [
+          631,
+          632
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3b7deb7e35f2ff824a946daab34a9fcc0e74669b94795fb748a42a66ad5853b6",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)",
+          "span": [
+            58,
+            5,
+            84,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0e23f3f5e5f645985e16bec1f60e4e7c82ab4c952eb219bb6c2bbe59a9e72028",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.GetDispatchBoardAsync(CancellationToken)",
+          "span": [
+            631,
+            5,
+            632,
+            100
+          ]
+        },
+        {
+          "stable_id": "sym-9173deb0cd8200c5fd2af7f206237c30075faa0a0c82abbe63620b7b159c2c68",
+          "signature": "lambda expression",
+          "span": [
+            632,
+            47,
+            632,
+            94
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 58,
+          "end": 65,
+          "text": "    private static async Task<ApiResult<T>> ReadResultAsync<T>(HttpResponseMessage response, CancellationToken ct)\n    {\n        if (response.IsSuccessStatusCode)\n        {\n            var value = await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct);\n            return value is null ? new(false, default, \"لم يصل تأكيد صالح للعملية. أعد المحاولة للتحقق.\", true)\n                : new ApiResult<T>(true, value, null, false, (int)response.StatusCode);\n        }"
+        },
+        {
+          "start": 631,
+          "end": 632,
+          "text": "    public Task<ApiResult<IReadOnlyList<DeliveryDto>>> GetDispatchBoardAsync(CancellationToken ct = default) =>\n        ReadAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync(\"/api/delivery/board\", ct), ct);"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
+      "worktree_sha256": "27b80026d0447e03faf17e6eaad32fe5fde3ee3cd004f9503d561dfd6adc6822",
+      "source_git_blob_sha256": "c9e49112b32f8415f630a9f885695186d2b7bcc37ad2e7017d77315a6bed6792",
+      "line_ranges": [
+        [
+          66,
+          77
+        ],
+        [
+          134,
+          134
+        ],
+        [
+          174,
+          198
+        ],
+        [
+          208,
+          215
+        ],
+        [
+          221,
+          242
+        ],
+        [
+          297,
+          307
+        ],
+        [
+          319,
+          356
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-3d57f08743646abd620f720fd9f8262719bf5ba21bc8eec0fa122c6d58ee6d07",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.MarkReadyAsync(Falah.Application.Delivery.DeliveryDto)",
+          "span": [
+            173,
+            5,
+            193,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b0e68e1794db5e52b6c79b109a6cafbfab35d9dfc9c67b5a05a797c162b41720",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OpenAssign(Falah.Application.Delivery.DeliveryDto)",
+          "span": [
+            207,
+            5,
+            215,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9442bbe6916bb42637731a14f898f2559c4f8b7a98722fc597fd2a7584538d23",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ConfirmAssignAsync()",
+          "span": [
+            220,
+            5,
+            241,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-3b0650a19006fd05d892a9ac17c43da6d85021ec188fd3f62e66f998ea8b762b",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OpenOutcome(Falah.Application.Delivery.DeliveryDto)",
+          "span": [
+            296,
+            5,
+            307,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-e330ca9ef6ffa891c8683dfd2c37f59300b1a3609bb629fedcab8c27b131f85d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ConfirmOutcomeAsync()",
+          "span": [
+            318,
+            5,
+            353,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-51bc8745bda5f0ddbe28da4bace7f33a1d5ec6d563f3c115057a1abaf73b31d7",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.CompleteOutcomeAsync(Falah.Application.Delivery.RecordDeliveryResultRequest)",
+          "span": [
+            355,
+            5,
+            368,
+            6
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 66,
+          "end": 77,
+          "text": "        public string AmountToCollectDisplay =>\n            Delivery.AmountToCollectPiastres > 0 ? CashInput.Format(Delivery.AmountToCollectPiastres) + \" ج\" : \"—\";\n\n        /// <summary>Three states, not two. \"Paid\" and \"collect on delivery\" are both settled\n        /// questions; a transfer nobody has confirmed is neither, and handing that order to a driver\n        /// without saying so is how an order goes out with nothing to collect and nothing collected.</summary>\n        public string PaymentStateLabel =>\n            Delivery.ElectronicPaymentStatus == \"Pending\" ? \"تحويل لم يُؤكَّد\"\n            : Delivery.PaymentAlreadySettled ? \"مدفوع\"\n            : \"تحصيل عند التسليم\";\n\n        public bool IsPaymentUnconfirmed => Delivery.ElectronicPaymentStatus == \"Pending\";"
+        },
+        {
+          "start": 134,
+          "end": 134,
+          "text": "    public bool CanDispatch => _session.HasPermission(\"delivery_manage\");"
+        },
+        {
+          "start": 174,
+          "end": 198,
+          "text": "    private async Task MarkReadyAsync(DeliveryDto delivery)\n    {\n        if (!CanEditAction || !CanDispatch) return;\n        IsBusy = true;\n        ActionError = null;\n        ActionNote = null;\n        try\n        {\n            var result = await _session.Api.MarkDeliveryReadyAsync(\n                new MarkDeliveryReadyRequest(delivery.DeliveryId, _session.CurrentUser!.Id, null, null));\n            if (!result.Success)\n            {\n                ActionError = result.Error ?? \"تعذر تجهيز الطلب.\";\n                return;\n            }\n            ActionNote = $\"تم تجهيز {delivery.OrderNumber} للتوصيل.\";\n            await LoadAsync();\n        }\n        finally { IsBusy = false; }\n    }\n\n    // ---------------- Assign to a driver ----------------\n\n    [ObservableProperty] private DeliveryDto? _assignTarget;\n    [ObservableProperty] private DriverDto? _assignDriver;"
+        },
+        {
+          "start": 208,
+          "end": 215,
+          "text": "    private void OpenAssign(DeliveryDto delivery)\n    {\n        if (!CanEditAction || !CanDispatch) return;\n        AssignError = null;\n        AssignDriver = null;\n        _assignRequestId = $\"asg-{Guid.NewGuid():N}\";\n        AssignTarget = delivery;\n    }"
+        },
+        {
+          "start": 221,
+          "end": 242,
+          "text": "    private async Task ConfirmAssignAsync()\n    {\n        if (IsBusy || _outcomeRequest.HasPending || _settleRequest.HasPending || !CanDispatch) return;\n        if (_assignRequest.Value is { } pending)\n        {\n            IsBusy = true;\n            try { await CompleteAssignAsync(pending); }\n            finally { IsBusy = false; }\n            return;\n        }\n        if (AssignTarget is null) return;\n        if (AssignDriver is null) { AssignError = \"اختر السائق.\"; return; }\n        IsBusy = true;\n        AssignError = null;\n        try\n        {\n            await CompleteAssignAsync(new AssignDeliveryRequest(\n                _assignRequestId!, AssignTarget.DeliveryId, AssignDriver.Id, _session.CurrentUser!.Id, null, null));\n        }\n        finally { IsBusy = false; }\n    }\n"
+        },
+        {
+          "start": 297,
+          "end": 307,
+          "text": "    private void OpenOutcome(DeliveryDto delivery)\n    {\n        if (!CanEditAction || !CanDispatch) return;\n        OutcomeError = null;\n        OutcomeResult = \"delivered\";\n        OutcomeCollectedText = CashInput.Format(delivery.AmountToCollectPiastres);\n        OutcomeReason = \"\";\n        OutcomeNotes = \"\";\n        _outcomeRequestId = $\"res-{Guid.NewGuid():N}\";\n        OutcomeTarget = delivery;\n    }"
+        },
+        {
+          "start": 319,
+          "end": 356,
+          "text": "    private async Task ConfirmOutcomeAsync()\n    {\n        if (IsBusy || _assignRequest.HasPending || _settleRequest.HasPending || !CanDispatch) return;\n        if (_outcomeRequest.Value is { } pending)\n        {\n            IsBusy = true;\n            try { await CompleteOutcomeAsync(pending); }\n            finally { IsBusy = false; }\n            return;\n        }\n        if (OutcomeTarget is null) return;\n\n        long? collected = null;\n        if (IsDeliveredOutcome)\n        {\n            if (!CashInput.TryParse(OutcomeCollectedText, out var piastres))\n            {\n                OutcomeError = \"أدخل المبلغ المحصّل بشكل صحيح.\";\n                return;\n            }\n            collected = piastres;\n        }\n\n        IsBusy = true;\n        OutcomeError = null;\n        try\n        {\n            await CompleteOutcomeAsync(new RecordDeliveryResultRequest(\n                _outcomeRequestId!, OutcomeTarget.DeliveryId, OutcomeResult, collected,\n                string.IsNullOrWhiteSpace(OutcomeReason) ? null : OutcomeReason,\n                string.IsNullOrWhiteSpace(OutcomeNotes) ? null : OutcomeNotes,\n                _session.CurrentUser!.Id, null, null));\n        }\n        finally { IsBusy = false; }\n    }\n\n    private async Task CompleteOutcomeAsync(RecordDeliveryResultRequest request)\n    {"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml",
+      "worktree_sha256": "1800c3471c45c7b83b202ef9db923007b2df099aa894dbbb5b2f8a1b7d772a1b",
+      "source_git_blob_sha256": "bf3d1a1236572fc2994741d53ff3ca0c719485f487840402232f260b459bd578",
+      "line_ranges": [
+        [
+          119,
+          140
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 119,
+          "end": 140,
+          "text": "                                            <StackPanel Grid.Column=\"4\" Spacing=\"2\" VerticalAlignment=\"Center\">\n                                                <TextBlock Text=\"{Binding AmountToCollectDisplay}\" Style=\"{StaticResource TableCellText}\"\n                                                           FontWeight=\"SemiBold\"/>\n                                                <TextBlock Text=\"{Binding PaymentStateLabel}\" Style=\"{StaticResource CaptionText}\"\n                                                           TextWrapping=\"Wrap\"\n                                                           Foreground=\"{Binding IsPaymentUnconfirmed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WarningBrush|TextMutedBrush}\"/>\n                                            </StackPanel>\n\n                                            <TextBlock Grid.Column=\"5\" Text=\"{Binding ElapsedDisplay}\" VerticalAlignment=\"Center\"\n                                                       Style=\"{StaticResource CaptionText}\"\n                                                       Foreground=\"{ThemeResource TextMutedBrush}\"/>\n\n                                            <StackPanel Grid.Column=\"6\" Orientation=\"Horizontal\" Spacing=\"6\" VerticalAlignment=\"Center\">\n                                                <Button Content=\"تجهيز\" MinHeight=\"44\" FontSize=\"12\" Style=\"{StaticResource SecondaryButtonStyle}\"\n                                                        Visibility=\"{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=New}\"\n                                                        Command=\"{Binding ElementName=Root, Path=DataContext.MarkReadyCommand}\" CommandParameter=\"{Binding Delivery}\"/>\n                                                <Button Content=\"إسناد لسائق\" MinHeight=\"44\" FontSize=\"12\" Style=\"{StaticResource SecondaryButtonStyle}\"\n                                                        Visibility=\"{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=Ready}\"\n                                                        Command=\"{Binding ElementName=Root, Path=DataContext.OpenAssignCommand}\" CommandParameter=\"{Binding Delivery}\"/>\n                                                <Button Content=\"تسجيل النتيجة\" MinHeight=\"44\" FontSize=\"12\" Style=\"{StaticResource SecondaryButtonStyle}\"\n                                                        Visibility=\"{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=OutForDelivery}\"\n                                                        Command=\"{Binding ElementName=Root, Path=DataContext.OpenOutcomeCommand}\" CommandParameter=\"{Binding Delivery}\"/>"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml",
+      "worktree_sha256": "31281118fdd01405b6d84a897d70499c3b879fab73c882c27a3c8158972f066f",
+      "source_git_blob_sha256": "bcafbba25a3ff7f1a83314feee487cbbece5ad59c49fa84b17cc6787aa0f99a0",
+      "line_ranges": [
+        [
+          76,
+          79
+        ],
+        [
+          103,
+          107
+        ]
+      ],
+      "relevant_symbols": [],
+      "excerpts": [
+        {
+          "start": 76,
+          "end": 79,
+          "text": "                        <StackPanel Spacing=\"8\" Visibility=\"{Binding IsDeliveredOutcome, Converter={StaticResource BoolToVisibleConverter}}\">\n                            <TextBox IsEnabled=\"{Binding CanEditAction}\" Header=\"المبلغ المحصّل بالجنيه\" InputScope=\"Number\" MinHeight=\"44\" FontSize=\"18\" TextAlignment=\"Center\"\n                                     Text=\"{Binding OutcomeCollectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}\"/>\n                            <TextBlock Text=\"أي فرق عن المبلغ المتوقع يستوجب كتابة سبب.\" Style=\"{StaticResource CaptionText}\" TextWrapping=\"Wrap\"/>"
+        },
+        {
+          "start": 103,
+          "end": 107,
+          "text": "                                   Visibility=\"{Binding OutcomeError, Converter={StaticResource NullToCollapsedConverter}}\"/>\n\n                        <Button Content=\"حفظ النتيجة\" MinHeight=\"52\" HorizontalAlignment=\"Stretch\"\n                                Style=\"{StaticResource CtaButtonStyle}\" Command=\"{Binding ConfirmOutcomeCommand}\"/>\n                    </StackPanel>"
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs",
+      "worktree_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "source_git_blob_sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "line_ranges": [
+        [
+          94,
+          110
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ee328e92de0ccaa197e6b26dd0742965a52f9fd8b9c1dfb52da056e0410c3f96",
+          "signature": "Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.HandleAsync(Falah.Application.Delivery.RecordDeliveryResultRequest, CancellationToken)",
+          "span": [
+            45,
+            5,
+            162,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-b70433bb1a6206d93fe47e1245a429a3ba307f04ee5fde7f15f458b270a4d20f",
+          "signature": "lambda expression",
+          "span": [
+            105,
+            77,
+            105,
+            109
+          ]
+        }
+      ],
+      "excerpts": [
+        {
+          "start": 94,
+          "end": 110,
+          "text": "            if (targetStatus == DeliveryStatus.Delivered)\n            {\n                var expected = DeliveryRules.DeliveryCashResponsibility(facts.PaymentMethod, facts.PaymentAlreadySettled, facts.AmountToCollect);\n                var collected = request.CollectedAmountPiastres.HasValue ? Money.FromPiastres(request.CollectedAmountPiastres.Value) : expected;\n                DeliveryRules.AssertCollectionAmount(expected, collected, request.Reason);\n\n                delivery.DeliveredAtUtc = now;\n                delivery.CollectedAmountPiastres = collected.Piastres;\n                delivery.FailureNotes = request.Reason; // reused as \"variance explanation\", matching the reference app\n                collectedForEvent = collected.Piastres;\n\n                var custody = await _db.DriverCustodies.FirstOrDefaultAsync(c => c.DeliveryId == delivery.Id, ct);\n                if (custody is not null)\n                {\n                    custody.CollectedPiastres = collected.Piastres;\n                    custody.DifferencePiastres = collected.Piastres - custody.ExpectedPiastres;\n                }"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "key": "PER_LEG_VS_WHOLE_ORDER",
+      "behavior": "OrderPaymentQueries.PaymentMethodTotals counts non-electronic split legs immediately even IsPaidfalse; Composer passes entire Total-refund and IsPaidfalse to DeliveryRules. FIN019 independent challenge already established overstated custody for pending mixed delivery.",
+      "disposition": "RELATED_EXISTING_FIN019_NOT_NEW_FINDING",
+      "counterevidence": "Reports may intentionally use different row scopes, but same specific pending-mixed order has actual immediate leg already posted; this is not merely period scope."
+    },
+    {
+      "key": "WIRE_STATUS_CASE",
+      "behavior": "OrderEnumMapping writes Pending as lowercase pending. OrderMapper stores it, DeliveryQueryService returns unchanged string, ApiClient.ReadResultAsync deserializes DTO without case conversion. DeliveryViewModel checks uppercase Pending in PaymentStateLabel and IsPaymentUnconfirmed. For canonical lowercase pending/IsPaidfalse row, source resolves label to collect-on-delivery and warningfalse.",
+      "disposition": "INDEPENDENTLY_SOURCE_CORROBORATED_FIN019_EXTENSION_NO_RENDERED_UI",
+      "related": "FIN019; exact existing IDs searched, no new canonical ID allocated here",
+      "entry_points": "GET dispatch board -> BoardRow properties -> DeliveryView bindings119-124; MarkReady/OpenAssign commands use permission/busy only and XAML visibility uses delivery status, no pending check.",
+      "counterevidence": "Historical noncanonical uppercase row would display warning; this does not correct ordinary mapper-produced lowercase values. No native UI or authenticated HTTP exercised."
+    },
+    {
+      "key": "GROSS_AMOUNT_VS_ACTUAL_COLLECTION",
+      "behavior": "DeliveryDto.AmountToCollectPiastres is Composer Total-refund even when PaymentAlreadySettledtrue. Client OpenOutcome always pre-fills that amount. Server result separately derives zero responsibility for prepaid nonCash; unchanged positive form with blank reason is rejected by AssertCollectionAmount. This is an actionable disagreement between client default and server invariant; zero can be entered manually.",
+      "disposition": "INDEPENDENTLY_SOURCE_CORROBORATED_DEFAULT_MISMATCH_GUARD_INTACT_UI_FOLLOWUP",
+      "example": "Fully paid Card delivery total10000, no refund, IsPaidtrue: DTO10000, dialog defaults10000, server expected0; default confirmation requires variance reason. With a user-supplied reason, server can record positive collected on a prepaid delivery, but no real duplicate collection or settlement was executed.",
+      "counterevidence": "Server validation blocks silent no-reason overcollection. Client field is editable. Normal COD expects full amount and is unaffected. Gross order value is a useful separate field and need not be deleted."
+    }
+  ],
+  "recommendations": [
+    "Use typed/centralized wire state contract or explicit canonical parse; do not fix only label while leaving authority rules.",
+    "Separate gross order value, confirmed paid amount and actual collectibility in DTO/domain contract; have client initialize from authoritative responsibility, with explicit pending-payment freeze or authorized conversion policy.",
+    "Preserve server-side reason/approval/idempotency/locking and distinct refund allocation semantics. Audit proposes only; no fix implemented."
+  ],
+  "required_tests": [
+    "Pure canonical pending/confirmed/cancelled/null BoardRow state mappings, including exact serialized lowercase strings.",
+    "Prepaid card/confirmed electronic, all-immediate Multi, CashCOD and partially pending Multi: API projection, client default and handler responsibility agree; zero prepaid outcome succeeds without invented variance.",
+    "Authenticated isolated pending dispatch policy tests with legitimate actors and no physical printing, only after owner authorization for stateful environment."
+  ],
+  "runtime": "NOT_EXECUTED; source/manual semantic comparison only",
+  "new_financial_callable_receipts": 0,
+  "independent_review": {
+    "artifact": "Sub-Agents/Handoffs/delivery-payment-contract-independent-challenge.json",
+    "sha256": "0ac84e9d5dda5c8b5a1dbf0cc4b4c0f0d151ccf9ba7ca02089bfe7674fd521c9",
+    "reviewer": "financial_integrity original specialist",
+    "source_identity_gate": "12sourcehashesvalid",
+    "A": "Static wire-case mismatch corroborated; extends existing FIN019 source reachability, not a new financial finding count.",
+    "B": "Prepaid client default mismatch corroborated; server no-reason variance guard intact, editablezero workaround. Retain financial usability/regression followup, no demonstrated doublecollection."
+  }
+}

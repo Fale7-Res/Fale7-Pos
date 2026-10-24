@@ -1,0 +1,585 @@
+{
+  "at_utc": "2026-10-19T22:05:28.280Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "semantic_group": "SEM-MIRROR-012",
+  "title": "Employee financial replay identity and one-use approval ordering",
+  "status": "SOURCE_COMPARISON_SAVED_INDEPENDENT_CHALLENGE_PENDING",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "source_git_blob_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "line_ranges": [
+        [
+          46,
+          65
+        ],
+        [
+          86,
+          94
+        ],
+        [
+          138,
+          152
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+          "signature": "Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)",
+          "span": [
+            46,
+            5,
+            154,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-507cc99d8e94efd1b25afb289fcd8d2ea223da312139dd7d1289d0b59848567f",
+          "signature": "LoadReplayAsync()",
+          "span": [
+            54,
+            9,
+            60,
+            10
+          ]
+        },
+        {
+          "stable_id": "sym-2b1f7b9ca0b82a5239cc2dbde576c370d5c9b69e3d94d879e104a2cd8a06e314",
+          "signature": "lambda expression",
+          "span": [
+            56,
+            92,
+            56,
+            118
+          ]
+        },
+        {
+          "stable_id": "sym-49ac8ecd309f59996efafd92aded337ab9fe96811dda789bf2f0e411d198679e",
+          "signature": "lambda expression",
+          "span": [
+            58,
+            91,
+            58,
+            130
+          ]
+        },
+        {
+          "stable_id": "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+          "signature": "lambda expression",
+          "span": [
+            89,
+            87,
+            89,
+            129
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "worktree_sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+      "source_git_blob_sha256": "7238391cfaa2eff9365366d4217d107559d0f5b307c428b5270e73a72db66729",
+      "line_ranges": [
+        [
+          38,
+          71
+        ],
+        [
+          139,
+          159
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dac8c78e0ff3698f49f59dc0a4bac674d1630557ca7398979c57884de5220cca",
+          "signature": "Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.HandleAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest, CancellationToken)",
+          "span": [
+            38,
+            5,
+            161,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-faa2f878bed1ed64ae75fb57b1c914a96d1e87c900d47396153a4659717ec58d",
+          "signature": "lambda expression",
+          "span": [
+            44,
+            91,
+            44,
+            130
+          ]
+        },
+        {
+          "stable_id": "sym-a80b5a2a9274a6fb9fc8b13118a9b440c8ae762f54d65e5e2792957da8906758",
+          "signature": "lambda expression",
+          "span": [
+            52,
+            76,
+            52,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-ab79e4d5d8499938ccfd0b36b55ca2477f5e9d413cda4047b61d1e41deec6f8a",
+          "signature": "lambda expression",
+          "span": [
+            56,
+            79,
+            56,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-e0a9198c600392c91fd5a16f7efc2f21d23ddbaf9c1cd761174969feba8135de",
+          "signature": "lambda expression",
+          "span": [
+            67,
+            25,
+            67,
+            34
+          ]
+        },
+        {
+          "stable_id": "sym-64af0bdc9a1d35fa1fcf2e8b072c3a50f90a9d56a90e5fb8796f3dd25e33bab6",
+          "signature": "lambda expression",
+          "span": [
+            69,
+            38,
+            69,
+            77
+          ]
+        },
+        {
+          "stable_id": "sym-3c7db4dc863bb45138e3d00a1550fe84593891f20fb6771f7d31d6c93bfc9eb2",
+          "signature": "lambda expression",
+          "span": [
+            147,
+            93,
+            147,
+            132
+          ]
+        },
+        {
+          "stable_id": "sym-0dd8da7814dc996a2874a2c9dd77dabd1a9a898e7fe8934707b710c0c8ceebb4",
+          "signature": "lambda expression",
+          "span": [
+            153,
+            21,
+            153,
+            144
+          ]
+        },
+        {
+          "stable_id": "sym-fe6ffc6c6489b8e23e9879c149404afe30afe9f516577d15469f964ffe3e2147",
+          "signature": "lambda expression",
+          "span": [
+            153,
+            100,
+            153,
+            139
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "line_ranges": [
+        [
+          30,
+          65
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+          "signature": "Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)",
+          "span": [
+            30,
+            5,
+            131,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-06ef3fcac41481834123e109cd840e1e9e1bae08675f60d60f65be95c527d48a",
+          "signature": "lambda expression",
+          "span": [
+            45,
+            81,
+            45,
+            101
+          ]
+        },
+        {
+          "stable_id": "sym-5fca3fc66337de8140e5183c9d05168c74cc4c2d39f3cbf2a6d5d652332d218c",
+          "signature": "lambda expression",
+          "span": [
+            55,
+            76,
+            55,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-62011427a3ac9705a24805595414379f5ecccee38eb8ddad134348252adefbc8",
+          "signature": "lambda expression",
+          "span": [
+            60,
+            83,
+            60,
+            125
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/CommandReceipt.cs",
+      "worktree_sha256": "c8d45e0d317f53b660d1b54cd2f81be2ca002eb352daed62d5ae33e39bcb4713",
+      "source_git_blob_sha256": "c8d45e0d317f53b660d1b54cd2f81be2ca002eb352daed62d5ae33e39bcb4713",
+      "line_ranges": [
+        [
+          11,
+          24
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-aace77b0334408164edd477c5952e182d797f24706ca75d38623da6dfe44cd7f",
+          "signature": "Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)",
+          "span": [
+            11,
+            5,
+            12,
+            71
+          ]
+        },
+        {
+          "stable_id": "sym-d4317200184d1b9fdd9a8d2b8419b63c26979c41d62aabcfe8ddd3e2e736d6b8",
+          "signature": "Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)",
+          "span": [
+            14,
+            5,
+            24,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
+      "worktree_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "source_git_blob_sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "line_ranges": [
+        [
+          77,
+          108
+        ],
+        [
+          125,
+          156
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-e6eed61df45d90fdf5161f65b3799e6fe15aa98055fd33d9b410094f88608101",
+          "signature": "Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken)",
+          "span": [
+            77,
+            5,
+            109,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-ec4cf635fecbae7453d93d752e82cf9ce6e5556d419d76c9a11086348b961114",
+          "signature": "lambda expression",
+          "span": [
+            80,
+            76,
+            80,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-c790689aac664ac8ea11bc749b33eccdf605e165baad9ac3c03f76935787b7b2",
+          "signature": "lambda expression",
+          "span": [
+            85,
+            83,
+            85,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-2c03f4417755e84f424cef62cbb7abad483ee56d656973d52822c4d662769e8a",
+          "signature": "lambda expression",
+          "span": [
+            104,
+            84,
+            104,
+            99
+          ]
+        },
+        {
+          "stable_id": "sym-d99f27c47ea7c3d47321129134fe6239bd89b0a85ddd2f905d946d7e7ebb07f4",
+          "signature": "Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken)",
+          "span": [
+            125,
+            5,
+            157,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7d6184eec380a3e07bbee6236241f597533047bebdc7def72fe80b4558679671",
+          "signature": "lambda expression",
+          "span": [
+            128,
+            76,
+            128,
+            108
+          ]
+        },
+        {
+          "stable_id": "sym-8602dd808d98a3ee57b31b1453f261ff6cc9abf35466c575f6d980d2b4c480c0",
+          "signature": "lambda expression",
+          "span": [
+            133,
+            83,
+            133,
+            125
+          ]
+        },
+        {
+          "stable_id": "sym-243201f28cb1b7b0feb7f4bb9222489c193fc1064526b19bf892e55c02ece0e0",
+          "signature": "lambda expression",
+          "span": [
+            140,
+            79,
+            140,
+            110
+          ]
+        },
+        {
+          "stable_id": "sym-1303d2da04bec22ef9a551b2402b37f8d7b5a9a621a971eb4ddb2baad45fd5eb",
+          "signature": "lambda expression",
+          "span": [
+            152,
+            84,
+            152,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "source_git_blob_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "line_ranges": [
+        [
+          28,
+          50
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+          "signature": "Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)",
+          "span": [
+            31,
+            5,
+            51,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            48,
+            36,
+            63
+          ]
+        },
+        {
+          "stable_id": "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247",
+          "signature": "lambda expression",
+          "span": [
+            37,
+            71,
+            37,
+            86
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+      "worktree_sha256": "029edee4286b6aea725da962ddaafff1e6bc20f57ddc922801c39095b43585d0",
+      "source_git_blob_sha256": "dfbfe472a37ed4e98d1411877726f6c6834f5fbfcb38165e0aefdf1252dea4ee",
+      "line_ranges": [
+        [
+          69,
+          99
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a055b6b0d90a103ea5bfd1ce6c0d941be413195b548ca13ad0fcc303f4862b79",
+          "signature": "Falah.Domain.Authorization.AuthorizationPolicy.AuthorizeCommand(Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Authorization.Actor, string, Falah.Domain.Authorization.ManagerApproval?, bool, bool)",
+          "span": [
+            69,
+            5,
+            78,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-fc42a360a3b7ebc48ef2859f0f1a370f5c6a4bfd1766922ba7fd27e69e82b628",
+          "signature": "Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(Falah.Domain.Authorization.IApprovalRegistry, string, Falah.Domain.Authorization.ManagerApproval, bool)",
+          "span": [
+            89,
+            5,
+            97,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
+      "worktree_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce",
+      "source_git_blob_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce",
+      "line_ranges": [
+        [
+          32,
+          51
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0555acbd1d9daff2f0229f4a2e3dae51ec1803f2f2649002c6d59cdf33489ea2",
+          "signature": "Falah.Infrastructure.Persistence.EfApprovalRegistry.Find(string)",
+          "span": [
+            33,
+            5,
+            39,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-16090c410678129e4032e5d244d865cbbfd318b302c4b725603c021878ca204e",
+          "signature": "lambda expression",
+          "span": [
+            35,
+            64,
+            35,
+            95
+          ]
+        },
+        {
+          "stable_id": "sym-2ab23fd3eed3080e1e1b89bc215f66b3b2bc664a0708294b1fe9b45a9e78ec49",
+          "signature": "lambda expression",
+          "span": [
+            36,
+            67,
+            36,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-c2846a782d1e8b07aa1d0a38ec5f37dc61611d40d86758d949d64fe8674ec1df",
+          "signature": "Falah.Infrastructure.Persistence.EfApprovalRegistry.IsConsumed(string)",
+          "span": [
+            41,
+            5,
+            43,
+            120
+          ]
+        },
+        {
+          "stable_id": "sym-9dc548b72d733c2699aeea1d2463253ea29bdb8d7806b0902488254517f112dd",
+          "signature": "lambda expression",
+          "span": [
+            42,
+            52,
+            42,
+            83
+          ]
+        },
+        {
+          "stable_id": "sym-2154d0fe2af223307a1558e34c727486ebeb801805b9c7bf1cb4370144aad3ee",
+          "signature": "lambda expression",
+          "span": [
+            43,
+            67,
+            43,
+            98
+          ]
+        },
+        {
+          "stable_id": "sym-5d396ef4285257a6410d05fb728ad1ade1b2c2092de477401ebb700867c69736",
+          "signature": "Falah.Infrastructure.Persistence.EfApprovalRegistry.MarkConsumed(string)",
+          "span": [
+            45,
+            5,
+            53,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a8c1a9be1bd1125153afe1076fe9a32e2863e7174a6ec7b454da066369390a83",
+          "signature": "lambda expression",
+          "span": [
+            47,
+            64,
+            47,
+            95
+          ]
+        },
+        {
+          "stable_id": "sym-c5187a080c7249665a40f4631a222ed2973b8b288e87be47c5a2798d48e38af8",
+          "signature": "lambda expression",
+          "span": [
+            48,
+            52,
+            48,
+            83
+          ]
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "contract": "Actor/target binding",
+      "evidence": "CommandReceipt.FindAsync checks transaction plus UserId/ReferenceId; CorrectAttendance checks same actor/record before returning immutable prior DTO. PayEmployee LoadReplay and CashOut early replay select deterministic keys only; EmployeeLedgerPoster also returns null on ID only.",
+      "conclusion": "Distinct contracts, not an automatic unauthorized financial-write finding. A successful replay does not post a new movement; authenticated-session boundary, caller key generation and conflict policy must be retained. Neither stronger helper binds the entire payload."
+    },
+    {
+      "contract": "Single-use manager approval versus durable retry",
+      "evidence": "Overtime90/ExtraShift138 authorize before replay100-105/149-153; own permission bypass in AuthorizeCommand73, otherwise ValidateApproval94-99 rejects consumed token. EfApprovalRegistry tracks Consumed; first handler Save107/155 persists pending token consumption and ledger entry.",
+      "conclusion": "Source-supported lost-response recovery defect lead for legitimate actor lacking employees_ledger using a consumed manager approval: same-key retry fails before finding saved ledger. Own-permission actor bypass is counterevidence to unconditional claim. CorrectAttendance and CashOut demonstrate replay-before-reconsumption alternative. Independent challenge requested; no runtime reproduction or duplicate-money claim."
+    },
+    {
+      "contract": "Daily wage natural-key rule",
+      "evidence": "DailyWage52/57-58 deliberately rejects same employee/day/shift instead of returning a request receipt.",
+      "conclusion": "Intentional duplicate-business-operation rejection must not be erased by blanket shared retry refactor."
+    }
+  ],
+  "tests_not_executed": [
+    "Manager-approved overtime/extra-shift first success followed by identical retry from fresh scoped context",
+    "Restart/lost-response replay without consuming a new approval",
+    "Different actor/employee/amount same-key conflicts; define intended binding policy first",
+    "Concurrent same-key insert failure recovery on real SQL Server in disposable authorized database"
+  ],
+  "runtime_tests": "NOT_EXECUTED",
+  "new_financial_callable_receipts": 0,
+  "next": "Read actual route/request and test contexts, reconcile specialist independent challenge, then register completed bounded comparison. No source/API/DB changes."
+}

@@ -1,0 +1,47 @@
+{
+  "artifact_kind": "financial_symbol_batch_review",
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-20T10:24:05.0281314Z",
+  "path": "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs",
+  "stable_ids": [
+    "sym-475f7384bb52b797e7a6c6676bf5d9a60cc251d0d7e533c5464a2a84e2c8d7f7",
+    "sym-db985ce806cdccae8153d05205119b24c703508b52593c5c51aadc28bf0a079b",
+    "sym-f8e73e75aa246ad924ce5dae798c2cae70a8225a0bae77298630a9e5a775de89",
+    "sym-6b435ef921fbbc5f922677731901a1ce5c980bdc84eaaf3da412ca748de59240",
+    "sym-2d6d855d271651baefab8148968a046ab8869fe34e083973ae07c787877a2404",
+    "sym-df5ceac255b0ea4042f27c492e7f33ab99d28f52de8f0b14691ff3e00a8ad370",
+    "sym-48c1afc22b32f0ed9fe772e2bad07192918e0f2e5fb9ee2c106a14fd3354e1e5",
+    "sym-868c6f8e0cdddd192bf9e8de32f7d0d0b72ddc1b190f3b5d9d4131de8297f52b",
+    "sym-52b7eacf1a74a6608b692a95cfb81a75d207c68e7877ac5a21450ad396f4ff19",
+    "sym-d85158447c63a04a224162a4cd5f3eb583929884fb11e9604216cca24ce205fd",
+    "sym-26e85f8e490ba4015b3fa09a9ce90ee18958c4b68db7c0729c211c40a726a235",
+    "sym-12d394bf3db4e62f68e9ed8a940e01666e27ca5b6a6775d563e9759e1ee987f0",
+    "sym-a233364be8434cde86b96d884c9c3eefa01d53c0cf63701742d781b24bd5a1fe",
+    "sym-6119f6a07a64a32f57699d65c2b77ec6b7e43c074e39a050dd6eba8b7c1d6a26",
+    "sym-e4398d7454c0a9e1c36151923568960e668e88af0fa4208350043d77e1250af0",
+    "sym-57efa0d13b869af9e100e1229ce073acae506402407294543d9f8077f7cfaf92",
+    "sym-faf83d0c18597f3ded0a6aaa7a958b436867dabda9f01c92406dcbf4f7f31809",
+    "sym-fa94a97b33c52ba5dfb711277cdcdc62349a0eeb3743a7fbfd2e3ee560bd694c",
+    "sym-651c9323525e3f2a3fa9cb8403549f237494dbf7a93357f62b0c1febdd2547b0",
+    "sym-0502d4828fa0e39bd23174e64a8bfa6b4b6a44442c7a3b2ff8c7b0d4d6dd40e9",
+    "sym-dd88c49b714b4fa7ffb4d87756d3d28cf5cd7caf3c535a914b8115b27612a947",
+    "sym-ca244e268392ac7755c21c3b1e3daeeb396a00a4f341c0dbfbe0c757e5231a32",
+    "sym-5b26ff532c2aae3f41854cdff6b57bb9ab7b58a36628108f523bde67bebbfea4"
+  ],
+  "queued_count": 23,
+  "reconciliation": {
+    "current_union_remaining": 23,
+    "coordinator_database_reports": 23,
+    "outside_union": 0,
+    "outside_coordinator": 0
+  },
+  "source_hashes": {
+    "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs": "797FDFF97B6CD2C97100FBDFED9303F727BE98BCD2CA7B6D3CA00C91CA213D3E",
+    "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs": "E894C1A9E72507C94EBFC8406BD8168753B460AB29AA5234DD345EC74EADF993",
+    "src/Falah.Server/Program.cs": "5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6"
+  },
+  "assessment": "Tests verify drawer-open request status and reason/permission/shift guards, no TreasuryMovement rows for open or failed result, duplicate request id replay and warning audit. Existing source ledger confirms this is a metadata-only hardware command that does not alter financial truth; tests do not prove the physical pulse or outcome, and do not exercise reporter authorization/order conflicts. Those reporting-provenance gaps remain outside financial truth and are already noted in source ledger; no new issue promoted.",
+  "runtime": "NOT_EXECUTED",
+  "execution": "Static-only review. No tests, DB queries, hardware, cash drawer actuation, or writes performed.",
+  "union_merge_status": "PENDING_PARENT_INTEGRATION"
+}

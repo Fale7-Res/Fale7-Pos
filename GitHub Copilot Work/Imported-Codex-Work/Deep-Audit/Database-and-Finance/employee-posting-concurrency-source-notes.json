@@ -1,0 +1,43 @@
+{
+  "at_utc": "2026-10-18T04:39:50.405845+00:00",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
+      "worktree_sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "callable_ids": [
+        "sym-4495510bb68425475d394d7be7076f5afe1e3a336e94a21601d25595222540e2",
+        "sym-681690894a5e302be07839c37c0326aa36e0c0bb64e090202e5f5136546b7fdb",
+        "sym-507cc99d8e94efd1b25afb289fcd8d2ea223da312139dd7d1289d0b59848567f",
+        "sym-2b1f7b9ca0b82a5239cc2dbde576c370d5c9b69e3d94d879e104a2cd8a06e314",
+        "sym-49ac8ecd309f59996efafd92aded337ab9fe96811dda789bf2f0e411d198679e",
+        "sym-6bc9450e7f0331c8a677e5fba386122163d016f5aa2fd6e32fdc958836543e4c",
+        "sym-8ae5a37763d69995f863bbe8be1be294f61fbea8c381ecf3b801b813154a3f6c",
+        "sym-787ab07633d93e847bac931d3cd7e9cea41b57675fc9eadfa1160132b7302b25",
+        "sym-19c96e0946f4a48f52b3f8312e49c2eda652fbc3bfd5b4e5b615600be8bd05c6",
+        "sym-f2de30b3b13bd3fe4ce7d710662cba3f151a870f669dfdf029d59543469528c8",
+        "sym-33471cec8c774d13eb2eeda24941bc81f206b16ac01cccfe6df217bb176ff587"
+      ]
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
+      "worktree_sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "callable_ids": [
+        "sym-d3b8fffa6c0a2f51f94df87127b9de342c7e8fc1492b3b37026c4651808e8171",
+        "sym-d2494e7315c7ef33464eb4be4beacd1f745d1370ef236964062221f2f0120e70",
+        "sym-a651e4115cc0e5219b295a50d762e47a4bd3c97cded8915f0b4fd3e10c78d8dc",
+        "sym-53f3b26f360799aa2198d76cf17db55dd97adb08847174b0a1456986545aeac8",
+        "sym-8529d16da96926ba1068a539f89e965450946936a05ac3e9fd9986d545db3bbc",
+        "sym-5cf0107ecab22e8934446507430c23ad09e826b3c09fe522d6cc1781f8aaef01",
+        "sym-f8723ca70549dd12685919aaab4e35c590fca261ce4c9253bfd1089d7f3de0aa",
+        "sym-34aedd55ead083473b0e621ebfaa2388c5c8b4e538d8833f40d5e3ec74b1d145",
+        "sym-d7d80fa6808afe4ead16f72f1a667dac4500ced7521b77137bc1dbc005081247"
+      ]
+    }
+  ],
+  "counterevidence": "Standalone employee pay locks Employees anchor then employee ledger range inside transaction, including empty history. Do not claim different account payouts necessarily overdraw employee balance.",
+  "open_hypothesis": "Shared Poster derives cached BalanceAfter without self-lock; inspect all credit/manual/attendance writers for transaction serialization. Distinct immutable facts can remain correct while cached per-row display snapshot races. Not promoted or reproduced.",
+  "next_exact_action": "Read RecordDailyWageHandlers/AttendanceHandlers/RecordManualLedgerEntryHandler whole source and map each PostIfNew caller transaction, avoid treating rg discovery as completed review.",
+  "runtime": "NOT_EXECUTED",
+  "independent_challenge": "PENDING for root-origin notes."
+}

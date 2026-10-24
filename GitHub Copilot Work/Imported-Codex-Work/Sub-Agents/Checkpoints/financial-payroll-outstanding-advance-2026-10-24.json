@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "financial_integrity_continuation",
+  "updated_at_utc": "2026-10-24",
+  "status": "bounded_review_saved",
+  "assignment": {
+    "stable_id": "sym-2f3ef5568479d5beb0bb60dcc7f291090e777e53aa065617641d12686c087b44",
+    "signature": "Falah.Domain.Payroll.PayrollRules.OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero)",
+    "source": "src/Falah.Domain/Payroll/PayrollRules.cs:66-70",
+    "initial_status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "handoff_path": "Codex Work/Sub-Agents/Handoffs/financial-payroll-outstanding-advance-quality-review-2026-10-24.json",
+  "handoff_sha256": "8af6100be4e25ea733efa25f0a5518c53d864d72b8c6e9550dbbf1cceec4ac3a",
+  "disposition": "Default arithmetic correctly sums synthetic lowercase advance debits minus separate settlement advance deductions and clamps at floorAtZero. Exhaustive source search found no production caller; current ledger writers use PascalCase enum names, and persisted ledger schema lacks AdvanceDeduction. Treat mismatch as future wiring risk only; no current financial effect established.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_exact_candidate": {
+    "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "line_range": [83, 112],
+    "live_overlay_status": "EXISTING_REASONING_UNVERIFIED"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "casesExecuted": 10,
+  "boundary": "Real Minimal API RequestDelegateFactory + baseline middleware/DTO; fake session resolver, no real server or permission handler/database",
+  "fullEndToEndExploitVerified": false,
+  "observations": [
+    {
+      "Name": "matching",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": "restricted-placeholder",
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "canonical-mismatch",
+      "status": 403,
+      "endpointReached": false,
+      "boundActor": null,
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "alternate-case",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": "privileged-placeholder",
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "upper-case",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": "privileged-placeholder",
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "mixed-distinct-keys",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": "privileged-placeholder",
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "mixed-reversed-keys",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": "restricted-placeholder",
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "duplicate-exact-mismatch-last",
+      "status": 403,
+      "endpointReached": false,
+      "boundActor": null,
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "escaped-canonical-mismatch",
+      "status": 403,
+      "endpointReached": false,
+      "boundActor": null,
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "null-actor",
+      "status": 204,
+      "endpointReached": true,
+      "boundActor": null,
+      "assertedExpectedOutcome": true
+    },
+    {
+      "Name": "missing-session",
+      "status": 401,
+      "endpointReached": false,
+      "boundActor": null,
+      "assertedExpectedOutcome": true
+    }
+  ],
+  "execution_utc": "2026-10-17T01:44:31.913737+00:00",
+  "exit_code": 0
+}

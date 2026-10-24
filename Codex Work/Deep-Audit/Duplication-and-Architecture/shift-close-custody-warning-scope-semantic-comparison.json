@@ -1,0 +1,262 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-026",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T03:41:14.316Z",
+  "scope": "Targeted comparison of shift-close handover warning scope against the domain shift-scoped custody helper and business-day close evaluator, with relevant entities and tests. It is beyond reconciled AST candidates and not a general printing audit.",
+  "decision": "The shift-close job is for one shift; cash breakdown, expenses, pending electronic orders, and unpaid-order warnings are shift-scoped, but LoadCloseWarningsAsync sums every open DriverCustody without joining DeliveryId to DeliveryEntity.ShiftId. UnsettledCustodyForShift filters through deliveries for the supplied shift, and its test excludes another shift. BusinessDayCloseEvaluator intentionally treats all custody as a global business-day blocker. CloseShiftHandler and its integration test require an outstanding-custody warning on the handover slip but do not expressly say it must be shift-only. This is a source-confirmed scope divergence and likely low-severity context risk; not a proven accounting defect or duplicate settlement.",
+  "finding_candidate": "SEM-CAND-SHIFTCLOSE-GLOBAL-CUSTODY-WARNING-001",
+  "related_existing_findings": [],
+  "severity": "LOW / REQUIREMENTS-DEPENDENT",
+  "confidence": "High for code-scope divergence; medium for user-facing misattribution; no ledger mutation evidence.",
+  "source_confirmed": true,
+  "runtime": "NOT_EXECUTED; tests read only",
+  "manual_reasoning": {
+    "print": "ComposeTicketContentAsync routes ShiftClose to ComposeShiftCloseSlipAsync. That loads shift identity, recomputes ShiftReconciliation for this shift, and uses persisted expected/actual/difference. Expenses and pending/unpaid order warnings are filtered to shift.Id. The custody warning queries all open custody rows and totals expected piastres.",
+    "relationships": "DeliveryEntity contains ShiftId and DriverCustodyEntity contains DeliveryId. The domain helper derives delivery IDs for the requested shift and selects only those custody rows. Business-day close separately loads all open custody, consistent with a global day blocker.",
+    "counterevidence": "Comments say the obligation remains visible on the shift handover slip; a global warning may intentionally inform each cashier of all restaurant-wide outstanding driver cash. Existing integration coverage has one shift with same-shift custody only. Owner policy is unspecified.",
+    "impact": "If the slip is meant to reconcile only the named shift, the global warning can attribute unrelated driver custody to its handover context. The query does not alter expected cash, actual cash, difference, or treasury movements; no monetary loss is source-demonstrated.",
+    "recommendation": "Ask owner to choose shift-only, clearly labeled global, or separately displayed shift/global warnings. Preserve the global business-day blocker if intended. Add a two-shift test where only one shift has open custody and assert chosen count and wording; assert close balances and treasury movements are unchanged."
+  },
+  "acceptance_criteria": [
+    "Printed custody warning scope matches explicit owner policy.",
+    "A two-shift case cannot ambiguously attribute another shift’s custody to a shift-specific figure.",
+    "All open custody still blocks business-day close if intended.",
+    "Warning composition remains read-only."
+  ],
+  "limits": [
+    "No SQL Server/runtime/printer test executed.",
+    "No cross-shift integration case exists in the read test.",
+    "The domain helper is not used by production print query in the search performed.",
+    "No owner decision is available."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs",
+      "source_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "worktree_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          99,
+          115
+        ],
+        [
+          181,
+          204
+        ],
+        [
+          208,
+          225
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-8a785659182d8e4f12fabb5ebd6994594914e906cabc8ca734d5248cb52bd189",
+          "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeTicketContentAsync(string, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            99,
+            5,
+            140,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0511dca56c4294fef58ed97cf1bafc378c87c99358f7a55b0891366c46e2469b",
+          "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.ComposeShiftCloseSlipAsync(Falah.Infrastructure.Persistence.Entities.PrintJobEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            181,
+            5,
+            204,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-0f3b266f87384d07150d6822099b8ac2fc8d9badd59f6ed4e439327f0ed8b32a",
+          "signature": "Falah.Infrastructure.Printing.PrintJobQueryService.LoadCloseWarningsAsync(Falah.Infrastructure.Persistence.Entities.ShiftEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            208,
+            5,
+            226,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "be7e9b0dab28dd16af51b952bd4ed000875ca04d6a9b61fa357dc55a0f2e304c"
+    },
+    {
+      "path": "src/Falah.Domain/Delivery/DeliveryRules.cs",
+      "source_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+      "worktree_sha256": "cf4ab3ba7e243a1ef76be56d3e5c4d0f5efe0d9c6c17d49e6a08ad4d6716eefa",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          88,
+          104
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-dccbfa9327dd38d0ea922ca4e9381a202ff57ae9454cbac5439609081898622e",
+          "signature": "Falah.Domain.Delivery.DeliveryRules.UnsettledCustodyForShift(IEnumerable<Falah.Domain.Delivery.DriverCustody>, IEnumerable<Falah.Domain.Delivery.DeliveryFacts>, string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            99,
+            5,
+            104,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "dba6f7c551676a5899ed1b211a0d8b1d9b8605a67c709a4ef47991de3ff0cfc1"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs",
+      "source_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "worktree_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          29,
+          43
+        ],
+        [
+          63,
+          81
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-42c0f4116dcf018a0419acb81d1d35e09c197d23a1ff3d441016c8959fe2965e",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DeliveryEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            36,
+            1,
+            61,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-9220bfaa9229c725a75e2d7317dbbc63cf20629b2ba93b24703f3a34ecba303f",
+          "signature": "Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity",
+          "kind": "ClassDeclaration",
+          "span": [
+            67,
+            1,
+            81,
+            2
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "154147d00ec004748752fcae6a3eeedb23290384e0ba13f73ebb20841d1fe559"
+    },
+    {
+      "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "source_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "worktree_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          26,
+          54
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-559e31438d5545dc9f65af226d1d54c56254f34e4ad83ede252eaa1e90247290",
+          "signature": "Falah.Infrastructure.ControlCenter.BusinessDayCloseEvaluator.EvaluateAsync(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Infrastructure.Persistence.Entities.BusinessDayEntity, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            26,
+            5,
+            55,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832"
+    },
+    {
+      "path": "src/Falah.Domain/BusinessDay/BusinessDayRules.cs",
+      "source_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "worktree_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          40,
+          110
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-22e7484bdb1c8831cb57ba547d1e3107ecbb4928530891e63579df219c343093",
+          "signature": "Falah.Domain.BusinessDay.BusinessDayRules.EvaluateCloseBlockers(Falah.Domain.BusinessDay.BusinessDayRules.CloseBlockerInputs)",
+          "kind": "MethodDeclaration",
+          "span": [
+            73,
+            5,
+            105,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06"
+    },
+    {
+      "path": "tests/Falah.Domain.Tests/DeliveryRulesTests.cs",
+      "source_sha256": "c7720a63722934baf1e3f3914054159c1e2810082451d3731a2f91d89472d918",
+      "worktree_sha256": "c7720a63722934baf1e3f3914054159c1e2810082451d3731a2f91d89472d918",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          115,
+          130
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-be088bd5ba37380848d51cda7147474e99f8ff8d03fdffb2ab11c2783d97a793",
+          "signature": "Falah.Domain.Tests.DeliveryRulesTests.Unsettled_custody_is_reported_for_a_shift_rather_than_blocking_its_close()",
+          "kind": "MethodDeclaration",
+          "span": [
+            119,
+            5,
+            130,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "1003a998fa68601d925c3a459b070a2aa69bc0d5096fbbf0b023d7d5eb4b69f1"
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
+      "source_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "worktree_sha256": "2cf833e812d290b7bfcb7c48307d02c36daa9a072ea9394120a12c8690c8134f",
+      "baseline_identity": "git diff against baseline clean",
+      "line_ranges": [
+        [
+          825,
+          860
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-860a3f952c4104e83aadcb6a36989b613cb9edffe95581ad03492456f119a445",
+          "signature": "Falah.Server.IntegrationTests.DeliveryVerticalSliceTests.A_shift_closes_with_an_unsettled_driver_custody_which_stays_outstanding()",
+          "kind": "MethodDeclaration",
+          "span": [
+            833,
+            5,
+            860,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "e6787959b6203df697cc3431fe45649d45592da17f6ec4e12534486fc31c06e3"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "artifact_kind": "semantic_mirror_comparison",
+  "id": "SEM-MIRROR-065",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-24T12:11:24.825Z",
+  "reviewer": "root coordinator",
+  "title": "Attendance correction client validation versus server admission and payroll effect",
+  "scope": "Compare cashier AttendanceViewModel client input validation with CorrectAttendanceHandler and payroll calculation rules for fields that can alter employee ledger adjustments.",
+  "decision": "A source-confirmed validation divergence exists: the WinUI command accepts only non-negative counts and finite non-negative hours, while the server handler validates reason and status but assigns numeric fields without the same range checks. The domain payroll rules treat negative late minutes as zero penalty and negative overtime as zero amount, so this evidence does not show greater payout than a zero value; the malformed negative values are nevertheless persisted and can misstate attendance records. No authorization bypass or realized financial impact is claimed. No canonical finding created in this comparison pending impact/business-contract review.",
+  "behavior": {
+    "client": "TryHours requires finite non-negative double; TryCount requires non-negative integer; SaveCorrectionAsync rejects invalid fields before SendAsync.",
+    "server": "CorrectAttendanceHandler checks reason and enum status, loads/locks record, authorizes attendance_manage/approval, then stores request numeric fields. It computes penalty/overtime deltas and posts adjustments transactionally.",
+    "financial_effect": "Negative lateness results in zero penalty because it is <= grace; negative overtime returns zero because hours <=0. Compared with zero, this does not increase the derived payout. However, negative WorkHours/TatbiqCount or negative hours/minutes can persist and produce invalid source-of-record values. Other callers/imports are not verified in this comparison."
+  },
+  "counterevidence_and_limits": {
+    "authorization": "Handler still requires the normal attendance_manage authorization/approval policy; this is not an authorization bypass.",
+    "idempotency": "The client retains one RequestId and the handler has per-record lock/idempotent audit replay; retry controls do not replace input validation.",
+    "policy": "No documented maximum duration/count was established; do not invent upper bounds.",
+    "tests": "No tests run. Existing attendance correction test coverage was not fully inventoried in this bounded comparison."
+  },
+  "recommendation": "Enforce the documented non-negative and finite input contract at the server/domain boundary, not only in WinUI. Decide and document any operational maximums before enforcing them. Validate before mutating the attendance row or posting ledger entries.",
+  "required_tests": [
+    "API/domain tests reject negative LateMinutes, WorkHours, OvertimeHours and TatbiqCount before row or ledger changes.",
+    "Tests reject NaN/infinite overtime if accepted by serializer/input path; verify serialization behavior rather than assuming it.",
+    "Valid zero values, Arabic-digit UI input, and legitimate corrections preserve existing delta accounting.",
+    "Retry same request remains idempotent; invalid request creates no audit/ledger delta or persisted attendance mutation."
+  ],
+  "related_findings": [
+    "FIN-012",
+    "FIN-024",
+    "FIN-CAND-CORRECTION-BASIS-001"
+  ],
+  "runtime_executed": false,
+  "limitations": "Static source comparison only; no endpoint/database/UI runtime test. Negative values do not exceed zero payout based on the reviewed PayrollRules, but persisted data quality and downstream use require wider workflow review.",
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/AttendanceViewModel.cs",
+      "source_git_blob_sha256": "7c278e9a5dae77559f3c7509edec07a74a931e1c19be1c534ab7f722c978cf79",
+      "worktree_sha256": "984380332116f705c592b3be9713191d47f6e42d53453604e0877fe5ccc0b0b1",
+      "line_ranges": [
+        [
+          146,
+          153
+        ],
+        [
+          155,
+          187
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-6cb2a67ce0946b4b4522b71cbeb7cd928671a77374c0e9e90bae4e67ce011052",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.AttendanceViewModel.NormalizeNumber(string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            146,
+            5,
+            148,
+            79
+          ]
+        },
+        {
+          "stable_id": "sym-242d532e1acdbecb40c4873e92a5f57eb3d1ad50e3b8a9f1d3830e7af49f76c9",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.AttendanceViewModel.TryHours(string, out double)",
+          "kind": "MethodDeclaration",
+          "span": [
+            149,
+            5,
+            151,
+            49
+          ]
+        },
+        {
+          "stable_id": "sym-99bf92b785248817a9845f5f296f0919c315e9bb837fa71c3eb3a70b146100bc",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.AttendanceViewModel.TryCount(string, out int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            152,
+            5,
+            153,
+            119
+          ]
+        },
+        {
+          "stable_id": "sym-d9e13d7bf28e0906bd4a5ca8923f395d8957dcc9706a7af86c4db88941e61b24",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.AttendanceViewModel.SaveCorrectionAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            155,
+            5,
+            187,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "UI normalizes Arabic numerals and rejects invalid, negative or non-finite hours/counts before creating and sending the retained correction request."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs",
+      "source_git_blob_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "worktree_sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "line_ranges": [
+        [
+          30,
+          42
+        ],
+        [
+          63,
+          106
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-5ea3eb5302d7d8dbbbdfa34baadaf88c9ac16bf2c23c2bc25c702d350b9c5728",
+          "signature": "Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            30,
+            5,
+            131,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Server validates reason and enum status, then assigns request LateMinutes, WorkHours, OvertimeHours and TatbiqCount directly to the row. It authorizes attendance_manage and posts only delta adjustments under transaction/locks."
+    },
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "source_git_blob_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "worktree_sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "line_ranges": [
+        [
+          36,
+          61
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-00c8631835d24ba42da8db099abc45ebf54f664042ebc6dc2e1d7214acb63529",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLatePenaltyHours(int, int, int)",
+          "kind": "MethodDeclaration",
+          "span": [
+            36,
+            5,
+            40,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-9f4985e65d0f8db068bf3f714512323ef09cf02e3fd3aa6e68cb81acc72da115",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculateLateDeduction(Falah.Domain.Common.Money, int, int, int, int, double)",
+          "kind": "MethodDeclaration",
+          "span": [
+            44,
+            5,
+            51,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-35771f9335c189af64a8a80880cdfe014e5323d667a208d401cbff41d823dfc1",
+          "signature": "Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money, int, double, double)",
+          "kind": "MethodDeclaration",
+          "span": [
+            55,
+            5,
+            61,
+            6
+          ]
+        }
+      ],
+      "source_text_matches_baseline": true,
+      "evidence": "Negative late minutes are treated like no penalty (<= grace); negative overtime returns zero amount (<= 0). Thus negative values do not produce more money than zero, but remain persisted in attendance fields."
+    }
+  ]
+}

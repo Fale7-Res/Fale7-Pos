@@ -1,0 +1,50 @@
+{
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "reviewer": "financial_integrity original specialist",
+  "originator": "root",
+  "updated_at_utc": "2026-10-18T09:01:41.704674+00:00",
+  "status": "INDEPENDENT_STATIC_CORROBORATION_WITH_QUALIFICATIONS",
+  "severity": "MEDIUM",
+  "verification": "Actual source independently read; parent synthetic component result files inspected as parent evidence only, not independently rerun. No application/SQL/UI/account/ledger writes.",
+  "candidate_id": "FIN-CAND-PACKAGING-COVERAGE-001",
+  "sources": [
+    {
+      "path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "git_blob_sha256": "a3116e7a0550fc9352bfa07c998b3ea496b27660fd37f138662f6adaed633cb9",
+      "worktree_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509"
+    },
+    {
+      "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+      "git_blob_sha256": "fe2a9a59ade5ff4c0635e912063c7b865c1630f92f4dd4f6ecde5dfd2c8746b4",
+      "worktree_sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+      "git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+      "worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29"
+    },
+    {
+      "path": "src/Falah.Domain/Reports/ProfitabilityRules.cs",
+      "git_blob_sha256": "35427d67c57471aba5867956f172da8a16b3868d699b016757f6065f827f34b6",
+      "worktree_sha256": "912310fad5a965cf46b0b84c20c78b44059e61475bfc60569d950014527b038f"
+    }
+  ],
+  "evidence": [
+    "Costreport totalLines++ counts only solditemrows394; knownLines++ only forcompleteitemrecipes407. Packagingprocessedseparately414+ andwhenunknownaddsMissing thencontinue418 withoutadjustingcounts.",
+    "CostingRules181-190 explicitlyreturns knownfalse ifactivepackagingrulehasunknowningredientcost. Noactiverule returns knowntrue zero, so cannotclaimmissingoptionalconfiguration isdefect.",
+    "OwnerBuildProfitability211-215 sendscost andsold/knownlinecounts only toDomain; DTO222 usesgross.IsComplete while223 separatelyexposesMissing. DomainProfitability38 usesknown>=sold, so knownfoodline+unknownpackaging returnscomplete despiteincompletecosttotal.",
+    "ComputeOperatingMargin87-112 repeatscount-completeness butmainDTO carriesgrossflag, notoperatingflag; both affectedcostbasis same."
+  ],
+  "concrete_static_example": "One soldline recipeknown2000piastres, netrevenue10000, oneactivepackagingruleunknown: FoodCostTotal2000 Sold1 Known1 Missing[bag]; gross8000 IsComplete=true. Knownbag100 insteadshouldyieldgross7900; missingbagcostnotknown, so8000 isupperbound notcompleteprofit.",
+  "counterevidence": [
+    "Missingbagname retained separately andUI maywarn; thisnarrowsimpact tocontradictoryfinancialcontract, notundisclosedtotallossofwarning.",
+    "Dishrecipeunknown pathalreadyincomplete; noactiverule intentionalzero.",
+    "No actualdashboard/API/DBqueryrun; synthetic parent4cases arepartialcomponentevidence, not endtoend."
+  ],
+  "correction_design": "Aggregate explicit completeness across itemcost and order-levelpackaging, retainseparatecountcardinality; do notfake additionaldishlines justforflag.",
+  "regression_tests": [
+    "Knownfood+unknownconfiguredbag =>aggregateincomplete.",
+    "Knownbagchargedonceperorder, manyitems notmultiplybag.",
+    "Noactivebag staysoptionalzero; Missinglist andflagconsistent."
+  ]
+}

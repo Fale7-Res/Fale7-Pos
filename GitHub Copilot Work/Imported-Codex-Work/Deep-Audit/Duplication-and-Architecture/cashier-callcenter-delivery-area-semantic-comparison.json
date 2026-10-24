@@ -1,0 +1,220 @@
+{
+  "artifact_kind": "manual_semantic_comparison",
+  "id": "SEM-MIRROR-044",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at_utc": "2026-10-21T11:48:00Z",
+  "scope": "Compare the current Cashier WinUI and Call Center delivery intake/request paths against each other and the server validation/persistence path, specifically the area versus service-name field contract. This also checks an inline Call Center comment claiming Cashier WinUI currently submits the service name as the area.",
+  "decision": "The inspected current Cashier WinUI path keeps DeliveryArea and SelectedDeliveryService distinct: the UI has a separate area TextBox and service ComboBox, the viewmodel binds/saves the entered DeliveryArea separately from service ID/name, and checkout places the area and service name in separate request fields. Call Center does the same; server validates area and service ID separately, composes the address from area/street/address parts, and persists the service name separately. The Call Center comment at lines 13-15 claiming CashierWinUI sends the service name as the area contradicts the inspected current baseline source and is stale or describes a different historical implementation. No current behavior divergence or financial defect is established in this bounded path.",
+  "related_existing_findings": [],
+  "finding_candidate": null,
+  "severity": "No defect assigned. A stale source comment is a documentation maintenance issue and is not promoted to an application finding in this audit batch.",
+  "confidence": "High for the inspected current source bindings/request construction/server path; no runtime/UI execution performed.",
+  "manual_reasoning": {
+    "cashier_input_and_save": "CashierWinUI DeliveryDetailsView.xaml renders a DeliveryArea TextBox and a distinct SelectedDeliveryService ComboBox. CashierViewModel.Delivery.cs declares independent fields, copies the saved address Area to DeliveryArea, resolves service by saved ServiceId, requires both values, and calls SaveCustomerAsync with DeliveryArea followed by SelectedDeliveryService.Id and Name.",
+    "cashier_checkout": "CashierViewModel.Checkout.cs constructs CheckoutOrderRequest with DeliveryArea from the DeliveryArea property and DeliveryServiceId/DeliveryServiceName from SelectedDeliveryService. It does not derive or assign DeliveryArea from the service name in the inspected constructor. The older Cashier project is a separate client and is out of this active WinUI-versus-CallCenter path; its request sets DeliveryArea null and is not evidence about current CashierWinUI behavior.",
+    "call_center_path": "CallCenterViewModel.Customer.cs maintains independent DeliveryArea and SelectedDeliveryService state; saved address area is copied from address.Area. CallCenterViewModel.Checkout.cs sends DeliveryArea, DeliveryServiceId, and DeliveryServiceName in distinct request fields.",
+    "server_contract": "CheckoutOrderHandler.HandleAsync calls DeliveryRules.FirstMissingDeliveryField with customer, service ID, area, and street as separate inputs. It composes DeliveryAddress from area/street/building/floor/apartment/landmark, then persists request.DeliveryServiceName separately on OrderEntity. Thus the server does not substitute service name for area in the inspected path.",
+    "comment_conflict": "CallCenterViewModel.Customer.cs lines 13-15 says CashierWinUI sends the delivery service name as the area. That assertion is contradicted by the inspected current CashierWinUI viewmodel, view, and request construction. The evidence supports a stale comment, not the alleged active behavior. No runtime payload capture was performed.",
+    "impact_and_requirements": "No active financial, address, or service mismatch was established. Area is independently required and used in composed address; service selection carries the service identifier/name and its fee. Historical data created by a prior implementation and owner expectations for address normalization were not investigated here.",
+    "recommendation": "In a future documentation cleanup, revise the Call Center comment to describe the currently verified distinct-field contract or identify the exact historical version it refers to. Do not change request semantics based on this comparison. If owners require canonical service-area consistency, specify that contract first and add client/server integration cases for independent area/service values.",
+    "runtime": "No tests, UI, endpoint, database, or runtime execution performed."
+  },
+  "required_tests": [
+    "Existing/added client request-construction tests should assert a chosen DeliveryArea is sent unchanged while DeliveryServiceId and DeliveryServiceName come from the selected service.",
+    "Server integration test should assert invalid/missing area is rejected independently of a valid service ID and that composed DeliveryAddress contains area plus street/address parts.",
+    "Call Center and Cashier WinUI request tests should use intentionally different area text and service name to detect accidental substitution."
+  ],
+  "acceptance_criteria": [
+    "Cashier WinUI and Call Center preserve separate area and service fields through request serialization.",
+    "Server continues to validate area and service ID as distinct required delivery data and persists the service name separately.",
+    "The contradicted inline comment is corrected or annotated as historical in a future authorized source change; no application change is made in this audit."
+  ],
+  "runtime_status": "NOT_EXECUTED; static source comparison only.",
+  "limitations": [
+    "Bounded comparison of current delivery intake/request/server path, not a full UI state audit.",
+    "No test or live request executed; source construction does not prove deployed binary or historical records.",
+    "Comment is evidence of stale documentation only; no issue is inferred for unknown historical versions."
+  ],
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs",
+      "worktree_sha256": "d9464aaaf7664d362a7600e49df95dc7794847563c08b3d55dadc9ac5dfc588e",
+      "line_ranges": [
+        [
+          18,
+          37
+        ],
+        [
+          56,
+          71
+        ],
+        [
+          113,
+          140
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ebdbc9cf044fe0995eee06f068b9c7691d0b71f20d1736321d7d9d981ab0d53c",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SaveDeliveryDetailsAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            113,
+            5,
+            129,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-28e78c5e5302595dab16ec8a317028bb18f70d0ee594925556514dbd47a2dd1b",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectDeliveryService(Falah.Application.Delivery.DeliveryServiceDto)",
+          "kind": "MethodDeclaration",
+          "span": [
+            139,
+            5,
+            140,
+            105
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "d989056e4c339b114b4586cd3aeadbf1d0ca01352f38c5bb6ba112c58ae42c94",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Views/DeliveryDetailsView.xaml",
+      "worktree_sha256": "20bcceb20464702f1f65fe29629897d6c6573f97e26152d1be37f1f954e704a7",
+      "line_ranges": [
+        [
+          15,
+          23
+        ]
+      ],
+      "relevant_symbols": [],
+      "source_git_blob_sha256": "a215bd0d369a3a2bd73472d9d1f55c69a0782c1b9e4b90dab889b1657fbec5e3",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs",
+      "worktree_sha256": "066c11322cca65d746b3c082a7e58573ac8430f5431b21b359f6d5b192224e5a",
+      "line_ranges": [
+        [
+          349,
+          381
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-b1120789b8bc6b6ea02dd8875339559db53320d8b1699bcafb74e6adea8d5999",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitPaymentAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            289,
+            5,
+            389,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "35b105d46b2f493c0b9e2c2fe8da13b2b3993356cf0db799976758294237230e",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "worktree_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "line_ranges": [
+        [
+          9,
+          16
+        ],
+        [
+          118,
+          181
+        ],
+        [
+          193,
+          201
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-20f4a6eedaaa7b8c4bccc86ebe25fe246f177507eac826a53974eace3e2c7e97",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SaveDeliveryDetails()",
+          "kind": "MethodDeclaration",
+          "span": [
+            120,
+            5,
+            127,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-a66a34fa0b17a648e537d9a4133962f75ed1aaa37775ceb766f7c807776efb3c",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.ApplySavedAddress(Falah.Application.Customers.CustomerAddressDto)",
+          "kind": "MethodDeclaration",
+          "span": [
+            166,
+            5,
+            177,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    },
+    {
+      "path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "worktree_sha256": "ff3fefda7d248cfafe4d7881c5b0f620ea8f76339ac521fbfee8c951d4a3f41e",
+      "line_ranges": [
+        [
+          98,
+          176
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-ac068985fe1f63f1b67e0480bb8da5498bc8abacd2dbdf722fe7d6eb37b8a8f0",
+          "signature": "Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.SubmitOrderAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            98,
+            5,
+            176,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "d7cd5a42556d62c04a0f2f5d70b0585736d29e61391307f077245b7cb1039ad2",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    },
+    {
+      "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+      "worktree_sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c",
+      "line_ranges": [
+        [
+          76,
+          90
+        ],
+        [
+          158,
+          190
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-099cfd373811b493d97dbeec06a040459920f4f82ae8c88da59764cbca00ad0f",
+          "signature": "Falah.Infrastructure.Orders.CheckoutOrderHandler.HandleAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            40,
+            5,
+            290,
+            6
+          ]
+        }
+      ],
+      "source_git_blob_sha256": "b6950a26c147f81f5f78e5d6d6460d1d08a8bee3d8bef97571473b17fa4bdf27",
+      "baseline_identity": "source/index hash match; src/tests baseline diff clean at checkpoint"
+    }
+  ]
+}

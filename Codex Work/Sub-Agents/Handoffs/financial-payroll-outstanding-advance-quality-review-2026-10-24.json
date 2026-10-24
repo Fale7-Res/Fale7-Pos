@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "reviewer": "financial_integrity_continuation",
+  "reviewed_at_utc": "2026-10-24",
+  "assignment": "Independent bounded source-quality review of PayrollRules.OutstandingAdvance(entries,floorAtZero): trace actual callers, persisted advance/settlement signs and types, floor semantics, payroll wiring and tests. Static only; tests not executed.",
+  "stable_id": "sym-2f3ef5568479d5beb0bb60dcc7f291090e777e53aa065617641d12686c087b44",
+  "signature": "Falah.Domain.Payroll.PayrollRules.OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero)",
+  "source": {
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [66, 70],
+    "sha256_current": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+    "sha256_saved_baseline_and_receipt": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "assignment_status_at_selection": "EXISTING_REASONING_UNVERIFIED (coordinator-selected; no shared promotion made)",
+  "receipt": {
+    "path": "Codex Work/Knowledge/Reviews/financial_integrity/src/Falah.Domain/Payroll/PayrollRules.cs.json",
+    "sha256": "1e5c295b215096737154c8fbdc333bd7e969796648a28e79fb5afd5299217539",
+    "author": "financial_integrity",
+    "symbol_status": "ANALYZED",
+    "signature_and_span_match": true,
+    "source_reasoning_observed": "Described as ported outstanding-advance calculation: sum advance debit minus payroll settlement advance deduction and clamp at floorAtZero, default 0. The receipt does not establish a production caller or reconcile expected lowercase Type strings to this application's persisted PascalCase enum names."
+  },
+  "function_semantics": {
+    "expression": "net = Sum((Type == \"advance\" ? Debit.Piastres : 0) - (Type == \"payroll_settlement\" ? AdvanceDeduction.Piastres : 0)); return Money.FromPiastres(Math.Max(floorAtZero, net));",
+    "inputs": "Caller-supplied tuples with a string Type, a Debit amount, and a separate AdvanceDeduction amount.",
+    "default_floor": "floorAtZero defaults to 0, so the default result cannot be negative. The parameter is not hard-coded to zero: caller-supplied positive floors impose a positive minimum; negative floors can permit negative output.",
+    "sign_expectation": "An advance's positive Debit increases outstanding advance; a payroll-settlement advance deduction is subtracted; all other Type strings contribute zero.",
+    "case_sensitivity": "String equality is exact/case-sensitive and the accepted names are lowercase literals."
+  },
+  "production_wiring_and_counterevidence": [
+    {
+      "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+      "symbol": "OutstandingAdvance",
+      "lines": [66, 70],
+      "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86",
+      "evidence": "Repository source search found no production call to OutstandingAdvance; matches are its definition and the two domain tests only. Therefore this helper presently has no direct application side effect or demonstrated impact on a live employee balance/payroll calculation."
+    },
+    {
+      "path": "src/Falah.Domain/Employees/Employee.cs",
+      "symbol": "LedgerEntryType",
+      "lines": [18, 24],
+      "sha256": "78762ea2dbc46e2747db8c3bedbd6f771be2cd18fbe5fb4fee2644a1d944e64c",
+      "evidence": "The application's enum values include Advance and PayrollSettlement; persistence uses nameof(enum) strings (PascalCase), unlike this helper's lowercase advance/payroll_settlement literals. Existing CalculatePayrollLines source explicitly notes current ledger rows use nameof(LedgerEntryType.X) PascalCase at PayrollRules.cs:92-93. If raw persisted Type values were passed directly to this helper, both categories would be ignored. This is a conditional future-integration mismatch, not a current production defect because the method has no caller."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+      "symbol": "RecordEmployeeCashOutHandler.HandleAsync",
+      "lines": [100, 134],
+      "sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+      "evidence": "For Kind=advance, writer persists Type=nameof(LedgerEntryType.Advance) ('Advance'), positive DebitPiastres=amount and CreditPiastres=0; this is consistent with an advance increasing employee ledger debt. It uses transaction, balance lock and idempotency."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+      "symbol": "PayPayrollHandler.HandleAsync settlement write",
+      "lines": [136, 153],
+      "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "evidence": "Paid payroll lines produce a ledger Type=nameof(LedgerEntryType.PayrollSettlement) ('PayrollSettlement'), Debit=NetPayable, Credit=0. The writer does not pass a separate AdvanceDeduction amount into the ledger poster; it settles the already-computed payable amount."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+      "symbol": "EmployeeLedgerEntryEntity",
+      "lines": [31, 50],
+      "sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b",
+      "evidence": "Persisted ledger row contains string Type, DebitPiastres and CreditPiastres, but no AdvanceDeduction field. OutstandingAdvance's third tuple component is therefore a derived/input value rather than a direct property of this entity."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
+      "symbol": "CreatePayrollHandler.HandleAsync",
+      "lines": [48, 66],
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "evidence": "Period ledger entries are mapped as Type/Credit/Debit tuples into CalculatePayrollLines. The handler comments that advance deduction mapping is deliberately unwired and supplies Money.Zero for AvailableAdvance and RequestedAdvanceDeduction. Thus the current payroll path does not call OutstandingAdvance and does not supply the helper's separate AdvanceDeduction tuple."
+    }
+  ],
+  "tests_reviewed_static_only": [
+    {
+      "path": "tests/Falah.Domain.Tests/PayrollRulesTests.cs",
+      "lines": [85, 104],
+      "sha256": "a5e81745063636bca45f2880267b0c1664f3f92e674aad59916f5aecd591701e",
+      "coverage": "Two tests use synthetic lowercase types: 10,000 advance minus 4,000 settlement deduction => 6,000; 3,000 advance minus 10,000 settlement deduction clamps to zero. They do not test actual PascalCase persisted Type values, custom floor values, empty/unrecognized types, entity mapping, concurrent writes or payroll integration."
+    }
+  ],
+  "disposition": "The helper's arithmetic and default clamp match the authored synthetic tuple contract. Current code does not call it in production. Actual ledger writers use PascalCase Type names and persisted settlements do not carry a separate AdvanceDeduction field; passing raw ledger rows would not match this function's contract. This is a future-wiring/interface mismatch, not a current balance/payroll defect. No new finding recommended unless a production caller is added or source evidence shows an intended current consumer.",
+  "owner_and_followup": "If this helper is intended for production, define whether its input is legacy-normalized or persisted Type strings, define how payroll advance deduction is represented, fix/test an explicit mapper, and constrain floorAtZero according to policy. No current owner policy or caller establishes this intent.",
+  "tests_executed": false,
+  "source_or_data_modified": false,
+  "shared_overlay_or_master_modified": false,
+  "next_exact_candidate": {
+    "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+    "source_path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "line_range": [83, 112],
+    "live_overlay_status": "EXISTING_REASONING_UNVERIFIED",
+    "note": "Next callable in this source-order area; verify the coordinator's queue before starting it."
+  }
+}

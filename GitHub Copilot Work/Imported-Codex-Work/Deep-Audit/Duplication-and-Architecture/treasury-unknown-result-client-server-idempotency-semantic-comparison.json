@@ -1,0 +1,471 @@
+{
+  "artifact_kind": "source_semantic_comparison",
+  "id": "SEM-MIRROR-055",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "created_at": "2026-10-22",
+  "reviewer": "/root main coordinator; source-level comparison; no runtime execution",
+  "title": "Treasury unknown-result retry across cashier client and server",
+  "scope": "Compare Cashier WinUI deposit/withdraw/transfer recovery after uncertain HTTP outcomes with server replay keys, durable side effects and test coverage. Cross-layer supplement to SEM-028 and existing UI-001.",
+  "decision": "SAME-PROCESS RETRY PRESERVES ORIGINAL REQUEST KEY; CLIENT REQUEST STATE IS VOLATILE ACROSS PROCESS RESTART; SERVER IDEMPOTENCY IS KEYED TO THAT REQUEST ID. CONDITIONAL RECOVERY / DUPLICATE-INTENT RISK REUSES UI-001. NO DUPLICATE MOVEMENT WAS RUNTIME-PROVEN; NO NEW FINDING CREATED.",
+  "behavior": {
+    "client": "TreasuryViewModel creates a request ID when an action opens, builds one typed command and holds its delegate while pending; an OutcomeUnknown retains the delegate for same-process retry and success clears it. AppSession explicitly uses process-only state and Shell navigation blocks only while that session is alive.",
+    "server": "Deposit/withdraw/transfer derive idempotency keys from the typed request IDs, replay existing movements by key, and atomically persist the movement, journal and audit; transfer also persists a linked CashHandover. A new ID is a distinct operation.",
+    "interpretation": "After process loss, inspected client code does not restore the original request identity. This is a reconciliation gap, not proof of a second transaction. An operator submitting a fresh action after an uncertain commit could create a new intent; runtime occurrence is unknown."
+  },
+  "cross_file_call_chain": [
+    "TreasuryViewModel.OpenTreasuryAction -> SubmitTreasuryActionAsync -> typed ApiClient POST -> SendAsync classifies transport/JSON/cancellation/IO as OutcomeUnknown -> Program.cs maps routes -> handler replay key is based on request ID -> transaction persists ledger side effects.",
+    "Same-process unresolved state is retained by TreasuryViewModel/AppSession and checked by ShellViewModel.Navigate; none of those state holders is durable across process restart."
+  ],
+  "existing_finding": {
+    "id": "UI-001",
+    "relationship": "Treasury-specific client/server trace supplements existing cashier lost-request-identity finding. Reuse the canonical ID; do not duplicate it."
+  },
+  "new_finding_created": false,
+  "counterevidence_and_limits": [
+    "Same-process retry uses the same typed request and ID.",
+    "Navigation is blocked during unresolved operation while process remains alive.",
+    "Server same-key replay and transaction behavior are source-confirmed; existing tests cover server same-key replay/concurrency.",
+    "No app process was killed and no API/database operation was run; no duplicate movement is established.",
+    "Whether a cashier creates a fresh request after restart is an operator/workflow question, not proven behavior.",
+    "Changed payload under an existing replay key is a separate contract question and was not classified as a defect here."
+  ],
+  "recommendation": "For a future repair, persist the immutable typed request and request ID before dispatch and restore/reconcile it after reauthentication, or provide server operation-status lookup by the original ID. Gate new treasury action until reconciliation. Do not persist credentials/PIN; protect and minimize local financial request state.",
+  "tests": {
+    "executed": "NONE",
+    "needed": [
+      "For each deposit/withdraw/transfer, simulate server commit then lost response; reconstruct AppSession/TreasuryViewModel; verify same ID and payload restore and exactly one movement, journal, audit, plus one CashHandover for transfer.",
+      "Simulate failure before commit and restart/retry; verify one complete operation.",
+      "Verify unresolved recovery blocks fresh request creation until resolved.",
+      "Test reauthentication and local request-state protection without storing credentials or approval PINs.",
+      "Test same request ID with altered payload and record the intended replay contract."
+    ],
+    "limitations": "No UI, integration, SQL or runtime tests executed."
+  },
+  "source_references": [
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs",
+      "worktree_sha256": "7e6c0ca570caeb79efabacf0a0b381ac5e7e3a3a364fea390c7155c11d909158",
+      "source_git_blob_sha256": "630f3437d0e0517fe71a2343afe3ac1e7d04e1b42c98df4b433e7cf6eaa4dd32",
+      "line_ranges": [
+        [
+          279,
+          293
+        ],
+        [
+          304,
+          363
+        ],
+        [
+          371,
+          392
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-95e741595e69b94d1bc053ed1d6b82fd7f70f5ea54ebcfc37f15c98475a720c1",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OpenTreasuryAction(string)",
+          "kind": "MethodDeclaration",
+          "span": [
+            279,
+            5,
+            293,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-d026180dc7ef4b8ffb5490762f0be33d1900c982c2cf222bbc925ce339be399d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SubmitTreasuryActionAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            304,
+            5,
+            363,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-7c76cf3aea6e7e09e9753e176c337034a2d2ecc56d5b70e92314a6b04a68ed1d",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SendPendingAsync()",
+          "kind": "MethodDeclaration",
+          "span": [
+            371,
+            5,
+            392,
+            6
+          ]
+        }
+      ],
+      "evidence": "TreasuryViewModel opens a GUID request, stores its typed request delegate in memory, retains it after OutcomeUnknown and clears on success; the pending delegate/request ID are not persisted."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/ApiClient.cs",
+      "worktree_sha256": "831a6dfd1f18510b240a232b7a4c4fd11251a51746e1e416c7ce691f732ddbf4",
+      "source_git_blob_sha256": "7ddeba1db61b6048594f1321cfe999ae74a55a4ac9a420794f6974a0dd724f5c",
+      "line_ranges": [
+        [
+          112,
+          123
+        ],
+        [
+          514,
+          521
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-fe37d781451f6d2a9c80f92ef6911497b18acb47d4ae0bd0923bd57c0a897121",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.SendAsync<T>(Func<Task<System.Net.Http.HttpResponseMessage>>, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            112,
+            5,
+            123,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-be6eb1bd2212a48c9d31f6fa5b8e3b712555922f38359cae6d4fce130c06fbe3",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.TreasuryDepositAsync(Falah.Application.Treasury.DepositRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            514,
+            5,
+            515,
+            105
+          ]
+        },
+        {
+          "stable_id": "sym-449eed428c834c000c198778ad5ad56e4c4505ae7b1836d0fb27a0233e0c859a",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.TreasuryWithdrawAsync(Falah.Application.Treasury.WithdrawalRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            517,
+            5,
+            518,
+            109
+          ]
+        },
+        {
+          "stable_id": "sym-43d09f4f794df964fc020b47edc58413ab79b34b0ea50c95c7cea6f3c7c898bc",
+          "signature": "Falah.Client.CashierWinUI.Services.ApiClient.TreasuryTransferAsync(Falah.Application.Treasury.TransferRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            520,
+            5,
+            521,
+            107
+          ]
+        }
+      ],
+      "evidence": "Transport/JSON/cancellation/IO errors become OutcomeUnknown and require identical-data retry; three methods POST deposit, withdrawal and transfer."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/Services/AppSession.cs",
+      "worktree_sha256": "820f17c87a3c0f935632f7ecbaa53574045a8b48c883df392a688674ccb35086",
+      "source_git_blob_sha256": "91ef44c7f825401a9afd3fab7e7a89869b1c1741877b47bda1da72179cdd1f2b",
+      "line_ranges": [
+        [
+          5,
+          19
+        ],
+        [
+          21,
+          35
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-854cdafb5794ad6a9c77f585a823cc9b0e2cb9fd7b861b2d081dfdf8d8e9373b",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.HasUnresolvedOperation",
+          "kind": "PropertyDeclaration",
+          "span": [
+            12,
+            5,
+            12,
+            147
+          ]
+        },
+        {
+          "stable_id": "sym-c3b6746bb8aed1de5023f13c565fda975a21f8314bd0e177b6edcf6049ed4ebe",
+          "signature": "Falah.Client.CashierWinUI.Services.AppSession.SetManagementOperationPending(object, bool)",
+          "kind": "MethodDeclaration",
+          "span": [
+            16,
+            5,
+            20,
+            6
+          ]
+        }
+      ],
+      "evidence": "AppSession explicitly describes login/shift and unresolved operation state as process-only; pending-operation tracking is an in-memory HashSet."
+    },
+    {
+      "path": "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs",
+      "worktree_sha256": "d3fec2d8a36d5e7fc1036fd80f3c2ece05069a20f5ec6ea522add8c227dce0a9",
+      "source_git_blob_sha256": "332d91a8710324eadba28d1b9811383f83dc3e68d6ab763a78e477eeb805978f",
+      "line_ranges": [
+        [
+          144,
+          159
+        ],
+        [
+          279,
+          284
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-09a0e32ea2c7ff21cd12c5a1ccfcba5578526b138290fab900f1a88bb9960673",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.Navigate(Falah.Client.CashierWinUI.ViewModels.ShellNavItem)",
+          "kind": "MethodDeclaration",
+          "span": [
+            144,
+            5,
+            177,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-8f5f88374e31f89ef17e8ad6703b697511d73a879d309e121a99740377eba074",
+          "signature": "Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateTreasury()",
+          "kind": "MethodDeclaration",
+          "span": [
+            279,
+            5,
+            284,
+            6
+          ]
+        }
+      ],
+      "evidence": "Navigation blocks while the current AppSession has unresolved work; treasury navigation constructs a fresh view model, with no process-restart request restoration."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/DepositHandler.cs",
+      "worktree_sha256": "2de4b3e873860e96e2f7e8b5608c416c9734a59ea804861ddf08dd1545fddd5d",
+      "source_git_blob_sha256": "dfba025440ce808d136eeb67062234d592825fcb21de752549cb11fa7c591d63",
+      "line_ranges": [
+        [
+          31,
+          35
+        ],
+        [
+          58,
+          86
+        ],
+        [
+          88,
+          105
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-1cf34a77b0758de7006580ad822c193ec0c3770c6d6c24b1f7d660d5f2847ea5",
+          "signature": "Falah.Infrastructure.Treasury.DepositHandler.HandleAsync(Falah.Application.Treasury.DepositRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            31,
+            5,
+            106,
+            6
+          ]
+        }
+      ],
+      "evidence": "Server replay key derives from type plus DepositRequestId; movement/journal/audit write in a transaction. New ID will not identify the prior request."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs",
+      "worktree_sha256": "6b2ca2fb64a59b458c81db17e17a82b568286136576b143644b90e0c712981c3",
+      "source_git_blob_sha256": "f6e7c05ee8a55b7c2d485365b2adf9ba86081e74a95b56f95d2791499ef3de14",
+      "line_ranges": [
+        [
+          30,
+          34
+        ],
+        [
+          55,
+          89
+        ],
+        [
+          91,
+          108
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-2cef0f36c5ee0ce1caeb34ca1615f0f4f2c830934c4816b208ac53a65f13eccb",
+          "signature": "Falah.Infrastructure.Treasury.WithdrawalHandler.HandleAsync(Falah.Application.Treasury.WithdrawalRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            30,
+            5,
+            109,
+            6
+          ]
+        }
+      ],
+      "evidence": "Server replay key derives from WithdrawalRequestId; transaction writes movement/journal/audit. Same ID is needed to replay."
+    },
+    {
+      "path": "src/Falah.Infrastructure/Treasury/TransferHandler.cs",
+      "worktree_sha256": "ab3b01ba8aa77ede5e25a5246789126f69931e59157b693a4fbfc410d731b52e",
+      "source_git_blob_sha256": "94b6d7758d17f8fcb009e41de426fc60c7954ef18f3616ccf8d231f456d17153",
+      "line_ranges": [
+        [
+          29,
+          33
+        ],
+        [
+          55,
+          99
+        ],
+        [
+          101,
+          117
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-f8a011d3fcef62980161367241b625088cc3ab4bdaebb6dd98bc5403e624acd6",
+          "signature": "Falah.Infrastructure.Treasury.TransferHandler.HandleAsync(Falah.Application.Treasury.TransferRequest, CancellationToken)",
+          "kind": "MethodDeclaration",
+          "span": [
+            29,
+            5,
+            119,
+            6
+          ]
+        }
+      ],
+      "evidence": "Server replay key derives from TransferRequestId; transaction writes movement, linked CashHandover, journal and audit. New ID is distinct intent."
+    },
+    {
+      "path": "src/Falah.Server/Program.cs",
+      "worktree_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "source_git_blob_sha256": "b8da9bce367055e5e5e2e606ae341a93cb686418f6c4441c15287a8c616a2e60",
+      "line_ranges": [
+        [
+          542,
+          561
+        ],
+        [
+          563,
+          582
+        ],
+        [
+          584,
+          603
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-a5e2c58ed949ad8277b2a6a15daa90649e3f2ff0bc26714c6a066e2d28da8052",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            542,
+            38,
+            561,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-b7d3ca09f20dccbd7a03958ba2c1c3f4c80889204b4d0203bcddb572e5b2a5e0",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            563,
+            39,
+            582,
+            2
+          ]
+        },
+        {
+          "stable_id": "sym-3dc3e21c045704ef3d2315d891553a2fdf00c13b9f9ace48670ab4ab0ac25ead",
+          "signature": "lambda expression",
+          "kind": "ParenthesizedLambdaExpression",
+          "span": [
+            584,
+            39,
+            603,
+            2
+          ]
+        }
+      ],
+      "evidence": "Routes the three typed POST operations to the matching handlers and returns typed success or mapped errors."
+    },
+    {
+      "path": "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs",
+      "worktree_sha256": "415f68db1d53ef7cbbbea80dc15cca48bf2562025b0b6596a964b0eb71966686",
+      "source_git_blob_sha256": "71f87063cf3c4168a382db3b75d23de93776bbd95527f5e88f913bad176a7dbc",
+      "line_ranges": [
+        [
+          100,
+          112
+        ],
+        [
+          189,
+          202
+        ],
+        [
+          204,
+          220
+        ],
+        [
+          222,
+          238
+        ]
+      ],
+      "relevant_symbols": [
+        {
+          "stable_id": "sym-0d681eabb6f52bea5bd1d6d6a2bc088dd4060a22d10f32b3910a86d5ff4fad7e",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Retrying_the_exact_same_deposit_request_never_posts_twice()",
+          "kind": "MethodDeclaration",
+          "span": [
+            100,
+            5,
+            112,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-53f2179abd5b9b3bd8a80c213a406d4b177dda42b5414e8c2e15971b1cdb2d68",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_deposits_with_the_same_request_id_post_exactly_once()",
+          "kind": "MethodDeclaration",
+          "span": [
+            189,
+            5,
+            202,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-f8604d1a7c6bbe6ad2a93755ca877e7491ca5f55c8a6a133440d5a6c7803b27b",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_withdrawals_with_the_same_request_id_post_exactly_once()",
+          "kind": "MethodDeclaration",
+          "span": [
+            204,
+            5,
+            220,
+            6
+          ]
+        },
+        {
+          "stable_id": "sym-19ff41e3e64f32b1d131958b78ae5eccd97b5ae5858112f62acff1c485d32bb0",
+          "signature": "Falah.Server.IntegrationTests.TreasuryVerticalSliceTests.Concurrent_transfers_with_the_same_request_id_post_exactly_once()",
+          "kind": "MethodDeclaration",
+          "span": [
+            222,
+            5,
+            238,
+            6
+          ]
+        }
+      ],
+      "evidence": "Existing tests cover same-key deposit replay and concurrent same-key deposit/withdraw/transfer exactly-once; none reconstructs the client after a committed-but-lost response."
+    }
+  ],
+  "limitations": [
+    "Bounded investigation of the cashier treasury actions, not exhaustive repository-wide semantic equivalence/reachability proof.",
+    "Process-loss and persistence behavior was inferred from source, not dynamically tested."
+  ]
+}

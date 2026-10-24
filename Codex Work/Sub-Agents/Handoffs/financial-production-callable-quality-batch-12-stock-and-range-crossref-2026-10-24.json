@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "financial_production_callable_quality_batch_12_and_range_candidate_cross_reference",
+  "created_at_utc": "2026-10-24T11:46:13.953789+00:00",
+  "reviewer": "financial_integrity_continuation",
+  "assignment": "Cross-reference SEM-MIRROR-060 to the existing FIN-CAND-REPORT-RANGE-001 candidate without duplicating the full review, then independently check the next unverified source callable LoadStockAsync against receipt and relevant stock semantics.",
+  "live_overlay": {
+    "path": "Codex Work/Deep-Audit/Database-and-Finance/financial-callable-evidence-quality-classification.json",
+    "sha256": "73740318ef7335e866a8e20923cdfc6646c01afe1d39bf0d9077922088723a7b",
+    "counts": {
+      "EXISTING_REASONING_UNVERIFIED": 7760,
+      "IDENTITY_ONLY": 983,
+      "SUBSTANTIVE_REVIEW_VERIFIED": 61
+    },
+    "reviewed_id_status": "EXISTING_REASONING_UNVERIFIED",
+    "shared_overlay_edited": false
+  },
+  "range_candidate_cross_reference": {
+    "artifact_path": "Codex Work/Deep-Audit/Duplication-and-Architecture/reversed-dashboard-range-series-semantic-comparison.json",
+    "artifact_sha256": "d14d9996793e7bdb791b1ce41eb7f1cdda7ad135b15dbd3de045cb240dfeb252",
+    "mirror_id": "SEM-MIRROR-060",
+    "existing_financial_candidate_id": "FIN-CAND-REPORT-RANGE-001",
+    "existing_candidate_title": "Reversed report endpoints normalize sales but independently filter cost with contradictory date bounds",
+    "existing_candidate_severity": "MEDIUM",
+    "existing_candidate_status": "INDEPENDENTLY_CORROBORATED_STATIC_FINDING",
+    "decision": "SAME REPORT-RANGE ROOT/REMEDIATION; SEM-MIRROR-060 IS A SCOPE EXTENSION, NOT A SEPARATE FINDING. Existing candidate already concerns contradictory behavior when reversed endpoints are accepted and different reports normalize/filter independently; the dashboard headline-vs-empty daily-series is another manifestation of that invalid range being normalized for query but not for output enumeration.",
+    "supporting_comparison_facts": {
+      "precondition": "An actor passes reports access and requests owner-dashboard with from later than to; only a multi-day reversed range selects daily series.",
+      "headline": "ReportingQueryService uses BusinessDateRange.ToUtcRange; BusinessClock.UtcRangeForBusinessDates swaps reversed endpoints; noncancelled orders in the normalized interval are queried and summarized.",
+      "series": "OwnerDashboardQueryService selects LoadDailySeriesAsync because reversed distinct endpoints are not single-day; that method queries the same normalized interval but constructs output only from BusinessDateRange.Days(); Days iterates day=From while day<=To and thus yields no points.",
+      "counterpart": "For forward ranges the two formulas share order creation cohort, cancellation exclusion and TotalPiastres-RefundAmountPiastres; existing test verifies chart sum equals headline for forward seven-day range."
+    },
+    "counterevidence_limits": [
+      "The API may receive only UI-validated ranges in normal use; the endpoint itself does not validate order and no client-specific input check was included in this bounded comparison.",
+      "The correct contract could reject reversed endpoints or normalize them; source does not document which.",
+      "Existing forward-range test supports intended reconciliation in normal requests but does not cover reversed inputs.",
+      "No integration test, HTTP request, database query, or runtime behavior was executed."
+    ],
+    "recommended_followup": "Keep cross-linked to FIN-CAND-REPORT-RANGE-001 and apply a single boundary invariant: reject From>To or canonicalize the BusinessDateRange once for query, DayCount, IsSingleDay and Days. Existing candidate should account for the dashboard daily series extension during report reconciliation."
+  },
+  "callable_review": {
+    "stable_id": "sym-d2884709cbea3a2b84342cb0d449f57930b897f0273d0ddf650d3c1ddb79cb6a",
+    "status_at_review": "EXISTING_REASONING_UNVERIFIED",
+    "verdict": "RECEIPT PARTLY DISPUTED; direction-sign divergence source-confirmed; duplicate of existing inventory finding, no new candidate",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadStockAsync(CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "source_line_range": [
+      297,
+      315
+    ],
+    "source_git_blob_sha256": "7625c154354862c524bae91d48da98cbcf1d90ba1c69aba1f3bdc87e551572a1",
+    "source_index_worktree_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "observed_source_sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+    "receipt_path": "Codex Work/Knowledge/Reviews/financial_coordinator/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.json",
+    "receipt_sha256": "4b1d081a61194734282fe73d350e9c57d993835ebe428e132c5104ee8edbaa32",
+    "receipt_author": "financial_coordinator",
+    "receipt_status": "ANALYZED",
+    "receipt_reasoning": "Active inventory list joins balance dictionary, flags positive minimum threshold and orders by deficit. Sum QuantityMilliUnits ignores stock direction Type; source-correlated FIN013 already exists. Do not create duplicate finding. Zero minimum deliberately suppresses low-stock alert.",
+    "source_evidence": [
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          65,
+          66
+        ],
+        "symbol": "OwnerDashboardQueryService.GetAsync",
+        "behavior": "Dashboard composes current stock via LoadStockAsync and returns StockPositionDto in the read-only owner view."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+        "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29",
+        "lines": [
+          297,
+          315
+        ],
+        "symbol": "OwnerDashboardQueryService.LoadStockAsync",
+        "behavior": "Loads active inventory item IDs/names/units/minimums. Aggregates every StockMovement by item using `Sum(QuantityMilliUnits)` with no Direction predicate. Missing history defaults balance to zero. Dashboard alert requires Balance <= Minimum AND Minimum > 0; orders by deficit and returns low-stock count/list."
+      },
+      {
+        "path": "src/Falah.Domain/Inventory/InventoryRules.cs",
+        "sha256": "6c445ff5fdfdb08495188e70b13ba03b18fcfb850921dca22838695c7ddebb67",
+        "lines": [
+          50,
+          52
+        ],
+        "symbol": "InventoryRules.StockBalanceMilliUnits",
+        "behavior": "Shared domain balance computes In as +Quantity and every other direction as -Quantity."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+        "sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+        "lines": [
+          388,
+          429
+        ],
+        "symbol": "InventoryQueryService.GetInventoryOverviewAsync",
+        "behavior": "Inventory screen projects Direction and computes signed balance (In positive, non-In negative), then uses that balance for low-stock status, inventory value, and negative-stock count."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+        "sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+        "lines": [
+          106,
+          115,
+          142,
+          149
+        ],
+        "symbol": "RecordWasteHandler.HandleAsync",
+        "behavior": "Validates positive loss quantity then persists a stock movement with Direction=Out and QuantityMilliUnits=request.QuantityMilliUnits as a positive value."
+      },
+      {
+        "path": "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs",
+        "sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+        "lines": [
+          32,
+          63
+        ],
+        "symbol": "RecordCountAdjustmentHandler.HandleAsync",
+        "behavior": "Parses direction from request and persists supplied positive quantity separately; Out is a valid movement direction."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs",
+        "sha256": "28e718db495a265ada6dff446c2bc26527ff838f2d4cd6e72681cc8d6325f9c2",
+        "lines": [
+          535,
+          553
+        ],
+        "symbol": "Count adjustment inventory overview integration test",
+        "behavior": "A 10,000-unit purchase receipt plus a 2,000-unit positive-quantity Out adjustment is expected to leave 8,000 balance in InventoryOverview; verifies signed direction handling on that path."
+      },
+      {
+        "path": "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs",
+        "sha256": "ac90773e9c322596df77b62f2f257be17f16c11b63d7afb8aa9faf76732ed0e6",
+        "lines": [
+          20,
+          42,
+          61
+        ],
+        "symbol": "OwnerDashboardVerticalSliceTests",
+        "behavior": "Test fixture and dashboard call exist; inspected test class contains no owner-dashboard low-stock comparison for Out movement."
+      }
+    ],
+    "reasoning": "The author receipt correctly observes the raw sum and minimum>0 rule, but its phrase “Same test the inventory screen uses” is incomplete/contradicted: the dashboard raw balance sum differs from `InventoryRules.StockBalanceMilliUnits` and `GetInventoryOverviewAsync`, which sign Out quantities. Since RecordWasteHandler stores positive quantity with Direction=Out, after 10,000 In and 2,000 Out the dashboard computes 12,000 while the inventory overview computes 8,000. For a positive threshold between those figures, inventory overview can report low stock while owner dashboard suppresses the warning. This affects stock-position/low-stock guidance, not a direct cash posting or priced stock-value calculation in this method.",
+    "counterevidence_and_limits": [
+      "Dashboard intentionally suppresses low-stock alerts when MinimumMilliUnits is zero, even if balance is negative; this is source explicit and may be desired policy.",
+      "The dashboard only displays a low-stock list/count; it does not calculate stock valuation here. The direct effect is divergent alert balance, not direct posted accounting movement.",
+      "Existing InventoryOverview test proves the intended signed behavior for a positive Out count adjustment, but does not assert dashboard behavior for the same fixture. No test executed and no live database observed.",
+      "The source receipt itself references existing FIN013. Preserve/extend that finding; no duplicate finding is recommended."
+    ],
+    "finding_disposition": "Cross-reference existing FIN013 / inventory dashboard balance semantic comparison. Source confirms raw sum ignores Direction while positive Out writers exist and inventory screen signs direction; static low-stock divergence. Do not create a duplicate candidate from this callable.",
+    "remaining_tests": [
+      "Add one integration regression that seeds positive In and positive Out rows and compares OwnerDashboard.Stock low-stock/list balance against InventoryOverview using same active inventory item and positive threshold.",
+      "Cover Waste/Out and count-adjustment/Out, zero minimum suppression, missing movement history, and negative balance to lock down intentional alert policy.",
+      "No runtime test run during this review."
+    ]
+  },
+  "next_exact_candidate": {
+    "stable_id": "sym-4d76ba6fec41f9f17ac074c55daebae49691b1ebf2cf0b38bee9724f64d150e2",
+    "signature": "Falah.Infrastructure.Reports.OwnerDashboardQueryService.LoadPeopleAsync(Falah.Domain.Common.BusinessDateRange, long, CancellationToken)",
+    "source_path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+    "line_range": [
+      358,
+      372
+    ],
+    "status": "EXISTING_REASONING_UNVERIFIED"
+  },
+  "limits": [
+    "Static source and existing test source only; no tests executed.",
+    "No source, tests, data, DB, runtime, shared report/registry or Git changes.",
+    "Callable evidence is not a status promotion; coordinator owns overlay reconciliation."
+  ]
+}

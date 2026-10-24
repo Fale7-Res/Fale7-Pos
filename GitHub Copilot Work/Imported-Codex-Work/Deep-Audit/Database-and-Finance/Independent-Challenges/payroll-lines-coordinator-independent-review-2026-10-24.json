@@ -1,0 +1,35 @@
+{
+  "artifact_kind": "financial_callable_independent_challenge",
+  "at_utc": "2026-10-24T13:10:00Z",
+  "baseline": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "callable": {
+    "stable_id": "sym-5b821b25408a042bfaef4a7b47f7a23810d9380baa27e726b39222c9636d96bb",
+    "signature": "Falah.Domain.Payroll.PayrollRules.CalculatePayrollLines(IEnumerable<Falah.Domain.Payroll.PayrollRules.PayrollLineInput>)",
+    "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+    "lines": [
+      83,
+      112
+    ],
+    "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+  },
+  "agent_handoff": "Sub-Agents/Handoffs/financial-payroll-lines-quality-review-2026-10-24.json",
+  "independent_checks": {
+    "source_receipt_index": true,
+    "caller_file_hashes_ranges": true,
+    "test_file_hashes_ranges": true,
+    "errors": [],
+    "tests_read_not_run": true
+  },
+  "conclusion": {
+    "semantics": "Monthly employees use MonthlySalary; hourly employees use DailyWage/Salary credits. Overtime/ExtraShift/Bonus/OtherEarning credits are summed; Deduction/Adjustment debits subtracted; Adjustment credits ignored. Advance deduction validated but creator supplies zero. Net floors ordinary negatives at zero.",
+    "call_chain": "CreatePayrollHandler maps ledger types and persists net; PayPayrollHandler settles positive NetPayable.",
+    "finding": "Adjustment-credit omission is already FIN-012; no duplicate created.",
+    "counterevidence": [
+      "Manual ledger handler canonicalizes enum casing.",
+      "Net floor counters an ordinary negative payout claim.",
+      "No runtime tests or extreme long arithmetic executed."
+    ],
+    "required_followup": "Retain FIN-012. Add credit restoration test if repaired; cover advances only when wired with validated balance."
+  },
+  "scope": "Single callable independently verified; payroll static workflow remains open."
+}
