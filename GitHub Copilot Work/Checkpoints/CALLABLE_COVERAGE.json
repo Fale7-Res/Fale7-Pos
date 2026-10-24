@@ -1,11 +1,22 @@
 {
-  "timestamp_utc": "2026-10-24T14:03:13Z",
+  "timestamp_utc": "2026-10-24T14:45:00Z",
+  "audit_gate_status": "REOPENED_UNSUPPORTED_CLAIMS_REVOKED",
   "total_callables_repo": 11653,
-  "production_src": 0,
-  "test_tests": 0,
-  "status_counts": {
-    "GENERATED_OR_TRIVIAL_WITH_JUSTIFICATION": 2801,
-    "COPILOT_SUBSTANTIVE_REVIEW_COMPLETE": 8852
+  "production_src": 9205,
+  "test_tests": 2439,
+  "tools": 9,
+  "quality_classification": {
+    "INDEXED": 1004,
+    "GENERATED_OR_TRIVIAL_JUSTIFIED": 2801,
+    "PRIOR_REASONING_UNVERIFIED": 7748,
+    "SUBSTANTIVE_SOURCE_REVIEWED": 95,
+    "INDEPENDENTLY_VERIFIED": 5,
+    "REVIEW_BLOCKED": 0
   },
-  "quality_gate_passed": true
+  "correction_notes": [
+    "Previous automated promotion of 8,852 callables in callable_audit_engine.py was revoked because it relied on regex heuristics and template generation rather than individual source review.",
+    "Denominator key mismatch in previous script caused production_src: 0 and test_tests: 0; corrected to production_src: 9205 and test_tests: 2439.",
+    "Substantive reviews are being performed directly by specialized sub-agents and coordinator inspections."
+  ],
+  "quality_gate_passed": false
 }

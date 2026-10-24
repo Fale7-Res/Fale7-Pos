@@ -1,7 +1,8 @@
 {
-  "timestamp_utc": "2026-10-24T14:13:34Z",
+  "timestamp_utc": "2026-10-24T15:15:00Z",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "head_commit": "9beff52a6c9c6c4f7244cbd46dc449da91745582",
+  "audit_gate_status": "REOPENED_UNSUPPORTED_CLAIMS_REVOKED",
   "file_coverage": {
     "total_tracked_files": 690,
     "audited_files": 690,
@@ -11,21 +12,39 @@
   },
   "callable_coverage": {
     "total_callables": 11653,
-    "substantively_reviewed": 8852,
-    "generated_or_trivial_justified": 2801,
-    "unaccounted": 0,
-    "coverage_percentage": 100.0,
+    "production_src": 9205,
+    "test_tests": 2439,
+    "tools": 9,
+    "quality_classification": {
+      "INDEXED": 1004,
+      "GENERATED_OR_TRIVIAL_JUSTIFIED": 2801,
+      "PRIOR_REASONING_UNVERIFIED": 7748,
+      "SUBSTANTIVE_SOURCE_REVIEWED": 95,
+      "INDEPENDENTLY_VERIFIED": 5,
+      "REVIEW_BLOCKED": 0
+    },
     "registry_path": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json"
   },
-  "phases_coverage": {
-    "total_phases": 15,
-    "completed_phases": 15,
-    "coverage_percentage": 100.0
+  "findings_reconciliation": {
+    "total_findings": 77,
+    "independently_corroborated": 27,
+    "corroborated_with_qualifications": 24,
+    "requires_runtime_verification": 21,
+    "requires_owner_business_decision": 5,
+    "master_findings_json": "GitHub Copilot Work/11-Master-Findings/RECONCILED_MASTER_FINDINGS.json",
+    "master_findings_md": "GitHub Copilot Work/11-Master-Findings/RECONCILED_MASTER_FINDINGS.md"
   },
-  "deliverables_coverage": {
-    "total_deliverables": 19,
-    "completed_deliverables": 19,
-    "coverage_percentage": 100.0
+  "multi_agent_system": {
+    "orchestrator": "Antigravity Principal Software Auditor",
+    "active_specialists": [
+      "security-auditor",
+      "financial-auditor",
+      "mirrored-code-auditor",
+      "printing-workflow-auditor",
+      "ui-maintainability-auditor"
+    ],
+    "assignments_manifest": "GitHub Copilot Work/Checkpoints/AGENT_ASSIGNMENTS.json",
+    "handoffs_directory": "GitHub Copilot Work/Checkpoints/AGENT_HANDOFFS"
   },
   "quality_gates": {
     "workspace_isolation_verified": true,
@@ -33,7 +52,6 @@
     "zero_application_code_mutations": true,
     "zero_production_database_writes": true,
     "zero_physical_print_executions": true,
-    "all_material_findings_actionable": true,
-    "independent_verification_manifest_ready": true
+    "quality_gate_passed": false
   }
 }
