@@ -883,63 +883,84 @@ Endpoint gate indicators: none (global authentication may apply). Local explicit
 
 ### GET `/api/users` — lines 1838-1852
 
-Active user summaries exclude PIN but expose role/permissions to any authenticated session. Comment calls this login picker although middleware blocks pre-login access. UI actual use requires peer crosscheck.
+Queries `_db.Users.AsNoTracking().Where(u => u.Active)` and returns active staff members mapped via `ToUserSummary` (Id, Name, Role, Permissions). Requires session authentication via `AuthenticationMiddleware` (unlike public legacy pickers), but enforces zero permission policy gates (`users_manage` not required). Any authenticated cashier or delivery driver can inspect all user roles and permissions. Does not expose `PinHash` or salts.
 
-Endpoint gate indicators: none (global authentication may apply). Local explicit error shapes: no local error translation; global handler/framework applies. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication only. Local explicit error shapes: none; global handler applies. Runtime: NOT TESTED.
 
 ### POST `/api/auth/login-by-pin` — lines 1853-1874
 
-Anonymous PIN login verifies against all active salted hashes, failed login writes audit event, success issues session. Fixed-window IP limiter applies. This is NOT read-only even for diagnostic script.
+The sole unauthenticated login gateway. Explicitly exempted from session checks via `AnonymousPaths` in `AuthenticationMiddleware.cs#L25`. Rate-limited using IP-partitioned `"login"` policy (`10` attempts / `60s` default). Retrieves all active users and tests `PinHasher.Verify` against every candidate salt/hash sequentially.
+- Failure: Records `ControlAuditEventEntity` with `Action = "pin_login_failed"`, `Actor = "unknown"`, `EntityId = "login"` and returns `401 Unauthorized`.
+- Success: Invokes `SessionService.IssueAsync` to generate a high-entropy bearer token, builds `UserSummaryDto`, and returns `LoginResultDto`.
+- Concurrency / Security: If two active users share the same PIN (due to concurrency races in `PinUniquenessChecker`), `FirstOrDefault` non-deterministically authenticates as the first user returned by SQL Server.
 
-Endpoint gate indicators: RequireRateLimiting. Local explicit error shapes: Unauthorized. Runtime: NOT TESTED.
+Endpoint gate indicators: Anonymous, RequireRateLimiting("login"). Local explicit error shapes: Unauthorized. Runtime: NOT TESTED.
 
 ### POST `/api/auth/logout` — lines 1875-1884
 
-Reads actual bearer token and revokes session. Authentication middleware already resolves it; never trusts supplied actor.
+Terminates an authenticated session. Extracts `Bearer` token string directly from `http.Request.Headers.Authorization` and passes it to `sessions.RevokeAsync(token, ct)`. Marks `UserSessionEntity.RevokedAtUtc = DateTimeOffset.UtcNow`. Prevents further authentication via `SessionService.ResolveAsync`.
+- Security: Operates directly on the presented bearer token; does not trust or accept body identities.
+- Error Handling: Returns `200 OK` unconditionally (idempotent).
 
-Endpoint gate indicators: RequireUsersManageAsync. Local explicit error shapes: no local error translation; global handler/framework applies. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication. Local explicit error shapes: none. Runtime: NOT TESTED.
 
 ### GET `/api/users/all` — lines 1885-1887
 
-Explicit users_manage read gate using actor query matched by middleware, then read-only list.
+Administrative query returning all user accounts (both active and inactive) mapped to `UserDetailsDto`. Gated via `await RequireUsersManageAsync(db, actorUserId, ct)`.
+- Identity Binding: Takes `string actorUserId` in query string. Validated by `AuthenticationMiddleware.FindActorMismatchAsync` via case-insensitive `context.Request.Query.TryGetValue`. If `actorUserId` differs from token session, returns `403 Forbidden`. If missing, returns `400 Bad Request`.
+- Authorization: Verifies `user.Permissions` contains `"all"` or `"users_manage"`; returns `422 UnprocessableEntity` upon denial.
 
-Endpoint gate indicators: RequireUsersManageAsync. Local explicit error shapes: no local error translation; global handler/framework applies. Runtime: NOT TESTED.
+Endpoint gate indicators: RequireUsersManageAsync (query `actorUserId`). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
 
 ### GET `/api/users/{id}` — lines 1888-1895
 
-Explicit users_manage gate then null404; privilege verification relies middleware actor consistency.
+Administrative query retrieving full details of a specific user by `id`. Gated via `RequireUsersManageAsync(db, actorUserId, ct)`. Delegates to `UserManagementQueryService.GetAsync(id, ct)`.
+- Identity Binding: Query string `actorUserId` matched against authenticated session.
+- Error Handling: Returns `404 NotFound` if user does not exist.
 
-Endpoint gate indicators: RequireUsersManageAsync. Local explicit error shapes: NotFound. Runtime: NOT TESTED.
+Endpoint gate indicators: RequireUsersManageAsync (query `actorUserId`). Local explicit error shapes: NotFound, UnprocessableEntity. Runtime: NOT TESTED.
 
 ### GET `/api/permissions/catalog` — lines 1896-1897
 
-Read-only catalog exposes permission definitions to authenticated session. No permission gate; not equivalent to ability to grant them.
+Returns static `PermissionCatalog.All` containing all known permission keys, group names, and Arabic UI labels. Requires a valid authenticated session, but has no role or permission gate. Safe for client UI construction.
 
-Endpoint gate indicators: none (global authentication may apply). Local explicit error shapes: no local error translation; global handler/framework applies. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication. Local explicit error shapes: none. Runtime: NOT TESTED.
 
 ### POST `/api/users` — lines 1898-1914
 
-Active user summaries exclude PIN but expose role/permissions to any authenticated session. Comment calls this login picker although middleware blocks pre-login access. UI actual use requires peer crosscheck.
+Administrative command to provision new user accounts. Minimal API binds `CreateUserRequest request` from the JSON body and forwards directly to `handler.HandleAsync(request, ct)`.
+- **CRITICAL SECURITY FLAW (SEC-001):** The endpoint **never invokes `context.ActorId()`** or verifies body identity against session. It relies entirely on `AuthenticationMiddleware.FindActorMismatchAsync`.
+- **Casing Bypass Mechanism:** In `AuthenticationMiddleware.cs#L114`, `document.RootElement.TryGetProperty("actorUserId", out _)` is strictly ordinal case-sensitive. When a caller sends `"ActorUserId": "usr-admin"` in PascalCase, the middleware check returns `null` (mismatch check bypassed). ASP.NET Core deserializes `"usr-admin"` into `request.ActorUserId`. `CreateUserHandler` then authorizes using the administrator's identity and permissions, enabling unprivileged accounts to create users with arbitrary permissions.
+- Local Error Translation: Maps `DomainException` to `422 UnprocessableEntity` and `InvalidOperationException` to `404 NotFound`.
 
-Endpoint gate indicators: none (global authentication may apply). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication (Vulnerable to SEC-001 casing bypass). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
 
 ### POST `/api/users/{id}/active` — lines 1915-1932
 
-Path IDs overwrite matching body IDs before handler call. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.
+Administrative command to activate or deactivate a user account. Route parameter `{id}` explicitly overwrites body `UserId`: `var request = body with { UserId = id };`.
+- **CRITICAL SECURITY FLAW (SEC-001):** Does NOT overwrite or validate `body.ActorUserId` with `context.ActorId()`. Submitting PascalCase `"ActorUserId": "usr-admin"` bypasses middleware mismatch detection, allowing an unprivileged user to deactivate staff members or evade self-deactivation blocks.
+- Execution: Forwards to `SetUserActiveHandler.HandleAsync(request, ct)` which executes under `IsolationLevel.Serializable` to guarantee survivor counts.
+- Local Error Translation: Maps `DomainException` to `422 UnprocessableEntity` and `InvalidOperationException` to `404 NotFound`.
 
-Endpoint gate indicators: none (global authentication may apply). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication (Vulnerable to SEC-001 casing bypass). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
 
 ### POST `/api/users/{id}/change-pin` — lines 1933-1950
 
-Path user ID overwrites body. Handler distinguishes self/admin and owner rules; endpoint uses login rate limiter. PIN must stay out of retained logs/reports.
+Executes PIN rotation. Route parameter `{id}` overwrites `body.UserId`: `var request = body with { UserId = id };`. Rate-limited using IP-based `"login"` limiter policy (`.RequireRateLimiting("login")`) to protect the self-service path against brute-force verification of `request.CurrentPin`.
+- **CRITICAL SECURITY FLAW (SEC-001):** Fails to overwrite `body.ActorUserId`. Sending PascalCase `"ActorUserId": "usr-admin"` forces the handler into Branch B (Administrative Reset), allowing an attacker to reset another user's PIN without knowing their current PIN.
+- **PIN CHANGE SESSION INVALIDATION GAP:** Neither the endpoint nor `ChangePinHandler` revokes active tokens in `_db.UserSessions`. Old active bearer tokens survive PIN rotation and remain usable.
+- Local Error Translation: Maps `DomainException` to `422 UnprocessableEntity` and `InvalidOperationException` to `404 NotFound`.
 
-Endpoint gate indicators: RequireRateLimiting. Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
+Endpoint gate indicators: RequireRateLimiting("login"), Session Authentication (Vulnerable to SEC-001 casing bypass). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
 
 ### POST `/api/users/{id}/permissions` — lines 1951-1975
 
-Path IDs overwrite matching body IDs before handler call. Handler owns authorization, state and transactional/idempotency invariants. Endpoint success alone does not prove downstream hardware or durable financial consistency.
+Administrative command to grant and revoke permissions for a target user. Route parameter `{id}` overwrites `body.UserId`: `var request = body with { UserId = id };`.
+- **CRITICAL SECURITY FLAW (SEC-001 Core Vector):** Endpoint does not call `context.ActorId()`. Body parameter `body.ActorUserId` is passed directly to `UpdateUserPermissionsHandler.HandleAsync(request, ct)`. Submitting PascalCase `"ActorUserId": "<admin-id>"` bypasses middleware mismatch detection. The handler loads the administrator's record and approves `AssertNoPrivilegeEscalation`, permitting an attacker to grant themselves `"all"` or `"users_manage"`.
+- Note: Previous audit records erroneously claimed `RequireReportsAccessAsync` applied to this route; source inspection confirms there is no route-level policy gate.
+- Local Error Translation: Maps `DomainException` to `422 UnprocessableEntity` and `InvalidOperationException` to `404 NotFound`.
 
-Endpoint gate indicators: RequireReportsAccessAsync. Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
+Endpoint gate indicators: Session Authentication (Vulnerable to SEC-001 casing bypass). Local explicit error shapes: UnprocessableEntity, NotFound. Runtime: NOT TESTED.
 
 ### GET `/api/reports/owner-dashboard` — lines 1976-1989
 

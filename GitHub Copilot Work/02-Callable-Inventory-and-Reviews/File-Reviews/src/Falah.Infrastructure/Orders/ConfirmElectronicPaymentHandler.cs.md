@@ -1,406 +1,200 @@
-# Substantive Callable Audit: `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`
+# Deep Per-Callable Source Audit: `ConfirmElectronicPaymentHandler.cs`
 
-- **Source File:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`
-- **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
-- **File SHA-256:** `cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b`
-- **Auditor Specialist:** `financial-auditor`
-- **Total File Callables:** **11**
-- **Audit Status:** **SUBSTANTIVE_REVIEW_COMPLETE**
-
----
-
-## 1. Architectural & Domain Responsibility Overview
-
-Electronic payment settlement handler confirming pending card/InstaPay/wallet tender legs after checkout. Reconciles electronic leg into TreasuryMovement and EfFinancialJournal.
+- **File Path:** [`src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs)
+- **Role:** Electronic Payment Confirmation & Deferred Treasury Movement Settlement Orchestrator
+- **Author:** Financial & Database Integrity Specialist
+- **Audit Date:** 2026-10-25T00:35:00Z
+- **Baseline Git Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **Total In-Scope Callables:** 11 (1 Constructor, 2 Methods, 8 Lambdas)
 
 ---
 
-## 2. Callable-by-Callable Detailed Forensic Audit Ledger
+## Callable Inventory & Detailed Behavioral Audit
 
-<a id="callable-1"></a>
-### Callable 1: `Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.ConfirmElectronicPaymentHandler(Falah.Infrastructure.Persistence.FalahDbContext)`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:22:5:ConstructorDeclaration`
-- **Declaration Kind:** `ConstructorDeclaration` | **Line Range:** `22-22`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes ConstructorDeclaration for Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.ConfirmElectronicPaymentHandler(Falah.Infrastructure.Persistence.FalahDbContext). Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 22-22):**
-```csharp
-  22 |     public ConfirmElectronicPaymentHandler(FalahDbContext db) => _db = db;
-```
+### 1. `ConfirmElectronicPaymentHandler` Constructor
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:22:5:ConstructorDeclaration`
+- **Signature:** `public ConfirmElectronicPaymentHandler(FalahDbContext db)`
+- **Line Span:** Line 22
+- **Actual Behavior & Inputs:**
+  Receives EF Core `FalahDbContext` via dependency injection and assigns it to private readonly field `_db`.
+- **Callers, Dependencies & Side Effects:**
+  - Invoked by DI container for `POST /api/orders/confirm-electronic-payment`.
+  - Dependencies: `FalahDbContext`.
+  - Side effects: None.
+- **Classification:** Infrastructure wiring constructor.
 
 ---
 
-<a id="callable-2"></a>
-### Callable 2: `Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.HandleAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:24:5:MethodDeclaration`
-- **Declaration Kind:** `MethodDeclaration` | **Line Range:** `24-97`
-- **Audit Classification:** `INDEPENDENTLY_VERIFIED`
-- **Linked Vulnerability Finding:** **`FIN-001`**
+### 2. `HandleAsync`
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:24:5:MethodDeclaration`
+- **Signature:** `public async Task<ConfirmElectronicPaymentResult> HandleAsync(ConfirmElectronicPaymentRequest request, CancellationToken ct = default)`
+- **Line Span:** Lines 24–97
+- **Actual Behavior & Inputs:**
+  Receives `ConfirmElectronicPaymentRequest(string OrderId, string CashierId)`. Orchestrates:
+  1. *Fast Pre-Check (Lines 26–29):* Queries `_db.Orders.AsNoTracking()` for `request.OrderId`. If already confirmed (`ElectronicPaymentStatus == "confirmed"`), delegates to `BuildReplayResultAsync(preCheck, ct)`.
+  2. *Cashier & Shift Gates (Lines 31–43):* Queries `_db.Users.AsNoTracking()` for `request.CashierId`. Asserts cashier holds `pos` or `cash_drawer_sale` permission via `AuthorizationPolicy.HasPermission`. Asserts at least one shift is `Status == "Open"`.
+  3. *Transaction & Pessimistic Row Lock (Lines 52–60):* Begins transaction with `IsolationLevel.ReadCommitted` and executes raw SQL query:
+     `SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}`
+     Eagerly includes `Items` and `Refunds`.
+  4. *In-Transaction Idempotency Guard (Lines 61–65):* If `orderEntity.ElectronicPaymentStatus == "confirmed"`, rolls back and returns replay result.
+  5. *Domain Mutation (Lines 67–73):* Maps entity to domain via `OrderMapper.ToDomain(orderEntity)`, calls `order.ConfirmElectronicPayment()`, extracts `leg = order.ElectronicPayment!`, updates entity `ElectronicPaymentStatus`, `IsPaid`, and increments `Version`.
+  6. *Financial Journal Collision Point (Lines 75–78):* Computes `var saleKey = $"sale-{orderEntity.CheckoutRequestId}";` and calls `journal.TryStart(saleKey, "sale")`. If false, throws `ConfirmConflictException`.
+  7. *Treasury Movement Creation (Lines 80–84):* Calls `TreasuryMovementFactory.BuildSaleMovement(...)`, adds to `_db.TreasuryMovements`, and marks journal entry complete (`journal.Complete(saleKey)`).
+  8. *Commit & Persistence (Lines 86–88):* Saves changes and commits transaction.
+  9. *Catch & Replay Recovery (Lines 90–96):* Catches `DbUpdateException`, `DbUpdateConcurrencyException`, or `ConfirmConflictException`. Rolls back transaction, checks if order was committed as confirmed, and returns replay or rethrows `ConfirmConflictException`.
+- **Callers, Dependencies & Side Effects:**
+  - Callers: `POST /api/orders/confirm-electronic-payment` API endpoint.
+  - Dependencies: `FalahDbContext`, `AuthorizationPolicy`, `OrderMapper`, `Order`, `TreasuryMovementFactory`, `EfFinancialJournal`.
+  - Side effects: Updates `Orders` (`ElectronicPaymentStatus`, `IsPaid`, `Version`), inserts `TreasuryMovements` (`sale_collection`), inserts/updates `FinancialJournals`.
+- **Critical Financial Integrity Flaws:**
 
-**A. Actual Behavior & Execution Path:**  
-Locks order row with UPDLOCK/ROWLOCK/HOLDLOCK. Verifies order is unpaid with pending electronic leg. Calls order.ConfirmElectronicPayment(). Constructs saleKey = 'sale-{orderEntity.CheckoutRequestId}' and calls journal.TryStart(saleKey, 'sale'). Throws ConfirmConflictException if key exists.
+  > [!CRITICAL]
+  > **Vulnerability `FIN-001` (Split Payment Idempotency Key Lockout):**
+  > Lines 75–78 execute:
+  > ```csharp
+  > var saleKey = $"sale-{orderEntity.CheckoutRequestId}";
+  > var journal = new EfFinancialJournal(_db);
+  > if (!journal.TryStart(saleKey, "sale"))
+  >     throw new ConfirmConflictException("مفتاح العملية المالية لهذا الطلب مستخدم بالفعل رغم أن الدفع لم يكن مؤكدًا - يحتاج مراجعة يدوية.");
+  > ```
+  > As discovered in [`CheckoutOrderHandler.cs:148-154`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs#L148-L154), when an order is created with `PaymentMethod.Multi` with split cash + electronic payments, `plan.DefersAllMoney` is `false`. `CheckoutOrderHandler` immediately calls `journal.TryStart($"sale-{request.CheckoutRequestId}", "sale")` and completes it for the cash split.
+  > When `ConfirmElectronicPaymentHandler` subsequently executes for that order, `journal.TryStart` returns `false` because `sale-{orderEntity.CheckoutRequestId}` already exists in status `Completed`.
+  > Line 78 throws `ConfirmConflictException`. In the catch block (lines 90–96), the transaction is rolled back. `reloaded.ElectronicPaymentStatus` is NOT `confirmed`, so it throws `ConfirmConflictException` to the client.
+  > **Result:** Electronic confirmation of split-payment orders fails permanently with HTTP 409 Conflict. The electronic funds cannot be recorded, and the order remains uncompleted.
 
-**B. Trust Boundaries & Validation:**  
-Cashier confirmation request with reference transaction ID.
+  > [!HIGH]
+  > **Shift Attribution vs Open Shift Discrepancy:**
+  > At line 42, the handler asserts that *any* shift in the restaurant is open:
+  > `if (!await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == "Open", ct))`
+  > But at line 82, the resulting `TreasuryMovement` is attributed to `orderEntity.ShiftId`:
+  > ```csharp
+  > var movement = TreasuryMovementFactory.BuildSaleMovement(
+  >     $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", orderEntity.CheckoutRequestId, orderEntity.Id,
+  >     leg.Method, leg.Amount, orderEntity.BusinessDayId, orderEntity.ShiftId, cashierUser.Name, DateTimeOffset.UtcNow);
+  > ```
+  > If an order was opened during Shift A (e.g. afternoon shift), but the electronic confirmation arrives during Shift B (evening shift, where Shift A is already closed and reconciled), the money is posted with `ShiftId = Shift A`. Shift A's closed books are altered post-reconciliation, and Shift B's cashiers who actually verified and received the payment get no shift credit!
 
-**C. State Mutations & Side Effects:**  
-Updates OrderEntity.ElectronicPaymentStatus, OrderEntity.IsPaid, appends TreasuryMovementEntity, commits journal.
-
-**D. Concurrency & Transaction Implications:**  
-UPDLOCK prevents race conditions on confirmation.
-
-**E. Specialist Risks & Invariants:**  
-CRITICAL FLAW FIN-001: Because CheckoutOrderHandler claimed 'sale-{CheckoutRequestId}', journal.TryStart returns false! The electronic leg can NEVER be confirmed.
-
-> **Verbatim Code Excerpt (Lines 24-97):**
-```csharp
-  24 |     public async Task<ConfirmElectronicPaymentResult> HandleAsync(ConfirmElectronicPaymentRequest request, CancellationToken ct = default)
-  25 |     {
-  26 |         var preCheck = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
-  27 |             ?? throw new InvalidOperationException("الطلب غير موجود.");
-  28 |         if (preCheck.ElectronicPaymentStatus == "confirmed")
-  29 |             return await BuildReplayResultAsync(preCheck, ct);
-  30 | 
-  31 |         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
-  32 |             ?? throw new InvalidOperationException("الكاشير غير موجود.");
-  33 | 
-  34 |         // Ported from confirmElectronicPayment in lib/store.tsx: `pos` or `cash_drawer_sale`, and
-  35 |         // an active shift, both required before any money is confirmed/posted - a real gap found
-  36 |         // during the legacy-parity audit, since neither check existed here at all: any caller who
-  37 |         // knew a valid orderId + any existing cashierId could confirm a claimed electronic payment
-  38 |         // and post real money with zero authorization.
-  39 |         var actor = OrderMapper.ToActor(cashierUser);
-  40 |         if (!AuthorizationPolicy.HasPermission(actor, "pos") && !AuthorizationPolicy.HasPermission(actor, "cash_drawer_sale"))
-  41 |             throw new DomainException("ليس لديك صلاحية تأكيد التحصيل الإلكتروني.");
-  42 |         if (!await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == "Open", ct))
-  43 |             throw new DomainException("يجب فتح وردية قبل تأكيد التحصيل.");
-  44 | 
-  45 |         // The initial read below takes an UPDLOCK (plus ROWLOCK/HOLDLOCK) hint - SQL Server's
-  46 |         // idiomatic "select for update" - so a second concurrent confirm on the same order blocks
-  47 |         // right there instead of both reading "still pending" and both trying to post the
-  48 |         // movement. Plain IsolationLevel.Serializable was deliberately avoided: on SQL Server it
-  49 |         // takes locks progressively rather than upfront, which can deadlock two concurrent
-  50 |         // read-then-write transactions on the same row instead of simply queuing one behind the
-  51 |         // other the way SQLite's BEGIN IMMEDIATE did.
-  52 |         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
-  53 |         try
-  54 |         {
-  55 |             var orderEntity = await _db.Orders
-  56 |                 .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
-  57 |                 .Include(o => o.Items).Include(o => o.Refunds)
-  58 |                 .FirstOrDefaultAsync(ct)
-  59 |                 ?? throw new InvalidOperationException("الطلب غير موجود.");
-  60 | 
-  61 |             if (orderEntity.ElectronicPaymentStatus == "confirmed")
-  62 |             {
-  63 |                 await transaction.RollbackAsync(ct);
-  64 |                 return await BuildReplayResultAsync(orderEntity, ct);
-  65 |             }
-  66 | 
-  67 |             var order = OrderMapper.ToDomain(orderEntity);
-  68 |             order.ConfirmElectronicPayment(); // throws DomainException if there is no pending leg
-  69 |             var leg = order.ElectronicPayment!;
-  70 | 
-  71 |             orderEntity.ElectronicPaymentStatus = leg.Status.ToWireString();
-  72 |             orderEntity.IsPaid = order.IsPaid;
-  73 |             orderEntity.Version++;
-  74 | 
-  75 |             var saleKey = $"sale-{orderEntity.CheckoutRequestId}";
-  76 |             var journal = new EfFinancialJournal(_db);
-  77 |             if (!journal.TryStart(saleKey, "sale"))
-  78 |                 throw new ConfirmConflictException("مفتاح العملية المالية لهذا الطلب مستخدم بالفعل رغم أن الدفع لم يكن مؤكدًا - يحتاج مراجعة يدوية.");
-  79 | 
-  80 |             var movement = TreasuryMovementFactory.BuildSaleMovement(
-  81 |                 $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", orderEntity.CheckoutRequestId, orderEntity.Id,
-  82 |                 leg.Method, leg.Amount, orderEntity.BusinessDayId, orderEntity.ShiftId, cashierUser.Name, DateTimeOffset.UtcNow);
-  83 |             _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
-  84 |             journal.Complete(saleKey);
-  85 | 
-  86 |             await _db.SaveChangesAsync(ct);
-  87 |             await transaction.CommitAsync(ct);
-  88 |             return new ConfirmElectronicPaymentResult(orderEntity.Id, orderEntity.ElectronicPaymentStatus, orderEntity.IsPaid, movement.Id, WasReplayed: false);
-  89 |         }
-  90 |         catch (Exception ex) when (ex is DbUpdateException or DbUpdateConcurrencyException or ConfirmConflictException)
-  91 |         {
-  92 |             await transaction.RollbackAsync(ct);
-  93 |             var reloaded = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
-  94 |             if (reloaded?.ElectronicPaymentStatus == "confirmed") return await BuildReplayResultAsync(reloaded, ct);
-  95 |             throw new ConfirmConflictException("تعذر تأكيد الدفع الإلكتروني بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
-  96 |         }
-  97 |     }
-```
+- **Concurrency & Locking Evaluation:**
+  - Row-level locking on `Orders`: Excellent implementation using `WITH (UPDLOCK, ROWLOCK, HOLDLOCK)` inside `IsolationLevel.ReadCommitted`. This guarantees that concurrent confirmations on the same order do not execute simultaneously and prevents race conditions on `Order.Version` and `IsPaid`.
+- **Tests & Missing Regressions:**
+  - Existing: `tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs` (verifies single-method instapay confirm, retry replay, and concurrent confirm serialization).
+  - Missing Regression: Integration test checking out a split payment (`cash` + `instapay`) and attempting confirmation via `ConfirmElectronicPaymentHandler` — currently absent, which allowed `FIN-001` to remain undetected.
+- **Classification:** Core payment confirmation orchestrator with critical split-payment defect (`FIN-001`).
 
 ---
 
-<a id="callable-3"></a>
-### Callable 3: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:26:76:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `26-26`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 26-26):**
-```csharp
-  26 |         var preCheck = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
-```
+### 3. Pre-Check Order Lookup Lambda (`o => o.Id == request.OrderId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:26:76:SimpleLambdaExpression`
+- **Signature:** `o => o.Id == request.OrderId`
+- **Line Span:** Line 26
+- **Actual Behavior & Inputs:**
+  Expression predicate for `_db.Orders.AsNoTracking().FirstOrDefaultAsync(...)`.
+- **Callers, Dependencies & Side Effects:**
+  Invoked in `HandleAsync`. Throws `InvalidOperationException("الطلب غير موجود.")` if order does not exist.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-4"></a>
-### Callable 4: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:31:78:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `31-31`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 31-31):**
-```csharp
-  31 |         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
-```
+### 4. Cashier Lookup Lambda (`u => u.Id == request.CashierId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:31:78:SimpleLambdaExpression`
+- **Signature:** `u => u.Id == request.CashierId`
+- **Line Span:** Line 31
+- **Actual Behavior & Inputs:**
+  Filters `_db.Users.AsNoTracking()` to retrieve the confirming cashier.
+- **Callers, Dependencies & Side Effects:**
+  Invoked in `HandleAsync`. Throws `InvalidOperationException("الكاشير غير موجود.")` if missing.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-5"></a>
-### Callable 5: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:42:55:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `42-42`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 42-42):**
-```csharp
-  42 |         if (!await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == "Open", ct))
-```
+### 5. Active Shift Check Lambda (`s => s.Status == "Open"`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:42:55:SimpleLambdaExpression`
+- **Signature:** `s => s.Status == "Open"`
+- **Line Span:** Line 42
+- **Actual Behavior & Inputs:**
+  Filters `_db.Shifts.AsNoTracking().AnyAsync(...)` to ensure operations only occur during an active shift.
+- **Callers, Dependencies & Side Effects:**
+  Invoked in `HandleAsync`. Throws `DomainException("يجب فتح وردية قبل تأكيد التحصيل.")` if no shift is open.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-6"></a>
-### Callable 6: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:57:26:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `57-57`
-- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 57-57):**
-```csharp
-  57 |                 .Include(o => o.Items).Include(o => o.Refunds)
-```
+### 6. Items Navigation Include Lambda (`o => o.Items`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:57:26:SimpleLambdaExpression`
+- **Signature:** `o => o.Items`
+- **Line Span:** Line 57
+- **Actual Behavior & Inputs:**
+  Loads `Items` navigation on the locked `OrderEntity`.
+- **Classification:** ORM mapping lambda.
 
 ---
 
-<a id="callable-7"></a>
-### Callable 7: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:57:48:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `57-57`
-- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 57-57):**
-```csharp
-  57 |                 .Include(o => o.Items).Include(o => o.Refunds)
-```
+### 7. Refunds Navigation Include Lambda (`o => o.Refunds`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:57:48:SimpleLambdaExpression`
+- **Signature:** `o => o.Refunds`
+- **Line Span:** Line 57
+- **Actual Behavior & Inputs:**
+  Loads `Refunds` navigation on the locked `OrderEntity` for complete domain reconstruction in `OrderMapper.ToDomain`.
+- **Classification:** ORM mapping lambda.
 
 ---
 
-<a id="callable-8"></a>
-### Callable 8: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:93:80:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `93-93`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 93-93):**
-```csharp
-  93 |             var reloaded = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
-```
+### 8. Catch Block Reload Lambda (`o => o.Id == request.OrderId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:93:80:SimpleLambdaExpression`
+- **Signature:** `o => o.Id == request.OrderId`
+- **Line Span:** Line 93
+- **Actual Behavior & Inputs:**
+  Reloads the order without tracking after transaction rollback to determine if a concurrent transaction succeeded in confirming the payment.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-9"></a>
-### Callable 9: `Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.BuildReplayResultAsync(Falah.Infrastructure.Persistence.Entities.OrderEntity, CancellationToken)`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:99:5:MethodDeclaration`
-- **Declaration Kind:** `MethodDeclaration` | **Line Range:** `99-105`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes MethodDeclaration for Falah.Infrastructure.Orders.ConfirmElectronicPaymentHandler.BuildReplayResultAsync(Falah.Infrastructure.Persistence.Entities.OrderEntity, CancellationToken). Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 99-105):**
-```csharp
-  99 |     private async Task<ConfirmElectronicPaymentResult> BuildReplayResultAsync(OrderEntity order, CancellationToken ct)
- 100 |     {
- 101 |         var movementId = await _db.TreasuryMovements.AsNoTracking()
- 102 |             .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection")
- 103 |             .Select(m => m.Id).FirstOrDefaultAsync(ct);
- 104 |         return new ConfirmElectronicPaymentResult(order.Id, order.ElectronicPaymentStatus!, order.IsPaid, movementId, WasReplayed: true);
- 105 |     }
-```
+### 9. `BuildReplayResultAsync`
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:99:5:MethodDeclaration`
+- **Signature:** `private async Task<ConfirmElectronicPaymentResult> BuildReplayResultAsync(OrderEntity order, CancellationToken ct)`
+- **Line Span:** Lines 99–105
+- **Actual Behavior & Inputs:**
+  Accepts confirmed `OrderEntity`. Queries `_db.TreasuryMovements.AsNoTracking()` to locate the posted `sale_collection` movement associated with the order. Returns `ConfirmElectronicPaymentResult` with `WasReplayed = true`.
+- **Callers, Dependencies & Side Effects:**
+  - Invoked at line 29 (fast pre-check) and line 64 / line 94 (post-lock or post-catch replay).
+  - Dependencies: `FalahDbContext`.
+  - Side effects: None (read query).
+- **Subtle Multi-Split Movement Query Defect:**
+  At lines 101–103:
+  ```csharp
+  var movementId = await _db.TreasuryMovements.AsNoTracking()
+      .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection")
+      .Select(m => m.Id).FirstOrDefaultAsync(ct);
+  ```
+  If an order was a split payment with both cash and electronic components, there are **two** `sale_collection` movements for `order.Id`: the initial cash movement posted at checkout, and the electronic movement posted on confirmation. `FirstOrDefaultAsync` has no `OrderBy` or method filter and can nondeterministically return the cash movement ID instead of the electronic movement ID in replay responses!
+- **Classification:** Idempotent replay query method.
 
 ---
 
-<a id="callable-10"></a>
-### Callable 10: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:102:20:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `102-102`
-- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 102-102):**
-```csharp
- 102 |             .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection")
-```
+### 10. Replay Movement Filter Lambda
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:102:20:SimpleLambdaExpression`
+- **Signature:** `m => m.ReferenceId == order.Id && m.Type == "sale_collection"`
+- **Line Span:** Line 102
+- **Actual Behavior & Inputs:**
+  Filters `TreasuryMovements` by `ReferenceId == order.Id` and `Type == "sale_collection"`.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-11"></a>
-### Callable 11: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:103:21:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `103-103`
-- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 103-103):**
-```csharp
- 103 |             .Select(m => m.Id).FirstOrDefaultAsync(ct);
-```
+### 11. Replay Movement ID Selector Lambda (`m => m.Id`)
+- **Symbol ID:** `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:103:21:SimpleLambdaExpression`
+- **Signature:** `m => m.Id`
+- **Line Span:** Line 103
+- **Actual Behavior & Inputs:**
+  Projects `TreasuryMovementEntity` to its primary key string.
+- **Classification:** In-memory / SQL projection lambda.
 
 ---
+
+## Comprehensive Vulnerability Summary & Fix Recommendations
+
+| Finding ID | Severity | Root Cause Code Span | Impact | Recommended Remediation |
+| :--- | :--- | :--- | :--- | :--- |
+| **`FIN-001`** | **CRITICAL** | `ConfirmElectronicPaymentHandler.cs:75-78` | Electronic confirmation of split payments is completely impossible; throws `ConfirmConflictException` due to journal key reuse. | Change confirmation idempotency key to `sale-confirm-{orderEntity.Id}` or `sale-{orderEntity.CheckoutRequestId}-electronic`, decoupling it from checkout's primary journal entry. |
+| **`FIN-ATTR-001`** | **HIGH** | `ConfirmElectronicPaymentHandler.cs:82` | Electronic payment confirmed during a subsequent shift posts `TreasuryMovement` to the order's original `ShiftId`, corrupting closed shift reconciliation. | Attribute electronic collection movement to the currently active shift (`activeShift.Id`), or record operational shift linkage matching `RefundOrderHandler`'s `RefundRules.ResolveOperationalShift` design. |
+| **`FIN-REPLAY-002`** | **MEDIUM** | `ConfirmElectronicPaymentHandler.cs:101-103` | Replay query on split orders returns arbitrary movement ID (cash vs electronic) due to unordered `FirstOrDefaultAsync`. | Filter replay query by payment method or movement reference subtype: `.Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection" && (m.Method == "instapay" || m.Method == "wallet"))`. |
