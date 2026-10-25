@@ -4,7 +4,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:34:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.SalesRules.ComputeSalesReport(IReadOnlyList<Falah.Domain.Orders.Order>, IReadOnlySet<string>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.SalesRules.ComputeSalesReport(IReadOnlyList<Falah.Domain.Orders.Order>, IReadOnlySet<string>) across lines 34-85.
+- **Behavior**: Computes aggregated sales metrics from a pre-filtered list of non-cancelled orders on a cash basis. Derives grossSales, refunds, netSales, listSales, promotional offer values (offersValue clamped per item before summing), PIN-authorized comps, and manual discounts. Deducts unconfirmed electronic claims (pendingElectronicSales) and unsettled COD delivery funds (cashWithDrivers) to compute true collectedSales. Resolves payment method breakdowns and net sales by order type.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': True, 'affects_orders': True, 'affects_printing': True, 'affects_persistence': False}
 
@@ -25,14 +25,14 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:45:56:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 45-46.
+- **Behavior**: Outer selector lambda summing promotional offer value across all items in each order: o => o.Items.Sum(...).
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:45:73:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 45-46.
+- **Behavior**: Inner selector lambda calculating offer discount per item: Math.Max(0, i.ListUnitPrice.Piastres - i.UnitPrice.Piastres) * i.Quantity, clamping list-vs-charged difference to zero before summing.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -53,7 +53,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:55:67:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 55-56.
+- **Behavior**: Selector lambda identifying pending electronic sales: returns o.Total.Piastres when o.ElectronicPayment has Status == ElectronicPaymentStatus.Pending, or 0 otherwise, preventing unconfirmed transfers from being counted as collected cash.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
@@ -74,14 +74,14 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:75:9:LocalFunctionStatement
 - **Symbol**: OrderTypeNet(Falah.Domain.Orders.OrderType)
 - **Kind**: LocalFunctionStatement
-- **Behavior**: Executes logic for OrderTypeNet(Falah.Domain.Orders.OrderType) across lines 75-76.
+- **Behavior**: Local helper function computing net revenue (Total.Piastres - RefundAmount.Piastres) for orders matching the specified OrderType (Pickup, Takeaway, Delivery).
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:75:78:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 75-75.
+- **Behavior**: Predicate lambda filtering orders by order type: o => o.OrderType == type.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -95,7 +95,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:87:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.SalesRules.SumMoney(IReadOnlyList<Falah.Domain.Orders.Order>, Func<Falah.Domain.Orders.Order, Falah.Domain.Common.Money>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.SalesRules.SumMoney(IReadOnlyList<Falah.Domain.Orders.Order>, Func<Falah.Domain.Orders.Order, Falah.Domain.Common.Money>) across lines 87-88.
+- **Behavior**: Helper method summing monetary values across an order list using a caller-provided selector function, returning a Money instance constructed from the summed piastres.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
@@ -109,7 +109,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:100:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.SalesRules.ComputeTaxReport(IReadOnlyList<Falah.Domain.Orders.Order>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.SalesRules.ComputeTaxReport(IReadOnlyList<Falah.Domain.Orders.Order>) across lines 100-110.
+- **Behavior**: Computes sales tax metrics from frozen order fields (Total, TaxableBase, TaxAmount). Aggregates gross total, taxable base, and tax, and calculates proportional refundTaxImpact for taxed and refunded orders as Math.Round(TaxAmount * RefundAmount / Total), returning a TaxReport containing gross, taxable, tax, refundTaxImpact, and netTax.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
@@ -137,7 +137,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/SalesRules.cs:105:61:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 105-108.
+- **Behavior**: Selector lambda computing proportional refund tax impact: (long)Math.Round(o.TaxAmount.Piastres * (decimal)o.RefundAmount.Piastres / o.Total.Piastres) when refund, total, and tax amounts are all positive, or 0 otherwise.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

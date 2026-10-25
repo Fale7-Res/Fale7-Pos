@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.CreateDeliveryServiceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [20-24]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.CreateDeliveryServiceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 20-24.
+- **Behavior:** Initializes CreateDeliveryServiceHandler by injecting and storing FalahDbContext as _db and IApprovalRegistry as _approvalRegistry in private readonly fields for persistence and authorization checks.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.CreateDeliveryServiceRequest, CancellationToken)
 - **Lines:** [26-66]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.CreateDeliveryServiceRequest, CancellationToken) across lines 26-66.
+- **Behavior:** Asynchronously creates a new delivery service area or idempotently returns an existing matching service: resolves actor user, evaluates 'delivery_manage' authorization via AuthorizationPolicy.AuthorizeCommand (with optional manager approval), normalizes name via NormalizeName, checks case-insensitive name uniqueness, instantiates DeliveryServiceEntity (Id = $"delivery-service-{request.RequestId}"), persists via SaveChangesAsync, and catches DbUpdateException to safely replay lookups on duplicate primary key race conditions.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for lambda expression across lines 28-28.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [35-35]
-- **Behavior:** Executes logic for lambda expression across lines 35-35.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [61-61]
-- **Behavior:** Executes logic for lambda expression across lines 61-61.
+- **Behavior:** Predicate lambda `s => s.Id == entity.Id` querying DeliveryServices DbSet with AsNoTracking() within DbUpdateException catch block to retrieve and replay existing entity upon duplicate key collision.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.NormalizeName(string)
 - **Lines:** [68-69]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.NormalizeName(string) across lines 68-69.
+- **Behavior:** Internal static helper method that trims leading/trailing whitespace and collapses internal multiple whitespace sequences into a single space using Regex.Replace(name.Trim(), @"\s+", " ").
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.ToDto(Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity)
 - **Lines:** [71-71]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDeliveryServiceHandler.ToDto(Falah.Infrastructure.Persistence.Entities.DeliveryServiceEntity) across lines 71-71.
+- **Behavior:** Internal static projection mapping DeliveryServiceEntity properties (Id, Name, FeePiastres, Active, CreatedBy, CreatedAtUtc) into a DeliveryServiceDto record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.UpdateDeliveryServiceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [83-87]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.UpdateDeliveryServiceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 83-87.
+- **Behavior:** Initializes UpdateDeliveryServiceHandler by injecting and storing FalahDbContext and IApprovalRegistry dependencies into private readonly fields _db and _approvalRegistry.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -110,7 +110,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken)
 - **Lines:** [89-122]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.UpdateDeliveryServiceHandler.HandleAsync(Falah.Application.Delivery.UpdateDeliveryServiceRequest, CancellationToken) across lines 89-122.
+- **Behavior:** Asynchronously updates an existing delivery service: authenticates actor user, enforces 'delivery_manage' permission with optional manager approval, fetches target DeliveryServiceEntity by ServiceId, normalizes and validates name, checks against clashing normalized names on other services, updates FeePiastres and Active status (leaving historical order snapshots unaffected), and persists changes via SaveChangesAsync.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException, InvalidOperationException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [91-91]
-- **Behavior:** Executes logic for lambda expression across lines 91-91.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -132,7 +132,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [98-98]
-- **Behavior:** Executes logic for lambda expression across lines 98-98.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to load the manager approver record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -143,7 +143,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [105-105]
-- **Behavior:** Executes logic for lambda expression across lines 105-105.
+- **Behavior:** Predicate lambda `s => s.Id == request.ServiceId` querying DeliveryServices DbSet with EF Core change tracking to retrieve the target delivery service entity for modification.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -154,7 +154,7 @@ Substantive security, cash custody, and authorization audit of DeliveryServiceHa
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [113-113]
-- **Behavior:** Executes logic for lambda expression across lines 113-113.
+- **Behavior:** Predicate lambda `s => s.Id != entity.Id && s.Name.ToLower() == normalized.ToLower()` querying DeliveryServices DbSet with AsNoTracking() to check whether any other delivery service conflicts with the updated normalized name.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

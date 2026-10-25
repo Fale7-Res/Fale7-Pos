@@ -4,112 +4,112 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:27:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordDailyWageHandler.RecordDailyWageHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordDailyWageHandler.RecordDailyWageHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 27-31.
+- **Behavior**: Initializes RecordDailyWageHandler by injecting and storing FalahDbContext as _db and IApprovalRegistry as _approvalRegistry in private readonly fields for database persistence and authorization checks.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:33:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordDailyWageHandler.HandleAsync(Falah.Application.Employees.RecordDailyWageRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordDailyWageHandler.HandleAsync(Falah.Application.Employees.RecordDailyWageRequest, CancellationToken) across lines 33-61.
+- **Behavior**: Asynchronously records a manual daily wage credit entry for an employee: resolves actor user, enforces 'employees_ledger' permission with optional manager approval, loads employee entity, determines wage from custom value or employee default, generates deterministic ledger ID (led-daily-wage-{EmployeeId}-{Date}-{ShiftId}), posts entry via EmployeeLedgerPoster.PostIfNewAsync, throws DomainException if a daily wage was already recorded for this employee/date/shift combination, and persists via SaveChangesAsync.
 - **Validations**: Validation checks detected: True. Throws: InvalidOperationException, DomainException, InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:35:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 35-35.
+- **Behavior**: Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:40:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 40-40.
+- **Behavior**: Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:47:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 47-47.
+- **Behavior**: Predicate lambda `e => e.Id == request.EmployeeId` querying Employees DbSet with AsNoTracking() to load the employee record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:71:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordOvertimeHandler.RecordOvertimeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordOvertimeHandler.RecordOvertimeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 71-75.
+- **Behavior**: Initializes RecordOvertimeHandler by injecting and storing FalahDbContext as _db and IApprovalRegistry as _approvalRegistry in private readonly fields for database persistence and authorization checks.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:77:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordOvertimeHandler.HandleAsync(Falah.Application.Employees.RecordOvertimeRequest, CancellationToken) across lines 77-109.
+- **Behavior**: Asynchronously records an overtime compensation credit in the employee ledger: validates request.Hours > 0, resolves actor user, enforces 'employees_ledger' permission with optional manager approval, loads overtime hourly rate from system settings or custom override, calculates total compensation (rate * hours), posts ledger entry via EmployeeLedgerPoster.PostIfNewAsync with deterministic ID (led-overtime-{RequestId}), safely replays existing entry on duplicate retry, and saves changes via SaveChangesAsync.
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:80:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 80-80.
+- **Behavior**: Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:85:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 85-85.
+- **Behavior**: Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:104:84:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 104-104.
+- **Behavior**: Predicate lambda `e => e.Id == id` querying EmployeeLedgerEntries DbSet with AsNoTracking() to reload and return an existing entry when replaying an idempotent overtime request.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:119:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordExtraShiftHandler.RecordExtraShiftHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordExtraShiftHandler.RecordExtraShiftHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 119-123.
+- **Behavior**: Initializes RecordExtraShiftHandler by injecting and storing FalahDbContext as _db and IApprovalRegistry as _approvalRegistry in private readonly fields for database persistence and authorization checks.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:125:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordExtraShiftHandler.HandleAsync(Falah.Application.Employees.RecordExtraShiftRequest, CancellationToken) across lines 125-157.
+- **Behavior**: Asynchronously records an extra shift credit entry in the employee ledger: validates request.ShiftCount > 0, resolves actor user, enforces 'employees_ledger' permission with optional manager approval, resolves employee record, calculates shift value from ShiftValuePiastres or DailyWagePiastres, computes total amount (shiftValue * shiftCount), posts ledger entry via EmployeeLedgerPoster.PostIfNewAsync with deterministic ID (led-extra-shift-{RequestId}), safely replays existing entry on duplicate retry, and saves changes via SaveChangesAsync.
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, DomainException, InvalidOperationException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:128:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 128-128.
+- **Behavior**: Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:133:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 133-133.
+- **Behavior**: Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:140:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 140-140.
+- **Behavior**: Predicate lambda `e => e.Id == request.EmployeeId` querying Employees DbSet with AsNoTracking() to load the employee record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs:152:84:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 152-152.
+- **Behavior**: Predicate lambda `e => e.Id == id` querying EmployeeLedgerEntries DbSet with AsNoTracking() to reload and return an existing entry when replaying an idempotent extra shift request.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

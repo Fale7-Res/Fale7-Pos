@@ -4,84 +4,84 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:24:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.OpenCashDrawerHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.OpenCashDrawerHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 24-29.
+- **Behavior**: Initializes OpenCashDrawerHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for persistence, authorization checks, and audit logging.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:31:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.HandleAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.HandleAsync(Falah.Application.CashDrawer.OpenCashDrawerRequest, CancellationToken) across lines 31-82.
+- **Behavior**: Asynchronously processes a manual cash drawer open command (outside of a sale): checks idempotency via CashDrawerOpens (id = $"cash-drawer-{request.RequestId}"), validates non-empty reason, resolves actor user, verifies open shift, authorizes 'cash_drawer' permission (with optional manager approval), creates CashDrawerOpenEntity in Requested status (deliberately isolated from Treasury financial movements), appends a warning-level audit event to _auditLog, persists via SaveChangesAsync, and catches DbUpdateException to replay lookup upon key conflict.
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, InvalidOperationException, DomainException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': True, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:34:85:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 34-34.
+- **Behavior**: Predicate lambda `c => c.Id == id` querying CashDrawerOpens DbSet with AsNoTracking() to check whether this drawer open request ID was previously recorded.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:39:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 39-39.
+- **Behavior**: Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:43:73:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 43-43.
+- **Behavior**: Predicate lambda `s => s.Id == request.ShiftId` querying Shifts DbSet with AsNoTracking() to load and verify the active shift status.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:50:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 50-50.
+- **Behavior**: Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:77:87:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 77-77.
+- **Behavior**: Predicate lambda `c => c.Id == id` querying CashDrawerOpens DbSet with AsNoTracking() inside the DbUpdateException catch block to retrieve and replay the existing entity upon key conflict.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:84:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.ToDto(Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.CashDrawer.OpenCashDrawerHandler.ToDto(Falah.Infrastructure.Persistence.Entities.CashDrawerOpenEntity) across lines 84-85.
+- **Behavior**: Internal static projection mapping CashDrawerOpenEntity properties (Id, ShiftId, Reason, RequestedBy, ApprovedBy, Status, LastError, RequestedAtUtc) into a CashDrawerOpenDto record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:94:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.ReportCashDrawerResultHandler(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.ReportCashDrawerResultHandler(Falah.Infrastructure.Persistence.FalahDbContext) across lines 94-94.
+- **Behavior**: Initializes ReportCashDrawerResultHandler by injecting and storing FalahDbContext as _db in a private readonly field.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:96:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.HandleAsync(Falah.Application.CashDrawer.ReportCashDrawerResultRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.CashDrawer.ReportCashDrawerResultHandler.HandleAsync(Falah.Application.CashDrawer.ReportCashDrawerResultRequest, CancellationToken) across lines 96-109.
+- **Behavior**: Asynchronously records the hardware execution result for a previously requested drawer open: loads CashDrawerOpenEntity by ID (throws InvalidOperationException if missing), verifies reporting user exists, updates entity status (Succeeded or Failed), stores error message if failed, records ReportedAtUtc timestamp, persists via SaveChangesAsync, and returns mapped DTO via OpenCashDrawerHandler.ToDto.
 - **Validations**: Validation checks detected: False. Throws: InvalidOperationException, InvalidOperationException.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:98:68:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 98-98.
+- **Behavior**: Predicate lambda `c => c.Id == request.CashDrawerOpenId` querying CashDrawerOpens DbSet with tracking to retrieve the drawer open command entity for status update.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs:100:64:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 100-100.
+- **Behavior**: Predicate lambda `u => u.Id == request.ReportedByUserId` querying Users DbSet with AsNoTracking() to verify that the reporting user exists.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

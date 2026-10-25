@@ -11,9 +11,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Save(string, object)
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Save(string, object) across lines 19-19.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Interface contract for persisting an in-flight API command request to local disk before transmission, identified by ownerKey (e.g. view model command identifier).
+- **Validations:** Interface signature declaration. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:20:5:MethodDeclaration
@@ -22,9 +22,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Clear(string)
 - **Lines:** [20-20]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Clear(string) across lines 20-20.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Interface contract for removing a retained request file from local disk once server response confirms final disposition.
+- **Validations:** Interface signature declaration. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:25:5:MethodDeclaration
@@ -33,9 +33,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Load(string)
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.Load(string) across lines 25-25.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Interface contract for deserializing and retrieving a previously stored request for ownerKey on application restart, returning null if no request exists.
+- **Validations:** Interface signature declaration. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:27:5:MethodDeclaration
@@ -44,9 +44,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.List()
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.IRetainedRequestStore.List() across lines 27-27.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Interface contract enumerating all pending retained requests persisted on the local workstation.
+- **Validations:** Interface signature declaration. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:40:5:ConstructorDeclaration
@@ -55,9 +55,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.FileRetainedRequestStore(string, Action<Exception>?)
 - **Lines:** [40-45]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.FileRetainedRequestStore(string, Action<Exception>?) across lines 40-45.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Initializes FileRetainedRequestStore with target storage directory and optional onError exception callback. Creates target filesystem directory via Directory.CreateDirectory(_directory) if not present.
+- **Validations:** Ensures directory exists on filesystem. Throws: I/O or UnauthorizedAccessException if path is invalid.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:49:5:MethodDeclaration
@@ -66,8 +66,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.DirectoryFor(string)
 - **Lines:** [49-51]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.DirectoryFor(string) across lines 49-51.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Station scoping helper computing the root storage path under '%LocalAppData%/Falah/pending-operations/{station}'. Isolates concurrent client sessions and profiles on the same hardware from cross-station pollution.
+- **Validations:** Preconditions: combines special folder with station name. Throws: None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -77,8 +77,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.PathFor(string)
 - **Lines:** [53-57]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.PathFor(string) across lines 53-57.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Generates a sanitized absolute JSON filepath for an ownerKey. Replaces invalid filename characters with underscores '_' and appends '.json' inside _directory.
+- **Validations:** Sanitizes filename against Path.GetInvalidFileNameChars(). Throws: None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -88,8 +88,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [55-55]
-- **Behavior:** Executes logic for lambda expression across lines 55-55.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Character mapping lambda 'c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c' scrubbing forbidden filesystem characters from ownerKey.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -99,9 +99,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Save(string, object)
 - **Lines:** [59-82]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Save(string, object) across lines 59-82.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Persists an in-flight request to disk using atomic two-phase write-then-rename: wraps request with Type (AssemblyQualifiedName), SavedAtUtc, and Payload. Serializes to temporary file '{path}.tmp', then invokes File.Move(temp, path, overwrite: true) to prevent half-written/corrupted JSON on power cuts. Catches all exceptions and delegates to _onError without interrupting client operation.
+- **Validations:** Atomic file move guards against mid-write power loss. Exception handling shields UI thread and falls back to in-memory retention. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:84:5:MethodDeclaration
@@ -110,9 +110,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Clear(string)
 - **Lines:** [84-92]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Clear(string) across lines 84-92.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Clears persisted retained request file for ownerKey. Checks File.Exists(path) and executes File.Delete(path). Catches and forwards any filesystem errors to _onError callback.
+- **Validations:** Guarded by File.Exists. Traps I/O exceptions. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:94:5:MethodDeclaration
@@ -121,9 +121,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Load(string)
 - **Lines:** [94-113]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.Load(string) across lines 94-113.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Loads and deserializes persisted request: returns null if file does not exist; deserializes Envelope containing stored Type and JsonElement payload; resolves CLR type via Type.GetType(envelope.Type); if type is null (e.g. obsolete/refactored command), automatically purges file via Clear(ownerKey) and returns null; otherwise deserializes Payload into target type. Traps errors, reports to _onError, and returns null.
+- **Validations:** Self-healing: deletes orphaned requests whose CLR types no longer exist to avoid permanently stranding UI screens. Throws: None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs:115:5:MethodDeclaration
@@ -132,8 +132,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.List()
 - **Lines:** [115-136]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.FileRetainedRequestStore.List() across lines 115-136.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Enumerates all '*.json' files in storage directory: deserializes each into an Envelope, extracts short type name, and returns a list of RetainedRequestRecord instances (OwnerKey, TypeName, SavedAtUtc). Catches errors, invokes _onError, and returns empty array on failure.
+- **Validations:** Directory enumeration with exception trapping. Returns Array.Empty on failure. Throws: None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.RetainedRequestStorage.Current.get
 - **Lines:** [145-145]
-- **Behavior:** Accessor 'get' for property in Falah.Client.CallCenterWinUI.Services.RetainedRequestStorage.Current.get.
+- **Behavior:** Getter for ambient static hook RetainedRequestStorage.Current providing access to the workstation's active IRetainedRequestStore instance.
 - **Validations:** None (auto-property).
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.RetainedRequestStorage.Current.set
 - **Lines:** [145-145]
-- **Behavior:** Accessor 'set' for property in Falah.Client.CallCenterWinUI.Services.RetainedRequestStorage.Current.set.
+- **Behavior:** Setter for ambient static hook RetainedRequestStorage.Current allowing view models and test fixtures to inject an IRetainedRequestStore implementation.
 - **Validations:** None (auto-property).
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

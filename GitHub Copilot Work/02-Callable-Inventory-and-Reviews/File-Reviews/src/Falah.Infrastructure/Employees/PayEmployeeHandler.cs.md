@@ -4,49 +4,78 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:39:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.PayEmployeeHandler.PayEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.PayEmployeeHandler.PayEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 39-44.
+- **Behavior**: Injects `FalahDbContext` for persistence, `IApprovalRegistry` for manager approval token validation, and `IAuditLog` for recording continuous employee ledger cash payout audit trails. Holds zero mutable state.
+  ```csharp
+  // Lines 39-44: Constructor dependency injection
+  public PayEmployeeHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+      _auditLog = auditLog;
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:46:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.PayEmployeeHandler.HandleAsync(Falah.Application.Employees.PayEmployeeRequest, CancellationToken) across lines 46-154.
+- **Behavior**: Implements the standalone, on-demand employee ledger payout workflow, allowing an employee's continuous balance to be paid down at any time up to their accumulated credit. Validates payment account against whitelist (`tre-main`, `tre-bank`, `tre-instapay`). Performs idempotent replay probe on `led-employee-payment-{requestId}` and `employee-payment-{requestId}`. Validates positive monetary amount via `EmployeeRules.AssertLedgerAmount`. Resolves actor user and target employee. Asserts open business day via `BusinessDayGate.RequireOpenAsync`. Opens database transaction and acquires exclusive row lock on the employee (`SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK)`). Authorizes command under `employees_ledger` policy with mandatory manager approval. Queries all employee ledger entries under row lock (`SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK)`) and computes current balance; verifies payment does not exceed balance via `EmployeeRules.AssertPaymentWithinBalance`. Locks source treasury movements via `TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync` and verifies protected balance via `FinancialRules.AssertProtectedSourceBalance`. Starts financial journal entry, creates `TreasuryMovement` with type `employee_payment`, debits employee ledger with type `Settlement` via `EmployeeLedgerPoster.PostIfNewAsync`, records warning audit event, and commits transaction. Catches contention exceptions with sibling replay resolution.
+  ```csharp
+  // Lines 46-141: Standalone employee payout execution
+  public async Task<PayEmployeeResult> HandleAsync(PayEmployeeRequest request, CancellationToken ct = default)
+  {
+      if (!ValidAccounts.Contains(request.PaymentAccountId))
+          throw new DomainException("حساب الدفع غير صالح لدفع مستحقات الموظف.");
+      ...
+  }
+  ```
+  - **Financial & Transaction Integrity**: Posts atomic TreasuryMovement and EmployeeLedgerEntry debits under double pessimistic locks (on employee entity and ledger history).
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, InvalidOperationException, DomainException, TreasuryConflictException, TreasuryConflictException, TreasuryConflictException, TreasuryConflictException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:54:9:LocalFunctionStatement
 - **Symbol**: LoadReplayAsync()
 - **Kind**: LocalFunctionStatement
-- **Behavior**: Executes logic for LoadReplayAsync() across lines 54-60.
+- **Behavior**: Local function checking for existing `EmployeeLedgerEntries` matching `ledgerEntryId` and `TreasuryMovements` matching `idempotencyKey` using `.AsNoTracking()`. Returns `PayEmployeeResult` with `WasReplayed = true` if already committed.
+  ```csharp
+  // Lines 54-60: Local replay probe
+  async Task<PayEmployeeResult?> LoadReplayAsync()
+  {
+      var entry = await _db.EmployeeLedgerEntries.AsNoTracking().FirstOrDefaultAsync(e => e.Id == ledgerEntryId, ct);
+      if (entry is null) return null;
+      var movement = await _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
+      return new PayEmployeeResult(entry.Id, entry.BalanceAfterPiastres, movement?.Id ?? "", WasReplayed: true);
+  }
+  ```
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:56:92:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 56-56.
+- **Behavior**: Predicate expression lambda `e => e.Id == ledgerEntryId` querying existing employee ledger settlement row for idempotent replay.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:58:91:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 58-58.
+- **Behavior**: Predicate expression lambda `m => m.IdempotencyKey == idempotencyKey` querying existing treasury movement row for idempotent replay.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:67:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 67-67.
+- **Behavior**: User lookup predicate expression lambda `u => u.Id == request.ActorUserId` loading actor user entity without change tracking.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:71:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 71-71.
+- **Behavior**: Employee lookup predicate expression lambda `e => e.Id == request.EmployeeId` loading target employee entity without change tracking.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -60,7 +89,7 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:89:87:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 89-89.
+- **Behavior**: Approver user lookup expression lambda `u => u.Id == request.ManagerApproverUserId` verifying manager approver identity and role.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -74,7 +103,7 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs:103:71:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 103-103.
+- **Behavior**: Calculation expression lambda `e => e.CreditPiastres - e.DebitPiastres` aggregating net employee balance across locked ledger entries.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

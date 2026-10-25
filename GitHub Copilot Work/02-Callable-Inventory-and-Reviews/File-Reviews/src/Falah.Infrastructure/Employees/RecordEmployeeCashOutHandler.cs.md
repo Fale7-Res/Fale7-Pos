@@ -4,35 +4,35 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:31:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.RecordEmployeeCashOutHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.RecordEmployeeCashOutHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 31-36.
+- **Behavior**: Initializes RecordEmployeeCashOutHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for persistence, authorization checks, and audit logging.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:38:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.HandleAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordEmployeeCashOutHandler.HandleAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest, CancellationToken) across lines 38-161.
+- **Behavior**: Asynchronously processes an employee cash-out (advance or withdrawal) paid out from the cash drawer: validates kind ('advance' or 'withdrawal') and positive amount, checks idempotency via EmployeeLedgerEntries, resolves actor and employee, opens transaction, locks employee row via SQL WITH (UPDLOCK, ROWLOCK, HOLDLOCK) to prevent deadlocks, verifies open shift and open business day via BusinessDayGate, verifies drawer liquidity via FinancialRules.AssertProtectedSourceBalance, locks employee ledger rows via UPDLOCK to compute current balance, enforces AssertWithdrawalWithinBalance for withdrawals (while advances are intentionally unbounded), registers operation in EfFinancialJournal, generates treasury cash-out movement from TreasuryAccounts.Drawer via TreasuryMovementFactory, appends EmployeeLedgerEntryEntity with updated balance, logs audit event, and commits transaction with BalanceLockContention handling.
 - **Validations**: Validation checks detected: True. Throws: DomainException, DomainException, InvalidOperationException, InvalidOperationException, InvalidOperationException, DomainException, DomainException, TreasuryConflictException, TreasuryConflictException, TreasuryConflictException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': True, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:44:91:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 44-44.
+- **Behavior**: Predicate lambda `e => e.IdempotencyKey == idempotencyKey` querying EmployeeLedgerEntries DbSet with AsNoTracking() to check whether this cash-out request was previously executed.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:52:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 52-52.
+- **Behavior**: Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:56:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 56-56.
+- **Behavior**: Predicate lambda `e => e.Id == request.EmployeeId` querying Employees DbSet with AsNoTracking() to load the employee record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -53,14 +53,14 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:73:77:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 73-73.
+- **Behavior**: Predicate lambda `s => s.Id == request.ShiftId` querying Shifts DbSet with AsNoTracking() to verify that the shift exists and is currently Open.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:81:87:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 81-81.
+- **Behavior**: Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -74,28 +74,28 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:102:71:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 102-102.
+- **Behavior**: Accumulator lambda `e => e.CreditPiastres - e.DebitPiastres` used with .Sum() to compute the employee's current net ledger balance from locked ledger entries.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:147:93:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 147-147.
+- **Behavior**: Predicate lambda `e => e.IdempotencyKey == idempotencyKey` querying EmployeeLedgerEntries DbSet with AsNoTracking() inside the exception handling block for replay lookup.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:153:21:ParenthesizedLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: ParenthesizedLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 153-153.
-- **Validations**: Validation checks detected: False. Throws: None detected in body.
+- **Behavior**: Asynchronous delegate `async () => await _db.EmployeeLedgerEntries.AsNoTracking().FirstOrDefaultAsync(e => e.IdempotencyKey == idempotencyKey, ct)` passed to BalanceLockContention.AwaitSiblingAsync to poll for the concurrent winner's committed ledger entry.
+- **Validations**: None.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs:153:100:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 153-153.
+- **Behavior**: Predicate lambda `e => e.IdempotencyKey == idempotencyKey` within the polling delegate passed to AwaitSiblingAsync.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

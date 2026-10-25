@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.ReassignDeliveryHandler.ReassignDeliveryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Lines:** [27-32]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.ReassignDeliveryHandler.ReassignDeliveryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 27-32.
+- **Behavior:** Initializes ReassignDeliveryHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for persistence, authorization checks, and audit logging.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.ReassignDeliveryHandler.HandleAsync(Falah.Application.Delivery.ReassignDeliveryRequest, CancellationToken)
 - **Lines:** [34-153]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.ReassignDeliveryHandler.HandleAsync(Falah.Application.Delivery.ReassignDeliveryRequest, CancellationToken) across lines 34-153.
+- **Behavior:** Asynchronously transfers an existing delivery assignment to a new driver: performs idempotency pre-check via DeliveryReassignments, resolves actor, opens ReadCommitted transaction, locks delivery via raw SQL WITH (UPDLOCK, ROWLOCK, HOLDLOCK), resolves target driver, validates reassignment prerequisites (reason not empty, driver active), performs same-driver no-op check, rejects transfers on settled/cancelled orders, enforces tiered authorization ('delivery_override' for post-outcome vs 'delivery_manage' for in-flight corrections), reassigns open DriverCustodyEntity to the new driver, updates delivery driver details, records DeliveryReassignmentEntity and DeliveryEventEntity, creates new driver dispatch PrintJobEntity (deduplicated by RequestId), appends audit log event, and commits transaction.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException, InvalidOperationException, DomainException, DomainException, DomainException, InvalidOperationException, InvalidOperationException, DeliveryConflictException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [37-37]
-- **Behavior:** Executes logic for lambda expression across lines 37-37.
+- **Behavior:** Predicate lambda `h => h.Id == historyId` querying DeliveryReassignments DbSet with AsNoTracking() to check whether the reassignment request ID was already processed.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [40-40]
-- **Behavior:** Executes logic for lambda expression across lines 40-40.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() to reload the delivery entity for idempotent replay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [45-45]
-- **Behavior:** Executes logic for lambda expression across lines 45-45.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [57-57]
-- **Behavior:** Executes logic for lambda expression across lines 57-57.
+- **Behavior:** Predicate lambda `d => d.Id == request.NewDriverId && d.Active` querying Drivers DbSet with AsNoTracking() to verify that the target driver exists and is active.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [81-81]
-- **Behavior:** Executes logic for lambda expression across lines 81-81.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [89-89]
-- **Behavior:** Executes logic for lambda expression across lines 89-89.
+- **Behavior:** Predicate lambda `d => d.Id == oldDriverId` querying Drivers DbSet with AsNoTracking() to load the previous driver record for audit history.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +99,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [90-90]
-- **Behavior:** Executes logic for lambda expression across lines 90-90.
+- **Behavior:** Predicate lambda `o => o.Id == delivery.OrderId` querying Orders DbSet with AsNoTracking() to load the associated order record for dispatch ticket printing.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -110,7 +110,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [94-94]
-- **Behavior:** Executes logic for lambda expression across lines 94-94.
+- **Behavior:** Predicate lambda `c => c.DeliveryId == delivery.Id` querying DriverCustodies DbSet to retrieve any unsettled custody entity associated with the delivery for driver transfer.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [144-144]
-- **Behavior:** Executes logic for lambda expression across lines 144-144.
+- **Behavior:** Predicate lambda `h => h.Id == historyId` querying DeliveryReassignments DbSet with AsNoTracking() within the DbUpdateException catch handler to confirm if a race condition resulted from a concurrent identical reassignment.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -132,7 +132,7 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [147-147]
-- **Behavior:** Executes logic for lambda expression across lines 147-147.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() inside the exception replay path to reload and return the delivery entity.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

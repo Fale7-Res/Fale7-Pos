@@ -4,63 +4,97 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:20:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CreateEmployeeHandler.CreateEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CreateEmployeeHandler.CreateEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 20-24.
+- **Behavior**: Injects `FalahDbContext` for employee persistence and `IApprovalRegistry` for permission verification into `CreateEmployeeHandler`. Holds zero mutable state.
+  ```csharp
+  // Lines 20-24: CreateEmployeeHandler constructor
+  public CreateEmployeeHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:26:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CreateEmployeeHandler.HandleAsync(Falah.Application.Employees.CreateEmployeeRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CreateEmployeeHandler.HandleAsync(Falah.Application.Employees.CreateEmployeeRequest, CancellationToken) across lines 26-63.
+- **Behavior**: Creates a new employee profile idempotently using key `emp-{request.RequestId}`. Checks for pre-existing employee ID and returns replayed DTO if present. Enforces input validation rules (Name, EmployeeNumber, JobTitle, Phone) via `EmployeeRules.AssertEmployeeInput`. Parses and validates `CompensationType` enum (`Daily`, `Shift`, `Monthly`). Enforces `employees_manage` permission on actor user. Maps request properties into `EmployeeEntity` setting `UserId = null` (never coupled upon creation), `IsActive = true`, and `CreatedAtUtc = DateTimeOffset.UtcNow`. Saves entity and catches `DbUpdateException` to safely return winning employee row on concurrent duplicate insert.
+  ```csharp
+  // Lines 26-63: Employee creation handler
+  public async Task<EmployeeDto> HandleAsync(CreateEmployeeRequest request, CancellationToken ct = default)
+  {
+      var id = $"emp-{request.RequestId}";
+      var existing = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
+      if (existing is not null) return EmployeeQueryService.ToDto(existing);
+      ...
+  }
+  ```
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:29:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 29-29.
+- **Behavior**: Idempotency predicate expression lambda `e => e.Id == id` checking if employee entity already exists before creating.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:36:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 36-36.
+- **Behavior**: User lookup predicate expression lambda `u => u.Id == request.ActorUserId` for actor authorization.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:58:81:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 58-58.
+- **Behavior**: Concurrency recovery predicate expression lambda `e => e.Id == id` reloading persisted employee entity on `DbUpdateException`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:73:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.UpdateEmployeeHandler.UpdateEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.UpdateEmployeeHandler.UpdateEmployeeHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 73-77.
+- **Behavior**: Injects `FalahDbContext` for employee persistence and `IApprovalRegistry` for permission verification into `UpdateEmployeeHandler`. Holds zero mutable state.
+  ```csharp
+  // Lines 73-77: UpdateEmployeeHandler constructor
+  public UpdateEmployeeHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:79:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.UpdateEmployeeHandler.HandleAsync(Falah.Application.Employees.UpdateEmployeeRequest, CancellationToken) across lines 79-115.
+- **Behavior**: Performs a complete update of an existing employee profile. Enforces `EmployeeRules.AssertEmployeeInput` on Name, EmployeeNumber, JobTitle, Phone, and validates `CompensationType`. Verifies `employees_manage` permission on actor user. Loads tracked `EmployeeEntity` by `request.EmployeeId`, throwing `InvalidOperationException` if not found. Updates all profile fields (Name, EmployeeNumber, JobTitle, Phone, HireDate, CompensationType, DailyWagePiastres, ShiftValuePiastres, MonthlySalaryPiastres, CanDeliver, Role, IsActive, Notes, Address, NationalId, Department, EmploymentArrangement, FingerprintId, LifecycleStatus, OvertimeRatePiastres) while strictly leaving `UserId` unchanged (matching legacy design). Commits changes and returns updated `EmployeeDto`.
+  ```csharp
+  // Lines 79-115: Employee profile update handler
+  public async Task<EmployeeDto> HandleAsync(UpdateEmployeeRequest request, CancellationToken ct = default)
+  {
+      EmployeeRules.AssertEmployeeInput(request.Name, request.EmployeeNumber, request.JobTitle, request.Phone);
+      ...
+  }
+  ```
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, InvalidOperationException.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:85:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 85-85.
+- **Behavior**: User lookup predicate expression lambda `u => u.Id == request.ActorUserId` verifying actor identity for `employees_manage` check.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs:89:62:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 89-89.
+- **Behavior**: Employee lookup predicate expression lambda `e => e.Id == request.EmployeeId` loading mutable entity for update.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

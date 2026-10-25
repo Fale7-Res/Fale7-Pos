@@ -11,8 +11,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.DeliveryCashResponsibility(Falah.Domain.Financial.PaymentMethod, bool, Falah.Domain.Common.Money)
 - **Lines:** [11-12]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.DeliveryCashResponsibility(Falah.Domain.Financial.PaymentMethod, bool, Falah.Domain.Common.Money) across lines 11-12.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Pure responsibility mapping function. If payment method is Cash, the driver is held responsible for the entire delivery amount. For any other payment method (e.g. Card/electronic), the driver is responsible for Money.Zero if paymentAlreadySettled is true, or the full amount if electronic payment has not yet settled at dispatch time.
+- **Validations:** Preconditions: none evaluated in method body. Business invariant: cash delivery always requires physical collection regardless of settlement flag; non-cash delivery only assigns custody when payment has not settled electronically.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -22,8 +22,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.CreateCashCustody(string, string, Falah.Domain.Delivery.DeliveryFacts, string, DateTimeOffset)
 - **Lines:** [16-21]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.CreateCashCustody(string, string, Falah.Domain.Delivery.DeliveryFacts, string, DateTimeOffset) across lines 16-21.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Factory method for cash custody tracking. Evaluates DeliveryCashResponsibility(delivery.PaymentMethod, delivery.PaymentAlreadySettled, delivery.AmountToCollect). If expected amount is zero (e.g., prepaid or fully-comped delivery), returns null so no redundant custody row is created. Otherwise creates and returns an open DriverCustody record initialized with custodyId, tripId, driverId, delivery identifiers, Expected = expected, Collected = Money.Zero, Settled = Money.Zero, Difference = Money.Zero, Status = CustodyStatus.Open, and createdAtUtc.
+- **Validations:** Validates expected.IsZero to prevent creating empty or zero-value custody rows. Throws: None.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -33,8 +33,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.ReassignCustody(IEnumerable<Falah.Domain.Delivery.DriverCustody>, string, string)
 - **Lines:** [27-28]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.ReassignCustody(IEnumerable<Falah.Domain.Delivery.DriverCustody>, string, string) across lines 27-28.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Transfers custody of a delivery to a new driver by re-labeling the existing DriverCustody record in place. Projects the sequence via c.ReassignTo(newDriverId) where c.DeliveryId matches deliveryId. Does not create duplicate custody rows, guaranteeing that the old driver's obligation decreases and the new driver's obligation increases by the exact same amount with zero double-counting. Custodies that are already Settled cannot be reassigned.
+- **Validations:** Preconditions: checks DeliveryId match. Enforces immutability: ReassignTo leaves records with CustodyStatus.Settled untouched.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -44,8 +44,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for lambda expression across lines 28-28.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Conditional projection lambda 'c => c.DeliveryId == deliveryId ? c.ReassignTo(newDriverId) : c'. If the custody record matches the target deliveryId, delegates to ReassignTo; otherwise yields the existing custody record unmodified.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -55,8 +55,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.CalculateTripSettlement(IEnumerable<Falah.Domain.Delivery.DriverCustody>, Falah.Domain.Common.Money)
 - **Lines:** [32-38]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.CalculateTripSettlement(IEnumerable<Falah.Domain.Delivery.DriverCustody>, Falah.Domain.Common.Money) across lines 32-38.
-- **Validations:** Validation checks detected: True. Throws: DomainException.
+- **Behavior:** Calculates the reconciliation difference for a driver trip. Validates that actual cash collected is non-negative. Filters custodies for all records where Status != CustodyStatus.Settled. Computes expected remittance by summing c.Collected.Piastres across unsettled custodies. Returns a TripSettlementResult with Expected, Actual, and Difference = actual - expected.
+- **Validations:** Validates actual cash: throws DomainException("النقدية الفعلية يجب أن تكون عدد قروش صحيحًا وغير سالب.") if actual.IsNegative. Enforces settlement invariant that driver must remit what was collected from customers.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -66,8 +66,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [35-35]
-- **Behavior:** Executes logic for lambda expression across lines 35-35.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Filtering predicate lambda 'c => c.Status != CustodyStatus.Settled' selecting only active, unsettled driver custody records to compute trip settlement obligations.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [36-36]
-- **Behavior:** Inline expression lambda 'var expected = Money.FromPiastres(unsettled.Sum(c => c.Collected.Piastres));'.
+- **Behavior:** Projection lambda 'c => c.Collected.Piastres' selecting the customer-collected piastre amount from each unsettled custody record to compute total expected remittance.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -88,8 +88,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.BuildDriverSettlementScope(string, IEnumerable<Falah.Domain.Delivery.DeliveryFacts>, IEnumerable<Falah.Domain.Delivery.DriverCustody>)
 - **Lines:** [52-77]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.BuildDriverSettlementScope(string, IEnumerable<Falah.Domain.Delivery.DeliveryFacts>, IEnumerable<Falah.Domain.Delivery.DriverCustody>) across lines 52-77.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Constructs the driver settlement scope to reconcile both physical cash custody and operational delivery lifecycle. Partitions deliveries for driverId that are not Settled or Cancelled into activeDeliveries (Assigned, HandedToDriver, OutForDelivery) and resolvedDeliveries (Delivered, Failed, Returned). Filters unsettled custodies for driverId. Sums grossOrderValue for delivered orders, and prepaidValue for delivered orders with zero cash responsibility. Collects distinct order IDs and trip IDs, returning a DriverSettlementScope record.
+- **Validations:** Excludes already Settled or Cancelled deliveries. Enforces that prepaid resolved deliveries are included to ensure associated operational trips can be closed.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -99,8 +99,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [55-56]
-- **Behavior:** Executes logic for lambda expression across lines 55-56.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => d.DriverId == driverId && d.Status is not (DeliveryStatus.Settled or DeliveryStatus.Cancelled)' filtering for incomplete deliveries belonging to the specified driver.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -110,8 +110,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [57-58]
-- **Behavior:** Executes logic for lambda expression across lines 57-58.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => d.Status is DeliveryStatus.Assigned or DeliveryStatus.HandedToDriver or DeliveryStatus.OutForDelivery' identifying deliveries currently in progress on the road.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -121,8 +121,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [59-60]
-- **Behavior:** Executes logic for lambda expression across lines 59-60.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => d.Status is DeliveryStatus.Delivered or DeliveryStatus.Failed or DeliveryStatus.Returned' identifying deliveries whose dispatch lifecycle has reached an operational resolution.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -132,8 +132,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [61-61]
-- **Behavior:** Executes logic for lambda expression across lines 61-61.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'c => c.DriverId == driverId && c.Status != CustodyStatus.Settled' identifying unsettled cash custody rows assigned to the driver.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -143,8 +143,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [62-62]
-- **Behavior:** Executes logic for lambda expression across lines 62-62.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => d.Status == DeliveryStatus.Delivered' isolating successfully delivered orders from resolved deliveries for revenue aggregation.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -154,8 +154,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [64-64]
-- **Behavior:** Executes logic for lambda expression across lines 64-64.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Projection lambda 'd => d.OrderTotal.Piastres' extracting order total piastres across successfully delivered orders.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -165,8 +165,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [66-66]
-- **Behavior:** Executes logic for lambda expression across lines 66-66.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => DeliveryCashResponsibility(d.PaymentMethod, d.PaymentAlreadySettled, d.AmountToCollect).IsZero' filtering for orders where driver cash collection responsibility is zero.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -176,7 +176,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [67-67]
-- **Behavior:** Inline expression lambda '.Sum(d => d.OrderTotal.Piastres));'.
+- **Behavior:** Projection lambda 'd => d.OrderTotal.Piastres' extracting order total piastres across prepaid delivered orders.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -187,7 +187,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [69-69]
-- **Behavior:** Inline expression lambda 'var orderIds = resolvedDeliveries.Select(d => d.OrderId).ToList();'.
+- **Behavior:** Projection lambda 'd => d.OrderId' collecting order IDs from resolved deliveries.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -198,7 +198,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [70-70]
-- **Behavior:** Inline expression lambda 'var tripIds = resolvedDeliveries.Select(d => d.TripId)'.
+- **Behavior:** Projection lambda 'd => d.TripId' extracting trip IDs from resolved deliveries.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -209,7 +209,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [71-71]
-- **Behavior:** Inline expression lambda '.Concat(unsettledCustodies.Select(c => c.TripId))'.
+- **Behavior:** Projection lambda 'c => c.TripId' extracting trip IDs from unsettled custodies.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -220,7 +220,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Inline expression lambda '.Where(id => !string.IsNullOrEmpty(id))'.
+- **Behavior:** Predicate lambda 'id => !string.IsNullOrEmpty(id)' filtering out null or empty trip IDs before deduplication.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -231,8 +231,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.AssertCollectionAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money, string?)
 - **Lines:** [81-86]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.AssertCollectionAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money, string?) across lines 81-86.
-- **Validations:** Validation checks detected: True. Throws: DomainException, DomainException.
+- **Behavior:** Validates collected money against expected cash for a delivery. Checks that collected amount is non-negative. If collected amount does not equal expected amount, strictly requires a non-empty explanation reason string to prevent silent reconciliation of variances.
+- **Validations:** Throws DomainException("المبلغ المحصل غير صالح.") if collected.IsNegative. Throws DomainException("فرق التحصيل يتطلب سببًا واضحًا ولا يمكن تسويته تلقائيًا.") if expected != collected and reason is null or whitespace.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -242,9 +242,9 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.UnsettledCustodyForShift(IEnumerable<Falah.Domain.Delivery.DriverCustody>, IEnumerable<Falah.Domain.Delivery.DeliveryFacts>, string)
 - **Lines:** [99-104]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.UnsettledCustodyForShift(IEnumerable<Falah.Domain.Delivery.DriverCustody>, IEnumerable<Falah.Domain.Delivery.DeliveryFacts>, string) across lines 99-104.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Queries unsettled driver custody records belonging to a given cashier shift. Extracts delivery IDs matching shiftId into a HashSet<string>, then filters custodies where Status != CustodyStatus.Settled and deliveryIds contains DeliveryId. Designed for shift handover warnings and cash count visibility, intentionally not blocking shift closure.
+- **Validations:** HashSet lookups enforce delivery ID membership. Throws: None.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Domain/Delivery/DeliveryRules.cs:102:44:SimpleLambdaExpression
@@ -253,8 +253,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [102-102]
-- **Behavior:** Executes logic for lambda expression across lines 102-102.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'd => d.ShiftId == shiftId' selecting deliveries associated with the target cashier shift.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -264,8 +264,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [102-102]
-- **Behavior:** Executes logic for lambda expression across lines 102-102.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Projection lambda 'd => d.Id' extracting delivery IDs to build the lookup hash set.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -275,8 +275,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [103-103]
-- **Behavior:** Executes logic for lambda expression across lines 103-103.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'c => c.Status != CustodyStatus.Settled && deliveryIds.Contains(c.DeliveryId)' matching unsettled custodies originating from the shift's deliveries.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -286,8 +286,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.FinalOutcome(Falah.Domain.Delivery.DeliveryFacts)
 - **Lines:** [110-116]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.FinalOutcome(Falah.Domain.Delivery.DeliveryFacts) across lines 110-116.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Recovers the actual operational outcome of a delivery from timestamp facts that are never modified by settlement. Evaluates timestamps in strict priority: if ReturnedAtUtc is non-null, returns DeliveryStatus.Returned; else if DeliveredAtUtc is non-null, returns DeliveryStatus.Delivered; else if FailedAtUtc is non-null, returns DeliveryStatus.Failed; otherwise returns null.
+- **Validations:** Evaluates ReturnedAtUtc > DeliveredAtUtc > FailedAtUtc timestamp nullability. Throws: None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -297,8 +297,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.FirstMissingDeliveryField(string?, string?, string?, string?, string?)
 - **Lines:** [120-129]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.FirstMissingDeliveryField(string?, string?, string?, string?, string?) across lines 120-129.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Validates mandatory delivery order fields sequentially in POS input order. Returns an Arabic error prompt for the first missing or whitespace field: customerPhone ("أدخل رقم هاتف العميل قبل المتابعة."), customerName ("أدخل اسم العميل قبل المتابعة."), deliveryServiceId ("اختر خدمة التوصيل قبل المتابعة."), deliveryArea ("أدخل المنطقة قبل المتابعة."), or deliveryStreet ("أدخل الشارع قبل المتابعة."). Returns null if all five fields are valid.
+- **Validations:** Checks string.IsNullOrWhiteSpace on customerPhone, customerName, deliveryArea, deliveryStreet, and string.IsNullOrEmpty on deliveryServiceId.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -308,8 +308,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.FirstMissingPickupField(string?, string?)
 - **Lines:** [135-140]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.FirstMissingPickupField(string?, string?) across lines 135-140.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Validates mandatory counter pickup fields. Returns "أدخل رقم هاتف العميل قبل المتابعة." if customerPhone is null or whitespace; returns "أدخل اسم العميل قبل المتابعة." if customerName is null or whitespace; returns null if both fields are valid.
+- **Validations:** Checks string.IsNullOrWhiteSpace on customerPhone and customerName.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -319,8 +319,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.ComposeDeliveryAddress(string?, string?, string?, string?, string?, string?)
 - **Lines:** [147-161]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.ComposeDeliveryAddress(string?, string?, string?, string?, string?, string?) across lines 147-161.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Composes a standardized, readable single-line address string from structured components (area, street, building, floor, apartment) and an optional free-text landmark. Joins non-empty structured parts with Arabic comma '، ' and appends landmark with ' — ' separator.
+- **Validations:** Filters out null and whitespace parts before joining. Throws: None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -330,7 +330,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [156-156]
-- **Behavior:** Inline expression lambda '}.Where(p => p is not null);'.
+- **Behavior:** Predicate lambda 'p => p is not null' filtering out null address component formatted strings.
 - **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -341,8 +341,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [159-159]
-- **Behavior:** Executes logic for lambda expression across lines 159-159.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate lambda 'p => !string.IsNullOrEmpty(p)' filtering empty parts when joining composed address and trimmed landmark.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -352,8 +352,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.EmployeeDriverEligible(Falah.Domain.Delivery.Employee?)
 - **Lines:** [163-163]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.EmployeeDriverEligible(Falah.Domain.Delivery.Employee?) across lines 163-163.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Determines driver eligibility for an employee. Returns true if employee is non-null and both employee.IsActive and employee.CanDeliver flags are true; returns false otherwise.
+- **Validations:** Null check and boolean flag assertions on employee record.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -363,9 +363,9 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.AssertDriverAssignable(Falah.Domain.Delivery.Driver?, Falah.Domain.Delivery.Employee?)
 - **Lines:** [169-175]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.AssertDriverAssignable(Falah.Domain.Delivery.Driver?, Falah.Domain.Delivery.Employee?) across lines 169-175.
-- **Validations:** Validation checks detected: True. Throws: DomainException, DomainException, DomainException.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Domain gate asserting driver assignability for dispatch operations. Asserts driver exists and is active. If driver is linked to an employee (driver.EmployeeId is not null), verifies that the employee is active and eligible for delivery via EmployeeDriverEligible.
+- **Validations:** Throws DomainException("السائق غير موجود.") if driver is null. Throws DomainException("السائق {driver.Name} معطّل ولا يمكن تعيين طلبات له.") if !driver.Active. Throws DomainException("الموظف المرتبط بالسائق {driver.Name} غير نشط أو غير مؤهل للتوصيل حاليًا.") if driver.EmployeeId is not null and !EmployeeDriverEligible(employee).
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Domain/Delivery/DeliveryRules.cs:182:5:MethodDeclaration
@@ -374,8 +374,8 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryRules.ResolvePaymentState(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Lines:** [182-187]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryRules.ResolvePaymentState(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 182-187.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Classifies the driver payment custody state for a delivery order into a DeliveryPaymentState enum. Returns DeliveryPaymentState.Collect if amountToCollect.IsPositive. If not positive, returns DeliveryPaymentState.Comp if compAmount.IsPositive. Otherwise returns DeliveryPaymentState.Prepaid.
+- **Validations:** Evaluates IsPositive on amountToCollect and compAmount in priority order: Collect > Comp > Prepaid.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---

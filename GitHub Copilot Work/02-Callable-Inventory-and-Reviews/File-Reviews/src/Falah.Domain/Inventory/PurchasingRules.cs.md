@@ -4,21 +4,21 @@
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:10:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.PurchaseLineTotal(long, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.PurchaseLineTotal(long, Falah.Domain.Common.Money) across lines 10-11.
+- **Behavior**: Computes the total monetary cost for an inventory purchase line item from quantity in milli-units and unit cost. Evaluates (long)Math.Round(quantityMilliUnits * (decimal)unitCost.Piastres / 1000m) using banker's rounding to the nearest long piastre, returning a Money instance.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:16:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.LastPurchaseUnitCost(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.LastPurchaseUnitCost(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string) across lines 16-21.
+- **Behavior**: Retrieves the owner-approved inventory loss valuation source: the unit cost of the most recent positive-cost purchase receipt (StockMovementType.PurchaseReceipt) for inventoryItemId. Orders descending by CreatedAtUtc and returns the first unit cost, or null if the item was never purchased at positive cost.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:18:20:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 18-18.
+- **Behavior**: Predicate lambda filtering stock movement fact records to match the specified inventoryItemId, movement type StockMovementType.PurchaseReceipt, and positive unit cost (m.UnitCost is { IsPositive: true }).
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -39,14 +39,14 @@
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:25:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.LastPurchaseAt(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.LastPurchaseAt(IEnumerable<Falah.Domain.Inventory.StockMovementFacts>, string) across lines 25-30.
+- **Behavior**: Retrieves the creation timestamp (DateTimeOffset?) of the most recent positive-cost purchase receipt for inventoryItemId. Filters by item ID, PurchaseReceipt type, and positive unit cost, ordering descending by CreatedAtUtc.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:27:20:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 27-27.
+- **Behavior**: Predicate lambda filtering stock movement records for matching inventoryItemId, StockMovementType.PurchaseReceipt, and positive unit cost.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -67,42 +67,42 @@
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:56:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.DescribeUnitCostChange(Falah.Domain.Common.Money?, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.DescribeUnitCostChange(Falah.Domain.Common.Money?, Falah.Domain.Common.Money) across lines 56-68.
+- **Behavior**: Describes how a received purchase moves an ingredient's cost basis. If previousUnitCost is null or non-positive, returns UnitCostChange with IsFirstEverPurchase = true. If prices match, returns HasChanged = false. Otherwise computes factor = newCost / prevCost (rounded to 3 decimals) and flags IsOrderOfMagnitude = true for moves >= 10x or <= 0.1x to signal potential decimal keying mistakes.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:74:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.ValueStockLoss(long, Falah.Domain.Common.Money?)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.ValueStockLoss(long, Falah.Domain.Common.Money?) across lines 74-75.
+- **Behavior**: Calculates monetary stock loss valuation at the moment of recording using PurchaseLineTotal(quantityMilliUnits, cost) when unitCost is positive. Returns null if unpriced, ensuring historical loss amounts are never retroactively altered by future purchase costs.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:77:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.AssertPurchasePayment(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.AssertPurchasePayment(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 77-81.
+- **Behavior**: Enforces domain invariants on purchase invoice payments: throws DomainException("المبلغ المدفوع غير صالح.") if paid is negative, and throws DomainException("المبلغ المدفوع لا يمكن أن يتجاوز إجمالي الفاتورة.") if paid exceeds total.
 - **Validations**: Validation checks detected: True. Throws: DomainException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:86:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.PurchasePaymentAccountFor(string)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.PurchasePaymentAccountFor(string) across lines 86-93.
+- **Behavior**: Maps purchase payment method strings to destination treasury accounts: "cash" -> Financial.TreasuryAccounts.Main, "bank" -> Financial.TreasuryAccounts.Bank, "instapay" -> Financial.TreasuryAccounts.InstaPay, and "credit" (آجل) -> null (deferred liability on supplier ledger without moving treasury funds). Throws DomainException("مصدر دفع المشتريات غير مدعوم.") for unrecognized methods.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:95:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Inventory.PurchasingRules.SupplierOutstandingFromLedger(IEnumerable<Falah.Domain.Inventory.SupplierLedgerEntry>, string, string?)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Inventory.PurchasingRules.SupplierOutstandingFromLedger(IEnumerable<Falah.Domain.Inventory.SupplierLedgerEntry>, string, string?) across lines 95-98.
+- **Behavior**: Calculates outstanding balance owed to a supplier by aggregating ledger entries for supplierId, optionally filtered by purchaseId (matching PurchaseId or ReferenceId). Sums Debit.Piastres minus Credit.Piastres and returns the resulting Money.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Inventory/PurchasingRules.cs:97:20:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 97-97.
+- **Behavior**: Predicate lambda filtering SupplierLedgerEntry records matching supplierId and optional purchaseId matching either PurchaseId or ReferenceId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

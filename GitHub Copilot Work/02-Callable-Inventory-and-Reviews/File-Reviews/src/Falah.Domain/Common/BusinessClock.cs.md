@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessClock.ResolveCairoTimeZone()
 - **Lines:** [13-21]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessClock.ResolveCairoTimeZone() across lines 13-21.
+- **Behavior:** Resolves the Cairo timezone instance TimeZoneInfo. Attempts resolution using the IANA identifier "Africa/Cairo". If TimeZoneNotFoundException is thrown (e.g. on Windows systems lacking IANA zone mappings), catches the exception and falls back to the Windows registry timezone identifier "Egypt Standard Time".
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessClock.BusinessDate(DateTimeOffset)
 - **Lines:** [23-27]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessClock.BusinessDate(DateTimeOffset) across lines 23-27.
+- **Behavior:** Converts a UTC timestamp instantUtc to Cairo local business date (DateOnly) using CairoTimeZone. Midnight Cairo local time defines the business day boundary with no late-night rollover.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessClock.Today()
 - **Lines:** [29-29]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessClock.Today() across lines 29-29.
+- **Behavior:** Returns the current business calendar date in Cairo local time by evaluating BusinessDate(DateTimeOffset.UtcNow).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(DateOnly)
 - **Lines:** [35-41]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(DateOnly) across lines 35-41.
+- **Behavior:** Generates the half-open UTC instant range [Start, End) covering one Cairo calendar day from local midnight to next midnight. Converts local DateTime with DateTimeKind.Unspecified to UTC via TimeZoneInfo.ConvertTimeToUtc to allow direct SQL timestamp range filtering. Note: Subject to ArgumentException on Egypt DST spring-forward transitions where local midnight falls in the skipped clock gap.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(DateOnly, DateOnly)
 - **Lines:** [47-53]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(DateOnly, DateOnly) across lines 47-53.
+- **Behavior:** Computes the continuous UTC range spanning consecutive Cairo business dates from from to to inclusive. Normalizes order by swapping if to < from, taking Start from the from date and End from the to date.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessDateRange.SingleDay(DateOnly)
 - **Lines:** [60-60]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessDateRange.SingleDay(DateOnly) across lines 60-60.
+- **Behavior:** Factory method constructing a single-day BusinessDateRange instance where From and To are identical.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessDateRange.Resolve(DateOnly?, DateOnly?, DateOnly?)
 - **Lines:** [65-71]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessDateRange.Resolve(DateOnly?, DateOnly?, DateOnly?) across lines 65-71.
+- **Behavior:** Resolves optional query parameters into a validated BusinessDateRange. If from is set, sets To to to ?? start (preventing open-ended drift). If only to or singleDate is supplied, returns a single-day range. Returns null if all inputs are null.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessDateRange.ToUtcRange()
 - **Lines:** [76-77]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessDateRange.ToUtcRange() across lines 76-77.
+- **Behavior:** Converts the date range instance into a UTC timestamp range (Start, End) by delegating to BusinessClock.UtcRangeForBusinessDates(From, To).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Com
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Common.BusinessDateRange.Days()
 - **Lines:** [79-82]
-- **Behavior:** Executes logic for Falah.Domain.Common.BusinessDateRange.Days() across lines 79-82.
+- **Behavior:** Enumerates all DateOnly calendar days within the range from From up to and including To via yield return in an incrementing daily loop.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

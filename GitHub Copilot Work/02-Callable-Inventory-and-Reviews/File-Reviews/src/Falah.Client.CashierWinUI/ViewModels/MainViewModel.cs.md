@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CashierWinUI.Services.AppSession?)
 - **Lines:** [25-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.MainViewModel(Falah.Client.CashierWinUI.Services.AppSession?) across lines 25-37.
+- **Behavior:** Constructs the root MainViewModel. Initializes AppSession, instantiates HeaderViewModel, routes initial UI view to ShowLogin(), inspects local storage for unresolved offline operations via DescribeRecoveredOperations(), initializes a 5-second DispatcherTimer for backend health polling, and fires an initial CheckHealthNowAsync() query.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.DescribeRecoveredOperations()
 - **Lines:** [45-54]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.DescribeRecoveredOperations() across lines 45-54.
+- **Behavior:** Inspects local persistent request storage (RetainedRequestStorage.Current) for operations that were left uncommitted or unconfirmed when the application last terminated. If found, constructs an Arabic advisory notice showing the count of unresolved operations, distinct owner keys, and oldest timestamp, prompting the operator to verify them.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.DismissRecoveredNotice()
 - **Lines:** [56-57]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.DismissRecoveredNotice() across lines 56-57.
+- **Behavior:** Relay command dismissing the recovered operations warning notice by setting RecoveredOperationsNotice = null.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.CheckHealthNowAsync()
 - **Lines:** [59-63]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.CheckHealthNowAsync() across lines 59-63.
+- **Behavior:** Pings backend server health via _session.Api.PingHealthAsync(). If the view model has not been stopped (!_stopped), updates the IsOnline observable property to reflect server reachability.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.TryClose()
 - **Lines:** [65-69]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.TryClose() across lines 65-69.
+- **Behavior:** Evaluates whether the application window is permitted to close. Checks _session.HasUnresolvedOperation; sets IsCloseBlocked and returns false if unconfirmed financial operations are pending, preventing data loss or orphaned requests.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.Stop()
 - **Lines:** [71-76]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.Stop() across lines 71-76.
+- **Behavior:** Gracefully terminates background polling and timers when the application closes. Sets _stopped = true, stops _healthTimer DispatcherTimer, and stops the persistent Header timer.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.Lock()
 - **Lines:** [81-82]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.Lock() across lines 81-82.
+- **Behavior:** Relay command executing POS terminal lock (matching the physical "قفل" button). Verifies no unresolved operations are active (!_session.HasUnresolvedOperation), then transitions view back to ShowLogin() without ending the active shift or clearing server-side session state.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.ShowLogin()
 - **Lines:** [84-90]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.ShowLogin() across lines 84-90.
+- **Behavior:** Transitions UI to login state. Sets IsLoggedIn = false, constructs LoginViewModel(_session), binds its LoggedIn event to ShowMain, and sets CurrentView.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.ShowMain()
 - **Lines:** [98-105]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.ShowMain() across lines 98-105.
+- **Behavior:** Handles post-login navigation routing based on operator permissions. Refreshes Header, sets IsLoggedIn = true. If user has any management permission (HasAnyManagementPermission()) or lacks pos permission, constructs ShellViewModel; otherwise constructs fast lightweight CashierViewModel without shell navigation overhead.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.HasAnyManagementPermission()
 - **Lines:** [107-108]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.HasAnyManagementPermission() across lines 107-108.
+- **Behavior:** Evaluates whether the authenticated user holds any administrative or management permission defined in ShellManagementPermissions (including orders_view_all, delivery_manage, reports_view, treasury_manage, inventory_manage, purchasing_manage, suppliers_manage, shifts_manage, etc.).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -165,7 +165,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MainViewModel.CreateCashier()
 - **Lines:** [122-127]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MainViewModel.CreateCashier() across lines 122-127.
+- **Behavior:** Factory method creating and asynchronously initializing CashierViewModel from session (invoking vm.InitializeAsync() in background).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

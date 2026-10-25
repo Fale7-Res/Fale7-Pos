@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.RecordDeliveryResultHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Lines:** [38-43]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.RecordDeliveryResultHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 38-43.
+- **Behavior:** Initializes RecordDeliveryResultHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for database persistence, authorization checks, and audit logging.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.HandleAsync(Falah.Application.Delivery.RecordDeliveryResultRequest, CancellationToken)
 - **Lines:** [45-162]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.HandleAsync(Falah.Application.Delivery.RecordDeliveryResultRequest, CancellationToken) across lines 45-162.
+- **Behavior:** Asynchronously records the outcome of a delivery (Delivered, Failed, or Returned): performs request-ID idempotency pre-check via DeliveryEvents, validates Result enum, resolves actor and validates 'delivery_manage' authorization (with optional manager approval), opens ReadCommitted transaction, locks delivery via raw SQL WITH (UPDLOCK, ROWLOCK, HOLDLOCK), handles idempotent status no-op, asserts lifecycle state transition via DeliveryTransitions.AssertTransition, composes delivery facts, branches on outcome (computes expected cash via DeliveryRules.DeliveryCashResponsibility and asserts variance explanation for Delivered; validates reason against whitelist for Failed; validates non-empty reason for Returned), updates DriverCustodyEntity for cash collections, records DeliveryEventEntity, appends audit log event, and commits transaction.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException, InvalidOperationException, DomainException, InvalidOperationException, InvalidOperationException, DomainException, DomainException, InvalidOperationException, DeliveryConflictException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [48-48]
-- **Behavior:** Executes logic for lambda expression across lines 48-48.
+- **Behavior:** Predicate lambda `e => e.Id == eventId` querying DeliveryEvents DbSet with AsNoTracking() to check whether this outcome request ID was already recorded.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for lambda expression across lines 51-51.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() to reload the delivery entity when replaying an idempotent result submission.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [60-60]
-- **Behavior:** Executes logic for lambda expression across lines 60-60.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [67-67]
-- **Behavior:** Executes logic for lambda expression across lines 67-67.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [88-88]
-- **Behavior:** Executes logic for lambda expression across lines 88-88.
+- **Behavior:** Predicate lambda `o => o.Id == delivery.OrderId` querying Orders DbSet with AsNoTracking() to load the associated order record for facts composition.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [105-105]
-- **Behavior:** Executes logic for lambda expression across lines 105-105.
+- **Behavior:** Predicate lambda `c => c.DeliveryId == delivery.Id` querying DriverCustodies DbSet to retrieve and update the active custody entry for cash collection tracking upon successful delivery.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +99,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [153-153]
-- **Behavior:** Executes logic for lambda expression across lines 153-153.
+- **Behavior:** Predicate lambda `e => e.Id == eventId` querying DeliveryEvents DbSet with AsNoTracking() within the DbUpdateException catch handler to confirm if a race condition resulted from a concurrent identical insert.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -110,7 +110,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [156-156]
-- **Behavior:** Executes logic for lambda expression across lines 156-156.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() inside the exception replay path to reload and return the delivery entity.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive security, cash custody, and authorization audit of RecordDeliveryRes
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.DescribeOutcome(Falah.Domain.Delivery.DeliveryStatus)
 - **Lines:** [167-173]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.RecordDeliveryResultHandler.DescribeOutcome(Falah.Domain.Delivery.DeliveryStatus) across lines 167-173.
+- **Behavior:** Private static helper mapping DeliveryStatus enum values to human-readable Arabic descriptions for audit logging ('تم التسليم', 'فشل التسليم', 'مرتجع').
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

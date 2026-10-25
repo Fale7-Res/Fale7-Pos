@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.SettleDriverCustodyHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Lines:** [29-34]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.SettleDriverCustodyHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 29-34.
+- **Behavior:** Initializes SettleDriverCustodyHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for database persistence, authorization checks, and audit logging.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.HandleAsync(Falah.Application.Delivery.SettleDriverCustodyRequest, CancellationToken)
 - **Lines:** [36-194]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.HandleAsync(Falah.Application.Delivery.SettleDriverCustodyRequest, CancellationToken) across lines 36-194.
+- **Behavior:** Asynchronously settles all unresolved custodies and completed deliveries for a driver: checks idempotency via DriverSettlements, validates non-negative cash, resolves actor, authorizes 'delivery_manage' with optional manager approval, opens transaction, locks Deliveries and DriverCustodies via raw SQL WITH (UPDLOCK, ROWLOCK, HOLDLOCK) to prevent concurrent double-settlement, builds driver settlement scope via DeliveryRules.BuildDriverSettlementScope (requiring all deliveries to be in terminal states Delivered/Failed/Returned), computes trip totals via DeliveryRules.CalculateTripSettlement, enforces 'delivery_settlement_approve' authorization and non-empty reason if variance exists, verifies open business day via BusinessDayGate, posts cash movement to TreasuryAccounts.Main via EfFinancialJournal and TreasuryMovementFactory, marks custodies and deliveries as Settled, appends DeliveryEventEntity records and DriverSettlementEntity, logs audit event, and commits transaction with BalanceLockContention retry handling.
 - **Validations:** Validation checks detected: True. Throws: DomainException, InvalidOperationException, DomainException, DomainException, DomainException, DomainException, DeliveryConflictException, DeliveryConflictException, DeliveryConflictException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [39-39]
-- **Behavior:** Executes logic for lambda expression across lines 39-39.
+- **Behavior:** Predicate lambda `s => s.IdempotencyKey == idempotencyKey` querying DriverSettlements DbSet with AsNoTracking() to check whether the settlement request was previously processed.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [44-44]
-- **Behavior:** Executes logic for lambda expression across lines 44-44.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for lambda expression across lines 51-51.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [59-59]
-- **Behavior:** Executes logic for lambda expression across lines 59-59.
+- **Behavior:** Predicate lambda `d => d.Id == request.DriverId` querying Drivers DbSet with AsNoTracking() to load the driver details.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [74-74]
-- **Behavior:** Executes logic for lambda expression across lines 74-74.
+- **Behavior:** Predicate lambda `o => orderIds.Contains(o.Id)` querying Orders DbSet with AsNoTracking() to fetch orders corresponding to locked deliveries.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -110,7 +110,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [76-76]
-- **Behavior:** Executes logic for lambda expression across lines 76-76.
+- **Behavior:** Projection lambda `d => DeliveryFactsComposer.Compose(d, ordersById[d.OrderId])` transforming delivery entities and their matching orders into domain DeliveryFacts.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [128-128]
-- **Behavior:** Executes logic for lambda expression across lines 128-128.
+- **Behavior:** Projection lambda `d => d.Id` extracting delivery IDs from scope.ResolvedDeliveries into a HashSet for batch status updates.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [130-130]
-- **Behavior:** Executes logic for lambda expression across lines 130-130.
+- **Behavior:** Predicate lambda `c => custodyIds.Contains(c.Id)` filtering tracked custody entities that are ready to be marked as Settled.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -154,7 +154,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [136-136]
-- **Behavior:** Executes logic for lambda expression across lines 136-136.
+- **Behavior:** Predicate lambda `d => resolvedDeliveryIds.Contains(d.Id)` filtering tracked delivery entities that are ready to transition to Settled status.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -165,7 +165,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [180-180]
-- **Behavior:** Executes logic for lambda expression across lines 180-180.
+- **Behavior:** Predicate lambda `s => s.IdempotencyKey == idempotencyKey` querying DriverSettlements DbSet with AsNoTracking() inside the exception handling block to attempt an immediate replay lookup.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -176,8 +176,8 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [186-186]
-- **Behavior:** Executes logic for lambda expression across lines 186-186.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Asynchronous delegate `async () => await _db.DriverSettlements.AsNoTracking().FirstOrDefaultAsync(s => s.IdempotencyKey == idempotencyKey, ct)` passed to BalanceLockContention.AwaitSiblingAsync to poll for the concurrent winner's committed settlement entity.
+- **Validations:** None.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
 ---
@@ -187,7 +187,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [186-186]
-- **Behavior:** Executes logic for lambda expression across lines 186-186.
+- **Behavior:** Predicate lambda `s => s.IdempotencyKey == idempotencyKey` querying DriverSettlements within the polling delegate passed to AwaitSiblingAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -198,7 +198,7 @@ Substantive security, cash custody, and authorization audit of SettleDriverCusto
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.ToResult(Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity, bool)
 - **Lines:** [196-197]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.SettleDriverCustodyHandler.ToResult(Falah.Infrastructure.Persistence.Entities.DriverSettlementEntity, bool) across lines 196-197.
+- **Behavior:** Private static projection mapping DriverSettlementEntity properties (Id, DriverId, ExpectedPiastres, ActualPiastres, DifferencePiastres, OrderCount, TreasuryMovementId, wasReplayed) into a SettleDriverCustodyResult record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

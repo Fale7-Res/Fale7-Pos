@@ -4,77 +4,77 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:24:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.BiometricCheckInHandler.BiometricCheckInHandler(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.BiometricCheckInHandler.BiometricCheckInHandler(Falah.Infrastructure.Persistence.FalahDbContext) across lines 24-24.
+- **Behavior**: Initializes BiometricCheckInHandler by injecting and storing FalahDbContext as _db in a private readonly field.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:26:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.BiometricCheckInHandler.HandleAsync(Falah.Application.Employees.BiometricCheckInRequest, CancellationToken) across lines 26-99.
+- **Behavior**: Asynchronously handles employee check-in from a biometric device: loads employee record (returns null if not found), loads system settings, queries active shift, computes lateness strictly relative to today's shift opening time (guarding against false multi-day lateness), updates or inserts AttendanceRecordEntity with status (Late or Present), automatically posts daily wage credit via EmployeeLedgerPoster.PostIfNewAsync for daily-compensated employees, calculates and posts automatic late penalty deduction if late beyond grace period, and saves changes via SaveChangesAsync.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:28:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 28-28.
+- **Behavior**: Predicate lambda `e => e.Id == request.EmployeeId` querying Employees DbSet with AsNoTracking() to load the employee record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:36:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 36-36.
+- **Behavior**: Predicate lambda `s => s.Status == nameof(ShiftStatus.Open)` querying Shifts DbSet with AsNoTracking() to find the active shift for lateness baseline calculation.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:49:72:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 49-49.
+- **Behavior**: Predicate lambda `a => a.EmployeeId == request.EmployeeId && a.Date == date` querying AttendanceRecords DbSet with tracking to find today's attendance record for update.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:108:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.BiometricCheckOutHandler.BiometricCheckOutHandler(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.BiometricCheckOutHandler.BiometricCheckOutHandler(Falah.Infrastructure.Persistence.FalahDbContext) across lines 108-108.
+- **Behavior**: Initializes BiometricCheckOutHandler by injecting and storing FalahDbContext as _db in a private readonly field.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:110:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.BiometricCheckOutHandler.HandleAsync(Falah.Application.Employees.BiometricCheckOutRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.BiometricCheckOutHandler.HandleAsync(Falah.Application.Employees.BiometricCheckOutRequest, CancellationToken) across lines 110-153.
+- **Behavior**: Asynchronously handles employee check-out from a biometric device: verifies employee exists, verifies prior check-in record exists for today (throws DomainException if check-out attempted without check-in), parses check-in time to compute work hours and overtime hours beyond standard workday, updates AttendanceRecordEntity, calculates automatic overtime compensation via PayrollRules.CalculateOvertimeAmount, posts overtime credit entry via EmployeeLedgerPoster.PostIfNewAsync with deterministic ID (led-overtime-auto-{EmployeeId}-{Date}), and saves changes via SaveChangesAsync.
 - **Validations**: Validation checks detected: True. Throws: InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:112:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 112-112.
+- **Behavior**: Predicate lambda `e => e.Id == request.EmployeeId` querying Employees DbSet with AsNoTracking() to load the employee record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:120:70:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 120-120.
+- **Behavior**: Predicate lambda `a => a.EmployeeId == request.EmployeeId && a.Date == date` querying AttendanceRecords DbSet with tracking to retrieve today's check-in record.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:122:67:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 122-122.
-- **Validations**: Validation checks detected: False. Throws: None detected in body.
+- **Behavior**: Predicate lambda `s => s.Status == nameof(ShiftStatus.Open)` querying Shifts DbSet with AsNoTracking() to locate the currently open shift.
+- **Validations**: None.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/AttendanceHandlers.cs:122:117:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 122-122.
+- **Behavior**: Projection lambda `s => s.Id` selecting the active shift's identifier for linking to attendance and ledger entries.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 

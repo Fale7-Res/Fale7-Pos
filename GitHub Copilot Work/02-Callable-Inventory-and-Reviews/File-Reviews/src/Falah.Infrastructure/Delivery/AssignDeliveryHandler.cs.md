@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.AssignDeliveryHandler.AssignDeliveryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Lines:** [29-34]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.AssignDeliveryHandler.AssignDeliveryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 29-34.
+- **Behavior:** Initializes AssignDeliveryHandler by injecting and storing FalahDbContext as _db, IApprovalRegistry as _approvalRegistry, and IAuditLog as _auditLog in private readonly fields for database access, authorization evaluation, and audit logging.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.AssignDeliveryHandler.HandleAsync(Falah.Application.Delivery.AssignDeliveryRequest, CancellationToken)
 - **Lines:** [36-151]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.AssignDeliveryHandler.HandleAsync(Falah.Application.Delivery.AssignDeliveryRequest, CancellationToken) across lines 36-151.
+- **Behavior:** Asynchronously assigns an order in Ready status to an active driver, transitioning it atomically to Assigned and OutForDelivery: checks idempotency via DeliveryEvents (eventId = $"delivery-assignment-{request.RequestId}"), resolves actor user and enforces 'delivery_manage' permission with optional manager approval, opens ReadCommitted transaction, locks delivery via raw SQL WITH (UPDLOCK, ROWLOCK, HOLDLOCK), verifies Ready status, verifies driver assignability via DeliveryRules.AssertDriverAssignable, asserts lifecycle transitions via DeliveryTransitions.AssertTransition, creates DriverCustodyEntity in Open status for cash orders, mutates delivery status/trip/timestamps, logs assignment DeliveryEventEntity, enqueues DriverDispatch PrintJobEntity (deduplicated by RequestId), appends audit log event, and commits transaction.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException, DomainException, InvalidOperationException, DomainException, InvalidOperationException, InvalidOperationException, DeliveryConflictException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [39-39]
-- **Behavior:** Executes logic for lambda expression across lines 39-39.
+- **Behavior:** Predicate lambda `e => e.Id == eventId` querying DeliveryEvents DbSet with AsNoTracking() to check whether this assignment request ID has already been executed.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [42-42]
-- **Behavior:** Executes logic for lambda expression across lines 42-42.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() to reload the delivery entity when replaying an idempotent assignment request.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [47-47]
-- **Behavior:** Executes logic for lambda expression across lines 47-47.
+- **Behavior:** Predicate lambda `u => u.Id == request.ActorUserId` querying Users DbSet with AsNoTracking() to load the actor user record for authorization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [54-54]
-- **Behavior:** Executes logic for lambda expression across lines 54-54.
+- **Behavior:** Predicate lambda `u => u.Id == request.ManagerApproverUserId` querying Users DbSet with AsNoTracking() to resolve the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [71-71]
-- **Behavior:** Executes logic for lambda expression across lines 71-71.
+- **Behavior:** Predicate lambda `d => d.Id == request.DriverId` querying Drivers DbSet with AsNoTracking() to load the target driver record for assignment.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [81-81]
-- **Behavior:** Executes logic for lambda expression across lines 81-81.
+- **Behavior:** Predicate lambda `o => o.Id == delivery.OrderId` querying Orders DbSet with AsNoTracking() to load the associated order record for delivery facts composition.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +99,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [142-142]
-- **Behavior:** Executes logic for lambda expression across lines 142-142.
+- **Behavior:** Predicate lambda `e => e.Id == eventId` querying DeliveryEvents DbSet with AsNoTracking() within the DbUpdateException catch handler to confirm if a race condition resulted from a concurrent identical insert.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -110,7 +110,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [145-145]
-- **Behavior:** Executes logic for lambda expression across lines 145-145.
+- **Behavior:** Predicate lambda `d => d.Id == request.DeliveryId` querying Deliveries DbSet with AsNoTracking() inside the exception replay path to reload and return the delivery entity.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.AssignDeliveryHandler.ToResult(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, bool)
 - **Lines:** [153-154]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.AssignDeliveryHandler.ToResult(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, bool) across lines 153-154.
+- **Behavior:** Private static helper method projecting DeliveryEntity state (Id, Status, DriverId, DriverNameAtHandover, TripId, wasReplayed) into an AssignDeliveryResult record.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
