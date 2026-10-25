@@ -33,9 +33,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.ShellViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)
 - **Lines:** [35-53]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.ShellViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel) across lines 35-53.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
+- **Behavior:** Initializes ShellViewModel with injected AppSession and HeaderViewModel. Filters AllCandidates() against user permissions via _session.HasPermission with specific OR logic for payroll (payroll_approve or payroll_pay), shifts (reports_view), and treasury (treasury_manage). Populates NavItems, calls BuildGroups(), and navigates to the first permitted screen via Navigate(NavItems[0]).
+- **Validations:** Evaluates permissions for each navigation module. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:72:5:MethodDeclaration
@@ -44,9 +44,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.BuildGroups()
 - **Lines:** [72-95]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.BuildGroups() across lines 72-95.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Builds the top-bar navigation groups (NavGroups) by grouping permitted NavItems according to GroupPlan (10 logical groups matching the operational flow of a restaurant day). Appends any unmapped permitted modules to the "more" group so no permitted screen is orphaned.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:79:25:SimpleLambdaExpression
@@ -121,9 +121,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.AllCandidates()
 - **Lines:** [102-142]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.AllCandidates() across lines 102-142.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: false
+- **Behavior:** Enumerates all 24 potential management modules defined in the application specification with their internal key, Arabic display label, and required backend permission identifier.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:144:5:MethodDeclaration
@@ -132,9 +132,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.Navigate(Falah.Client.CashierWinUI.ViewModels.ShellNavItem)
 - **Lines:** [144-177]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.Navigate(Falah.Client.CashierWinUI.ViewModels.ShellNavItem) across lines 144-177.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Core navigation command routing to the chosen module. Guarded against navigating away during in-flight operations (_session.HasUnresolvedOperation) and verifies item is in permitted NavItems. Sets SelectedItem = item, switches on item.Key to call the corresponding factory method, and assigns the instantiated ViewModel to CurrentPage.
+- **Validations:** Guarded by if (_session.HasUnresolvedOperation || !NavItems.Contains(item)) return;. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:179:5:MethodDeclaration
@@ -143,8 +143,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateOrders()
 - **Lines:** [179-184]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateOrders() across lines 179-184.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating OrdersViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -154,8 +154,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateCustomers()
 - **Lines:** [186-186]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateCustomers() across lines 186-186.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method instantiating and returning CustomersViewModel(_session).
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -165,8 +165,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateMenu()
 - **Lines:** [188-193]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateMenu() across lines 188-193.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating MenuViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -176,8 +176,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateSettings()
 - **Lines:** [195-200]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateSettings() across lines 195-200.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating SettingsViewModel(_session, _header), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -187,8 +187,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateBackup()
 - **Lines:** [202-207]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateBackup() across lines 202-207.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating BackupViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -198,8 +198,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateControlCenter()
 - **Lines:** [209-214]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateControlCenter() across lines 209-214.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating ControlCenterViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -209,8 +209,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePrinting()
 - **Lines:** [216-221]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePrinting() across lines 216-221.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating PrintingViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -220,8 +220,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateUsers()
 - **Lines:** [223-228]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateUsers() across lines 223-228.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating UsersViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -231,8 +231,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateAudit()
 - **Lines:** [230-235]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateAudit() across lines 230-235.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating AuditViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -242,8 +242,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateEmployees()
 - **Lines:** [237-242]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateEmployees() across lines 237-242.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating EmployeesViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -253,8 +253,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateAttendance()
 - **Lines:** [244-249]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateAttendance() across lines 244-249.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating AttendanceViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -264,8 +264,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePayroll()
 - **Lines:** [251-256]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePayroll() across lines 251-256.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating PayrollViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -275,8 +275,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateRecipes()
 - **Lines:** [258-263]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateRecipes() across lines 258-263.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating RecipesViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -286,8 +286,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateWaste()
 - **Lines:** [265-270]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateWaste() across lines 265-270.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating WasteViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -297,8 +297,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePurchasing()
 - **Lines:** [272-277]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreatePurchasing() across lines 272-277.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating PurchasingViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -308,8 +308,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateTreasury()
 - **Lines:** [279-284]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateTreasury() across lines 279-284.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating TreasuryViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -319,8 +319,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateShifts()
 - **Lines:** [286-291]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateShifts() across lines 286-291.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating ShiftsViewModel(_session, _header), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -330,8 +330,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateInventory()
 - **Lines:** [293-298]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateInventory() across lines 293-298.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating InventoryViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -341,9 +341,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateOwnerDashboard()
 - **Lines:** [300-308]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateOwnerDashboard() across lines 300-308.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+- **Behavior:** Factory method creating OwnerDashboardViewModel(_session, NavigateByKey), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance. Injects NavigateByKey callback to enable dashboard attention rows to navigate directly to resolution modules.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:310:5:MethodDeclaration
@@ -352,9 +352,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.NavigateByKey(string)
 - **Lines:** [310-313]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.NavigateByKey(string) across lines 310-313.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Navigation callback finding target ShellNavItem in NavItems by module key and invoking Navigate(target).
+- **Validations:** Guarded by null-check on matching item in NavItems. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:312:37:SimpleLambdaExpression
@@ -374,8 +374,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateReports()
 - **Lines:** [315-320]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateReports() across lines 315-320.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating ReportsViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -385,8 +385,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDailySummary()
 - **Lines:** [322-327]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDailySummary() across lines 322-327.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating DailySummaryViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -396,8 +396,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDailyStatement()
 - **Lines:** [329-334]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDailyStatement() across lines 329-334.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating DailyStatementViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -407,8 +407,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDelivery()
 - **Lines:** [336-341]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateDelivery() across lines 336-341.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method creating DeliveryViewModel(_session), triggers fire-and-forget _ = vm.LoadAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -418,8 +418,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateCashier()
 - **Lines:** [343-348]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellViewModel.CreateCashier() across lines 343-348.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Factory method retrieving cached CashierViewModel from _session.GetCashier(_header), triggers fire-and-forget _ = vm.InitializeAsync(), and returns the instance.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---

@@ -4,42 +4,59 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:23:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CreatePayrollHandler.CreatePayrollHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CreatePayrollHandler.CreatePayrollHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 23-27.
+- **Behavior**: Injects `FalahDbContext` for persistence and `IApprovalRegistry` for authorization into `CreatePayrollHandler`. Holds zero mutable state.
+  ```csharp
+  // Lines 23-27: CreatePayrollHandler constructor
+  public CreatePayrollHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:29:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CreatePayrollHandler.HandleAsync(Falah.Application.Employees.CreatePayrollRequest, CancellationToken) across lines 29-104.
+- **Behavior**: Generates a monthly payroll run for a target period (`YYYY-MM`). Enforces format validation with regex `^\d{4}-\d{2}$`. Checks for existing non-cancelled run for the period to guarantee at most one active run per period (returns existing run as replay). Enforces `employees_manage` permission on actor user. Extracts year and month components, loads all employees, and fetches all employee ledger entries matching the period's year and month. Prepares `PayrollRules.PayrollLineInput` structures and computes wages via pure domain logic `PayrollRules.CalculatePayrollLines`. Creates `PayrollRunEntity` in `Draft` status, creates associated `PayrollLineEntity` rows for each employee with status `"unpaid"`, and persists changes. Catches `DbUpdateException` to handle concurrent duplicate period generation safely by reloading the persisted run.
+  ```csharp
+  // Lines 29-104: Monthly payroll run generation
+  public async Task<PayrollRunDto> HandleAsync(CreatePayrollRequest request, CancellationToken ct = default)
+  {
+      if (!System.Text.RegularExpressions.Regex.IsMatch(request.Period, @"^\d{4}-\d{2}$"))
+          throw new DomainException("فترة Payroll غير صالحة.");
+      ...
+  }
+  ```
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:35:34:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 35-35.
+- **Behavior**: Active run predicate expression lambda `r => r.Period == request.Period && r.Status != nameof(PayrollRunStatus.Cancelled)` preventing duplicate active runs for the same period.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:38:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 38-38.
+- **Behavior**: User lookup predicate expression lambda `u => u.Id == request.ActorUserId` for actor authorization.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:46:20:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 46-46.
+- **Behavior**: Date filter predicate expression lambda `e => e.CreatedAtUtc.Year == periodYear && e.CreatedAtUtc.Month == periodMonth` querying employee ledger entries for the target month.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:54:43:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 54-63.
+- **Behavior**: Projection expression lambda mapping each employee to a `PayrollRules.PayrollLineInput`, grouping their ledger entries and evaluating compensation structure.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -53,21 +70,27 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:57:25:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 57-57.
+- **Behavior**: Projection expression lambda `e => (e.Type, Credit: Money.FromPiastres(e.CreditPiastres), Debit: Money.FromPiastres(e.DebitPiastres))` converting database ledger entries into domain wage tuples.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:98:38:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 98-99.
+- **Behavior**: Replay recovery predicate expression lambda `r => r.Id == runId || (r.Period == request.Period && r.Status != nameof(PayrollRunStatus.Cancelled))` executed on `DbUpdateException`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs:106:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CreatePayrollHandler.ToDto(Falah.Infrastructure.Persistence.Entities.PayrollRunEntity, bool)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CreatePayrollHandler.ToDto(Falah.Infrastructure.Persistence.Entities.PayrollRunEntity, bool) across lines 106-108.
+- **Behavior**: Internal static mapper method projecting `PayrollRunEntity` into `PayrollRunDto`, populating period, lifecycle status, creator, approval, payment timestamps, linked treasury movement, and `wasReplayed` flag.
+  ```csharp
+  // Lines 106-108: Entity to DTO mapping
+  internal static PayrollRunDto ToDto(PayrollRunEntity r, bool wasReplayed) => new(
+      r.Id, r.Period, r.Status, r.CreatedBy, r.CreatedAtUtc, r.ApprovedBy, r.PaidAtUtc, r.ReviewedAtUtc,
+      r.ReviewedBy, r.TreasuryMovementId, r.PaymentAccountId, wasReplayed);
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 

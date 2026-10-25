@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.ModalHeaderView()
 - **Lines:** [19-23]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.ModalHeaderView() across lines 19-23.
+- **Behavior:** Initializes UserControl components via InitializeComponent() and synchronizes TitleBlock.Text = Title.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.Title.get
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.Title.get across lines 27-27.
+- **Behavior:** CLR property getter retrieving TitleProperty dependency property via (string)GetValue(TitleProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.Title.set
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.Title.set across lines 28-28.
+- **Behavior:** CLR property setter storing value in TitleProperty dependency property via SetValue(TitleProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseCommand.get
 - **Lines:** [33-33]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseCommand.get across lines 33-33.
+- **Behavior:** CLR property getter retrieving CloseCommandProperty dependency property via (ICommand?)GetValue(CloseCommandProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseCommand.set
 - **Lines:** [34-34]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseCommand.set across lines 34-34.
+- **Behavior:** CLR property setter storing value in CloseCommandProperty dependency property via SetValue(CloseCommandProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseAutomationId.get
 - **Lines:** [41-41]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseAutomationId.get across lines 41-41.
+- **Behavior:** CLR property getter retrieving CloseAutomationIdProperty dependency property via (string)GetValue(CloseAutomationIdProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseAutomationId.set
 - **Lines:** [42-42]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.CloseAutomationId.set across lines 42-42.
+- **Behavior:** CLR property setter storing value in CloseAutomationIdProperty dependency property via SetValue(CloseAutomationIdProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnTitleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [45-46]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnTitleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 45-46.
+- **Behavior:** Static PropertyChangedCallback for TitleProperty: assigns new string value to TitleBlock.Text.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnCloseCommandChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [48-49]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnCloseCommandChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 48-49.
+- **Behavior:** Static PropertyChangedCallback for CloseCommandProperty: assigns e.NewValue as ICommand to CloseButton.Command.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnCloseAutomationIdChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [51-52]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ModalHeaderView.OnCloseAutomationIdChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 51-52.
+- **Behavior:** Static PropertyChangedCallback for CloseAutomationIdProperty: sets automation identifier on CloseButton via AutomationProperties.SetAutomationId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

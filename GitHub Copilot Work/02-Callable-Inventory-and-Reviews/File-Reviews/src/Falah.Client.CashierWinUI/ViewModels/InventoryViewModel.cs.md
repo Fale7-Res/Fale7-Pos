@@ -11,8 +11,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.InventoryViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.InventoryViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 28-28.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Initializes InventoryViewModel with injected AppSession. Configures two RetainedRequest instances (_countRequest, _wasteRequest) for idempotent physical count adjustments and waste recordings, and initializes observable collections for Items, RecentMovements, DetailMovements, and CountSheet.
+- **Validations:** None on constructor parameters. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -22,8 +22,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnIsBusyChanged(bool)
 - **Lines:** [32-36]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnIsBusyChanged(bool) across lines 32-36.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** CommunityToolkit partial method triggered when IsBusy changes. Notifies PropertyChanged for CanEditAction and calls _session.SetManagementOperationPending(this, !CanEditAction) to lock navigation while inventory writes are pending.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -44,8 +44,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnSearchQueryChanged(string)
 - **Lines:** [54-54]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnSearchQueryChanged(string) across lines 54-54.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for SearchQuery; invokes ApplyFilter() to update the visible items and rebuild the count sheet if counting is active.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -55,8 +55,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnLowStockOnlyChanged(bool)
 - **Lines:** [55-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnLowStockOnlyChanged(bool) across lines 55-55.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for LowStockOnly; invokes ApplyFilter() to filter storeroom items to low stock items only.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -66,9 +66,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ApplyFilter()
 - **Lines:** [57-69]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ApplyFilter() across lines 57-69.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Filters _allItems based on active status, LowStockOnly flag, and SearchQuery (matching Name or Category case-insensitively). Populates Items collection, notifies HasNoItems and LowStockCount, and rebuilds the physical count sheet via RebuildCountSheet() if IsCounting is true.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:60:71:SimpleLambdaExpression
@@ -99,8 +99,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [63-64]
-- **Behavior:** Executes logic for lambda expression across lines 63-64.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Filter predicate matching item Name or Category against SearchQuery using CurrentCultureIgnoreCase.
+- **Validations:** Case-insensitive string containment checks. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -121,9 +121,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.LoadAsync()
 - **Lines:** [97-136]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.LoadAsync() across lines 97-136.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
+- **Behavior:** Asynchronously hydrates inventory overview and recent movement audit trail. Calls GetInventoryOverviewAsync(actorId) and GetStockMovementsAsync(limit: 60). Populates Overview, caches _allItems, and fills RecentMovements with MovementRow view models. Reloads selected item detail if SelectedItem is not null. Updates PropertyChanged for stock valuation metrics and negative balance warnings. Wrapped in try/finally setting IsLoading = false.
+- **Validations:** Guarded by if (IsLoading) return;. Assumes CurrentUser is non-null. Throws: NullReferenceException if _session.CurrentUser is null.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:138:5:MethodDeclaration
@@ -132,8 +132,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.NameOf(string)
 - **Lines:** [138-138]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.NameOf(string) across lines 138-138.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Helper resolving item Name from cached _allItems by itemId, falling back to itemId string if not found.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -143,8 +143,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [138-138]
-- **Behavior:** Executes logic for lambda expression across lines 138-138.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate i => i.Id == itemId matching inventory item by ID in NameOf.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -154,8 +154,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.UnitOf(string)
 - **Lines:** [139-139]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.UnitOf(string) across lines 139-139.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Helper resolving item Unit from cached _allItems by itemId, returning empty string if not found.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -165,8 +165,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [139-139]
-- **Behavior:** Executes logic for lambda expression across lines 139-139.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate i => i.Id == itemId matching inventory item by ID in UnitOf.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -264,8 +264,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnSelectedItemChanged(Falah.Application.Inventory.InventoryOverviewRowDto?)
 - **Lines:** [203-207]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnSelectedItemChanged(Falah.Application.Inventory.InventoryOverviewRowDto?) across lines 203-207.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for SelectedItem; notifies HasSelection and triggers fire-and-forget _ = LoadDetailAsync() to populate drill-down details.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -275,9 +275,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnDetailChanged(Falah.Application.Inventory.InventoryItemDetailDto?)
 - **Lines:** [209-237]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnDetailChanged(Falah.Application.Inventory.InventoryItemDetailDto?) across lines 209-237.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Partial change notification handler for Detail; populates DetailMovements observable collection with mapped MovementRow entries and raises PropertyChanged notifications for all item detail displays (Balance, Value, UnitCost, CostSource, Minimum, Usage, Waste, CountAdjustment, Variance, etc.).
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:279:5:MethodDeclaration
@@ -286,9 +286,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.LoadDetailAsync()
 - **Lines:** [279-304]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.LoadDetailAsync() across lines 279-304.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Asynchronously loads deep item audit details and movement log. Validates item selection and CanViewValue (reports_view permission). Calls _session.Api.GetInventoryItemDetailAsync(row.Id, actorId). Assigns Detail or surfaces errors in DetailError. Manages IsDetailLoading in try/finally.
+- **Validations:** Checks SelectedItem != null and CanViewValue. Throws: NullReferenceException if _session.CurrentUser is null.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:306:5:MethodDeclaration
@@ -297,8 +297,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseDetail()
 - **Lines:** [306-307]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseDetail() across lines 306-307.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand closing the item detail drawer by setting SelectedItem = null.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -352,8 +352,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountLine.OnCountedTextChanged(string)
 - **Lines:** [321-328]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountLine.OnCountedTextChanged(string) across lines 321-328.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** CommunityToolkit partial method on CountLine.CountedText; notifies PropertyChanged for VarianceDisplay, VarianceValueDisplay, HasVariance, and IsShort, and invokes the parent Changed callback to update sheet summaries.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -385,8 +385,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [368-368]
-- **Behavior:** Executes logic for lambda expression across lines 368-368.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** LINQ predicate l => l.CountedMilliUnits is not null counting lines where physical count has been keyed in for CountSheetEnteredCount.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -396,8 +396,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountSheetValueLabel.get
 - **Lines:** [376-385]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountSheetValueLabel.get across lines 376-385.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Computes descriptive Arabic label summarizing net monetary value impact of physical count variances across priced items, while explicitly stating count of unpriced items whose value impact cannot be calculated.
+- **Validations:** Separates priced from unpriced items. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -407,8 +407,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [378-378]
-- **Behavior:** Executes logic for lambda expression across lines 378-378.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** LINQ filter predicate selecting count lines with variances on items that have a known unit cost basis.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -418,8 +418,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [379-379]
-- **Behavior:** Executes logic for lambda expression across lines 379-379.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** LINQ filter predicate counting lines with variances on unpriced items (UnitCostPiastres is null).
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -429,8 +429,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [382-382]
-- **Behavior:** Executes logic for lambda expression across lines 382-382.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Computation lambda l => l.VarianceMilliUnits!.Value * l.Item.UnitCostPiastres!.Value / 1000 calculating monetary impact in piastres.
+- **Validations:** Assumes non-null values after filter. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -440,8 +440,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.StartCountSheet()
 - **Lines:** [388-401]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.StartCountSheet() across lines 388-401.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand initializing a physical inventory count session. Validates CanEditAction, generates unique _countSheetId = sheet-{guid}, clears errors/summary, sets IsCounting = true, resets SelectedItem, and invokes RebuildCountSheet().
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -451,8 +451,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CancelCountSheet()
 - **Lines:** [403-410]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CancelCountSheet() across lines 403-410.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand cancelling physical count session. Validates CanEditAction, sets IsCounting = false, clears CountSheet, and clears errors.
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -462,9 +462,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.RebuildCountSheet()
 - **Lines:** [412-426]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.RebuildCountSheet() across lines 412-426.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Builds physical count sheet rows for all items currently matching the shelf filter, preserving any count numbers already keyed in by dictionary lookup. Triggers OnCountSheetChanged().
+- **Validations:** ToDictionary mapping item ID to typed count. Throws: ArgumentException if Items contains duplicate IDs.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:416:45:SimpleLambdaExpression
@@ -495,8 +495,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountSheetChanged()
 - **Lines:** [428-434]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountSheetChanged() across lines 428-434.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Raises PropertyChanged notifications for CountSheetDifferenceCount, CountSheetEnteredCount, CountSheetProgressLabel, and CountSheetValueLabel.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -506,9 +506,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitCountSheetAsync()
 - **Lines:** [436-493]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitCountSheetAsync() across lines 436-493.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+- **Behavior:** Asynchronously validates and posts count adjustment movements for all lines exhibiting variances. Validates non-empty differences and mandatory reason. Resolves single manager PIN authorization for the entire count sheet via ResolveApprovalAsync. Iterates over differing lines, deriving deterministic requestId ${sheetId}-${itemId} to ensure idempotency. Tracks posted vs failed count, records per-line status, and reloads inventory state via LoadAsync(). Wrapped in try/finally setting IsBusy.
+- **Validations:** Validates at least 1 line with variance, non-empty CountSheetReason, manager authorization if unprivileged. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:441:42:SimpleLambdaExpression
@@ -539,8 +539,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountTargetChanged(Falah.Application.Inventory.InventoryOverviewRowDto?)
 - **Lines:** [503-503]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountTargetChanged(Falah.Application.Inventory.InventoryOverviewRowDto?) across lines 503-503.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for CountTarget; notifies PropertyChanged for IsCountOpen to toggle single-item count dialog.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -550,8 +550,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountDifferenceLabel.get
 - **Lines:** [514-521]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CountDifferenceLabel.get across lines 514-521.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Computes Arabic preview string showing quantity and direction (surplus or deficit) of adjustment between entered physical count and system balance in item unit of measure.
+- **Validations:** Parses CountActualText via MilliUnits.TryParse. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -561,8 +561,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountActualTextChanged(string)
 - **Lines:** [524-524]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnCountActualTextChanged(string) across lines 524-524.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler on CountActualText; notifies PropertyChanged for CountDifferenceLabel.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -572,8 +572,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OpenCount(Falah.Application.Inventory.InventoryOverviewRowDto)
 - **Lines:** [526-538]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OpenCount(Falah.Application.Inventory.InventoryOverviewRowDto) across lines 526-538.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand opening single-item physical count modal. Validates CanEditAction, pre-fills CountActualText with current system balance, clears reason and PIN, generates cnt-{guid} request key, sets CountTarget = item, and notifies preview properties.
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -583,8 +583,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseCount()
 - **Lines:** [540-541]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseCount() across lines 540-541.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand closing single-item count modal by setting CountTarget = null when CanEditAction allows.
+- **Validations:** Guarded by if (CanEditAction). Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -594,9 +594,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitCountAsync()
 - **Lines:** [543-586]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitCountAsync() across lines 543-586.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Asynchronously validates and processes single-item count adjustment. Replays pending write if present in _countRequest. Parses entered actual count in milli-units, verifies mandatory non-empty reason, and verifies difference from system balance is non-zero. Resolves manager PIN authorization via ResolveApprovalAsync if needed, then calls CompleteCountAsync. Wrapped in try/finally setting IsBusy.
+- **Validations:** Validates milli-units parsing, mandatory reason, difference != 0, manager authorization if unprivileged. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:578:87:SimpleLambdaExpression
@@ -605,8 +605,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [578-578]
-- **Behavior:** Executes logic for lambda expression across lines 578-578.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Error callback lambda e => CountError = e setting CountError on authorization failure during single-item count adjustment.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -616,9 +616,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CompleteCountAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest)
 - **Lines:** [588-601]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CompleteCountAsync(Falah.Application.Inventory.RecordCountAdjustmentRequest) across lines 588-601.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Dispatches RecordCountAdjustmentRequest via _countRequest.SendAsync executing _session.Api.RecordCountAdjustmentAsync(r). On failure, sets CountError. On success, sets ActionNote, closes modal, clears request ID, and reloads inventory state via LoadAsync().
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:591:61:SimpleLambdaExpression
@@ -627,9 +627,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [591-591]
-- **Behavior:** Executes logic for lambda expression across lines 591-591.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.RecordCountAdjustmentAsync(r) passed to _countRequest.SendAsync to post single-item count adjustment.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:612:5:MethodDeclaration
@@ -638,8 +638,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnWasteTargetChanged(Falah.Application.Inventory.InventoryOverviewRowDto?)
 - **Lines:** [612-612]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OnWasteTargetChanged(Falah.Application.Inventory.InventoryOverviewRowDto?) across lines 612-612.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for WasteTarget; notifies PropertyChanged for IsWasteOpen to toggle the waste logging dialog.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -649,8 +649,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OpenWaste(Falah.Application.Inventory.InventoryOverviewRowDto)
 - **Lines:** [618-630]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.OpenWaste(Falah.Application.Inventory.InventoryOverviewRowDto) across lines 618-630.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand opening waste loss modal for target inventory item. Validates CanEditAction, clears quantity, defaults WasteType to "Waste", clears reason and PIN, generates wst-{guid} request key, sets WasteTarget = item, and notifies WasteNeedsApproval.
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -660,8 +660,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseWaste()
 - **Lines:** [632-633]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CloseWaste() across lines 632-633.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand closing waste loss modal by setting WasteTarget = null when CanEditAction allows.
+- **Validations:** Guarded by if (CanEditAction). Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -671,8 +671,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SetWasteType(string)
 - **Lines:** [635-636]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SetWasteType(string) across lines 635-636.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand setting WasteType to chosen classification (e.g. Waste, Spoilage, Breakage) when CanEditAction allows.
+- **Validations:** Guarded by if (CanEditAction). Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -682,9 +682,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitWasteAsync()
 - **Lines:** [638-674]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.SubmitWasteAsync() across lines 638-674.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Asynchronously validates and processes waste/spoilage loss entry. Replays pending write if present in _wasteRequest. Parses positive milli-unit quantity and verifies mandatory reason. Solicits manager PIN authorization via ResolveApprovalAsync if WasteNeedsApproval, then calls CompleteWasteAsync. Wrapped in try/finally setting IsBusy.
+- **Validations:** Validates quantity > 0, mandatory reason, manager authorization if unprivileged. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:666:87:SimpleLambdaExpression
@@ -693,8 +693,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [666-666]
-- **Behavior:** Executes logic for lambda expression across lines 666-666.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Error callback lambda e => WasteError = e setting WasteError on authorization failure during waste submission.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -704,9 +704,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CompleteWasteAsync(Falah.Application.Inventory.RecordWasteRequest)
 - **Lines:** [676-694]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.CompleteWasteAsync(Falah.Application.Inventory.RecordWasteRequest) across lines 676-694.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Dispatches RecordWasteRequest via _wasteRequest.SendAsync executing _session.Api.RecordWasteAsync(r). On failure, sets WasteError. On success, sets ActionNote formatted with loss value in pounds (or notes unpriced item), closes modal, clears request ID, and reloads inventory state via LoadAsync().
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:679:61:SimpleLambdaExpression
@@ -715,9 +715,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [679-679]
-- **Behavior:** Executes logic for lambda expression across lines 679-679.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.RecordWasteAsync(r) passed to _wasteRequest.SendAsync to post waste movement.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs:696:5:MethodDeclaration
@@ -726,9 +726,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)
 - **Lines:** [696-716]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.InventoryViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>) across lines 696-716.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+- **Behavior:** Authorizes sensitive inventory adjustments and waste postings by validating manager PIN against backend approval service via _session.Api.IssueManagerApprovalAsync. Returns immediate success tuple if needsApproval is false. When required, validates PIN length >= 4, calls API with permission and reason, surfaces error callback on failure, and returns (ApprovalId, ApproverUserId, Ok).
+- **Validations:** Checks PIN length >= 4, checks approval API result.Success and non-null Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
 ---
 

@@ -11,12 +11,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.UsersViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [23-23]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.UsersViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 23-23.
+- **Behavior:** Injects and stores the singleton `AppSession` instance in private field `_session` for user management API communication and permission validation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:28:38:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:28:38:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:28:38:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -110,56 +109,51 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnIsBusyChanged(bool)
 - **Lines:** [82-82]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnIsBusyChanged(bool) across lines 82-82.
+- **Behavior:** Partial change notification handler for `IsBusy`: invokes `RefreshActions()` to re-evaluate command can-execute states and registers or unregisters pending management operation state with `_session.SetManagementOperationPending(this, !CanEditAction)`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:83:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:83:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:83:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnIsLoadingChanged(bool)
 - **Lines:** [83-83]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnIsLoadingChanged(bool) across lines 83-83.
+- **Behavior:** Partial change notification handler for `IsLoading`: invokes `RefreshActions()` to update command availability and dependent UI property bindings.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:84:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:84:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:84:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnLoadErrorChanged(string?)
 - **Lines:** [84-84]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnLoadErrorChanged(string?) across lines 84-84.
+- **Behavior:** Partial change notification handler for `LoadError`: triggers `RefreshActions()` so UI commands and controls refresh their enabled state in response to load errors.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:86:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:86:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:86:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnSelectedUserChanged(Falah.Application.Users.UserDetailsDto?)
 - **Lines:** [86-91]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.OnSelectedUserChanged(Falah.Application.Users.UserDetailsDto?) across lines 86-91.
+- **Behavior:** Partial change notification handler for `SelectedUser`: notifies property change for `IsOwnerSelected`, invokes `RefreshActions()`, and calls `RebuildToggles()` to populate permission toggles reflecting the selected user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:93:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:93:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:93:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.RebuildToggles()
 - **Lines:** [93-105]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.RebuildToggles() across lines 93-105.
+- **Behavior:** Rebuilds the `Permissions` toggle collection from the cached `_catalog` ordered by Category then Key; sets `IsGranted` based on `SelectedUser.Permissions` and sets `CanActorGrant` to true if the selected user already holds the permission or the current logged-in user holds the permission in `_session` (preventing privilege escalation).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:97:46:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:97:46:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:97:46:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -187,139 +181,127 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.LoadAsync()
 - **Lines:** [107-112]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.LoadAsync() across lines 107-112.
+- **Behavior:** RelayCommand for initial or manual refresh; validates `CanEditAction && !IsUserDialogOpen` before delegating to `ReloadAsync()`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:114:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:114:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:114:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ReloadAsync(string?)
 - **Lines:** [114-143]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ReloadAsync(string?) across lines 114-143.
+- **Behavior:** Core asynchronous data loader guarded by `IsLoading`; calls `_session.Api.GetAllUsersAsync(actor)r and `_session.Api.GetPermissionCatalogAsync()`; stores catalog definitions in `_catalog`, populates `Users` collection, restores previously selected user by ID or defaults to first user, and notifies `HasNoUsers` in `finally`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:136:49:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:136:49:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:136:49:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [136-136]
-- **Behavior:** Executes logic for lambda expression across lines 136-136.
+- **Behavior:** Predicate lambda `u => u.Id == selectedId` locating the user matching the previous selection ID in `Users` collection.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:145:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:145:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:145:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SelectUser(Falah.Application.Users.UserDetailsDto)
 - **Lines:** [145-146]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SelectUser(Falah.Application.Users.UserDetailsDto) across lines 145-146.
+- **Behavior:** RelayCommand selecting a user from the master list; verifies `CanEditAction && !IsUserDialogOpen && !IsLoading` before assigning `SelectedUser = user`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:148:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:148:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:148:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SavePermissionsAsync()
 - **Lines:** [148-164]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SavePermissionsAsync() across lines 148-164.
+- **Behavior:** RelayCommand persisting modified permissions; computes delta `grant` and `revoke` lists between `Permissions` collection and `SelectedUser.Permissions`, sets error note if no delta exists, and dispatches `UpdateUserPermissionsRequest` via `SendPermissionsAsync`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:39:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:39:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:39:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [155-155]
-- **Behavior:** Executes logic for lambda expression across lines 155-155.
+- **Behavior:** Filter predicate lambda `p => p.IsGranted && !SelectedUser.Permissions.Contains(p.Key)` identifying newly granted permissions.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:109:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:109:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:155:109:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [155-155]
-- **Behavior:** Executes logic for lambda expression across lines 155-155.
+- **Behavior:** Projection lambda p => p.Key extracting the permission key string from a granted `PermissionToggle`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:40:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:40:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:40:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [156-156]
-- **Behavior:** Executes logic for lambda expression across lines 156-156.
+- **Behavior:** Filter predicate lambda `p => !p.IsGranted && SelectedUser.Permissions.Contains(p.Key)` identifying revoked permissions.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:110:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:110:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:156:110:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [156-156]
-- **Behavior:** Executes logic for lambda expression across lines 156-156.
+- **Behavior:** Projection lambda p => p.Key extracting the permission key string from a revoked `PermissionToggle`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:166:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:166:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:166:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SendPermissionsAsync(Falah.Application.Users.UpdateUserPermissionsRequest)
 - **Lines:** [166-182]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.SendPermissionsAsync(Falah.Application.Users.UpdateUserPermissionsRequest) across lines 166-182.
+- **Behavior:** Private asynchronous helper; manages `IsBusy`, dispatches request through `_pendingPermissions.SendAsync(request, r => _session.Api.UpdateUserPermissionsAsync(r))`, surfaces failure message on error, sets `ActionNote = "تم تحديث الصلاحيات."i on success, and reloads users preserving selection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:172:71:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:172:71:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:172:71:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [172-172]
-- **Behavior:** Executes logic for lambda expression across lines 172-172.
+- **Behavior:** Invocation lambda r => _session.Api.UpdateUserPermissionsAsync(r) delegating request to API client.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:184:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:184:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:184:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ToggleActiveAsync()
 - **Lines:** [184-203]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.UsersViewModel.ToggleActiveAsync() across lines 184-203.
+- **Behavior:** RelayCommand toggling active status of `SelectedUser`; constructs or retries `SetUserActiveRequest`, sends via `_pendingActive.SendAsync(request, r => _session.Api.SetUserActiveAsync(r))`, sets `ActionNote = "تم تحديث حالة المستخدم.", and reloads users preserving selection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:193:66:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:193:66:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs:193:66:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [193-193]
-- **Behavior:** Executes logic for lambda expression across lines 193-193.
+- **Behavior:** Invocation lambda r => _session.Api.SetUserActiveAsync(r) forwarding active status toggle request to API client.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

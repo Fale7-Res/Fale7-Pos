@@ -11,12 +11,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ReportsViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [21-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ReportsViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 21-28.
+- **Behavior:** Initializes the reports viewmodel with AppSession, defaults business date to Cairo time (Egypt Standard Time), and selects default period.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:40:50:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:40:50:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:40:50:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -33,23 +32,21 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnSelectedPeriodChanged(Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.PeriodOption?)
 - **Lines:** [59-65]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnSelectedPeriodChanged(Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.PeriodOption?) across lines 59-65.
+- **Behavior:** Notifies IsSpecificDay and RangeLabel bindings and triggers reload when period selection changes.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:72:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:72:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:72:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ShowDay(DateOnly)
 - **Lines:** [72-86]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ShowDay(DateOnly) across lines 72-86.
+- **Behavior:** Selects the specific day period, updates BusinessDate, notifies date range bindings, and triggers report load.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:74:41:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:74:41:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:74:41:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -66,23 +63,21 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ResolveRange()
 - **Lines:** [90-102]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.ResolveRange() across lines 90-102.
+- **Behavior:** Translates the selected period preset (today, yesterday, last7, last30, month, day) into a concrete date range tuple based on Cairo clock.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:106:9:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:106:9:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:106:9:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.RangeLabel.get
 - **Lines:** [106-110]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.RangeLabel.get across lines 106-110.
+- **Behavior:** Formats the resolved date range into a localized label for single date or range display.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:120:63:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:120:63:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:120:63:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -154,56 +149,51 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnFoodCostChanged(Falah.Application.Reports.FoodCostReportDto?)
 - **Lines:** [169-175]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnFoodCostChanged(Falah.Application.Reports.FoodCostReportDto?) across lines 169-175.
+- **Behavior:** Notifies UI property changes for food cost coverage, basis notes, and incomplete pricing warnings when FoodCost changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:183:9:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:183:9:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:183:9:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BusinessDateOffset.get
 - **Lines:** [183-183]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BusinessDateOffset.get across lines 183-183.
+- **Behavior:** Converts BusinessDate DateOnly to DateTimeOffset for XAML DatePicker binding.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:184:9:SetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:184:9:SetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:184:9:SetAccessorDeclaration
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BusinessDateOffset.set
 - **Lines:** [184-190]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BusinessDateOffset.set across lines 184-190.
+- **Behavior:** Converts DatePicker DateTimeOffset value to DateOnly and navigates to the specified day.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:195:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:195:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:195:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnBusinessDateChanged(DateOnly)
 - **Lines:** [195-195]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.OnBusinessDateChanged(DateOnly) across lines 195-195.
+- **Behavior:** Notifies BusinessDateLabel property change when BusinessDate updates.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:201:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:201:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:201:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BuildProductHours(IReadOnlyList<Falah.Application.Reports.ProductHourlySalesDto>)
 - **Lines:** [201-235]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.BuildProductHours(IReadOnlyList<Falah.Application.Reports.ProductHourlySalesDto>) across lines 201-235.
+- **Behavior:** Transforms sparse product hourly sales rows into structured matrix rows containing active hours, totals, peak hours, and cell quantities.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:206:33:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:206:33:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:206:33:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -242,12 +232,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [211-217]
-- **Behavior:** Executes logic for lambda expression across lines 211-217.
+- **Behavior:** Aggregates product sales by product name, calculating total sold quantity, peak sales hour, and hourly quantity dictionary.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:214:31:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:214:31:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:214:31:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -330,40 +319,37 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [225-229]
-- **Behavior:** Executes logic for lambda expression across lines 225-229.
+- **Behavior:** Maps each active sales hour to an HourCell showing quantity display dot and peak indicator.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:237:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:237:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:237:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.LoadAsync()
 - **Lines:** [237-320]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.LoadAsync() across lines 237-320.
+- **Behavior:** Fetches all management reports for the resolved date range from the API (sales, expenses, top items, hourly sales, category sales, delivery, tax, refunds, food cost, and significant actions).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:322:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:322:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:322:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.PreviousDay()
 - **Lines:** [322-323]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.PreviousDay() across lines 322-323.
+- **Behavior:** Steps report viewing date one day backward via ShowDay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:325:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:325:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs:325:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.NextDay()
 - **Lines:** [325-326]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ReportsViewModel.NextDay() across lines 325-326.
+- **Behavior:** Steps report viewing date one day forward via ShowDay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

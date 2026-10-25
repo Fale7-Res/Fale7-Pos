@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.MainWindow()
 - **Lines:** [14-44]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.MainWindow() across lines 14-44.
+- **Behavior:** Window code-behind constructor. Initializes XAML elements, instantiates MainViewModel, sets DataContext for notification banners and header, intercepts AppWindow.Closing to cancel closure if !_viewModel.TryClose(), registers cleanup on Closed, sets RootGrid.RequestedTheme from ThemeService, applies initial visual state (ApplyIsLoggedIn, ApplyIsOnline, ApplyCurrentView), and maximizes window via MaximizeOnTargetDisplay().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [21-26]
-- **Behavior:** Executes logic for lambda expression across lines 21-26.
+- **Behavior:** Window Closed event cleanup lambda: unhooks OnViewModelPropertyChanged from _viewModel, unhooks OnThemeChanged from ThemeService.Instance.Changed, and halts background timers via _viewModel.Stop() to prevent event subscriber memory leaks.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.OnThemeChanged(Falah.Client.CashierWinUI.Services.AppTheme)
 - **Lines:** [50-51]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.OnThemeChanged(Falah.Client.CashierWinUI.Services.AppTheme) across lines 50-51.
+- **Behavior:** Handles application theme change events from ThemeService. Dispatches theme assignment to UI thread via DispatcherQueue.TryEnqueue, setting RootGrid.RequestedTheme = ThemeService.ToElementTheme(theme) to update the entire visual tree without restart.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for lambda expression across lines 51-51.
+- **Behavior:** UI thread dispatcher action updating RootGrid.RequestedTheme to the newly selected ElementTheme.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.MaximizeOnTargetDisplay()
 - **Lines:** [58-62]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.MaximizeOnTargetDisplay() across lines 58-62.
+- **Behavior:** Maximizes the native window via OverlappedPresenter.Maximize() for dedicated POS touch-screen terminal display, avoiding DPI scaling clipping bugs associated with WinUI 3 AppWindow.Resize physical pixel coordinates.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs)
 - **Lines:** [64-78]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs) across lines 64-78.
+- **Behavior:** Handles PropertyChanged events from MainViewModel, dispatching state changes to ApplyIsLoggedIn for IsLoggedIn, ApplyIsOnline for IsOnline, and ApplyCurrentView for CurrentView.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.ApplyIsLoggedIn()
 - **Lines:** [80-81]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.ApplyIsLoggedIn() across lines 80-81.
+- **Behavior:** Synchronizes HeaderHost.Visibility with _viewModel.IsLoggedIn (Visible when logged in, Collapsed on login screen).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.ApplyIsOnline()
 - **Lines:** [83-84]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.ApplyIsOnline() across lines 83-84.
+- **Behavior:** Synchronizes OfflineBanner.Visibility with _viewModel.IsOnline (Collapsed when online, Visible when offline).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.MainWindow.ApplyCurrentView()
 - **Lines:** [89-98]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.MainWindow.ApplyCurrentView() across lines 89-98.
+- **Behavior:** Performs explicit ViewModel-to-View mapping for RootContent.Content based on _viewModel.CurrentView runtime type (mapping LoginViewModel -> LoginView, CashierViewModel -> CashierView, ShellViewModel -> ShellView), compensating for WinUI 3 lack of implicit typed DataTemplates.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

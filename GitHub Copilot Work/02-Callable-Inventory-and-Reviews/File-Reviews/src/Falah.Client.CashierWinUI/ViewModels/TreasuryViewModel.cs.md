@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.TreasuryViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.TreasuryViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 24-24.
+- **Behavior:** Constructor injecting AppSession dependency to store _session reference.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnAccountFilterChanged(string)
 - **Lines:** [126-130]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnAccountFilterChanged(string) across lines 126-130.
+- **Behavior:** Partial change handler invoked when AccountFilter changes, updating HasAccountFilter notification and triggering ApplyMovementFilter().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnSearchTextChanged(string)
 - **Lines:** [131-131]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnSearchTextChanged(string) across lines 131-131.
+- **Behavior:** Partial change handler invoked when SearchText changes, triggering ApplyMovementFilter().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.ApplyMovementFilter()
 - **Lines:** [138-153]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.ApplyMovementFilter() across lines 138-153.
+- **Behavior:** Filters cached _allMovements by AccountFilter (matching source or destination account) and SearchText (matching movement type, reason, reference, or actor). Populates observable Movements collection and updates empty state properties.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [141-147]
-- **Behavior:** Executes logic for lambda expression across lines 141-147.
+- **Behavior:** LINQ predicate filtering movements by matching active account ID and checking if search term appears in TypeLabel, Reason, ReferenceDisplay, or ActorDisplay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.FilterByAccount(string)
 - **Lines:** [155-156]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.FilterByAccount(string) across lines 155-156.
+- **Behavior:** RelayCommand toggling account filter; clears filter if selected account is tapped again, or sets AccountFilter to selected accountId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnIsBusyChanged(bool)
 - **Lines:** [166-166]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnIsBusyChanged(bool) across lines 166-166.
+- **Behavior:** Partial change handler delegating to RefreshOperationState() when IsBusy changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.RefreshOperationState()
 - **Lines:** [168-172]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.RefreshOperationState() across lines 168-172.
+- **Behavior:** Raises PropertyChanged for CanEditAction and informs AppSession whether a management operation is in flight via _session.SetManagementOperationPending.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -165,7 +165,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.LoadAsync()
 - **Lines:** [182-223]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.LoadAsync() across lines 182-223.
+- **Behavior:** Asynchronously fetches treasury account balances, outside money position (pending electronic transfers, unsettled driver cash custody), and the last 200 ledger movements. Rebuilds Balances, Position, and Movements collections, then notifies summary badges.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetDepositType(string)
 - **Lines:** [247-248]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetDepositType(string) across lines 247-248.
+- **Behavior:** RelayCommand updating DepositType ("owner_deposit", "capital_injection", "other_external_inflow") when CanEditAction is true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -198,7 +198,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnOpenActionChanged(string?)
 - **Lines:** [264-271]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OnOpenActionChanged(string?) across lines 264-271.
+- **Behavior:** Partial change handler raising PropertyChanged for dialog state flags (IsActionOpen, IsDeposit, IsWithdraw, IsTransfer, ActionTitle) when OpenAction changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -209,7 +209,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OpenTreasuryAction(string)
 - **Lines:** [279-293]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.OpenTreasuryAction(string) across lines 279-293.
+- **Behavior:** RelayCommand opening the modal dialog for "deposit", "withdraw", or "transfer". Resets inputs, sets default accounts, generates a unique idempotency key _requestId ("tre-{Guid:N}"), sets OpenAction, and evaluates NeedsApproval.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -220,7 +220,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.CloseTreasuryAction()
 - **Lines:** [295-296]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.CloseTreasuryAction() across lines 295-296.
+- **Behavior:** RelayCommand closing the active treasury action modal by setting OpenAction = null when CanEditAction allows.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -231,7 +231,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetSourceAccount(string)
 - **Lines:** [298-299]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetSourceAccount(string) across lines 298-299.
+- **Behavior:** RelayCommand updating SourceAccount when CanEditAction allows.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -242,7 +242,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetDestinationAccount(string)
 - **Lines:** [301-302]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SetDestinationAccount(string) across lines 301-302.
+- **Behavior:** RelayCommand updating DestinationAccount when CanEditAction allows.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -253,7 +253,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SubmitTreasuryActionAsync()
 - **Lines:** [304-363]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SubmitTreasuryActionAsync() across lines 304-363.
+- **Behavior:** RelayCommand validating and dispatching deposit, withdrawal, or transfer. Replays _pendingCommit if present. Validates positive cash amount via CashInput.TryParse, non-empty Reason, and distinct accounts for transfers. Obtains manager approval via ResolveApprovalAsync if needed. Packages request DTO with idempotency key, sets _pendingCommit delegate, and awaits SendPendingAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: false
 
@@ -264,7 +264,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [345-345]
-- **Behavior:** Executes logic for lambda expression across lines 345-345.
+- **Behavior:** Closure delegate () => NormalizeAsync(_session.Api.TreasuryDepositAsync(request)) stored in _pendingCommit for durable execution and replay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -275,7 +275,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [351-351]
-- **Behavior:** Executes logic for lambda expression across lines 351-351.
+- **Behavior:** Closure delegate () => NormalizeAsync(_session.Api.TreasuryWithdrawAsync(request)) stored in _pendingCommit for durable execution and replay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -286,7 +286,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [357-357]
-- **Behavior:** Executes logic for lambda expression across lines 357-357.
+- **Behavior:** Closure delegate () => NormalizeAsync(_session.Api.TreasuryTransferAsync(request)) stored in _pendingCommit for durable execution and replay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -297,7 +297,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.NormalizeAsync<T>(Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<T>>)
 - **Lines:** [365-369]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.NormalizeAsync<T>(Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<T>>) across lines 365-369.
+- **Behavior:** Static helper method unwrapping generic ApiResult<T> into a standardized (Success, OutcomeUnknown, Error) tuple for pending commit execution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -308,7 +308,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SendPendingAsync()
 - **Lines:** [371-392]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.SendPendingAsync() across lines 371-392.
+- **Behavior:** Invokes _pendingCommit delegate. If execution fails with network ambiguity (OutcomeUnknown), retains _pendingCommit to force retry with the same request. On success, clears pending state, displays ActionNote with formatted amount, closes modal, and refreshes ledger via LoadAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -319,8 +319,17 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.ResolveApprovalAsync(string)
 - **Lines:** [394-413]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.TreasuryViewModel.ResolveApprovalAsync(string) across lines 394-413.
+- **Behavior:** Validates manager PIN (length >= 4) and calls backend approval service _session.Api.IssueManagerApprovalAsync when NeedsApproval is true, returning (ApprovalId, ApproverUserId, Ok) tuple.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
+
+
+## Candidate Findings & Observations
+- **Redundant Ternary Operator in Source Account Defaulting (line 288):**
+  In `OpenTreasuryAction`:
+  ```csharp
+  SourceAccount = action == "withdraw" ? "tre-main" : "tre-main";
+  ```
+  Both branches assign the identical string literal `"tre-main"`, indicating either an unneeded ternary expression or an intended default account (such as allowing the user's selected account or drawer) that was inadvertently replaced.

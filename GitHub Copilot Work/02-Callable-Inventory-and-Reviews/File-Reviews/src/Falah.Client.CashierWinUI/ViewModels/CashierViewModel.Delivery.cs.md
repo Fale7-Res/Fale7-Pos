@@ -33,150 +33,137 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnOrderTypeChanged(string)
 - **Lines:** [39-54]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnOrderTypeChanged(string) across lines 39-54.
+- **Behavior:** Updates totals, toggles order type view properties, resets customer info for takeaway, clears pickup times for non-pickup, and opens editors for delivery or pickup.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:56:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:56:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:56:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedDeliveryServiceChanged(Falah.Application.Delivery.DeliveryServiceDto?)
 - **Lines:** [56-56]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedDeliveryServiceChanged(Falah.Application.Delivery.DeliveryServiceDto?) across lines 56-56.
+- **Behavior:** Recalculates cart totals when selected delivery service changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:57:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:57:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:57:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnCustomerPhoneChanged(string)
 - **Lines:** [57-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnCustomerPhoneChanged(string) across lines 57-61.
+- **Behavior:** Resets saved addresses and customer lookup messages when customer phone number changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:63:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:63:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:63:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnCustomerNameChanged(string)
 - **Lines:** [63-63]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnCustomerNameChanged(string) across lines 63-63.
+- **Behavior:** Notifies PickupSummary binding when customer name changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:64:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:64:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:64:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedSavedAddressChanged(Falah.Application.Customers.CustomerAddressDto?)
 - **Lines:** [64-71]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedSavedAddressChanged(Falah.Application.Customers.CustomerAddressDto?) across lines 64-71.
+- **Behavior:** Populates structured address fields and matches delivery service from selected saved customer address.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:70:67:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:70:67:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:70:67:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [70-70]
-- **Behavior:** Executes logic for lambda expression across lines 70-70.
+- **Behavior:** Finds matching delivery service in collection corresponding to saved address service ID.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:72:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:72:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:72:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenDeliveryEditor()
 - **Lines:** [72-77]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenDeliveryEditor() across lines 72-77.
+- **Behavior:** Opens delivery editor modal and loads active delivery services from the server.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:78:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:78:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:78:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CloseDeliveryEditor()
 - **Lines:** [78-78]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CloseDeliveryEditor() across lines 78-78.
+- **Behavior:** Closes the delivery editor modal.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:79:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:79:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:79:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadDeliveryServicesAsync()
 - **Lines:** [79-94]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadDeliveryServicesAsync() across lines 79-94.
+- **Behavior:** Asynchronously fetches active delivery services from API and restores current service selection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:91:71:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:91:71:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:91:71:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [91-91]
-- **Behavior:** Executes logic for lambda expression across lines 91-91.
+- **Behavior:** Matches previously selected delivery service by ID after service collection reload.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:96:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:96:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:96:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LookupCustomerAsync()
 - **Lines:** [96-111]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LookupCustomerAsync() across lines 96-111.
+- **Behavior:** Looks up customer record by phone number via API, populates name and saved addresses, and handles not found states.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:113:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:113:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:113:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SaveDeliveryDetailsAsync()
 - **Lines:** [113-129]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SaveDeliveryDetailsAsync() across lines 113-129.
+- **Behavior:** Validates delivery address fields and submits UpsertCustomerRequest via API before closing editor.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:131:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:131:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:131:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ResetDelivery()
 - **Lines:** [131-137]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ResetDelivery() across lines 131-137.
+- **Behavior:** Resets customer name, phone, structured address components, and selected delivery service to default blanks.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:139:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:139:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs:139:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectDeliveryService(Falah.Application.Delivery.DeliveryServiceDto)
 - **Lines:** [139-140]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectDeliveryService(Falah.Application.Delivery.DeliveryServiceDto) across lines 139-140.
+- **Behavior:** Sets the active delivery service to the specified service DTO.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

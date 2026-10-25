@@ -11,8 +11,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CashierViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)
 - **Lines:** [29-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CashierViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel) across lines 29-34.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Initializes CashierViewModel with injected AppSession and HeaderViewModel dependencies. Hooks Cart.CollectionChanged event to automatically trigger RecomputeCartTotals() and NotifyCheckoutAvailability() whenever items are added or removed from the basket.
+- **Validations:** None on constructor parameters. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -22,8 +22,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [33-33]
-- **Behavior:** Executes logic for lambda expression across lines 33-33.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Event handler lambda (_, _) => { RecomputeCartTotals(); NotifyCheckoutAvailability(); } attached to Cart.CollectionChanged to recalculate basket figures and refresh checkout button availability.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -66,8 +66,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedCategoryChanged(Falah.Application.Menu.MenuCategoryDto?)
 - **Lines:** [50-54]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSelectedCategoryChanged(Falah.Application.Menu.MenuCategoryDto?) across lines 50-54.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for SelectedCategory. Calls RefreshVisibleProducts() to display products of the active category, and updates IsSelected flag on all CategoryTiles via ReferenceEquals comparison.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -77,8 +77,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSearchQueryChanged(string)
 - **Lines:** [56-56]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnSearchQueryChanged(string) across lines 56-56.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for SearchQuery; invokes RefreshVisibleProducts() to filter catalog products live across categories.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -88,8 +88,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnIsLoadingMenuChanged(bool)
 - **Lines:** [60-60]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnIsLoadingMenuChanged(bool) across lines 60-60.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler on IsLoadingMenu; calls NotifyCheckoutAvailability() so checkout buttons update their disabled state during menu load.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -99,8 +99,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnMenuErrorChanged(string?)
 - **Lines:** [61-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnMenuErrorChanged(string?) across lines 61-61.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler on MenuError; calls NotifyCheckoutAvailability() to disable checkout when menu failed to load.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -110,8 +110,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.BuildBestSellers(IReadOnlyList<string>)
 - **Lines:** [69-76]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.BuildBestSellers(IReadOnlyList<string>) across lines 69-76.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Builds synthetic best sellers category DTO (__best_sellers, "الأكثر مبيعًا", "🔥") based on server-ranked productIds. Groups loaded category products by ID, filters to items present in byId dictionary, preserving server ranking order, and returns null if no products match or list is empty.
+- **Validations:** Checks productIds.Count > 0 and matching product count > 0. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -121,8 +121,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Executes logic for lambda expression across lines 72-72.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Flat-mapping projection c => c.Products extracting product lists across loaded categories in BuildBestSellers.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -132,8 +132,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Executes logic for lambda expression across lines 72-72.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Grouping key selector p => p.Id grouping products by product ID in BuildBestSellers.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -143,8 +143,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Executes logic for lambda expression across lines 72-72.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Dictionary key selector g => g.Key extracting product ID in BuildBestSellers.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -154,8 +154,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Executes logic for lambda expression across lines 72-72.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Dictionary value selector g => g.First() picking the first product instance per ID.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -165,8 +165,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [74-74]
-- **Behavior:** Executes logic for lambda expression across lines 74-74.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Projection selector id => byId[id] resolving product DTOs in server ranking order.
+- **Validations:** Dictionary lookup guarded by byId.ContainsKey check. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -176,9 +176,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RefreshVisibleProducts()
 - **Lines:** [80-100]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RefreshVisibleProducts() across lines 80-100.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Clears and repopulates VisibleProducts. If SearchQuery is empty, shows SelectedCategory?.Products; otherwise searches across all categories for products whose name contains SearchQuery. Builds iconByProduct map to ensure search results display their origin category icon. Wraps each item in a ProductTile model with applicable offers, image URI, fallback icon, and best-seller badge. Notifies HasNoResults and CatalogueTitle.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:85:37:SimpleLambdaExpression
@@ -187,8 +187,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [85-85]
-- **Behavior:** Executes logic for lambda expression across lines 85-85.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Flat-mapping projection c => c.Products extracting products across all categories when executing search in RefreshVisibleProducts.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -198,8 +198,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [85-85]
-- **Behavior:** Executes logic for lambda expression across lines 85-85.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Filter predicate matching product name against SearchQuery using CurrentCultureIgnoreCase.
+- **Validations:** Case-insensitive string containment check. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -275,8 +275,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RetryLoadMenuAsync()
 - **Lines:** [106-107]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RetryLoadMenuAsync() across lines 106-107.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand retrying menu load by delegating to LoadMenuAsync().
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -286,9 +286,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadMenuAsync()
 - **Lines:** [109-152]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.LoadMenuAsync() across lines 109-152.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Asynchronously loads POS menu snapshot and tax rules from server. Sets IsLoadingMenu = true, clears MenuError. Calls GetMenuAsync() and GetTaxRulesAsync(). Configures domain TaxRule from the first active tax rule, populates Categories, constructs synthetic best sellers tile if applicable, populates CategoryTiles, and selects first category. Wrapped in try/finally setting IsLoadingMenu = false and notifying HasNoResults.
+- **Validations:** Validates API result success for menu and tax endpoints. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:124:50:SimpleLambdaExpression
@@ -308,8 +308,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnVariantPickerProductChanged(Falah.Application.Menu.MenuProductDto?)
 - **Lines:** [158-158]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnVariantPickerProductChanged(Falah.Application.Menu.MenuProductDto?) across lines 158-158.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for VariantPickerProduct; notifies PropertyChanged for IsVariantPickerOpen to control variant picker flyout visibility.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -319,8 +319,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectProduct(Falah.Application.Menu.MenuProductDto)
 - **Lines:** [160-166]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectProduct(Falah.Application.Menu.MenuProductDto) across lines 160-166.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand handling catalog product tile tap. Validates CanEditOperation. If product has multiple variants (Variants.Count > 1), opens variant picker flyout by setting VariantPickerProduct = product. If exactly one variant exists, automatically selects it. Otherwise adds base product to cart via AddToCart.
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -330,8 +330,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectOffer(Falah.Client.CashierWinUI.Models.OfferChoice)
 - **Lines:** [168-179]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectOffer(Falah.Client.CashierWinUI.Models.OfferChoice) across lines 168-179.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand handling promotional offer chip tap. Validates CanEditOperation. If the item has multiple variants, opens variant picker with PendingOffer = choice.Offer. Otherwise adds product to cart with the applied offer ID via AddToCart.
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -341,8 +341,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPendingOfferChanged(Falah.Application.Menu.MenuOfferDto?)
 - **Lines:** [191-195]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPendingOfferChanged(Falah.Application.Menu.MenuOfferDto?) across lines 191-195.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for PendingOffer; raises PropertyChanged for HasPendingOffer and PendingOfferBanner to display the fixed offer price banner on the variant picker.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -352,8 +352,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectVariant(Falah.Application.Menu.MenuVariantDto)
 - **Lines:** [197-205]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectVariant(Falah.Application.Menu.MenuVariantDto) across lines 197-205.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand confirming variant choice in picker flyout. Validates CanEditOperation and non-null VariantPickerProduct. Invokes AddToCart with selected variant and PendingOffer?.Id, then resets VariantPickerProduct = null and PendingOffer = null.
+- **Validations:** Guarded by if (!CanEditOperation || VariantPickerProduct is null) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -363,8 +363,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CloseVariantPicker()
 - **Lines:** [207-208]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CloseVariantPicker() across lines 207-208.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand dismissing variant picker flyout: resets VariantPickerProduct = null and PendingOffer = null.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -374,9 +374,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.AddToCart(Falah.Application.Menu.MenuProductDto, Falah.Application.Menu.MenuVariantDto?, string?)
 - **Lines:** [210-226]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.AddToCart(Falah.Application.Menu.MenuProductDto, Falah.Application.Menu.MenuVariantDto?, string?) across lines 210-226.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Constructs a new CartLine and appends it to Cart collection. Validates CanEditOperation. Resolves unit price precedence: offer FixedPricePiastres if offerId matches, else variant PricePiastres, else product BasePricePiastres. Sets ProductId, VariantId, names, SendToGrill flag, and offer metadata.
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:213:86:SimpleLambdaExpression
@@ -385,8 +385,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [213-213]
-- **Behavior:** Executes logic for lambda expression across lines 213-213.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Predicate o => o.Id == offerId resolving active promotional offer from product ApplicableOffers.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -407,8 +407,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RecomputeCartTotals()
 - **Lines:** [235-243]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RecomputeCartTotals() across lines 235-243.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Recalculates basket subtotal by summing LineTotalPiastres across all lines in Cart. Raises PropertyChanged notifications for CartSubtotalDisplay, GrandTotalDisplay, GrandTotalPiastres, CartItemCount, and triggers NotifyTotals().
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -440,8 +440,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.GrandTotalPiastres.get
 - **Lines:** [252-258]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.GrandTotalPiastres.get across lines 252-258.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Computes local estimate of order grand total in piastres: adds delivery service fee if OrderType == "delivery", subtracts discount amount, applies tax calculation via domain TaxEngine.Calculate(taxable, _taxRule).Final.Piastres, and subtracts comp amount. Clamps negative result to 0.
+- **Validations:** Clamps result to >= 0. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -451,8 +451,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.IncreaseQuantity(Falah.Client.CashierWinUI.Models.CartLine)
 - **Lines:** [263-264]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.IncreaseQuantity(Falah.Client.CashierWinUI.Models.CartLine) across lines 263-264.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand incrementing quantity on a cart line when CanEditOperation allows, and invoking RecomputeCartTotals().
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -462,9 +462,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.DecreaseQuantity(Falah.Client.CashierWinUI.Models.CartLine)
 - **Lines:** [266-272]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.DecreaseQuantity(Falah.Client.CashierWinUI.Models.CartLine) across lines 266-272.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** RelayCommand decrementing quantity on a cart line if quantity > 1, or removing line from Cart if quantity == 1, then calling RecomputeCartTotals().
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:274:5:MethodDeclaration
@@ -473,9 +473,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RemoveLine(Falah.Client.CashierWinUI.Models.CartLine)
 - **Lines:** [274-275]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RemoveLine(Falah.Client.CashierWinUI.Models.CartLine) across lines 274-275.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** RelayCommand removing a line from Cart when CanEditOperation allows, and calling RecomputeCartTotals().
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:280:5:MethodDeclaration
@@ -484,8 +484,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.AppendNoteText(Falah.Client.CashierWinUI.Models.CartLine, string)
 - **Lines:** [280-284]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.AppendNoteText(Falah.Client.CashierWinUI.Models.CartLine, string) across lines 280-284.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Appends modifier note text (e.g. "بدون بصل") to line.Notes with Arabic comma separation when CanEditOperation allows.
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -495,8 +495,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClearCart()
 - **Lines:** [286-295]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClearCart() across lines 286-295.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand resetting entire cart: clears Cart lines, disables discounts, comp, and split payment flags, resets delivery configuration, recalculates totals via RecomputeCartTotals(), and clears CurrentCheckoutRequestId.
+- **Validations:** Guarded by if (!CanEditOperation) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -506,8 +506,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SetOrderType(string)
 - **Lines:** [301-302]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SetOrderType(string) across lines 301-302.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand updating OrderType (e.g. "takeaway", "dinein", "delivery") when CanEditOperation allows.
+- **Validations:** Guarded by if (CanEditOperation). Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -517,8 +517,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectCategory(Falah.Client.CashierWinUI.Models.CategoryTile)
 - **Lines:** [304-305]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SelectCategory(Falah.Client.CashierWinUI.Models.CategoryTile) across lines 304-305.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand selecting an active category tile: sets SelectedCategory = tile.Category.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---

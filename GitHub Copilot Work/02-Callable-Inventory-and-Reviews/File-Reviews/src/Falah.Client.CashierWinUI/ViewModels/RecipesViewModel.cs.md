@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RecipesViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RecipesViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 27-27.
+- **Behavior:** Constructor initializing RecipesViewModel with the shared AppSession instance for API communication and permission checks.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnSearchTextChanged(string)
 - **Lines:** [95-95]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnSearchTextChanged(string) across lines 95-95.
+- **Behavior:** Partial change handler invoked when SearchText changes, triggering ApplyFilter() to update the visible recipes list.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnFilterIndexChanged(int)
 - **Lines:** [96-96]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnFilterIndexChanged(int) across lines 96-96.
+- **Behavior:** Partial change handler invoked when FilterIndex changes (0: All, 1: Incomplete, 2: Uncosted), triggering ApplyFilter().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadAsync()
 - **Lines:** [122-172]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadAsync() across lines 122-172.
+- **Behavior:** Asynchronously loads menu recipes and costing data. If the user lacks reports_view permission (!CanViewCost), delegates to LoadWithoutCostsAsync(). Otherwise fetches cost summaries via _session.Api.GetRecipeCostSummariesAsync and coverage via _session.Api.GetRecipeCostCoverageAsync, populates _allRecipes ordered by category and product name, executes ApplyFilter(), and loads raw ingredients via LoadIngredientsAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [157-157]
-- **Behavior:** Executes logic for lambda expression across lines 157-157.
+- **Behavior:** LINQ sorting key selector delegate ordering recipe summaries alphabetically by category name or product name.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [157-157]
-- **Behavior:** Executes logic for lambda expression across lines 157-157.
+- **Behavior:** LINQ sorting key selector delegate ordering recipe summaries alphabetically by category name or product name.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadWithoutCostsAsync()
 - **Lines:** [176-207]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadWithoutCostsAsync() across lines 176-207.
+- **Behavior:** Alternative loader for users with menu_manage but lacking reports_view permissions. Queries recipes and menu categories/products, builds RecipeRow entries with CostsHidden = true and zeroed financial fields, applies current filter, and loads inventory ingredients.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.ApplyFilter()
 - **Lines:** [209-227]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.ApplyFilter() across lines 209-227.
+- **Behavior:** Filters the cached _allRecipes list based on SearchText (matching product name, recipe name, or category) and FilterIndex criteria (all, incomplete cost, or uncosted). Populates the observable Recipes collection and notifies HasNoMatches.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -165,7 +165,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [212-222]
-- **Behavior:** Executes logic for lambda expression across lines 212-222.
+- **Behavior:** Predicate lambda evaluating whether a RecipeRow matches current text search terms and filter completeness index.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -209,7 +209,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnSelectedRecipeChanged(Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RecipeRow?)
 - **Lines:** [299-305]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnSelectedRecipeChanged(Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RecipeRow?) across lines 299-305.
+- **Behavior:** Partial change handler invoked when SelectedRecipe changes. Notifies HasSelection, cancels any in-progress edit mode (unless _reselecting is true), and initiates asynchronous loading of recipe cost breakdown via LoadDetailAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -220,7 +220,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnDetailChanged(Falah.Application.Inventory.RecipeCostDetailDto?)
 - **Lines:** [307-329]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnDetailChanged(Falah.Application.Inventory.RecipeCostDetailDto?) across lines 307-329.
+- **Behavior:** Partial change handler invoked when Detail DTO changes. Populates DetailLines collection with CostLineRow wrappers and raises PropertyChanged for all calculated financial, packaging, margin, and completeness UI properties.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -231,7 +231,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadDetailAsync()
 - **Lines:** [383-407]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadDetailAsync() across lines 383-407.
+- **Behavior:** Asynchronously retrieves detailed recipe costing breakdown from _session.Api.GetRecipeCostDetailAsync using current recipe ID and user ID. Sets Detail or displays DetailError on failure.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -308,7 +308,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.EditableLine.OnKindIndexChanged(int)
 - **Lines:** [425-425]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.EditableLine.OnKindIndexChanged(int) across lines 425-425.
+- **Behavior:** Partial change handler notifying PropertyChanged for IsYield whenever the ingredient line kind index changes (0: Direct, 1: Yield/Per-piece, 2: Packaging).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -341,7 +341,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnIngredientSearchTextChanged(string)
 - **Lines:** [441-441]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.OnIngredientSearchTextChanged(string) across lines 441-441.
+- **Behavior:** Partial change handler invoked when IngredientSearchText changes, calling ApplyIngredientFilter() to filter available ingredients.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -352,7 +352,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.ApplyIngredientFilter()
 - **Lines:** [443-453]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.ApplyIngredientFilter() across lines 443-453.
+- **Behavior:** Filters the cached _allIngredients list against IngredientSearchText, excluding items already present in EditorLines, and updates the observable Ingredients collection with up to 60 matches.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -363,7 +363,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [446-446]
-- **Behavior:** Executes logic for lambda expression across lines 446-446.
+- **Behavior:** LINQ selector projection extracting InventoryItemId from EditorLines to create a hash set of already-added ingredients.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -374,7 +374,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [449-450]
-- **Behavior:** Executes logic for lambda expression across lines 449-450.
+- **Behavior:** LINQ predicate filtering active inventory ingredients not in chosen set and matching search text case-insensitively.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -385,7 +385,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadIngredientsAsync()
 - **Lines:** [457-468]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.LoadIngredientsAsync() across lines 457-468.
+- **Behavior:** Asynchronously queries active raw inventory items from _session.Api.GetInventoryItemsAsync() to populate _allIngredients cache, then applies ingredient filtering.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -396,7 +396,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.StartEdit()
 - **Lines:** [472-493]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.StartEdit() across lines 472-493.
+- **Behavior:** RelayCommand entering recipe edit mode. Clones current Detail lines into EditorLines with editable quantity and kind selections, sets IsEditing = true, refreshes ingredient picker, and notifies CanStartEdit.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -407,7 +407,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.CancelEdit()
 - **Lines:** [495-502]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.CancelEdit() across lines 495-502.
+- **Behavior:** RelayCommand canceling edit mode, resetting IsEditing to false, clearing SaveError and EditorLines, and notifying CanStartEdit.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -418,7 +418,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.AddIngredient()
 - **Lines:** [504-521]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.AddIngredient() across lines 504-521.
+- **Behavior:** RelayCommand adding the selected IngredientToAdd to EditorLines if not already added. Sets default kind to Packaging if item is packaging, clears picker selection and search text, and reapplies ingredient filter.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -440,7 +440,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RemoveLine(Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.EditableLine?)
 - **Lines:** [523-529]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RemoveLine(Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.EditableLine?) across lines 523-529.
+- **Behavior:** RelayCommand removing a line from EditorLines and updating the ingredient picker filter so the item becomes available again.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -451,7 +451,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.SaveAsync()
 - **Lines:** [531-600]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.SaveAsync() across lines 531-600.
+- **Behavior:** RelayCommand validating and saving edited recipe. Validates non-empty lines, parses numeric quantities via MilliUnits.TryParse, validates and parses yield ratios for per-piece lines, constructs SaveRecipeRequest with idempotency key, and calls _session.Api.SaveRecipeAsync. On success, exits edit mode, reloads recipe detail via LoadDetailAsync(), and refreshes summary list via RefreshSummaryAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -462,7 +462,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RefreshSummaryAsync()
 - **Lines:** [604-632]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.RecipesViewModel.RefreshSummaryAsync() across lines 604-632.
+- **Behavior:** Asynchronously refreshes recipe cost summaries and coverage statistics from backend after saving. Restores previous recipe selection using _reselecting flag to prevent unnecessary detail reload flicker or edit disruption.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -473,7 +473,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [612-612]
-- **Behavior:** Executes logic for lambda expression across lines 612-612.
+- **Behavior:** Primary sorting key selector delegate `s => s.CategoryName` ordering refreshed recipe cost summaries alphabetically by category name.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -484,7 +484,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [612-612]
-- **Behavior:** Executes logic for lambda expression across lines 612-612.
+- **Behavior:** Secondary sorting key selector delegate `s => s.ProductName` ordering refreshed recipe cost summaries alphabetically by product name.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -520,3 +520,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 1. Verified SHA-256 match `24d7807c2ca0ccf99aea7cf633ccfe99655de6acf2d0c19133b45060e90fdc63` against client source `src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`. All 45 canonical callables in-scope verified against Roslyn AST.
 2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
 3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 45 callables.
+
+
+## Candidate Findings & Observations
+- **Potential NullReferenceException on User Context Access (lines 130, 606):**
+  In `LoadAsync` (line 130) and `RefreshSummaryAsync` (line 606), `var actor = _session.CurrentUser!.Id;` dereferences `CurrentUser` using the null-forgiving operator (`!`). If `LoadAsync()` is triggered while the user session is expired, uninitialized, or being refreshed, this call will throw an unhandled `NullReferenceException` rather than surfacing a clean error state or redirecting to the login flow.

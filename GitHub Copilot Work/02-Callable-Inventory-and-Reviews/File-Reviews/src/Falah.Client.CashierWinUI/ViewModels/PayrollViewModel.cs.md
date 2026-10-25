@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnIsBusyChanged(bool)
 - **Lines:** [26-32]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnIsBusyChanged(bool) across lines 26-32.
+- **Behavior:** Partial change handler invoked when IsBusy changes. Raises PropertyChanged for CanEditAction, CanAdvance, and CanOpenPay, and synchronizes management operation lock state with AppSession via _session.SetManagementOperationPending(this, !CanEditAction).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayrollViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [34-40]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayrollViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 34-40.
+- **Behavior:** Constructor injecting AppSession dependency and initializing NewPeriod to current Cairo local wall-clock month formatted as "YYYY-MM" using Egypt Standard Time.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayrollLineRow.Describe((string Label, long Amount)[])
 - **Lines:** [83-88]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayrollLineRow.Describe((string Label, long Amount)[]) across lines 83-88.
+- **Behavior:** Static helper formatting non-zero payroll line financial components (overtime, shifts, bonuses, deductions, advances) as label and formatted cash pairs joined by " · ".
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnIsLoadingLinesChanged(bool)
 - **Lines:** [132-132]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnIsLoadingLinesChanged(bool) across lines 132-132.
+- **Behavior:** Partial change handler notifying PropertyChanged for CanOpenPay when IsLoadingLines changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnLoadErrorChanged(string?)
 - **Lines:** [133-133]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnLoadErrorChanged(string?) across lines 133-133.
+- **Behavior:** Partial change handler notifying PropertyChanged for CanOpenPay when LoadError changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -165,7 +165,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnSelectedRunChanged(Falah.Application.Employees.PayrollRunDto?)
 - **Lines:** [140-149]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OnSelectedRunChanged(Falah.Application.Employees.PayrollRunDto?) across lines 140-149.
+- **Behavior:** Partial change handler invoked when SelectedRun changes. Notifies NextStatus, NextStatusLabel, CanAdvance, IsApprovedAndUnpaid, and CanOpenPay. Asynchronously triggers LoadLinesAsync(value) if non-null; otherwise clears lines, increments _linesVersion concurrency token, and updates total display.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -176,7 +176,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.LoadAsync()
 - **Lines:** [151-156]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.LoadAsync() across lines 151-156.
+- **Behavior:** RelayCommand loading payroll runs when CanEditAction is true and payment dialog is not open (!IsPayOpen), delegating to ReloadAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.ReloadAsync()
 - **Lines:** [158-180]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.ReloadAsync() across lines 158-180.
+- **Behavior:** Asynchronously fetches payroll runs from _session.Api.GetPayrollRunsAsync() with IsLoading reentry guard. Populates Runs collection ordered descending by CreatedAtUtc, restores previous selection or defaults to the first run, and notifies HasNoRuns.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -198,7 +198,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [172-172]
-- **Behavior:** Executes logic for lambda expression across lines 172-172.
+- **Behavior:** LINQ sorting key selector delegate ordering payroll runs descending by creation timestamp (CreatedAtUtc).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -209,7 +209,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [173-173]
-- **Behavior:** Executes logic for lambda expression across lines 173-173.
+- **Behavior:** LINQ predicate matching existing SelectedRun by ID in the freshly loaded runs collection to preserve selection.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -220,7 +220,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.LoadLinesAsync(Falah.Application.Employees.PayrollRunDto)
 - **Lines:** [182-211]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.LoadLinesAsync(Falah.Application.Employees.PayrollRunDto) across lines 182-211.
+- **Behavior:** Asynchronously queries employee payroll lines for the selected run via _session.Api.GetPayrollLinesAsync(run.Id). Employs _linesVersion concurrency token to discard stale out-of-order responses, ensures employee name cache is loaded, populates Lines with PayrollLineRow wrappers, and updates total payable properties.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -231,7 +231,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.EnsureEmployeeNamesAsync()
 - **Lines:** [216-222]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.EnsureEmployeeNamesAsync() across lines 216-222.
+- **Behavior:** Queries and caches employee roster from _session.Api.GetEmployeesAsync() into _employeeNames lookup dictionary to resolve employee IDs to human-readable names on payroll lines.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -242,7 +242,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.SelectRun(Falah.Application.Employees.PayrollRunDto)
 - **Lines:** [224-225]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.SelectRun(Falah.Application.Employees.PayrollRunDto) across lines 224-225.
+- **Behavior:** RelayCommand updating SelectedRun to the tapped payroll run when CanEditAction is true and pay dialog is closed.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -253,7 +253,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CreateRunAsync()
 - **Lines:** [227-251]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CreateRunAsync() across lines 227-251.
+- **Behavior:** RelayCommand creating a new monthly payroll run. Replays retained request if present in _createRequest. Validates NewPeriod matches regex pattern ^\d{4}-(0[1-9]|1[0-2])$. Constructs CreatePayrollRequest with idempotency key pr-{Guid:N} and current user ID, then calls CompleteCreateAsync.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -264,7 +264,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CompleteCreateAsync(Falah.Application.Employees.CreatePayrollRequest)
 - **Lines:** [253-264]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.CompleteCreateAsync(Falah.Application.Employees.CreatePayrollRequest) across lines 253-264.
+- **Behavior:** Submits CreatePayrollRequest via _createRequest.SendAsync executing _session.Api.CreatePayrollRunAsync. On error sets ActionError with failure message. On success sets ActionNote and refreshes runs via ReloadAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -275,7 +275,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [256-256]
-- **Behavior:** Executes logic for lambda expression across lines 256-256.
+- **Behavior:** API client invocation delegate r => _session.Api.CreatePayrollRunAsync(r) passed to _createRequest.SendAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -286,7 +286,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.AdvanceRunAsync()
 - **Lines:** [266-300]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.AdvanceRunAsync() across lines 266-300.
+- **Behavior:** RelayCommand advancing selected payroll run to next lifecycle status (draft → calculated → reviewed → approved). Replays retained request or constructs TransitionPayrollRequest with SelectedRun.Id and NextStatus. Submits request via _transitionRequest.SendAsync with custom monotonic state reconciliation against GetPayrollRunAsync on failure/timeout.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -297,7 +297,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [277-290]
-- **Behavior:** Executes logic for lambda expression across lines 277-290.
+- **Behavior:** Async invocation delegate executing _session.Api.TransitionPayrollAsync(r) with idempotent retry recovery reconciling status against GetPayrollRunAsync using StatusRank if network outcome is uncertain.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -308,7 +308,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.StatusRank(string)
 - **Lines:** [302-305]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.StatusRank(string) across lines 302-305.
+- **Behavior:** Static helper mapping payroll run status strings to monotonic numerical ranks (draft: 0, calculated: 1, reviewed: 2, approved: 3, paid: 4, other: -1) for state reconciliation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -330,7 +330,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OpenPay()
 - **Lines:** [319-326]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.OpenPay() across lines 319-326.
+- **Behavior:** RelayCommand opening the disbursement dialog for an approved payroll run. Resets PaymentAccount and PayError, and sets IsPayOpen = true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -341,7 +341,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.ClosePay()
 - **Lines:** [328-329]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.ClosePay() across lines 328-329.
+- **Behavior:** RelayCommand closing the disbursement dialog when CanEditAction is true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -352,7 +352,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayRunAsync()
 - **Lines:** [331-358]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PayrollViewModel.PayRunAsync() across lines 331-358.
+- **Behavior:** RelayCommand executing disbursement payment for an approved payroll run. Replays pending retained request or validates selected PaymentAccount (main treasury, bank, or InstaPay) and constructs PayPayrollRequest. Dispatches via _payRequest.SendAsync executing _session.Api.PayPayrollAsync. On success, closes dialog, sets ActionNote with paid amount and employee count, and reloads runs via ReloadAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -363,7 +363,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [346-346]
-- **Behavior:** Executes logic for lambda expression across lines 346-346.
+- **Behavior:** API client invocation delegate r => _session.Api.PayPayrollAsync(r) passed to _payRequest.SendAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -388,3 +388,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 1. Verified SHA-256 match `8cf4e9f6ec47b2165413bc6ec1583f9261d08db7f950bdc75b3ee84fc8fe31a0` against client source `src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs`. All 33 canonical callables in-scope verified against Roslyn AST.
 2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
 3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 33 callables.
+
+
+## Candidate Findings & Observations
+- **Stale Status Label on Retained Transition Replay (lines 274-276, 296):**
+  In `AdvanceRunAsync`, when replaying an unresolved transition request (`wasUnresolved = _transitionRequest.HasPending`), `ActionNote = $"تم تحديث حالة المسيّر إلى {NextStatusLabel}.";` is constructed using the current `NextStatusLabel` computed from `SelectedRun`. If the backend has already transitioned the run and `SelectedRun` status was updated or altered, `NextStatusLabel` will reflect the next future transition rather than the status that was just replayed and committed, generating a misleading confirmation message in the UI.

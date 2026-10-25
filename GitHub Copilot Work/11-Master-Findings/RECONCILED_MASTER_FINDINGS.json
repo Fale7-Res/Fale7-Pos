@@ -1,7 +1,7 @@
 {
-  "timestamp_utc": "2026-10-25T07:23:30Z",
+  "timestamp_utc": "2026-10-25T12:51:25Z",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "total_findings": 90,
+  "total_findings": 93,
   "disposition_counts": {
     "INDEPENDENTLY_CORROBORATED": 29,
     "REQUIRES_RUNTIME_VERIFICATION": 21,
@@ -9,16 +9,16 @@
     "CORROBORATED_WITH_QUALIFICATIONS": 24,
     "INDEPENDENTLY_CORROBORATED_AND_CORRECTED": 2,
     "CHALLENGED_COUNTEREVIDENCE_FOUND": 1,
-    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 8
+    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 11
   },
   "severity_counts": {
-    "HIGH": 37,
-    "MEDIUM": 45,
+    "HIGH": 38,
+    "MEDIUM": 47,
     "LOW": 7,
     "HIGH_REQUIREMENT_GAP": 1
   },
   "category_counts": {
-    "FINANCIAL_AND_DATABASE_INTEGRITY": 46,
+    "FINANCIAL_AND_DATABASE_INTEGRITY": 49,
     "ORDER_LIFECYCLE_AND_WORKFLOW": 2,
     "PRINTING_AND_HARDWARE": 6,
     "SECURITY_AND_ACCESS_CONTROL": 12,
@@ -8783,6 +8783,156 @@
         "Inventory loss reporting explicitly distinguishes 0 EGP waste from unpriced uncosted waste."
       ],
       "code_excerpt": "// src/Falah.Infrastructure/Inventory/InventoryQueryService.cs lines 63-64:\nvar byType = rows.GroupBy(m => m.Type).ToDictionary(g => g.Key, g => g.Sum(m => m.LossValuePiastres ?? 0));\nreturn new LossSummaryDto(rows.Sum(m => m.LossValuePiastres ?? 0), rows.Count, byType);"
+    },
+    {
+      "id": "FIN-030",
+      "title": "Arithmetic Overflow Exception in Money.Abs() on long.MinValue (Candidate: MONEY-ABS-OVERFLOW-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "disposition_rationale": "Verified in src/Falah.Domain/Common/Money.cs line 47: 'public Money Abs() => new(Math.Abs(Piastres));'. In .NET, Math.Abs(long.MinValue) throws System.OverflowException because -long.MinValue exceeds long.MaxValue (9,223,372,036,854,775,807). While business amounts in normal operations do not reach 64-bit boundaries, unhandled integer negation overflow on boundary, corrupt, or adversarial inputs causes an unhandled runtime process crash or 500 error instead of domain validation.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Common/Money.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              43,
+              50
+            ]
+          ],
+          "sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f"
+        }
+      ],
+      "root_cause": "Direct invocation of Math.Abs(Piastres) without handling long.MinValue boundary edge condition.",
+      "impact": "System.OverflowException crash when computing absolute monetary value on corrupt, default-overflow, or boundary inputs.",
+      "remediation_plan": "Guard against Piastres == long.MinValue in Money.Abs() by throwing a DomainException or clamping to long.MaxValue, or explicitly validating input ranges before arithmetic operations.",
+      "affected_files": [
+        "src/Falah.Domain/Common/Money.cs"
+      ],
+      "required_tests": [
+        "Assert.Throws<DomainException>(() => Money.FromPiastres(long.MinValue).Abs()); or assert bounded behavior without unhandled OverflowException."
+      ],
+      "acceptance_criteria": [
+        "Money.Abs() handles or rejects long.MinValue safely without unhandled System.OverflowException."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Common/Money.cs line 47:\npublic Money Abs() => new(Math.Abs(Piastres));"
+    },
+    {
+      "id": "FIN-031",
+      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions (Candidate: PAYROLL-CASE-SENSITIVITY-001)",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "disposition_rationale": "Verified defect in src/Falah.Domain/Payroll/PayrollRules.cs line 68: 'entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0))'. The string literals 'advance' and 'payroll_settlement' were ported verbatim from legacy JavaScript lowercase constants. However, RecordEmployeeCashOutHandler.cs line 124 writes nameof(LedgerEntryType.Advance) ('Advance'), and PayPayrollHandler.cs line 143 writes nameof(LedgerEntryType.PayrollSettlement) ('PayrollSettlement'). Because C# string equality (==) is ordinal and case-sensitive, OutstandingAdvance always evaluates to 0 for all production ledger entries. As a direct consequence, employee advances are never deducted from payroll settlements, leading to financial loss and overpayment.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              63,
+              71
+            ]
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              122,
+              126
+            ]
+          ],
+          "sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              141,
+              145
+            ]
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        }
+      ],
+      "root_cause": "Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).",
+      "impact": "Employees who receive cash advances never have them deducted during payroll generation; advance deduction calculates as 0, causing cash loss and accounting mismatch between treasury advances and payroll expense.",
+      "remediation_plan": "Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).",
+      "affected_files": [
+        "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+      ],
+      "required_tests": [
+        "Create employee cash advance with Type=\"Advance\" (Debit=500 EGP); call PayrollRules.OutstandingAdvance; assert outstanding advance equals 500 EGP.",
+        "Add settlement with Type=\"PayrollSettlement\" (AdvanceDeduction=200 EGP); assert outstanding advance reduces to 300 EGP."
+      ],
+      "acceptance_criteria": [
+        "PayrollRules.OutstandingAdvance recognizes both PascalCase and lowercase ledger entry type strings."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Payroll/PayrollRules.cs lines 66-70:\npublic static Money OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero = 0)\n{\n    var net = entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0));\n    return Money.FromPiastres(Math.Max(floorAtZero, net));\n}\n\n// src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs line 124:\nType = request.Kind == \"advance\" ? nameof(LedgerEntryType.Advance) : nameof(LedgerEntryType.Withdrawal),"
+    },
+    {
+      "id": "FIN-032",
+      "title": "Unvalidated Negative Delivery Service Fee Allows Artificially Reduced Order Payable Total (Candidate: DELIVERY-FEE-NEGATIVE-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "disposition_rationale": "Verified in src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs lines 51 and 118: CreateDeliveryServiceHandler and UpdateDeliveryServiceHandler accept FeePiastres without validating that FeePiastres >= 0. In src/Falah.Domain/Orders/CheckoutRules.cs line 37, ComputePayableTotal adds deliveryFee to cartTotal ('cartTotal + deliveryFee - compAmount'). If a delivery service is configured with a negative fee, the delivery fee acts as an unauthorized arbitrary discount, reducing the payable total collected from the customer.",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              49,
+              54
+            ],
+            [
+              117,
+              121
+            ]
+          ],
+          "sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              35,
+              39
+            ]
+          ],
+          "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        }
+      ],
+      "root_cause": "Delivery service creation and update endpoints lack validation asserting FeePiastres >= 0, and CheckoutRules does not guard against negative delivery fee amounts.",
+      "impact": "Configuring a delivery service with negative fee reduces order total payable at checkout, allowing fraudulent order discounts or unintended cashier under-collection.",
+      "remediation_plan": "Add validation in CreateDeliveryServiceHandler, UpdateDeliveryServiceHandler, and DeliveryServiceRequests validating FeePiastres >= 0; add domain assertion in CheckoutRules asserting deliveryFee.IsPositive || deliveryFee.IsZero.",
+      "affected_files": [
+        "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+        "src/Falah.Domain/Orders/CheckoutRules.cs"
+      ],
+      "required_tests": [
+        "Submit CreateDeliveryServiceRequest with FeePiastres = -100; assert validation fails with DomainException or 400 Bad Request.",
+        "Invoke CheckoutRules.ComputePayableTotal with negative delivery fee; assert DomainException is thrown."
+      ],
+      "acceptance_criteria": [
+        "Delivery service fees cannot be negative anywhere in the domain or persistence layer."
+      ],
+      "code_excerpt": "// src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs line 51:\nId = $\"delivery-service-{request.RequestId}\", Name = normalized, FeePiastres = request.FeePiastres,\n\n// src/Falah.Domain/Orders/CheckoutRules.cs lines 35-38:\npublic static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)\n{\n    var result = cartTotal + deliveryFee - compAmount;\n    return result.IsNegative ? Money.Zero : result;\n}"
     }
   ]
 }

@@ -11,12 +11,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.BackupViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.BackupViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 24-24.
+- **Behavior:** Initializes the viewmodel with the application session AppSession for API communication and permission evaluation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:26:60:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:26:60:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:26:60:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -33,12 +32,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [40-40]
-- **Behavior:** Executes logic for lambda expression across lines 40-40.
+- **Behavior:** Filters backup history records to match succeeded backups with completed UTC timestamps.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:41:28:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:41:28:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:41:28:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -55,188 +53,195 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LastBackupDetail.get
 - **Lines:** [51-62]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LastBackupDetail.get across lines 51-62.
+- **Behavior:** Returns formatted detail string for the last successful backup including local timestamp, file size in megabytes, and integrity verification state, or a fallback warning if missing.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:70:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:70:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:70:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.DescribeAge(TimeSpan)
 - **Lines:** [70-76]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.DescribeAge(TimeSpan) across lines 70-76.
+- **Behavior:** Converts an elapsed duration into localized human-readable Arabic units (minutes, hours, or days).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:82:9:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:82:9:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:82:9:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LastRestoreLine.get
 - **Lines:** [82-93]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LastRestoreLine.get across lines 82-93.
+- **Behavior:** Generates a localized summary description of the latest database restore attempt and whether it succeeded, was blocked, or failed.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:41:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:41:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:41:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [84-84]
-- **Behavior:** Executes logic for lambda expression across lines 84-84.
+- **Behavior:** Filters records to find entries of kind Restore.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:85:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:85:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:84:85:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [84-84]
-- **Behavior:** Executes logic for lambda expression across lines 84-84.
+- **Behavior:** Orders restore records descending by requested UTC timestamp.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:99:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:99:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:99:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LoadAsync()
 - **Lines:** [99-126]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.LoadAsync() across lines 99-126.
+- **Behavior:** Asynchronously retrieves backup records from the API, populates the observable collection ordered by request timestamp descending, and notifies dependent summary properties.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:114:62:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:114:62:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:114:62:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [114-114]
-- **Behavior:** Executes logic for lambda expression across lines 114-114.
+- **Behavior:** Orders loaded backup records descending by requested UTC timestamp.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:128:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:128:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:128:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CreateBackupAsync()
 - **Lines:** [128-149]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CreateBackupAsync() across lines 128-149.
+- **Behavior:** Requests creation of a new database backup via API using the current user ID, handles error feedback, and reloads backup history on success.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:151:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:151:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:151:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.VerifyBackupAsync(Falah.Application.Backup.BackupRecordDto)
 - **Lines:** [151-172]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.VerifyBackupAsync(Falah.Application.Backup.BackupRecordDto) across lines 151-172.
+- **Behavior:** Invokes backup verification (RESTORE VERIFYONLY) via API to confirm backup integrity without modifying live database state.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:186:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:186:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:186:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OnIsBusyChanged(bool)
 - **Lines:** [186-191]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OnIsBusyChanged(bool) across lines 186-191.
+- **Behavior:** Handles busy state changes by updating restore submit capability and registering pending management operation state on the application session.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:194:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:194:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:194:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OnRestoreTargetChanged(Falah.Application.Backup.BackupRecordDto?)
 - **Lines:** [194-194]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OnRestoreTargetChanged(Falah.Application.Backup.BackupRecordDto?) across lines 194-194.
+- **Behavior:** Raises property changed notification for IsRestoreOpen when the restore target record changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:211:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:211:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:211:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OpenRestore(Falah.Application.Backup.BackupRecordDto)
 - **Lines:** [211-221]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.OpenRestore(Falah.Application.Backup.BackupRecordDto) across lines 211-221.
+- **Behavior:** Opens the restore confirmation dialog for a selected backup record, resetting input fields for reason, confirmation phrase, and manager PIN.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:223:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:223:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:223:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CloseRestore()
 - **Lines:** [223-228]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CloseRestore() across lines 223-228.
+- **Behavior:** Closes the restore dialog and clears the restore target when not busy or pending.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:230:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:230:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:230:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.SubmitRestoreAsync()
 - **Lines:** [230-260]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.SubmitRestoreAsync() across lines 230-260.
+- **Behavior:** Validates restore inputs, resolves manager approval if required, and executes or retries retained database restore request.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:262:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:262:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:262:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CompleteRestoreAsync(Falah.Application.Backup.RestoreBackupRequest)
 - **Lines:** [262-283]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.CompleteRestoreAsync(Falah.Application.Backup.RestoreBackupRequest) across lines 262-283.
+- **Behavior:** Dispatches restore request via RetainedRequest helper, inspects the returned record status, and displays success or error messaging.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:264:56:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:264:56:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:264:56:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [264-264]
-- **Behavior:** Executes logic for lambda expression across lines 264-264.
+- **Behavior:** Delegates restore API execution to ApiClient.RestoreBackupAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:285:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:285:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs:285:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.BackupViewModel.ResolveRestoreApprovalAsync()
 - **Lines:** [285-303]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.BackupViewModel.ResolveRestoreApprovalAsync() across lines 285-303.
+- **Behavior:** Resolves manager authorization PIN against the server approval endpoint if the current operator lacks backup_manage permission.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 
+---
+
+## Candidate Findings & Observations
+
+### Defect: BACKUP-RESTORE-STATUS-MISMATCH - Database Restore Success Checked as "Completed" Instead of "Succeeded"
+- **Severity**: High / Defect
+- **Location**: `src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs` (lines 272–280)
+- **Code**:
+  ```csharp
+  var record = result.Value;
+  if (string.Equals(record.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+      ActionNote = "تمت استعادة قاعدة البيانات من النسخة الاحتياطية.";
+  else
+  {
+      RestoreError = record.ErrorMessage ?? $"لم تكتمل الاستعادة. الحالة: {record.Status}";
+      await LoadAsync();
+      return;
+  }
+  ```
+- **Analysis**:
+  The backend restore handler (`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs` line 135) sets `restoreRecord.Status = nameof(BackupRecordStatus.Succeeded);` ("Succeeded"). However, `BackupViewModel.CompleteRestoreAsync` checks `string.Equals(record.Status, "Completed", StringComparison.OrdinalIgnoreCase)`. Because "Succeeded" != "Completed", a successful restore operation is reported to the operator as a failure (`RestoreError = "لم تكتمل الاستعادة. الحالة: Succeeded"`), and `RestoreTarget` is not dismissed. This misleads the cashier/operator into believing the restore failed, when in reality the database was restored.
+
+---
 
 ## Independent QA L1 Review & Verification
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1

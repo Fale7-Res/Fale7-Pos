@@ -4,63 +4,93 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:14:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.PurchasingQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.PurchasingQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 14-14.
+- **Behavior**: Injects `FalahDbContext` database context dependency for read-only projection over Supplier, Purchase, and SupplierLedgerEntry entities.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:16:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.ListSuppliersAsync(CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.ListSuppliersAsync(CancellationToken) across lines 16-21.
+- **Behavior**: Retrieves all suppliers and dynamically computes each supplier's financial balance figures:
+  - Fetches all suppliers from `_db.Suppliers.AsNoTracking()`.
+  - Fetches the entire supplier ledger table from `_db.SupplierLedgerEntries.AsNoTracking()`.
+  - In-memory correlates ledger entries per supplier and passes them to `ToDto(s, ledger.Where(...))` to compute `TotalInvoiced`, `TotalPaid`, and `Outstanding` balances.
+  ```csharp
+  // Lines 16-21: Supplier listing with dynamic ledger derivation
+  public async Task<List<SupplierDto>> ListSuppliersAsync(CancellationToken ct = default)
+  {
+      var suppliers = await _db.Suppliers.AsNoTracking().ToListAsync(ct);
+      var ledger = await _db.SupplierLedgerEntries.AsNoTracking().ToListAsync(ct);
+      return suppliers.Select(s => ToDto(s, ledger.Where(e => e.SupplierId == s.Id))).ToList();
+  }
+  ```
+  - **Candidate Finding / Memory & Scalability Risk**:
+    - **Full Ledger Table Scan**: Queries `db.SupplierLedgerEntries.AsNoTracking().ToListAsync(ct)` without a supplier filter or server-side grouping. Loads every supplier ledger entry in the entire history of the restaurant into memory, then performs O(N*M) linear scans in C# for each supplier. As transactions accumulate, this will trigger extreme memory pressure, GC pauses, and query latency.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:20:33:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 20-20.
+- **Behavior**: Inline projection lambda `s => ToDto(s, ledger.Where(e => e.SupplierId == s.Id))` projecting supplier entity into `SupplierDto` with in-memory filtered ledger entries.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:20:60:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 20-20.
+- **Behavior**: Inline predicate lambda `e => e.SupplierId == s.Id` matching ledger transactions belonging to a specific supplier.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:23:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.GetSupplierAsync(string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.GetSupplierAsync(string, CancellationToken) across lines 23-29.
+- **Behavior**: Retrieves a single supplier by primary key and re-derives live ledger metrics:
+  - Queries `_db.Suppliers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct)`.
+  - If null, returns null.
+  - Queries ledger entries specifically scoped to this supplier: `_db.SupplierLedgerEntries.AsNoTracking().Where(e => e.SupplierId == id).ToListAsync(ct)`.
+  - Computes `TotalInvoiced`, `TotalPaid`, and `Outstanding` balance via `ToDto(supplier, ledger)`.
+  ```csharp
+  // Lines 23-29: Single supplier query with ledger balance calculation
+  public async Task<SupplierDto?> GetSupplierAsync(string id, CancellationToken ct = default)
+  {
+      var supplier = await _db.Suppliers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
+      if (supplier is null) return null;
+      var ledger = await _db.SupplierLedgerEntries.AsNoTracking().Where(e => e.SupplierId == id).ToListAsync(ct);
+      return ToDto(supplier, ledger);
+  }
+  ```
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:25:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 25-25.
+- **Behavior**: Inline predicate lambda `s => s.Id == id` filtering supplier by unique primary key identifier.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:27:75:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 27-27.
+- **Behavior**: Inline predicate lambda `e => e.SupplierId == id` filtering ledger entries by supplier ID.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:31:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.GetSupplierLedgerAsync(string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.GetSupplierLedgerAsync(string, CancellationToken) across lines 31-35.
+- **Behavior**: Fetches historical ledger transactions for a supplier ordered chronologically:
+  - Queries `_db.SupplierLedgerEntries.AsNoTracking().Where(e => e.SupplierId == supplierId).OrderBy(e => e.CreatedAtUtc).ToListAsync(ct)`.
+  - Projects rows into `SupplierLedgerEntryDto` containing transaction type, debit/credit piastres, purchase reference, reason, timestamp, and creator.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:32:63:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 32-32.
+- **Behavior**: Inline predicate lambda `e => e.SupplierId == supplierId` filtering ledger entries for the requested supplier.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -74,28 +104,40 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:34:21:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 34-34.
+- **Behavior**: Inline projection lambda mapping `SupplierLedgerEntryEntity` to `SupplierLedgerEntryDto`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:37:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.ListPurchasesAsync(CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.ListPurchasesAsync(CancellationToken) across lines 37-40.
+- **Behavior**: Queries all purchases in reverse chronological order:
+  - Eager-loads child collections `Lines` and `Payments` via  `.Include(p => p.Lines).Include(p => p.Payments)`.
+  - Orders by `CreatedAtUtc` descending.
+  - Projects each entity to `PurchaseDto` via `ReceivePurchaseHandler.ToDto(p, wasReplayed: false)`.
+  ```csharp
+  // Lines 37-40: Purchase list query with eager-loaded details
+  public async Task<List<PurchaseDto>> ListPurchasesAsync(CancellationToken ct = default) =>
+      (await _db.Purchases.AsNoTracking().Include(p => p.Lines).Include(p => p.Payments)
+          .OrderByDescending(p => p.CreatedAtUtc).ToListAsync(ct))
+          .Select(p => ReceivePurchaseHandler.ToDto(p, wasReplayed: false)).ToList();
+  ```
+  - **Candidate Finding / Performance Risk**:
+    - **Unbounded Purchase Scan**: Fetches all purchases across all history along with all line items and payments without pagination, date filtering, or batching. High volume of purchases will cause severe query latency and large object graph allocations.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:38:53:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 38-38.
+- **Behavior**: Navigation selector lambda `p => p.Lines`ager-loading line items for each purchase.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:38:75:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 38-38.
+- **Behavior**: Navigation selector lambda `p => p.Payments`ager-loading payment records for each purchase.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -116,21 +158,21 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:42:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.GetPurchaseAsync(string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.GetPurchaseAsync(string, CancellationToken) across lines 42-47.
+- **Behavior**: Retrieves a single purchase by ID with eager-loaded `Lines` and `Payments`. Returns null if not found, or maps to `PurchaseDto` via `ReceivePurchaseHandler.ToDto(purchase, wasReplayed: false)`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:44:67:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 44-44.
+- **Behavior**: Navigation selector lambda p => p.Lines eager-loading line items for single purchase lookup.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:44:89:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 44-44.
+- **Behavior**: Navigation selector lambda `p => p.Payments`ager-loading payment records for single purchase lookup.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -144,7 +186,26 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:56:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.GetPayablesAgingAsync(CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.GetPayablesAgingAsync(CancellationToken) across lines 56-99.
+- **Behavior**: Generates accounts payable aging report as of `BusinessClock.Today()`:
+  - Queries open invoices: uncancelled purchases where `RemainingAmountPiastres > 0` ordered by creation timestamp.
+  - Loads supplier ID-to-name lookup dictionary from `_db.Suppliers`.
+  - Projects each payable invoice: calculates business date of receipt, classifies aging bucket via domain rule `PayablesAging.Classify(p.DueDate, asOf)`, computes `AgeInDays` and `DaysOverdue`.
+  - Sorts invoices worst-first: descending by `DaysOverdue ?? -1`, then by `AgeInDays`.
+  - Aggregates by aging bucket (`PayablesAging.Bucket` enum values), emitting all buckets (including empty ones) with invoice count and remaining piastre sums.
+  - Computes summary metrics: total remaining piastres, overdue counts and sums, unscheduled counts and sums. Returns `PayablesAgingDto`.
+  ```csharp
+  // Lines 56-99: Aged payables calculation
+  public async Task<PayablesAgingDto> GetPayablesAgingAsync(CancellationToken ct = default)
+  {
+      var asOf = Falah.Domain.Common.BusinessClock.Today();
+      var open = await _db.Purchases.AsNoTracking()
+          .Where(p => p.RemainingAmountPiastres > 0 && p.Status != "cancelled")
+          .OrderBy(p => p.CreatedAtUtc).ToListAsync(ct);
+      var supplierNames = await _db.Suppliers.AsNoTracking().ToDictionaryAsync(s => s.Id, s => s.Name, ct);
+      ...
+      return new PayablesAgingDto(asOf.ToString("yyyy-MM-dd"), ...);
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': True}
 
@@ -165,21 +226,21 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:64:82:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 64-64.
+- **Behavior**: Inline key selector lambda `s => s.Id` for supplier dictionary lookup.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:64:93:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 64-64.
+- **Behavior**: Inline value selector lambda `s => s.Name` for supplier dictionary lookup.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:66:36:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 66-76.
+- **Behavior**: Projection lambda transforming open `PurchaseEntity` records into `PayableDto` with calculated aging bucket, age in days, and overdue days.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -200,7 +261,7 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:84:21:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 84-87.
+- **Behavior**: Projection lambda mapping `PayablesAging.Bucket` enum values into `PayablesBucketDto` aggregating counts and sums of remainjig piastres per bucket.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -263,35 +324,50 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:101:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.PurchasingQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.SupplierEntity, IEnumerable<Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.PurchasingQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.SupplierEntity, IEnumerable<Falah.Infrastructure.Persistence.Entities.SupplierLedgerEntryEntity>) across lines 101-108.
+- **Behavior**: Computes financial totals from ledger entries and constructs `SupplierDto`:
+  - `totalInvoiced`: Sum of debit amounts where `Type == "purchase_invoice"`.
+  - `totalPaid`: Sum of credit amounts where `Type == "supplier_payment"`.
+  - `outstanding`: Sum of `(DebitPiastres - CreditPiastres)` across all ledger entries.
+  - Combines with supplier entity fields (Id, Name, Phone, Address, Category, Active, Notes) into immutable `SupplierDto`.
+  ```csharp
+  // Lines 101-108: Dynamic ledger balance derivation
+  private static SupplierDto ToDto(SupplierEntity s, IEnumerable<SupplierLedgerEntryEntity> ledger)
+  {
+      var entries = ledger.ToList();
+      var totalInvoiced = entries.Where(e => e.Type == "purchase_invoice").Sum(e => e.DebitPiastres);
+      var totalPaid = entries.Where(e => e.Type == "supplier_payment").Sum(e => e.CreditPiastres);
+      var outstanding = entries.Sum(e => e.DebitPiastres - e.CreditPiastres);
+      return new SupplierDto(s.Id, s.Name, s.Phone, s.Address, s.Category, s.Active, s.Notes, totalInvoiced, totalPaid, outstanding);
+  }
+  ```
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:104:43:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 104-104.
+- **Behavior**: Inline predicate lambda `e => e.Type == "purchase_invoice"` filtering ledger entries representing purchase invoices.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:104:82:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 104-104.
+- **Behavior**: Inline selector lambda `e => e.DebitPiastres` extracting invoice debit amounts in piastres.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:105:39:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 105-105.
+- **Behavior**: Inline predicate lambda `e => e.Type == "supplier_payment"` filtering ledger entries representing payments made to the supplier.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs:105:78:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 105-105.
+- **Behavior**: Inline selector lambda `e => e.CreditPiastres` extracting payment credit amounts in piastres.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadReconciliationAsync(string)
 - **Lines:** [28-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadReconciliationAsync(string) across lines 28-34.
+- **Behavior:** Loads business day reconciliation metrics from /api/business-days/{id}/reconciliation. Gated on CanSeeReconciliation (reports_view permission); sets Reconciliation = null if unauthorized. Updates Reconciliation and notifies PropertyChanged for derived ReconciliationDifferencePiastres.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OpenSafeDrop()
 - **Lines:** [53-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OpenSafeDrop() across lines 53-61.
+- **Behavior:** Relay command opening the safe-drop dialog to transfer cash from drawer to main treasury. Verifies CanEditAction and CanOpenSafeDrop (HasBusinessDay && IsActiveDay), clears inputs and error state, and sets IsSafeDropOpen = true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CloseSafeDrop()
 - **Lines:** [63-69]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CloseSafeDrop() across lines 63-69.
+- **Behavior:** Relay command closing the safe-drop dialog. Guards against closure if an unconfirmed safe drop request is pending in _safeDropRequest, setting SafeDropError to force resolution before dismissal.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.SubmitSafeDropAsync()
 - **Lines:** [71-104]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.SubmitSafeDropAsync() across lines 71-104.
+- **Behavior:** Relay command validating and submitting drawer safe drop. Resends pending request if present. Otherwise validates open shift (HasOpenShiftForDrop), parses positive amount via CashInput.TryParse, validates non-empty reason, resolves manager PIN approval if needed via ResolveApprovalAsync (safe_drop permission), and passes SafeDropRequest to CompleteSafeDropAsync.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [97-97]
-- **Behavior:** Executes logic for lambda expression across lines 97-97.
+- **Behavior:** Error callback lambda assigning approval error message to SafeDropError: e => SafeDropError = e.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CompleteSafeDropAsync(Falah.Application.Treasury.SafeDropRequest)
 - **Lines:** [106-118]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.CompleteSafeDropAsync(Falah.Application.Treasury.SafeDropRequest) across lines 106-118.
+- **Behavior:** Submits safe drop via _safeDropRequest.SendAsync. On success, regenerates _safeDropRequestId, sets confirmation message in ActionNote, closes modal, and reloads control center state via ReloadAsync(). On failure, formats error in SafeDropError.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [108-108]
-- **Behavior:** Executes logic for lambda expression across lines 108-108.
+- **Behavior:** Delegate lambda invoking _session.Api.SafeDropAsync(r) within RetainedRequest.SendAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadSnapshotAsync(string)
 - **Lines:** [128-134]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadSnapshotAsync(string) across lines 128-134.
+- **Behavior:** Retrieves the immutable historical close snapshot for closed business days via /api/business-days/{id}/latest-close-snapshot. Updates LatestSnapshot and notifies PropertyChanged for HasSnapshot and SnapshotReconciliation (deserialized from ReconciliationJson).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)
 - **Lines:** [136-153]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>) across lines 136-153.
+- **Behavior:** Authenticates manager PIN override for privileged control center actions. If needsApproval is true, validates managerPin length >= 4, calls IssueManagerApprovalAsync with permission and reason, and returns approval ID and approver user ID on success, or invokes onError and returns false on failure.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 

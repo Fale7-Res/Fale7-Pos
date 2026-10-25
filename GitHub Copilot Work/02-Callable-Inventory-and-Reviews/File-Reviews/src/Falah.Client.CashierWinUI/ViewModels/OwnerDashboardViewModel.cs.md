@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OwnerDashboardViewModel(Falah.Client.CashierWinUI.Services.AppSession, Action<string>?)
 - **Lines:** [28-33]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OwnerDashboardViewModel(Falah.Client.CashierWinUI.Services.AppSession, Action<string>?) across lines 28-33.
+- **Behavior:** Constructor injecting AppSession and optional navigation callback Action<string>, setting default SelectedPeriod to "today".
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -231,7 +231,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnSelectedPeriodChanged(Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.PeriodOption?)
 - **Lines:** [98-98]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnSelectedPeriodChanged(Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.PeriodOption?) across lines 98-98.
+- **Behavior:** Partial change handler invoked when SelectedPeriod changes, triggering an asynchronous dashboard reload via LoadAsync().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -242,7 +242,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnIsLoadingChanged(bool)
 - **Lines:** [99-99]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnIsLoadingChanged(bool) across lines 99-99.
+- **Behavior:** Partial change handler notifying PropertyChanged for HasData when IsLoading changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -253,7 +253,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnLoadErrorChanged(string?)
 - **Lines:** [100-100]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnLoadErrorChanged(string?) across lines 100-100.
+- **Behavior:** Partial change handler notifying PropertyChanged for HasData when LoadError changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -264,7 +264,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.ResolveRange()
 - **Lines:** [104-115]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.ResolveRange() across lines 104-115.
+- **Behavior:** Computes the Cairo business date range (BusinessDateRange) for the selected period ("today", "yesterday", "last7", "last30", "month") using BusinessClock.Today().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -275,7 +275,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.LoadAsync()
 - **Lines:** [117-145]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.LoadAsync() across lines 117-145.
+- **Behavior:** Asynchronously fetches owner dashboard metrics from _session.Api.GetOwnerDashboardAsync for the resolved date range. Contains a loop to handle concurrent period changes while in flight, discarding responses that no longer match the active period.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -286,7 +286,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Open(Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.AttentionItem?)
 - **Lines:** [147-151]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Open(Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.AttentionItem?) across lines 147-151.
+- **Behavior:** RelayCommand executing the _navigate callback with the target NavKey to jump directly to the relevant view resolving the attention alert.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -297,7 +297,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnIsAttentionExpandedChanged(bool)
 - **Lines:** [159-159]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnIsAttentionExpandedChanged(bool) across lines 159-159.
+- **Behavior:** Partial change handler triggering RebuildVisibleAttention() when IsAttentionExpanded toggles.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -308,7 +308,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildVisibleAttention()
 - **Lines:** [167-174]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildVisibleAttention() across lines 167-174.
+- **Behavior:** Reconstructs VisibleAttention collection showing either all items or the top 3 items based on IsAttentionExpanded, notifying CanExpandAttention and AttentionToggleLabel.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -319,7 +319,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.ToggleAttention()
 - **Lines:** [176-177]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.ToggleAttention() across lines 176-177.
+- **Behavior:** RelayCommand toggling the IsAttentionExpanded state between collapsed (top 3) and full backlog view.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -330,7 +330,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnDataChanged(Falah.Application.Reports.OwnerDashboardDto?)
 - **Lines:** [179-206]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.OnDataChanged(Falah.Application.Reports.OwnerDashboardDto?) across lines 179-206.
+- **Behavior:** Partial change handler updating all dashboard sub-sections upon receiving fresh data: rebuilds KPI metric cards, attention alerts, channel sales split, low stock lists, and print route statuses, resetting attention expansion to collapsed.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -341,7 +341,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildMetrics(Falah.Application.Reports.OwnerDashboardDto?)
 - **Lines:** [210-239]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildMetrics(Falah.Application.Reports.OwnerDashboardDto?) across lines 210-239.
+- **Behavior:** Constructs 5 core MetricCard KPI rows (Net Sales, Collected Sales, Cash With Drivers, Expenses, Food Cost %) with comparative change deltas and sparkline series data.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -363,7 +363,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Card(string, string, Falah.Application.Reports.ChangeDto, string, IReadOnlyList<long>)
 - **Lines:** [241-250]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Card(string, string, Falah.Application.Reports.ChangeDto, string, IReadOnlyList<long>) across lines 241-250.
+- **Behavior:** Static factory helper creating a MetricCard with formatted delta string, directional state ("up", "down", "flat", "none"), caption, and trend sparkline points.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -374,7 +374,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.DescribeChange(Falah.Application.Reports.ChangeDto)
 - **Lines:** [254-260]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.DescribeChange(Falah.Application.Reports.ChangeDto) across lines 254-260.
+- **Behavior:** Formats percentage changes with directional arrows (▲ positive, ▼ negative, "بلا تغيير" zero, or "بلا مقارنة" null).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -385,7 +385,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Money(long)
 - **Lines:** [262-262]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.Money(long) across lines 262-262.
+- **Behavior:** Formats piastre values into Egyptian pounds using CashInput.Format suffixed with " ج".
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -396,7 +396,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildAttention(Falah.Application.Reports.OwnerDashboardDto?)
 - **Lines:** [266-356]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildAttention(Falah.Application.Reports.OwnerDashboardDto?) across lines 266-356.
+- **Behavior:** Evaluates operational health metrics (missing/stale backups, unauthorized shift discrepancies, unsettled driver cash custody, unconfirmed electronic payments, low stock, unclosed business days, stalled print queues, overdue purchasing invoices, attendance issues) and populates Attention items with severity badges and navigation keys.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -418,7 +418,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [352-352]
-- **Behavior:** Executes logic for lambda expression across lines 352-352.
+- **Behavior:** LINQ predicate filtering print routes with pending print jobs whose oldest pending age exceeds StalePrintMinutes (10 minutes).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -429,7 +429,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildSplit(Falah.Application.Reports.OwnerDashboardDto?)
 - **Lines:** [382-401]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.RebuildSplit(Falah.Application.Reports.OwnerDashboardDto?) across lines 382-401.
+- **Behavior:** Populates sales channel split collection (Pickup, Takeaway, Delivery) with monetary totals, proportional fractions, and percentage strings.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -451,7 +451,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [418-418]
-- **Behavior:** Executes logic for lambda expression across lines 418-418.
+- **Behavior:** LINQ projection delegate p => p.NetSalesPiastres extracting net sales points from trend series for chart rendering.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -462,7 +462,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.UnknownCostLabel.get
 - **Lines:** [424-434]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.UnknownCostLabel.get across lines 424-434.
+- **Behavior:** Formats a warning message explaining why food cost cannot be computed, stating the count of priced vs unpriced sold menu items and naming up to 6 missing recipe dishes.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -473,7 +473,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.BackupLabel.get
 - **Lines:** [442-459]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OwnerDashboardViewModel.BackupLabel.get across lines 442-459.
+- **Behavior:** Constructs a comprehensive backup status summary describing timestamp in local time, elapsed age in hours or days, and verification integrity status ("سليمة", "تالفة", or "لم يتم التحقق منها").
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -498,3 +498,12 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 1. Verified SHA-256 match `5f8e0b4a7e0a7a7b80094048531fdbf756546ecdf7c5efc3535f9475a48d65a0` against client source `src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs`. All 43 canonical callables in-scope verified against Roslyn AST.
 2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
 3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 43 callables.
+
+
+## Candidate Findings & Observations
+- **Potential NullReferenceException on Session User ID (line 130):**
+  In `LoadAsync`:
+  ```csharp
+  var result = await _session.Api.GetOwnerDashboardAsync(_session.CurrentUser!.Id, range.From, range.To);
+  ```
+  `_session.CurrentUser!.Id` relies on the null-forgiving operator without checking if `_session.CurrentUser` is null. If the user session times out or is cleared while the dashboard is open, switching periods triggers an unhandled `NullReferenceException`.

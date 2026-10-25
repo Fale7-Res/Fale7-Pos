@@ -11,7 +11,15 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDriverHandler.CreateDriverHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [22-26]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDriverHandler.CreateDriverHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 22-26.
+- **Behavior:** Injects `FalahDbContext` for driver persistence and `IApprovalRegistry` for `delivery_manage` permission validation into `CreateDriverHandler`. Holds zero mutable state.
+  ```csharp
+  // Lines 22-26: CreateDriverHandler constructor
+  public CreateDriverHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+  }
+  ```
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +30,17 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.CreateDriverHandler.HandleAsync(Falah.Application.Delivery.CreateDriverRequest, CancellationToken)
 - **Lines:** [28-54]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.CreateDriverHandler.HandleAsync(Falah.Application.Delivery.CreateDriverRequest, CancellationToken) across lines 28-54.
+- **Behavior:** Creates a standalone delivery driver entity idempotently using key `driver-{request.RequestId}`. Checks for pre-existing driver by ID and returns replayed `DriverDto` if found. Validates non-empty `request.Name`. Resolves actor user and enforces `delivery_manage` permission. Instantiates `DriverEntity` with `Active = true` and current UTC timestamp. Saves entity and catches `DbUpdateException` to return replayed driver if created concurrently.
+  ```csharp
+  // Lines 28-54: Standalone driver creation
+  public async Task<DriverDto> HandleAsync(CreateDriverRequest request, CancellationToken ct = default)
+  {
+      var driverId = $"driver-{request.RequestId}";
+      var existing = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct);
+      if (existing is not null) return new DriverDto(existing.Id, existing.Name, existing.Active);
+      ...
+  }
+  ```
 - **Validations:** Validation checks detected: True. Throws: DomainException, InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +51,7 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for lambda expression across lines 31-31.
+- **Behavior:** Predicate expression lambda `d => d.Id == driverId` checking for pre-existing driver entity for idempotent replay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +62,7 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [36-36]
-- **Behavior:** Executes logic for lambda expression across lines 36-36.
+- **Behavior:** User lookup predicate expression lambda `u => u.Id == request.CreatedByUserId` for permission verification.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +73,7 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [49-49]
-- **Behavior:** Executes logic for lambda expression across lines 49-49.
+- **Behavior:** Replay recovery predicate expression lambda `d => d.Id == driverId` executed upon `DbUpdateException`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +84,15 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.SetDriverActiveHandler.SetDriverActiveHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [65-69]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.SetDriverActiveHandler.SetDriverActiveHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 65-69.
+- **Behavior:** Injects `FalahDbContext` for persistence and `IApprovalRegistry` for permission validation into `SetDriverActiveHandler`. Holds zero mutable state.
+  ```csharp
+  // Lines 65-69: SetDriverActiveHandler constructor
+  public SetDriverActiveHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+  {
+      _db = db;
+      _approvalRegistry = approvalRegistry;
+  }
+  ```
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +103,16 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.SetDriverActiveHandler.HandleAsync(Falah.Application.Delivery.SetDriverActiveRequest, CancellationToken)
 - **Lines:** [71-85]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.SetDriverActiveHandler.HandleAsync(Falah.Application.Delivery.SetDriverActiveRequest, CancellationToken) across lines 71-85.
+- **Behavior:** Toggles the active state of an existing driver (soft-archive/reactivation pattern). Validates actor existence and enforces `delivery_manage` permission. Fetches tracked `DriverEntity` by `request.DriverId`, throwing `InvalidOperationException` if not found. If the active flag differs, updates `driver.Active` and saves changes. Returns updated `DriverDto`.
+  ```csharp
+  // Lines 71-85: Driver active toggle handler
+  public async Task<DriverDto> HandleAsync(SetDriverActiveRequest request, CancellationToken ct = default)
+  {
+      var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
+          ?? throw new InvalidOperationException("المستخدم غير موجود.");
+      ...
+  }
+  ```
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +123,7 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [73-73]
-- **Behavior:** Executes logic for lambda expression across lines 73-73.
+- **Behavior:** User lookup predicate expression lambda `u => u.Id == request.ActorUserId` for actor authorization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +134,7 @@ Substantive security, cash custody, and authorization audit of CreateDriverHandl
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [77-77]
-- **Behavior:** Executes logic for lambda expression across lines 77-77.
+- **Behavior:** Predicate expression lambda `d => d.Id == request.DriverId` loading driver entity for status update.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

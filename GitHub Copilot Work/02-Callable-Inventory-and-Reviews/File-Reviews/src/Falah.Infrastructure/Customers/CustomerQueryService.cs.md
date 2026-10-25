@@ -11,7 +11,11 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Customers.CustomerQueryService.CustomerQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [14-14]
-- **Behavior:** Executes logic for Falah.Infrastructure.Customers.CustomerQueryService.CustomerQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 14-14.
+- **Behavior:** Injects `FalahDbContext` for executing read-only customer and address queries without entity change tracking. Holds zero mutable state.
+  ```csharp
+  // Line 14: Constructor dependency injection
+  public CustomerQueryService(FalahDbContext db) => _db = db;
+  ```
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +26,20 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Customers.CustomerQueryService.FindByPhoneAsync(string, CancellationToken)
 - **Lines:** [16-27]
-- **Behavior:** Executes logic for Falah.Infrastructure.Customers.CustomerQueryService.FindByPhoneAsync(string, CancellationToken) across lines 16-27.
+- **Behavior:** Looks up customer profile and associated delivery addresses by phone number. Normalizes phone string via `CustomerRules.NormalizePhone`; returns null immediately if normalization yields an empty string. Queries `Customers` table with `.AsNoTracking()`. If found, queries `CustomerAddresses` ordered descending by `LastUsedAtUtc` (most recently used address first) and maps results to `CustomerDto` via `UpsertCustomerHandler.ToDto`. Returns null if customer does not exist.
+  ```csharp
+  // Lines 16-27: Query customer by phone
+  public async Task<CustomerDto?> FindByPhoneAsync(string phone, CancellationToken ct = default)
+  {
+      var normalized = CustomerRules.NormalizePhone(phone);
+      if (normalized.Length == 0) return null;
+      var customer = await _db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Phone == normalized, ct);
+      if (customer is null) return null;
+      var addresses = await _db.CustomerAddresses.AsNoTracking()
+          .Where(a => a.CustomerId == customer.Id).OrderByDescending(a => a.LastUsedAtUtc).ToListAsync(ct);
+      return UpsertCustomerHandler.ToDto(customer, addresses);
+  }
+  ```
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +50,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [21-21]
-- **Behavior:** Executes logic for lambda expression across lines 21-21.
+- **Behavior:** Predicate expression lambda `c => c.Phone == normalized` to locate customer by unique normalized phone number.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +61,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for lambda expression across lines 25-25.
+- **Behavior:** Predicate expression lambda `a => a.CustomerId == customer.Id` filtering delivery addresses by customer foreign key.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +72,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for lambda expression across lines 25-25.
+- **Behavior:** Ordering expression lambda `a => a.LastUsedAtUtc` ordering addresses descending so the most recently used destination appears first in POS UI.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +83,18 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Customers.CustomerQueryService.GetByIdAsync(string, CancellationToken)
 - **Lines:** [29-37]
-- **Behavior:** Executes logic for Falah.Infrastructure.Customers.CustomerQueryService.GetByIdAsync(string, CancellationToken) across lines 29-37.
+- **Behavior:** Looks up customer profile and linked delivery addresses by primary key (`customerId`) using `.AsNoTracking()`. If found, queries all addresses ordered by `LastUsedAtUtc` descending and delegates DTO creation to `UpsertCustomerHandler.ToDto`. Returns null if no customer record matches.
+  ```csharp
+  // Lines 29-37: Query customer by primary key
+  public async Task<CustomerDto?> GetByIdAsync(string customerId, CancellationToken ct = default)
+  {
+      var customer = await _db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == customerId, ct);
+      if (customer is null) return null;
+      var addresses = await _db.CustomerAddresses.AsNoTracking()
+          .Where(a => a.CustomerId == customerId).OrderByDescending(a => a.LastUsedAtUtc).ToListAsync(ct);
+      return UpsertCustomerHandler.ToDto(customer, addresses);
+  }
+  ```
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +105,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for lambda expression across lines 31-31.
+- **Behavior:** Predicate expression lambda `c => c.Id == customerId` matching customer primary key.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +116,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [35-35]
-- **Behavior:** Executes logic for lambda expression across lines 35-35.
+- **Behavior:** Predicate expression lambda `a => a.CustomerId == customerId` retrieving addresses for the specified customer ID.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +127,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [35-35]
-- **Behavior:** Executes logic for lambda expression across lines 35-35.
+- **Behavior:** Ordering expression lambda `a => a.LastUsedAtUtc` sorting address history descending by recency of use.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,8 +11,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeesViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [23-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeesViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 23-30.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Initializes EmployeesViewModel with injected AppSession. Instantiates EmployeeEditorViewModel assigned to Editor, and hooks Editor.Saved event to trigger _ = ReloadAsync() whenever an employee record is created or modified. Configures four RetainedRequest instances for idempotent employee actions (_cashOutRequest, _dailyWageRequest, _overtimeRequest, _extraShiftRequest).
+- **Validations:** None on constructor parameters. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -44,9 +44,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenEditor()
 - **Lines:** [39-40]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenEditor() across lines 39-40.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** RelayCommand opening the employee roster editor dialog via Editor.Open(_all.Select(r => r.Employee)).
+- **Validations:** UI binding checks CanOpenEditor (Editor.CanManage, requiring employees_manage permission). Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:40:58:SimpleLambdaExpression
@@ -88,8 +88,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow.OnBalancePiastresChanged(long)
 - **Lines:** [47-47]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow.OnBalancePiastresChanged(long) across lines 47-47.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** CommunityToolkit partial change notification method on EmployeeRow.BalancePiastres; raises PropertyChanged for BalanceDisplay to re-format the balance string in Egyptian pounds.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -121,8 +121,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnShowInactiveChanged(bool)
 - **Lines:** [65-65]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnShowInactiveChanged(bool) across lines 65-65.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for ShowInactive; invokes ApplyFilter() to update the visible employee list.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -132,9 +132,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ApplyFilter()
 - **Lines:** [67-72]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ApplyFilter() across lines 67-72.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Filters the internal _all employee rows based on ShowInactive and populates the observable Employees collection. Notifies PropertyChanged for HasNoEmployees.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:70:38:SimpleLambdaExpression
@@ -143,9 +143,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [70-70]
-- **Behavior:** Executes logic for lambda expression across lines 70-70.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** LINQ filtering predicate r => ShowInactive || r.Employee.IsActive used in ApplyFilter to filter visible employee records.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:74:5:MethodDeclaration
@@ -154,8 +154,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.LoadAsync()
 - **Lines:** [74-79]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.LoadAsync() across lines 74-79.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand verifying CanEditAction and invoking ReloadAsync().
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -165,9 +165,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReloadAsync()
 - **Lines:** [81-114]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReloadAsync() across lines 81-114.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Asynchronously loads employee roster and running ledger balances. Calls GetEmployeesAsync() and GetSettingsAsync() (to retrieve OvertimeHourlyRatePiastres). Clears _all and Employees, then makes sequential N+1 calls to GetEmployeeBalanceAsync(row.Employee.Id) for each employee to populate BalancePiastres. Calls ApplyFilter(). Wrapped in try/finally setting IsLoading = false and notifying HasNoEmployees. Note: if any balance call fails, returns early leaving Employees collection empty.
+- **Validations:** Guarded by if (IsLoading) return;. Checks API success for employee list and individual balance calls. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:124:5:MethodDeclaration
@@ -176,8 +176,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnLedgerEmployeeChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow?)
 - **Lines:** [124-124]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnLedgerEmployeeChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow?) across lines 124-124.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for LedgerEmployee; raises PropertyChanged for IsLedgerOpen to toggle the drill-down ledger panel.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -187,8 +187,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenLedgerAsync(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [126-132]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenLedgerAsync(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 126-132.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the ledger history panel for the designated employee. Validates CanEditAction, sets LedgerEmployee = row, and calls ReloadLedgerAsync(row).
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -198,9 +198,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReloadLedgerAsync(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [134-157]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReloadLedgerAsync(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 134-157.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** Asynchronously fetches employee ledger entries with concurrency fencing via _ledgerVersion. Clears Ledger, sets IsLoadingLedger = true, and calls _session.Api.GetEmployeeLedgerAsync(row.Employee.Id). If version matches and target employee has not changed, populates Ledger ordered descending by CreatedAtUtc. Surfaces errors in LedgerError and manages HasNoLedgerEntries in try/finally.
+- **Validations:** Validates version match and LedgerEmployee == row after await. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:147:63:SimpleLambdaExpression
@@ -209,9 +209,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [147-147]
-- **Behavior:** Executes logic for lambda expression across lines 147-147.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+- **Behavior:** LINQ ordering selector e => e.CreatedAtUtc sorting employee ledger entries in descending chronological order.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:159:5:MethodDeclaration
@@ -220,8 +220,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseLedger()
 - **Lines:** [159-168]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseLedger() across lines 159-168.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand closing the drill-down ledger view: increments _ledgerVersion to invalidate pending requests, sets LedgerEmployee = null, clears Ledger and LedgerError, and notifies HasNoLedgerEntries.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -231,8 +231,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.RetryLedgerAsync()
 - **Lines:** [170-174]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.RetryLedgerAsync() across lines 170-174.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand retrying ledger history load when an error occurred, verifying CanEditAction && !IsLoadingLedger && LedgerEmployee is { } row.
+- **Validations:** Guarded by conditional check on busy and selection. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -242,8 +242,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnCashOutEmployeeChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow?)
 - **Lines:** [188-188]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnCashOutEmployeeChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow?) across lines 188-188.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for CashOutEmployee; raises PropertyChanged for IsCashOutOpen to toggle modal dialog visibility.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -253,8 +253,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnIsBusyChanged(bool)
 - **Lines:** [197-201]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnIsBusyChanged(bool) across lines 197-201.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for IsBusy; raises PropertyChanged for CanEditAction and calls _session.SetManagementOperationPending(this, IsBusy || !CanEditAction) to lock navigation during operations.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -264,8 +264,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnCashOutKindChanged(string)
 - **Lines:** [225-238]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnCashOutKindChanged(string) across lines 225-238.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for CashOutKind; notifies PropertyChanged for IsWithdrawal, IsAdvance, IsDailyWage, IsOvertime, IsExtraShift, RequiresOpenShift, ShowNoShiftAlert, ReasonIsRequired, ShowAmountInput, ReasonHeader, and ActionTitle.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -275,8 +275,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnOvertimeHoursChanged(int)
 - **Lines:** [239-239]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnOvertimeHoursChanged(int) across lines 239-239.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Partial change notification handler for OvertimeHours; raises PropertyChanged for OvertimePreviewAmount.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -286,8 +286,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ShiftValueOrDailyWage(Falah.Application.Employees.EmployeeDto)
 - **Lines:** [245-246]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ShiftValueOrDailyWage(Falah.Application.Employees.EmployeeDto) across lines 245-246.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Computes shift monetary value for an employee, returning ShiftValuePiastres if positive; otherwise falls back to DailyWagePiastres.
+- **Validations:** Evaluates employee.ShiftValuePiastres > 0. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -297,8 +297,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenAction(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow, string)
 - **Lines:** [253-275]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenAction(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow, string) across lines 253-275.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** Core helper opening the shared cash-out and compensation modal. Validates CanEditAction, sets CashOutKind, pre-fills default amounts based on kind (DailyWage, advance 100, withdrawal 200), defaults OvertimeHours to 2, clears reason and PIN, generates eco-{guid} request key, sets CashOutEmployee = row, and notifies all dependent preview properties.
+- **Validations:** Guarded by if (!CanEditAction) return;. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -308,8 +308,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenDailyWage(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [277-277]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenDailyWage(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 277-277.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the daily wage registration modal for the specified employee row.
+- **Validations:** Delegates to OpenAction which verifies CanEditAction. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -319,8 +319,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenOvertime(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [278-278]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenOvertime(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 278-278.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the overtime hours registration modal for the specified employee row.
+- **Validations:** Delegates to OpenAction. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -330,8 +330,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenExtraShift(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [279-279]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenExtraShift(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 279-279.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the extra shift registration modal for the specified employee row.
+- **Validations:** Delegates to OpenAction. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -341,8 +341,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenAdvance(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [280-280]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenAdvance(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 280-280.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the cash advance modal for the specified employee row.
+- **Validations:** Delegates to OpenAction. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -352,8 +352,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenWithdrawal(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow)
 - **Lines:** [281-281]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenWithdrawal(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.EmployeeRow) across lines 281-281.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** RelayCommand opening the balance withdrawal modal for the specified employee row.
+- **Validations:** Delegates to OpenAction. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -363,8 +363,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseCashOut()
 - **Lines:** [283-284]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseCashOut() across lines 283-284.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand closing the cash-out modal dialog by setting CashOutEmployee = null if CanEditAction is true.
+- **Validations:** Guarded by if (CanEditAction). Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -374,8 +374,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SetOvertimeHours(string)
 - **Lines:** [286-287]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SetOvertimeHours(string) across lines 286-287.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Behavior:** RelayCommand setting OvertimeHours from a string input if CanEditAction is true and string parses to an integer.
+- **Validations:** Checks CanEditAction and int.TryParse. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -385,9 +385,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SubmitCashOutAsync()
 - **Lines:** [289-344]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.SubmitCashOutAsync() across lines 289-344.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Asynchronously validates and processes employee action submission. Replays any pending retained requests for cash-out, daily wage, overtime, or extra shift. Validates target selection, open shift requirement for physical drawer cash movements (advance and withdrawal), mandatory reason, and positive amounts. Solicits manager PIN authorization via ResolveApprovalAsync if CashOutNeedsApproval. Dispatches to CompleteDailyWageAsync, CompleteOvertimeAsync, CompleteExtraShiftAsync, or CompleteCashOutAsync.
+- **Validations:** Validates open shift when RequiresOpenShift, mandatory reason when ReasonIsRequired, positive amount, manager PIN authorization. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:293:79:ParenthesizedLambdaExpression
@@ -396,9 +396,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [293-293]
-- **Behavior:** Executes logic for lambda expression across lines 293-293.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Continuation lambda replaying pending cash-out retained request via CompleteCashOutAsync inside RunBusyAsync.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:294:78:ParenthesizedLambdaExpression
@@ -407,9 +407,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [294-294]
-- **Behavior:** Executes logic for lambda expression across lines 294-294.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Continuation lambda replaying pending daily wage retained request via CompleteDailyWageAsync inside RunBusyAsync.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:295:81:ParenthesizedLambdaExpression
@@ -418,9 +418,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [295-295]
-- **Behavior:** Executes logic for lambda expression across lines 295-295.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Continuation lambda replaying pending overtime retained request via CompleteOvertimeAsync inside RunBusyAsync.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:296:85:ParenthesizedLambdaExpression
@@ -429,9 +429,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [296-296]
-- **Behavior:** Executes logic for lambda expression across lines 296-296.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Continuation lambda replaying pending extra shift retained request via CompleteExtraShiftAsync inside RunBusyAsync.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:310:28:ParenthesizedLambdaExpression
@@ -440,9 +440,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [310-343]
-- **Behavior:** Executes logic for lambda expression across lines 310-343.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Main execution lambda passed to RunBusyAsync in SubmitCashOutAsync that resolves manager authorization and dispatches the specific employee request.
+- **Validations:** Validates manager PIN, parses wage/amount, verifies current user. Throws: NullReferenceException if _session.CurrentUser is null.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:314:93:SimpleLambdaExpression
@@ -451,8 +451,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [314-314]
-- **Behavior:** Executes logic for lambda expression across lines 314-314.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Error callback lambda e => CashOutError = e setting CashOutError on manager authorization failure in SubmitCashOutAsync.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -462,8 +462,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.RunBusyAsync(Func<Task>)
 - **Lines:** [346-351]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.RunBusyAsync(Func<Task>) across lines 346-351.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Helper managing IsBusy lifecycle around an asynchronous action delegate with try/finally.
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -473,9 +473,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteCashOutAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest)
 - **Lines:** [353-358]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteCashOutAsync(Falah.Application.Employees.RecordEmployeeCashOutRequest) across lines 353-358.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Submits RecordEmployeeCashOutRequest via _cashOutRequest.SendAsync executing _session.Api.EmployeeCashOutAsync(r). Surfaces errors in CashOutError or displays updated balance in ActionNote and reloads roster via FinishActionAsync.
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:355:63:SimpleLambdaExpression
@@ -484,9 +484,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [355-355]
-- **Behavior:** Executes logic for lambda expression across lines 355-355.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.EmployeeCashOutAsync(r) passed to _cashOutRequest.SendAsync for drawer cash payout.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:360:5:MethodDeclaration
@@ -495,9 +495,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteDailyWageAsync(Falah.Application.Employees.RecordDailyWageRequest)
 - **Lines:** [360-365]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteDailyWageAsync(Falah.Application.Employees.RecordDailyWageRequest) across lines 360-365.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Submits RecordDailyWageRequest via _dailyWageRequest.SendAsync executing _session.Api.RecordDailyWageAsync(r). On success, calls FinishActionAsync with confirmation note.
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:362:65:SimpleLambdaExpression
@@ -506,9 +506,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [362-362]
-- **Behavior:** Executes logic for lambda expression across lines 362-362.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.RecordDailyWageAsync(r) passed to _dailyWageRequest.SendAsync to post wage ledger entry.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:367:5:MethodDeclaration
@@ -517,9 +517,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteOvertimeAsync(Falah.Application.Employees.RecordOvertimeRequest)
 - **Lines:** [367-372]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteOvertimeAsync(Falah.Application.Employees.RecordOvertimeRequest) across lines 367-372.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Submits RecordOvertimeRequest via _overtimeRequest.SendAsync executing _session.Api.RecordOvertimeAsync(r). On success, calls FinishActionAsync with confirmation note.
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:369:64:SimpleLambdaExpression
@@ -528,9 +528,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [369-369]
-- **Behavior:** Executes logic for lambda expression across lines 369-369.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.RecordOvertimeAsync(r) passed to _overtimeRequest.SendAsync to post overtime ledger entry.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:374:5:MethodDeclaration
@@ -539,9 +539,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteExtraShiftAsync(Falah.Application.Employees.RecordExtraShiftRequest)
 - **Lines:** [374-379]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CompleteExtraShiftAsync(Falah.Application.Employees.RecordExtraShiftRequest) across lines 374-379.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** Submits RecordExtraShiftRequest via _extraShiftRequest.SendAsync executing _session.Api.RecordExtraShiftAsync(r). On success, calls FinishActionAsync with confirmation note.
+- **Validations:** Validates result.Success and non-null result.Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:376:66:SimpleLambdaExpression
@@ -550,9 +550,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [376-376]
-- **Behavior:** Executes logic for lambda expression across lines 376-376.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+- **Behavior:** API invocation delegate r => _session.Api.RecordExtraShiftAsync(r) passed to _extraShiftRequest.SendAsync to post extra shift ledger entry.
+- **Validations:** None. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
 ---
 ### Callable: src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs:381:5:MethodDeclaration
@@ -561,8 +561,8 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.FinishActionAsync(string)
 - **Lines:** [381-388]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.FinishActionAsync(string) across lines 381-388.
-- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Behavior:** Resets modal dialog state after action completion: clears CashOutError, sets ActionNote, resets CashOutEmployee = null, clears _cashOutRequestId, and reloads employee data via ReloadAsync().
+- **Validations:** None. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
 ---
@@ -572,9 +572,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>)
 - **Lines:** [390-410]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ResolveApprovalAsync(bool, string, string, string, Action<string>) across lines 390-410.
-- **Validations:** Validation checks detected: True. Throws: None detected in body.
-- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+- **Behavior:** Authorizes sensitive employee ledger operations by validating manager PIN against backend approval service via _session.Api.IssueManagerApprovalAsync. Returns immediate success tuple if needsApproval is false. When required, validates PIN length >= 4, calls API with permission and reason, surfaces error callback on failure, and returns (ApprovalId, ApproverUserId, Ok).
+- **Validations:** Checks PIN length >= 4, checks approval API result.Success and non-null Value. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
 ---
 

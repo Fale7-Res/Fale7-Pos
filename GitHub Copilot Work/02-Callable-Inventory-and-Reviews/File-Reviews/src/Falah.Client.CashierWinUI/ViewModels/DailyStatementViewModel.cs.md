@@ -11,67 +11,61 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.DailyStatementViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [26-32]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.DailyStatementViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 26-32.
+- **Behavior:** Initializes daily statement viewmodel with AppSession and calculates today in Cairo business timezone (Egypt Standard Time).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:44:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:44:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:44:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.OnSelectedDateChanged(DateOnly)
 - **Lines:** [44-50]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.OnSelectedDateChanged(DateOnly) across lines 44-50.
+- **Behavior:** Notifies relative date properties (IsToday, IsYesterday, SelectedDateDisplay) and triggers statement reload when date changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:52:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:52:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:52:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ShowToday()
 - **Lines:** [52-52]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ShowToday() across lines 52-52.
+- **Behavior:** Sets active statement date to today.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:53:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:53:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:53:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ShowYesterday()
 - **Lines:** [53-53]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ShowYesterday() across lines 53-53.
+- **Behavior:** Sets active statement date to yesterday.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:54:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:54:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:54:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.PreviousDay()
 - **Lines:** [54-54]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.PreviousDay() across lines 54-54.
+- **Behavior:** Steps active statement date one day backward.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:55:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:55:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:55:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.NextDay()
 - **Lines:** [55-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.NextDay() across lines 55-55.
+- **Behavior:** Steps active statement date one day forward up to today.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:60:68:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:60:68:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:60:68:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -99,34 +93,31 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.OnCategoryFilterChanged(string)
 - **Lines:** [63-63]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.OnCategoryFilterChanged(string) across lines 63-63.
+- **Behavior:** Applies product category filter whenever CategoryFilter property changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:65:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:65:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:65:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ApplyProductFilter()
 - **Lines:** [65-74]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ApplyProductFilter() across lines 65-74.
+- **Behavior:** Filters statement sold products by the selected category option ("الكل" or named category).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:71:44:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:71:44:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:71:44:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [71-71]
-- **Behavior:** Executes logic for lambda expression across lines 71-71.
+- **Behavior:** Filters sold products matching the active category name or "بدون قسم" for uncategorized items.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:81:46:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:81:46:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:81:46:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -220,12 +211,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [86-86]
-- **Behavior:** Executes logic for lambda expression across lines 86-86.
+- **Behavior:** Formats hour and quantity tuple into human-readable text label for product hourly summary.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:88:65:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:88:65:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:88:65:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -308,45 +298,41 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ReprintExpenseAsync(Falah.Application.Reports.DailyExpenseLineDto?)
 - **Lines:** [117-135]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.ReprintExpenseAsync(Falah.Application.Reports.DailyExpenseLineDto?) across lines 117-135.
+- **Behavior:** Dispatches a reprint document request for the selected expense line voucher via ApiClient.ReprintDocumentAsync.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:137:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:137:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:137:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.LoadAsync()
 - **Lines:** [137-204]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailyStatementViewModel.LoadAsync() across lines 137-204.
+- **Behavior:** Asynchronously retrieves complete daily statement DTO for the selected date from API, populating products, hourly matrix, expenses, shifts, treasury, employees, refunds, and audit trail.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:64:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:64:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:64:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [162-162]
-- **Behavior:** Executes logic for lambda expression across lines 162-162.
+- **Behavior:** Extracts product category name substituting "بدون قسم" for null values.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:118:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:118:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:162:118:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [162-162]
-- **Behavior:** Executes logic for lambda expression across lines 162-162.
+- **Behavior:** Orders category names alphabetically.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:166:63:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:166:63:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs:166:63:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
@@ -396,7 +382,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [170-170]
-- **Behavior:** Executes logic for lambda expression across lines 170-170.
+- **Behavior:** Sums sold quantities across hourly sales records for a product.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

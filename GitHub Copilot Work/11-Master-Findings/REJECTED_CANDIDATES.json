@@ -1,0 +1,104 @@
+{
+  "timestamp_utc": "2026-10-25T12:51:25Z",
+  "audit_scope": "Independent Verification of Candidate Findings for Falah Restaurant POS C# Port",
+  "total_evaluated_in_round": 5,
+  "confirmed_count": 3,
+  "rejected_count": 2,
+  "confirmed_candidate_ids": [
+    "MONEY-ABS-OVERFLOW-001 (assigned FIN-030)",
+    "PAYROLL-CASE-SENSITIVITY-001 (assigned FIN-031)",
+    "DELIVERY-FEE-NEGATIVE-001 (assigned FIN-032)"
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "CAND-SEC-PERIMETER-001",
+      "claimed_title": "Authentication Middleware Non-API Path Bypass Perimeter Exposure",
+      "claimed_severity": "HIGH",
+      "claimed_issue": "Claimed that AuthenticationMiddleware.cs skips token validation for requests whose path does not start with '/api/', potentially allowing unauthenticated requests to bypass authentication and access application endpoints.",
+      "evaluation_status": "REJECTED",
+      "rejection_category": "BY_DESIGN_SECURE",
+      "counterevidence_summary": "In Falah.Server/Program.cs, all application domain and business API endpoints are routed exclusively under '/api/v1/'. The only non-API endpoint mapped in the entire application is '/health' at line 2251 (and Swagger UI conditionally in Development mode). The health check endpoint is explicitly designed and documented as an unauthenticated connectivity/liveness probe (verifying database connectivity via CanConnectAsync). No authenticated, administrative, or data-bearing endpoints exist outside the '/api/' prefix. Skipping authentication for non-API paths is intentional design and does not create any security perimeter bypass.",
+      "evaluated_references": [
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              35,
+              40
+            ]
+          ],
+          "sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              2251,
+              2253
+            ]
+          ],
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        }
+      ],
+      "code_excerpt": "// src/Falah.Server/AuthenticationMiddleware.cs lines 35-40:\nvar isApi = path.StartsWith(\"/api/\", StringComparison.OrdinalIgnoreCase);\nif (!isApi || AnonymousPaths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase)))\n{\n    await _next(context);\n    return;\n}\n\n// src/Falah.Server/Program.cs lines 2251-2252:\napp.MapGet(\"/health\", async (FalahDbContext db, CancellationToken ct) =>\n    await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = \"ok\" }) : Results.StatusCode(503));"
+    },
+    {
+      "candidate_id": "CAND-FIN-DISCOUNT-OVERFLOW-001",
+      "claimed_title": "Payable Total Floor-At-Zero Clamping Obscures Financial Discrepancies",
+      "claimed_severity": "MEDIUM",
+      "claimed_issue": "Claimed that clamping payable total to Money.Zero in CheckoutRules.ComputePayableTotal when (cartTotal + deliveryFee - compAmount) is negative obscures financial discrepancies and hides discount or comp overflow in accounting.",
+      "evaluation_status": "REJECTED",
+      "rejection_category": "BY_DESIGN_ACCURATE_ACCOUNTING",
+      "counterevidence_summary": "ComputePayableTotal computes customer-payable balance due at checkout. When an order is 100% comped, the customer payable total is zero; clamping at Money.Zero prevents drawer cash-in or POS payment processors from attempting to collect negative cash. Financial integrity and auditing are completely preserved across independent channels: 1) OrderEntity preserves raw SubtotalPiastres, DiscountPiastres, and CompPiastres in dedicated columns without distortion; 2) SalesRules aggregates manual discounts and comps directly from these audited entity fields; 3) PrintRules prints Subtotal, Discount, Comp, and Net Payable as distinct line items on receipts; 4) PricingRules.AssertCompAmount bounds comp amounts during order calculation (asserting comp <= orderValue and comp > 0). Clamping PayableTotal to Money.Zero is standard POS settlement logic and does not obscure any financial discrepancy.",
+      "evaluated_references": [
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              35,
+              39
+            ]
+          ],
+          "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        },
+        {
+          "path": "src/Falah.Domain/Pricing/PricingRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              44,
+              51
+            ]
+          ],
+          "sha256": "d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b"
+        },
+        {
+          "path": "src/Falah.Domain/Reports/SalesRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              1,
+              60
+            ]
+          ],
+          "sha256": "eb5ff2f1a5e957ff106386e34849d11a8b6a2e7f01fb864c3988a00f77adc4e9"
+        },
+        {
+          "path": "src/Falah.Domain/Printing/PrintRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              1,
+              60
+            ]
+          ],
+          "sha256": "1d728f9f30593703f473a603eba63945c3859cb8398457beea5b9521fd3d9dc9"
+        }
+      ],
+      "code_excerpt": "// src/Falah.Domain/Orders/CheckoutRules.cs lines 35-38:\npublic static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)\n{\n    var result = cartTotal + deliveryFee - compAmount;\n    return result.IsNegative ? Money.Zero : result;\n}\n\n// src/Falah.Domain/Pricing/PricingRules.cs lines 46-50:\npublic static void AssertCompAmount(Money compAmount, Money orderValue)\n{\n    if (compAmount.Piastres <= 0) throw new DomainException(\"قيمة الضيافة يجب أن تكون أكبر من صفر.\");\n    if (compAmount > orderValue) throw new DomainException(\"قيمة الضيافة لا يمكن أن تتجاوز قيمة الطلب.\");\n}"
+    }
+  ]
+}

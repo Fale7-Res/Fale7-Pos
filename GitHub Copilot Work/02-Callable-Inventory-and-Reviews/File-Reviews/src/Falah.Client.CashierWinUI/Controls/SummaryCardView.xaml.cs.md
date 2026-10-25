@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.SummaryCardView()
 - **Lines:** [17-20]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.SummaryCardView() across lines 17-20.
+- **Behavior:** Initializes UserControl components by invoking InitializeComponent().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Label.get
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Label.get across lines 24-24.
+- **Behavior:** CLR property getter retrieving value of LabelProperty dependency property via (string)GetValue(LabelProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Label.set
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Label.set across lines 25-25.
+- **Behavior:** CLR property setter storing value in LabelProperty dependency property via SetValue(LabelProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Value.get
 - **Lines:** [30-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Value.get across lines 30-30.
+- **Behavior:** CLR property getter retrieving value of ValueProperty dependency property via (string)GetValue(ValueProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Value.set
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Value.set across lines 31-31.
+- **Behavior:** CLR property setter storing value in ValueProperty dependency property via SetValue(ValueProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Caption.get
 - **Lines:** [36-36]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Caption.get across lines 36-36.
+- **Behavior:** CLR property getter retrieving value of CaptionProperty dependency property via (string)GetValue(CaptionProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.Caption.set
 - **Lines:** [37-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.Caption.set across lines 37-37.
+- **Behavior:** CLR property setter storing value in CaptionProperty dependency property via SetValue(CaptionProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.OnLabelChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [40-41]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.OnLabelChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 40-41.
+- **Behavior:** Static PropertyChangedCallback for LabelProperty: updates internal LabelBlock.Text with (string)e.NewValue.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.OnValueChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [43-44]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.OnValueChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 43-44.
+- **Behavior:** Static PropertyChangedCallback for ValueProperty: updates internal ValueBlock.Text with (string)e.NewValue.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SummaryCardView.OnCaptionChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [46-52]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SummaryCardView.OnCaptionChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 46-52.
+- **Behavior:** Static PropertyChangedCallback for CaptionProperty: assigns (string)e.NewValue to CaptionBlock.Text and toggles CaptionBlock.Visibility to Collapsed when empty or Visible when populated.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

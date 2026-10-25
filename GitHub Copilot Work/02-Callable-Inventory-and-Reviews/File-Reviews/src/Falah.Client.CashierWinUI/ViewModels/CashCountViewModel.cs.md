@@ -11,12 +11,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.CashCountViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.CashCountViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 28-28.
+- **Behavior:** Initializes cash count viewmodel with the current application session AppSession.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:32:53:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:32:53:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:32:53:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -44,12 +43,11 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.DenominationRow.OnQuantityTextChanged(string)
 - **Lines:** [44-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.DenominationRow.OnQuantityTextChanged(string) across lines 44-48.
+- **Behavior:** Notifies LineTotalDisplay property change and fires row Changed event when denomination quantity text changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:53:57:GetAccessorDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:53:57:GetAccessorDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:53:57:GetAccessorDeclaration
 - **Kind:** GetAccessorDeclaration
@@ -77,128 +75,117 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [72-72]
-- **Behavior:** Executes logic for lambda expression across lines 72-72.
+- **Behavior:** Calculates denomination line subtotal for the live counted total display helper.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:74:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:74:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:74:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnIsBusyChanged(bool)
 - **Lines:** [74-74]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnIsBusyChanged(bool) across lines 74-74.
+- **Behavior:** Synchronizes action state and session pending operation lock when busy state toggles.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:75:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:75:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:75:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnIsLoadingChanged(bool)
 - **Lines:** [75-75]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnIsLoadingChanged(bool) across lines 75-75.
+- **Behavior:** Synchronizes action state when loading flag toggles.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:77:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:77:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:77:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.NotifyState()
 - **Lines:** [77-82]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.NotifyState() across lines 77-82.
+- **Behavior:** Raises property change notifications for CanAct and SaveLabel, and registers pending management operation with AppSession.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:84:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:84:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:84:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OpenAsync(string)
 - **Lines:** [84-92]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OpenAsync(string) across lines 84-92.
+- **Behavior:** Opens cash count dialog for specified business day ID and triggers asynchronous loading of denominations and previous count records.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:94:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:94:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:94:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.Close()
 - **Lines:** [94-99]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.Close() across lines 94-99.
+- **Behavior:** Closes the cash count view when not busy and no write operation is pending.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:101:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:101:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:101:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.LoadAsync()
 - **Lines:** [101-136]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.LoadAsync() across lines 101-136.
+- **Behavior:** Loads Egyptian currency denominations and previous counts for the business day from the API, constructing reactive DenominationRows.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:138:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:138:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:138:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnRowChanged()
 - **Lines:** [138-138]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.OnRowChanged() across lines 138-138.
+- **Behavior:** Notifies CountedTotalDisplay property change when any individual denomination row value changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:140:5:MethodDeclaration
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:140:5:MethodDeclaration
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:140:5:MethodDeclaration
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.SaveAsync()
 - **Lines:** [140-182]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashCountViewModel.SaveAsync() across lines 140-182.
+- **Behavior:** Validates denomination quantities and expected amount, submits SaveCashCountRequest via RetainedRequest, reports variance (surplus/deficit/match), and reloads history.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:150:27:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:150:27:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:150:27:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [150-150]
-- **Behavior:** Executes logic for lambda expression across lines 150-150.
+- **Behavior:** Verifies at least one denomination row has a positive quantity entered.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:157:29:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:157:29:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:157:29:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [157-157]
-- **Behavior:** Executes logic for lambda expression across lines 157-157.
+- **Behavior:** Projects denomination rows into DenominationRowInput DTOs for the API request.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
----
-### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:165:58:SimpleLambdaExpression
+---### Callable: src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:165:58:SimpleLambdaExpression
 
 - **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs:165:58:SimpleLambdaExpression
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [165-165]
-- **Behavior:** Executes logic for lambda expression across lines 165-165.
+- **Behavior:** Delegates save cash count request to ApiClient.SaveCashCountAsync.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

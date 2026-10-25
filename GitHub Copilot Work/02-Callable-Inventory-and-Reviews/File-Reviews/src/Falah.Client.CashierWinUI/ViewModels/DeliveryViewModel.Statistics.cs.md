@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnSelectedStatsPeriodChanged(Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.StatsPeriodOption?)
 - **Lines:** [41-45]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnSelectedStatsPeriodChanged(Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.StatsPeriodOption?) across lines 41-45.
+- **Behavior:** Invoked when SelectedStatsPeriod changes. Raises PropertyChanged for IsCustomStatsPeriod and, if an AccountDriver is currently selected, triggers LoadDriverStatisticsAsync(driver.Id).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnDriverStatisticsChanged(Falah.Application.Delivery.DriverStatisticsDto?)
 - **Lines:** [47-53]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnDriverStatisticsChanged(Falah.Application.Delivery.DriverStatisticsDto?) across lines 47-53.
+- **Behavior:** Invoked when DriverStatistics changes. Raises PropertyChanged for dependent UI display properties: HasStatistics, AverageDeliveryMinutesDisplay, LastOrderDisplay, and LastSettlementDisplay.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnStatsFromDateChanged(DateTimeOffset)
 - **Lines:** [55-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnStatsFromDateChanged(DateTimeOffset) across lines 55-55.
+- **Behavior:** Invoked when StatsFromDate changes in UI date picker. If IsCustomStatsPeriod is active, triggers ReloadStatisticsForCurrentDriver().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnStatsToDateChanged(DateTimeOffset)
 - **Lines:** [56-56]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.OnStatsToDateChanged(DateTimeOffset) across lines 56-56.
+- **Behavior:** Invoked when StatsToDate changes in UI date picker. If IsCustomStatsPeriod is active, triggers ReloadStatisticsForCurrentDriver().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ReloadStatisticsForCurrentDriver()
 - **Lines:** [58-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ReloadStatisticsForCurrentDriver() across lines 58-61.
+- **Behavior:** Helper method reloading delivery metrics for the currently selected AccountDriver via LoadDriverStatisticsAsync.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.Format(DateTimeOffset?)
 - **Lines:** [71-73]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.Format(DateTimeOffset?) across lines 71-73.
+- **Behavior:** Formats an optional UTC instant into Cairo local wall clock time (yyyy-MM-dd HH:mm) using BusinessClock.CairoTimeZone, or returns em dash ("—") if null.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ResolveStatsRange()
 - **Lines:** [75-89]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.ResolveStatsRange() across lines 75-89.
+- **Behavior:** Resolves Cairo business date range for the selected stats period ("today", "last7", "month", "custom"), normalizes order by swapping if to < from, and converts dates to UTC boundary instants via BusinessClock.UtcRangeForBusinessDate.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.LoadDriverStatisticsAsync(string)
 - **Lines:** [93-112]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.LoadDriverStatisticsAsync(string) across lines 93-112.
+- **Behavior:** Asynchronously loads driver delivery performance metrics from /api/delivery/drivers/{id}/statistics. Uses an incremental _statisticsVersion counter to discard stale out-of-order responses from rapid period switching, updating DriverStatistics, StatisticsError, and IsLoadingStatistics.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.RefreshDriverStatisticsAsync()
 - **Lines:** [114-118]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DeliveryViewModel.RefreshDriverStatisticsAsync() across lines 114-118.
+- **Behavior:** Relay command allowing manual refresh of delivery statistics for the currently selected AccountDriver.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
