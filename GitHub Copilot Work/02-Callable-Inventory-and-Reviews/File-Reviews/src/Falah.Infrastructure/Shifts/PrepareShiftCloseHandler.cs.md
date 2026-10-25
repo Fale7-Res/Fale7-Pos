@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.PrepareShiftCloseHandler(Falah.Infrastructure.Persistence.FalahDbContext, Microsoft.Extensions.Configuration.IConfiguration)
 - **Lines:** [26-30]
-- **Behavior:** Executes logic for Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.PrepareShiftCloseHandler(Falah.Infrastructure.Persistence.FalahDbContext, Microsoft.Extensions.Configuration.IConfiguration) across lines 26-30.
+- **Behavior:** Constructor injecting FalahDbContext and IConfiguration into private fields _db and _configuration.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.HandleAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken)
 - **Lines:** [32-50]
-- **Behavior:** Executes logic for Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.HandleAsync(Falah.Application.Shifts.PrepareShiftCloseRequest, CancellationToken) across lines 32-50.
+- **Behavior:** Handles step 1 of shift blind closing without persisting modifications. Retrieves the ShiftEntity (throwing InvalidOperationException if not found) and verifies status is Open (throwing DomainException otherwise). Calculates expected cash via ShiftReconciliation.ComputeExpectedCashAsync, retrieves discrepancy threshold from Settings or Configuration via ReadDiscrepancyThresholdAsync, rehydrates domain Shift aggregate, evaluates discrepancy and manager approval requirement via Shift.PrepareBlindClose, and returns PrepareShiftCloseResult containing expected, actual, difference, and approval flag.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [34-34]
-- **Behavior:** Executes logic for lambda expression across lines 34-34.
+- **Behavior:** Predicate lambda matching the ShiftEntity whose primary key equals request.ShiftId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, Microsoft.Extensions.Configuration.IConfiguration, CancellationToken)
 - **Lines:** [58-67]
-- **Behavior:** Executes logic for Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, Microsoft.Extensions.Configuration.IConfiguration, CancellationToken) across lines 58-67.
+- **Behavior:** Internal static helper querying the persisted cash discrepancy threshold from the Settings singleton entity; if no settings record is stored, falls back to configuration key 'Shifts:CashDiscrepancyThresholdPiastres', defaulting to DefaultDiscrepancyThresholdPiastres (5000 piastres / 50 EGP).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)
 - **Lines:** [73-80]
-- **Behavior:** Executes logic for Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken) across lines 73-80.
+- **Behavior:** Internal static helper overload querying the cash discrepancy threshold from the Settings singleton entity for callers lacking IConfiguration, falling back directly to DefaultDiscrepancyThresholdPiastres.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

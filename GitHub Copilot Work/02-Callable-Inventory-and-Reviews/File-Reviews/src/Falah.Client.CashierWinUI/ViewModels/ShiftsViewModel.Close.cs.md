@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OnCloseShiftPreviewChanged(Falah.Application.Shifts.PrepareShiftCloseResult?)
 - **Lines:** [31-35]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OnCloseShiftPreviewChanged(Falah.Application.Shifts.PrepareShiftCloseResult?) across lines 31-35.
+- **Behavior:** Partial property change callback updating UI states CloseShiftNeedsApproval and IsCloseShiftCounting whenever CloseShiftPreview changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenCloseShiftModal()
 - **Lines:** [37-47]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenCloseShiftModal() across lines 37-47.
+- **Behavior:** RelayCommand preparing and opening the blind shift-close modal. Guards against execution when shift closing is disabled (!CanCloseShift) or when there is no ActiveShift; resets actual cash to '0', clears reason, manager PIN, preview, and error, and sets IsCloseShiftModalOpen = true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CancelCloseShiftModal()
 - **Lines:** [49-50]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CancelCloseShiftModal() across lines 49-50.
+- **Behavior:** RelayCommand dismissing the shift close modal (IsCloseShiftModalOpen = false), guarded against dismissal while a close operation is actively running (!IsClosingShift).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.BackToCloseShiftCount()
 - **Lines:** [52-53]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.BackToCloseShiftCount() across lines 52-53.
+- **Behavior:** RelayCommand resetting CloseShiftPreview to null so the operator can return to modifying the counted cash amount.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.PrepareCloseShiftAsync()
 - **Lines:** [58-85]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.PrepareCloseShiftAsync() across lines 58-85.
+- **Behavior:** Asynchronously executes step 1 of shift close against _session.Api.PrepareShiftCloseAsync with the active shift ID and parsed cash count in piastres (via CashInput.TryParse). Populates CloseShiftPreview with expected cash and approval requirement, or records CloseShiftError on failure.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmCloseShiftAsync()
 - **Lines:** [90-146]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmCloseShiftAsync() across lines 90-146.
+- **Behavior:** Asynchronously commits shift closing. When discrepancy requires manager approval, validates that reason is provided and manager PIN is at least 4 digits, requesting a 'shifts_manage' approval token via Api.IssueManagerApprovalAsync. Submits CloseShiftRequest with generated request ID, active shift ID, and counted cash piastres to Api.CloseShiftAsync. On success, closes the modal, clears session shift ID and name, refreshes header, and invokes LoadAsync() to reload shifts list.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 

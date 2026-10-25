@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of tests/Fala
 - **Kind:** MethodDeclaration
 - **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Start()
 - **Lines:** [9-9]
-- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.Start() across lines 9-9.
+- **Behavior:** Test mock method providing a no-op implementation of timer startup for headless unit tests.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of tests/Fala
 - **Kind:** MethodDeclaration
 - **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Stop()
 - **Lines:** [10-10]
-- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.Stop() across lines 10-10.
+- **Behavior:** Test mock method providing a no-op implementation of timer stoppage.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of tests/Fala
 - **Kind:** MethodDeclaration
 - **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.RaiseTick()
 - **Lines:** [11-11]
-- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.RaiseTick() across lines 11-11.
+- **Behavior:** Fires the `Tick` event handler synchronously to simulate timer ticks in test scenarios.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

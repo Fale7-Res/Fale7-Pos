@@ -4,35 +4,35 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:15:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken) across lines 15-19.
+- **Behavior**: Asynchronously queries posted TreasuryMovementEntity records where accountId is either source or destination without locking (AsNoTracking), mapping results to domain TreasuryMovement models via TreasuryMapper.ToDomain for display/read-only projections.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:17:20:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 17-17.
+- **Behavior**: EF Core query predicate filtering TreasuryMovementEntity records to posted status involving the specified accountId as source or destination.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:37:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken) across lines 37-46.
+- **Behavior**: Loads posted treasury movements for an account using raw SQL with pessimistic concurrency range hints (UPDLOCK, HOLDLOCK) within an active transaction, ensuring concurrent financial writes cannot overspend an account balance before committing, and maps them to domain TreasuryMovement models.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:51:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.TreasuryMapper.ToDomain(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.TreasuryMapper.ToDomain(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity) across lines 51-54.
+- **Behavior**: Maps a persisted TreasuryMovementEntity to an immutable domain TreasuryMovement value record, converting AmountPiastres into domain Money and parsing MovementStatus.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/TreasuryMapper.cs:79:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.TreasuryAccountValidation.IsKnownAccount(string)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.TreasuryAccountValidation.IsKnownAccount(string) across lines 79-79.
+- **Behavior**: Validates whether the given accountId string belongs to the predefined valid set of treasury accounts (Main, Drawer, Bank, InstaPay, Wallet).
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
