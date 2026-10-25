@@ -1,150 +1,123 @@
-# src/Falah.Infrastructure/Users/PinUniquenessChecker.cs
+# Security Review: src/Falah.Infrastructure/Users/PinUniquenessChecker.cs
 
-- **Path:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`
-- **Component:** `Falah.Infrastructure.Users.PinUniquenessChecker`
-- **Assembly:** `Falah.Infrastructure`
+## File Overview
+- **Canonical Source Path:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`
 - **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
-- **File SHA-256:** `bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b`
-- **Auditor:** Security and Authorization Auditor
+- **Source SHA-256:** `bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b`
+- **Auditor:** DEEP_SECURITY_SPECIALIST
+- **Review Date:** 2026-10-25T10:10:00Z
 - **Total Callables:** 4
 - **Status:** **SUBSTANTIVE_SOURCE_REVIEWED**
 
 ---
 
-## 1. Architectural & Domain Responsibility Overview
+## Callable Reviews
 
-`PinUniquenessChecker` implements the business rule requiring PIN uniqueness among active staff accounts in Fale7 POS. In traditional systems, uniqueness is enforced via a unique database index. However, because modern cryptographic security mandates a unique, cryptographically random salt per user (implemented via `Rfc2898DeriveBytes` with PBKDF2-SHA256 and 210,000 iterations in `PinHasher`), identical plaintext PINs produce completely distinct hash digests. Consequently, database-level unique indexing cannot detect duplicate PINs.
+### PinUniquenessChecker.AssertNotInUseAsync — Lines 16-23
+- **Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:16:5:MethodDeclaration`
+- **Signature:** `public static async Task AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)`
+- **Behavior:** Queries `db.Users.AsNoTracking()` filtering on `u.Active && u.Id != excludeUserId` and projects only `{ u.PinHash, u.PinSalt, u.PinIterations }` into an in-memory list via `ToListAsync(ct)`. Iterates over the projected active user records and evaluates `PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)` for each record using LINQ `.Any(...)`. If any active user's stored hash verifies against `candidatePin`, it halts and throws `DomainException("رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.")`.
+- **Security Analysis:** 
+  1. *Application-Level Uniqueness:* Because `PinHasher` employs per-user random 16-byte salts (`PinSalt`) with 210,000 PBKDF2 iterations, identical PINs produce distinct cryptographic hashes. Consequently, database unique indexing cannot enforce PIN uniqueness, forcing uniqueness verification into application-level code.
+  2. *Check-Then-Act Race Hazard (SEC-009):* The read operation occurs outside an exclusive lock or serializable transaction. When concurrent requests set the same PIN, both read the current state before either writes, resulting in duplicate active PINs.
+  3. *CPU Exhaustion / DoS Vulnerability (SEC-010):* Performs up to $N$ sequential PBKDF2 verifications (210,000 iterations each) in memory.
+- **Finding Links:** `SEC-009`, `SEC-010`
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
-To prevent two active staff members from sharing the same PIN (which would create credential ambiguity on the till login keypad), `PinUniquenessChecker` loads the credential salts and hashes of all other active users and evaluates `PinHasher.Verify` against each record.
-
-### Security, Cryptographic & Concurrency Invariants:
-1. **Application-Level Uniqueness Verification:** Hashing forces uniqueness checking into application space. It fetches `PinHash`, `PinSalt`, and `PinIterations` for all active accounts except `excludeUserId`.
-2. **Computational Load & DoS Considerations:** Each active user check executes 210,000 PBKDF2 iterations. For a restaurant with 20 active employees, an invalid or colliding PIN check requires up to 20 verification cycles (~4,200,000 iterations), consuming noticeable CPU time.
-3. **Check-Then-Act Concurrency Race:** `AssertNotInUseAsync` executes inside `CreateUserHandler` and `ChangePinHandler`. In both handlers, the uniqueness check occurs before inserting or updating the user record. If two administrators or managers simultaneously attempt to set the same PIN for different accounts, both checks can run concurrently, pass validation, and commit. This results in duplicate active PINs, violating the uniqueness invariant.
-
----
-
-## 2. Comprehensive Callable Inventory
-
-| Callable ID | Canonical Symbol ID | Line Span | Classification |
-| :--- | :--- | :--- | :--- |
-| `CAL-PUC-001` | `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:16:5:MethodDeclaration` | [16-23](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs#L16-L23) | Substantive (Security Enforcement) |
-| `CAL-PUC-002` | `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:19:20:SimpleLambdaExpression` | [19](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs#L19) | Lambda Filter Predicate |
-| `CAL-PUC-003` | `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:20:21:SimpleLambdaExpression` | [20](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs#L20) | Lambda Anonymous Projection |
-| `CAL-PUC-004` | `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:21:29:SimpleLambdaExpression` | [21](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs#L21) | Cryptographic Verification Predicate |
-
----
-
-## 3. Deep Source-Grounded Callable Analysis
-
-### Callable: src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:16:5:MethodDeclaration
-
-- **Syntax Type:** `MethodDeclaration`
-- **Method Signature:** `public static async Task AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)`
-- **Line Span:** 16-23
-- **Primary Responsibility:** Coordinates loading active user credential hashes and evaluates candidate PIN against existing active users, throwing a `DomainException` upon collision.
-
-#### Implementation Analysis:
 ```csharp
-public static async Task AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)
-{
-    var activeUsers = await db.Users.AsNoTracking()
-        .Where(u => u.Active && u.Id != excludeUserId)
-        .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);
-    if (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))
-        throw new DomainException("رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.");
-}
+    public static async Task AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)
+    {
+        var activeUsers = await db.Users.AsNoTracking()
+            .Where(u => u.Active && u.Id != excludeUserId)
+            .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);
+        if (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))
+            throw new DomainException("رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.");
+    }
 ```
 
-#### Security & Concurrency Assessment:
-1. **Exclusion of Self (`excludeUserId`):** When changing an existing user's PIN (`ChangePinHandler`), `excludeUserId` prevents verifying against the user's current PIN. For user creation (`CreateUserHandler`), `excludeUserId` is `null`, comparing against all active users.
-2. **Minimal Projection (`AsNoTracking`):** Queries only `PinHash`, `PinSalt`, and `PinIterations`, minimizing database I/O and memory overhead.
-3. **Short-Circuiting Search:** `activeUsers.Any(...)` short-circuits on the first matching PIN, avoiding redundant PBKDF2 computations once a collision is identified.
-4. **Race Condition Notice:** Because this operation is executed outside an explicit table lock or serializable transaction surrounding the check and write in `ChangePinHandler` and `CreateUserHandler`, concurrent PIN assignment operations can result in collisions.
+---
+
+### PinUniquenessChecker.<AssertNotInUseAsync>b__0_0 (Filter Predicate) — Line 19
+- **Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:19:20:SimpleLambdaExpression`
+- **Signature:** `u => u.Active && u.Id != excludeUserId`
+- **Behavior:** Database query predicate translated by EF Core into SQL `WHERE [Active] = 1 AND [Id] <> @excludeUserId`.
+- **Security Analysis:** Excludes deactivated users (`u.Active == false`). This allows reuse of a former employee's PIN, but creates an edge case where reactivating a user later can reintroduce duplicate active PINs without validation (linked to `SEC-011`).
+- **Finding Links:** `SEC-011`
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:19:20:SimpleLambdaExpression
-
-- **Syntax Type:** `SimpleLambdaExpression`
-- **Method Signature:** `u => u.Active && u.Id != excludeUserId`
-- **Line Span:** 19
-- **Primary Responsibility:** EF Core LINQ query filter predicate executed on the database server to select candidate user accounts.
-
-#### Implementation Analysis:
-- Evaluates `u.Active == true` and filters out the current user (`u.Id != excludeUserId`).
-- Inactive (deactivated) users are excluded from the uniqueness check. This allows a new staff member to reuse a PIN previously assigned to a deactivated employee. If that deactivated employee is later reactivated without changing their PIN, a collision could be reintroduced.
+### PinUniquenessChecker.<AssertNotInUseAsync>b__0_1 (Projection) — Line 20
+- **Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:20:21:SimpleLambdaExpression`
+- **Signature:** `u => new { u.PinHash, u.PinSalt, u.PinIterations }`
+- **Behavior:** Anonymous type projection instructing EF Core to query only `PinHash`, `PinSalt`, and `PinIterations` from the `Users` table.
+- **Security Analysis:** Prevents loading unnecessary PII or sensitive operational data (names, roles, permissions, session tokens) into application memory during uniqueness verification.
+- **Finding Links:** None
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:20:21:SimpleLambdaExpression
-
-- **Syntax Type:** `SimpleLambdaExpression`
-- **Method Signature:** `u => new { u.PinHash, u.PinSalt, u.PinIterations }`
-- **Line Span:** 20
-- **Primary Responsibility:** LINQ projection reducing database payload to only the cryptographic columns necessary for PBKDF2 verification.
-
-#### Implementation Analysis:
-- Prevents fetching PII such as `Name`, `Role`, `Permissions`, or `UserSessions`.
-- Maintains memory hygiene by not tracking entities in the DbContext change tracker.
+### PinUniquenessChecker.<AssertNotInUseAsync>b__0_2 (Verification Predicate) — Line 21
+- **Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:21:29:SimpleLambdaExpression`
+- **Signature:** `u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)`
+- **Behavior:** Evaluates `PinHasher.Verify` for each active user record. Converts base64 salt and expected hash, derives the PBKDF2 hash using `Rfc2898DeriveBytes.Pbkdf2`, and executes constant-time comparison via `CryptographicOperations.FixedTimeEquals`.
+- **Security Analysis:** Constant-time comparison prevents side-channel timing leaks on hash prefixes. Short-circuits immediately via `.Any(...)` upon finding the first match.
+- **Finding Links:** `SEC-010`
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:21:29:SimpleLambdaExpression
+## New Finding: SEC-009
 
-- **Syntax Type:** `SimpleLambdaExpression`
-- **Method Signature:** `u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)`
-- **Line Span:** 21
-- **Primary Responsibility:** In-memory LINQ predicate evaluating `PinHasher.Verify` for each loaded active user record.
+**Canonical ID:** `SEC-009`  
+**Category:** SECURITY / CONCURRENCY  
+**Severity:** MEDIUM (CVSS v3.1: 5.9 - AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:N)  
+**Confidence:** CONFIRMED_MECHANISM_AND_STATIC_TRACE  
+**Source:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs` Lines 16-23  
 
-#### Implementation Analysis:
-- Invokes `PinHasher.Verify` which extracts the user's specific salt, derives the PBKDF2-SHA256 key with `u.PinIterations`, and performs constant-time byte comparison using `CryptographicOperations.FixedTimeEquals`.
-- Mitigates timing attacks when comparing candidate PIN hashes against stored hashes.
-- Execution occurs strictly in memory on the application server.
+```csharp
+    public static async Task AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)
+    {
+        var activeUsers = await db.Users.AsNoTracking()
+            .Where(u => u.Active && u.Id != excludeUserId)
+            .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);
+        if (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))
+            throw new DomainException("رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.");
+    }
+```
 
----
+**Defect:**
+Time-of-check to time-of-use (TOCTOU) concurrency race condition. In `CreateUserHandler.cs` (lines 59-86) and `ChangePinHandler.cs` (lines 51-64), `PinUniquenessChecker.AssertNotInUseAsync` is called before generating the PBKDF2 hash and calling `_db.SaveChangesAsync()`. 
+Because the uniqueness check queries the database using `AsNoTracking()` without acquiring an exclusive row/table lock, application lock (`sp_getapplock`), or serializable transaction, two concurrent administrative requests setting the same PIN will both pass the check simultaneously. Both requests compute hashes and commit their changes, resulting in two active staff accounts sharing the identical PIN.
+Because POS terminal authentication identifies employees exclusively via PIN, duplicate active PINs cause non-deterministic user logins and critical identity confusion / privilege elevation.
 
-## 4. Security Findings & Recommendations
-
-### Summary Table
-
-| ID | Severity | Category | Description | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| `SEC-009` | Low | Concurrency / Data Integrity | Check-Then-Act Race on PIN Uniqueness across Concurrent Creates/Updates | Documented / Inherent to App-Level Check |
-| `SEC-010` | Low | Denial of Service / CPU Consumption | Sequential PBKDF2 Computations on High Active Staff Counts | Architectural Trade-off (POS Staff Scale < 50) |
-
-### Observation on Reactivation Edge Case:
-When an inactive user is reactivated via `SetUserActiveHandler`, no PIN uniqueness check is executed against other active users. If a newly created user took the inactive user's PIN while they were inactive, reactivating the old user creates duplicate active PINs.
-- **Remediation Recommendation:** Add `PinUniquenessChecker.AssertNotInUseAsync` inside `SetUserActiveHandler` prior to setting `target.Active = true`.
-
-
----
-
-## Independent QA L1 Review & Verification
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
-- **Verification Date:** 2026-10-25T01:52:00Z
-- **Source SHA-256 Verified:** `bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b`
-- **Callable ID Checked:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:16:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:19:20:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:20:21:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:21:29:SimpleLambdaExpression` (4 of 4 callables checked)
-- **Verdict:** ACCEPTED
-- **Challenger Analysis:**
-  1. Verified SHA-256 matches actual production source `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs` (25 lines).
-  2. Verified sequential PBKDF2 scan: Because each staff member's PIN is salted individually with PBKDF2-SHA256 (210,000 iterations), uniqueness cannot be indexed at the SQL tier; `AssertNotInUseAsync` loads all active user hash records and performs sequential verification in application memory.
-  3. Confirmed check-then-act race: Because uniqueness verification occurs outside an exclusive transaction or table lock prior to INSERT/UPDATE, concurrent credential provisioning can produce duplicate active PINs.
-  4. All 4 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
-
+**Proposed Fix Specification:**
+1. Wrap user creation and PIN modification operations in a transaction with `System.Data.IsolationLevel.Serializable` or acquire a distributed/database application lock (e.g. `sp_getapplock` keyed on `"pos_user_pin_allocation"`).
+2. Alternatively, serialize user PIN mutation operations via a mutex or semaphore in single-instance deployments, ensuring atomicity between verification and commitment.
 
 ---
 
-## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T01:53:17Z
-- **Source SHA-256 Verified:** `bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b`
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b` against `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs` (25 lines).
-2. Concur with L1 on in-memory sequential PBKDF2 hash scanning and confirmed check-then-act concurrency race.
-3. Additional L2 Challenger Assessment:
-   - In `AssertNotInUseAsync` (lines 16-24), because staff PINs use individual cryptographic salts, uniqueness cannot be indexed in SQL Server.
-   - Scalability & DoS vector: Verifying PIN uniqueness against $N$ active employees performs $N 	imes 210,000$ PBKDF2 hash computations on the server thread pool.
-   - Concurrency race: Uniqueness check occurs outside an exclusive transaction lock before `SaveChangesAsync`, allowing two concurrent requests to successfully register identical PINs.
-4. All 4 callables rigorously double-verified. Elevation to `DOUBLE_QA_VERIFIED` accepted.
+## New Finding: SEC-010
+
+**Canonical ID:** `SEC-010`  
+**Category:** SECURITY / DENIAL_OF_SERVICE  
+**Severity:** LOW (CVSS v3.1: 5.3 - AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L)  
+**Confidence:** CONFIRMED_MECHANISM_AND_STATIC_TRACE  
+**Source:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs` Lines 18-23  
+
+```csharp
+        var activeUsers = await db.Users.AsNoTracking()
+            .Where(u => u.Active && u.Id != excludeUserId)
+            .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);
+        if (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))
+            throw new DomainException("رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.");
+```
+
+**Defect:**
+Linear computational complexity during PIN uniqueness checks leads to CPU thread starvation. `PinHasher.DefaultIterations` is configured to 210,000 PBKDF2 iterations using HMAC-SHA256. For $N$ active employees, checking a non-colliding candidate PIN forces the server to compute $N \times 210,000$ SHA-256 iterations sequentially on the request thread.
+On typical modern server hardware, 210,000 iterations require ~50ms to 100ms of dedicated CPU time. In an installation with 30-50 active staff members, a single uniqueness check consumes 1.5 to 5.0 seconds of continuous 100% CPU core utilization. An attacker or rogue user submitting multiple rapid PIN updates or user creation calls can saturate all available thread pool worker threads, causing a denial of service on the POS backend.
+
+**Proposed Fix Specification:**
+1. Enforce strict rate limiting on `POST /api/users` and `POST /api/users/change-pin` (e.g., maximum 3 attempts per minute per IP/session).
+2. Validate basic PIN strength rules (`PinHasher.AssertValidPin`) prior to invoking uniqueness checking, rejecting trivial or malformed PINs before spending CPU cycles.
+3. Compute PBKDF2 verifications asynchronously or in parallel via `Parallel.ForEach` across worker cores to reduce latency for legitimate multi-staff configurations.

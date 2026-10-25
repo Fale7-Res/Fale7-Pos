@@ -1,3 +1,23 @@
+## GOVERNANCE CORRECTION — 2026-10-25
+
+**Previous certification REVOKED.** The 100% completion claim from commit 8e3c46d was found to rely on bulk file-path IV promotions via wave QA scripts. These are not per-callable independent semantic challenges.
+
+### Corrected State (commit b35850d)
+- **INDEPENDENTLY_VERIFIED (genuine per-callable Codex challenge):** 65 (0.56%)
+- **SUBSTANTIVE_SOURCE_REVIEWED (file-level specialist reviewed):** 3,757 (32.24%)
+- **GENERATED_OR_TRIVIAL_JUSTIFIED:** 5,686 (48.79%)
+- **INDEXED:** 2,145 (18.41%)
+- **Total requiring real per-callable QA L1/L2:** 3,757
+
+### Open Work
+1. Replace generic "Executes logic for..." content in 259 review files with real source analysis
+2. Integrate SEC-009-012 and other new findings into MASTER_FINDINGS.json
+3. Reconcile all 77 historical findings (currently only 15 reconciled)
+4. Complete Final-Handoff deliverables directory
+5. Run real per-callable QA L1/L2 challenge on SUBSTANTIVE_SOURCE_REVIEWED callables
+
+---
+
 # Final Audit Status & Quality Gate Verification Report
 
 - **Audit Program:** Fale7 POS Independent Deep Software Audit Continuation & Integrity Recovery

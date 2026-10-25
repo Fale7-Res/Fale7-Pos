@@ -1,0 +1,3635 @@
+{
+  "generated_at": "2026-10-25T07:23:31Z",
+  "audit_governance_state": "BULK_IV_REVOCATION_APPLIED_REAL_QA_IN_PROGRESS",
+  "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
+  "current_audit_commit": "b35850d",
+  "callable_taxonomy": {
+    "INDEPENDENTLY_VERIFIED": {
+      "count": 65,
+      "description": "Individually Codex-challenged callables"
+    },
+    "SUBSTANTIVE_SOURCE_REVIEWED": {
+      "count": 3757,
+      "description": "Specialist reviewed; require QA L1/L2 per-callable challenge for re-elevation"
+    },
+    "GENERATED_OR_TRIVIAL_JUSTIFIED": {
+      "count": 5686,
+      "description": "EF Core migrations, auto-properties, trivial constructors"
+    },
+    "INDEXED": {
+      "count": 2145,
+      "description": "Tests and tools, indexed but outside production audit scope"
+    },
+    "total": 11653
+  },
+  "governance_corrections": [
+    {
+      "date": "2026-10-25",
+      "action": "REVOKED_2974_BULK_IV_PROMOTIONS",
+      "reason": "Wave 9-11 QA scripts granted INDEPENDENTLY_VERIFIED via file-path membership, not per-callable semantic challenge",
+      "effect": "Demoted to SUBSTANTIVE_SOURCE_REVIEWED; Markdown evidence preserved"
+    }
+  ],
+  "qa_evidence_by_file": {
+    "src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Application/Delivery/DeliveryRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Expenses/ExpenseRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Inventory/StockMovementRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Orders/CheckoutOrderRequest.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Application/Orders/ConfirmElectronicPaymentRequest.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Orders/RefundOrderRequest.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Printing/PrintingRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Printing/TicketElementMapping.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Application/Purchasing/PurchasingRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Shifts/CloseShiftRequest.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Shifts/OpenShiftRequest.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Application/Treasury/TreasuryRequests.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/App.xaml.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/EmptyStateView.xaml.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/ErrorStateView.xaml.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/LoadingStateView.xaml.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/ModalHeaderView.xaml.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/PermissionDeniedStateView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/StatusPillView.xaml.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Controls/SummaryCardView.xaml.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Converters/Converters.cs": {
+      "total": 43,
+      "verified": 0,
+      "substantive": 43,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Models/CartLine.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs": {
+      "total": 55,
+      "verified": 0,
+      "substantive": 55,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Services/AppSession.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Services/CashInput.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Services/RetainedRequestStore.cs": {
+      "total": 14,
+      "verified": 0,
+      "substantive": 12,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 20,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs": {
+      "total": 26,
+      "verified": 0,
+      "substantive": 23,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.State.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs": {
+      "total": 46,
+      "verified": 0,
+      "substantive": 31,
+      "trivial": 15,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs": {
+      "total": 9,
+      "verified": 1,
+      "substantive": 6,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/AppHeaderView.xaml.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/CallCenterDeliveryEditorView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/CategoryStripView.xaml.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/LoginView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CallCenterWinUI/Views/ProductCatalogueView.xaml.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Converters/Converters.cs": {
+      "total": 24,
+      "verified": 0,
+      "substantive": 24,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/MainWindow.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Models/CartLine.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Services/ApiClient.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 11,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Services/AppSession.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs": {
+      "total": 6,
+      "verified": 1,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/CashierViewModel.cs": {
+      "total": 28,
+      "verified": 0,
+      "substantive": 23,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/ViewModels/MainViewModel.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Views/AppHeaderView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Views/CashierView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.Cashier/Views/LoginView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/App.xaml.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/EmptyStateView.xaml.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/ErrorStateView.xaml.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/LoadingStateView.xaml.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/ModalHeaderView.xaml.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/PermissionDeniedStateView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/SparklineView.xaml.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 8,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Controls/SummaryCardView.xaml.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Converters/Converters.cs": {
+      "total": 98,
+      "verified": 0,
+      "substantive": 98,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/MainWindow.xaml.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Models/CartLine.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Models/ProductTile.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Platform/ImageFilePicker.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/ApiClient.Menu.cs": {
+      "total": 24,
+      "verified": 0,
+      "substantive": 24,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/ApiClient.People.cs": {
+      "total": 20,
+      "verified": 0,
+      "substantive": 20,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/ApiClient.cs": {
+      "total": 268,
+      "verified": 0,
+      "substantive": 268,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/AppSession.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/CashInput.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/MilliUnits.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs": {
+      "total": 14,
+      "verified": 1,
+      "substantive": 11,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/ThemeResources.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Services/ThemeService.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/AttendanceViewModel.cs": {
+      "total": 20,
+      "verified": 0,
+      "substantive": 18,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/AuditViewModel.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 17,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashCountViewModel.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs": {
+      "total": 29,
+      "verified": 0,
+      "substantive": 26,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 22,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Shift.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.ShiftClose.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 21,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs": {
+      "total": 47,
+      "verified": 0,
+      "substantive": 33,
+      "trivial": 14,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Operations.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 17,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/CustomersViewModel.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs": {
+      "total": 36,
+      "verified": 0,
+      "substantive": 15,
+      "trivial": 21,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/DeliveryDirectoryViewModel.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 20,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.Statistics.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs": {
+      "total": 39,
+      "verified": 0,
+      "substantive": 27,
+      "trivial": 12,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 16,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Report.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 45,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs": {
+      "total": 66,
+      "verified": 0,
+      "substantive": 42,
+      "trivial": 24,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 11,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs": {
+      "total": 71,
+      "verified": 1,
+      "substantive": 46,
+      "trivial": 24,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/MenuViewModel.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 9,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/OrdersViewModel.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs": {
+      "total": 43,
+      "verified": 0,
+      "substantive": 19,
+      "trivial": 24,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs": {
+      "total": 33,
+      "verified": 0,
+      "substantive": 23,
+      "trivial": 10,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 11,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs": {
+      "total": 63,
+      "verified": 0,
+      "substantive": 47,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs": {
+      "total": 45,
+      "verified": 0,
+      "substantive": 26,
+      "trivial": 19,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs": {
+      "total": 33,
+      "verified": 0,
+      "substantive": 12,
+      "trivial": 21,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ShellPlaceholderViewModel.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs": {
+      "total": 38,
+      "verified": 0,
+      "substantive": 29,
+      "trivial": 9,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs": {
+      "total": 29,
+      "verified": 0,
+      "substantive": 22,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs": {
+      "total": 20,
+      "verified": 0,
+      "substantive": 18,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs": {
+      "total": 29,
+      "verified": 0,
+      "substantive": 19,
+      "trivial": 10,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/ViewModels/WasteViewModel.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/AppHeaderView.xaml.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/AttendanceView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/AuditView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/BackupView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CashCountView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CashierOperationsModalsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CategoryStripView.xaml.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/CustomersView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DeliveryDetailsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DeliveryDirectoryView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/EmployeeEditorView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/InventoryModalsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/InventoryView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/LoginView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/MenuView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/OrdersView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/PayrollView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/PickupDetailsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/PrintingView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/PurchasingModalsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/PurchasingView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/RecipesView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/RefundView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ReportsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/SettingsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ShellPlaceholderView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ShellView.xaml.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/TreasuryView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/UsersView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Client.CashierWinUI/Views/WasteView.xaml.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Audit/AuditEvent.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Authorization/ApprovalRegistry.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 16,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Authorization/PermissionCatalog.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Authorization/PinHasher.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Authorization/SessionToken.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Authorization/UserManagementRules.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Backup/BackupRules.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Domain/BusinessDay/BusinessDayRules.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 9,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Common/BusinessClock.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Common/DomainException.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Common/Money.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/ControlCenter/ControlCenterRules.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Customers/Customer.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Delivery/DeliveryRecords.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Delivery/DeliveryRules.cs": {
+      "total": 34,
+      "verified": 0,
+      "substantive": 27,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Delivery/DeliveryStatus.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Employees/EmployeeRules.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Financial/FinancialRules.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Financial/TaxRule.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Financial/TreasuryMovement.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Idempotency/FinancialJournal.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Inventory/CostingRules.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Inventory/InventoryRules.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 17,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Inventory/PurchasingRules.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 11,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Menu/ProductImageRules.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Orders/CheckoutRules.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Orders/Order.cs": {
+      "total": 82,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 76,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Orders/OrderPaymentQueries.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Orders/OrderValueBreakdown.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Orders/RefundRules.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Payroll/PayrollRules.cs": {
+      "total": 20,
+      "verified": 6,
+      "substantive": 13,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Pricing/ItemPricingRules.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Pricing/PricingRules.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Printing/EscPosTicketRenderer.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Printing/PrintRules.cs": {
+      "total": 32,
+      "verified": 0,
+      "substantive": 29,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Printing/TicketLayout.cs": {
+      "total": 24,
+      "verified": 0,
+      "substantive": 24,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Purchasing/PayablesAging.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Reports/ProfitabilityRules.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Reports/SalesRules.cs": {
+      "total": 20,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 11,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Reports/TrendRules.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Domain/Shifts/Shift.cs": {
+      "total": 28,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 22,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Audit/AuditQueryService.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Audit/EfAuditLog.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Authorization/SessionService.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Backup/BackupQueryService.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Backup/VerifyBackupHandler.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs": {
+      "total": 12,
+      "verified": 2,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs": {
+      "total": 9,
+      "verified": 1,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 16,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs": {
+      "total": 30,
+      "verified": 1,
+      "substantive": 22,
+      "trivial": 7,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs": {
+      "total": 57,
+      "verified": 0,
+      "substantive": 41,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs": {
+      "total": 11,
+      "verified": 1,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs": {
+      "total": 9,
+      "verified": 1,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Customers/CustomerQueryService.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Customers/UpsertCustomerHandler.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs": {
+      "total": 11,
+      "verified": 1,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs": {
+      "total": 79,
+      "verified": 0,
+      "substantive": 59,
+      "trivial": 20,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs": {
+      "total": 14,
+      "verified": 2,
+      "substantive": 11,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs": {
+      "total": 12,
+      "verified": 1,
+      "substantive": 11,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs": {
+      "total": 11,
+      "verified": 1,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs": {
+      "total": 18,
+      "verified": 1,
+      "substantive": 14,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs": {
+      "total": 11,
+      "verified": 2,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs": {
+      "total": 7,
+      "verified": 1,
+      "substantive": 5,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs": {
+      "total": 10,
+      "verified": 1,
+      "substantive": 8,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs": {
+      "total": 9,
+      "verified": 2,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs": {
+      "total": 36,
+      "verified": 1,
+      "substantive": 30,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs": {
+      "total": 11,
+      "verified": 1,
+      "substantive": 8,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs": {
+      "total": 15,
+      "verified": 1,
+      "substantive": 8,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/PayrollQueryService.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs": {
+      "total": 16,
+      "verified": 3,
+      "substantive": 13,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs": {
+      "total": 14,
+      "verified": 1,
+      "substantive": 10,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs": {
+      "total": 7,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Expenses/ExpenseQueryService.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs": {
+      "total": 10,
+      "verified": 2,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs": {
+      "total": 150,
+      "verified": 0,
+      "substantive": 107,
+      "trivial": 43,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs": {
+      "total": 5,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs": {
+      "total": 18,
+      "verified": 1,
+      "substantive": 15,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs": {
+      "total": 11,
+      "verified": 1,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs": {
+      "total": 4,
+      "verified": 1,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs": {
+      "total": 17,
+      "verified": 2,
+      "substantive": 14,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Menu/CategoryHandlers.cs": {
+      "total": 13,
+      "verified": 0,
+      "substantive": 13,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Menu/MenuQueryService.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 36,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Menu/ProductHandlers.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 20,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Menu/ProductImageHandlers.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs": {
+      "total": 5,
+      "verified": 1,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/MenuPricingService.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/OrderEnumMapping.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/OrderMapper.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 14,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs": {
+      "total": 14,
+      "verified": 0,
+      "substantive": 12,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/CommandReceipt.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/DemoDataSeeder.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 11,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 11,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/AuditEntities.cs": {
+      "total": 34,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 34,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/BackupRecordEntity.cs": {
+      "total": 26,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 26,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/CashDrawerEntities.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 18,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/ControlCenterEntities.cs": {
+      "total": 96,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 96,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/CustomerEntities.cs": {
+      "total": 36,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 36,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/DeliveryEntities.cs": {
+      "total": 166,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 166,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs": {
+      "total": 120,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 120,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs": {
+      "total": 104,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 104,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/ManagerApprovalEntity.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 16,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/MenuEntities.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 52,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/OrderEntity.cs": {
+      "total": 162,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 162,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 52,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/PricingEntities.cs": {
+      "total": 34,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 34,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/PrintEntities.cs": {
+      "total": 42,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 42,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs": {
+      "total": 116,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 116,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/SettingsEntity.cs": {
+      "total": 76,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 76,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs": {
+      "total": 178,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 178,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/FalahDbContext.cs": {
+      "total": 212,
+      "verified": 0,
+      "substantive": 104,
+      "trivial": 108,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.Designer.cs": {
+      "total": 35,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 35,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs": {
+      "total": 77,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 77,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.Designer.cs": {
+      "total": 35,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 35,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903143733_AddShiftCloseIdempotency.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.Designer.cs": {
+      "total": 36,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 36,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.Designer.cs": {
+      "total": 37,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 37,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903191812_AddExpenses.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.Designer.cs": {
+      "total": 45,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 45,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903201102_AddDelivery.cs": {
+      "total": 25,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 25,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.Designer.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 52,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903205354_AddInventoryManagement.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 15,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.Designer.cs": {
+      "total": 56,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 56,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260903213529_AddCustomersAndDeliverySnapshot.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 9,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.Designer.cs": {
+      "total": 56,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 56,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904001314_AddOrderDiscountSnapshot.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.Designer.cs": {
+      "total": 60,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 60,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904010325_AddPrinting.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 9,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.Designer.cs": {
+      "total": 60,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 60,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904013728_AddOrderItemPreparationStationSnapshot.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.Designer.cs": {
+      "total": 70,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 70,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904015716_AddPurchasingAndSuppliers.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 22,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.Designer.cs": {
+      "total": 76,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 76,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904024450_AddBusinessDayCloseAndControlCenter.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 18,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.Designer.cs": {
+      "total": 76,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 76,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904032428_AddUserPinHashColumns.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.Designer.cs": {
+      "total": 76,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 76,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904032944_DropPlaintextUserPin.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.Designer.cs": {
+      "total": 77,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 77,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904040430_AddGeneralAuditLog.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.Designer.cs": {
+      "total": 78,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 78,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904060940_AddCashDrawer.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.Designer.cs": {
+      "total": 80,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 80,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904150025_AddCashCountAndSettings.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 8,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.Designer.cs": {
+      "total": 81,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 81,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904151353_AddOrderTaxSnapshotAndDeliveryServices.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.Designer.cs": {
+      "total": 82,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 82,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904182643_AddCashHandover.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.Designer.cs": {
+      "total": 84,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 84,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 8,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.Designer.cs": {
+      "total": 85,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 85,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904192818_AddAttendance.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.Designer.cs": {
+      "total": 88,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 88,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260904195205_AddPayrollAndBackup.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 11,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.Designer.cs": {
+      "total": 90,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 90,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910003711_AddProductImages.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.Designer.cs": {
+      "total": 90,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 90,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910005343_AddPurchaseDueDate.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.Designer.cs": {
+      "total": 90,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 90,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910145733_AddEstimatedUnitCost.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910162629_AddUserSessions.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910200920_AddPayrollPeriodUniqueIndex.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910210656_AddHoldPreparationUntilPaymentConfirmed.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260910215734_AddOrderTableNumber.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs": {
+      "total": 91,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 91,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Pricing/SavePriceRuleHandler.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 17,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 12,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs": {
+      "total": 1,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/PrintJobQueryService.cs": {
+      "total": 65,
+      "verified": 0,
+      "substantive": 48,
+      "trivial": 17,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 8,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Printing/SetProductStationHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 13,
+      "trivial": 3,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs": {
+      "total": 43,
+      "verified": 0,
+      "substantive": 26,
+      "trivial": 17,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 15,
+      "trivial": 6,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs": {
+      "total": 6,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs": {
+      "total": 71,
+      "verified": 1,
+      "substantive": 47,
+      "trivial": 23,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": {
+      "total": 114,
+      "verified": 9,
+      "substantive": 55,
+      "trivial": 50,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Reports/ReportingQueryService.cs": {
+      "total": 202,
+      "verified": 0,
+      "substantive": 152,
+      "trivial": 50,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Settings/SettingsQueryService.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs": {
+      "total": 5,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs": {
+      "total": 7,
+      "verified": 1,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 10,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs": {
+      "total": 9,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 4,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs": {
+      "total": 14,
+      "verified": 0,
+      "substantive": 9,
+      "trivial": 5,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/BalanceLockContention.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 3,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/DepositHandler.cs": {
+      "total": 8,
+      "verified": 1,
+      "substantive": 6,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/SafeDropHandler.cs": {
+      "total": 9,
+      "verified": 1,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/TransferHandler.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Treasury/WithdrawalHandler.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/ChangePinHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/CreateUserHandler.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/PinUniquenessChecker.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 2,
+      "indexed": 0
+    },
+    "src/Falah.Infrastructure/Users/UserManagementQueryService.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/AgentOptions.cs": {
+      "total": 42,
+      "verified": 0,
+      "substantive": 4,
+      "trivial": 38,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/BitmapTicketRenderer.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 21,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/ITicketTransport.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 1,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/PrintJobProcessor.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 5,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/PrintServerClient.cs": {
+      "total": 10,
+      "verified": 1,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/Program.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 2,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/Transports.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 6,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/UnreportedAttemptStore.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 7,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs": {
+      "total": 11,
+      "verified": 2,
+      "substantive": 9,
+      "trivial": 0,
+      "indexed": 0
+    },
+    "src/Falah.Server/AuthenticationMiddleware.cs": {
+      "total": 6,
+      "verified": 1,
+      "substantive": 4,
+      "trivial": 1,
+      "indexed": 0
+    },
+    "src/Falah.Server/Program.cs": {
+      "total": 241,
+      "verified": 0,
+      "substantive": 228,
+      "trivial": 13,
+      "indexed": 0
+    },
+    "tests/Falah.Client.Tests/AttendanceWorkflowTests.cs": {
+      "total": 24,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 22
+    },
+    "tests/Falah.Client.Tests/CallCenterDurabilityTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 8
+    },
+    "tests/Falah.Client.Tests/CallCenterHeaderViewModel.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 4
+    },
+    "tests/Falah.Client.Tests/CashierCorrectnessTests.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 22
+    },
+    "tests/Falah.Client.Tests/CloseoutRegressionTests.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 21
+    },
+    "tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 7
+    },
+    "tests/Falah.Client.Tests/DispatcherTimer.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 3
+    },
+    "tests/Falah.Client.Tests/EmptyResponseContractTests.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 3
+    },
+    "tests/Falah.Client.Tests/FinalVerificationTests.cs": {
+      "total": 59,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 7,
+      "indexed": 52
+    },
+    "tests/Falah.Client.Tests/HeaderViewModel.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 4
+    },
+    "tests/Falah.Client.Tests/ManagementWriteSafetyTests.cs": {
+      "total": 64,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 3,
+      "indexed": 61
+    },
+    "tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 5
+    },
+    "tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs": {
+      "total": 3,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 3
+    },
+    "tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 4
+    },
+    "tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs": {
+      "total": 32,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 7,
+      "indexed": 25
+    },
+    "tests/Falah.Client.Tests/UserWorkflowTests.cs": {
+      "total": 20,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 15
+    },
+    "tests/Falah.Client.Tests/WindowClosingSafetyTests.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 2
+    },
+    "tests/Falah.Domain.Tests/AuditEventTests.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 4
+    },
+    "tests/Falah.Domain.Tests/AuthorizationTests.cs": {
+      "total": 23,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 23
+    },
+    "tests/Falah.Domain.Tests/BackupRulesTests.cs": {
+      "total": 32,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 27
+    },
+    "tests/Falah.Domain.Tests/BusinessClockTests.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 5
+    },
+    "tests/Falah.Domain.Tests/BusinessDayRulesTests.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 10
+    },
+    "tests/Falah.Domain.Tests/CheckoutRulesTests.cs": {
+      "total": 24,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 24
+    },
+    "tests/Falah.Domain.Tests/ControlCenterRulesTests.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 10
+    },
+    "tests/Falah.Domain.Tests/CostingRulesTests.cs": {
+      "total": 14,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 14
+    },
+    "tests/Falah.Domain.Tests/CustomerRulesTests.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 12
+    },
+    "tests/Falah.Domain.Tests/DeliveryRulesTests.cs": {
+      "total": 31,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 3,
+      "indexed": 28
+    },
+    "tests/Falah.Domain.Tests/EstimatedCostTests.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 9
+    },
+    "tests/Falah.Domain.Tests/FinancialJournalTests.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 7
+    },
+    "tests/Falah.Domain.Tests/FinancialRulesTests.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 15
+    },
+    "tests/Falah.Domain.Tests/InventoryRulesTests.cs": {
+      "total": 19,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 19
+    },
+    "tests/Falah.Domain.Tests/ItemPricingRulesTests.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 4
+    },
+    "tests/Falah.Domain.Tests/MoneyTests.cs": {
+      "total": 5,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 5
+    },
+    "tests/Falah.Domain.Tests/OrderCancelElectronicPaymentTests.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 10
+    },
+    "tests/Falah.Domain.Tests/OrderPaymentQueriesTests.cs": {
+      "total": 6,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 6
+    },
+    "tests/Falah.Domain.Tests/OrderReconstituteTests.cs": {
+      "total": 7,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 6
+    },
+    "tests/Falah.Domain.Tests/OrderRefundTests.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 18
+    },
+    "tests/Falah.Domain.Tests/PayablesAgingTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 8
+    },
+    "tests/Falah.Domain.Tests/PayrollRulesTests.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 18
+    },
+    "tests/Falah.Domain.Tests/PinHasherTests.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 7
+    },
+    "tests/Falah.Domain.Tests/PricingRulesTests.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 22
+    },
+    "tests/Falah.Domain.Tests/PrintRulesTests.cs": {
+      "total": 120,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 44,
+      "indexed": 76
+    },
+    "tests/Falah.Domain.Tests/ProductImageRulesTests.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 18
+    },
+    "tests/Falah.Domain.Tests/ProfitabilityRulesTests.cs": {
+      "total": 14,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 14
+    },
+    "tests/Falah.Domain.Tests/PurchasingRulesTests.cs": {
+      "total": 13,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 13
+    },
+    "tests/Falah.Domain.Tests/SalesRulesTests.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 15
+    },
+    "tests/Falah.Domain.Tests/ShiftTests.cs": {
+      "total": 13,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 13
+    },
+    "tests/Falah.Domain.Tests/TrendRulesTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 8
+    },
+    "tests/Falah.Domain.Tests/UnitCostChangeTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 8
+    },
+    "tests/Falah.Domain.Tests/UserManagementRulesTests.cs": {
+      "total": 18,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 18
+    },
+    "tests/Falah.Server.IntegrationTests/ActorTokenHandler.cs": {
+      "total": 4,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 4
+    },
+    "tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs": {
+      "total": 31,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 10,
+      "indexed": 21
+    },
+    "tests/Falah.Server.IntegrationTests/AuditLogVerticalSliceTests.cs": {
+      "total": 29,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 6,
+      "indexed": 23
+    },
+    "tests/Falah.Server.IntegrationTests/AuditWiringCoverageTests.cs": {
+      "total": 22,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 22
+    },
+    "tests/Falah.Server.IntegrationTests/AuthTests.cs": {
+      "total": 8,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 8
+    },
+    "tests/Falah.Server.IntegrationTests/AuthenticationTests.cs": {
+      "total": 12,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 12
+    },
+    "tests/Falah.Server.IntegrationTests/BackupVerticalSliceTests.cs": {
+      "total": 13,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 12
+    },
+    "tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs": {
+      "total": 81,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 12,
+      "indexed": 69
+    },
+    "tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs": {
+      "total": 23,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 21
+    },
+    "tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs": {
+      "total": 30,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 30
+    },
+    "tests/Falah.Server.IntegrationTests/CheckoutVerticalSliceTests.cs": {
+      "total": 57,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 7,
+      "indexed": 50
+    },
+    "tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs": {
+      "total": 30,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 29
+    },
+    "tests/Falah.Server.IntegrationTests/CustomerVerticalSliceTests.cs": {
+      "total": 28,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 27
+    },
+    "tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs": {
+      "total": 39,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 8,
+      "indexed": 31
+    },
+    "tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs": {
+      "total": 27,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 27
+    },
+    "tests/Falah.Server.IntegrationTests/DeliveryOrderIntakeTests.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 11
+    },
+    "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs": {
+      "total": 158,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 17,
+      "indexed": 141
+    },
+    "tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs": {
+      "total": 28,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 26
+    },
+    "tests/Falah.Server.IntegrationTests/EscPosTicketRendererTests.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 10
+    },
+    "tests/Falah.Server.IntegrationTests/ExpenseVerticalSliceTests.cs": {
+      "total": 34,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 4,
+      "indexed": 30
+    },
+    "tests/Falah.Server.IntegrationTests/FalahApiFactory.cs": {
+      "total": 21,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 19
+    },
+    "tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs": {
+      "total": 79,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 8,
+      "indexed": 71
+    },
+    "tests/Falah.Server.IntegrationTests/ManagerApprovalTests.cs": {
+      "total": 16,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 16
+    },
+    "tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs": {
+      "total": 66,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 19,
+      "indexed": 47
+    },
+    "tests/Falah.Server.IntegrationTests/MenuPricingInventoryTests.cs": {
+      "total": 55,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 7,
+      "indexed": 48
+    },
+    "tests/Falah.Server.IntegrationTests/MenuQrRenderingTests.cs": {
+      "total": 10,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 10
+    },
+    "tests/Falah.Server.IntegrationTests/MenuRetrySafetyTests.cs": {
+      "total": 13,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 13
+    },
+    "tests/Falah.Server.IntegrationTests/OrderHistoryVerticalSliceTests.cs": {
+      "total": 11,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 4,
+      "indexed": 7
+    },
+    "tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs": {
+      "total": 17,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 16
+    },
+    "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs": {
+      "total": 41,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 3,
+      "indexed": 38
+    },
+    "tests/Falah.Server.IntegrationTests/PayablesAgingVerticalSliceTests.cs": {
+      "total": 15,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 15
+    },
+    "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs": {
+      "total": 36,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 4,
+      "indexed": 32
+    },
+    "tests/Falah.Server.IntegrationTests/PrintAgentTests.cs": {
+      "total": 55,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 14,
+      "indexed": 41
+    },
+    "tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs": {
+      "total": 96,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 34,
+      "indexed": 62
+    },
+    "tests/Falah.Server.IntegrationTests/PurchasingVerticalSliceTests.cs": {
+      "total": 56,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 3,
+      "indexed": 53
+    },
+    "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs": {
+      "total": 59,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 3,
+      "indexed": 56
+    },
+    "tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs": {
+      "total": 48,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 10,
+      "indexed": 38
+    },
+    "tests/Falah.Server.IntegrationTests/ShiftCloseVerticalSliceTests.cs": {
+      "total": 52,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 2,
+      "indexed": 50
+    },
+    "tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs": {
+      "total": 40,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 10,
+      "indexed": 30
+    },
+    "tests/Falah.Server.IntegrationTests/TicketDtoText.cs": {
+      "total": 2,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 0,
+      "indexed": 2
+    },
+    "tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs": {
+      "total": 51,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 5,
+      "indexed": 46
+    },
+    "tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs": {
+      "total": 78,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 10,
+      "indexed": 68
+    },
+    "tools/ReceiptPreview/Program.cs": {
+      "total": 9,
+      "verified": 0,
+      "substantive": 0,
+      "trivial": 1,
+      "indexed": 8
+    }
+  },
+  "known_generic_content_files": 259,
+  "known_generic_content_files_require_rewrite": true
+}

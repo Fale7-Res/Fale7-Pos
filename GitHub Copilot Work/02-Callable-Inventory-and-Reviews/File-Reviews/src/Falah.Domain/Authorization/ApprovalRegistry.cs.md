@@ -282,8 +282,8 @@
       throw new DomainException("انتهت صلاحية اعتماد المدير.");
   ```
 
-### SEC-007: Approval Token Double-Spending Concurrency Hazard
-- **Severity:** `HIGH` (CVSS v3.1: 7.5 - AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:N)
+### SEC-007: Approval Token Double-Spending Concurrency Hazard (MITIGATED via IsConcurrencyToken)
+- **Severity:** `INFORMATIONAL` (Originally HIGH — Verified Mitigated by EF Core Concurrency Token `b.Property(a => a.Consumed).IsConcurrencyToken()` in `FalahDbContext.cs:183`)
 - **Mechanics:**
   In `EfApprovalRegistry.MarkConsumed`:
   ```csharp

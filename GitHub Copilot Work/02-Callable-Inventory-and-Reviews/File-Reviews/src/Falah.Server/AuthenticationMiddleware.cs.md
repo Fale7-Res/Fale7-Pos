@@ -1,147 +1,277 @@
-# src/Falah.Server/AuthenticationMiddleware.cs
+# Security Review: src/Falah.Server/AuthenticationMiddleware.cs
 
-- **Path:** `src/Falah.Server/AuthenticationMiddleware.cs`
-- **Component:** `Falah.Server.AuthenticationMiddleware`, `HttpContextActorExtensions`
-- **Assembly:** `Falah.Server`
+## File Overview
+- **Canonical Source Path:** `src/Falah.Server/AuthenticationMiddleware.cs`
 - **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
-- **File SHA-256:** `3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb`
-- **Auditor:** Security and Authorization Auditor
+- **Source SHA-256:** `3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb`
+- **Auditor:** DEEP_SECURITY_SPECIALIST
+- **Review Date:** 2026-10-25T10:10:00Z
 - **Total Callables:** 6
 - **Status:** **SUBSTANTIVE_SOURCE_REVIEWED**
 
 ---
 
-## 1. Architectural & Domain Responsibility Overview
+## Callable Reviews
 
-`AuthenticationMiddleware` is the perimeter security gate for the Fale7 POS HTTP server. Positioned before endpoint routing in `Program.cs`, it is responsible for:
-1. Extracting bearer tokens from incoming `Authorization` HTTP headers.
-2. Resolving caller identity against database sessions via `SessionService.ResolveAsync`.
-3. Attaching authenticated `UserEntity` instances to `context.Items["falah.actor"]`.
-4. Defending against caller identity spoofing via `FindActorMismatchAsync`.
-
-### Critical Vulnerabilities Identified:
-- **SEC-001 (Critical):** `FindActorMismatchAsync` performs case-sensitive property lookup (`TryGetProperty`) matching `"actorUserId"` strictly in lowercase. ASP.NET Core Minimal API model binding is case-insensitive, allowing an attacker to submit `"ActorUserId"` in PascalCase and bypass mismatch detection entirely.
-- **SEC-004 (High):** `ActorFields` omits `"closedByUserId"`. `POST /api/shifts/close` permits any user to close shifts under another cashier's identity without triggering mismatch detection.
-- **Architectural Disconnect:** `HttpContextActorExtensions.Actor()` and `ActorId()` exist to enforce server-derived identity, but are not invoked by minimal API endpoints, leaving handlers dependent on client-supplied DTO properties.
-
----
-
-## 2. Comprehensive Callable Inventory
-
-| Callable ID | Canonical Symbol ID | Line Span | Classification |
-| :--- | :--- | :--- | :--- |
-| `CAL-AM-001` | `src/Falah.Server/AuthenticationMiddleware.cs:20:5:ConstructorDeclaration` | [20](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L20) | Constructor |
-| `CAL-AM-002` | `src/Falah.Server/AuthenticationMiddleware.cs:30:5:MethodDeclaration` | [30-82](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L30-L82) | Substantive (Security Boundary) |
-| `CAL-AM-003` | `src/Falah.Server/AuthenticationMiddleware.cs:36:42:SimpleLambdaExpression` | [36](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L36) | Lambda Predicate |
-| `CAL-AM-004` | `src/Falah.Server/AuthenticationMiddleware.cs:91:5:MethodDeclaration` | [91-133](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L91-L133) | Substantive (Security Boundary) |
-| `CAL-AM-005` | `src/Falah.Server/AuthenticationMiddleware.cs:140:5:MethodDeclaration` | [140-142](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L140-L142) | Extension Method |
-| `CAL-AM-006` | `src/Falah.Server/AuthenticationMiddleware.cs:144:5:MethodDeclaration` | [144](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs#L144) | Extension Method |
-
----
-
-## 3. Deep Source-Grounded Callable Analysis
-
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:20:5:ConstructorDeclaration
-- **Exact Line Range:** Line 20
+### AuthenticationMiddleware..ctor — Line 20
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:20:5:ConstructorDeclaration`
 - **Signature:** `public AuthenticationMiddleware(RequestDelegate next)`
-- **Actual Behavior & Inputs:** Stores downstream pipeline delegate `_next` in private readonly field.
-- **Trust Boundaries:** Internal ASP.NET Core middleware pipeline initialization.
-- **Side Effects:** None.
-- **Concurrency & Lifecycle:** Singleton-like registration per middleware pipeline instance.
+- **Behavior:** Captures the downstream HTTP request delegate `_next` in a private readonly field.
+- **Security Analysis:** Standard ASP.NET Core middleware plumbing.
+- **Finding Links:** None
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:30:5:MethodDeclaration
-- **Exact Line Range:** Lines 30–82
+### AuthenticationMiddleware.InvokeAsync — Lines 30-82
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:30:5:MethodDeclaration`
 - **Signature:** `public async Task InvokeAsync(HttpContext context, SessionService sessions)`
-- **Actual Behavior & Execution Path:**
-  1. Inspects `context.Request.Path`. If path does not start with `/api/` or matches `AnonymousPaths` (`/health`, `/api/auth/login-by-pin`), bypasses authentication and calls `await _next(context)`.
-  2. Extracts `Authorization` header. If missing or not starting with `Bearer `, sets `token = null`.
-  3. Calls `user = await sessions.ResolveAsync(token, context.RequestAborted)`.
-  4. If `user is null`, halts pipeline and writes HTTP 401 Unauthorized with Arabic error message.
-  5. If authenticated, stores `context.Items[ActorItemKey] = user`.
-  6. Calls `FindActorMismatchAsync(context, user.Id)`. If a mismatch is returned, halts pipeline and writes HTTP 403 Forbidden (`"لا يمكن تنفيذ عملية باسم مستخدم آخر."`).
-  7. Passes control downstream via `await _next(context)`.
-- **Trust Boundaries & Validation:** Network perimeter. Enforces authentication on all non-exempt `/api/` paths.
-- **Side Effects:** Writes HTTP 401/403 responses and modifies `context.Items`.
-- **Concurrency & Failure Modes:** Executes concurrently per request thread. Relies on scoped `SessionService`.
+- **Behavior:**
+  1. Inspects `context.Request.Path`. If path does not start with `/api/` or matches `AnonymousPaths` (`/health`, `/api/auth/login-by-pin`), skips authentication and invokes `await _next(context)`.
+  2. Parses the `Authorization` header. If missing or not starting with `"Bearer "`, sets `token = null`.
+  3. Resolves the token via `user = await sessions.ResolveAsync(token, context.RequestAborted)`.
+  4. If `user is null`, halts execution and writes HTTP 401 Unauthorized with JSON error message `"انتهت الجلسة أو لم يتم تسجيل الدخول. سجّل الدخول مرة أخرى."`.
+  5. If authenticated, attaches user entity to `context.Items[ActorItemKey] = user`.
+  6. Evaluates `mismatch = await FindActorMismatchAsync(context, user.Id)`.
+  7. If a mismatch is detected, halts execution and writes HTTP 403 Forbidden with JSON error message `"لا يمكن تنفيذ عملية باسم مستخدم آخر."`.
+  8. Passes request to downstream pipeline via `await _next(context)`.
+- **Security Analysis:** Perimeter authentication enforcement point. Establishes server-verified identity in `context.Items[ActorItemKey]`. However, because downstream endpoints deserialize command DTOs directly from the request body rather than reading `context.Actor()`, security depends entirely on the effectiveness of `FindActorMismatchAsync`.
+- **Finding Links:** `SEC-001`, `SEC-004`
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
+
+```csharp
+    public async Task InvokeAsync(HttpContext context, SessionService sessions)
+    {
+        var path = context.Request.Path.Value ?? string.Empty;
+
+        // Swagger and static files are not the business API and carry no actor.
+        var isApi = path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase);
+        if (!isApi || AnonymousPaths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase)))
+        {
+            await _next(context);
+            return;
+        }
+
+        var header = context.Request.Headers.Authorization.ToString();
+        var token = header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+            ? header["Bearer ".Length..].Trim()
+            : null;
+
+        var user = await sessions.ResolveAsync(token, context.RequestAborted);
+        if (user is null)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "انتهت الجلسة أو لم يتم تسجيل الدخول. سجّل الدخول مرة أخرى.",
+            });
+            return;
+        }
+
+        context.Items[ActorItemKey] = user;
+
+        var mismatch = await FindActorMismatchAsync(context, user.Id);
+        if (mismatch is not null)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "لا يمكن تنفيذ عملية باسم مستخدم آخر.",
+            });
+            return;
+        }
+
+        await _next(context);
+    }
+```
 
 ---
 
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:36:42:SimpleLambdaExpression
-- **Exact Line Range:** Line 36
+### AuthenticationMiddleware.<InvokeAsync>b__3_0 (Anonymous Path Filter) — Line 36
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:36:42:SimpleLambdaExpression`
 - **Signature:** `p => path.Equals(p, StringComparison.OrdinalIgnoreCase)`
-- **Actual Behavior & Inputs:** Evaluates case-insensitive ordinal equality of request path against `AnonymousPaths` entries (`/health`, `/api/auth/login-by-pin`).
-- **Trust Boundaries:** Internal predicate.
+- **Behavior:** Performs case-insensitive ordinal string comparison of the request path against `AnonymousPaths` (`/health`, `/api/auth/login-by-pin`).
+- **Security Analysis:** Correctly uses `StringComparison.OrdinalIgnoreCase` to prevent casing-based routing bypasses on public endpoints.
+- **Finding Links:** None
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:91:5:MethodDeclaration
-- **Exact Line Range:** Lines 91–133
+### AuthenticationMiddleware.FindActorMismatchAsync — Lines 91-133
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:91:5:MethodDeclaration`
 - **Signature:** `private static async Task<string?> FindActorMismatchAsync(HttpContext context, string authenticatedUserId)`
-- **Actual Behavior & Execution Path:**
-  1. **Query Inspection:** For each field in `ActorFields` (`actorUserId`, `cashierId`, `createdByUserId`, `openedByUserId`, `reportedByUserId`), checks `context.Request.Query.TryGetValue(field, out var values)`. If claimed value is non-empty and `!= authenticatedUserId`, returns `field`.
-  2. **Content-Type Check:** If `!context.Request.HasJsonContentType()`, returns `null`.
-  3. **Body Buffering & Rewind:** Calls `context.Request.EnableBuffering()`. Reads and parses body via `JsonDocument.ParseAsync(context.Request.Body, ...)`. In a `finally` block, unconditionally resets `context.Request.Body.Position = 0` so downstream model binding can read the stream.
-  4. **Body Property Matching:** Checks `document.RootElement.TryGetProperty(field, out var value)`. If value is a string and `!= authenticatedUserId`, returns `field`.
-  5. Catches `JsonException` and returns `null` (delegating malformed JSON handling to endpoints).
-- **VULNERABILITY FORENSICS (SEC-001 & SEC-004):**
-  - **SEC-001:** `TryGetProperty` is strictly ordinal case-sensitive. Sending `"ActorUserId"` or `"ACTORUSERID"` returns `false`. The mismatch check is bypassed, but ASP.NET Core deserializes it case-insensitively into the command DTO.
-  - **SEC-004:** `"closedByUserId"` is absent from `ActorFields`. Shifts can be closed under another cashier's identity.
+- **Behavior:**
+  1. Inspects query parameters for every field in `ActorFields`:
+     `{"actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId"}`.
+     If `context.Request.Query.TryGetValue(field, out var values)` returns a non-empty string `!= authenticatedUserId`, returns `field`.
+  2. If `!context.Request.HasJsonContentType()`, returns `null`.
+  3. Enables request body buffering (`context.Request.EnableBuffering()`).
+  4. Parses the JSON body with `JsonDocument.ParseAsync`. In a `finally` block, rewinds `context.Request.Body.Position = 0`.
+  5. For each field in `ActorFields`, executes:
+     `document.RootElement.TryGetProperty(field, out var value)`.
+     If the property exists and its string value is non-empty and `!= authenticatedUserId`, returns `field`.
+  6. Catches `JsonException` and returns `null`.
+- **Security Analysis:**
+  - *SEC-001 (Casing Mismatch Bypass):* `JsonElement.TryGetProperty(string, out JsonElement)` is strictly ordinal case-sensitive. The array `ActorFields` defines only camelCase strings. When an attacker sends PascalCase (e.g. `{"ActorUserId": "admin-1"}`), `TryGetProperty` returns `false`. However, ASP.NET Core Minimal API JSON model binding defaults to `PropertyNameCaseInsensitive = true`, binding `ActorUserId` into the request DTO. Downstream handlers (e.g. `CreateUserHandler.cs:48`, `ChangePinHandler.cs:44`, `UpdateUserPermissionsHandler.cs:32`) authorize the operation using `request.ActorUserId` instead of `context.ActorId()`, achieving complete privilege elevation.
+  - *SEC-004 (Omission of closedByUserId):* `ActorFields` completely omits `"closedByUserId"`. In `CloseShiftHandler.cs:52-54`, shift closures take `request.ClosedByUserId` from the JSON body to establish the acting cashier. An authenticated attacker can close any shift and spoof financial shift handover records under another user's identity.
+- **Finding Links:** `SEC-001`, `SEC-004`
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
+
+```csharp
+    private static async Task<string?> FindActorMismatchAsync(HttpContext context, string authenticatedUserId)
+    {
+        foreach (var field in ActorFields)
+        {
+            if (context.Request.Query.TryGetValue(field, out var values))
+            {
+                var claimed = values.ToString();
+                if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;
+            }
+        }
+
+        if (!context.Request.HasJsonContentType()) return null;
+
+        // Buffered so the endpoint's own model binding can still read the body afterwards.
+        context.Request.EnableBuffering();
+        try
+        {
+            using var document = await System.Text.Json.JsonDocument.ParseAsync(
+                context.Request.Body, cancellationToken: context.RequestAborted);
+            if (document.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+
+            foreach (var field in ActorFields)
+            {
+                if (document.RootElement.TryGetProperty(field, out var value)
+                    && value.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var claimed = value.GetString();
+                    if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;
+                }
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            // Malformed JSON is the endpoint's problem to report, not this middleware's.
+            return null;
+        }
+        finally
+        {
+            context.Request.Body.Position = 0;
+        }
+
+        return null;
+    }
+```
 
 ---
 
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:140:5:MethodDeclaration
-- **Exact Line Range:** Lines 140–142
-- **Signature:** `public static UserEntity Actor(this HttpContext context)`
-- **Actual Behavior & Inputs:** Retrieves `context.Items[AuthenticationMiddleware.ActorItemKey]` cast to `UserEntity`. Throws `InvalidOperationException("No authenticated actor on this request.")` if null.
-- **Architectural Disconnect:** Never invoked by any Minimal API endpoint or Infrastructure command handler.
+### HttpContextActorExtensions.Actor — Lines 140-142
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:140:5:MethodDeclaration`
+- **Signature:** `public static Falah.Infrastructure.Persistence.Entities.UserEntity Actor(this HttpContext context)`
+- **Behavior:** Retrieves `context.Items[AuthenticationMiddleware.ActorItemKey]` cast to `UserEntity`. Throws `InvalidOperationException("No authenticated actor on this request.")` if null.
+- **Security Analysis:** Intended to provide server-authoritative caller identity to endpoints. However, it is never invoked by minimal API endpoints in `Program.cs`, leaving command handlers reliant on unvalidated request DTO fields.
+- **Finding Links:** None
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-### Callable: src/Falah.Server/AuthenticationMiddleware.cs:144:5:MethodDeclaration
-- **Exact Line Range:** Line 144
+### HttpContextActorExtensions.ActorId — Line 144
+- **Callable ID:** `src/Falah.Server/AuthenticationMiddleware.cs:144:5:MethodDeclaration`
 - **Signature:** `public static string ActorId(this HttpContext context)`
-- **Actual Behavior:** Returns `context.Actor().Id`.
-- **Architectural Disconnect:** Never invoked by any Minimal API endpoint or Infrastructure command handler.
+- **Behavior:** Returns `context.Actor().Id`.
+- **Security Analysis:** Extension helper for retrieving authenticated caller ID. Unconsumed across application routing handlers.
+- **Finding Links:** None
+- **Verdict:** SUBSTANTIVE_SOURCE_REVIEWED
 
 ---
 
-## 4. Verification & Recommendations
+## Technical Finding Analysis: SEC-001 & SEC-004
 
-1. **Remediate SEC-001:** Replace `TryGetProperty` in `FindActorMismatchAsync` with `document.RootElement.EnumerateObject()` performing case-insensitive name comparison.
-2. **Remediate SEC-004:** Append `"closedByUserId"` to `ActorFields`.
-3. **Propagate Identity Authoritatively:** Refactor endpoint handlers to obtain caller identity directly from `context.ActorId()`.
-4. **Static Verification:** Verified complete against `src/Falah.Server/AuthenticationMiddleware.cs`. No application source modified.
+### Confirmed Finding: SEC-001
+**Category:** SECURITY / AUTHORIZATION_BYPASS  
+**Severity:** HIGH (CVSS v3.1: 8.8 - AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H)  
+**Confidence:** CONFIRMED_MECHANISM_AND_STATIC_TRACE  
+**Source:** `src/Falah.Server/AuthenticationMiddleware.cs` Lines 112-120  
 
+```csharp
+            foreach (var field in ActorFields)
+            {
+                if (document.RootElement.TryGetProperty(field, out var value)
+                    && value.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var claimed = value.GetString();
+                    if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;
+                }
+            }
+```
+
+**Defect:**
+Case-sensitive JSON property lookup in `FindActorMismatchAsync` bypasses identity mismatch checks when clients submit PascalCase property names.
+- `document.RootElement.TryGetProperty(field, out var value)` executes strictly case-sensitive ordinal string comparison. Because `ActorFields` contains camelCase strings (`"actorUserId"`, etc.), submitting `{"ActorUserId": "admin-user-id"}` causes `TryGetProperty` to return `false`.
+- The middleware finds no mismatch and permits the request through to endpoint routing.
+- ASP.NET Core Minimal API model binding (`System.Text.Json`) uses `PropertyNameCaseInsensitive = true` by default, binding `"ActorUserId"` directly to the command request record's `ActorUserId` property.
+- Handlers throughout `Falah.Infrastructure` (e.g. `CreateUserHandler.cs:48-51`, `ChangePinHandler.cs:44-46`, `UpdateUserPermissionsHandler.cs:32-35`) load the actor entity directly from `request.ActorUserId` and check permissions on that loaded entity:
+  ```csharp
+  var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
+      ?? throw new InvalidOperationException("المستخدم غير موجود.");
+  var actor = OrderMapper.ToActor(actorUser);
+  AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "users_manage");
+  ```
+- Any authenticated user (such as a cashier or kitchen staff) can forge an administrator identity simply by capitalizing the JSON key (`"ActorUserId"`), gaining unauthorized access to administrative functions.
+
+**Proposed Fix Specification:**
+1. In `FindActorMismatchAsync`, replace `TryGetProperty` with case-insensitive property enumeration:
+   ```csharp
+   foreach (var property in document.RootElement.EnumerateObject())
+   {
+       if (ActorFields.Any(f => f.Equals(property.Name, StringComparison.OrdinalIgnoreCase)))
+       {
+           if (property.Value.ValueKind == JsonValueKind.String)
+           {
+               var claimed = property.Value.GetString();
+               if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId)
+                   return property.Name;
+           }
+       }
+   }
+   ```
+2. In `Program.cs`, refactor endpoint route handlers to inject `context.ActorId()` into commands directly rather than deserializing actor IDs from client JSON bodies.
 
 ---
 
-## Independent QA L1 Review & Verification
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
-- **Verification Date:** 2026-10-25T01:35:00Z
-- **Source SHA-256 Verified:** `3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb`
-- **Callable ID Checked:** `src/Falah.Server/AuthenticationMiddleware.cs:20:5:ConstructorDeclaration`, `src/Falah.Server/AuthenticationMiddleware.cs:30:5:MethodDeclaration`, `src/Falah.Server/AuthenticationMiddleware.cs:36:42:SimpleLambdaExpression`, `src/Falah.Server/AuthenticationMiddleware.cs:91:5:MethodDeclaration`, `src/Falah.Server/AuthenticationMiddleware.cs:140:5:MethodDeclaration`, `src/Falah.Server/AuthenticationMiddleware.cs:144:5:MethodDeclaration` (6 of 6 callables checked)
-- **Verdict:** ACCEPTED
-- **Challenger Analysis:**
-  1. Verified SHA-256 matches actual production source `src/Falah.Server/AuthenticationMiddleware.cs` (146 lines).
-  2. Confirmed `SEC-001`: In `FindActorMismatchAsync` (lines 114-120), `document.RootElement.TryGetProperty(field, out var value)` performs strictly ordinal case-sensitive property lookup. Because ASP.NET Core Minimal API JSON deserialization is case-insensitive, submitting `"ActorUserId"` or `"ACTORUSERID"` in PascalCase bypasses mismatch detection entirely while binding to the request DTO.
-  3. Confirmed `SEC-004`: `ActorFields` (lines 86-89) omits `"closedByUserId"`. Any authenticated user can call `POST /api/shifts/close` providing a different cashier's ID without triggering mismatch detection.
-  4. Verified `HttpContextActorExtensions.Actor()` and `ActorId()` are defined but not consumed by endpoint handlers.
-  5. All 6 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
+### Confirmed Finding: SEC-004
+**Category:** SECURITY / IDENTITY_SPOOFING  
+**Severity:** HIGH (CVSS v3.1: 7.5 - AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N)  
+**Confidence:** CONFIRMED_MECHANISM_AND_STATIC_TRACE  
+**Source:** `src/Falah.Server/AuthenticationMiddleware.cs` Lines 86-89; `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs` Lines 52-55  
 
+```csharp
+    private static readonly string[] ActorFields =
+    {
+        "actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId",
+    };
+```
+```csharp
+    var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ClosedByUserId, ct)
+        ?? throw new InvalidOperationException("المستخدم غير موجود.");
+    var actor = OrderMapper.ToActor(cashierUser);
+```
 
----
+**Defect:**
+`ActorFields` omits `"closedByUserId"`, enabling arbitrary cashier/shift close identity spoofing.
+- `POST /api/shifts/close` consumes `CloseShiftRequest(..., string ClosedByUserId, ...)`.
+- In `CloseShiftHandler.cs` (lines 52-55), the handler queries the user entity using `request.ClosedByUserId`, builds the `actor` representation, evaluates `AuthorizationPolicy.AuthorizeShiftClose`, and registers the shift closure and audit event (`AuditEvent`) under `cashierUser.Name` and `cashierUser.Id`.
+- Because `"closedByUserId"` is omitted from `ActorFields`, `AuthenticationMiddleware.FindActorMismatchAsync` never inspects this property.
+- Any authenticated user can execute a shift close attributing the action, discrepancy reconciliation, and drawer cash handover to another cashier or manager.
 
-## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T01:38:12Z
-- **Source SHA-256 Verified:** `3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb`
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb` against `src/Falah.Server/AuthenticationMiddleware.cs` (146 lines).
-2. Concur with L1 analysis confirming `SEC-001` (case-sensitivity mismatch in `FindActorMismatchAsync` via `TryGetProperty`) and `SEC-004` (omission of `closedByUserId` from `ActorFields`).
-3. Additional L2 Challenger Assessment:
-   - In `FindActorMismatchAsync` (lines 91-138), parsing failures in request body JSON are silently swallowed, allowing non-JSON payloads to bypass actor checks completely.
-   - While `context.Items["Actor"]` is populated from the authenticated session, downstream endpoint handlers across the application deserialize actor identity directly from untrusted request bodies (`request.ActorUserId`), decoupling authentication middleware validation from application authorization.
-4. All 6 callables rigorously double-verified. Elevation to `DOUBLE_QA_VERIFIED` accepted.
+**Proposed Fix Specification:**
+1. Append `"closedByUserId"` to `ActorFields` in `AuthenticationMiddleware.cs`:
+   ```csharp
+   private static readonly string[] ActorFields =
+   {
+       "actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId", "closedByUserId",
+   };
+   ```
+2. Refactor `POST /api/shifts/close` to populate `ClosedByUserId` strictly from `context.ActorId()`.

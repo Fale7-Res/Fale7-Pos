@@ -20,7 +20,7 @@ When a manager approves an action, the system issues a cryptographically random 
 ### Key Security & Concurrency Invariants:
 1. **Separation of Issuance and Consumption:** Issuance and redemption occur in distinct HTTP requests across different client sessions (or the same terminal). The entity tracks `Consumed` (boolean flag) to enforce single-use semantics.
 2. **SEC-006 (Missing TTL Expiration):** The entity records `ApprovedAtUtc`, but neither `Find`, `IsConsumed`, nor `MarkConsumed` enforces a maximum time-to-live (TTL). Once granted, an approval token remains valid indefinitely until consumed, presenting an authorization replay window.
-3. **SEC-007 (Double-Spending Race Condition):** `MarkConsumed` operates without database-level concurrency tokens (`RowVersion` / `[Timestamp]`) and without pessimistic locking (`UPDLOCK, HOLDLOCK`). Under concurrent execution, two simultaneous requests presenting the same `ApprovalId` can race, evaluate `entity.Consumed == false`, mutate `entity.Consumed = true`, and successfully commit, double-spending a single manager authorization.
+3. **SEC-007 (Mitigated Concurrency Token):** While `MarkConsumed` does not use explicit SQL locks (`UPDLOCK`), EF Core model configuration in `FalahDbContext.cs:183` designates `b.Property(a => a.Consumed).IsConcurrencyToken()`. Under concurrent execution, EF Core includes `Consumed = false` in the SQL `UPDATE` statement WHERE clause. The second concurrent request encounters a concurrency conflict and throws `DbUpdateConcurrencyException`, mitigating double-spending in production.
 4. **Deferred Persistence Semantics:** `Register` and `MarkConsumed` mutate EF change tracking state on `_db.ManagerApprovals` but do not call `_db.SaveChangesAsync()`. Persistence depends strictly on the calling orchestration context committing the unit of work.
 
 ---
@@ -184,9 +184,10 @@ public void MarkConsumed(string approvalId)
 ```
 
 #### Security Vulnerability Breakdown:
-1. **Double-Spending Race (SEC-007):**
+1. **Double-Spending Race (SEC-007 - MITIGATED via Concurrency Token):**
    - The query fetches `entity` with standard read locks.
    - If two cashiers or two requests simultaneously present `approvalId` (e.g. across two browser tabs or two till terminals for refunding two orders), both execute line 47/48, both evaluate `entity.Consumed == false` at line 50, both set `entity.Consumed = true` at line 52, and both call `SaveChangesAsync()`.
+   - **Mitigation Found in Source:** Although `MarkConsumed` has no raw SQL locks, `FalahDbContext.cs:183` configures `b.Property(a => a.Consumed).IsConcurrencyToken()`. EF Core generates `UPDATE ManagerApprovals SET Consumed = 1 WHERE ApprovalId = @id AND Consumed = 0`. Concurrent consumption throws `DbUpdateConcurrencyException`, preventing double-spending.
    - Without an optimistic concurrency row version or a pessimistic `UPDLOCK`, EF Core executes:
      `UPDATE ManagerApprovals SET Consumed = 1 WHERE ApprovalId = @id;`
    - Both transactions succeed, allowing one approval to authorize two sensitive operations.
@@ -220,7 +221,7 @@ public void MarkConsumed(string approvalId)
 | ID | Severity | Category | Description | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `SEC-006` | Medium | Authorization / Replay | Missing TTL on Manager Approvals allows tokens to be replayed indefinitely until consumed | Discovered in Wave 3 / Confirmed in Wave 6 |
-| `SEC-007` | Medium | Concurrency / Double-Spending | Non-atomic check-and-consume in `MarkConsumed` allows double-spending under concurrent requests | Discovered in Wave 3 / Confirmed in Wave 6 |
+| `SEC-007` | Medium | Concurrency / Double-Spending | Non-atomic check-and-consume in `MarkConsumed` allows double-spending under concurrent requests | Mitigated in DbContext (IsConcurrencyToken on Consumed) |
 
 ### Remediation Recommendations:
 1. **Prevent Double-Spending (Fix SEC-007):**

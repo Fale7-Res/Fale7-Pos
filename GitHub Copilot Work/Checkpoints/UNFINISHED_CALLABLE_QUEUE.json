@@ -1,20 +1,42 @@
 {
-  "timestamp_utc": "2026-10-25T05:58:03Z",
+  "timestamp_utc": "2026-10-25T07:01:59Z",
+  "governance_correction": "BULK_IV_REVOCATION_APPLIED_2026-10-25",
   "total_callables": 11653,
   "status_breakdown": {
-    "GENERATED_OR_TRIVIAL_JUSTIFIED": 5686,
-    "INDEPENDENTLY_VERIFIED": 3039,
-    "SUBSTANTIVE_SOURCE_REVIEWED": 783,
-    "INDEXED": 2145
+    "INDEPENDENTLY_VERIFIED": {
+      "count": 65,
+      "description": "Individually Codex-challenged; GENUINE"
+    },
+    "SUBSTANTIVE_SOURCE_REVIEWED": {
+      "count": 3757,
+      "description": "Require QA L1 per-callable challenge for INDEPENDENTLY_VERIFIED elevation"
+    },
+    "GENERATED_OR_TRIVIAL_JUSTIFIED": {
+      "count": 5686,
+      "description": "Justified; no individual QA required"
+    },
+    "INDEXED": {
+      "count": 2145,
+      "description": "Tests and tools"
+    }
   },
-  "pending_by_specialist": {
-    "security-auditor": 0,
-    "financial-auditor": 0,
-    "mirrored-code-auditor": 0,
-    "printing-workflow-auditor": 0,
-    "ui-maintainability-auditor": 0,
-    "architecture-coordinator": 0
+  "pending_real_qa_callables": 3757,
+  "pending_by_domain": {
+    "client_code_with_generic_content": 242,
+    "backend_financial_handlers": 57,
+    "backend_security": 7,
+    "backend_other_infrastructure": 134,
+    "domain_rules": 27,
+    "other_production": 3290
   },
-  "total_pending_review": 0,
+  "open_tasks": [
+    "Replace generic content in 259 review files",
+    "Integrate SEC-009-012 into MASTER_FINDINGS.json",
+    "Integrate FIN-MULTI-ELEC-001, INV-FIN-001 into MASTER_FINDINGS.json",
+    "Reconcile all 77 historical findings (only 15 done)",
+    "Create Final-Handoff/ deliverables",
+    "Run real per-callable QA L1/L2 on 3,757 SUBSTANTIVE_SOURCE_REVIEWED callables",
+    "Update FINAL_AUDIT_STATUS.md with governance correction"
+  ],
   "callables": []
 }
