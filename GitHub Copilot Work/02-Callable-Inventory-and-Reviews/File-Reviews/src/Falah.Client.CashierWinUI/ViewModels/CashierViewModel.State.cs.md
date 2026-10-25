@@ -23,6 +23,8 @@
 ## 2. Deep Dive Architectural & Performance Vectors
 
 ### 2.1 Critical Fire-and-Forget Exception Vector in `InitializeAsync` (ASYNC-001)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:86:5:MethodDeclaration`
+- **Exact Line Range:** Lines 86–111
 In [`CashierViewModel.State.cs:86-111`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L86-L111):
 ```csharp
 [RelayCommand]
@@ -59,6 +61,8 @@ public async Task InitializeAsync()
 - If `GetCurrentShiftAsync()`, `GetSettingsAsync()`, or `LoadMenuAsync()` throws an unhandled network/HTTP exception (e.g. server down, socket reset, JSON deserialization error), the exception is unobserved. The application will silently fail to initialize, leaving the cashier on an empty or stuck screen with `IsInitializing = false` and no error prompt.
 
 ### 2.2 Redundant Domain Tax Engine Execution in `NotifyTotals()` (PERF-001)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:74:5:MethodDeclaration`
+- **Exact Line Range:** Lines 74–84
 In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L74-L84):
 - `NotifyTotals()` raises 10 separate `PropertyChanged` notifications.
 - Line 76 notifies `GrandTotalPiastres`, which evaluates:
@@ -72,6 +76,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ## 3. Exhaustive Per-Callable Audit
 
 ### 3.1 `OnIsProcessingCheckoutChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:9:5:MethodDeclaration`
+- **Exact Line Range:** Lines 9–9
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:9`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L9)
   ```csharp
   partial void OnIsProcessingCheckoutChanged(bool value) => RefreshOperationState();
@@ -82,6 +88,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.2 `OnIsOpeningShiftChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:10:5:MethodDeclaration`
+- **Exact Line Range:** Lines 10–10
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:10`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L10)
   ```csharp
   partial void OnIsOpeningShiftChanged(bool value) => RefreshOperationState();
@@ -92,6 +100,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.3 `OnIsClosingShiftChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:11:5:MethodDeclaration`
+- **Exact Line Range:** Lines 11–11
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:11`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L11)
   ```csharp
   partial void OnIsClosingShiftChanged(bool value) => RefreshOperationState();
@@ -102,6 +112,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.4 `OnIsSubmittingExpenseChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:12:5:MethodDeclaration`
+- **Exact Line Range:** Lines 12–12
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:12`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L12)
   ```csharp
   partial void OnIsSubmittingExpenseChanged(bool value) => RefreshOperationState();
@@ -112,6 +124,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.5 `OnIsSubmittingSafeDropChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:13:5:MethodDeclaration`
+- **Exact Line Range:** Lines 13–13
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:13`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L13)
   ```csharp
   partial void OnIsSubmittingSafeDropChanged(bool value) => RefreshOperationState();
@@ -122,6 +136,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.6 `OnIsSubmittingCashMovementChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:14:5:MethodDeclaration`
+- **Exact Line Range:** Lines 14–14
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:14`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L14)
   ```csharp
   partial void OnIsSubmittingCashMovementChanged(bool value) => RefreshOperationState();
@@ -132,6 +148,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.7 `OnIsSubmittingCashDrawerChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:15:5:MethodDeclaration`
+- **Exact Line Range:** Lines 15–15
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:15`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L15)
   ```csharp
   partial void OnIsSubmittingCashDrawerChanged(bool value) => RefreshOperationState();
@@ -142,6 +160,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.8 `OnIsReprintingChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:16:5:MethodDeclaration`
+- **Exact Line Range:** Lines 16–16
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:16`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L16)
   ```csharp
   partial void OnIsReprintingChanged(bool value) => RefreshOperationState();
@@ -152,6 +172,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.9 `OnIsConfirmingElectronicPaymentChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:17:5:MethodDeclaration`
+- **Exact Line Range:** Lines 17–17
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:17`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L17)
   ```csharp
   partial void OnIsConfirmingElectronicPaymentChanged(bool value) => RefreshOperationState();
@@ -162,6 +184,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.10 `OnIsCancellingElectronicPaymentChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:18:5:MethodDeclaration`
+- **Exact Line Range:** Lines 18–18
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:18`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L18)
   ```csharp
   partial void OnIsCancellingElectronicPaymentChanged(bool value) => RefreshOperationState();
@@ -256,6 +280,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.19 `NotifyPaymentPresentation()` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:31:5:MethodDeclaration`
+- **Exact Line Range:** Lines 31–35
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:31-35`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L31-L35)
   ```csharp
   private void NotifyPaymentPresentation()
@@ -270,6 +296,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.20 `OnPaymentMethodChanged(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:36:5:MethodDeclaration`
+- **Exact Line Range:** Lines 36–36
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:36`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L36)
   ```csharp
   partial void OnPaymentMethodChanged(string value) => NotifyPaymentPresentation();
@@ -280,6 +308,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.21 `OnSplitMethod1Changed(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:37:5:MethodDeclaration`
+- **Exact Line Range:** Lines 37–37
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:37`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L37)
   ```csharp
   partial void OnSplitMethod1Changed(string value) => OnPropertyChanged(nameof(UsesWallet));
@@ -290,6 +320,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.22 `OnSplitMethod2Changed(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:38:5:MethodDeclaration`
+- **Exact Line Range:** Lines 38–38
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:38`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L38)
   ```csharp
   partial void OnSplitMethod2Changed(string value) => OnPropertyChanged(nameof(UsesWallet));
@@ -300,6 +332,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.23 `OnIsSplitPaymentEnabledChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:39:5:MethodDeclaration`
+- **Exact Line Range:** Lines 39–39
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:39`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L39)
   ```csharp
   partial void OnIsSplitPaymentEnabledChanged(bool value) => NotifyPaymentPresentation();
@@ -512,6 +546,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.44 `RefreshOperationState()` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:67:5:MethodDeclaration`
+- **Exact Line Range:** Lines 67–73
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:67-73`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L67-L73)
   ```csharp
   private void RefreshOperationState()
@@ -560,6 +596,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.47 `RequestClearCart()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:113:5:MethodDeclaration`
+- **Exact Line Range:** Lines 113–113
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:113`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L113)
   ```csharp
   [RelayCommand] private void RequestClearCart() { if (CanEditOperation && Cart.Count > 0) IsClearCartOpen = true; }
@@ -570,6 +608,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.48 `CancelClearCart()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:114:5:MethodDeclaration`
+- **Exact Line Range:** Lines 114–114
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:114`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L114)
   ```csharp
   [RelayCommand] private void CancelClearCart() => IsClearCartOpen = false;
@@ -580,6 +620,8 @@ In [`CashierViewModel.State.cs:74-84`](file:///c:/Users/Mohamed/Desktop/Falah-Re
 ---
 
 ### 3.49 `ConfirmClearCart()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:115:5:MethodDeclaration`
+- **Exact Line Range:** Lines 115–115
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs:115`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs#L115)
   ```csharp
   [RelayCommand] private void ConfirmClearCart() { if (!CanEditOperation) return; ClearCart(); IsClearCartOpen = false; }

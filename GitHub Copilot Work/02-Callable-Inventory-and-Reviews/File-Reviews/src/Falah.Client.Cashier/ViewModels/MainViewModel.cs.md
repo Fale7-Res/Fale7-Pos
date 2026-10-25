@@ -31,6 +31,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.1 `Header` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:21`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L21)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:21:37:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 21–21
   ```csharp
   public HeaderViewModel Header { get; }
   ```
@@ -44,6 +46,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.2 `MainViewModel()` (Constructor)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:23-33`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L23-L33)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:23:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 23–33
   ```csharp
   public MainViewModel()
   {
@@ -77,6 +81,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.3 `CheckHealthNowAsync()` (Private Async Method)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:35`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L35)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:35:5:MethodDeclaration`
+- **Exact Line Range:** Lines 35–35
   ```csharp
   private async Task CheckHealthNowAsync() => IsOnline = await _session.Api.PingHealthAsync();
   ```
@@ -90,6 +96,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.4 `Lock()` (RelayCommand Method)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:40-41`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L40-L41)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:40:5:MethodDeclaration`
+- **Exact Line Range:** Lines 40–41
   ```csharp
   [RelayCommand]
   private void Lock() => ShowLogin();
@@ -110,6 +118,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.5 `ShowLogin()` (Private Method)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:43-49`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L43-L49)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:43:5:MethodDeclaration`
+- **Exact Line Range:** Lines 43–49
   ```csharp
   private void ShowLogin()
   {
@@ -132,6 +142,8 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ### 2.6 `ShowCashier()` (Private Method)
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:51-58`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/MainViewModel.cs#L51-L58)
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:51:5:MethodDeclaration`
+- **Exact Line Range:** Lines 51–58
   ```csharp
   private void ShowCashier()
   {
@@ -188,3 +200,5 @@ A forensic filesystem and git history inspection establishes that the physical f
 
 ---
 *Audit completed and certified by UI/UX & Code Maintainability Auditor.*
+
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/MainViewModel.cs:30:30:ParenthesizedLambdaExpression` (Lines 30–30, `ParenthesizedLambdaExpression`)

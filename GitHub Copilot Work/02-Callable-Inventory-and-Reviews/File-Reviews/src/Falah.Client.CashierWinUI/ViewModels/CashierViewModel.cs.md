@@ -52,6 +52,8 @@ partial void OnSearchQueryChanged(string value) => RefreshVisibleProducts();
 - **Result:** Rapid cashier typing or high-speed barcode scanning causes severe frame drops and touch latency.
 
 ### 2.3 Unhandled API Network Exceptions in `LoadMenuAsync` (ASYNC-001)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:109:5:MethodDeclaration`
+- **Exact Line Range:** Lines 109–152
 In [`CashierViewModel.cs:109-152`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L109-L152):
 ```csharp
 public async Task LoadMenuAsync()
@@ -80,6 +82,8 @@ public async Task LoadMenuAsync()
 
 ### 2.4 Cart Calculation CPU Churn & Redundant Totaling
 - In constructor ([`CashierViewModel.cs:33`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L33)):
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:33:35:ParenthesizedLambdaExpression`
+- **Exact Line Range:** Lines 33–33
   `Cart.CollectionChanged += (_, _) => { RecomputeCartTotals(); NotifyCheckoutAvailability(); };`
 - In `DecreaseQuantity` ([`CashierViewModel.cs:270-271`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L270-L271)):
   ```csharp
@@ -94,6 +98,8 @@ public async Task LoadMenuAsync()
 ## 3. Exhaustive Per-Callable Audit
 
 ### 3.1 `CashierViewModel(AppSession session, HeaderViewModel header)` (Constructor)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:29:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 29–34
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:29-34`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L29-L34)
   ```csharp
   public CashierViewModel(AppSession session, HeaderViewModel header)
@@ -151,6 +157,8 @@ public async Task LoadMenuAsync()
 
 ### 3.6 `Categories` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:41`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L41)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:41:63:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 41–41
   ```csharp
   public ObservableCollection<MenuCategoryDto> Categories { get; } = new();
   ```
@@ -161,6 +169,8 @@ public async Task LoadMenuAsync()
 
 ### 3.7 `CategoryTiles` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:44`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L44)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:44:63:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 44–44
   ```csharp
   public ObservableCollection<CategoryTile> CategoryTiles { get; } = new();
   ```
@@ -191,6 +201,8 @@ public async Task LoadMenuAsync()
 
 ### 3.10 `VisibleProducts` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:48`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L48)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:48:64:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 48–48
   ```csharp
   public ObservableCollection<ProductTile> VisibleProducts { get; } = new();
   ```
@@ -200,6 +212,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.11 `OnSelectedCategoryChanged(MenuCategoryDto? value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:50:5:MethodDeclaration`
+- **Exact Line Range:** Lines 50–54
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:50-54`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L50-L54)
   ```csharp
   partial void OnSelectedCategoryChanged(MenuCategoryDto? value)
@@ -214,6 +228,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.12 `OnSearchQueryChanged(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:56:5:MethodDeclaration`
+- **Exact Line Range:** Lines 56–56
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:56`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L56)
   ```csharp
   partial void OnSearchQueryChanged(string value) => RefreshVisibleProducts();
@@ -224,6 +240,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.13 `OnIsLoadingMenuChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:60:5:MethodDeclaration`
+- **Exact Line Range:** Lines 60–60
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:60`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L60)
   ```csharp
   partial void OnIsLoadingMenuChanged(bool value) => NotifyCheckoutAvailability();
@@ -234,6 +252,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.14 `OnMenuErrorChanged(string? value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:61:5:MethodDeclaration`
+- **Exact Line Range:** Lines 61–61
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:61`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L61)
   ```csharp
   partial void OnMenuErrorChanged(string? value) => NotifyCheckoutAvailability();
@@ -244,6 +264,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.15 `BuildBestSellers(IReadOnlyList<string> productIds)` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:69:5:MethodDeclaration`
+- **Exact Line Range:** Lines 69–76
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:69-76`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L69-L76)
   ```csharp
   private MenuCategoryDto? BuildBestSellers(IReadOnlyList<string> productIds)
@@ -260,6 +282,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.16 `RefreshVisibleProducts()` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:80:5:MethodDeclaration`
+- **Exact Line Range:** Lines 80–100
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:80-100`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L80-L100)
   ```csharp
   private void RefreshVisibleProducts()
@@ -293,11 +317,15 @@ public async Task LoadMenuAsync()
   public bool HasNoResults => !IsLoadingMenu && MenuError is null && VisibleProducts.Count == 0;
   ```
 - **Behavior:** Drives empty search state in `ProductCatalogueView.xaml:124`.
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:124:50:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 124–124
 - **Verdict:** Correct.
 
 ---
 
 ### 3.18 `RetryLoadMenuAsync()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:106:5:MethodDeclaration`
+- **Exact Line Range:** Lines 106–107
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:106-107`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L106-L107)
   ```csharp
   [RelayCommand]
@@ -340,6 +368,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.22 `OnVariantPickerProductChanged(MenuProductDto? value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:158:5:MethodDeclaration`
+- **Exact Line Range:** Lines 158–158
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:158`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L158)
   ```csharp
   partial void OnVariantPickerProductChanged(MenuProductDto? value) => OnPropertyChanged(nameof(IsVariantPickerOpen));
@@ -350,6 +380,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.23 `SelectProduct(MenuProductDto product)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:160:5:MethodDeclaration`
+- **Exact Line Range:** Lines 160–166
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:160-166`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L160-L166)
   ```csharp
   [RelayCommand]
@@ -366,6 +398,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.24 `SelectOffer(OfferChoice choice)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:168:5:MethodDeclaration`
+- **Exact Line Range:** Lines 168–179
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:168-179`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L168-L179)
   ```csharp
   [RelayCommand]
@@ -418,6 +452,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.28 `OnPendingOfferChanged(MenuOfferDto? value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:191:5:MethodDeclaration`
+- **Exact Line Range:** Lines 191–195
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:191-195`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L191-L195)
   ```csharp
   partial void OnPendingOfferChanged(MenuOfferDto? value)
@@ -432,6 +468,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.29 `SelectVariant(MenuVariantDto variant)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:197:5:MethodDeclaration`
+- **Exact Line Range:** Lines 197–205
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:197-205`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L197-L205)
   ```csharp
   [RelayCommand]
@@ -450,6 +488,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.30 `CloseVariantPicker()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:207:5:MethodDeclaration`
+- **Exact Line Range:** Lines 207–208
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:207-208`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L207-L208)
   ```csharp
   [RelayCommand]
@@ -461,6 +501,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.31 `AddToCart(MenuProductDto product, MenuVariantDto? variant, string? offerId)` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:210:5:MethodDeclaration`
+- **Exact Line Range:** Lines 210–226
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:210-226`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L210-L226)
   ```csharp
   private void AddToCart(MenuProductDto product, MenuVariantDto? variant, string? offerId)
@@ -488,6 +530,8 @@ public async Task LoadMenuAsync()
 
 ### 3.32 `Cart` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:230`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L230)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:230:50:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 230–230
   ```csharp
   public ObservableCollection<CartLine> Cart { get; } = new();
   ```
@@ -517,6 +561,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.35 `RecomputeCartTotals()` (Private Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:235:5:MethodDeclaration`
+- **Exact Line Range:** Lines 235–243
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:235-243`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L235-L243)
   ```csharp
   private void RecomputeCartTotals()
@@ -536,6 +582,8 @@ public async Task LoadMenuAsync()
 
 ### 3.36 `CartItemCount` (Property Getter)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:245`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L245)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:245:42:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 245–245
   ```csharp
   public int CartItemCount => Cart.Sum(l => l.Quantity);
   ```
@@ -574,6 +622,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.39 `IncreaseQuantity(CartLine line)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:263:5:MethodDeclaration`
+- **Exact Line Range:** Lines 263–264
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:263-264`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L263-L264)
   ```csharp
   [RelayCommand]
@@ -585,6 +635,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.40 `DecreaseQuantity(CartLine line)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:266:5:MethodDeclaration`
+- **Exact Line Range:** Lines 266–272
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:266-272`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L266-L272)
   ```csharp
   [RelayCommand]
@@ -601,6 +653,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.41 `RemoveLine(CartLine line)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:274:5:MethodDeclaration`
+- **Exact Line Range:** Lines 274–275
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:274-275`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L274-L275)
   ```csharp
   [RelayCommand]
@@ -612,6 +666,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.42 `AppendNoteText(CartLine line, string note)` (Public Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:280:5:MethodDeclaration`
+- **Exact Line Range:** Lines 280–284
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:280-284`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L280-L284)
   ```csharp
   public void AppendNoteText(CartLine line, string note)
@@ -626,6 +682,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.43 `ClearCart()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:286:5:MethodDeclaration`
+- **Exact Line Range:** Lines 286–295
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:286-295`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L286-L295)
   ```csharp
   [RelayCommand]
@@ -655,6 +713,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.45 `SetOrderType(string orderType)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:301:5:MethodDeclaration`
+- **Exact Line Range:** Lines 301–302
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:301-302`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L301-L302)
   ```csharp
   [RelayCommand]
@@ -666,6 +726,8 @@ public async Task LoadMenuAsync()
 ---
 
 ### 3.46 `SelectCategory(CategoryTile tile)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:304:5:MethodDeclaration`
+- **Exact Line Range:** Lines 304–305
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:304-305`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs#L304-L305)
   ```csharp
   [RelayCommand]
@@ -694,3 +756,20 @@ public async Task LoadMenuAsync()
 
 ---
 *Audit certified by UI/UX & Code Maintainability Auditor.*
+
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:72:42:SimpleLambdaExpression` (Lines 72–72, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:72:67:SimpleLambdaExpression` (Lines 72–72, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:72:91:SimpleLambdaExpression` (Lines 72–72, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:72:103:SimpleLambdaExpression` (Lines 72–72, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:74:66:SimpleLambdaExpression` (Lines 74–74, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:85:37:SimpleLambdaExpression` (Lines 85–85, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:85:60:SimpleLambdaExpression` (Lines 85–85, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:89:25:SimpleLambdaExpression` (Lines 89–89, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:89:48:SimpleLambdaExpression` (Lines 89–89, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:90:22:SimpleLambdaExpression` (Lines 90–90, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:90:46:SimpleLambdaExpression` (Lines 90–90, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:90:58:SimpleLambdaExpression` (Lines 90–90, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:94:43:SimpleLambdaExpression` (Lines 94–94, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:213:86:SimpleLambdaExpression` (Lines 213–213, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:237:41:SimpleLambdaExpression` (Lines 237–237, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs:252:9:GetAccessorDeclaration` (Lines 252–258, `get`)

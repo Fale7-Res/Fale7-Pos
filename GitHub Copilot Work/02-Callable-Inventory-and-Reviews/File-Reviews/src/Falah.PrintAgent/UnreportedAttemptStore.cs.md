@@ -366,3 +366,5 @@ Thread-safe read protected by `_gate`.
         get { lock (_gate) return _attempts.Count; }
     }
 ```
+
+- **Canonical Callable ID:** `src/Falah.PrintAgent/UnreportedAttemptStore.cs:95:9:GetAccessorDeclaration` (Lines 95–95, `get`)

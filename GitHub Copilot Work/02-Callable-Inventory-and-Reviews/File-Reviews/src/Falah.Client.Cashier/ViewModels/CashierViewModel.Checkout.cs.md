@@ -53,6 +53,8 @@ flowchart TD
 ## 3. Exhaustive Callable Inventory and Source Review
 
 ### Callable 1: `OnLastCheckoutResultChanged`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:23:5:MethodDeclaration`
+- **Exact Line Range:** Lines 23–27
 
 ```csharp
 partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
@@ -93,7 +95,9 @@ public bool HasCheckoutResult => LastCheckoutResult is not null;
 
 ---
 
-### Callable 3: `get_ChangeDuePiastres` (CRITICAL DEFECT: UI-013)
+### Callable 3: `get_ChangeDuePiastres`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:31:9:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 31–36 (CRITICAL DEFECT: UI-013)
 
 ```csharp
 public long ChangeDuePiastres
@@ -130,6 +134,8 @@ public long ChangeDuePiastres
 ---
 
 ### Callable 4: `OpenCheckout`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:39:5:MethodDeclaration`
+- **Exact Line Range:** Lines 39–48
 
 ```csharp
 [RelayCommand]
@@ -165,6 +171,8 @@ private void OpenCheckout()
 ---
 
 ### Callable 5: `CloseCheckout`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:50:5:MethodDeclaration`
+- **Exact Line Range:** Lines 50–51
 
 ```csharp
 [RelayCommand]
@@ -189,6 +197,8 @@ private void CloseCheckout() => IsCheckoutOpen = false;
 ---
 
 ### Callable 6: `SetPaymentMethod`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:53:5:MethodDeclaration`
+- **Exact Line Range:** Lines 53–59
 
 ```csharp
 [RelayCommand]
@@ -212,6 +222,8 @@ private void SetPaymentMethod(string method)
 ---
 
 ### Callable 7: `PressAmountKey`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:61:5:MethodDeclaration`
+- **Exact Line Range:** Lines 61–71
 
 ```csharp
 [RelayCommand]
@@ -240,6 +252,8 @@ private void PressAmountKey(string key)
 ---
 
 ### Callable 8: `QuickCash`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:73:5:MethodDeclaration`
+- **Exact Line Range:** Lines 73–78
 
 ```csharp
 [RelayCommand]
@@ -262,6 +276,8 @@ private void QuickCash(string amountEgp)
 ---
 
 ### Callable 9: `CanSubmitPayment`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:80:5:MethodDeclaration`
+- **Exact Line Range:** Lines 80–80
 
 ```csharp
 private bool CanSubmitPayment() => !IsProcessingCheckout;
@@ -278,6 +294,8 @@ private bool CanSubmitPayment() => !IsProcessingCheckout;
 ---
 
 ### Callable 10: `SubmitPaymentAsync`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:82:5:MethodDeclaration`
+- **Exact Line Range:** Lines 82–140
 
 ```csharp
 [RelayCommand(CanExecute = nameof(CanSubmitPayment))]
@@ -354,6 +372,8 @@ private async Task SubmitPaymentAsync()
 ---
 
 ### Callable 11: `StartNewOrder`
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:142:5:MethodDeclaration`
+- **Exact Line Range:** Lines 142–147
 
 ```csharp
 [RelayCommand]
@@ -400,3 +420,5 @@ private void StartNewOrder()
    - Replace `long.TryParse(AmountPaidText, ...)` in `ChangeDuePiastres` with `CashInput.TryParse`.
    - Prevent modal closure during in-flight payments.
    - Freeze the checkout DTO to prevent cart mutation during retry.
+
+- **Canonical Callable ID:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs:102:36:SimpleLambdaExpression` (Lines 102–102, `SimpleLambdaExpression`)

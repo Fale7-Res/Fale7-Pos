@@ -1106,3 +1106,9 @@ Returns Arabic description of shift cash difference:
 | :--- | :--- | :--- | :--- | :--- |
 | **FLOW-001** | Two-Stage Pay-at-Pickup State Disconnect | If order ticket is printed at placement prior to customer payment, `isPaid` resolves to false (`"غير مدفوع"`). When customer later pays at collection, no automatic reprint or fiscal voucher is dispatched. | **HIGH** | Trigger an automated reprint with `"مدفوع"` banner upon pickup checkout payment completion. |
 | **PRT-003** | Partial Pair Delivery Uncertainty | On `PrintRoute.Receipt`, customer token and cashier detail ticket are separated by `TicketCut`. An unhandled mechanical cutter jam or out-of-paper event leaves the physical pair incomplete. | **MEDIUM** | Handled at agent level via write-ahead uncertain attempt store; counter staff must inspect paper before reprinting. |
+
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/PrintRules.cs:26:20:SimpleLambdaExpression` (Lines 26–26, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/PrintRules.cs:27:21:SimpleLambdaExpression` (Lines 27–27, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/PrintRules.cs:28:20:SimpleLambdaExpression` (Lines 28–28, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/PrintRules.cs:29:21:SimpleLambdaExpression` (Lines 29–29, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/PrintRules.cs:43:40:SimpleLambdaExpression` (Lines 43–43, `SimpleLambdaExpression`)

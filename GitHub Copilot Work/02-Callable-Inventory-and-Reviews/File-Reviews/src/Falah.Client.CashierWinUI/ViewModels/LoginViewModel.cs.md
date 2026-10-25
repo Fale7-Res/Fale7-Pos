@@ -39,6 +39,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ## 2. Exhaustive Per-Callable Audit
 
 ### 2.1 `LoginViewModel(AppSession session)` (Constructor)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:15:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 15–15
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:15`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L15)
   ```csharp
   public LoginViewModel(AppSession session) => _session = session;
@@ -103,6 +105,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.7 `OnPinChanged(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:31:5:MethodDeclaration`
+- **Exact Line Range:** Lines 31–31
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:31`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L31)
   ```csharp
   partial void OnPinChanged(string value) => OnPropertyChanged(nameof(PinDisplay));
@@ -113,6 +117,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.8 `OnIsBusyChanged(bool value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:32:5:MethodDeclaration`
+- **Exact Line Range:** Lines 32–32
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:32`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L32)
   ```csharp
   partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(SubmitLabel));
@@ -123,6 +129,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.9 `PressDigit(string digit)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:34:5:MethodDeclaration`
+- **Exact Line Range:** Lines 34–40
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:34-40`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L34-L40)
   ```csharp
   [RelayCommand]
@@ -142,6 +150,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.10 `Backspace()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:42:5:MethodDeclaration`
+- **Exact Line Range:** Lines 42–46
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:42-46`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L42-L46)
   ```csharp
   [RelayCommand]
@@ -156,6 +166,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.11 `Clear()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:48:5:MethodDeclaration`
+- **Exact Line Range:** Lines 48–49
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:48-49`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L48-L49)
   ```csharp
   [RelayCommand]
@@ -167,6 +179,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.12 `CanSubmit()` (Private Predicate Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:51:5:MethodDeclaration`
+- **Exact Line Range:** Lines 51–51
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:51`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L51)
   ```csharp
   private bool CanSubmit() => Pin.Length >= 4 && !IsBusy;
@@ -176,6 +190,8 @@ In [`src/Falah.Client.CashierWinUI/Views/LoginView.xaml`](file:///c:/Users/Moham
 ---
 
 ### 2.13 `SubmitAsync()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:53:5:MethodDeclaration`
+- **Exact Line Range:** Lines 53–80
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs:53-80`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/LoginViewModel.cs#L53-L80)
   ```csharp
   [RelayCommand(CanExecute = nameof(CanSubmit))]

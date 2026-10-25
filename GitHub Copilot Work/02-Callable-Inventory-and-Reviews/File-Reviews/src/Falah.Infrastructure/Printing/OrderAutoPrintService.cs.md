@@ -67,7 +67,7 @@ Thread-safe dependency assignment within scoped DI container.
 - **Callable ID:** `src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs:46:5:MethodDeclaration`
 - **Declaration Kind:** `MethodDeclaration` | **Line Range:** `46-94`
 - **Audit Classification:** `INDEPENDENTLY_VERIFIED`
-- **Linked Vulnerability Finding:** **`FLOW-001`**
+- **Linked Vulnerability Finding:** **`FLOW-002`**
 
 **A. Actual Behavior, Inputs & Return Values:**  
 Evaluates configuration rules and queues print jobs for a completed checkout:
@@ -95,7 +95,7 @@ Evaluates configuration rules and queues print jobs for a completed checkout:
 **B. Callers, Dependencies & Side Effects:**  
 Called by `POST /api/orders/checkout` in `Program.cs:1378`. Interacts with `SettingsQueryService`, `CreatePrintJobsHandler`, and EF Core persistence.
 
-**C. Detailed Analysis of Finding FLOW-001 (Two-Stage Electronic Payment Black Hole):**
+**C. Detailed Analysis of Finding FLOW-002 (Two-Stage Electronic Payment Black Hole):**
 - **The Workflow Policy:**
   When customers pay via electronic transfer (InstaPay, Vodafone Cash, digital wallet), restaurants often configure `HoldPreparationUntilPaymentConfirmed = true` so cooks do not waste expensive food before money is verified.
 - **The Execution at Checkout (Lines 65-66):**
@@ -183,5 +183,5 @@ Runs outside the checkout database transaction. The idempotency key `$"auto-{req
 
 | Finding ID | Vulnerability / Workflow Gap | Root Cause in `OrderAutoPrintService.cs` | Severity | Remediation Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| **FLOW-001** | Held Kitchen Tickets Never Printed Upon Payment Confirmation | When `HoldPreparationUntilPaymentConfirmed = true`, `kitchenRoutes` is set to false. However, `ConfirmElectronicPaymentHandler` contains zero printing invocation. The kitchen ticket is lost in a black hole. | **HIGH** | In `ConfirmElectronicPaymentHandler` (or `Program.cs`), invoke `CreatePrintJobsHandler` with `IncludeKitchenRoutes: true` and `RequestId: $"auto-confirm-{request.ConfirmRequestId}"` upon successful electronic payment confirmation. |
+| **FLOW-002** | Held Kitchen Tickets Never Printed Upon Payment Confirmation | When `HoldPreparationUntilPaymentConfirmed = true`, `kitchenRoutes` is set to false. However, `ConfirmElectronicPaymentHandler` contains zero printing invocation. The kitchen ticket is lost in a black hole. | **HIGH** | In `ConfirmElectronicPaymentHandler` (or `Program.cs`), invoke `CreatePrintJobsHandler` with `IncludeKitchenRoutes: true` and `RequestId: $"auto-confirm-{request.ConfirmRequestId}"` upon successful electronic payment confirmation. |
 | **FLOW-002** | Silent Printing Failures | When `TryPrintAsync` catches an exception, it returns `false`, which sets `PrintJobsQueued = false` in `CheckoutOrderResult`. If the UI ignores this boolean flag, cashier is unaware that tickets failed to queue. | **MEDIUM** | Cashier UI must display a prominent warning banner when `PrintJobsQueued == false`, prompting operator to verify printer or queue manual reprint. |

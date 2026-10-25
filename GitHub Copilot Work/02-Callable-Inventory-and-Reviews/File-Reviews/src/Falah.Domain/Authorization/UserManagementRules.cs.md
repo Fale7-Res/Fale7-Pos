@@ -37,7 +37,10 @@
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-UMR-001: `AssertTargetIsNotOwner(string targetRole, string action)`
+### CAL-UMR-001
+- **Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:20:5:MethodDeclaration`
+- **Exact Line Range:** Lines 20–24
+- **Signature:** `AssertTargetIsNotOwner(string, string)`: `AssertTargetIsNotOwner(string targetRole, string action)`
 - **Line Span:** [20-24](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L20-L24)
 - **Actual Behavior & Inputs:**
   - Evaluates `if (targetRole == OwnerRole)` (where `OwnerRole = "owner"`).
@@ -54,7 +57,10 @@
 
 ---
 
-### CAL-UMR-002 & CAL-UMR-003: `AssertNoPrivilegeEscalation` & Lambda
+### CAL-UMR-002
+- **Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:29:5:MethodDeclaration`
+- **Exact Line Range:** Lines 29–35
+- **Signature:** `AssertNoPrivilegeEscalation(IReadOnlySet<string>, IEnumerable<string>)` & CAL-UMR-003: `AssertNoPrivilegeEscalation` & Lambda
 - **Line Span:** [29-35](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L29-L35)
 - **Actual Behavior & Inputs:**
   1. Superuser Shortcut: If `actorPermissions.Contains("all")`, returns immediately.
@@ -72,7 +78,10 @@
 
 ---
 
-### CAL-UMR-004: `CanManageUsers(IEnumerable<string> permissions)`
+### CAL-UMR-004
+- **Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:44:5:MethodDeclaration`
+- **Exact Line Range:** Lines 44–48
+- **Signature:** `CanManageUsers(IEnumerable<string>)`: `CanManageUsers(IEnumerable<string> permissions)`
 - **Line Span:** [44-48](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L44-L48)
 - **Actual Behavior & Inputs:**
   - Converts `permissions` to `IReadOnlySet<string>` if not already one.
@@ -85,7 +94,10 @@
 
 ---
 
-### CAL-UMR-005: `AssertUserAdministrationSurvives(int remainingActiveAdministrators)`
+### CAL-UMR-005
+- **Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:57:5:MethodDeclaration`
+- **Exact Line Range:** Lines 57–63
+- **Signature:** `AssertUserAdministrationSurvives(int)`: `AssertUserAdministrationSurvives(int remainingActiveAdministrators)`
 - **Line Span:** [57-63](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L57-L63)
 - **Actual Behavior & Inputs:**
   - Checks `if (remainingActiveAdministrators <= 0)`.
@@ -101,7 +113,10 @@
 
 ---
 
-### CAL-UMR-006 & CAL-UMR-007: `AssertKnownPermissions` & Lambda
+### CAL-UMR-006
+- **Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:65:5:MethodDeclaration`
+- **Exact Line Range:** Lines 65–70
+- **Signature:** `AssertKnownPermissions(IEnumerable<string>)` & CAL-UMR-007: `AssertKnownPermissions` & Lambda
 - **Line Span:** [65-70](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L65-L70)
 - **Actual Behavior & Inputs:**
   - Evaluates `unknown = permissions.Where(p => !PermissionCatalog.Keys.Contains(p)).ToList()`.
@@ -130,3 +145,6 @@
 1. **Transaction Isolation for Admin Survival:** Enforce serializable isolation or an atomic database constraint on `AssertUserAdministrationSurvives` to prevent concurrent mutual deactivation.
 2. **Context Binding:** Ensure handlers invoke `UserManagementRules` using actor permissions retrieved from the cryptographically verified session token (`context.Actor()`), eliminating SEC-001 bypass vectors.
 3. **Static Verification:** Verified complete against `src/Falah.Domain/Authorization/UserManagementRules.cs`. No application source modified.
+
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:32:48:SimpleLambdaExpression` (Lines 32–32, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/UserManagementRules.cs:67:41:SimpleLambdaExpression` (Lines 67–67, `SimpleLambdaExpression`)

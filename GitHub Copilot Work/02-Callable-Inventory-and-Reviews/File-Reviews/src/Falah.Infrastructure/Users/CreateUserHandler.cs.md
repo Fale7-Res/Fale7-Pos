@@ -37,6 +37,8 @@
 
 ### CAL-CU-001: Constructor `CreateUserHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
 - **Line Span:** [23-27](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L23-L27)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:23:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 23–27
 - **Actual Behavior & Inputs:** Captures `FalahDbContext` for persistence and `IApprovalRegistry` for manager approval token validation.
 - **Callers & Dependencies:** Injected via ASP.NET Core DI in Minimal API endpoint `POST /api/users` ([Program.cs#L1898](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1898)).
 - **Side Effects:** Stores references in private fields `_db` and `_approvalRegistry`.
@@ -46,6 +48,8 @@
 
 ### CAL-CU-002: `HandleAsync(CreateUserRequest request, CancellationToken ct = default)`
 - **Line Span:** [29-95](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L29-L95)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:29:5:MethodDeclaration`
+- **Exact Line Range:** Lines 29–95
 - **Actual Behavior & Execution Flow:**
   1. **Deterministic Identity Formation:** Mints `id = $"user-{request.RequestId}"`.
   2. **Stage 1 Replay Guard:** Queries `_db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct)`. If an entity exists, returns `new CreateUserResult(existing.Id, WasReplayed: true)` without executing further validation.
@@ -88,6 +92,8 @@
 
 ### CAL-CU-003: `HandleAsync::<lambda_replay_check>` (`u => u.Id == id`)
 - **Line:** [32](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L32)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:32:75:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 32–32
 - **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` performing initial idempotency lookup on primary key `id`.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -95,6 +101,8 @@
 
 ### CAL-CU-004: `HandleAsync::<lambda_owner_check>` (`u => u.Role == UserManagementRules.OwnerRole`)
 - **Line:** [43](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L43)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:43:56:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 43–43
 - **Actual Behavior & Inputs:** Expression predicate for `AnyAsync` asserting whether any row in `Users` has `Role == "owner"`.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL `EXISTS` query.
 
@@ -102,6 +110,8 @@
 
 ### CAL-CU-005: `HandleAsync::<lambda_actor_lookup>` (`u => u.Id == request.ActorUserId`)
 - **Line:** [48](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L48)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:48:76:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 48–48
 - **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` resolving the acting user from the untrusted request model.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -109,6 +119,8 @@
 
 ### CAL-CU-006: `HandleAsync::<lambda_pin_replay_check>` (`u => u.Id == id`)
 - **Line:** [66](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L66)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:66:77:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 66–66
 - **Actual Behavior & Inputs:** Expression predicate used within the PIN collision exception handler to confirm whether the apparent PIN collision was caused by a completed concurrent replay of the same request.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -116,6 +128,8 @@
 
 ### CAL-CU-007: `HandleAsync::<lambda_dbupdate_replay_check>` (`u => u.Id == id`)
 - **Line:** [90](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs#L90)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/CreateUserHandler.cs:90:77:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 90–90
 - **Actual Behavior & Inputs:** Expression predicate used within the `DbUpdateException` catch handler to verify if primary key duplicate key violation was due to an identical replayed request.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 

@@ -191,6 +191,10 @@ Passed to `.Where()` at line 35. Read-only database query.
 ### Callable 4: Lambda `o => o.Id == request.OrderId`
 - **Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:46:83:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `46-46`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:46:61:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 46–46
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:46:95:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 46–46
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -207,6 +211,8 @@ Predicate for EF Core query finding `OrderEntity` by primary key `Id`. Evaluated
 ### Callable 5: Lambda `u => u.Id == request.ActorUserId`
 - **Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:48:69:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `48-48`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:48:76:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 48–48
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -223,6 +229,8 @@ Predicate finding the operating cashier or supervisor user record by primary key
 ### Callable 6: Lambda `i => i.PreparationStation`
 - **Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:52:50:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `52-52`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:52:68:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 52–52
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -239,6 +247,8 @@ Selects the frozen preparation station string from each `OrderItemEntity`. Enabl
 ### Callable 7: Lambda `route => new PrintJobEntity { ... }`
 - **Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:60:29:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `60-65`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:60:34:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 60–65
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -260,6 +270,8 @@ Projection function creating `PrintJobEntity` instances for each resolved route.
 ### Callable 8: Lambda `j => j.CreateRequestId == request.RequestId` (Replay Catch)
 - **Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:87:66:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `87-87`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:87:67:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 87–87
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  

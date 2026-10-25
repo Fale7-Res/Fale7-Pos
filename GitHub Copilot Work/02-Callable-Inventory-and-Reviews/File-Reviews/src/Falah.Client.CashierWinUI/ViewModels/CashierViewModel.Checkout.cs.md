@@ -60,6 +60,8 @@ sequenceDiagram
 ## 3. Exhaustive Callable Inventory and Source Review
 
 ### Callable 1: `OnAmountPaidTextChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:13:5:MethodDeclaration`
+- **Exact Line Range:** Lines 13–13
 
 ```csharp
 partial void OnAmountPaidTextChanged(string value)
@@ -81,6 +83,10 @@ partial void OnAmountPaidTextChanged(string value)
 ---
 
 ### Callable 2: `get_DiscountNeedsApproval`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:198:9:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 198–203
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:65:62:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 65–65
 
 ```csharp
 public bool DiscountNeedsApproval => !_session.HasPermission("orders_discount");
@@ -115,6 +121,8 @@ public long DiscountAmountPiastres =>
 ---
 
 ### Callable 4: `OnIsDiscountEnabledChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:28:5:MethodDeclaration`
+- **Exact Line Range:** Lines 28–35
 
 ```csharp
 partial void OnIsDiscountEnabledChanged(bool value)
@@ -138,6 +146,8 @@ partial void OnIsDiscountEnabledChanged(bool value)
 ---
 
 ### Callable 5: `OnDiscountAmountTextChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:37:5:MethodDeclaration`
+- **Exact Line Range:** Lines 37–43
 
 ```csharp
 partial void OnDiscountAmountTextChanged(string value)
@@ -228,6 +238,8 @@ public IReadOnlyList<CompReasonOption> CompReasonCodes { get; } = new[]
 ---
 
 ### Callable 10: `SetCompReasonCode`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:72:5:MethodDeclaration`
+- **Exact Line Range:** Lines 72–73
 
 ```csharp
 [RelayCommand]
@@ -244,6 +256,8 @@ private void SetCompReasonCode(string code) => CompReasonCode = code;
 ---
 
 ### Callable 11: `OnIsCompEnabledChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:75:5:MethodDeclaration`
+- **Exact Line Range:** Lines 75–82
 
 ```csharp
 partial void OnIsCompEnabledChanged(bool value)
@@ -266,6 +280,8 @@ partial void OnIsCompEnabledChanged(bool value)
 ---
 
 ### Callable 12: `OnCompAmountTextChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:84:5:MethodDeclaration`
+- **Exact Line Range:** Lines 84–90
 
 ```csharp
 partial void OnCompAmountTextChanged(string value)
@@ -287,6 +303,8 @@ partial void OnCompAmountTextChanged(string value)
 ---
 
 ### Callable 13: `SetSplitMethod1`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:100:5:MethodDeclaration`
+- **Exact Line Range:** Lines 100–101
 
 ```csharp
 [RelayCommand]
@@ -303,6 +321,8 @@ private void SetSplitMethod1(string method) => SplitMethod1 = method;
 ---
 
 ### Callable 14: `SetSplitMethod2`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:103:5:MethodDeclaration`
+- **Exact Line Range:** Lines 103–104
 
 ```csharp
 [RelayCommand]
@@ -368,6 +388,8 @@ public bool CanCancelPendingPayment => !IsOperationBusy && !_pendingElectronicCo
 ---
 
 ### Callable 18: `ConfirmElectronicPaymentAsync`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:121:5:MethodDeclaration`
+- **Exact Line Range:** Lines 121–144
 
 ```csharp
 [RelayCommand]
@@ -407,6 +429,8 @@ private async Task ConfirmElectronicPaymentAsync()
 ---
 
 ### Callable 19: `CancelPendingElectronicPaymentAsync`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:146:5:MethodDeclaration`
+- **Exact Line Range:** Lines 146–174
 
 ```csharp
 [RelayCommand]
@@ -452,6 +476,8 @@ private async Task CancelPendingElectronicPaymentAsync()
 ---
 
 ### Callable 20: `OnLastCheckoutResultChanged`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:184:5:MethodDeclaration`
+- **Exact Line Range:** Lines 184–194
 
 ```csharp
 partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
@@ -501,6 +527,8 @@ public long ChangeDuePiastres
 ---
 
 ### Callable 22: `get_CanOpenCheckout`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:228:5:MethodDeclaration`
+- **Exact Line Range:** Lines 228–248
 
 ```csharp
 public bool CanOpenCheckout =>
@@ -538,6 +566,8 @@ public string? CheckoutBlockedReason =>
 ---
 
 ### Callable 24: `NotifyCheckoutAvailability`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:222:5:MethodDeclaration`
+- **Exact Line Range:** Lines 222–226
 
 ```csharp
 public void NotifyCheckoutAvailability()
@@ -590,6 +620,8 @@ private void OpenCheckout()
 ---
 
 ### Callable 26: `CloseCheckout`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:250:5:MethodDeclaration`
+- **Exact Line Range:** Lines 250–251
 
 ```csharp
 [RelayCommand]
@@ -611,6 +643,8 @@ private void CloseCheckout()
 ---
 
 ### Callable 27: `SetPaymentMethod`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:253:5:MethodDeclaration`
+- **Exact Line Range:** Lines 253–261
 
 ```csharp
 [RelayCommand]
@@ -633,6 +667,8 @@ private void SetPaymentMethod(string method)
 ---
 
 ### Callable 28: `PressAmountKey`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:263:5:MethodDeclaration`
+- **Exact Line Range:** Lines 263–276
 
 ```csharp
 [RelayCommand]
@@ -661,6 +697,8 @@ private void PressAmountKey(string key)
 ---
 
 ### Callable 29: `QuickCash`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:278:5:MethodDeclaration`
+- **Exact Line Range:** Lines 278–285
 
 ```csharp
 [RelayCommand]
@@ -683,6 +721,8 @@ private void QuickCash(string amountEgp)
 ---
 
 ### Callable 30: `CanSubmitPayment`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:287:5:MethodDeclaration`
+- **Exact Line Range:** Lines 287–287
 
 ```csharp
 private bool CanSubmitPayment() => !IsProcessingCheckout;
@@ -698,6 +738,8 @@ private bool CanSubmitPayment() => !IsProcessingCheckout;
 ---
 
 ### Callable 31: `SubmitPaymentAsync`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:289:5:MethodDeclaration`
+- **Exact Line Range:** Lines 289–389
 
 ```csharp
 [RelayCommand(CanExecute = nameof(CanSubmitPayment))]
@@ -735,6 +777,8 @@ private async Task SubmitPaymentAsync()
 ---
 
 ### Callable 32: `NullIfEmpty`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:391:5:MethodDeclaration`
+- **Exact Line Range:** Lines 391–391
 
 ```csharp
 private static string? NullIfEmpty(string value) => string.IsNullOrWhiteSpace(value) ? null : value;
@@ -750,6 +794,8 @@ private static string? NullIfEmpty(string value) => string.IsNullOrWhiteSpace(va
 ---
 
 ### Callable 33: `StartNewOrder`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:393:5:MethodDeclaration`
+- **Exact Line Range:** Lines 393–400
 
 ```csharp
 [RelayCommand]
@@ -773,6 +819,8 @@ private void StartNewOrder()
 ---
 
 ### Callable 34: `CompleteCheckoutAsync`
+- **Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:402:5:MethodDeclaration`
+- **Exact Line Range:** Lines 402–427
 
 ```csharp
 private CheckoutOrderRequest? _pendingCheckout;
@@ -837,3 +885,9 @@ private async Task CompleteCheckoutAsync(CheckoutOrderRequest request)
    - Decouple `CanConfirmPendingPayment` and `CanCancelPendingPayment` from `LastCheckoutResult != null`. Allow recovering pending electronic confirmations directly from retained disk state.
 3. **Resolve `UI-006` (Pickup State Leak):**
    - In `StartNewOrder()`, invoke `ResetPickup()` to reset `RequestedPickupAtUtc` alongside `ResetDelivery()`.
+
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:131:77:SimpleLambdaExpression` (Lines 131–131, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:161:76:SimpleLambdaExpression` (Lines 161–161, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:318:87:SimpleLambdaExpression` (Lines 318–318, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:342:38:SimpleLambdaExpression` (Lines 342–342, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs:353:36:SimpleLambdaExpression` (Lines 353–353, `SimpleLambdaExpression`)

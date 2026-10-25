@@ -48,7 +48,10 @@ A 4-to-6 digit decimal PIN has a maximum keyspace of $10^6$ (one million) combin
 
 ---
 
-### CAL-PH-002: `PinHasher.Hash(string pin, int iterations = DefaultIterations)`
+### CAL-PH-002:
+- **Callable ID:** `src/Falah.Domain/Authorization/PinHasher.cs:25:5:MethodDeclaration`
+- **Exact Line Range:** Lines 25–29
+- **Signature:** `PinHasher.Hash(string, int)` `PinHasher.Hash(string pin, int iterations = DefaultIterations)`
 - **Line Span:** [25-29](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs#L25-L29)
 - **Actual Behavior & Inputs:**
   1. Input Validation: Calls `AssertValidPin(pin)` to enforce format and strength rules.
@@ -65,7 +68,10 @@ A 4-to-6 digit decimal PIN has a maximum keyspace of $10^6$ (one million) combin
 
 ---
 
-### CAL-PH-003: `PinHasher.HashWithoutValidation(string pin, int iterations = DefaultIterations)`
+### CAL-PH-003:
+- **Callable ID:** `src/Falah.Domain/Authorization/PinHasher.cs:37:5:MethodDeclaration`
+- **Exact Line Range:** Lines 37–42
+- **Signature:** `PinHasher.HashWithoutValidation(string, int)` `PinHasher.HashWithoutValidation(string pin, int iterations = DefaultIterations)`
 - **Line Span:** [37-42](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs#L37-L42)
 - **Actual Behavior & Inputs:**
   1. Salt Generation: `salt = RandomNumberGenerator.GetBytes(16)`.
@@ -81,7 +87,10 @@ A 4-to-6 digit decimal PIN has a maximum keyspace of $10^6$ (one million) combin
 
 ---
 
-### CAL-PH-004: `PinHasher.Verify(string pin, string hashBase64, string saltBase64, int iterations)`
+### CAL-PH-004:
+- **Callable ID:** `src/Falah.Domain/Authorization/PinHasher.cs:47:5:MethodDeclaration`
+- **Exact Line Range:** Lines 47–53
+- **Signature:** `PinHasher.Verify(string, string, string, int)` `PinHasher.Verify(string pin, string hashBase64, string saltBase64, int iterations)`
 - **Line Span:** [47-53](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs#L47-L53)
 - **Actual Behavior & Inputs:**
   1. Base64 Decoding:
@@ -108,6 +117,8 @@ A 4-to-6 digit decimal PIN has a maximum keyspace of $10^6$ (one million) combin
 
 ### CAL-PH-005 & CAL-PH-006: `PinHasher.AssertValidPin(string pin)`
 - **Line Span:** [59-65](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs#L59-L65)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/PinHasher.cs:59:5:MethodDeclaration`
+- **Exact Line Range:** Lines 59–65
 - **Actual Behavior & Inputs:**
   1. Format & Length Check:
      - If `string.IsNullOrEmpty(pin) || pin.Length < 4 || pin.Length > 6 || !pin.All(char.IsAsciiDigit)`, throws `DomainException("رمز PIN يجب أن يكون من 4 إلى 6 أرقام.")`.

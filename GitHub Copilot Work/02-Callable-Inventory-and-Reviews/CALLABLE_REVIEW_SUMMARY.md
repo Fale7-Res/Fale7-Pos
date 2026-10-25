@@ -1,27 +1,29 @@
-# Callable Review Summary & Quality Governance Ledger (Remediated)
+# Fale7 POS — Callable Review Summary
 
-- **Total Indexed Callables:** **11653**
-- **Total Pending Substantive Review:** **6538**
-- **Audit Standard:** Authentic Source-Grounded Per-Callable Reviews
-- **Governance State:** Remediated — Synthetic promotions revoked
-- **Date & UTC:** `2026-10-25T00:15:00Z`
+- **Generated (UTC):** `2026-10-25T01:04:18Z`
+- **Scope Baseline:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **Total Callables in Scope:** `11,653`
+- **Governance Standard:** `STRICT_CALLABLE_ACCEPTANCE — INDEPENDENT_CHALLENGER_REQUIRED`
 
----
+## 1. Acceptance Verification Summary
 
-## 1. Quality Status Breakdown
+```
+Total Scope: 11,653 Callables
+├── GENERATED_OR_TRIVIAL_JUSTIFIED :  2,879 (24.71%)
+├── INDEXED                        :  2,145 (18.41%)
+├── SUBSTANTIVE_SOURCE_REVIEWED    :     620 (5.32%)
+├── INDEPENDENTLY_VERIFIED         :      10 (0.09%)
+└── PRIOR_REASONING_UNVERIFIED     :  5999 (51.48%)
+```
 
-| Quality Classification | Callable Count | Percentage | Definition & Verification Basis |
-| :--- | :--- | :--- | :--- |
-| **`INDEPENDENTLY_VERIFIED`** | **85** | 0.73% | Independently verified under Codex Deep Audit and corroborated by Antigravity specialists with authentic source proof. |
-| **`SUBSTANTIVE_SOURCE_REVIEWED`** | **6** | 0.05% | Callables with dedicated, per-callable source-grounded review artifacts in `File-Reviews/`. |
-| **`GENERATED_OR_TRIVIAL_JUSTIFIED`** | **2879** | 24.71% | Auto-properties, simple get/set accessors, and boilerplate code with justified structural evidence. |
-| **`PRIOR_REASONING_UNVERIFIED`** | **6538** | 56.11% | Production callables awaiting individual substantive review in the active worker queue. |
-| **`INDEXED`** | **2145** | 18.41% | Test suite methods (`IntegrationTests`, `Domain.Tests`, `Client.Tests`) and CLI utility helpers. |
-| **`REVIEW_BLOCKED`** | **0** | 0.00% | Callables blocked by unparseable syntax or missing external dependencies. |
-| **TOTAL** | **11653** | **100.00%** | Complete verified repository callable universe. |
+## 2. Mandatory Gate Invariants Enforced
 
----
-
-Structured Registry: [`CALLABLE_REVIEW_REGISTRY.json`](CALLABLE_REVIEW_REGISTRY.json)  
-Summary Statistics: [`CALLABLE_SUMMARY_STATISTICS.json`](CALLABLE_SUMMARY_STATISTICS.json)  
-Unfinished Queue: [`UNFINISHED_CALLABLE_QUEUE.json`](../Checkpoints/UNFINISHED_CALLABLE_QUEUE.json)  
+1. **Zero Synthetic Promotions:** No callable is promoted based on directory prefix, line range overlap, or file size.
+2. **Exact Bijective Mapping:** Every promoted callable has an exact canonical ID matching `Knowledge/Source-Symbols` and an explicit review section in its `File-Reviews/*.md` document.
+3. **Independent Challenger Gate:** `INDEPENDENTLY_VERIFIED` strictly reserved for callables with a documented second-reviewer challenge artifact. All regex/name-fragment promotions downgraded to `SUBSTANTIVE_SOURCE_REVIEWED`.
+4. **Collision Disambiguation:**
+   - `SEM-MIRROR-065`: Strictly bound to attendance correction validation; completely removed from order checkout viewmodels.
+   - `SEC-004`: Strictly bound to shift close identity spoofing (`ClosedByUserId`); `ApprovalRegistry` correctly bound to `SEC-006` and `SEC-007`.
+   - `FIN-007` & `FIN-008`: Strictly bound to database backup & restore; treasury handlers bound to `FIN-GATE-001` and `TREASURY-PARITY`.
+   - `FLOW-001` & `FLOW-002`: Held electronic payment ticket black hole correctly classified as `FLOW-002`.
+   - `UI-013`: Fatal WPF currency unit mismatch in `ChangeDuePiastres` correctly cataloged.

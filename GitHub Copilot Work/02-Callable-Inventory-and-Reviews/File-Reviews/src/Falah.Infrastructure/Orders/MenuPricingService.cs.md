@@ -54,6 +54,8 @@ sequenceDiagram
 ## 3. Callable Inventory and Forensic Source Analysis
 
 ### Callable 1: `MenuPricingService..ctor`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:21:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 21–21
 
 ```csharp
 private readonly FalahDbContext _db;
@@ -85,6 +87,8 @@ public sealed record ResolvedItem(OrderItem Item, string? RecipeId);
 ---
 
 ### Callable 3: `MenuPricingService.ResolveAsync`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:25:5:MethodDeclaration`
+- **Exact Line Range:** Lines 25–68
 
 ```csharp
 public async Task<List<ResolvedItem>> ResolveAsync(
@@ -159,6 +163,8 @@ public async Task<List<ResolvedItem>> ResolveAsync(
 ### Callable 4–8: Lambdas within `ResolveAsync`
 
 - **Callable 4 (Line 29):** `r => r.ProductId`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:29:42:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 29–29
   - Signature: `Func<CheckoutItemRequest, string>`
   - Purpose: Projects product IDs from requests for distinct extraction.
 - **Callable 5 (Line 31):**
@@ -178,6 +184,8 @@ public async Task<List<ResolvedItem>> ResolveAsync(
 ---
 
 ### Callable 9: `MenuPricingService.ToDomainRule`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:70:5:MethodDeclaration`
+- **Exact Line Range:** Lines 70–74
 
 ```csharp
 public static PriceRule ToDomainRule(PriceRuleEntity entity) => new(
@@ -237,3 +245,15 @@ public static PriceRule ToDomainRule(PriceRuleEntity entity) => new(
      - Fallback from expired offer to list price.
      - Variant list price precedence over base price.
      - Variant recipe ID precedence over product recipe ID.
+
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:30:51:SimpleLambdaExpression` (Lines 30–30, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:31:20:SimpleLambdaExpression` (Lines 31–31, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:31:70:SimpleLambdaExpression` (Lines 31–31, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:33:55:SimpleLambdaExpression` (Lines 33–33, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:33:80:SimpleLambdaExpression` (Lines 33–33, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:34:20:SimpleLambdaExpression` (Lines 34–34, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:49:59:SimpleLambdaExpression` (Lines 49–49, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:54:52:SimpleLambdaExpression` (Lines 54–54, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:54:72:SimpleLambdaExpression` (Lines 54–54, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:71:56:SimpleLambdaExpression` (Lines 71–71, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Orders/MenuPricingService.cs:73:52:SimpleLambdaExpression` (Lines 73–73, `SimpleLambdaExpression`)

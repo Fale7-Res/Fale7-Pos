@@ -37,6 +37,8 @@
 
 ### 2.2 `ShellViewModel(AppSession session, HeaderViewModel header)` (Constructor)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:35-53`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs#L35-L53)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:35:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 35–53
   ```csharp
   public ShellViewModel(AppSession session, HeaderViewModel header)
   {
@@ -72,6 +74,8 @@
 
 ### 2.3 `BuildGroups()` (Private Method)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:72-95`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs#L72-L95)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:72:5:MethodDeclaration`
+- **Exact Line Range:** Lines 72–95
 - **Behavior:** Transforms the flat `NavItems` list into horizontal navigation groups based on the static `GroupPlan` (Dashboard, Sales, Menu, Stock, Buying, Money, People, Insight, More). Empty groups (where user lacks permissions for all members) are discarded. Groups containing exactly 1 item are collapsed into direct navigation buttons (`IsDirect = true`). Any item not in `GroupPlan` is appended to the "More" (`المزيد`) dropdown.
 - **Async Hazards & Exceptions:** Pure synchronous collection projection. No async hazard.
 - **Theme & Accessibility:** Groups determine the top navigation buttons rendered in `NavBar`.
@@ -81,7 +85,11 @@
 
 ### 2.4 `AllCandidates()` (Private Static Method)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:102-142`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs#L102-L142)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:102:5:MethodDeclaration`
+- **Exact Line Range:** Lines 102–142
 - **Behavior:** Returns an enumerable of all 24 potential module destinations with their system keys, Arabic labels, and required permission codes:
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:24:58:GetAccessorDeclaration`
+- **Exact Line Range:** Lines 24–24
   `dashboard` (`reports_view`), `cashier` (`pos`), `treasury` (`reports_view`), `orders` (`orders_view_all`), `delivery` (`delivery_manage`), `customers` (`delivery_manage`), `reports` (`reports_view`), `daily_statement` (`reports_view`), `daily_summary` (`reports_view`), `shifts` (`shifts_manage`), `inventory` (`inventory_manage`), `recipes` (`menu_manage`), `waste` (`inventory_manage`), `purchasing` (`purchasing_manage`), `suppliers` (`suppliers_manage`), `employees` (`employees_manage`), `attendance` (`attendance_manage`), `payroll` (`employees_ledger`), `menu` (`menu_manage`), `users` (`users_manage`), `audit` (`audit_view`), `controlcenter` (`control_center`), `backup` (`backup_manage`), `settings` (`settings_manage`), `printing` (`settings_manage`).
 - **Async Hazards & Exceptions:** Static allocation. No async hazard.
 - **Theme & Accessibility:** Provides Arabic labels and system keys.
@@ -91,6 +99,8 @@
 
 ### 2.5 `Navigate(ShellNavItem item)` (Private Method, RelayCommand)
 - **Source Anchor:** [`src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:144-177`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs#L144-L177)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:144:5:MethodDeclaration`
+- **Exact Line Range:** Lines 144–177
   ```csharp
   [RelayCommand]
   private void Navigate(ShellNavItem item)
@@ -126,104 +136,154 @@
 ### 2.6 Page Creation Factories (Private Methods)
 
 #### 2.6.1 `CreateOrders()` (Lines 179-184)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:179:5:MethodDeclaration`
+- **Exact Line Range:** Lines 179–184
 - **Behavior:** `var vm = new OrdersViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** `LoadAsync()` queries `/api/orders?actorUserId={_session.CurrentUser!.Id}`. If `CurrentUser` is null, throws `NullReferenceException` immediately. Unawaited `_ =` discards the exception.
 - **Virtualization Impact:** Loads order list into unvirtualized `ItemsControl` in `OrdersView.xaml:62`.
 
 #### 2.6.2 `CreateCustomers()` (Line 186)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:186:5:MethodDeclaration`
+- **Exact Line Range:** Lines 186–186
 - **Behavior:** `return new CustomersViewModel(_session);`
 - **Hazards:** Pure instantiation; query only runs on phone number entry. Safe.
 
 #### 2.6.3 `CreateMenu()` (Lines 188-193)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:188:5:MethodDeclaration`
+- **Exact Line Range:** Lines 188–193
 - **Behavior:** `var vm = new MenuViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Fire-and-forget `_ = vm.LoadAsync()`. Re-fetches full menu catalogue on every navigation.
 
 #### 2.6.4 `CreateSettings()` (Lines 195-200)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:195:5:MethodDeclaration`
+- **Exact Line Range:** Lines 195–200
 - **Behavior:** `var vm = new SettingsViewModel(_session, _header); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads station parameters, printer configurations, and tax rules. Fire-and-forget load.
 
 #### 2.6.5 `CreateBackup()` (Lines 202-207)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:202:5:MethodDeclaration`
+- **Exact Line Range:** Lines 202–207
 - **Behavior:** `var vm = new BackupViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Fire-and-forget `_ = vm.LoadAsync()`. Unhandled database backup history retrieval.
 
 #### 2.6.6 `CreateControlCenter()` (Lines 209-214)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:209:5:MethodDeclaration`
+- **Exact Line Range:** Lines 209–214
 - **Behavior:** `var vm = new ControlCenterViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads active business day state and checklist items. Fire-and-forget load.
 
 #### 2.6.7 `CreatePrinting()` (Lines 216-221)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:216:5:MethodDeclaration`
+- **Exact Line Range:** Lines 216–221
 - **Behavior:** `var vm = new PrintingViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Polls spooler queues and print job routes. Fire-and-forget load.
 
 #### 2.6.8 `CreateUsers()` (Lines 223-228)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:223:5:MethodDeclaration`
+- **Exact Line Range:** Lines 223–228
 - **Behavior:** `var vm = new UsersViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Fetches user roster and permission catalog. Fire-and-forget load.
 
 #### 2.6.9 `CreateAudit()` (Lines 230-235)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:230:5:MethodDeclaration`
+- **Exact Line Range:** Lines 230–235
 - **Behavior:** `var vm = new AuditViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads security and audit event logs. Fire-and-forget load.
 
 #### 2.6.10 `CreateEmployees()` (Lines 237-242)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:237:5:MethodDeclaration`
+- **Exact Line Range:** Lines 237–242
 - **Behavior:** `var vm = new EmployeesViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads staff profiles, hourly wage rates, and active assignments. Fire-and-forget load.
 
 #### 2.6.11 `CreateAttendance()` (Lines 244-249)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:244:5:MethodDeclaration`
+- **Exact Line Range:** Lines 244–249
 - **Behavior:** `var vm = new AttendanceViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads shift check-in/out timestamps and lateness records. Fire-and-forget load.
 
 #### 2.6.12 `CreatePayroll()` (Lines 251-256)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:251:5:MethodDeclaration`
+- **Exact Line Range:** Lines 251–256
 - **Behavior:** `var vm = new PayrollViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Queries wage disbursement sheets and advances ledger. Fire-and-forget load.
 
 #### 2.6.13 `CreateRecipes()` (Lines 258-263)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:258:5:MethodDeclaration`
+- **Exact Line Range:** Lines 258–263
 - **Behavior:** `var vm = new RecipesViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Fire-and-forget load. Contains known UI-018 in-flight recipe detail race condition.
 
 #### 2.6.14 `CreateWaste()` (Lines 265-270)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:265:5:MethodDeclaration`
+- **Exact Line Range:** Lines 265–270
 - **Behavior:** `var vm = new WasteViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads ingredient spoilage, waste, and breakage records. Fire-and-forget load.
 
 #### 2.6.15 `CreatePurchasing()` (Lines 272-277)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:272:5:MethodDeclaration`
+- **Exact Line Range:** Lines 272–277
 - **Behavior:** `var vm = new PurchasingViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads supplier invoices, payables aging, and purchase orders. Fire-and-forget load.
 
 #### 2.6.16 `CreateTreasury()` (Lines 279-284)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:279:5:MethodDeclaration`
+- **Exact Line Range:** Lines 279–284
 - **Behavior:** `var vm = new TreasuryViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Queries safe/drawer cash balances and journal transfers. Fire-and-forget load.
 
 #### 2.6.17 `CreateShifts()` (Lines 286-291)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:286:5:MethodDeclaration`
+- **Exact Line Range:** Lines 286–291
 - **Behavior:** `var vm = new ShiftsViewModel(_session, _header); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads active shift totals and closed shift history. Fire-and-forget load.
 
 #### 2.6.18 `CreateInventory()` (Lines 293-298)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:293:5:MethodDeclaration`
+- **Exact Line Range:** Lines 293–298
 - **Behavior:** `var vm = new InventoryViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads stock balances and low-stock alerts. Fire-and-forget load.
 
 #### 2.6.19 `CreateOwnerDashboard()` (Lines 300-308)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:300:5:MethodDeclaration`
+- **Exact Line Range:** Lines 300–308
 - **Behavior:** `var vm = new OwnerDashboardViewModel(_session, NavigateByKey); _ = vm.LoadAsync(); return vm;`
 - **State Transition:** Injects `NavigateByKey` delegate callback so clicking metric alert cards (e.g., overdue invoices, inventory shortages) navigates to the target module through `ShellViewModel`.
 - **Hazards:** Fire-and-forget load.
 
 #### 2.6.20 `NavigateByKey(string key)` (Lines 310-313)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:310:5:MethodDeclaration`
+- **Exact Line Range:** Lines 310–313
 - **Behavior:** `if (NavItems.FirstOrDefault(i => i.Key == key) is { } target) Navigate(target);`
 - **Security:** Safely checks that target key exists in user's permitted `NavItems` before invoking `Navigate()`. If user lacks permission for the target screen, navigation is a no-op.
 
 #### 2.6.21 `CreateReports()` (Lines 315-320)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:315:5:MethodDeclaration`
+- **Exact Line Range:** Lines 315–320
 - **Behavior:** `var vm = new ReportsViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Loads sales summaries, peak hours, category shares. Fire-and-forget load.
 
 #### 2.6.22 `CreateDailySummary()` (Lines 322-327)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:322:5:MethodDeclaration`
+- **Exact Line Range:** Lines 322–327
 - **Behavior:** `var vm = new DailySummaryViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Compact single-sheet financial statement. Fire-and-forget load.
 
 #### 2.6.23 `CreateDailyStatement()` (Lines 329-334)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:329:5:MethodDeclaration`
+- **Exact Line Range:** Lines 329–334
 - **Behavior:** `var vm = new DailyStatementViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Full 8-section audit statement. Fire-and-forget load. Contains unvirtualized list bindings.
 
 #### 2.6.24 `CreateDelivery()` (Lines 336-341)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:336:5:MethodDeclaration`
+- **Exact Line Range:** Lines 336–341
 - **Behavior:** `var vm = new DeliveryViewModel(_session); _ = vm.LoadAsync(); return vm;`
 - **Hazards:** Driver directory and delivery status tracking. Fire-and-forget load.
 
 #### 2.6.25 `CreateCashier()` (Lines 343-348)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:343:5:MethodDeclaration`
+- **Exact Line Range:** Lines 343–348
 - **Behavior:**
   ```csharp
   var vm = _session.GetCashier(_header);
@@ -252,3 +312,12 @@
 
 ---
 *Audit completed and certified by UI/UX & Code Maintainability Auditor.*
+
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:28:60:GetAccessorDeclaration` (Lines 28–28, `get`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:79:25:SimpleLambdaExpression` (Lines 79–79, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:79:54:SimpleLambdaExpression` (Lines 79–79, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:80:24:SimpleLambdaExpression` (Lines 80–80, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:81:25:SimpleLambdaExpression` (Lines 81–81, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:90:39:SimpleLambdaExpression` (Lines 90–90, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:92:45:SimpleLambdaExpression` (Lines 92–92, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs:312:37:SimpleLambdaExpression` (Lines 312–312, `SimpleLambdaExpression`)

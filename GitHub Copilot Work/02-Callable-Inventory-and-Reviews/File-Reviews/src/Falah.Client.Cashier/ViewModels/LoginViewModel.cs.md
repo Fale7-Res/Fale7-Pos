@@ -22,6 +22,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ## 2. Exhaustive Per-Callable Audit
 
 ### 2.1 `LoginViewModel(AppSession session)` (Constructor)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:15:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 15–15
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:15`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L15)
   ```csharp
   public LoginViewModel(AppSession session) => _session = session;
@@ -44,6 +46,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.3 `OnPinChanged(string value)` (Partial Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:30:5:MethodDeclaration`
+- **Exact Line Range:** Lines 30–30
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:30`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L30)
   ```csharp
   partial void OnPinChanged(string value) => OnPropertyChanged(nameof(PinDisplay));
@@ -54,6 +58,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.4 `PressDigit(string digit)` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:32:5:MethodDeclaration`
+- **Exact Line Range:** Lines 32–38
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:32-38`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L32-L38)
   ```csharp
   [RelayCommand]
@@ -72,6 +78,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.5 `Backspace()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:40:5:MethodDeclaration`
+- **Exact Line Range:** Lines 40–44
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:40-44`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L40-L44)
   ```csharp
   [RelayCommand]
@@ -86,6 +94,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.6 `Clear()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:46:5:MethodDeclaration`
+- **Exact Line Range:** Lines 46–47
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:46-47`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L46-L47)
   ```csharp
   [RelayCommand]
@@ -97,6 +107,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.7 `CanSubmit()` (Private Predicate Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:49:5:MethodDeclaration`
+- **Exact Line Range:** Lines 49–49
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:49`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L49)
   ```csharp
   private bool CanSubmit() => Pin.Length >= 4 && !IsBusy;
@@ -106,6 +118,8 @@ In [`src/Falah.Client.Cashier/Views/LoginView.xaml`](file:///c:/Users/Mohamed/De
 ---
 
 ### 2.8 `SubmitAsync()` (RelayCommand Method)
+- **Callable ID:** `src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:51:5:MethodDeclaration`
+- **Exact Line Range:** Lines 51–78
 - **Source Anchor:** [`src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs:51-78`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/LoginViewModel.cs#L51-L78)
   ```csharp
   [RelayCommand(CanExecute = nameof(CanSubmit))]

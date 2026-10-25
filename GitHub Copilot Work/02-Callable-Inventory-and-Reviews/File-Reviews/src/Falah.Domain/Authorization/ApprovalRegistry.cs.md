@@ -50,7 +50,11 @@
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-AR-001 to CAL-AR-004: `IApprovalRegistry` Interface Contract
+### CAL-AR-001
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:13:5:MethodDeclaration`
+- **Exact Line Range:** Lines 13–13
+- **Signature:** `IApprovalRegistry.Register(ManagerApproval)`
+- **Linked Findings:** `SEC-006`, `SEC-007` to CAL-AR-004: `IApprovalRegistry` Interface Contract
 - **Lines:** [11-17](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L11-L17)
 - **Signatures:**
   - `void Register(ManagerApproval approval);`
@@ -65,7 +69,11 @@
 
 ---
 
-### CAL-AR-005 to CAL-AR-008: `InMemoryApprovalRegistry` Implementation
+### CAL-AR-005
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:24:5:MethodDeclaration`
+- **Exact Line Range:** Lines 24–24
+- **Signature:** `InMemoryApprovalRegistry.Register(ManagerApproval)`
+- **Linked Findings:** `SEC-006`, `SEC-007` to CAL-AR-008: `InMemoryApprovalRegistry` Implementation
 - **Lines:** [19-28](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L19-L28)
 - **Actual Behavior & Inputs:**
   - `Register`: Stores `approval` in `_issued[approval.ApprovalId] = approval`.
@@ -80,7 +88,11 @@
 
 ---
 
-### CAL-AR-009: `AuthorizationPolicy.HasPermission(Actor? actor, string permission)`
+### CAL-AR-009
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:37:5:MethodDeclaration`
+- **Exact Line Range:** Lines 37–38
+- **Signature:** `AuthorizationPolicy.HasPermission(Actor?, string)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.HasPermission(Actor? actor, string permission)`
 - **Line Span:** [37-38](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L37-L38)
 - **Actual Behavior & Inputs:**
   - Evaluates whether `actor` is non-null and `actor.Active == true`. If inactive or null, evaluates to `false`.
@@ -94,7 +106,11 @@
 
 ---
 
-### CAL-AR-010: `AuthorizationPolicy.IssueManagerApproval`
+### CAL-AR-010
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:40:5:MethodDeclaration`
+- **Exact Line Range:** Lines 40–65
+- **Signature:** `AuthorizationPolicy.IssueManagerApproval(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.IssueManagerApproval`
 - **Line Span:** [40-65](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L40-L65)
 - **Actual Behavior & Inputs:**
   1. **Action Validation:** Checks `string.IsNullOrWhiteSpace(action)`. If null/empty/whitespace, throws `DomainException("يجب تحديد العملية المطلوب اعتمادها.")`.
@@ -131,7 +147,11 @@
 
 ---
 
-### CAL-AR-012: `AuthorizationPolicy.AuthorizeCommand`
+### CAL-AR-012
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:69:5:MethodDeclaration`
+- **Exact Line Range:** Lines 69–78
+- **Signature:** `AuthorizationPolicy.AuthorizeCommand(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.AuthorizeCommand`
 - **Line Span:** [69-78](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L69-L78)
 - **Actual Behavior & Inputs:**
   1. Direct Permission Check: Calls `HasPermission(actor, permission)`. If true, returns `new AuthorizationResult(actor, null)`.
@@ -148,7 +168,11 @@
 
 ---
 
-### CAL-AR-013: `AuthorizationPolicy.ValidateApproval`
+### CAL-AR-013
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:89:5:MethodDeclaration`
+- **Exact Line Range:** Lines 89–97
+- **Signature:** `AuthorizationPolicy.ValidateApproval(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.ValidateApproval`
 - **Line Span:** [89-97](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L89-L97)
 - **Actual Behavior & Inputs:**
   1. Queries registry: `issued = registry.Find(approval.ApprovalId)`.
@@ -167,7 +191,11 @@
 
 ---
 
-### CAL-AR-014: `AuthorizationPolicy.AuthorizeShiftClose`
+### CAL-AR-014
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:105:5:MethodDeclaration`
+- **Exact Line Range:** Lines 105–111
+- **Signature:** `AuthorizationPolicy.AuthorizeShiftClose(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.AuthorizeShiftClose`
 - **Line Span:** [105-111](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L105-L111)
 - **Actual Behavior & Inputs:**
   1. First verifies base blind close permission: `AuthorizeCommand(registry, actor, "shifts_blind_close")`.
@@ -180,7 +208,11 @@
 
 ---
 
-### CAL-AR-015: `AuthorizationPolicy.AuthorizeExpense`
+### CAL-AR-015
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:122:5:MethodDeclaration`
+- **Exact Line Range:** Lines 122–129
+- **Signature:** `AuthorizationPolicy.AuthorizeExpense(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.AuthorizeExpense`
 - **Line Span:** [122-129](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L122-L129)
 - **Actual Behavior & Inputs:**
   1. If `paidFromDrawer == true`:
@@ -197,7 +229,11 @@
 
 ---
 
-### CAL-AR-016: `AuthorizationPolicy.AuthorizeShiftOpen`
+### CAL-AR-016
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:136:5:MethodDeclaration`
+- **Exact Line Range:** Lines 136–141
+- **Signature:** `AuthorizationPolicy.AuthorizeShiftOpen(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.AuthorizeShiftOpen`
 - **Line Span:** [136-141](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L136-L141)
 - **Actual Behavior & Inputs:**
   - Evaluates whether the actor possesses `shifts_manage` OR `shifts_open_own`.
@@ -209,7 +245,11 @@
 
 ---
 
-### CAL-AR-017: `AuthorizationPolicy.AuthorizeAddSupplier`
+### CAL-AR-017
+- **Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:149:5:MethodDeclaration`
+- **Exact Line Range:** Lines 149–154
+- **Signature:** `AuthorizationPolicy.AuthorizeAddSupplier(...)`
+- **Linked Findings:** `SEC-006`, `SEC-007`: `AuthorizationPolicy.AuthorizeAddSupplier`
 - **Line Span:** [149-154](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L149-L154)
 - **Actual Behavior & Inputs:**
   - Checks if actor holds `purchasing_manage` OR `suppliers_manage`. If so, returns `AuthorizationResult(actor, null)`.
@@ -265,3 +305,10 @@
 2. **Prevent Double-Spending:** Add optimistic concurrency tokens (`RowVersion`) or atomic SQL condition (`Consumed == false`) in `EfApprovalRegistry.MarkConsumed`.
 3. **Thread-Safe Test Double:** Update `InMemoryApprovalRegistry` to use `ConcurrentDictionary` and `ConcurrentBag` to avoid flakes under parallel xUnit runners.
 4. **Static Verification:** Verified complete against `src/Falah.Domain/Authorization/ApprovalRegistry.cs`. No application source modified.
+
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:14:5:MethodDeclaration` (Lines 14–14, `Find`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:15:5:MethodDeclaration` (Lines 15–15, `IsConsumed`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:16:5:MethodDeclaration` (Lines 16–16, `MarkConsumed`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:25:5:MethodDeclaration` (Lines 25–25, `Find`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:26:5:MethodDeclaration` (Lines 26–26, `IsConsumed`)
+- **Canonical Callable ID:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs:27:5:MethodDeclaration` (Lines 27–27, `MarkConsumed`)

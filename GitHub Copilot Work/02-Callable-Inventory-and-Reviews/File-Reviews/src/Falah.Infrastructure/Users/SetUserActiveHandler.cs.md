@@ -38,6 +38,8 @@
 
 ### CAL-SUA-001: Constructor `SetUserActiveHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
 - **Line Span:** [21-25](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L21-L25)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:21:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 21–25
 - **Actual Behavior & Inputs:** Injects `FalahDbContext` and `IApprovalRegistry`.
 - **Callers & Dependencies:** Injected via ASP.NET Core DI in Minimal API endpoint `POST /api/users/{id}/active` ([Program.cs#L1915](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1915)).
 - **Side Effects:** Stores references in private fields `_db` and `_approvalRegistry`.
@@ -47,6 +49,8 @@
 
 ### CAL-SUA-002: `HandleAsync(SetUserActiveRequest request, CancellationToken ct = default)`
 - **Line Span:** [27-70](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L27-L70)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:27:5:MethodDeclaration`
+- **Exact Line Range:** Lines 27–70
 - **Actual Behavior & Execution Flow:**
   1. **Transaction Initialization:** Begins a database transaction with `System.Data.IsolationLevel.Serializable` to guarantee phantom-free survivor counting.
   2. **Actor Resolution:** Fetches the actor entity from `_db.Users.AsNoTracking()` matching `request.ActorUserId`. Throws `InvalidOperationException("المستخدم غير موجود.")` if not found.
@@ -86,6 +90,8 @@
 
 ### CAL-SUA-003: `HandleAsync::<lambda_actor_lookup>` (`u => u.Id == request.ActorUserId`)
 - **Line:** [31](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L31)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:31:76:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 31–31
 - **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` resolving the acting user from the untrusted request model.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -93,6 +99,10 @@
 
 ### CAL-SUA-004: `HandleAsync::<lambda_target_lookup>` (`u => u.Id == request.UserId`)
 - **Line:** [36](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L36)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:36:58:SimpleLambdaExpression`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:58:46:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 58–59
+- **Exact Line Range:** Lines 36–36
 - **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` resolving the tracked target user entity.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -100,6 +110,8 @@
 
 ### CAL-SUA-005: `HandleAsync::<lambda_other_admins_filter>` (`u => u.Active && u.Id != target.Id`)
 - **Line:** [53](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L53)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:53:24:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 53–53
 - **Actual Behavior & Inputs:** Expression predicate for `Where` selecting active users whose ID is not the target user being deactivated.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -107,6 +119,8 @@
 
 ### CAL-SUA-006: `HandleAsync::<lambda_permissions_selector>` (`u => u.Permissions`)
 - **Line:** [54](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs#L54)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs:54:25:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 54–54
 - **Actual Behavior & Inputs:** Expression projection for `Select` extracting only the permissions column to minimize data transfer from SQL Server.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL column projection.
 

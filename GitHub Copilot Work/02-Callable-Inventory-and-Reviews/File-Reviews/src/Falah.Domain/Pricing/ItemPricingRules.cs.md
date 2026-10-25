@@ -58,6 +58,8 @@ public readonly record struct ResolvedItemPrice(
 ---
 
 ### Callable 2: `ItemPricingRules.Resolve`
+- **Canonical Callable ID:** `src/Falah.Domain/Pricing/ItemPricingRules.cs:19:5:MethodDeclaration`
+- **Exact Line Range:** Lines 19–27
 
 ```csharp
 public static ResolvedItemPrice Resolve(

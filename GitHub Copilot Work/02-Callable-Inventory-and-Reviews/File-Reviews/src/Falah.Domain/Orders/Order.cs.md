@@ -136,6 +136,8 @@ public string? CancelledBy { get; private set; }
 ---
 
 ### Callable 2: `Order.Create`
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:66:5:MethodDeclaration`
+- **Exact Line Range:** Lines 66–111
 
 ```csharp
 public static Order Create(
@@ -171,6 +173,8 @@ public static Order Create(
 ---
 
 ### Callable 3: `Order.Reconstitute`
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:119:5:MethodDeclaration`
+- **Exact Line Range:** Lines 119–172
 
 ```csharp
 public static Order Reconstitute(
@@ -202,6 +206,8 @@ public static Order Reconstitute(
 ---
 
 ### Callable 4: `Order.ConfirmElectronicPayment`
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:178:5:MethodDeclaration`
+- **Exact Line Range:** Lines 178–184
 
 ```csharp
 public void ConfirmElectronicPayment()
@@ -229,6 +235,8 @@ public void ConfirmElectronicPayment()
 ---
 
 ### Callable 5: `Order.CancelElectronicPayment`
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:200:5:MethodDeclaration`
+- **Exact Line Range:** Lines 200–214
 
 ```csharp
 public void CancelElectronicPayment(string reason, string cancelledBy, DateTimeOffset nowUtc)
@@ -270,6 +278,8 @@ public void CancelElectronicPayment(string reason, string cancelledBy, DateTimeO
 ---
 
 ### Callable 6: `Order.ApplyRefund`
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:220:5:MethodDeclaration`
+- **Exact Line Range:** Lines 220–232
 
 ```csharp
 public void ApplyRefund(OrderRefund refund)
@@ -338,3 +348,81 @@ public void ApplyRefund(OrderRefund refund)
      if (Status == OrderStatus.Cancelled)
          throw new DomainException("لا يمكن تأكيد دفع لطلب تم إلغاؤه.");
      ```
+
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:14:33:GetAccessorDeclaration` (Lines 14–14, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:14:38:InitAccessorDeclaration` (Lines 14–14, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:15:42:GetAccessorDeclaration` (Lines 15–15, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:15:47:InitAccessorDeclaration` (Lines 15–15, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:16:43:GetAccessorDeclaration` (Lines 16–16, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:16:48:InitAccessorDeclaration` (Lines 16–16, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:17:40:GetAccessorDeclaration` (Lines 17–17, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:17:45:InitAccessorDeclaration` (Lines 17–17, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:18:38:GetAccessorDeclaration` (Lines 18–18, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:18:43:InitAccessorDeclaration` (Lines 18–18, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:19:43:GetAccessorDeclaration` (Lines 19–19, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:19:48:InitAccessorDeclaration` (Lines 19–19, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:20:35:GetAccessorDeclaration` (Lines 20–20, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:20:40:InitAccessorDeclaration` (Lines 20–20, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:21:36:GetAccessorDeclaration` (Lines 21–21, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:21:41:InitAccessorDeclaration` (Lines 21–21, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:22:38:GetAccessorDeclaration` (Lines 22–22, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:22:43:InitAccessorDeclaration` (Lines 22–22, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:23:35:GetAccessorDeclaration` (Lines 23–23, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:23:40:InitAccessorDeclaration` (Lines 23–23, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:24:32:GetAccessorDeclaration` (Lines 24–24, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:24:37:InitAccessorDeclaration` (Lines 24–24, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:25:54:GetAccessorDeclaration` (Lines 25–25, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:25:59:InitAccessorDeclaration` (Lines 25–25, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:26:38:GetAccessorDeclaration` (Lines 26–26, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:26:43:InitAccessorDeclaration` (Lines 26–26, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:33:29:GetAccessorDeclaration` (Lines 33–33, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:33:34:InitAccessorDeclaration` (Lines 33–33, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:34:31:GetAccessorDeclaration` (Lines 34–34, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:34:36:InitAccessorDeclaration` (Lines 34–34, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:35:37:GetAccessorDeclaration` (Lines 35–35, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:35:42:InitAccessorDeclaration` (Lines 35–35, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:36:39:GetAccessorDeclaration` (Lines 36–36, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:36:44:InitAccessorDeclaration` (Lines 36–36, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:37:37:GetAccessorDeclaration` (Lines 37–37, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:37:42:InitAccessorDeclaration` (Lines 37–37, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:38:30:GetAccessorDeclaration` (Lines 38–38, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:38:35:InitAccessorDeclaration` (Lines 38–38, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:43:32:GetAccessorDeclaration` (Lines 43–43, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:43:37:InitAccessorDeclaration` (Lines 43–43, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:46:38:GetAccessorDeclaration` (Lines 46–46, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:46:43:InitAccessorDeclaration` (Lines 46–46, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:47:30:GetAccessorDeclaration` (Lines 47–47, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:47:35:InitAccessorDeclaration` (Lines 47–47, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:48:34:GetAccessorDeclaration` (Lines 48–48, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:48:39:InitAccessorDeclaration` (Lines 48–48, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:49:35:GetAccessorDeclaration` (Lines 49–49, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:49:40:InitAccessorDeclaration` (Lines 49–49, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:50:51:GetAccessorDeclaration` (Lines 50–50, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:50:56:InitAccessorDeclaration` (Lines 50–50, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:51:57:GetAccessorDeclaration` (Lines 51–51, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:51:62:InitAccessorDeclaration` (Lines 51–51, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:52:40:GetAccessorDeclaration` (Lines 52–52, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:52:45:InitAccessorDeclaration` (Lines 52–52, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:53:30:GetAccessorDeclaration` (Lines 53–53, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:53:35:InitAccessorDeclaration` (Lines 53–53, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:54:48:GetAccessorDeclaration` (Lines 54–54, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:54:53:InitAccessorDeclaration` (Lines 54–54, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:55:36:GetAccessorDeclaration` (Lines 55–55, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:55:41:InitAccessorDeclaration` (Lines 55–55, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:56:51:GetAccessorDeclaration` (Lines 56–56, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:56:56:InitAccessorDeclaration` (Lines 56–56, `init`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:58:33:GetAccessorDeclaration` (Lines 58–58, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:58:38:SetAccessorDeclaration` (Lines 58–58, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:59:26:GetAccessorDeclaration` (Lines 59–59, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:59:31:SetAccessorDeclaration` (Lines 59–59, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:60:51:GetAccessorDeclaration` (Lines 60–60, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:60:56:SetAccessorDeclaration` (Lines 60–60, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:61:33:GetAccessorDeclaration` (Lines 61–61, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:61:38:SetAccessorDeclaration` (Lines 61–61, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:107:34:SimpleLambdaExpression` (Lines 107–107, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:186:45:GetAccessorDeclaration` (Lines 186–186, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:186:50:SetAccessorDeclaration` (Lines 186–186, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:187:35:GetAccessorDeclaration` (Lines 187–187, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:187:40:SetAccessorDeclaration` (Lines 187–187, `set`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:188:34:GetAccessorDeclaration` (Lines 188–188, `get`)
+- **Canonical Callable ID:** `src/Falah.Domain/Orders/Order.cs:188:39:SetAccessorDeclaration` (Lines 188–188, `set`)

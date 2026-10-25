@@ -346,3 +346,6 @@ Stateless static function.
 | **ESC-001** | Arabic Font Disconnection in Text Mode | Thermal printer firmware lacks OpenType shaping and BiDi layout engine. Raw byte emission results in isolated, reversed Arabic glyphs. | **HIGH (Text Mode Only)** | Keep `BitmapTicketRenderer` as production default (`renderAsImage = true`). Clearly document `EscPosTicketRenderer` as an unshaped reference/debug fallback. |
 | **ESC-002** | Unhandled `TicketElement` Silent Dropping | The `switch (element)` statement in `Render` lacks a `default` case or fallback for unanticipated element types. | **LOW** | Add diagnostic warning logging or explicit fallback handler in `switch`. |
 | **ESC-003** | Missing Barcode 2D QR Command (`GS ( k`) | `TicketQr` prints plain payload text because firmware QR commands desynchronize cheap printers. | **LOW (Operational By Design)** | Validated as intended design constraint to prevent hardware spooler lockup. |
+
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/EscPosTicketRenderer.cs:70:53:SimpleLambdaExpression` (Lines 70–70, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Domain/Printing/EscPosTicketRenderer.cs:72:87:SimpleLambdaExpression` (Lines 72–72, `SimpleLambdaExpression`)

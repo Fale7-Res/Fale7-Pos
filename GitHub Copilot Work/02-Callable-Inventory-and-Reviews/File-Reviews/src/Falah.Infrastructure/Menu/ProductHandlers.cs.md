@@ -26,6 +26,8 @@ All write operations require the `menu_manage` permission, log immutable audit e
 ## 2. Callable Inventory and Forensic Source Analysis
 
 ### Callable 1: `CreateProductHandler.CreateProductHandler` (Constructor)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:22:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 22–27
 
 ```csharp
 public CreateProductHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
@@ -40,6 +42,12 @@ public CreateProductHandler(FalahDbContext db, IApprovalRegistry approvalRegistr
 ---
 
 ### Callable 2: `CreateProductHandler.HandleAsync`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:170:5:MethodDeclaration`
+- **Exact Line Range:** Lines 170–194
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:95:5:MethodDeclaration`
+- **Exact Line Range:** Lines 95–152
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:29:5:MethodDeclaration`
+- **Exact Line Range:** Lines 29–73
 
 ```csharp
 public async Task<CreateProductResult> HandleAsync(CreateProductRequest request, CancellationToken ct = default)
@@ -89,6 +97,8 @@ public async Task<CreateProductResult> HandleAsync(CreateProductRequest request,
 ---
 
 ### Callable 3: `UpdateProductHandler.UpdateProductHandler` (Constructor)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:88:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 88–93
 
 ```csharp
 public UpdateProductHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
@@ -159,6 +169,8 @@ public async Task HandleAsync(UpdateProductRequest request, CancellationToken ct
 ---
 
 ### Callable 5: `SetProductAvailabilityHandler.SetProductAvailabilityHandler` (Constructor)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:163:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 163–168
 
 ```csharp
 public SetProductAvailabilityHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
@@ -191,6 +203,8 @@ public async Task HandleAsync(SetProductAvailabilityRequest request, Cancellatio
 ---
 
 ### Callable 7: `MenuValidation.AssertValidStation`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:199:5:MethodDeclaration`
+- **Exact Line Range:** Lines 199–205
 
 ```csharp
 public static string? AssertValidStation(string? station)
@@ -291,3 +305,19 @@ sequenceDiagram
    ```
 3. **Variant Deletion Strategy:**
    Instead of raw `_db.ProductVariants.RemoveRange(toRemove)`, introduce an `IsAvailable` or `IsRetired` flag on `ProductVariantEntity` so that historic order rows preserve referential integrity without blocking catalog edits.
+
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:32:78:SimpleLambdaExpression` (Lines 32–32, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:39:76:SimpleLambdaExpression` (Lines 39–39, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:43:80:SimpleLambdaExpression` (Lines 43–43, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:51:48:SimpleLambdaExpression` (Lines 51–54, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:68:80:SimpleLambdaExpression` (Lines 68–68, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:104:76:SimpleLambdaExpression` (Lines 104–104, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:108:80:SimpleLambdaExpression` (Lines 108–108, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:111:49:SimpleLambdaExpression` (Lines 111–111, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:111:86:SimpleLambdaExpression` (Lines 111–111, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:122:46:SimpleLambdaExpression` (Lines 122–122, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:122:76:SimpleLambdaExpression` (Lines 122–122, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:123:46:SimpleLambdaExpression` (Lines 123–123, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:129:70:SimpleLambdaExpression` (Lines 129–129, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:175:76:SimpleLambdaExpression` (Lines 175–175, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Menu/ProductHandlers.cs:179:61:SimpleLambdaExpression` (Lines 179–179, `SimpleLambdaExpression`)

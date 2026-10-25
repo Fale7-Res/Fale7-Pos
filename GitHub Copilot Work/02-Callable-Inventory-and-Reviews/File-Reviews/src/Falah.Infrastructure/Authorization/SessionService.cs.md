@@ -38,6 +38,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-001: Constructor `SessionService(FalahDbContext db)`
 - **Line:** [20](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L20)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:20:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 20–20
 - **Actual Behavior & Inputs:** Injects the EF Core `FalahDbContext` instance into the private readonly field `_db`.
 - **Callers & Dependencies:** Invoked by ASP.NET Core dependency injection container per HTTP request scope (registered via `builder.Services.AddScoped<SessionService>()` or resolved in middleware).
 - **Side Effects:** Binds database context lifecycle to service scope.
@@ -49,6 +51,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-002: `IssueAsync(string userId, CancellationToken ct = default)`
 - **Line Span:** [22-37](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L22-L37)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:22:5:MethodDeclaration`
+- **Exact Line Range:** Lines 22–37
 - **Actual Behavior & Inputs:**
   1. Calls `SessionToken.Issue()` to generate a high-entropy cryptographically secure random session string (32 bytes via `RandomNumberGenerator`, Base64/Hex formatted).
   2. Obtains current timestamp: `now = DateTimeOffset.UtcNow`.
@@ -80,6 +84,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-003: `ResolveAsync(string? token, CancellationToken ct = default)`
 - **Line Span:** [42-67](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L42-L67)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:42:5:MethodDeclaration`
+- **Exact Line Range:** Lines 42–67
 - **Actual Behavior & Inputs:**
   1. Input Validation: If `token` is null, empty, or whitespace, immediately returns `null`.
   2. Hash Computation: Computes `hash = SessionToken.Hash(token)`.
@@ -110,6 +116,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-004: `ResolveAsync::<lambda_session>` (`s => s.TokenHash == hash`)
 - **Line:** [47](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L47)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:47:66:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 47–47
 - **Actual Behavior & Inputs:** Expression predicate passed to EF Core `FirstOrDefaultAsync` to translate into SQL `WHERE [s].[TokenHash] = @hash`.
 - **Dependencies:** Relies on unique index or index on `TokenHash` in SQL database schema.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
@@ -118,6 +126,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-005: `ResolveAsync::<lambda_user>` (`u => u.Id == session.UserId`)
 - **Line:** [53](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L53)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:53:71:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 53–53
 - **Actual Behavior & Inputs:** Expression predicate passed to `FirstOrDefaultAsync` with `AsNoTracking()` to translate into primary key lookup `WHERE [u].[Id] = @session_UserId`.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL clustered index lookup.
 
@@ -125,6 +135,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-006: `RevokeAsync(string? token, CancellationToken ct = default)`
 - **Line Span:** [69-77](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L69-L77)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:69:5:MethodDeclaration`
+- **Exact Line Range:** Lines 69–77
 - **Actual Behavior & Inputs:**
   1. Validates input token: if null or whitespace, early returns.
   2. Computes `hash = SessionToken.Hash(token)`.
@@ -147,6 +159,8 @@ Before `SessionService` was introduced, endpoints trusted client-supplied `actor
 
 ### CAL-SS-007: `RevokeAsync::<lambda_session>` (`s => s.TokenHash == hash`)
 - **Line:** [73](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs#L73)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Authorization/SessionService.cs:73:66:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 73–73
 - **Actual Behavior & Inputs:** Expression predicate passed to EF Core `FirstOrDefaultAsync` to locate the target session row for revocation.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 

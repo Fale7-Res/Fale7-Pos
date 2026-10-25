@@ -34,6 +34,8 @@ Because `PinHasher` employs unique per-user random salts and PBKDF2 key stretchi
 
 ### CAL-PUC-001: `AssertNotInUseAsync(FalahDbContext db, string candidatePin, string? excludeUserId, CancellationToken ct)`
 - **Line Span:** [16-23](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs#L16-L23)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:16:5:MethodDeclaration`
+- **Exact Line Range:** Lines 16–23
 - **Actual Behavior & Inputs:**
   1. **Inputs:** `db` (database context), `candidatePin` (plaintext PIN string to be validated), `excludeUserId` (optional user ID to exclude, used during PIN changes to avoid false self-collision), `ct` (cancellation token).
   2. **Active User Query:** Executes `db.Users.AsNoTracking().Where(u => u.Active && u.Id != excludeUserId).Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct)`.
@@ -84,3 +86,7 @@ Because `PinHasher` employs unique per-user random salts and PBKDF2 key stretchi
 1. **Remediation for Concurrency Race:** Wrap user creation and PIN updates in an explicit transaction with `SERIALIZABLE` isolation or table lock `WITH (TABLOCKX)` on `Users` during uniqueness verification.
 2. **Remediation for DoS:** Retain the existing IP-based rate limiting (`"login"` policy) on all PIN change and user creation endpoints to limit request throughput.
 3. **Verification:** Static source audit confirmed; no application source modified.
+
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:19:20:SimpleLambdaExpression` (Lines 19–19, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:20:21:SimpleLambdaExpression` (Lines 20–20, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs:21:29:SimpleLambdaExpression` (Lines 21–21, `SimpleLambdaExpression`)

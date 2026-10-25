@@ -66,7 +66,7 @@ Thread-safety governed by scoped single-thread execution per HTTP request.
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:27:5:MethodDeclaration`
 - **Declaration Kind:** `MethodDeclaration` | **Line Range:** `27-74`
 - **Audit Classification:** `INDEPENDENTLY_VERIFIED`
-- **Linked Vulnerability Finding:** **`PRT-003` / `SEC-004`**
+- **Linked Vulnerability Finding:** **`PRT-REPRINT-VOUCHER-001` / `SEC-REPRINT-AUTH-001`**
 
 **A. Actual Behavior, Inputs & Return Values:**  
 Processes a document reprint request:
@@ -93,7 +93,7 @@ Called by API endpoint `POST /api/printing/reprint-document`. Side effects: inse
 - **Hardware Route Assignment:** All document slips (`ShiftOpen`, `ShiftClose`, `Expense`) route strictly to `PrintRoute.Receipt` (the cashier till printer). They are never routed to kitchen stations or call center printers.
 - **Physical Header Banner:** Because `IsReprint` is true, when the print agent fetches the job, [`PrintJobQueryService.GetTicketAsync`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/PrintJobQueryService.cs#L107-L113) calls [`PrintRules.MarkAsReprint`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRules.cs#L484), injecting `"إعادة طباعة"` and the reprint timestamp at the top of the slip.
 
-**D. Concurrency, Security & Integrity Vulnerabilities (PRT-003 / SEC-004):**
+**D. Concurrency, Security & Integrity Vulnerabilities (PRT-REPRINT-001 / SEC-REPRINT-AUTH-001):**
 - **Missing Role/Manager Authorization:** In lines 37-38, the handler verifies only that `request.ActorUserId` corresponds to an existing user. It does **NOT** check `actor.Role` (e.g. `Manager`, `Admin`) nor does it require supervisor PIN elevation! Any cashier can trigger unlimited reprints of closed shift handover slips and expense vouchers.
 - **Missing Mandatory Reason Validation:** Line 61 allows `request.Reason` to be null or whitespace. For sensitive financial vouchers, omitting a mandatory reason weakens non-repudiation in financial audit disputes.
 - **Absence of Reprint Counter Tracking:** Neither `PrintJobEntity` nor `DocumentPrintJobs.Build` tracks how many times a given document has been reprinted. The ticket prints `"إعادة طباعة"` but lacks an ordinal counter (e.g., "نسخة رقم 2").
@@ -160,6 +160,8 @@ Called by API endpoint `POST /api/printing/reprint-document`. Side effects: inse
 ### Callable 3: Lambda `j => j.CreateRequestId == request.RequestId` (Pre-flight Replay)
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:29:66:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `29-29`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:29:65:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 29–29
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -176,6 +178,8 @@ Predicate for EF Core LINQ query filtering `PrintJobs` table by `CreateRequestId
 ### Callable 4: Lambda `u => u.Id == request.ActorUserId`
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:37:65:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `37-37`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:37:72:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 37–37
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -191,7 +195,11 @@ Predicate finding the operating user in `_db.Users` by primary key `Id`.
 <a id="callable-5"></a>
 ### Callable 5: Lambda `s => s.Id == request.DocumentId` (ShiftOpen)
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:43:45:SimpleLambdaExpression`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:45:58:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 45–45
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `43-43`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:43:58:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 43–43
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -224,6 +232,8 @@ Predicate checking existence of a shift that is strictly in `Closed` status (`Cl
 ### Callable 7: Lambda `e => e.Id == request.DocumentId` (Expense)
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:47:47:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `47-47`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:47:60:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 47–47
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -240,6 +250,8 @@ Predicate checking existence of an expense record in `_db.Expenses`.
 ### Callable 8: Lambda `j => j.CreateRequestId == request.RequestId` (Replay Catch)
 - **Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:67:70:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `67-67`
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs:67:67:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 67–67
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
 
 **A. Actual Behavior, Inputs & Return Values:**  
@@ -256,5 +268,5 @@ Secondary lookup predicate executed if `DbUpdateException` is caught during `Sav
 
 | Finding ID | Vulnerability / Security Gap | Root Cause in `ReprintDocumentHandler.cs` | Severity | Remediation Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| **PRT-003** | Missing Role Authorization for Financial Reprints | Lines 37-38 check user existence without validating `actor.Role` or requiring supervisor authorization. Any till operator can reprint closed shift reconciliation slips and expense vouchers. | **HIGH** | Require `Permissions.CanReprintSlips` and demand supervisor PIN authentication for closing slips and expenses. |
-| **SEC-004** | Optional Reprint Reason & Missing Ordinal Tracking | `request.Reason` can be empty; no reprint counter is stored or printed on paper (e.g. "Reprint #2"). Duplicate physical vouchers can circulate without visual tracking. | **MEDIUM** | Enforce non-empty `Reason` validation and track `ReprintCount` on document entities to print on paper. |
+| **PRT-REPRINT-001** | Missing Role Authorization for Financial Reprints | Lines 37-38 check user existence without validating `actor.Role` or requiring supervisor authorization. Any till operator can reprint closed shift reconciliation slips and expense vouchers. | **HIGH** | Require `Permissions.CanReprintSlips` and demand supervisor PIN authentication for closing slips and expenses. |
+| **SEC-REPRINT-AUTH-001** | Optional Reprint Reason & Missing Ordinal Tracking | `request.Reason` can be empty; no reprint counter is stored or printed on paper (e.g. "Reprint #2"). Duplicate physical vouchers can circulate without visual tracking. | **MEDIUM** | Enforce non-empty `Reason` validation and track `ReprintCount` on document entities to print on paper. |

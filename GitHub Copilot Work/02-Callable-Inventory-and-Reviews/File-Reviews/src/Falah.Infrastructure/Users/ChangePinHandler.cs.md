@@ -32,6 +32,8 @@
 
 ### CAL-CP-001: Constructor `ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
 - **Line Span:** [24-28](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L24-L28)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:24:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 24–28
 - **Actual Behavior & Inputs:** Captures `FalahDbContext` for persistence and `IApprovalRegistry` for manager authorization checks.
 - **Callers & Dependencies:** Injected via ASP.NET Core DI in Minimal API endpoint `POST /api/users/{id}/change-pin` ([Program.cs#L1933](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1933)).
 - **Classification Justification:** Substantive dependency injection setup.
@@ -40,6 +42,8 @@
 
 ### CAL-CP-002: `HandleAsync(ChangePinRequest request, CancellationToken ct = default)`
 - **Line Span:** [30-65](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L30-L65)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:30:5:MethodDeclaration`
+- **Exact Line Range:** Lines 30–65
 - **Actual Behavior & Execution Flow:**
   1. **Target Lookup:** Queries `_db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)`. Throws `InvalidOperationException("المستخدم غير موجود.")` if missing.
   2. **Branching Authorization:**
@@ -102,3 +106,6 @@
    ```
 2. **Remediation for SEC-001:** Overwrite `request.ActorUserId` with `context.ActorId()` at the Minimal API layer in `Program.cs`.
 3. **Verification:** Static source audit confirmed; no application source modified.
+
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:32:58:SimpleLambdaExpression` (Lines 32–32, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:44:80:SimpleLambdaExpression` (Lines 44–44, `SimpleLambdaExpression`)

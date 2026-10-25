@@ -35,7 +35,11 @@
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-UUP-001: Constructor `UpdateUserPermissionsHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
+### CAL-UUP-001
+- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:22:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 22–26
+- **Signature:** `UpdateUserPermissionsHandler(FalahDbContext, IApprovalRegistry)`
+- **Linked Findings:** `SEC-001`: Constructor `UpdateUserPermissionsHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
 - **Line Span:** [22-26](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L22-L26)
 - **Actual Behavior & Inputs:** Stores injected EF Core database context `db` and manager approval registry `approvalRegistry` into private fields `_db` and `_approvalRegistry`.
 - **Callers & Dependencies:** Injected by ASP.NET Core DI in Minimal API route `POST /api/users/{id}/permissions` ([Program.cs#L1951](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1951)).
@@ -44,7 +48,11 @@
 
 ---
 
-### CAL-UUP-002: `HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)`
+### CAL-UUP-002
+- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:28:5:MethodDeclaration`
+- **Exact Line Range:** Lines 28–75
+- **Signature:** `HandleAsync(UpdateUserPermissionsRequest, CancellationToken)`
+- **Linked Findings:** `SEC-001`: `HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)`
 - **Line Span:** [28-75](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L28-L75)
 - **Actual Behavior & Execution Flow:**
   1. **Transaction Initialization:** Begins a database transaction with `System.Data.IsolationLevel.Serializable` to lock the `Users` table and prevent phantom insertions or concurrent revocations from miscounting surviving administrators.
@@ -94,7 +102,11 @@
 
 ---
 
-### CAL-UUP-003 to CAL-UUP-007: Expression Lambdas & Delegates
+### CAL-UUP-003
+- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:76:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 32–32
+- **Signature:** `u => u.Id == request.ActorUserId`
+- **Linked Findings:** `SEC-001` to CAL-UUP-007: Expression Lambdas & Delegates
 - **CAL-UUP-003 (`u => u.Id == request.ActorUserId`):** Primary key lookup for actor record.
 - **CAL-UUP-004 (`u => u.Id == request.UserId`):** Entity lookup for target record being updated.
 - **CAL-UUP-005 (`u => u.Active && u.Id != target.Id`):** Filter querying active users excluding the target user during survivor verification.
@@ -109,3 +121,8 @@
 1. **Remediation for SEC-001:** Remove `ActorUserId` from `UpdateUserPermissionsRequest` or overwrite it at the endpoint layer with `context.ActorId()` before invoking `HandleAsync`.
 2. **Audit Logging Fix:** Pass `context.ActorId()` or authenticated session identity directly into the handler to ensure the real actor is recorded in `ControlAuditEventEntity`.
 3. **Verification:** Static source audit confirmed; no application source modified.
+
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:37:58:SimpleLambdaExpression` (Lines 37–37, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:57:24:SimpleLambdaExpression` (Lines 57–57, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:58:25:SimpleLambdaExpression` (Lines 58–58, `SimpleLambdaExpression`)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:62:46:SimpleLambdaExpression` (Lines 62–63, `SimpleLambdaExpression`)

@@ -37,6 +37,8 @@
 
 ### CAL-UMQ-001: Constructor `UserManagementQueryService(FalahDbContext db)`
 - **Line:** [14](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L14)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:14:5:ConstructorDeclaration`
+- **Exact Line Range:** Lines 14–14
 - **Actual Behavior & Inputs:** Injects `FalahDbContext` into private readonly field `_db`.
 - **Callers & Dependencies:** Resolved via ASP.NET Core DI in `Program.cs` for endpoints `GET /api/users/all` and `GET /api/users/{id}`.
 - **Side Effects:** Stores DB context reference.
@@ -46,6 +48,8 @@
 
 ### CAL-UMQ-002: `ListAllAsync(CancellationToken ct = default)`
 - **Line Span:** [16-17](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L16-L17)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:16:5:MethodDeclaration`
+- **Exact Line Range:** Lines 16–17
 - **Actual Behavior & Inputs:**
   1. Executes `await _db.Users.AsNoTracking().ToListAsync(ct)` to retrieve all users from the SQL database without tracking overhead.
   2. Projects in-memory using `.Select(ToDto).ToList()`.
@@ -73,6 +77,8 @@
 
 ### CAL-UMQ-004: `GetAsync(string id, CancellationToken ct = default)`
 - **Line Span:** [19-23](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L19-L23)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:19:5:MethodDeclaration`
+- **Exact Line Range:** Lines 19–23
 - **Actual Behavior & Inputs:**
   1. Queries `_db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct)`.
   2. If user is null, returns `null`.
@@ -91,6 +97,8 @@
 
 ### CAL-UMQ-005: `GetAsync::<lambda_user_lookup>` (`u => u.Id == id`)
 - **Line:** [21](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L21)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:21:71:SimpleLambdaExpression`
+- **Exact Line Range:** Lines 21–21
 - **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` performing primary key lookup on `id`.
 - **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
 
@@ -98,6 +106,8 @@
 
 ### CAL-UMQ-006: `GetPermissionCatalog()`
 - **Line:** [25](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L25)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:25:5:MethodDeclaration`
+- **Exact Line Range:** Lines 25–25
 - **Actual Behavior & Inputs:** Takes no inputs; returns static read-only list `PermissionCatalog.All`.
 - **Callers & Dependencies:**
   - Invoked by `GET /api/permissions/catalog` in `src/Falah.Server/Program.cs` line 1896.
@@ -114,6 +124,8 @@
 
 ### CAL-UMQ-007: `ToDto(UserEntity u)`
 - **Line Span:** [27-29](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L27-L29)
+- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:27:5:MethodDeclaration`
+- **Exact Line Range:** Lines 27–29
 - **Actual Behavior & Inputs:**
   1. Accepts `UserEntity u`.
   2. Parses `u.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()`.
