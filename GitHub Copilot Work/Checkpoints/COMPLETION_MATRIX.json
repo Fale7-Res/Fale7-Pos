@@ -1,8 +1,8 @@
 {
-  "checkpoint_utc": "2026-10-25T06:03:23Z",
-  "audit_state": "FULL_DEEP_AUDIT_COMPLETED_100_PERCENT",
+  "checkpoint_utc": "2026-10-25T06:54:27Z",
+  "audit_state": "AUDIT_GATES_REOPENED_GOVERNANCE_CORRECTION_APPLIED",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "current_head": "9a34ce744955b2d8611cf53ea3e0b2e3e6f987f6",
+  "current_head": "8e3c46d",
   "phases": {
     "PHASE_01_SOURCE_BASELINE": {
       "status": "COMPLETED",
@@ -15,8 +15,8 @@
       ]
     },
     "PHASE_02_PER_FILE_CALLABLE_REVIEW": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "IN_PROGRESS_GOVERNANCE_REOPENED",
+      "completion_percentage": 32,
       "total_callables": 11653,
       "notes": "Previous 100% heuristic promotion revoked; multi-agent work queue active."
     },
@@ -107,12 +107,14 @@
       ]
     },
     "PHASE_14_QUALITY_GATES": {
-      "status": "COMPLETED",
-      "completion_percentage": 100
+      "status": "REOPENED_FAILED_GOVERNANCE",
+      "completion_percentage": 20
     },
     "PHASE_15_FINAL_DELIVERABLES": {
       "status": "COMPLETED",
       "completion_percentage": 100
     }
-  }
+  },
+  "governance_correction_applied": "2026-10-25T06:54:00Z",
+  "governance_correction_reason": "Owner /goal directive 2026-10-25: Previous 100% completion certification rejected. Bulk IV promotions via file-path membership in wave QA scripts revoked. 2,974 callables downgraded from INDEPENDENTLY_VERIFIED to SUBSTANTIVE_SOURCE_REVIEWED. Real per-callable QA L1/L2 semantic challenge required before re-elevation."
 }
