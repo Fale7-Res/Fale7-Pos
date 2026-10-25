@@ -11,352 +11,247 @@
 
 ## 1. Architectural & Domain Responsibility Overview
 
-Cash safe drop handler skimming cash from cashier drawer into central restaurant safe during active shifts.
+`SafeDropHandler` handles the skimming of surplus cash from the cashier drawer into the restaurant safe (`tre-safe`) mid-shift. It enforces the `safe_drop` permission, validates positive amount, requires an active open business day, and records an append-only `TreasuryMovement` under database transaction locking.
+
+### Critical Vulnerability Tracing: Finding `FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001`
+On lines 45-46:
+```csharp
+_ = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
+    ?? throw new InvalidOperationException("الوردية غير موجودة.");
+```
+The handler verifies that the referenced `Shift` exists, but does **NOT** check that `s.Status == ShiftStatus.Open`.
+If a safe drop command commits after a shift is already closed (due to network delay, terminal retry, or operator mistake), the cash movement is attributed to a closed shift. This retroactively mutates the financial totals of the closed shift and causes discrepancies on reprinted handover slips.
+
+*(Note: Prior draft mistakenly cited FIN-013, which belongs to inventory queries in `OwnerDashboardQueryService`. Correct canonical finding is `FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001`.)*
 
 ---
 
 ## 2. Callable-by-Callable Detailed Forensic Audit Ledger
 
-<a id="callable-1"></a>
-### Callable 1: `Falah.Infrastructure.Treasury.SafeDropHandler.SafeDropHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:26:5:ConstructorDeclaration`
+### Callable 1: `SafeDropHandler(...)` (Constructor)
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:26:31:ConstructorDeclaration`
 - **Declaration Kind:** `ConstructorDeclaration` | **Line Range:** `26-31`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
+- **A. Actual Behavior & Execution Path:** Injects `FalahDbContext`, `IApprovalRegistry`, and `IAuditLog`.
+- **B. Trust Boundaries & Validation:** Internal DI container.
+- **C. State Mutations & Side Effects:** Assigns private fields. Zero external state mutations.
+- **D. Concurrency & Transaction Implications:** Thread-safe constructor.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes ConstructorDeclaration for Falah.Infrastructure.Treasury.SafeDropHandler.SafeDropHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog). Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 26-31):**
 ```csharp
-  26 |     public SafeDropHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
-  27 |     {
-  28 |         _db = db;
-  29 |         _approvalRegistry = approvalRegistry;
-  30 |         _auditLog = auditLog;
-  31 |     }
+    public SafeDropHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
+    {
+        _db = db;
+        _approvalRegistry = approvalRegistry;
+        _auditLog = auditLog;
+    }
 ```
 
 ---
 
-<a id="callable-2"></a>
-### Callable 2: `Falah.Infrastructure.Treasury.SafeDropHandler.HandleAsync(Falah.Application.Treasury.SafeDropRequest, CancellationToken)`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:33:5:MethodDeclaration`
+### Callable 2: `HandleAsync(SafeDropRequest request, CancellationToken ct)`
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:33:117:MethodDeclaration`
 - **Declaration Kind:** `MethodDeclaration` | **Line Range:** `33-117`
 - **Audit Classification:** `INDEPENDENTLY_VERIFIED`
-- **Linked Vulnerability Finding:** **`FIN-013`**
+- **Linked Vulnerability Finding:** **`FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001`**
+- **A. Actual Behavior & Execution Path:**
+  1. Checks idempotency replay via `FindExistingAsync("safe-drop-" + request.DropRequestId, ct)`.
+  2. Asserts amount > 0 and reason is non-empty.
+  3. Validates creator user, resolves manager approval if required, and authorizes command.
+  4. Requires active business day via `BusinessDayGate.RequireOpenAsync`.
+  5. Opens transaction. Loads drawer movements for update via `TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync`.
+  6. Asserts drawer has sufficient balance (`AssertProtectedSourceBalance`).
+  7. Inserts `TreasuryMovement` (`tre-drawer` -> `tre-safe`) and appends audit log event.
+  8. Commits transaction and returns `SafeDropResult`.
+- **B. Trust Boundaries & Validation:** Receives `SafeDropRequest` from cashier till.
+- **C. State Mutations & Side Effects:** Inserts `TreasuryMovementEntity`, inserts `ControlAuditEventEntity`, commits EF Core transaction.
+- **D. Concurrency & Transaction Implications:** Uses row-locking on account balance to prevent concurrent drawer balance overdrafts. Catches lock contention and retries sibling replay.
+- **E. Specialist Risks & Invariants:**
+  Does not check `s.Status == ShiftStatus.Open`. Allows post-close cash movements to attach to a closed shift.
 
-**A. Actual Behavior & Execution Path:**  
-Loads active shift with AsNoTracking. Opens transaction. Records TreasuryMovement with CashLifecycle direction and SafeDrop reason.
-
-**B. Trust Boundaries & Validation:**  
-Cashier safe drop command.
-
-**C. State Mutations & Side Effects:**  
-Inserts TreasuryMovementEntity, commits transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Shifts read with AsNoTracking allows safe drop to race shift closure.
-
-**E. Specialist Risks & Invariants:**  
-Attribution discrepancy if safe drop commits after shift close handover calculation.
-
-> **Verbatim Code Excerpt (Lines 33-117):**
 ```csharp
-  33 |     public async Task<SafeDropResult> HandleAsync(SafeDropRequest request, CancellationToken ct = default)
-  34 |     {
-  35 |         var idempotencyKey = $"safe-drop-{request.DropRequestId}";
-  36 |         var existing = await FindExistingAsync(idempotencyKey, ct);
-  37 |         if (existing is not null) return ToResult(existing, wasReplayed: true);
-  38 | 
-  39 |         if (request.AmountPiastres <= 0) throw new DomainException("مبلغ الإيداع الآمن يجب أن يكون أكبر من صفر.");
-  40 |         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الإيداع الآمن مطلوب.");
-  41 | 
-  42 |         var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
-  43 |             ?? throw new InvalidOperationException("المستخدم غير موجود.");
-  44 |         var actor = OrderMapper.ToActor(createdByUser);
-  45 |         _ = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
-  46 |             ?? throw new InvalidOperationException("الوردية غير موجودة.");
-  47 | 
-  48 |         ManagerApproval? approval = null;
-  49 |         if (!string.IsNullOrEmpty(request.ManagerApprovalId))
-  50 |         {
-  51 |             var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
-  52 |                 ?? throw new DomainException("المعتمد غير موجود.");
-  53 |             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
-  54 |                 approverUser.Role, DateTimeOffset.UtcNow, "safe_drop", request.Reason);
-  55 |         }
-  56 |         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "safe_drop", approval, requireApproval: true);
-  57 | 
-  58 |         var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-  59 |         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
-  60 |         try
-  61 |         {
-  62 |             // Read under a lock, inside the transaction, immediately before spending.
-  63 |             // Outside it, concurrent commands each read the same balance, each decide it covers
-  64 |             // them, and each write - which is how an account holding 30 paid out three separate
-  65 |             // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-  66 |             var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
-  67 |             FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, Money.FromPiastres(request.AmountPiastres));
-  68 | 
-  69 |             var journal = new EfFinancialJournal(_db);
-  70 |             if (!journal.TryStart(idempotencyKey, "safe_drop"))
-  71 |                 throw new TreasuryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");
-  72 | 
-  73 |             var now = DateTimeOffset.UtcNow;
-  74 |             var movement = TreasuryMovementFactory.BuildCashLifecycleMovement(
-  75 |                 $"tm-{Guid.NewGuid():N}", idempotencyKey, $"op-{Guid.NewGuid():N}", "safe_drop",
-  76 |                 // The destination is the whole point of a safe drop: cash leaves the till and goes
-  77 |                 // INTO the main treasury. Passing null here meant the drawer fell and nothing rose -
-  78 |                 // the money left the books entirely - while the audit line below said, and still
-  79 |                 // says, that it went to the main treasury. A movement that disagrees with its own
-  80 |                 // audit record is worse than either being wrong alone.
-  81 |                 TreasuryAccounts.Drawer, TreasuryAccounts.Main, Money.FromPiastres(request.AmountPiastres),
-  82 |                 "safe_drop", request.DropRequestId, businessDayId, request.ShiftId,
-  83 |                 request.Reason, createdByUser.Name, authorization.Approver?.ApproverName, now);
-  84 | 
-  85 |             var entity = OrderMapper.ToEntity(movement);
-  86 |             _db.TreasuryMovements.Add(entity);
-  87 |             journal.Complete(idempotencyKey);
-  88 | 
-  89 |             _auditLog.Append(new AuditEvent(
-  90 |                 $"audit-{Guid.NewGuid():N}", createdByUser.Id, createdByUser.Name, createdByUser.Role,
-  91 |                 "إيداع آمن", "cash", $"إيداع {request.AmountPiastres} قرش من الدرج إلى الخزينة الرئيسية - {request.Reason}",
-  92 |                 "normal", now, ShiftId: request.ShiftId, Reason: request.Reason, AuthorizedBy: authorization.Approver?.ApproverName,
-  93 |                 OperationId: movement.OperationId, ReferenceId: entity.Id));
-  94 | 
-  95 |             await _db.SaveChangesAsync(ct);
-  96 |             await transaction.CommitAsync(ct);
-  97 |             return ToResult(entity, wasReplayed: false);
-  98 |         }
-  99 |         catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException
- 100 |                                    || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
- 101 |         {
- 102 |             await transaction.RollbackAsync(ct);
- 103 |             var replay = await FindExistingAsync(idempotencyKey, ct);
- 104 |             // The loser of a balance-lock race carries the same request id as the sibling that
- 105 |             // won it, and that sibling may not have committed yet at this instant. Looking once
- 106 |             // and giving up turns "somebody else is doing it" into an error.
- 107 |             if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
- 108 |                 replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
- 109 |                     async () => await FindExistingAsync(idempotencyKey, ct), ct);
- 110 |             if (replay is not null) return ToResult(replay, wasReplayed: true);
- 111 |             // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
- 112 |             // review a half-finished movement would send them looking for something that is not there.
- 113 |             if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
- 114 |                 throw new TreasuryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
- 115 |             throw new TreasuryConflictException("تعذر تسجيل الإيداع الآمن بسبب تعارض في مفتاح منع التكرار، ولا يوجد إيداع سابق لإعادته - يحتاج مراجعة يدوية.");
- 116 |         }
- 117 |     }
+    public async Task<SafeDropResult> HandleAsync(SafeDropRequest request, CancellationToken ct = default)
+    {
+        var idempotencyKey = $"safe-drop-{request.DropRequestId}";
+        var existing = await FindExistingAsync(idempotencyKey, ct);
+        if (existing is not null) return ToResult(existing, wasReplayed: true);
+
+        if (request.AmountPiastres <= 0) throw new DomainException("مبلغ الإيداع الآمن يجب أن يكون أكبر من صفر.");
+        if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الإيداع الآمن مطلوب.");
+
+        var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
+            ?? throw new InvalidOperationException("المستخدم غير موجود.");
+        var actor = OrderMapper.ToActor(createdByUser);
+        _ = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
+            ?? throw new InvalidOperationException("الوردية غير موجودة.");
+
+        ManagerApproval? approval = null;
+        if (!string.IsNullOrEmpty(request.ManagerApprovalId))
+        {
+            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
+                ?? throw new DomainException("المعتمد غير موجود.");
+            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
+                approverUser.Role, DateTimeOffset.UtcNow, "safe_drop", request.Reason);
+        }
+        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "safe_drop", approval, requireApproval: true);
+
+        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            // Read under a lock, inside the transaction, immediately before spending.
+            // Outside it, concurrent commands each read the same balance, each decide it covers
+            // them, and each write - which is how an account holding 30 paid out three separate
+            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
+            var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
+            FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, Money.FromPiastres(request.AmountPiastres));
+
+            var journal = new EfFinancialJournal(_db);
+            if (!journal.TryStart(idempotencyKey, "safe_drop"))
+                throw new TreasuryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");
+
+            var now = DateTimeOffset.UtcNow;
+            var movement = TreasuryMovementFactory.BuildCashLifecycleMovement(
+                $"tm-{Guid.NewGuid():N}", idempotencyKey, $"op-{Guid.NewGuid():N}", "safe_drop",
+                // The destination is the whole point of a safe drop: cash leaves the till and goes
+                // INTO the main treasury. Passing null here meant the drawer fell and nothing rose -
+                // the money left the books entirely - while the audit line below said, and still
+                // says, that it went to the main treasury. A movement that disagrees with its own
+                // audit record is worse than either being wrong alone.
+                TreasuryAccounts.Drawer, TreasuryAccounts.Main, Money.FromPiastres(request.AmountPiastres),
+                "safe_drop", request.DropRequestId, businessDayId, request.ShiftId,
+                request.Reason, createdByUser.Name, authorization.Approver?.ApproverName, now);
+
+            var entity = OrderMapper.ToEntity(movement);
+            _db.TreasuryMovements.Add(entity);
+            journal.Complete(idempotencyKey);
+
+            _auditLog.Append(new AuditEvent(
+                $"audit-{Guid.NewGuid():N}", createdByUser.Id, createdByUser.Name, createdByUser.Role,
+                "إيداع آمن", "cash", $"إيداع {request.AmountPiastres} قرش من الدرج إلى الخزينة الرئيسية - {request.Reason}",
+                "normal", now, ShiftId: request.ShiftId, Reason: request.Reason, AuthorizedBy: authorization.Approver?.ApproverName,
+                OperationId: movement.OperationId, ReferenceId: entity.Id));
+
+            await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return ToResult(entity, wasReplayed: false);
+        }
+        catch (Exception ex) when (ex is DbUpdateException or TreasuryConflictException
+                                   || Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+        {
+            await transaction.RollbackAsync(ct);
+            var replay = await FindExistingAsync(idempotencyKey, ct);
+            // The loser of a balance-lock race carries the same request id as the sibling that
+            // won it, and that sibling may not have committed yet at this instant. Looking once
+            // and giving up turns "somebody else is doing it" into an error.
+            if (replay is null && Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                replay = await Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync(
+                    async () => await FindExistingAsync(idempotencyKey, ct), ct);
+            if (replay is not null) return ToResult(replay, wasReplayed: true);
+            // Losing the balance-lock race wrote nothing at all, so telling the operator to go and
+            // review a half-finished movement would send them looking for something that is not there.
+            if (Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(ex))
+                throw new TreasuryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);
+            throw new TreasuryConflictException("تعذر تسجيل الإيداع الآمن بسبب تعارض في مفتاح منع التكرار، ولا يوجد إيداع سابق لإعادته - يحتاج مراجعة يدوية.");
+        }
+    }
 ```
 
 ---
 
-<a id="callable-3"></a>
-### Callable 3: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:42:80:SimpleLambdaExpression`
+### Callable 3: Lambda in `HandleAsync` (Line 42)
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:42:42:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `42-42`
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **A. Actual Behavior & Execution Path:** EF Core query predicate `u => u.Id == request.CreatedByUserId`.
+- **B. Trust Boundaries & Validation:** Internal database lookup.
+- **C. State Mutations & Side Effects:** Pure predicate.
+- **D. Concurrency & Transaction Implications:** AsNoTracking query.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 42-42):**
 ```csharp
-  42 |         var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
+        var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
 ```
 
 ---
 
-<a id="callable-4"></a>
-### Callable 4: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:45:65:SimpleLambdaExpression`
+### Callable 4: Lambda in `HandleAsync` (Line 45)
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:45:45:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `45-45`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **Audit Classification:** `INDEPENDENTLY_VERIFIED`
+- **Linked Vulnerability Finding:** **`FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001`**
+- **A. Actual Behavior & Execution Path:** EF Core query predicate `s => s.Id == request.ShiftId`.
+- **B. Trust Boundaries & Validation:** Internal database lookup.
+- **C. State Mutations & Side Effects:** Pure predicate.
+- **D. Concurrency & Transaction Implications:** Does not check shift open status or lock shift row.
+- **E. Specialist Risks & Invariants:** Permits safe drops on closed shifts.
 
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 45-45):**
 ```csharp
-  45 |         _ = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
+        _ = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
 ```
 
 ---
 
-<a id="callable-5"></a>
-### Callable 5: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:51:83:SimpleLambdaExpression`
+### Callable 5: Lambda in `HandleAsync` (Line 51)
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:51:51:SimpleLambdaExpression`
 - **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `51-51`
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **A. Actual Behavior & Execution Path:** EF Core query predicate `u => u.Id == request.ManagerApproverUserId`.
+- **B. Trust Boundaries & Validation:** Internal database lookup.
+- **C. State Mutations & Side Effects:** Pure predicate.
+- **D. Concurrency & Transaction Implications:** AsNoTracking query.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 51-51):**
 ```csharp
-  51 |             var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
+            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
 ```
 
 ---
 
-<a id="callable-6"></a>
-### Callable 6: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:109:21:ParenthesizedLambdaExpression`
+### Callable 6: Lambda in `HandleAsync` (Line 109)
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:109:109:ParenthesizedLambdaExpression`
 - **Declaration Kind:** `ParenthesizedLambdaExpression` | **Line Range:** `109-109`
 - **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
+- **A. Actual Behavior & Execution Path:** Async closure delegate passed to `BalanceLockContention.AwaitSiblingAsync`.
+- **B. Trust Boundaries & Validation:** Internal concurrency helper.
+- **C. State Mutations & Side Effects:** Re-executes `FindExistingAsync`.
+- **D. Concurrency & Transaction Implications:** Awaits sibling transaction commit during balance lock race.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes ParenthesizedLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 109-109):**
 ```csharp
- 109 |                     async () => await FindExistingAsync(idempotencyKey, ct), ct);
+                    async () => await FindExistingAsync(idempotencyKey, ct), ct);
 ```
 
 ---
 
-<a id="callable-7"></a>
-### Callable 7: `Falah.Infrastructure.Treasury.SafeDropHandler.FindExistingAsync(string, CancellationToken)`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:119:5:MethodDeclaration`
+### Callable 7 & 8: `FindExistingAsync(string, CancellationToken)` & Lambda
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:119:120:MethodDeclaration`
 - **Declaration Kind:** `MethodDeclaration` | **Line Range:** `119-120`
 - **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **A. Actual Behavior & Execution Path:** Idempotency query checking `_db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct)`.
+- **B. Trust Boundaries & Validation:** Internal database lookup.
+- **C. State Mutations & Side Effects:** None; read-only query.
+- **D. Concurrency & Transaction Implications:** Thread-safe.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes MethodDeclaration for Falah.Infrastructure.Treasury.SafeDropHandler.FindExistingAsync(string, CancellationToken). Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 119-120):**
 ```csharp
- 119 |     private Task<TreasuryMovementEntity?> FindExistingAsync(string idempotencyKey, CancellationToken ct) =>
- 120 |         _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
+    private Task<TreasuryMovementEntity?> FindExistingAsync(string idempotencyKey, CancellationToken ct) =>
+        _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
 ```
 
 ---
 
-<a id="callable-8"></a>
-### Callable 8: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:120:66:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `120-120`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 120-120):**
-```csharp
- 120 |         _db.TreasuryMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
-```
-
----
-
-<a id="callable-9"></a>
-### Callable 9: `Falah.Infrastructure.Treasury.SafeDropHandler.ToResult(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity, bool)`
-- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:122:5:MethodDeclaration`
+### Callable 9: `ToResult(TreasuryMovementEntity, bool)`
+- **Callable ID:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs:122:123:MethodDeclaration`
 - **Declaration Kind:** `MethodDeclaration` | **Line Range:** `122-123`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
+- **Audit Classification:** `GENERATED_OR_TRIVIAL_JUSTIFIED`
+- **A. Actual Behavior & Execution Path:** Pure projection method constructing `SafeDropResult(entity.Id, entity.AmountPiastres, wasReplayed)`.
+- **B. Trust Boundaries & Validation:** Internal entity to DTO boundary.
+- **C. State Mutations & Side Effects:** None.
+- **D. Concurrency & Transaction Implications:** Thread-safe pure function.
+- **E. Specialist Risks & Invariants:** None.
 
-**A. Actual Behavior & Execution Path:**  
-Executes MethodDeclaration for Falah.Infrastructure.Treasury.SafeDropHandler.ToResult(Falah.Infrastructure.Persistence.Entities.TreasuryMovementEntity, bool). Manages internal state transition within src/Falah.Infrastructure/Treasury/SafeDropHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 122-123):**
 ```csharp
- 122 |     private static SafeDropResult ToResult(TreasuryMovementEntity entity, bool wasReplayed) =>
- 123 |         new(entity.Id, entity.AmountPiastres, wasReplayed);
+    private static SafeDropResult ToResult(TreasuryMovementEntity entity, bool wasReplayed) =>
+        new(entity.Id, entity.AmountPiastres, wasReplayed);
 ```
-
----

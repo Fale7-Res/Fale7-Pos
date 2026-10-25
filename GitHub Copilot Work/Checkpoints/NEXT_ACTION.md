@@ -1,9 +1,13 @@
-# Next Audit Action: Progressive Substantive Callable Reviews
+# Next Audit Action: Dedicated Multi-Agent Per-Callable Source Reviews
 
-- **Last Completed Batch:** Mirrored Code, UI & Maintainability (Batch 4) (5 files reviewed)
-- **Substantively Promoted This Batch:** 69 callables
-- **Independently Verified This Batch:** 3 callables
-- **Total Substantively Reviewed:** 212
-- **Total Independently Verified:** 86
-- **Total Remaining Pending:** 6409
-- **Next Priority Batch:** Financial Integrity Core Workflows (`CheckoutOrderHandler.cs`, `ConfirmElectronicPaymentHandler.cs`, `RefundOrderHandler.cs`)
+- **Current State:** Audit governance fully remediated. Synthetic promotions revoked.
+- **Total Pending Production Callables:** 6538
+- **Breakdown by Specialist Worker:**
+  - `financial-auditor`: 3506
+  - `mirrored-code-auditor`: 1357
+  - `architecture-coordinator`: 880
+  - `ui-maintainability-auditor`: 325
+  - `security-auditor`: 257
+  - `printing-workflow-auditor`: 213
+- **Immediate Execution Plan:**
+  Assign exact non-overlapping files with explicit callable IDs to the 5 specialist subagents to execute genuine, individual source analyses without generic templates.
