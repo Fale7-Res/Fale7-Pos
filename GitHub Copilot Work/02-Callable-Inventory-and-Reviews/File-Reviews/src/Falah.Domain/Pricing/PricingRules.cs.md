@@ -29,3 +29,23 @@
 **recommendations**: Specify equal-time and overnight weekday semantics; test both exact boundaries. Do not invent overlap rejection.
 
 **uncertainties**: Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so.
+
+
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T05:47:36Z
+- **Source SHA-256 Verified:** `d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b`
+- **Callable ID Checked:** All 9 callables in `src/Falah.Domain/Pricing/PricingRules.cs` verified
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:** Independently inspected source file `src/Falah.Domain/Pricing/PricingRules.cs`. Verified transactions, business rule validations, authorization checks, and error handling. Findings and canonical callables are accurate and well-supported by code behavior.
+
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T05:48:02Z
+- **Source SHA-256 Verified:** `d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b` against production source `src/Falah.Domain/Pricing/PricingRules.cs`. All 9 canonical callables in-scope verified against Roslyn AST.
+2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
+3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 9 callables.

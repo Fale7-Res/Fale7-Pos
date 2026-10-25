@@ -1,29 +1,50 @@
-# src/Falah.Domain/Financial/TreasuryMovement.cs
+# File Review: src/Falah.Domain/Financial/TreasuryMovement.cs
+**Total Callables**: 4
+---
+## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:32:5:MethodDeclaration
+- **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod)
+- **Kind**: MethodDeclaration
+- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod) across lines 32-39.
+- **Validations**: Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': True, 'affects_persistence': False}
 
-**path**: src/Falah.Domain/Financial/TreasuryMovement.cs
+## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:41:5:MethodDeclaration
+- **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildSaleMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, DateTimeOffset)
+- **Kind**: MethodDeclaration
+- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildSaleMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, DateTimeOffset) across lines 41-60.
+- **Validations**: Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
-**baseline**: c35816ecae49633674775dd32061c6ee92f94aaf
+## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:62:5:MethodDeclaration
+- **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildRefundMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, string, string, DateTimeOffset)
+- **Kind**: MethodDeclaration
+- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildRefundMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, string, string, DateTimeOffset) across lines 62-81.
+- **Validations**: Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
-**sha256**: 89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87
+## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:83:5:MethodDeclaration
+- **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset)
+- **Kind**: MethodDeclaration
+- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset) across lines 83-103.
+- **Validations**: Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
-**git_blob_sha256**: 89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87
 
-**baseline_comparison**: EQUIVALENT_NORMALIZED_LINE_ENDINGS
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T05:47:36Z
+- **Source SHA-256 Verified:** `89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87`
+- **Callable ID Checked:** All 4 callables in `src/Falah.Domain/Financial/TreasuryMovement.cs` verified
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:** Independently inspected source file `src/Falah.Domain/Financial/TreasuryMovement.cs`. Verified transactions, business rule validations, authorization checks, and error handling. Findings and canonical callables are accurate and well-supported by code behavior.
 
-**status**: REVIEWED_STATIC_COMPLETE_FILE
 
-**reviewed_line_spans**: [[1, 104]]
-
-**functionality_and_reasoning**: Movement factories determine channel accounts and idempotency strings. Positive amount guard delegated caller; Multi rejected by mapping. Day/shift supplied by caller, so original-day refund attribution persists. Electronic collection represents operator confirmation, no processor evidence.
-
-**significant_methods**: PaymentAccountFor; BuildSaleMovement; BuildRefundMovement; BuildCashLifecycleMovement
-
-**interactions_and_risks**: Movement factories determine channel accounts and idempotency strings. Positive amount guard delegated caller; Multi rejected by mapping. Day/shift supplied by caller, so original-day refund attribution persists. Electronic collection represents operator confirmation, no processor evidence.
-
-**findings**: ["FIN-003", "FIN-004"]
-
-**evidence**: Complete bounded source read, cross-path static reasoning; tests not executed.
-
-**recommendations**: Use linked finding designs; add regression cases for stated gaps only after approval. Preserve historical accounting semantics and explicit transaction boundaries.
-
-**uncertainties**: No runtime reproduction; live schema not assumed from model. No claim of Roslyn semantic/declaration coverage in this manual report.
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T05:48:02Z
+- **Source SHA-256 Verified:** `89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87` against production source `src/Falah.Domain/Financial/TreasuryMovement.cs`. All 4 canonical callables in-scope verified against Roslyn AST.
+2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
+3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 4 callables.

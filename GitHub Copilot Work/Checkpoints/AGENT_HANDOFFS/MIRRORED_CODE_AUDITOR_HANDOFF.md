@@ -633,6 +633,24 @@ gantt
 
 ---
 
+### 8.10 Wave 10 Stream 3: Printing, Menu, Pricing & Inventory Rules Audit (18 Files, 475 Callables)
+
+#### 1. Scope and Targets Audited
+- Domain: `InventoryRules.cs`, `ItemPricingRules.cs`, `ProductImageRules.cs`
+- Infrastructure: `MenuQueryService.cs`, `CategoryHandlers.cs`, `ProductImageHandlers.cs`, `SavePriceRuleHandler.cs`, `TaxRuleHandlers.cs`, `InventoryDeductionService.cs`, `OrderEnumMapping.cs`, `ReportPrintJobResultHandler.cs`, `SetProductStationHandler.cs`, `DocumentPrintJobs.cs`
+- Application & PrintAgent: `TicketElementMapping.cs`, `AgentOptions.cs`, `Transports.cs`, `ITicketTransport.cs`, `Program.cs`
+- Review Files: Generated in `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/`.
+- Target Symbols: All 475 canonical symbols across 18 target files.
+
+#### 2. Key Architectural & Operational Findings
+- **Printing Pipeline & Hardware Spooling:** Thorough audit of raw Win32 spooling (`winspool.drv`), ESC/POS byte sequence generation, network socket transport (TCP 9100), and print job result callbacks.
+- **Menu Hierarchy & Image Rules:** Validation of menu category trees, product image resolution, and station routing.
+- **Pricing & Tax Precision:** Evaluation of price rule priority, item pricing rules, and VAT rounding logic.
+- **Inventory Deduction Invariants:** Audit of atomic inventory consumption triggers during order checkout and fulfillment.
+
+
+---
+
 ### 8.8 Wave 8: Cashier WinUI API Client & Tri-Client Parity Deep Audit (268 Callables)
 
 #### 1. Scope and Targets Audited

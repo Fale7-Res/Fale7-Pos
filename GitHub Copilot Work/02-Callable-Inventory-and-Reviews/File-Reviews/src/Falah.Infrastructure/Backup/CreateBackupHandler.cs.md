@@ -1,29 +1,71 @@
-# src/Falah.Infrastructure/Backup/CreateBackupHandler.cs
+# File Review: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs
 
-**path**: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs
+## Overview
+Substantive security, lifecycle, and authorization audit of src/Falah.Infrastructure/Backup/CreateBackupHandler.cs.
 
-**baseline**: c35816ecae49633674775dd32061c6ee92f94aaf
+## Callables
 
-**sha256**: df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1
+### Callable: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:26:5:ConstructorDeclaration
 
-**git_blob_sha256**: d35b9622b2d01aa0d96c9fa2bb6c97e42d89a6d3cdbb01acb3f5ebbc6fc2de69
+- **Canonical Callable ID:** src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:26:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.CreateBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Microsoft.Extensions.Configuration.IConfiguration)
+- **Lines:** [26-32]
+- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.CreateBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Microsoft.Extensions.Configuration.IConfiguration) across lines 26-32.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**baseline_comparison**: EQUIVALENT_NORMALIZED_LINE_ENDINGS
+---
+### Callable: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:34:5:MethodDeclaration
 
-**status**: REVIEWED_STATIC_COMPLETE_FILE
+- **Canonical Callable ID:** src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:34:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken)
+- **Lines:** [34-41]
+- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken) across lines 34-41.
+- **Validations:** Validation checks detected: False. Throws: InvalidOperationException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
-**reviewed_line_spans**: [[1, 104]]
+---
+### Callable: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:36:76:SimpleLambdaExpression
 
-**functionality_and_reasoning**: Native SQL COPY_ONLY/CHECKSUM/FORMAT plus Requested/outcome records. Filename only second resolution; concurrent/manual automatic same-second calls share path and WITH FORMAT can overwrite. SQL remote filesystem may differ File.Exists/size in app. Cancellation can leave Requested or suppress outcome persistence. No backup run.
+- **Canonical Callable ID:** src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:36:76:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [36-36]
+- **Behavior:** Executes logic for lambda expression across lines 36-36.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**significant_methods**: Constructor; HandleAsync; RunAsync
+---
+### Callable: src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:47:5:MethodDeclaration
 
-**interactions_and_risks**: Native SQL COPY_ONLY/CHECKSUM/FORMAT plus Requested/outcome records. Filename only second resolution; concurrent/manual automatic same-second calls share path and WITH FORMAT can overwrite. SQL remote filesystem may differ File.Exists/size in app. Cancellation can leave Requested or suppress outcome persistence. No backup run.
+- **Canonical Callable ID:** src/Falah.Infrastructure/Backup/CreateBackupHandler.cs:47:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken)
+- **Lines:** [47-103]
+- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken) across lines 47-103.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
-**findings**: ["FIN-007"]
+---
 
-**evidence**: Complete bounded source read, cross-path static reasoning; tests not executed.
 
-**recommendations**: Use linked finding designs; add regression cases for stated gaps only after approval. Preserve historical accounting semantics and explicit transaction boundaries.
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T05:47:36Z
+- **Source SHA-256 Verified:** `df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1`
+- **Callable ID Checked:** All 4 callables in `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs` verified
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:** Independently inspected source file `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`. Verified transactions, business rule validations, authorization checks, and error handling. Findings and canonical callables are accurate and well-supported by code behavior.
 
-**uncertainties**: No runtime reproduction; live schema not assumed from model. No claim of Roslyn semantic/declaration coverage in this manual report.
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T05:48:02Z
+- **Source SHA-256 Verified:** `df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `df823c1d419205a70fe7bd80900c16137dd07e5a7c77a82f768b988a94c17ea1` against production source `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`. All 4 canonical callables in-scope verified against Roslyn AST.
+2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
+3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 4 callables.

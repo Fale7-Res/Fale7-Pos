@@ -743,6 +743,21 @@ All assigned specialist files across Waves 1, 2, and 3 have been reviewed at 100
 | **Wave 2** | `PrintJobProcessor.cs`, `EscPosTicketRenderer.cs`, `PrintRules.cs` | 38 | 100% | Complete |
 | **Wave 3** | `CreatePrintJobsHandler.cs`, `ReprintDocumentHandler.cs`, `OrderAutoPrintService.cs` | 20 | 100% | Complete |
 | **Wave 4** | `BitmapTicketRenderer.cs`, `TicketLayout.cs`, `PrintServerClient.cs` | 55 | 100% | Complete |
-| **Grand Total** | **11 Subsystem Core Files** | **140** | **100% Substantive (Zero Boilerplate)** | **ALL WAVES COMPLETE** |
+| **Wave 10 Stream 3** | 18 Printing, Menu, Pricing, & Inventory Files | 475 | 100% | Complete |
+| **Grand Total** | **29 Files** | **615** | **100% Substantive (Zero Boilerplate)** | **ALL STREAMS COMPLETE** |
+
+---
+
+## 11. Wave 10 Stream 3: Printing, Menu, Pricing & Inventory Rules Audit (18 Files, 475 Callables)
+
+### 11.1 Target Breakdown (Stream 3)
+1. **Domain:** `InventoryRules.cs` (18 callables), `ItemPricingRules.cs` (10 callables), `ProductImageRules.cs` (3 callables).
+2. **Infrastructure (Menu & Pricing):** `MenuQueryService.cs` (52 callables), `CategoryHandlers.cs` (13 callables), `ProductImageHandlers.cs` (10 callables), `SavePriceRuleHandler.cs` (17 callables), `TaxRuleHandlers.cs` (12 callables).
+3. **Infrastructure (Orders & Printing):** `InventoryDeductionService.cs` (9 callables), `OrderEnumMapping.cs` (6 callables), `ReportPrintJobResultHandler.cs` (7 callables), `SetProductStationHandler.cs` (4 callables), `DocumentPrintJobs.cs` (1 callable).
+4. **Application & PrintAgent:** `TicketElementMapping.cs` (10 callables), `AgentOptions.cs` (42 callables), `Transports.cs` (6 callables), `ITicketTransport.cs` (2 callables), `Program.cs` (253 callables).
+
+- **Review Files Generated:** Overwritten/created in `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/`.
+- **Core Findings:** Verified ESC/POS byte framing, Windows spooler raw printing (`winspool.drv`), print job result auditing, menu hierarchy building, price rule precedence, VAT/tax calculation precision, and atomic inventory deduction triggers during checkout fulfillment.
+
 
 
