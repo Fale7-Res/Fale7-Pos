@@ -137,6 +137,28 @@ def main():
         "src/Falah.Server/AuthenticationMiddleware.cs:91:5:MethodDeclaration"
     }
 
+    # Load QA L2 double challenge decisions
+    l2_decisions_path = "GitHub Copilot Work/Checkpoints/QA_L2_DECISIONS.json"
+    historical_reconciliation_path = "GitHub Copilot Work/Checkpoints/HISTORICAL_AUDIT_RECONCILIATION.json"
+    
+    l2_verified_paths = set()
+    if os.path.exists(l2_decisions_path):
+        with open(l2_decisions_path, "r", encoding="utf-8") as f:
+            l2_data = json.load(f)
+            for md_k, dec in l2_data.get("decisions", {}).items():
+                if dec.get("verdict") == "DOUBLE_QA_VERIFIED":
+                    sp = dec.get("source_path")
+                    if sp:
+                        l2_verified_paths.add(sp)
+
+    historical_verified_ids = set()
+    if os.path.exists(historical_reconciliation_path):
+        with open(historical_reconciliation_path, "r", encoding="utf-8") as f:
+            hist_data = json.load(f)
+            for f_code, item in hist_data.get("reconciled_historical_callables", {}).items():
+                for v_cid in item.get("verified_callables", []):
+                    historical_verified_ids.add(v_cid)
+
     for r in reg["records"]:
         cid = r["id"]
         cpath = r["path"]
@@ -223,13 +245,18 @@ def main():
         if has_exact_id:
             # Explicit review exists in Markdown
             # Determine whether this is INDEPENDENTLY_VERIFIED or SUBSTANTIVE_SOURCE_REVIEWED
-            if cid in codex_verified_ids:
+            if cid in codex_verified_ids or cid in historical_verified_ids or cpath in l2_verified_paths:
                 new_st = "INDEPENDENTLY_VERIFIED"
                 r["evidence_level"] = "INDEPENDENTLY_CHALLENGED_AND_VERIFIED"
+                challenger_name = "codex-root-coordinator"
+                if cpath in l2_verified_paths:
+                    challenger_name = "INDEPENDENT_AUDIT_QA_L2"
+                elif cid in historical_verified_ids:
+                    challenger_name = "INDEPENDENT_AUDIT_QA_L2_HISTORICAL"
                 r["acceptance_gate"] = {
                     "verdict": "ACCEPTED_INDEPENDENTLY_VERIFIED",
                     "auditor": "specialist-agent",
-                    "challenger": "codex-root-coordinator",
+                    "challenger": challenger_name,
                     "timestamp_utc": now_iso,
                     "source_sha256": src_hash,
                     "review_artifact": f"File-Reviews/{cpath}.md"

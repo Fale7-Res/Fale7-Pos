@@ -1,0 +1,474 @@
+{
+  "reconciled_historical_callables": {
+    "FIN-001": {
+      "title": "Mixed cash/electronic checkout cannot confirm its electronic leg",
+      "severity": "CRITICAL",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "lines": [
+            69,
+            73
+          ],
+          "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
+          "lines": [
+            253,
+            275
+          ],
+          "sha256": "ff9f45f38b96377ef8f065884820752aa8483f9038b2141ed390222eac83413c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
+          "lines": [
+            75,
+            84
+          ],
+          "sha256": "cac1f0a97612efb966710e6a47e323c2fff06b342c688f419298e34e18c34a0b"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
+          "lines": [
+            24,
+            38
+          ],
+          "sha256": "a4fc816acc48e52d7aeb65e5fbfa1ecf9156b7d63483db4d67075bda6349dd4a"
+        }
+      ],
+      "defect_verification": "CONFIRMED: DefersAllMoney returns false on PaymentMethod.Multi, causing CheckoutOrderHandler to complete saleKey in EfFinancialJournal, locking out ConfirmElectronicPaymentHandler.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Orders/CheckoutRules.cs:68:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs:51:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs:33:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs:24:5:MethodDeclaration"
+      ]
+    },
+    "FIN-002": {
+      "title": "Cancelling pending mixed electronic payment hides collected cash without reversal",
+      "severity": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "lines": [
+            200,
+            213
+          ],
+          "sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/OrderPaymentQueries.cs",
+          "lines": [
+            29,
+            47
+          ],
+          "sha256": "805e8d11d87caec242e36504176417b876da153b236910f64502c3488e2b9412"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs",
+          "lines": [
+            39,
+            57
+          ],
+          "sha256": "c12b0da939a0a82f907bfa1f0ce32b58f686d4f60d01b637cf1054a30d2d1bc7"
+        }
+      ],
+      "defect_verification": "CONFIRMED: Order.CancelElectronicPayment sets IsPaid = false and status to Cancelled without reversing the cash split leg already posted to drawer treasury movements.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Orders/Order.cs:200:5:MethodDeclaration",
+        "src/Falah.Domain/Orders/OrderPaymentQueries.cs:29:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs:34:5:MethodDeclaration"
+      ]
+    },
+    "FIN-003": {
+      "title": "Refund can debit money for an order that was never collected",
+      "severity": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Orders/Order.cs",
+          "lines": [
+            220,
+            233
+          ],
+          "sha256": "4f93ebcba865636bbd00a6d6edbaab1453f72acb35d220de129d3ba8f47b1c4b"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+          "lines": [
+            102,
+            120
+          ],
+          "sha256": "5ffadcbcc9f7c02b1f480ce5662bb6ec7e382b60458df86f1e8e86fa7f0bb516"
+        }
+      ],
+      "defect_verification": "CONFIRMED: Order.ApplyRefund validates only non-negative total and maximum refundable bounds, failing to assert whether electronic payments were actually settled before issuing cash/bank debit.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Orders/Order.cs:220:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs:39:5:MethodDeclaration"
+      ]
+    },
+    "FIN-005": {
+      "title": "Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache",
+      "severity": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
+          "lines": [
+            75,
+            111
+          ],
+          "sha256": "4ae20bb79c3f5904d96ab25140ae41d06ec4d5789f81da759556c071d7967916"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "lines": [
+            277,
+            305
+          ],
+          "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
+          "lines": [
+            95,
+            115
+          ],
+          "sha256": "9bfa5f64f8955140a3ddb41bf324cb8b9b8b0e71cb943d03833b3b44b825daae"
+        }
+      ],
+      "defect_verification": "CONFIRMED: PurchaseEntity lacks row-level versioning / optimistic locking tokens, permitting concurrent payments to exceed remaining balance and overpay suppliers.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs:34:5:MethodDeclaration"
+      ]
+    },
+    "FIN-006": {
+      "title": "Generic payroll transition marks run Paid without paying treasury or employee ledger",
+      "severity": "CRITICAL",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "lines": [
+            12,
+            26
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "lines": [
+            65,
+            78
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs",
+          "lines": [
+            25,
+            58
+          ],
+          "sha256": "0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4"
+        }
+      ],
+      "defect_verification": "CONFIRMED: TransitionPayrollHandler executes generic state transitions including Approved -> Paid without posting financial movements to treasury or employee ledgers, bypassing PayPayrollHandler.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Payroll/PayrollRules.cs:12:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs:33:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:25:5:MethodDeclaration"
+      ]
+    },
+    "FIN-013": {
+      "title": "Owner dashboard adds outgoing stock instead of subtracting it",
+      "severity": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs",
+          "lines": [
+            297,
+            314
+          ],
+          "sha256": "67c66a18a228c9e34b3d42aad4c609f75c5ae0bde36d87e8fabc366d8119bd29"
+        }
+      ],
+      "defect_verification": "CONFIRMED: LoadStockAsync computes total inventory valuation by summing transaction absolute quantities rather than subtracting outgoing inventory adjustments.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs:297:5:MethodDeclaration"
+      ]
+    },
+    "SEC-001": {
+      "title": "JSON actor casing mismatch permits body-selected authorization identity",
+      "severity": "CRITICAL",
+      "category": "SECURITY_AND_ACCESS_CONTROL",
+      "source_references": [
+        {
+          "path": "src/Falah.Server/AuthenticationMiddleware.cs",
+          "lines": [
+            86,
+            133
+          ],
+          "sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb"
+        },
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "lines": [
+            1951,
+            1958
+          ],
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+          "lines": [
+            32,
+            36
+          ],
+          "sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55"
+        },
+        {
+          "path": "src/Falah.Application/Users/UserManagementRequests.cs",
+          "lines": [
+            1,
+            20
+          ],
+          "sha256": "675c03a175e0e751c99162015dc8fa0a8e73745185638bad7b1b76f388245e0c"
+        }
+      ],
+      "defect_verification": "CONFIRMED: FindActorMismatchAsync case inspection mismatch allows malicious client payload actor properties to override session identity for privileged operations.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Server/AuthenticationMiddleware.cs:86:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:5:MethodDeclaration"
+      ]
+    },
+    "SEC-002": {
+      "title": "PIN-bearing user-management requests are durably stored as unencrypted JSON",
+      "severity": "HIGH",
+      "category": "SECURITY_AND_ACCESS_CONTROL",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs",
+          "lines": [
+            59,
+            76
+          ],
+          "sha256": "25899a9e6b6ad147bd61d624236829f21723de49274041d0f7c40b69819a2303"
+        },
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs",
+          "lines": [
+            14,
+            25
+          ],
+          "sha256": "a880d1ded757372d47ee1b1976bb1b61de63d1bb7531e72de7d43118314918f6"
+        }
+      ],
+      "defect_verification": "CONFIRMED: RetainedRequestStore serializes raw request objects including cleartext user PINs to unencrypted disk files in local app data.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs:59:5:MethodDeclaration"
+      ]
+    },
+    "SEC-003": {
+      "title": "Authenticated employee reads expose complete sensitive profiles without employee permission or self-access restriction",
+      "severity": "HIGH",
+      "category": "SECURITY_AND_ACCESS_CONTROL",
+      "source_references": [
+        {
+          "path": "src/Falah.Server/Program.cs",
+          "lines": [
+            685,
+            700
+          ],
+          "sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs",
+          "lines": [
+            25,
+            45
+          ],
+          "sha256": "fbb1200253239f442fdb0933abb5270f12c7d404e5cd549150c71a66c96c6341"
+        }
+      ],
+      "defect_verification": "CONFIRMED: Employee query endpoints in Program.cs lack authorization filters, allowing any authenticated cashier to read sensitive employee salary and ledger profiles.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Infrastructure/Employees/EmployeeQueryService.cs:25:5:MethodDeclaration"
+      ]
+    },
+    "SEC-006": {
+      "title": "Manager approval token has no TTL/expiration check",
+      "severity": "HIGH",
+      "category": "SECURITY_AND_ACCESS_CONTROL",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+          "lines": [
+            89,
+            97
+          ],
+          "sha256": "029edee4286b24d78ae32ec519965d1dd392c6ea04802fc238c94892c9b46be1"
+        }
+      ],
+      "defect_verification": "CONFIRMED: ValidateApproval never inspects ApprovedAtUtc; tokens remain permanently spendable until consumed, allowing token stockpiling.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Authorization/ApprovalRegistry.cs:89:5:MethodDeclaration"
+      ]
+    },
+    "SEC-007": {
+      "title": "Non-atomic check and consumption of manager approvals in EfApprovalRegistry",
+      "severity": "HIGH",
+      "category": "SECURITY_AND_ACCESS_CONTROL",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
+          "lines": [
+            89,
+            97
+          ],
+          "sha256": "029edee4286b24d78ae32ec519965d1dd392c6ea04802fc238c94892c9b46be1"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
+          "lines": [
+            41,
+            53
+          ],
+          "sha256": "b5028b69a7df6a17b27ff7e86887a02241aa24584e031eb5c5553dfc2c77d206"
+        }
+      ],
+      "defect_verification": "CONFIRMED: IsConsumed and MarkConsumed are separate non-atomic calls without row lock or concurrency token, permitting race-condition double-spending.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Domain/Authorization/ApprovalRegistry.cs:89:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:41:5:MethodDeclaration",
+        "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs:45:5:MethodDeclaration"
+      ]
+    },
+    "PRT-001": {
+      "title": "Two machines can submit the same pending kitchen job",
+      "severity": "HIGH",
+      "category": "PRINTING_AND_HARDWARE",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+          "lines": [
+            365,
+            377
+          ],
+          "sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs",
+          "lines": [
+            34,
+            45
+          ],
+          "sha256": "ac7a5a9aefba464dfb2444c86d6a5bb22149455b2f82856f3fea4971931ff941"
+        }
+      ],
+      "defect_verification": "CONFIRMED: CreatePrintJobsHandler does not serialize concurrent submissions for the same order route under high load.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs:32:5:MethodDeclaration"
+      ]
+    },
+    "PRT-002": {
+      "title": "Succeeded and print health collapse transport acceptance into physical completion",
+      "severity": "HIGH",
+      "category": "PRINTING_AND_HARDWARE",
+      "source_references": [
+        {
+          "path": "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs",
+          "lines": [
+            37,
+            65
+          ],
+          "sha256": "dbbefd768ce06c1f033a4ac80a56574a9564a9c35e58eba5684310a89bd38cf5"
+        },
+        {
+          "path": "src/Falah.PrintAgent/PrintJobProcessor.cs",
+          "lines": [
+            108,
+            120
+          ],
+          "sha256": "2ef3ef9c1d54c7a16bfe506d95e2803aa1970a09e4fbecdf473a1b82fc3ea640"
+        }
+      ],
+      "defect_verification": "CONFIRMED: Spooler return code is treated as physical printing completion, hiding printer out-of-paper and jam states.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs:37:5:MethodDeclaration",
+        "src/Falah.PrintAgent/PrintJobProcessor.cs:81:5:MethodDeclaration"
+      ]
+    },
+    "PRT-004": {
+      "title": "Agent never authenticates again after session loss",
+      "severity": "HIGH",
+      "category": "PRINTING_AND_HARDWARE",
+      "source_references": [
+        {
+          "path": "src/Falah.PrintAgent/PrintServerClient.cs",
+          "lines": [
+            33,
+            48
+          ],
+          "sha256": "27f4e0c6c3e54a197e9992182884a6961fb1df7f65f6dddfa7f6aa216d763a56"
+        },
+        {
+          "path": "src/Falah.PrintAgent/Program.cs",
+          "lines": [
+            111,
+            135
+          ],
+          "sha256": "b8bcbfaf0e1583c623238dc37db92b843237af6a50f17d70211d76930d75d453"
+        }
+      ],
+      "defect_verification": "CONFIRMED: PrintServerClient lacks automatic 401 re-authentication interceptor; after session loss, polling fails indefinitely.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.PrintAgent/PrintServerClient.cs:33:5:MethodDeclaration"
+      ]
+    },
+    "ASYNC-001": {
+      "title": "Unhandled async void method crashes process on error",
+      "severity": "CRITICAL",
+      "category": "STABILITY_AND_CONCURRENCY",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs",
+          "lines": [
+            74,
+            87
+          ],
+          "sha256": "013787b64dabd41203b57aa27f54924d5e9d97a661faecffb7ca40bbbfd23793"
+        }
+      ],
+      "defect_verification": "CONFIRMED: async void OnLoggedIn throws unhandled exceptions directly to SynchronizationContext, crashing the application process.",
+      "status": "UPGRADED_TO_VERIFIED",
+      "verified_callables": [
+        "src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs:74:5:MethodDeclaration"
+      ]
+    }
+  },
+  "summary": {
+    "upgraded_to_verified": 15,
+    "total_callables_elevated": 27,
+    "retained_unverified": 0,
+    "last_reconciliation_utc": "2026-10-25T01:35:50Z"
+  }
+}

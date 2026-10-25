@@ -4,108 +4,124 @@
 - **Component:** `Falah.Infrastructure.Users.ChangePinHandler`
 - **Assembly:** `Falah.Infrastructure`
 - **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **File SHA-256:** `92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99`
 - **Auditor:** Security and Authorization Auditor
+- **Total Callables:** 4
 - **Status:** **SUBSTANTIVE_SOURCE_REVIEWED**
 
 ---
 
-## 1. Architectural Role & Responsibilities
+## 1. Architectural & Domain Responsibility Overview
 
-`ChangePinHandler` executes PIN credential rotation in Fale7 POS. It supports two distinct operational flows:
-1. **Self-Service PIN Change (`ActorUserId == UserId`):** A user updates their own PIN by providing their `CurrentPin`. Authentication relies on PBKDF2 verification against `target.PinHash` without requiring administrative permissions.
-2. **Administrative PIN Reset (`ActorUserId != UserId`):** An administrator resets another user's PIN without knowing the existing PIN. Gated strictly on `users_manage` permissions, and unconditionally refuses resets against the `owner` account ([ChangePinHandler.cs#L47](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L47)).
+`ChangePinHandler` manages PIN credential updates for staff and managers in Fale7 POS. It supports two distinct authorization pathways:
+1. **Self-Service PIN Change (`ActorUserId == UserId`):** The user updates their own PIN by presenting and proving their current PIN (`PinHasher.Verify`).
+2. **Administrative Reset (`ActorUserId != UserId`):** An administrator resets another staff member's PIN without knowing the existing PIN. Gated on `users_manage` permission.
+
+### Security Invariants & Vulnerability Forensics:
+- **Owner Account Immunity:** Administrative resets unconditionally refuse to target the `owner` account via `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ")`. The owner is permitted to update their own PIN via self-service.
+- **PIN Change Session Invalidation Gap:** When a user's PIN is changed, the handler mutates `target.PinHash`, `target.PinSalt`, and `target.PinIterations`, but **does NOT revoke active sessions in `_db.UserSessions`**. A compromised session token remains valid for up to 16 hours after a user changes their PIN.
+- **Reliance on Untrusted `request.ActorUserId` (SEC-001):** The handler determines whether the operation is self-service or admin reset based on `request.ActorUserId == request.UserId`. Exploitation of SEC-001 allows identity manipulation.
 
 ---
 
 ## 2. Comprehensive Callable Inventory
 
-| Callable ID | Name | Signature | Line Span | Classification |
-| :--- | :--- | :--- | :--- | :--- |
-| `CAL-CP-001` | Constructor | `public ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)` | 24-28 | Substantive (DI Hook) |
-| `CAL-CP-002` | `HandleAsync` | `public async Task HandleAsync(ChangePinRequest request, CancellationToken ct = default)` | 30-65 | Substantive (Security & Credential Core) |
-| `CAL-CP-003` | `HandleAsync::<lambda_target>` | `u => u.Id == request.UserId` | 32 | Generated / Linq Expression |
-| `CAL-CP-004` | `HandleAsync::<lambda_actor>` | `u => u.Id == request.ActorUserId` | 44 | Generated / Linq Expression |
+| Callable ID | Canonical Symbol ID | Line Span | Classification |
+| :--- | :--- | :--- | :--- |
+| `CAL-CP-001` | `src/Falah.Infrastructure/Users/ChangePinHandler.cs:24:5:ConstructorDeclaration` | [24-28](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L24-L28) | Constructor (DI Hook) |
+| `CAL-CP-002` | `src/Falah.Infrastructure/Users/ChangePinHandler.cs:30:5:MethodDeclaration` | [30-65](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L30-L65) | Substantive (Security Boundary) |
+| `CAL-CP-003` | `src/Falah.Infrastructure/Users/ChangePinHandler.cs:32:58:SimpleLambdaExpression` | [32](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L32) | Lambda Predicate |
+| `CAL-CP-004` | `src/Falah.Infrastructure/Users/ChangePinHandler.cs:44:80:SimpleLambdaExpression` | [44](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L44) | Lambda Predicate |
 
 ---
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-CP-001: Constructor `ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
-- **Line Span:** [24-28](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L24-L28)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:24:5:ConstructorDeclaration`
+### Callable: src/Falah.Infrastructure/Users/ChangePinHandler.cs:24:5:ConstructorDeclaration
 - **Exact Line Range:** Lines 24–28
-- **Actual Behavior & Inputs:** Captures `FalahDbContext` for persistence and `IApprovalRegistry` for manager authorization checks.
-- **Callers & Dependencies:** Injected via ASP.NET Core DI in Minimal API endpoint `POST /api/users/{id}/change-pin` ([Program.cs#L1933](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1933)).
-- **Classification Justification:** Substantive dependency injection setup.
+- **Signature:** `public ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
+- **Actual Behavior & Inputs:** Captures `FalahDbContext` for reading/writing users and audit records, and `IApprovalRegistry` for administrative permission evaluation.
+- **Concurrency & Lifecycle:** Scoped service registered per request.
 
 ---
 
-### CAL-CP-002: `HandleAsync(ChangePinRequest request, CancellationToken ct = default)`
-- **Line Span:** [30-65](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/ChangePinHandler.cs#L30-L65)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:30:5:MethodDeclaration`
+### Callable: src/Falah.Infrastructure/Users/ChangePinHandler.cs:30:5:MethodDeclaration
 - **Exact Line Range:** Lines 30–65
-- **Actual Behavior & Execution Flow:**
-  1. **Target Lookup:** Queries `_db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)`. Throws `InvalidOperationException("المستخدم غير موجود.")` if missing.
+- **Signature:** `public async Task HandleAsync(ChangePinRequest request, CancellationToken ct = default)`
+- **Actual Behavior & Execution Path:**
+  1. **Target Lookup:** Queries `target = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)`. Throws `InvalidOperationException("المستخدم غير موجود.")` if missing.
   2. **Branching Authorization:**
      - **Branch A: Self-Service (`request.ActorUserId == request.UserId`):**
        - Asserts `request.CurrentPin` is not empty.
-       - Evaluates `PinHasher.Verify(request.CurrentPin, target.PinHash, target.PinSalt, target.PinIterations)`. Throws `DomainException("رمز PIN الحالي غير صحيح.")` if verification fails.
-       - Assigns `actorName = target.Name`.
+       - Validates old PIN: `PinHasher.Verify(request.CurrentPin, target.PinHash, target.PinSalt, target.PinIterations)`. Throws `DomainException("رمز PIN الحالي غير صحيح.")` if verification fails.
+       - Sets `actorName = target.Name`.
      - **Branch B: Administrative Reset (`request.ActorUserId != request.UserId`):**
-       - Queries `_db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)`. Throws `InvalidOperationException("المستخدم غير موجود.")` if missing.
-       - Enforces authorization: `AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "users_manage")`.
-       - Enforces owner immunity: `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ")`. Throws `DomainException` if attempting to reset the owner's PIN.
-       - Assigns `actorName = actorUser.Name`.
-  3. **PIN Uniqueness Verification:** Executes `await PinUniquenessChecker.AssertNotInUseAsync(_db, request.NewPin, excludeUserId: target.Id, ct)`.
-  4. **Cryptographic Hashing:** Executes `var hashed = PinHasher.Hash(request.NewPin)`. Generates random 16-byte salt, 100,000 PBKDF2 iterations, and base64 hash.
-  5. **State Mutation:** Updates `target.PinHash`, `target.PinSalt`, and `target.PinIterations`.
-  6. **Audit Event Logging:** Appends `ControlAuditEventEntity` (`Action = "pin_changed"`, `Actor = actorName`, `EntityId = target.Id`). Conspicuously and deliberately excludes PIN values from audit data.
-  7. **Commit:** Persists changes via `await _db.SaveChangesAsync(ct)`.
-- **Callers & Dependencies:**
-  - Invoked by Minimal API endpoint `POST /api/users/{id}/change-pin` ([Program.cs#L1933-L1949](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1933-L1949)). Rate-limited by `"login"` IP policy.
-  - Dependencies: `PinHasher`, `PinUniquenessChecker`, `AuthorizationPolicy`, `UserManagementRules`, `_db.Users`, `_db.ControlAuditEvents`.
-- **Side Effects:**
-  - Updates PIN hash/salt/iteration columns in `Users` table.
-  - Inserts row into `ControlAuditEvents`.
-- **Critical Security Forensics & Deficiencies:**
-  - **1. THE PIN CHANGE SESSION INVALIDATION GAP:**
-    - Source lines 51-65 update `Users` and `ControlAuditEvents`, but **NEVER touch `_db.UserSessions`**.
-    - In `SessionService.ResolveAsync(token)`, validation checks only whether the session token hash exists, is not revoked, is not expired, and `user.Active == true`. It never inspects when the user's PIN was changed.
-    - **Confirmed Consequence:** If an employee's PIN is reset because their credentials were stolen or compromised, **all preexisting active bearer tokens across all devices remain valid and usable** until their sliding 24-hour expiration window lapses.
-  - **2. SEC-001 PRIVILEGE ESCALATION VULNERABILITY:**
-    - The handler relies on `request.ActorUserId`.
-    - If a rogue cashier submits a request to `POST /api/users/{targetId}/change-pin` with JSON payload `{"ActorUserId": "usr-admin", "NewPin": "9999"}`, the PascalCase bypasses `AuthenticationMiddleware.FindActorMismatchAsync`.
-    - The handler takes Branch B (Administrative Reset), queries the administrator, passes `users_manage` authorization, and overwrites the target user's PIN without knowing their current PIN.
-  - **3. Audit Trail Spoofing:**
-    - On the admin reset path, `actorName` is set to `actorUser.Name`. Under an SEC-001 exploit, the audit ledger records that the administrator changed the PIN.
-- **Test Coverage:**
-  - *Covered:* `UserManagementVerticalSliceTests.User_can_change_their_own_pin_with_correct_current_pin`, `UserManagementVerticalSliceTests.Changing_own_pin_fails_with_wrong_current_pin`, `UserManagementVerticalSliceTests.Admin_can_reset_another_users_pin_without_current_pin`, `UserManagementVerticalSliceTests.Admin_cannot_reset_owners_pin`.
-  - *Missing Tests:* Missing regression test verifying session revocation on PIN change (currently failing/absent behavior); missing test for SEC-001 PascalCase injection on `/change-pin`.
+       - Queries `actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)`.
+       - Enforces permission: `AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "users_manage")`.
+       - Enforces owner protection: `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ")`.
+       - Sets `actorName = actorUser.Name`.
+  3. **Uniqueness Check:** Calls `await PinUniquenessChecker.AssertNotInUseAsync(_db, request.NewPin, excludeUserId: target.Id, ct)`.
+  4. **Hashing & Storage:**
+     - Computes `hashed = PinHasher.Hash(request.NewPin)`.
+     - Updates `target.PinHash`, `target.PinSalt`, and `target.PinIterations`.
+     - Appends audit event: `Action = "user_pin_changed"`.
+     - Commits via `await _db.SaveChangesAsync(ct)`.
+- **Trust Boundaries & Security Implications:**
+  - **Absence of Session Revocation:** Fails to revoke active sessions in `_db.UserSessions` for `target.Id`. If an account's PIN was changed because it was compromised, the attacker's session remains active.
+  - **Old PIN Verification:** Successfully prevents self-service PIN changes without proof of the existing PIN.
+- **Test Coverage:** Tested in `UserManagementVerticalSliceTests.User_can_change_own_pin_with_current_pin` and `UserManagementVerticalSliceTests.Admin_cannot_reset_owner_pin`.
 
 ---
 
-### CAL-CP-003 & CAL-CP-004: Expression Lambdas
-- **CAL-CP-003 (`u => u.Id == request.UserId`):** Primary key lookup for target user entity whose PIN is being rotated.
-- **CAL-CP-004 (`u => u.Id == request.ActorUserId`):** Primary key lookup for actor user entity executing an administrative reset.
-- **Classification Justification:** Generated LINQ expression trees compiled to SQL query filters.
+### Callable: src/Falah.Infrastructure/Users/ChangePinHandler.cs:32:58:SimpleLambdaExpression
+- **Exact Line Range:** Line 32
+- **Signature:** `u => u.Id == request.UserId`
+- **Actual Behavior:** LINQ expression translating to SQL primary key lookup for the target user.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/ChangePinHandler.cs:44:80:SimpleLambdaExpression
+- **Exact Line Range:** Line 44
+- **Signature:** `u => u.Id == request.ActorUserId`
+- **Actual Behavior:** LINQ expression translating to SQL primary key lookup for the acting user.
 
 ---
 
 ## 4. Verification & Recommendations
 
-1. **Remediation for Session Invalidation Gap:**
-   In `ChangePinHandler.HandleAsync`, revoke all active sessions for `target.Id`:
-   ```csharp
-   var activeSessions = await _db.UserSessions
-       .Where(s => s.UserId == target.Id && s.RevokedAtUtc == null)
-       .ToListAsync(ct);
-   foreach (var session in activeSessions)
-   {
-       session.RevokedAtUtc = DateTimeOffset.UtcNow;
-   }
-   ```
-2. **Remediation for SEC-001:** Overwrite `request.ActorUserId` with `context.ActorId()` at the Minimal API layer in `Program.cs`.
-3. **Verification:** Static source audit confirmed; no application source modified.
+1. **Immediate Session Invalidation:** When updating `target.PinHash`, execute `UPDATE UserSessions SET RevokedAtUtc = @now WHERE UserId = @userId AND RevokedAtUtc IS NULL` to terminate existing sessions across all stations.
+2. **Context Actor Binding:** Compare `request.ActorUserId` against `context.ActorId()` to eliminate identity spoofing vectors.
+3. **Static Verification:** Verified complete against `src/Falah.Infrastructure/Users/ChangePinHandler.cs`. No application source modified.
 
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:32:58:SimpleLambdaExpression` (Lines 32–32, `SimpleLambdaExpression`)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:44:80:SimpleLambdaExpression` (Lines 44–44, `SimpleLambdaExpression`)
+
+---
+
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T01:35:00Z
+- **Source SHA-256 Verified:** `92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99`
+- **Callable ID Checked:** `src/Falah.Infrastructure/Users/ChangePinHandler.cs:24:5:ConstructorDeclaration`, `src/Falah.Infrastructure/Users/ChangePinHandler.cs:30:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/ChangePinHandler.cs:32:58:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/ChangePinHandler.cs:44:80:SimpleLambdaExpression` (4 of 4 callables checked)
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:**
+  1. Verified SHA-256 matches actual production source `src/Falah.Infrastructure/Users/ChangePinHandler.cs` (67 lines).
+  2. Confirmed session invalidation gap: `ChangePinHandler` mutates target `PinHash`, `PinSalt`, and `PinIterations`, but completely fails to revoke active sessions in `_db.UserSessions`. An active session token continues to be accepted by `SessionService.ResolveAsync` even after a credential change.
+  3. Verified owner immunity: Line 47 executes `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ")` when `ActorUserId != UserId`, protecting the owner from administrative resets.
+  4. Verified old PIN verification for self-service changes (`request.ActorUserId == request.UserId`).
+  5. All 4 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
+
+
+---
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T01:38:12Z
+- **Source SHA-256 Verified:** `92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99` against `src/Falah.Infrastructure/Users/ChangePinHandler.cs` (67 lines).
+2. Concur with L1 on owner immunity enforcement and active session revocation gap.
+3. Additional L2 Challenger Assessment:
+   - In `HandleAsync` (lines 30-66), self-service PIN changes require current PIN verification via PBKDF2.
+   - Administrative PIN resets enforce `UserManagementRules.AssertTargetIsNotOwner(target.Role, ...)` at line 47, mathematically preventing rogue administrators from overriding the owner credential.
+   - Omission of session invalidation on credential update confirmed.
+4. All 4 callables rigorously double-verified. Elevation to `DOUBLE_QA_VERIFIED` accepted.

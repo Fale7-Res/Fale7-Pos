@@ -4,125 +4,136 @@
 - **Component:** `Falah.Infrastructure.Users.UpdateUserPermissionsHandler`
 - **Assembly:** `Falah.Infrastructure`
 - **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **File SHA-256:** `796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55`
 - **Auditor:** Security and Authorization Auditor
+- **Total Callables:** 7
 - **Status:** **SUBSTANTIVE_SOURCE_REVIEWED**
 
 ---
 
-## 1. Architectural Role & Responsibilities
+## 1. Architectural & Domain Responsibility Overview
 
-`UpdateUserPermissionsHandler` processes requests to alter permission assignments for existing users in Fale7 POS. It encapsulates domain security rules:
-- **Owner Account Immutability:** Precludes modification of the `owner` account permissions under any circumstance ([UserManagementRules.AssertTargetIsNotOwner](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L20-L24)).
-- **Privilege Escalation Guard:** Guarantees that an administrator cannot grant permissions that they do not personally hold ([UserManagementRules.AssertNoPrivilegeEscalation](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L29-L35)). Note: Revoking permissions is deliberately unrestricted by escalation checks.
-- **Administrative Lockout Prevention:** Enforces that revoking `users_manage` or `"all"` cannot eliminate the last active administrator in the restaurant ([UserManagementRules.AssertUserAdministrationSurvives](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs#L57-L63)).
-- **Transactional Integrity:** Enforces `System.Data.IsolationLevel.Serializable` to guarantee phantom-free survivor verification under concurrent administrative requests.
+`UpdateUserPermissionsHandler` executes administrative permission modifications for existing user accounts in Fale7 POS. It handles `POST /api/users/{id}/permissions`, applying explicit grant and revoke deltas while enforcing domain immutability, privilege escalation prevention, and system survival guarantees.
+
+### Key Security & Transactional Mechanisms:
+1. **Serializable Transaction Isolation:** Initiates an explicit database transaction with `System.Data.IsolationLevel.Serializable` to guarantee that concurrent permission revocations across multiple administrators cannot race past `AssertUserAdministrationSurvives`.
+2. **Owner Account Immutability:** Invokes `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تعديل صلاحيات")` to block modification of the owner account's privileges.
+3. **Privilege Escalation Containment:** Calls `UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, grant)` to prevent administrators from granting permissions they do not possess.
+4. **Surviving Administrator Guarantee:** If the target user would lose `users_manage` capability, the handler counts other active administrators in the database and calls `AssertUserAdministrationSurvives`.
+5. **Critical Vulnerability Grounding (SEC-001):** The handler trusts `request.ActorUserId` directly from the client request DTO (`_db.Users.FirstOrDefaultAsync(u => u.Id == request.ActorUserId)`). Bypassing `FindActorMismatchAsync` via PascalCase casing enables unprivileged users to execute this handler under administrator identity.
 
 ---
 
 ## 2. Comprehensive Callable Inventory
 
-| Callable ID | Name | Signature | Line Span | Classification |
-| :--- | :--- | :--- | :--- | :--- |
-| `CAL-UUP-001` | Constructor | `public UpdateUserPermissionsHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)` | 22-26 | Substantive (DI Hook) |
-| `CAL-UUP-002` | `HandleAsync` | `public async Task HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)` | 28-75 | Substantive (Security & Transaction Core) |
-| `CAL-UUP-003` | `HandleAsync::<lambda_actor>` | `u => u.Id == request.ActorUserId` | 32 | Generated / Linq Expression |
-| `CAL-UUP-004` | `HandleAsync::<lambda_target>` | `u => u.Id == request.UserId` | 37 | Generated / Linq Expression |
-| `CAL-UUP-005` | `HandleAsync::<lambda_survivor_filter>` | `u => u.Active && u.Id != target.Id` | 57 | Generated / Linq Expression |
-| `CAL-UUP-006` | `HandleAsync::<lambda_survivor_select>` | `u => u.Permissions` | 58 | Generated / Linq Expression |
-| `CAL-UUP-007` | `HandleAsync::<lambda_survivor_count>` | `permissions => UserManagementRules.CanManageUsers(...)` | 62 | Generated / Linq Expression |
+| Callable ID | Canonical Symbol ID | Line Span | Classification |
+| :--- | :--- | :--- | :--- |
+| `CAL-UP-001` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:22:5:ConstructorDeclaration` | [22-26](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L22-L26) | Constructor (DI Hook) |
+| `CAL-UP-002` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:28:5:MethodDeclaration` | [28-75](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L28-L75) | Substantive (Security Boundary) |
+| `CAL-UP-003` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:76:SimpleLambdaExpression` | [32](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L32) | Lambda Predicate |
+| `CAL-UP-004` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:37:58:SimpleLambdaExpression` | [37](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L37) | Lambda Predicate |
+| `CAL-UP-005` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:57:24:SimpleLambdaExpression` | [57](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L57) | Lambda Predicate |
+| `CAL-UP-006` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:58:25:SimpleLambdaExpression` | [58](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L58) | Lambda Projection |
+| `CAL-UP-007` | `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:62:46:SimpleLambdaExpression` | [62](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L62) | Lambda Predicate |
 
 ---
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-UUP-001
-- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:22:5:ConstructorDeclaration`
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:22:5:ConstructorDeclaration
 - **Exact Line Range:** Lines 22–26
-- **Signature:** `UpdateUserPermissionsHandler(FalahDbContext, IApprovalRegistry)`
-- **Linked Findings:** `SEC-001`: Constructor `UpdateUserPermissionsHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
-- **Line Span:** [22-26](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L22-L26)
-- **Actual Behavior & Inputs:** Stores injected EF Core database context `db` and manager approval registry `approvalRegistry` into private fields `_db` and `_approvalRegistry`.
-- **Callers & Dependencies:** Injected by ASP.NET Core DI in Minimal API route `POST /api/users/{id}/permissions` ([Program.cs#L1951](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1951)).
-- **Side Effects:** Binds dependencies to request scope.
-- **Classification Justification:** Substantive dependency injection setup.
+- **Signature:** `public UpdateUserPermissionsHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
+- **Actual Behavior & Inputs:** Captures `FalahDbContext` for persistence and transactions, and `IApprovalRegistry` for `users_manage` evaluation.
 
 ---
 
-### CAL-UUP-002
-- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:28:5:MethodDeclaration`
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:28:5:MethodDeclaration
 - **Exact Line Range:** Lines 28–75
-- **Signature:** `HandleAsync(UpdateUserPermissionsRequest, CancellationToken)`
-- **Linked Findings:** `SEC-001`: `HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)`
-- **Line Span:** [28-75](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs#L28-L75)
-- **Actual Behavior & Execution Flow:**
-  1. **Transaction Initialization:** Begins a database transaction with `System.Data.IsolationLevel.Serializable` to lock the `Users` table and prevent phantom insertions or concurrent revocations from miscounting surviving administrators.
-  2. **Actor Resolution:** Queries `_db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)`. Throws `InvalidOperationException("المستخدم غير موجود.")` if not found.
-  3. **Authorization Check:** Maps `actorUser` to domain `Actor` and evaluates `AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "users_manage")`. Throws `DomainException` if actor lacks `users_manage` or `"all"`.
-  4. **Target Resolution:** Queries `_db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)`. Throws `InvalidOperationException("المستخدم المستهدف غير موجود.")` if missing.
-  5. **Owner Protection Invariant:** Invokes `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تعديل صلاحيات")`. Throws `DomainException` if target account is the owner.
-  6. **Input Normalization & Escalation Check:**
-     - De-duplicates `Grant` and `Revoke` collections via `.Distinct().ToList()`.
-     - Validates that all granted and revoked permission keys exist in `PermissionCatalog.Keys` (`AssertKnownPermissions`).
-     - Evaluates `UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, grant)`: ensures the actor possesses every permission being granted (or holds `"all"`).
-  7. **Set Operations:**
-     - Converts current comma-delimited `target.Permissions` string into a `HashSet<string>`.
-     - Executes `UnionWith(grant)` and `ExceptWith(revoke)`.
-  8. **Surviving Administrator Assertion:**
-     - If the mutated permission set for `target` no longer contains `users_manage` or `"all"`:
-       - Queries all other active users in the database (`u.Active && u.Id != target.Id`), projecting `u.Permissions`.
-       - Computes how many of those accounts retain administrative authority.
-       - Invokes `UserManagementRules.AssertUserAdministrationSurvives(count)`. Throws `DomainException` if count <= 0.
-  9. **State Mutation & Audit:**
-     - Updates `target.Permissions = string.Join(",", current)`.
-     - Appends `ControlAuditEventEntity` (`Action = "permissions_changed"`, `Actor = actorUser.Name`, `EntityId = target.Id`, `Reason = $"منح: [{...}] - سحب: [{...}]"`).
-  10. **Commit:** Persists changes via `await _db.SaveChangesAsync(ct)` and commits `await transaction.CommitAsync(ct)`.
-- **Callers & Dependencies:**
-  - Invoked exclusively by Minimal API endpoint `POST /api/users/{id}/permissions` ([Program.cs#L1951-L1958](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs#L1951-L1958)).
-  - Dependencies: `AuthorizationPolicy`, `UserManagementRules`, `OrderMapper`, `_db.Users`, `_db.ControlAuditEvents`.
-- **Side Effects:**
-  - Updates `target.Permissions` column in SQL database.
-  - Inserts row into `ControlAuditEvents` table.
-- **Trust Boundaries & Security Forensics (SEC-001):**
-  - **The Wire Identity Flaw:** The handler reads `request.ActorUserId` directly from the request model.
-  - **Casing Bypass Mechanism:**
-    1. In `AuthenticationMiddleware.cs#L114`, `document.RootElement.TryGetProperty("actorUserId", out _)` performs an exact ordinal case-sensitive lookup.
-    2. A client with any valid bearer token submits a JSON payload with `"ActorUserId": "usr-admin"` (PascalCase).
-    3. The middleware check returns `null` (mismatch check bypassed).
-    4. Minimal API parameter binding executes with default `PropertyNameCaseInsensitive = true`, populating `request.ActorUserId` with `"usr-admin"`.
-    5. In `UpdateUserPermissionsHandler.cs#L32-L35`, `actorUser` resolves to the administrator account.
-    6. `AuthorizationPolicy.AuthorizeCommand` passes.
-    7. `AssertNoPrivilegeEscalation` compares the requested `grant` permissions against `"usr-admin"`'s permissions (which includes `"all"`), successfully bypassing escalation barriers.
-    8. **Impact:** An unprivileged cashier account can grant itself `"all"` or `"users_manage"`.
-    9. **Audit Trail Forgery:** Line 70 sets `Actor = actorUser.Name`. The resulting audit event records that the administrator changed the permissions, leaving zero forensic trace of the cashier in `ControlAuditEvents`.
-- **Concurrency & Failure Modes:**
-  - The `Serializable` isolation level prevents concurrent race conditions where two administrators revoke each other's permissions simultaneously. Under SQL Server, serializable locks prevent dirty reads and phantom rows; if a race occurs, one transaction wins and the other either encounters a deadlock exception (handled by caller retry) or aborts when survivor validation fails.
-- **Test Coverage:**
-  - *Covered:* `UserManagementVerticalSliceTests.Actor_cannot_grant_permissions_they_do_not_hold`, `UserManagementVerticalSliceTests.Revoking_users_manage_from_last_administrator_is_refused`, `UserManagementVerticalSliceTests.Owner_permissions_cannot_be_modified`.
-  - *Missing Tests:* Missing test asserting that supplying PascalCase `"ActorUserId"` or uppercase `"ACTORUSERID"` fails with 403 Forbidden at the middleware layer; missing test for concurrent serializable transaction conflict recovery.
+- **Signature:** `public async Task HandleAsync(UpdateUserPermissionsRequest request, CancellationToken ct = default)`
+- **Actual Behavior & Execution Path:**
+  1. **Serializable Transaction:** Begins transaction with `IsolationLevel.Serializable`.
+  2. **Actor Resolution:** Loads `actorUser` using untrusted `request.ActorUserId`. Verifies `users_manage` permission via `AuthorizationPolicy.AuthorizeCommand`.
+  3. **Target Verification:** Queries `target = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)`.
+  4. **Owner Protection:** Evaluates `UserManagementRules.AssertTargetIsNotOwner(target.Role, "تعديل صلاحيات")`.
+  5. **Catalog & Escalation Checks:** Validates permission keys against `PermissionCatalog`, and asserts `UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, grant)`.
+  6. **Permission Mutation:** Computes `current` set by unioning `grant` and removing `revoke`.
+  7. **Admin Survival Verification:** If target no longer satisfies `CanManageUsers(current)`, queries all other active users and counts how many retain user management authority. Enforces `AssertUserAdministrationSurvives(remainingCount)`.
+  8. **Audit & Commit:** Writes `ControlAuditEventEntity` (`Action = "permissions_changed"`), saves changes, and commits transaction.
+- **VULNERABILITY FORENSICS (SEC-001):**
+  - The handler contains zero references to `HttpContext` or `context.ActorId()`.
+  - An attacker sending `{"ActorUserId": "<owner-id>", "Grant": ["all"], ...}` in PascalCase bypasses middleware checks, loads the owner account as `actorUser`, and grants `"all"` to their own account.
+- **Test Coverage:** Tested in `UserManagementVerticalSliceTests.Updating_permissions_fails_when_granting_unheld_permissions`.
 
 ---
 
-### CAL-UUP-003
-- **Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:76:SimpleLambdaExpression`
-- **Exact Line Range:** Lines 32–32
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:76:SimpleLambdaExpression
+- **Exact Line Range:** Line 32
 - **Signature:** `u => u.Id == request.ActorUserId`
-- **Linked Findings:** `SEC-001` to CAL-UUP-007: Expression Lambdas & Delegates
-- **CAL-UUP-003 (`u => u.Id == request.ActorUserId`):** Primary key lookup for actor record.
-- **CAL-UUP-004 (`u => u.Id == request.UserId`):** Entity lookup for target record being updated.
-- **CAL-UUP-005 (`u => u.Active && u.Id != target.Id`):** Filter querying active users excluding the target user during survivor verification.
-- **CAL-UUP-006 (`u => u.Permissions`):** Projection selecting only the `Permissions` string column from SQL Server.
-- **CAL-UUP-007 (`permissions => UserManagementRules.CanManageUsers(...)`):** In-memory delegate counting active survivors.
-- **Classification Justification:** Generated LINQ expressions and delegate predicates.
+- **Actual Behavior:** LINQ expression locating the acting user record.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:37:58:SimpleLambdaExpression
+- **Exact Line Range:** Line 37
+- **Signature:** `u => u.Id == request.UserId`
+- **Actual Behavior:** LINQ expression locating the target user record to be modified.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:57:24:SimpleLambdaExpression
+- **Exact Line Range:** Line 57
+- **Signature:** `u => u.Active && u.Id != target.Id`
+- **Actual Behavior:** LINQ expression filtering candidate administrators to other active users excluding the target.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:58:25:SimpleLambdaExpression
+- **Exact Line Range:** Line 58
+- **Signature:** `u => u.Permissions`
+- **Actual Behavior:** LINQ expression projecting the comma-separated permissions string for SQL evaluation.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:62:46:SimpleLambdaExpression
+- **Exact Line Range:** Line 62
+- **Signature:** `permissions => UserManagementRules.CanManageUsers(permissions.Split(...))`
+- **Actual Behavior:** In-memory LINQ predicate parsing permissions to determine if an administrator retains `users_manage` or `"all"`.
 
 ---
 
 ## 4. Verification & Recommendations
 
-1. **Remediation for SEC-001:** Remove `ActorUserId` from `UpdateUserPermissionsRequest` or overwrite it at the endpoint layer with `context.ActorId()` before invoking `HandleAsync`.
-2. **Audit Logging Fix:** Pass `context.ActorId()` or authenticated session identity directly into the handler to ensure the real actor is recorded in `ControlAuditEventEntity`.
-3. **Verification:** Static source audit confirmed; no application source modified.
+1. **Eliminate SEC-001 Exposure:** Ensure caller identity is derived from verified server session (`context.ActorId()`), preventing identity injection.
+2. **Static Verification:** Verified complete against `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs`. No application source modified.
 
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:37:58:SimpleLambdaExpression` (Lines 37–37, `SimpleLambdaExpression`)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:57:24:SimpleLambdaExpression` (Lines 57–57, `SimpleLambdaExpression`)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:58:25:SimpleLambdaExpression` (Lines 58–58, `SimpleLambdaExpression`)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:62:46:SimpleLambdaExpression` (Lines 62–63, `SimpleLambdaExpression`)
+
+---
+
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T01:35:00Z
+- **Source SHA-256 Verified:** `796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55`
+- **Callable ID Checked:** `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:22:5:ConstructorDeclaration`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:28:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:32:76:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:37:58:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:57:24:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:58:25:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs:62:46:SimpleLambdaExpression` (7 of 7 callables checked)
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:**
+  1. Verified SHA-256 matches actual production source `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs` (77 lines).
+  2. Verified transactional concurrency: Line 31 begins transaction with `IsolationLevel.Serializable`, preventing race conditions during concurrent administrator privilege revocations.
+  3. Confirmed interaction with `SEC-001`: Line 32 resolves the acting administrator directly from untrusted `request.ActorUserId`. When combined with the case-sensitivity bypass in `AuthenticationMiddleware`, this allows an unprivileged caller to execute permission changes under an administrator identity.
+  4. Verified owner protection and surviving administrator check: `AssertTargetIsNotOwner` (line 39) and `AssertUserAdministrationSurvives` (line 61) prevent stripping privileges from the owner or revoking the last administrator.
+  5. All 7 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
+
+
+---
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T01:38:12Z
+- **Source SHA-256 Verified:** `796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55` against `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs` (77 lines).
+2. Concur with L1 on `IsolationLevel.Serializable` and interaction with `SEC-001`.
+3. Additional L2 Challenger Assessment:
+   - Line 32 binds `actorUser` from `request.ActorUserId`. When combined with PascalCase casing bypass in `AuthenticationMiddleware`, an unprivileged user can impersonate an administrator and escalate their own privileges.
+   - However, within the handler domain, `AssertTargetIsNotOwner` (line 39) blocks tampering with owner permissions, and `AssertUserAdministrationSurvives` (line 61) prevents revoking the last remaining administrator under `Serializable` transaction isolation.
+4. All 7 callables rigorously double-verified. Elevation to `DOUBLE_QA_VERIFIED` accepted.

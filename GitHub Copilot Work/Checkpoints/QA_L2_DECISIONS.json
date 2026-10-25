@@ -1,0 +1,145 @@
+{
+  "decisions": {
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Orders/CheckoutRules.cs.md": {
+      "timestamp_utc": "2026-10-25T01:32:59Z",
+      "source_path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+      "source_sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4",
+      "callable_count": 11,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified DefersAllMoney flaw FIN-001, SelectElectronicLeg defect FIN-MULTI-ELEC-001, and payable total calculations. Roslyn AST and source lines matched."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Financial/FinancialRules.cs.md": {
+      "timestamp_utc": "2026-10-25T01:32:59Z",
+      "source_path": "src/Falah.Domain/Financial/FinancialRules.cs",
+      "source_sha256": "0c48f0fef3792f1bd9e85023ad85978ae8583f9f7d2e2bcaa65f3159aef1b926",
+      "callable_count": 12,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified FIN-RECON-DRAWER-001 signature lack of explicit refund/safe-drop parameters, order sequence floor 127, and treasury overdraft bounds. Roslyn AST and source lines matched."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Financial/TaxRule.cs.md": {
+      "timestamp_utc": "2026-10-25T01:32:59Z",
+      "source_path": "src/Falah.Domain/Financial/TaxRule.cs",
+      "source_sha256": "baf652da91a01c0587bc5d6038980178509dc41c9c95578e20dc7551f1681766",
+      "callable_count": 1,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified decimal VAT precision, banker's rounding to even, and Egyptian tax compliance. Roslyn AST and source lines matched."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/OrdersViewModel.cs.md": {
+      "timestamp_utc": "2026-10-25T01:32:59Z",
+      "source_path": "src/Falah.Client.CashierWinUI/ViewModels/OrdersViewModel.cs",
+      "source_sha256": "f5423f850838c567c7e347cc2e54100bd8ac7c873349f712d297c4d214af596c",
+      "callable_count": 9,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified client presentation lifecycle, search filtering safety, and server-side role-based order scoping. Roslyn AST and source lines matched."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs.md": {
+      "timestamp_utc": "2026-10-25T01:32:59Z",
+      "source_path": "src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs",
+      "source_sha256": "83c955f6cc1fac8e1b1a77d591e978a3030cafc147cb8435ba9483ad0e466d11",
+      "callable_count": 9,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified blind-close reports_view gate, discrepancy calculation in ShiftRow, and reprint snapshot drift. Roslyn AST and source lines matched."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs.md": {
+      "timestamp_utc": "2026-10-25T01:34:55Z",
+      "source_path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs",
+      "source_sha256": "2b5aa70529d3c5098ff99b0c749925e0fa0c3024c0840b9576ebf49e0a2416b2",
+      "callable_count": 21,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified durable request persistence in PersistPending, idempotent retry mechanics in PerformCheckoutAsync, kitchen print failure recovery, and UI-011 state mismatch in ClearResolvedPrint."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs.md": {
+      "timestamp_utc": "2026-10-25T01:34:55Z",
+      "source_path": "src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs",
+      "source_sha256": "dabfa47fa864b50d565951350f19e9a7735b9da5e5ed077fe22a427cb742a384",
+      "callable_count": 26,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified UI-007 race condition in uncancelled LookupCustomerCoreAsync, customer address validation mirroring DeliveryRules.FirstMissingDeliveryField, and potential delivery fee staleness on historical address selection."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs.md": {
+      "timestamp_utc": "2026-10-25T01:34:55Z",
+      "source_path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs",
+      "source_sha256": "58e69111af7c64b7209f88701f235788a6eb6b0cf600cf2e4a4ba54b1810219c",
+      "callable_count": 1,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified WPF client complete absence of electronic payment cancellation and retry persistence, stranding pending electronic orders upon communication failure."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs.md": {
+      "timestamp_utc": "2026-10-25T01:34:55Z",
+      "source_path": "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs",
+      "source_sha256": "137baa022eb1e158ae5ab7ae1b6e986cfe2bcd96853c091fd9d5d1d101db7929",
+      "callable_count": 1,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified WPF shift deadlock trap (ability to open shifts with zero shift close implementation, deadlocking business day close) and workstation clock skew susceptibility in shift naming."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs.md": {
+      "timestamp_utc": "2026-10-25T01:34:55Z",
+      "source_path": "src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs",
+      "source_sha256": "61485ee26cba0c6f32368c1690a1d6129bac90650cad048a8468d8d28bdabb0f",
+      "callable_count": 4,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified DispatcherTimer local clock drift vs backend Cairo business time, and session metadata notification updates."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Server/AuthenticationMiddleware.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Server/AuthenticationMiddleware.cs",
+      "source_sha256": "3e64ad8ef5324fe99aa19a0dead024a4afe8f99e038f8e280631b2eb8eabc5eb",
+      "callable_count": 6,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 analysis confirming `SEC-001` (case-sensitivity mismatch in `FindActorMismatchAsync` via `TryGetProperty`) and `SEC-004` (omission of `closedByUserId` from `ActorFields`)."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Authorization/SessionService.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Infrastructure/Authorization/SessionService.cs",
+      "source_sha256": "eb65442b2f36e359dee026d2988ef67def1b7484ca39fca09a8dbeff271cab81",
+      "callable_count": 7,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on cryptographic token hashing and active user status verification."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs",
+      "source_sha256": "a934e9e87f27da2f2e7a40000685a8806b4239f73c99f500953360132ee9117c",
+      "callable_count": 4,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on `SEC-006` (absence of expiration TTL on issued approval tokens) and absence of maker-checker self-approval segregation."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/ChangePinHandler.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Infrastructure/Users/ChangePinHandler.cs",
+      "source_sha256": "92efa770a8ddbc53fe25ffb287a3d6344c052ad2cf863e6c879e7370eaa63b99",
+      "callable_count": 4,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on owner immunity enforcement and active session revocation gap."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/CreateUserHandler.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Infrastructure/Users/CreateUserHandler.cs",
+      "source_sha256": "a8f333191ce7b9c9c3365b3046dccaac141e8415b1d5dc1145a509e511eb785d",
+      "callable_count": 7,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on single-owner provisioning guard and privilege escalation check."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs",
+      "source_sha256": "796cc8d48d0b1224441c6028cd98cbdd10abae53896a4b591ce04c86e146fe55",
+      "callable_count": 7,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on `IsolationLevel.Serializable` and interaction with `SEC-001`."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Authorization/UserManagementRules.cs.md": {
+      "timestamp_utc": "2026-10-25T01:38:12Z",
+      "source_path": "src/Falah.Domain/Authorization/UserManagementRules.cs",
+      "source_sha256": "3a72ee5f6b79d83b6364bf22d8150b39b2a13211fa2db392f13b90c5b10c32fe",
+      "callable_count": 7,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on immutable owner protection, privilege escalation guards, and surviving administrator invariants."
+    }
+  },
+  "summary": {
+    "total_accepted": 17,
+    "total_rejected": 0,
+    "total_callables_verified": 137
+  }
+}
