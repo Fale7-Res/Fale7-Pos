@@ -1,31 +1,62 @@
-# tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs
+# File Review: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs.
 
-Git blob SHA256 `3019f6a0484cce30ba52d22fc784451075fd7bb985af7375b91d4a1ff57af04d`; worktree SHA256 `3019f6a0484cce30ba52d22fc784451075fd7bb985af7375b91d4a1ff57af04d`; LF-equivalent `True`.
+## Callables
 
-Actual role: Isolated opt-in footer geometry and screenshot probe using real views with fake API.
+### Callable: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:24:5:MethodDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:24:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Start(Window)
+- **Lines:** [24-31]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Start(Window) across lines 24-31.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Start(Window window)` at `tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:24`: Replaces window content with white host, subscribes Loaded and activates native window. This must run in isolated opt-in build, not current operator window. Constructs no real user session here.
+---
+### Callable: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:29:24:ParenthesizedLambdaExpression
 
-- `ParenthesizedLambdaExpression` at `tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:UNKNOWN`: Once-only closure sets started before awaiting RunAsync, preventing repeatedLoaded duplicate probe runs. Async event exception propagation is native context; RunAsync catches its main body exceptions.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:29:24:ParenthesizedLambdaExpression
+- **Kind:** ParenthesizedLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [29-29]
+- **Behavior:** Executes logic for lambda expression across lines 29-29.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `RunAsync(Window window, Grid host)` at `tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:33`: Loops6 nominal size/scale conditions and8 cart states with fake GET menu/tax. Real CartPanelVM populated with empty/small60line/highquantity/discount/comp/split variants. Measures RTL label/amount gutter, row separation, CTA/total gap, footer viewport and scroll independence. Captures PNG only3 states, records capture errors separately, writes results/error then closes. Scaling adjusts DIP geometry and capture raster but does not change OS DPI. Does not test delivery row, busy/pending or theme states.
+---
+### Callable: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:33:5:MethodDeclaration
 
-- `Bounds(string name)` at `tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:70`: Finds named FrameworkElement and transforms its actual rectangle into host coordinates, allowing footer/cart comparisons across scroll. Missing name/null throws to enclosing catch; does not measure actual glyph bounds or contrast.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:33:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.RunAsync(Window, Grid)
+- **Lines:** [33-126]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.RunAsync(Window, Grid) across lines 33-126.
+- **Validations:** Validation checks detected: True. Throws: InvalidOperationException.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
-- `SendAsync(HttpRequestMessage request, CancellationToken ct)` at `tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:130`: Rejects every nonGET and unknown path; returns only synthetic empty menu and configured14percent inclusive/exclusive tax. Strict route fixture prevents accidental network/write. Cancellation token ignored, no physical printing.
+---
+### Callable: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:70:17:LocalFunctionStatement
 
-## Tests and limitations
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:70:17:LocalFunctionStatement
+- **Kind:** LocalFunctionStatement
+- **Symbol:** Bounds(string)
+- **Lines:** [70-74]
+- **Behavior:** Executes logic for Bounds(string) across lines 70-74.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-SOURCE_REVIEW_ONLY. All5 callable spans explicitly reviewed, not executed. Source comment saying no live API is corroborated by strict fixture; native output availability not claimed.
+---
+### Callable: tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:130:9:MethodDeclaration
 
-## Recommendations (not implemented)
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeFooterLayoutProbe.cs:130:9:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Fixtures.SendAsync(System.Net.Http.HttpRequestMessage, CancellationToken)
+- **Lines:** [130-138]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Verification.NativeFooterLayoutProbe.Fixtures.SendAsync(System.Net.Http.HttpRequestMessage, CancellationToken) across lines 130-138.
+- **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
-Interpret nominal DPI sizing and raw result records conservatively. Add absent delivery/pending/theme states only under authorized verification.
-
-## Applicability
-
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+---

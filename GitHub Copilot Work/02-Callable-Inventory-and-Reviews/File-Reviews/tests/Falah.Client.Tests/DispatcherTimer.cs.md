@@ -1,33 +1,62 @@
-# tests/Falah.Client.Tests/DispatcherTimer.cs
+# File Review: tests/Falah.Client.Tests/DispatcherTimer.cs
 
-Baseline: `c35816ecae49633674775dd32061c6ee92f94aaf`
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/DispatcherTimer.cs.
 
-SHA-256 (exact Git blob bytes): `19c707d2ea4dcb2ed8f70ae7b29377cba5b6ae17047e2828c039f9e9027978fd`
+## Callables
 
-Worktree SHA-256: `19c707d2ea4dcb2ed8f70ae7b29377cba5b6ae17047e2828c039f9e9027978fd`; normalized LF equivalence: `True`. EOL differences alone are not source tampering.
+### Callable: tests/Falah.Client.Tests/DispatcherTimer.cs:7:32:GetAccessorDeclaration
 
-Type: `.cs`; review: **REVIEWED_SOURCE**; runtime/visual proof: **NOT_TESTED by this reviewer**.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/DispatcherTimer.cs:7:32:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Interval.get
+- **Lines:** [7-7]
+- **Behavior:** Accessor 'get' for property in Microsoft.UI.Xaml.DispatcherTimer.Interval.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Actual role: Headless WinUI timer stub for source-linked view model tests.
+---
+### Callable: tests/Falah.Client.Tests/DispatcherTimer.cs:7:37:SetAccessorDeclaration
 
-## Source paths and function/resource analysis
+- **Canonical Callable ID:** tests/Falah.Client.Tests/DispatcherTimer.cs:7:37:SetAccessorDeclaration
+- **Kind:** SetAccessorDeclaration
+- **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Interval.set
+- **Lines:** [7-7]
+- **Behavior:** Accessor 'set' for property in Microsoft.UI.Xaml.DispatcherTimer.Interval.set.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Start` at `tests/Falah.Client.Tests/DispatcherTimer.cs:9`: No-op; Stop also no-op. Tests do not exercise five-second recurring polling, real UI thread affinity or stop of an in-flight timer callback.
+---
+### Callable: tests/Falah.Client.Tests/DispatcherTimer.cs:9:5:MethodDeclaration
 
-- `RaiseTick` at `tests/Falah.Client.Tests/DispatcherTimer.cs:11`: Manual event dispatch can test handler logic but not scheduler semantics. No DB/network/printing side effects directly in stub.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/DispatcherTimer.cs:9:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Start()
+- **Lines:** [9-9]
+- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.Start() across lines 9-9.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Responsibilities and limits
+---
+### Callable: tests/Falah.Client.Tests/DispatcherTimer.cs:10:5:MethodDeclaration
 
-Client source does not establish server authorization or database atomicity; cross-file backend review is separate. No application commands, database writes, printer actions, credential entry, source changes or dependency updates were executed by this reviewer. Static absence of a fault is not proof of correctness. Security exploitability is not inferred merely from a client-supplied actor ID.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/DispatcherTimer.cs:10:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.Stop()
+- **Lines:** [10-10]
+- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.Stop() across lines 10-10.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Tests and gaps
+---
+### Callable: tests/Falah.Client.Tests/DispatcherTimer.cs:11:5:MethodDeclaration
 
-NOT_APPLICABLE standalone business behavior; test infrastructure changes represent real scheduling incompleteness.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/DispatcherTimer.cs:11:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Microsoft.UI.Xaml.DispatcherTimer.RaiseTick()
+- **Lines:** [11-11]
+- **Behavior:** Executes logic for Microsoft.UI.Xaml.DispatcherTimer.RaiseTick() across lines 11-11.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Recommendations (not implemented)
-
-Label source-linked tests headless and use native integration evidence for timing/focus/threading.
-
-## Coverage qualification
-
-Anchored paragraphs describe actual manually traced functions/resources, not semantic declaration enumeration. Generated toolkit methods/properties are compiler-generated and must be accounted for by the parent inventory. Other applicable file dimensions without evidence remain UNKNOWN; printing and DB transaction implementation inside a pure view/resource file are NOT_APPLICABLE. A partial file report must not be counted as exhaustive.
+---

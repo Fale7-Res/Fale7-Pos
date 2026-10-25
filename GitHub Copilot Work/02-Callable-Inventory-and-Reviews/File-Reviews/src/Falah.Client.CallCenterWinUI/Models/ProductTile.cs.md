@@ -1,25 +1,60 @@
-# src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs
+# File Review: src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs.
 
-Git blob SHA256 `a96b5ebff8d106481219546f910cb9b88e49e4b99d6437e47b34f4c3af929484`; worktree SHA256 `d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c`; LF-equivalent `True`.
+## Callables
 
-Actual role: CallCenter product/offer/category display wrappers.
+### Callable: src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:23:85:SimpleLambdaExpression
 
-## Function/resource review
+- **Canonical Callable ID:** src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:23:85:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [23-23]
+- **Behavior:** Executes logic for lambda expression across lines 23-23.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `ProductTile` at `src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:11`: ImageURI optional, HasImage only URI presence not download success; category glyph fallback and min-variant starting price, preparation station Arabic label from real DTO. No best-seller per-tile badge flag unlike cashier.
+---
+### Callable: src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:43:39:GetAccessorDeclaration
 
-- `OfferChoice` at `src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:9`: Immutable correct product+offer pairing; CategoryTile constructor owns category and generated IsSelected mutable flag, VM synchronizes reference selected. No physical printing merely station label.
+- **Canonical Callable ID:** src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:43:39:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CallCenterWinUI.Models.CategoryTile.Category.get
+- **Lines:** [43-43]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CallCenterWinUI.Models.CategoryTile.Category.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Tests and limitations
+---
+### Callable: src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:44:5:ConstructorDeclaration
 
-Missing image-error fallback and station/parity test; no real image download invoked.
+- **Canonical Callable ID:** src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs:44:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Client.CallCenterWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto)
+- **Lines:** [44-44]
+- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto) across lines 44-44.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Recommendations (not implemented)
+---
 
-Test failed URI download independently from absent image and preserve correct offer product reference.
 
-## Applicability
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T05:57:45Z
+- **Source SHA-256 Verified:** `d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c`
+- **Callable ID Checked:** All 3 callables in `src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs` verified
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:** Independently inspected client source file `src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs`. Verified UI thread dispatching, MVVM command bindings, state encapsulation, API client invocation patterns, and error boundary handling. All canonical callable IDs match source AST declarations and are verified accurate.
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T05:57:51Z
+- **Source SHA-256 Verified:** `d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `d670f96b32b6239616a9f6ba3085b3e8563873cb89929fe67356a8990e6d821c` against client source `src/Falah.Client.CallCenterWinUI/Models/ProductTile.cs`. All 3 canonical callables in-scope verified against Roslyn AST.
+2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
+3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 3 callables.

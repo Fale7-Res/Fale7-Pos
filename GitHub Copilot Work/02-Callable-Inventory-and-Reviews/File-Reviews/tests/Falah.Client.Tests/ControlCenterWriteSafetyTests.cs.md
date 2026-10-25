@@ -1,27 +1,95 @@
-# tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs
+# File Review: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs.
 
-Git blob SHA256 `6ed58e8eb60d3b0a48b282745a03654c2272907849a5c9515dc366142b8311ea`; worktree SHA256 `6ed58e8eb60d3b0a48b282745a03654c2272907849a5c9515dc366142b8311ea`; LF-equivalent `True`.
+## Callables
 
-Actual role: Fake-HTTP tests for retained business-day writes.
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:13:9:MethodDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:13:9:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.ControlCenterWriteSafetyTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)
+- **Lines:** [13-13]
+- **Behavior:** Executes logic for Falah.Client.Tests.ControlCenterWriteSafetyTests.Handler.SendAsync(HttpRequestMessage, CancellationToken) across lines 13-13.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Handler(` at `tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:11`: Delegates all requests to fixture, no live database. Json wraps actual response body/status; cancellation token not asserted.
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:15:5:MethodDeclaration
 
-- `Unknown_management_day_write_retains_its_exact_request_until_confirmation(` at `tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:24`: Five action theory drives open/close/reopen/checklist/exception on one VM. First HTTP throws, next422, third succeeds; asserts exact path+body replay, pending global state, frozen edit, close refusal and final cleanup. Read fixture updates status/existence only final attempt; does not simulate actual committed server before loss.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:15:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.ControlCenterWriteSafetyTests.Json(string, System.Net.HttpStatusCode)
+- **Lines:** [15-16]
+- **Behavior:** Executes logic for Falah.Client.Tests.ControlCenterWriteSafetyTests.Json(string, System.Net.HttpStatusCode) across lines 15-16.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Unknown_day_history_disables_open_close_and_reopen(` at `tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:87`: 503 reads keep all day mutations disabled and load error visible. Does not exercise stale successful read after changing account or process recovery.
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:18:5:MethodDeclaration
 
-## Tests and limitations
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:18:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.ControlCenterWriteSafetyTests.Unknown_management_day_write_retains_its_exact_request_until_confirmation(string)
+- **Lines:** [18-84]
+- **Behavior:** Executes logic for Falah.Client.Tests.ControlCenterWriteSafetyTests.Unknown_management_day_write_retains_its_exact_request_until_confirmation(string) across lines 18-84.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
-SOURCE_REVIEW_ONLY, NOT_EXECUTED. Valid same-process immutable retry assertions. Missing fresh-process recovered DTO context, journal corruption, session change, mid-flight root navigation and native focus tests.
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:29:9:LocalFunctionStatement
 
-## Recommendations (not implemented)
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:29:9:LocalFunctionStatement
+- **Kind:** LocalFunctionStatement
+- **Symbol:** Day()
+- **Lines:** [29-29]
+- **Behavior:** Executes logic for Day() across lines 29-29.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Add restart reconstruction and session identity tests; preserve actual backend transactional coverage separately.
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:30:47:SimpleLambdaExpression
 
-## Applicability
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:30:47:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [30-48]
+- **Behavior:** Executes logic for lambda expression across lines 30-48.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:78:28:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:78:28:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [78-78]
+- **Behavior:** Inline expression lambda 'Assert.All(bodies, b => Assert.Equal(bodies[0], b));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:86:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:86:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.ControlCenterWriteSafetyTests.Unknown_day_history_disables_open_close_and_reopen()
+- **Lines:** [86-97]
+- **Behavior:** Executes logic for Falah.Client.Tests.ControlCenterWriteSafetyTests.Unknown_day_history_disables_open_close_and_reopen() across lines 86-97.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:89:47:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/ControlCenterWriteSafetyTests.cs:89:47:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [89-89]
+- **Behavior:** Executes logic for lambda expression across lines 89-89.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---

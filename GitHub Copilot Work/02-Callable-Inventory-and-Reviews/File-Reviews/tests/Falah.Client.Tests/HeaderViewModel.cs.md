@@ -1,25 +1,51 @@
-# tests/Falah.Client.Tests/HeaderViewModel.cs
+# File Review: tests/Falah.Client.Tests/HeaderViewModel.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/HeaderViewModel.cs.
 
-Git blob SHA256 `091d9717a346b563de7d5e2af620678e566c31da474ed32e89edbd8a00ef8a9d`; worktree SHA256 `091d9717a346b563de7d5e2af620678e566c31da474ed32e89edbd8a00ef8a9d`; LF-equivalent `True`.
+## Callables
 
-Actual role: cashier headless native-header substitute.
+### Callable: tests/Falah.Client.Tests/HeaderViewModel.cs:6:5:ConstructorDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/HeaderViewModel.cs:6:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CashierWinUI.Services.AppSession?)
+- **Lines:** [6-6]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CashierWinUI.Services.AppSession?) across lines 6-6.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `HeaderViewModel` at `tests/Falah.Client.Tests/HeaderViewModel.cs:4`: Constructor accepts optional production session but ignores it, Stop/Refresh/SetIdentity all no-op. It substitutes not only clock but also native notifications and actual restaurant identity, despite comment only native clock omitted.
+---
+### Callable: tests/Falah.Client.Tests/HeaderViewModel.cs:7:5:MethodDeclaration
 
-- `Refresh` at `tests/Falah.Client.Tests/HeaderViewModel.cs:8`: Noop means tests cannot assert actual header user/role/shift/lock notifications or session OperationStateChanged subscription. Stop no timer semantics; SetIdentity no configured name behavior.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/HeaderViewModel.cs:7:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop()
+- **Lines:** [7-7]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop() across lines 7-7.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Tests and limitations
+---
+### Callable: tests/Falah.Client.Tests/HeaderViewModel.cs:8:5:MethodDeclaration
 
-This is test infrastructure, NOT_APPLICABLE standalone domain correctness. Native header paths separately reviewed; no test run here.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/HeaderViewModel.cs:8:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh()
+- **Lines:** [8-8]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh() across lines 8-8.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Recommendations (not implemented)
+---
+### Callable: tests/Falah.Client.Tests/HeaderViewModel.cs:9:5:MethodDeclaration
 
-State exact substitution scope in test evidence; add native header integration rather than infer tested UX from headless assertions.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/HeaderViewModel.cs:9:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.SetIdentity(string)
+- **Lines:** [9-9]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.SetIdentity(string) across lines 9-9.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Applicability
-
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+---

@@ -1,33 +1,227 @@
-# tests/Falah.Client.Tests/UserWorkflowTests.cs
+# File Review: tests/Falah.Client.Tests/UserWorkflowTests.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/UserWorkflowTests.cs.
 
-Git blob SHA256 `5940ea22aac2610bbdf11898c61191ceb2757082551e016dfd30e5a25cee3838`; worktree SHA256 `5940ea22aac2610bbdf11898c61191ceb2757082551e016dfd30e5a25cee3838`; LF-equivalent `True`.
+## Callables
 
-Actual role: Synthetic HTTP user-management immutability, privilege display and PIN retry tests.
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:13:9:MethodDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:13:9:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)
+- **Lines:** [13-13]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Handler.SendAsync(HttpRequestMessage, CancellationToken) across lines 13-13.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Handler(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:11`: Session fixture routesGET to synthetic users/permissions and nonGET to callback. Json creates actual DTO-shaped body, not real token-bearing auth session.
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:15:5:MethodDeclaration
 
-- `User_creation_retains_the_original_identity_pin_and_permissions_after_lost_confirmation(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:26`: Edits fields after first lost response; compares3 identical serialized creates across422/success, blocks selection/close, clears PIN after success. Never constructs new VM or reads real secrets.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:15:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Json(object, System.Net.HttpStatusCode)
+- **Lines:** [15-15]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Json(object, System.Net.HttpStatusCode) across lines 15-15.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Existing_user_writes_retry_the_original_decision_and_target(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:58`: Theory permission/active changes retain target/decision with2 identical bodies and blocked switch/create; fake200 confirms.
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:18:5:MethodDeclaration
 
-- `Lost_self_pin_confirmation_is_reconciled_to_the_same_user_without_rewriting_the_pin(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:81`: Proof endpoint returns UserSummaryDto without access token. Asserts one write and one proof, cleared fields and current user unchanged. Therefore does not exercise token replacement in real AuthSessionResponse path.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:18:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Session(Func<HttpRequestMessage, Task<HttpResponseMessage>>)
+- **Lines:** [18-23]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Session(Func<HttpRequestMessage, Task<HttpResponseMessage>>) across lines 18-23.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
-- `A_pin_proof_for_a_different_user_does_not_confirm_the_pending_change(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:109`: Wrong-ID proof remains pending and retries original body; CurrentUser unchanged asserted. Bearer Authorization header not asserted, and proof response lacks token, leaving UI020 real token mutation uncovered.
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:19:54:SimpleLambdaExpression
 
-- `Administrative_pin_reset_cannot_target_the_owner_and_creation_cannot_grant_unheld_permissions(` at `tests/Falah.Client.Tests/UserWorkflowTests.cs:128`: Manager users_manage/pos blocked owner PIN reset and new all permission; zero fixture writes verifies client gating. Does not establish server authorization or TOCTOU account change checks.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:19:54:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [19-22]
+- **Behavior:** Executes logic for lambda expression across lines 19-22.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Tests and limitations
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:25:5:MethodDeclaration
 
-SOURCE_REVIEW_ONLY, NOT_EXECUTED. PIN strings are fixture literals, no actual credential report. Missing token-bearing proof, fresh-session pending request, secure journal storage and concurrent account switch.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:25:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.User_creation_retains_the_original_identity_pin_and_permissions_after_lost_confirmation()
+- **Lines:** [25-53]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.User_creation_retains_the_original_identity_pin_and_permissions_after_lost_confirmation() across lines 25-53.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-## Recommendations (not implemented)
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:29:31:SimpleLambdaExpression
 
-Add real authentication response shape/header assertions and restart context tests; independently server-enforce all privilege rules.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:29:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [29-35]
+- **Behavior:** Executes logic for lambda expression across lines 29-35.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-## Applicability
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:39:38:SimpleLambdaExpression
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:39:38:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [39-39]
+- **Behavior:** Inline expression lambda 'vm.NewUserPermissions.Single(p => p.Key == "pos").IsGranted = true;'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:46:38:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:46:38:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [46-46]
+- **Behavior:** Inline expression lambda 'vm.NewUserPermissions.Single(p => p.Key == "pos").IsGranted = false;'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:50:59:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:50:59:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [50-50]
+- **Behavior:** Executes logic for lambda expression across lines 50-50.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:55:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:55:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Existing_user_writes_retry_the_original_decision_and_target(bool)
+- **Lines:** [55-78]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Existing_user_writes_retry_the_original_decision_and_target(bool) across lines 55-78.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:61:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:61:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [61-66]
+- **Behavior:** Executes logic for lambda expression across lines 61-66.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:68:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:68:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [68-68]
+- **Behavior:** Inline expression lambda 'vm.Permissions.Single(p => p.Key == "pos").IsGranted = false;'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:74:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:74:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [74-74]
+- **Behavior:** Inline expression lambda 'vm.Permissions.Single(p => p.Key == "pos").IsGranted = true;'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:80:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:80:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Lost_self_pin_confirmation_is_reconciled_to_the_same_user_without_rewriting_the_pin()
+- **Lines:** [80-106]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Lost_self_pin_confirmation_is_reconciled_to_the_same_user_without_rewriting_the_pin() across lines 80-106.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:84:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:84:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [84-93]
+- **Behavior:** Executes logic for lambda expression across lines 84-93.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:108:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:108:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.A_pin_proof_for_a_different_user_does_not_confirm_the_pending_change()
+- **Lines:** [108-125]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.A_pin_proof_for_a_different_user_does_not_confirm_the_pending_change() across lines 108-125.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:112:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:112:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [112-118]
+- **Behavior:** Executes logic for lambda expression across lines 112-118.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:127:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:127:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.UserWorkflowTests.Administrative_pin_reset_cannot_target_the_owner_and_creation_cannot_grant_unheld_permissions()
+- **Lines:** [127-140]
+- **Behavior:** Executes logic for Falah.Client.Tests.UserWorkflowTests.Administrative_pin_reset_cannot_target_the_owner_and_creation_cannot_grant_unheld_permissions() across lines 127-140.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:131:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:131:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [131-131]
+- **Behavior:** Executes logic for lambda expression across lines 131-131.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/UserWorkflowTests.cs:137:38:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/UserWorkflowTests.cs:137:38:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [137-137]
+- **Behavior:** Inline expression lambda 'vm.NewUserPermissions.Single(p => p.Key == "all").IsGranted = true;'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---

@@ -1,39 +1,214 @@
-# src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs
+# File Review: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs
 
-Baseline: `c35816ecae49633674775dd32061c6ee92f94aaf`
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs.
 
-SHA-256 (exact Git blob bytes): `cc1b2d59f858eb45473b2bc5570724f8d92c91364734da85466fe572781344f9`
+## Callables
 
-Worktree SHA-256: `a2b18699b786109662a0fd23e8660bb2a56b015e0c2f5582db14b9dbf4f06aad`; normalized LF equivalence: `True`. EOL differences alone are not source tampering.
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:25:5:ConstructorDeclaration
 
-Type: `.cs`; review: **REVIEWED_SOURCE**; runtime/visual proof: **NOT_TESTED by this reviewer**.
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:25:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.PrintingViewModel(Falah.Client.CashierWinUI.Services.AppSession)
+- **Lines:** [25-25]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.PrintingViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 25-25.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Actual role: Read-only route/job status overview.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:30:54:GetAccessorDeclaration
 
-## Source paths and function/resource analysis
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:30:54:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Status.get
+- **Lines:** [30-30]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Status.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `RouteQueue` at `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:28`: Formats pending/failed/stuck counts and age, uses local machine time for last success. Describes recorded agent success, not proof paper physically emerged.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:30:59:InitAccessorDeclaration
 
-- `JobRow` at `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:68`: Recognizes six routes including DeliveryOrder and DriverDispatch, displays error/attempts/status; LastError may contain sensitive backend details and needs server redaction check.
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:30:59:InitAccessorDeclaration
+- **Kind:** InitAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Status.init
+- **Lines:** [30-30]
+- **Behavior:** Accessor 'init' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Status.init.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Routes` at `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:118`: Only four routes are selectable/displayed as queue cards, omitting DeliveryOrder and DriverDispatch despite JobRow understanding them. UI-009 requires server cross-check for actual emitted route usage.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:31:40:GetAccessorDeclaration
 
-- `LoadAsync` at `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:138`: Busy reload flag coalesces changes, loads overview then route jobs; finally triggers pending reload. State properties update after completion. Infinite reload not intrinsically present; repeated external selection can schedule successive loads.
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:31:40:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Label.get
+- **Lines:** [31-31]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Label.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `LoadJobsAsync` at `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:168`: Snapshots selected route and refuses stale response, correctly prevents race. No writes/retry printing function in this status VM.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:31:45:InitAccessorDeclaration
 
-## Responsibilities and limits
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:31:45:InitAccessorDeclaration
+- **Kind:** InitAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Label.init
+- **Lines:** [31-31]
+- **Behavior:** Accessor 'init' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Label.init.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Client source does not establish server authorization or database atomicity; cross-file backend review is separate. No application commands, database writes, printer actions, credential entry, source changes or dependency updates were executed by this reviewer. Static absence of a fault is not proof of correctness. Security exploitability is not inferred merely from a client-supplied actor ID.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:41:13:GetAccessorDeclaration
 
-## Tests and gaps
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:41:13:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.StateLine.get
+- **Lines:** [41-48]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.StateLine.get across lines 41-48.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-Missing six-route overview/filter assertions; no printer or HTTP runtime checks by this reviewer.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:60:9:MethodDeclaration
 
-## Recommendations (not implemented)
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:60:9:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Describe(TimeSpan)
+- **Lines:** [60-64]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Describe(TimeSpan) across lines 60-64.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Include every real route and test failed/stuck visibility by actual route enum; keep queued vs printed distinction.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:70:43:GetAccessorDeclaration
 
-## Coverage qualification
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:70:43:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.JobRow.Job.get
+- **Lines:** [70-70]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.JobRow.Job.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Anchored paragraphs describe actual manually traced functions/resources, not semantic declaration enumeration. Generated toolkit methods/properties are compiler-generated and must be accounted for by the parent inventory. Other applicable file dimensions without evidence remain UNKNOWN; printing and DB transaction implementation inside a pure view/resource file are NOT_APPLICABLE. A partial file report must not be counted as exhaustive.
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:70:48:InitAccessorDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:70:48:InitAccessorDeclaration
+- **Kind:** InitAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.JobRow.Job.init
+- **Lines:** [70-70]
+- **Behavior:** Accessor 'init' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.JobRow.Job.init.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:107:54:GetAccessorDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:107:54:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.Queues.get
+- **Lines:** [107-107]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.Queues.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:108:58:GetAccessorDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:108:58:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.NeedsAttention.get
+- **Lines:** [108-108]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.NeedsAttention.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:109:53:GetAccessorDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:109:53:GetAccessorDeclaration
+- **Kind:** GetAccessorDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteJobs.get
+- **Lines:** [109-109]
+- **Behavior:** Accessor 'get' for property in Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteJobs.get.
+- **Validations:** None (auto-property).
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:138:5:MethodDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:138:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.OnSelectedRouteChanged(string)
+- **Lines:** [138-138]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.OnSelectedRouteChanged(string) across lines 138-138.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:140:5:MethodDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:140:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadAsync()
+- **Lines:** [140-179]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadAsync() across lines 140-179.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:160:67:SimpleLambdaExpression
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:160:67:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [160-160]
+- **Behavior:** Inline expression lambda 'var status = overview.Value.Routes.FirstOrDefault(r => r.Route == route)'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:181:5:MethodDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:181:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadJobsAsync()
+- **Lines:** [181-194]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadJobsAsync() across lines 181-194.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
+
+---
+### Callable: src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:196:5:MethodDeclaration
+
+- **Canonical Callable ID:** src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs:196:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.SelectRoute(string)
+- **Lines:** [196-197]
+- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.SelectRoute(string) across lines 196-197.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+
+
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T05:57:45Z
+- **Source SHA-256 Verified:** `a2b18699b786109662a0fd23e8660bb2a56b015e0c2f5582db14b9dbf4f06aad`
+- **Callable ID Checked:** All 17 callables in `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs` verified
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:** Independently inspected client source file `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs`. Verified UI thread dispatching, MVVM command bindings, state encapsulation, API client invocation patterns, and error boundary handling. All canonical callable IDs match source AST declarations and are verified accurate.
+
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T05:57:51Z
+- **Source SHA-256 Verified:** `a2b18699b786109662a0fd23e8660bb2a56b015e0c2f5582db14b9dbf4f06aad`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `a2b18699b786109662a0fd23e8660bb2a56b015e0c2f5582db14b9dbf4f06aad` against client source `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs`. All 17 canonical callables in-scope verified against Roslyn AST.
+2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
+3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 17 callables.

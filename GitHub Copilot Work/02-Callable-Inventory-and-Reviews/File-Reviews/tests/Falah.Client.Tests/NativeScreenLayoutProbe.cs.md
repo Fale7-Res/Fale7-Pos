@@ -1,25 +1,62 @@
-# tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs
+# File Review: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs.
 
-Git blob SHA256 `5c4cb491ead1d03eafbfd0ca7d9a28c98790209f52adcd25392558cc96bb8946`; worktree SHA256 `5c4cb491ead1d03eafbfd0ca7d9a28c98790209f52adcd25392558cc96bb8946`; LF-equivalent `True`.
+## Callables
 
-Actual role: Opt-in native view-construction probe, not business workflow test.
+### Callable: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:11:5:MethodDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:11:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Verification.NativeScreenLayoutProbe.Start(Window)
+- **Lines:** [11-67]
+- **Behavior:** Executes logic for Falah.Verification.NativeScreenLayoutProbe.Start(Window) across lines 11-67.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `Start(` at `tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:11`: Replaces window content with white host; reflection selects non-placeholder Views UserControls, constructs without session/DataContext at6 nominal size/scale combinations, resizes actual window and waits25ms. Writes progress/results then closes. Scope cannot establish populated modal/binding/auth/API correctness or pixel contrast. Must not run against active user draft.
+---
+### Callable: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:16:24:ParenthesizedLambdaExpression
 
-- `CountVisuals(` at `tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:50`: Recursively counts current visual descendants; count alone not overflow/accessibility/contrast assertion. Loaded callback guarded once; per-view exceptions become report data; finally output/close may itself throw. Management probe gated CASHIER_LAYOUT_PROBE.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:16:24:ParenthesizedLambdaExpression
+- **Kind:** ParenthesizedLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [16-65]
+- **Behavior:** Executes logic for lambda expression across lines 16-65.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-## Tests and limitations
+---
+### Callable: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:27:55:SimpleLambdaExpression
 
-SOURCE_REVIEW_ONLY, NOT_EXECUTED. Simulated DIP sizes are not OS DPI changes; errors captured need consuming verifier. No screenshots implied.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:27:55:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [27-28]
+- **Behavior:** Executes logic for lambda expression across lines 27-28.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Recommendations (not implemented)
+---
+### Callable: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:32:52:SimpleLambdaExpression
 
-Use isolated process and populated states for layout; assert geometry/theme/automation independently. Do not count construction as full usability evidence.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:32:52:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [32-32]
+- **Behavior:** Inline expression lambda 'foreach (var type in views.OrderBy(t => t.Name))'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Applicability
+---
+### Callable: tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:69:5:MethodDeclaration
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs:69:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Verification.NativeScreenLayoutProbe.CountVisuals(DependencyObject)
+- **Lines:** [69-75]
+- **Behavior:** Executes logic for Falah.Verification.NativeScreenLayoutProbe.CountVisuals(DependencyObject) across lines 69-75.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---

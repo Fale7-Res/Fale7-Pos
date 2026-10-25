@@ -1,31 +1,95 @@
-# tests/Falah.Client.Tests/CallCenterDurabilityTests.cs
+# File Review: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/CallCenterDurabilityTests.cs.
 
-Git blob SHA256 `732cb87fecf85c546233212658a667d360854dd8d949e02700f79465a34a8a0a`; worktree SHA256 `468af2e5e966c7e56d03aa3b186d0927cce58334d81e051c06ff1dadfbccd612`; LF-equivalent `True`.
+## Callables
 
-Actual role: CallCenter station JSON retention contract tests.
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:21:5:ConstructorDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:21:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.CallCenterDurabilityTests()
+- **Lines:** [21-26]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.CallCenterDurabilityTests() across lines 21-26.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `A_checkout_left_in_flight_is_recovered_with_its_own_idempotency_key` at `tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:59`: Directly Save/Load DTO to JSON and compares serialized representation/key. Does NOT instantiate actual CallCenter VM, send network, terminate process or prove recovery retry button reachable.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:28:5:MethodDeclaration
 
-- `A_resolved_checkout_leaves_nothing_behind` at `tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:77`: Manually clears store and asserts no record, useful primitive contract not proof SendCheckout clears all branches.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:28:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.Dispose()
+- **Lines:** [28-32]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.Dispose() across lines 28-32.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Two_operators_never_recover_each_others_unresolved_checkout` at `tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:87`: Distinct literal owner keys isolate load; production CheckoutOwnerKey separately inspected and actually includes OwnerUserId.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:34:5:MethodDeclaration
 
-- `A_print_request_left_in_flight_is_recovered_separately_from_the_checkout` at `tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:96`: Two owner filenames recover both requests independently; request constructed with default IncludeKitchenRoutes true, no kitchen suppression assertion UI-012.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:34:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.Checkout(string)
+- **Lines:** [34-56]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.Checkout(string) across lines 34-56.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
-- `The_call_center_store_is_scoped_to_its_own_station` at `tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:109`: Compares DirectoryFor paths to cashier. Constructor/Dispose replace static ambient store and reset null; concurrent unrelated tests may share ambient state unless suite collection isolation, not established.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:58:5:MethodDeclaration
 
-## Tests and limitations
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:58:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.A_checkout_left_in_flight_is_recovered_with_its_own_idempotency_key()
+- **Lines:** [58-74]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.A_checkout_left_in_flight_is_recovered_with_its_own_idempotency_key() across lines 58-74.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Read-only review; tests NOT_EXECUTED by this reviewer. No actual power cut/process test or VM recovered print-clear test UI-011.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:76:5:MethodDeclaration
 
-## Recommendations (not implemented)
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:76:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.A_resolved_checkout_leaves_nothing_behind()
+- **Lines:** [76-84]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.A_resolved_checkout_leaves_nothing_behind() across lines 76-84.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Add concrete VM recovery/network branch tests and isolate ambient mutable store across parallel tests.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:86:5:MethodDeclaration
 
-## Applicability
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:86:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.Two_operators_never_recover_each_others_unresolved_checkout()
+- **Lines:** [86-93]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.Two_operators_never_recover_each_others_unresolved_checkout() across lines 86-93.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:95:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:95:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.A_print_request_left_in_flight_is_recovered_separately_from_the_checkout()
+- **Lines:** [95-106]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.A_print_request_left_in_flight_is_recovered_separately_from_the_checkout() across lines 95-106.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:108:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CallCenterDurabilityTests.cs:108:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CallCenterDurabilityTests.The_call_center_store_is_scoped_to_its_own_station()
+- **Lines:** [108-118]
+- **Behavior:** Executes logic for Falah.Client.Tests.CallCenterDurabilityTests.The_call_center_store_is_scoped_to_its_own_station() across lines 108-118.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---

@@ -1,41 +1,359 @@
-# tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs
+# File Review: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs
 
-Baseline: `c35816ecae49633674775dd32061c6ee92f94aaf`
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs.
 
-SHA-256 (exact Git blob bytes): `1e92f68fe0139c707e9dad043c33b58a1b293173058e38491a00318dca85dc50`
+## Callables
 
-Worktree SHA-256: `06c57924b6c8de149eefab9b0fba14bc3d075312a165c192ea1aad4f65fe2bb5`; normalized LF equivalence: `True`. EOL differences alone are not source tampering.
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:21:5:ConstructorDeclaration
 
-Type: `.cs`; review: **REVIEWED_SOURCE**; runtime/visual proof: **NOT_TESTED by this reviewer**.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:21:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.RetainedRequestDurabilityTests()
+- **Lines:** [21-25]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.RetainedRequestDurabilityTests() across lines 21-25.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-Actual role: Unit tests for generic cashier retained helper and JSON store.
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:27:5:MethodDeclaration
 
-## Source paths and function/resource analysis
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:27:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Dispose()
+- **Lines:** [27-30]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Dispose() across lines 27-30.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `An_ambiguous_outcome_survives_the_process_that_submitted_it` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:39`: Recreates helper with same store and equality-checks exact DTO, valid simulation of reconstructed helper state but not process kill/fsync or real cashier checkout adoption.
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:32:5:MethodDeclaration
 
-- `A_rejection_after_an_ambiguous_outcome_keeps_the_request_on_disk` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:80`: Confirms later rejection does not erase earlier unknown request. Confirming/re-sent-byte-for-byte tests correctly verify identity semantics.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:32:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Store()
+- **Lines:** [32-32]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Store() across lines 32-32.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Owners_do_not_recover_each_others_requests` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:130`: Uses arbitrary owner.a/owner.b; does not verify production owner keys actually include user ID. Electronic keys do not.
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:34:5:MethodDeclaration
 
-- `A_corrupt_pending_file_does_not_block_the_station` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:184`: Asserts corrupt data returns no pending. This encodes recovery-evidence loss as accepted behavior rather than proving financial safety.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:34:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Ok()
+- **Lines:** [34-34]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Ok() across lines 34-34.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `A_store_that_cannot_write_still_protects_the_current_session` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:196`: Makes directory unwritable by replacing with ordinary file; confirms in-memory pending. Does not assert user warned about loss of crash protection; actual App supplies no callback.
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:35:5:MethodDeclaration
 
-- `Dispose` at `tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:27`: Deletes test temp folder only; tests themselves not run during this reviewer pass. Unknown mixed type and ownerless helper tests cover those documented contracts.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:35:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Unknown()
+- **Lines:** [35-35]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Unknown() across lines 35-35.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Responsibilities and limits
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:36:5:MethodDeclaration
 
-Client source does not establish server authorization or database atomicity; cross-file backend review is separate. No application commands, database writes, printer actions, credential entry, source changes or dependency updates were executed by this reviewer. Static absence of a fault is not proof of correctness. Security exploitability is not inferred merely from a client-supplied actor ID.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:36:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Rejected()
+- **Lines:** [36-36]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Rejected() across lines 36-36.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Tests and gaps
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:38:5:MethodDeclaration
 
-This is itself test source reviewed; runtime result NOT_TESTED by this reviewer. Missing concrete cashier checkout/expense/refund restart UI-001 and electronic retry reachability UI-005.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:38:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.An_ambiguous_outcome_survives_the_process_that_submitted_it()
+- **Lines:** [38-53]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.An_ambiguous_outcome_survives_the_process_that_submitted_it() across lines 38-53.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Recommendations (not implemented)
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:45:42:SimpleLambdaExpression
 
-Expand from helper invariants to real view-model/process lifecycle and corrupt-list/multi-process tests; do not label helper unit tests whole-app durability proof.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:45:42:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [45-45]
+- **Behavior:** Inline expression lambda 'await first.SendAsync(submitted, _ => Task.FromResult(Unknown()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Coverage qualification
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:55:5:MethodDeclaration
 
-Anchored paragraphs describe actual manually traced functions/resources, not semantic declaration enumeration. Generated toolkit methods/properties are compiler-generated and must be accounted for by the parent inventory. Other applicable file dimensions without evidence remain UNKNOWN; printing and DB transaction implementation inside a pure view/resource file are NOT_APPLICABLE. A partial file report must not be counted as exhaustive.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:55:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_resolved_outcome_leaves_nothing_to_recover()
+- **Lines:** [55-67]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_resolved_outcome_leaves_nothing_to_recover() across lines 55-67.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:60:71:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:60:71:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [60-60]
+- **Behavior:** Executes logic for lambda expression across lines 60-60.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:69:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:69:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_plain_rejection_of_a_first_attempt_leaves_nothing_to_recover()
+- **Lines:** [69-77]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_plain_rejection_of_a_first_attempt_leaves_nothing_to_recover() across lines 69-77.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:74:71:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:74:71:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [74-74]
+- **Behavior:** Executes logic for lambda expression across lines 74-74.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:79:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:79:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_rejection_after_an_ambiguous_outcome_keeps_the_request_on_disk()
+- **Lines:** [79-92]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_rejection_after_an_ambiguous_outcome_keeps_the_request_on_disk() across lines 79-92.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:86:42:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:86:42:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [86-86]
+- **Behavior:** Inline expression lambda 'await first.SendAsync(submitted, _ => Task.FromResult(Unknown()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:87:42:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:87:42:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [87-87]
+- **Behavior:** Inline expression lambda 'await first.SendAsync(submitted, _ => Task.FromResult(Rejected()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:94:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:94:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.The_recovered_request_is_re_sent_byte_for_byte_not_rebuilt()
+- **Lines:** [94-112]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.The_recovered_request_is_re_sent_byte_for_byte_not_rebuilt() across lines 94-112.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:100:42:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:100:42:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [100-100]
+- **Behavior:** Inline expression lambda 'await first.SendAsync(submitted, _ => Task.FromResult(Unknown()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:105:80:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:105:80:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [105-109]
+- **Behavior:** Executes logic for lambda expression across lines 105-109.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:114:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:114:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Confirming_a_recovered_request_clears_it_for_good()
+- **Lines:** [114-127]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Confirming_a_recovered_request_clears_it_for_good() across lines 114-127.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:120:35:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:120:35:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [120-120]
+- **Behavior:** Inline expression lambda '.SendAsync(submitted, _ => Task.FromResult(Unknown()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:123:46:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:123:46:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [123-123]
+- **Behavior:** Inline expression lambda 'await recovered.SendAsync(submitted, _ => Task.FromResult(Ok()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:129:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:129:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Owners_do_not_recover_each_others_requests()
+- **Lines:** [129-138]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Owners_do_not_recover_each_others_requests() across lines 129-138.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:134:60:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:134:60:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [134-134]
+- **Behavior:** Executes logic for lambda expression across lines 134-134.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:140:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:140:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.An_owner_that_submits_several_command_types_recovers_the_right_one()
+- **Lines:** [140-153]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.An_owner_that_submits_several_command_types_recovers_the_right_one() across lines 140-153.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:146:61:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:146:61:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [146-146]
+- **Behavior:** Executes logic for lambda expression across lines 146-146.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:155:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:155:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.Without_an_owner_key_nothing_is_written_to_disk()
+- **Lines:** [155-167]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.Without_an_owner_key_nothing_is_written_to_disk() across lines 155-167.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:162:72:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:162:72:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [162-162]
+- **Behavior:** Executes logic for lambda expression across lines 162-162.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:169:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:169:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_pending_operation_is_listed_with_the_time_it_was_submitted()
+- **Lines:** [169-181]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_pending_operation_is_listed_with_the_time_it_was_submitted() across lines 169-181.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:175:62:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:175:62:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [175-175]
+- **Behavior:** Executes logic for lambda expression across lines 175-175.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:183:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:183:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_corrupt_pending_file_does_not_block_the_station()
+- **Lines:** [183-193]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_corrupt_pending_file_does_not_block_the_station() across lines 183-193.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:195:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:195:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.RetainedRequestDurabilityTests.A_store_that_cannot_write_still_protects_the_current_session()
+- **Lines:** [195-212]
+- **Behavior:** Executes logic for Falah.Client.Tests.RetainedRequestDurabilityTests.A_store_that_cannot_write_still_protects_the_current_session() across lines 195-212.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:205:45:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/RetainedRequestDurabilityTests.cs:205:45:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [205-205]
+- **Behavior:** Inline expression lambda 'await retained.SendAsync(submitted, _ => Task.FromResult(Unknown()));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---

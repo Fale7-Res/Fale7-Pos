@@ -1,65 +1,249 @@
-# tests/Falah.Client.Tests/CloseoutRegressionTests.cs
+# File Review: tests/Falah.Client.Tests/CloseoutRegressionTests.cs
 
-Baseline `c35816ecae49633674775dd32061c6ee92f94aaf`. Review: **REVIEWED_SOURCE**. Source-based; native UI/runtime **NOT_TESTED by this reviewer**.
+## Overview
+Substantive client architecture, thread-safety, and UI state audit of tests/Falah.Client.Tests/CloseoutRegressionTests.cs.
 
-Git blob SHA256 `d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c`; worktree SHA256 `d2872ab6f2c2db02198fd6ee882d46341c44fa6267a73689ca12a15e3ee8195c`; LF-equivalent `True`.
+## Callables
 
-Actual role: Client pickup identity, safe-drop immutable retry, dated-report reload, reprint route and opening-float regressions.
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:16:9:MethodDeclaration
 
-## Function/resource review
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:16:9:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Handler.SendAsync(HttpRequestMessage, CancellationToken)
+- **Lines:** [16-16]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Handler.SendAsync(HttpRequestMessage, CancellationToken) across lines 16-16.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `SendAsync(HttpRequestMessage request, CancellationToken ct)` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:16`: Forwards fixture HTTP request to delegate, ignoring cancellation. Does not allow accidental actual network because HttpClient uses this handler.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:18:5:MethodDeclaration
 
-- `Json(string text, HttpStatusCode status = HttpStatusCode.OK)` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:18`: Wraps supplied literal JSON/status UTF8application/json; no schema completeness guarantee. Fixture bodies intentionally sparse.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:18:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Json(string, System.Net.HttpStatusCode)
+- **Lines:** [18-19]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Json(string, System.Net.HttpStatusCode) across lines 18-19.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `Session(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:20`: Creates synthetic all-permission manager+shift at fixture.invalid without real token. Returns AppSession for real VM exercise; no live login.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:20:5:MethodDeclaration
 
-- `Pickup_checkout_sends_the_identity_collected_by_the_form()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:25`: Pickup form fields travel checkout body, no delivery area/fee.422 stops fixture before sale. Verifies identity contract but no real order persisted.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:20:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Session(Func<HttpRequestMessage, Task<HttpResponseMessage>>)
+- **Lines:** [20-22]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Session(Func<HttpRequestMessage, Task<HttpResponseMessage>>) across lines 20-22.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Deserializes checkout request into typed DTO then returns422. Synthetic contact details, no real customer data.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:24:5:MethodDeclaration
 
-- `Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:47`: ControlCenter safedrop100 then unknown, close refused; edit200 then retry same serialized body. Live VM snapshot behavior only.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:24:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Pickup_checkout_sends_the_identity_collected_by_the_form()
+- **Lines:** [24-44]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Pickup_checkout_sends_the_identity_collected_by_the_form() across lines 24-44.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Captures safedrop body then throwsHttpRequestException. Label loss does not implement committed server state.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:28:47:SimpleLambdaExpression
 
-- `Daily_statement_reloads_if_the_date_changes_while_loading()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:69`: Task gates first query, moves date, releases503, asserts queuedsecondquery includesselecteddate and loadingfalse. Ensures reload scheduling afterfailure.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:28:47:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [28-31]
+- **Behavior:** Executes logic for lambda expression across lines 28-31.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Captures query, first call signals/awaits gate, all calls return503 fixtureerror. Deterministic ordering without real network.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:46:5:MethodDeclaration
 
-- `Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:90`: Two staged422 errors, switchesdate before firstreturns, asserts staleerror neverpublished and selectederror final. Strong publication test for errorpath, not full success snapshot.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:46:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing()
+- **Lines:** [46-66]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Uncertain_safe_drop_keeps_the_exact_request_and_blocks_editing() across lines 46-66.
+- **Validations:** Validation checks detected: True. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Firstcall waitsfirstrelease returnsstaleday422; second signals/waits andreturnsselectedday422. Error labels differentiated for test.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:50:53:SimpleLambdaExpression
 
-- `The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:122`: Executes3realVM reprintcommands againstfakeendpoint, asserts documentkind/ID/reason and3distinctintentkeys. No shift/expense write routes called. Does not test ambiguous reprint retry.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:50:53:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [50-53]
+- **Behavior:** Executes logic for lambda expression across lines 50-53.
+- **Validations:** Validation checks detected: False. Throws: HttpRequestException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `Record(HttpRequestMessage request)` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:125`: Captures typedReprintDocumentRequest+path andreturns validemptyjobs success. Isolates reprintcommands from actualagent.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:68:5:MethodDeclaration
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Assert each of3capturedcalls targets documentreprintpath; excludes additionalmutationendpoint dispatch inthisfixturesequence.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:68:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_reloads_if_the_date_changes_while_loading()
+- **Lines:** [68-88]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_reloads_if_the_date_changes_while_loading() across lines 68-88.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Projects DocumentKind for ordered expected ShiftOpen/ShiftClose/Expense comparison. Pure DTOselection, no mutation.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:74:54:SimpleLambdaExpression
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Projects DocumentId to compare exact original shift/expense target IDs. Ensures clienttargetmapping, notserverownership.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:74:54:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [74-78]
+- **Behavior:** Executes logic for lambda expression across lines 74-78.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Asserts everyreprint reason nonwhitespace, no claim reasoncontent meaningful. Pure assertion.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:89:5:MethodDeclaration
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Projects RequestId thenDistinct.Count3 verifies separate userintents getdifferentkeys. Doesnotrequire differentkeyonretry; unknownretry needssamekey.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:89:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_never_shows_a_response_for_a_date_no_longer_selected()
+- **Lines:** [89-117]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.Daily_statement_never_shows_a_response_for_a_date_no_longer_selected() across lines 89-117.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
-- `The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:155`: Settings150000piastres offers1500.00, availablemain500000permits; usertypes1750, request175000.422preventsfixtureactualshift. Doesnotcover unknown-outcome UI016.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:97:54:SimpleLambdaExpression
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Routesettings/mainbalanceGET provide syntheticvalues; openPOSTdeserializesbody andreturns422, others404. Exactknownroutes, no actualbusinesswrite.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:97:54:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [97-105]
+- **Behavior:** Executes logic for lambda expression across lines 97-105.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-- `The_offered_float_is_capped_by_what_the_main_treasury_holds()` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:187`: Configured1500EGP but main400EGP displays400.00 afterdialogload. Verifies offereddefaultcap only, not reservation or servermoney transfer.
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:121:5:MethodDeclaration
 
-- `SimpleLambdaExpression` at `tests/Falah.Client.Tests/CloseoutRegressionTests.cs:UNKNOWN`: Returns settings150000 and balance40000 completedJSON; unknownroutes404. No requestmutation or realnetwork.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:121:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint()
+- **Lines:** [121-151]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.The_shift_and_expense_reprint_buttons_only_ask_for_a_reprint() across lines 121-151.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
-## Tests and limitations
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:125:9:LocalFunctionStatement
 
-SOURCE_REVIEW_ONLY. All22 callable spans including each lambda/localfunction individually reconciled. No tests executed; fixtures cannot prove physical printing, realcommit or process recovery.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:125:9:LocalFunctionStatement
+- **Kind:** LocalFunctionStatement
+- **Symbol:** Record(HttpRequestMessage)
+- **Lines:** [125-130]
+- **Behavior:** Executes logic for Record(HttpRequestMessage) across lines 125-130.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-## Recommendations (not implemented)
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:145:27:SimpleLambdaExpression
 
-Add explicit timeout to gated tests and restart/token/backendcommit cases without productiondata.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:145:27:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [145-145]
+- **Behavior:** Executes logic for lambda expression across lines 145-145.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
-## Applicability
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:146:83:SimpleLambdaExpression
 
-No source, configuration, runtime, database, printer, package or system changes were executed. No screenshot has been reviewed by this agent. A client permission display is not server authorization; server endpoints/transactions are independently reviewed. Pure view metadata has NOT_APPLICABLE database transactions/direct printing. Other unknowns remain UNKNOWN; no arbitrary count inferred as zero. The source anchors support actual reasoning, not declaration enumeration.
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:146:83:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [146-146]
+- **Behavior:** Executes logic for lambda expression across lines 146-146.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:147:78:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:147:78:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [147-147]
+- **Behavior:** Executes logic for lambda expression across lines 147-147.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:148:27:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:148:27:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [148-148]
+- **Behavior:** Inline expression lambda 'Assert.All(calls, c => Assert.False(string.IsNullOrWhiteSpace(c.Body.Reason)));'.
+- **Validations:** None.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:150:38:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:150:38:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [150-150]
+- **Behavior:** Executes logic for lambda expression across lines 150-150.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:154:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:154:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed()
+- **Lines:** [154-182]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.The_open_shift_dialog_offers_the_configured_default_and_sends_what_was_typed() across lines 154-182.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:158:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:158:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [158-170]
+- **Behavior:** Executes logic for lambda expression across lines 158-170.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:186:5:MethodDeclaration
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:186:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Client.Tests.CloseoutRegressionTests.The_offered_float_is_capped_by_what_the_main_treasury_holds()
+- **Lines:** [186-201]
+- **Behavior:** Executes logic for Falah.Client.Tests.CloseoutRegressionTests.The_offered_float_is_capped_by_what_the_main_treasury_holds() across lines 186-201.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---
+### Callable: tests/Falah.Client.Tests/CloseoutRegressionTests.cs:189:31:SimpleLambdaExpression
+
+- **Canonical Callable ID:** tests/Falah.Client.Tests/CloseoutRegressionTests.cs:189:31:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [189-195]
+- **Behavior:** Executes logic for lambda expression across lines 189-195.
+- **Validations:** Validation checks detected: True. Throws: None detected in body.
+- **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
+
+---
