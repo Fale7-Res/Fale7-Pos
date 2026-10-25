@@ -509,3 +509,10 @@ To address these vulnerabilities without breaking the contract of existing deskt
 
 ---
 *Report filed by Security and Authorization Auditor.*
+
+
+## Wave 9 Batch 9A Audit Update (Delivery Infrastructure)
+- **Audited Files:** 9 files in src/Falah.Infrastructure/Delivery/
+- **Total Callables:** 158 canonical callables inspected.
+- **Focus Areas:** Cash-on-Delivery (COD) custody reconciliation, courier state transitions, liability transfer on reassignments, and externalized cash tracking.
+- **Status:** Complete. Zero source changes.

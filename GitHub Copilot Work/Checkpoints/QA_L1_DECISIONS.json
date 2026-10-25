@@ -329,7 +329,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 22,
       "sha256": "CC3A318C0332B40555EE9F2E545B42876B0E74A90E71C15732C5153EB576A832",
-      "challenged_findings": ["SEM-MIRROR-071"],
+      "challenged_findings": [
+        "SEM-MIRROR-071"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs": {
@@ -337,7 +339,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 30,
       "sha256": "B33D64C048DB902BC7B9469787872EA70BE30659AB69A97486D9F95C98D46255",
-      "challenged_findings": ["BIZ-DAY-CLOSE"],
+      "challenged_findings": [
+        "BIZ-DAY-CLOSE"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs": {
@@ -345,7 +349,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 57,
       "sha256": "37961059653DC7C24FF65684D8CEC113EF0423D7486953BF808ED6E767762DF3",
-      "challenged_findings": ["CC-QUERY"],
+      "challenged_findings": [
+        "CC-QUERY"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs": {
@@ -353,7 +359,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 11,
       "sha256": "2BA6E827C2DB885018094250FE907C5D78DD87C3D7112513D3624B92BCADFC15",
-      "challenged_findings": ["BIZ-DAY-REOPEN"],
+      "challenged_findings": [
+        "BIZ-DAY-REOPEN"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs": {
@@ -361,7 +369,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 9,
       "sha256": "97E4427DED182F726E97ED7A1BC362CDAF4B94A3AB009635317FC36F0F9B0E57",
-      "challenged_findings": ["CASH-COUNT"],
+      "challenged_findings": [
+        "CASH-COUNT"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs": {
@@ -369,7 +379,9 @@
       "verdict": "ACCEPTED",
       "callables_count": 6,
       "sha256": "1EBD4439F52E582F2E890C0DB9BBD9F0C7E3E406B8ED56E46F2DA900229083B3",
-      "challenged_findings": ["CHECKLIST"],
+      "challenged_findings": [
+        "CHECKLIST"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
     },
     "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs": {
@@ -377,14 +389,224 @@
       "verdict": "ACCEPTED",
       "callables_count": 5,
       "sha256": "45D356E72A7704B6CB36BDAA1803CFD68400ADC3E8E922C1F3606BA3ED1BFDEE",
-      "challenged_findings": ["EXCEPTION-STATUS"],
+      "challenged_findings": [
+        "EXCEPTION-STATUS"
+      ],
       "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/CreateDriverHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 9,
+      "sha256": "641dc1b6d8190581fb934883b31131f99c989422b73957b3e2713a7507f7bd06",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 2,
+      "sha256": "d67147ee1cc8cdb1e560710faf935f637028042a5ab903863498bbbee8a973c7",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 79,
+      "sha256": "42b35dd12c3663583c3ddd69e2b15f86968043295a9ede98b2efcebaa10627fb",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 14,
+      "sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 4,
+      "sha256": "b88f59ee0a9a165c26b4910b0798d03f55183af8068131a594226180654b0321",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 12,
+      "sha256": "adf3fa04c4e79acd26d25fdf5d2010b55397638a7f4b9405617d690c81050a1f",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "4bfd99bd7218545ca0d51b0caf4ec94b8e6d3802bf3bf7a7cb5baf02c96aa2af",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 18,
+      "sha256": "0fc0eb77d5f271e3f4e3b7add9257e55e5287702737f5fab84718e7283f4d46a",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/AttendanceHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "258fd52af239fd06e3084242f71fd0cbfbbd0baf1dce78dd1dbe8498531bffe6",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 7,
+      "sha256": "e00e9fa8c36f3fa6a75e371c85307e1666803ef7cc57972513b868772a4225ba",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 10,
+      "sha256": "339845a57fc7ec98268bbf79d4b204fbf1c029a3da4cff89771294522963e878",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 9,
+      "sha256": "56975f399d91381528c8ac72e93ff370d4e8063324f384cca2648f198d1904a5",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 9,
+      "sha256": "858acb05b82b3958d2263c8d857d2384b4f5d786512bd5cb25c44a5cebead191",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "93b781b9b0d97ec14b8c8836f9ad1b47fb908295b1089e3a627b0994dcbb355c",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 15,
+      "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/PayrollQueryService.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/PayrollQueryService.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 9,
+      "sha256": "757dd6e6a2d74462e08602eadadd6b0b989e54f838a67cac9867ead8e1b31af2",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 16,
+      "sha256": "8d091c8c2286ea8f8db5fa0b2f2a4e520293fbd8559389dd3f953cd6860c6384",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 14,
+      "sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 7,
+      "sha256": "5d3da4d459ecb2cc03cb445573fce6b6eb3d56ec66aa34a25f42e28f6a601b0c",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 10,
+      "sha256": "dc2c1c2989924b54118f554e34b4f0cd39915ca7572a7a839cefd174fb18e427",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 5,
+      "sha256": "ce8b3390fa10b911cfebb746817ddc8c07cb3635e2f899a343bcfba9312ee41b",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 18,
+      "sha256": "7309e875a2f4cbf8e636edb3a91b7635746503faeb98e1f1461ff182a7730a74",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "75de7f4c93ff90697af92ac8686586dd0ea88b5d95def6bc8551a3a15a1298af",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 4,
+      "sha256": "62d625f0a553e8a10ce221ba5059c3cdb2fb899f5dda66895deed5ff803ad7c8",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
+    },
+    "src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 17,
+      "sha256": "40347a2c68fc1f09c20e588573331a893f40e8165b2bddd0b4e29dee20d638ab",
+      "challenged_findings": [],
+      "verified_at": "2026-10-25T05:37:50Z"
     }
   },
   "summary": {
-    "total_files_reviewed": 36,
-    "total_callables_verified": 1589,
-    "total_accepted": 36,
+    "total_files_reviewed": 62,
+    "total_callables_verified": 1961,
+    "total_accepted": 62,
     "total_rejected": 0
   }
 }

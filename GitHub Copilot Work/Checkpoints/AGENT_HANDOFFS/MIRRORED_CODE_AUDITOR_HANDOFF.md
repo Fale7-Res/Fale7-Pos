@@ -662,6 +662,28 @@ gantt
 - **Call Center Client:** 27 endpoints (14 dead cashier hardware wrappers), unified `SendAsync` causing false-positive `OutcomeUnknown` on GETs.
 - **Cashier WinUI Client:** Complete coverage (~60 endpoints across 3 partial files `ApiClient.cs`, `ApiClient.Menu.cs`, `ApiClient.People.cs`), robust error mapping, and complete management/control center integration.
 
+---
+
+### 8.9 Wave 9 Batch 9C: Inventory Handlers Infrastructure Audit (6 Files, 65 Callables)
+
+#### 1. Scope and Targets Audited
+1. `src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs` (10 callables)
+2. `src/Falah.Infrastructure/Inventory/SaveOrderPackagingRuleHandler.cs` (5 callables)
+3. `src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs` (18 callables)
+4. `src/Falah.Infrastructure/Inventory/SaveRecipeHandler.cs` (11 callables)
+5. `src/Falah.Infrastructure/Inventory/SetEstimatedCostHandler.cs` (4 callables)
+6. `src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs` (17 callables)
+- Review Files: `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/*.md`
+- Target Symbols: All 65 canonical symbols from `CALLABLE_REVIEW_REGISTRY.json`.
+
+#### 2. Key Architectural & Operational Findings
+- **Atomic Stock Movements & Unit Locking:** `InventoryItemHandlers` enforces `inventory_manage` authorization and prevents unit changes once stock movements exist (`InventoryRules.AssertUnitChangeAllowed`), protecting historical quantity semantics.
+- **Order Packaging Rules:** `SaveOrderPackagingRuleHandler` validates packaging item assignment and positive quantity, gated on `menu_manage` with manager approval support.
+- **Recipe & Prep Recipe Integrity (`SaveRecipeHandler`, `SavePrepRecipeHandler`):** Implements whole-line replacement with database transactions and idempotency by construction. Prep recipe handler includes sophisticated cycle detection (`AssertDoesNotConsumeItsOwnOutputAsync`) preventing infinite loops in cost calculation.
+- **Estimated Costing (`SetEstimatedCostHandler`):** Non-financial audit logging for approximate ingredient costs before purchase invoices arrive, automatically overridden by real purchase receipts.
+- **Count Adjustments & Waste Valuation (`StockMovementHandlers`):** `RecordCountAdjustmentHandler` uses idempotency keys and unique DB constraints. `RecordWasteHandler` freezes unit cost at the last actual purchase receipt price (`PurchasingRules.LastPurchaseUnitCost`), ensuring later price changes do not restate past loss values.
+
+
 
 
 
