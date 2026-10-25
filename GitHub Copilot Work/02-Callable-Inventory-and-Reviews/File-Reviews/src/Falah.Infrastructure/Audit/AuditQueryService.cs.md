@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Audit.AuditQueryService.AuditQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [15-15]
-- **Behavior:** Executes logic for Falah.Infrastructure.Audit.AuditQueryService.AuditQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 15-15.
+- **Behavior:** Initializes AuditQueryService, injecting the EF Core database context FalahDbContext and storing it in the private readonly _db field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Audit.AuditQueryService.ListAsync(string?, string?, string?, DateTimeOffset?, DateTimeOffset?, int, CancellationToken)
 - **Lines:** [17-30]
-- **Behavior:** Executes logic for Falah.Infrastructure.Audit.AuditQueryService.ListAsync(string?, string?, string?, DateTimeOffset?, DateTimeOffset?, int, CancellationToken) across lines 17-30.
+- **Behavior:** Dynamically constructs and executes a read-only query over the AuditEvents table without change tracking (AsNoTracking). Applies optional filters for category, severity, userId, and date range (from / to), sorts results descending by TimestampUtc, caps results with Take(limit), and maps each matched AuditEventEntity to an AuditEventDto.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [22-22]
-- **Behavior:** Executes logic for lambda expression across lines 22-22.
+- **Behavior:** Predicate filter matching AuditEventEntity records whose Category equals the provided category parameter.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [23-23]
-- **Behavior:** Executes logic for lambda expression across lines 23-23.
+- **Behavior:** Predicate filter matching AuditEventEntity records whose Severity equals the provided severity parameter.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for lambda expression across lines 24-24.
+- **Behavior:** Predicate filter matching AuditEventEntity records whose UserId equals the specified userId parameter.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for lambda expression across lines 28-28.
+- **Behavior:** Key selector expression ordering AuditEventEntity records descending by their TimestampUtc property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Audit.AuditQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.AuditEventEntity)
 - **Lines:** [32-34]
-- **Behavior:** Executes logic for Falah.Infrastructure.Audit.AuditQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.AuditEventEntity) across lines 32-34.
+- **Behavior:** Static mapping method converting an AuditEventEntity to an AuditEventDto record, projecting audit trail properties: Id, UserId, UserName, UserRole, Action, Category, Details, Severity, TimestampUtc, ShiftId, Device, Reason, AuthorizedBy, PreviousValue, NewValue, OperationId, and ReferenceId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

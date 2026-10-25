@@ -4,28 +4,28 @@
 ## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:32:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.PaymentAccountFor(Falah.Domain.Financial.PaymentMethod) across lines 32-39.
+- **Behavior**: Maps a domain `PaymentMethod` to its corresponding treasury ledger account ID (e.g. Cash -> drawer, Card -> bank, InstaPay -> instapay, Wallet -> wallet), throwing a `DomainException` if an unsupported payment method is encountered.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': True, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:41:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildSaleMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, DateTimeOffset)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildSaleMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, DateTimeOffset) across lines 41-60.
+- **Behavior**: Factory method that builds an immutable `sale_collection` `TreasuryMovement` record, assigning destination account based on payment method and stamping transaction metadata including order ID, shift ID, and business day ID.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:62:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildRefundMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, string, string, DateTimeOffset)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildRefundMovement(string, string, string, string, Falah.Domain.Financial.PaymentMethod, Falah.Domain.Common.Money, string?, string, string, string, string, DateTimeOffset) across lines 62-81.
+- **Behavior**: Factory method that constructs a `refund` `TreasuryMovement` record debited from the original payment account, recording refund amount, reason, approver, and operational shift ID.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Financial/TreasuryMovement.cs:83:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Financial.TreasuryMovementFactory.BuildCashLifecycleMovement(string, string, string, string, string?, string?, Falah.Domain.Common.Money, string, string, string?, string?, string, string, string?, DateTimeOffset) across lines 83-103.
+- **Behavior**: Factory method that constructs a generic cash-lifecycle `TreasuryMovement` record (such as deposit, drop, withdrawal, transfer, or variance adjustment) linking source and destination accounts with audit metadata.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 

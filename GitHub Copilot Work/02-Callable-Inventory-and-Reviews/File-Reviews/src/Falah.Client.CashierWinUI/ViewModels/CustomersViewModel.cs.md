@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.CustomersViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [22-22]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.CustomersViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 22-22.
+- **Behavior:** Initializes a new CustomersViewModel instance, storing the injected AppSession in the private readonly _session field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnCustomerChanged(Falah.Application.Customers.CustomerDto?)
 - **Lines:** [40-45]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnCustomerChanged(Falah.Application.Customers.CustomerDto?) across lines 40-45.
+- **Behavior:** Partial notification callback invoked when Customer property changes; triggers PropertyChanged notifications for HasCustomer, NotFound, and AwaitingFirstSearch computed properties.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnHasSearchedChanged(bool)
 - **Lines:** [47-47]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnHasSearchedChanged(bool) across lines 47-47.
+- **Behavior:** Partial notification callback invoked when HasSearched changes; raises PropertyChanged for the AwaitingFirstSearch property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnIsSearchingChanged(bool)
 - **Lines:** [48-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnIsSearchingChanged(bool) across lines 48-48.
+- **Behavior:** Partial notification callback invoked when IsSearching changes; raises PropertyChanged for the AwaitingFirstSearch property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnSearchErrorChanged(string?)
 - **Lines:** [49-49]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.OnSearchErrorChanged(string?) across lines 49-49.
+- **Behavior:** Partial notification callback invoked when SearchError changes; raises PropertyChanged for the AwaitingFirstSearch property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.SearchAsync()
 - **Lines:** [51-84]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CustomersViewModel.SearchAsync() across lines 51-84.
+- **Behavior:** Asynchronously performs a customer lookup by phone number against Api.LookupCustomerAsync. Validates PhoneQuery is not empty (setting SearchError if blank); sets IsSearching, resets prior customer data and Addresses; marks HasSearched = true; on HTTP 404 treats customer as simply not found (leaving SearchError null), while on other non-success responses populates SearchError. When a customer is found, assigns Customer and populates Addresses sorted descending by LastUsedAtUtc. In finally block, clears IsSearching and notifies NotFound.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [77-77]
-- **Behavior:** Executes logic for lambda expression across lines 77-77.
+- **Behavior:** Key selector lambda expression ordering CustomerAddressDto records descending by their LastUsedAtUtc timestamp.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

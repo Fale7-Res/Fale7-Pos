@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReportRangeLabel.get
 - **Lines:** [49-53]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReportRangeLabel.get across lines 49-53.
+- **Behavior:** Formats report date range as a string label. If start and end dates match, returns single yyyy-MM-dd date; otherwise formats as from yyyy-MM-dd to to yyyy-MM-dd.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnSelectedReportPeriodChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReportPeriodOption?)
 - **Lines:** [56-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnSelectedReportPeriodChanged(Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ReportPeriodOption?) across lines 56-61.
+- **Behavior:** Partial property-changed callback for SelectedReportPeriod. Notifies IsCustomReportPeriod and ReportRangeLabel, and triggers LoadReportAsync() if report view is open.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnReportFromDateChanged(DateTimeOffset)
 - **Lines:** [63-63]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnReportFromDateChanged(DateTimeOffset) across lines 63-63.
+- **Behavior:** Partial property-changed callback for ReportFromDate; triggers LoadReportAsync() when custom date period is active and report is open.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnReportToDateChanged(DateTimeOffset)
 - **Lines:** [64-64]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OnReportToDateChanged(DateTimeOffset) across lines 64-64.
+- **Behavior:** Partial property-changed callback for ReportToDate; triggers LoadReportAsync() when custom date period is active and report is open.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ResolveReportRange()
 - **Lines:** [66-78]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.ResolveReportRange() across lines 66-78.
+- **Behavior:** Resolves start and end DateOnly boundaries based on selected period key (today, last7, last10, month, or custom), ensuring from date does not exceed to date.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenReportAsync()
 - **Lines:** [80-87]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.OpenReportAsync() across lines 80-87.
+- **Behavior:** Opens employee financial report dialog. Enforces CanEditAction and CanSeeReport authorization, defaults period to today, sets IsReportOpen = true, and loads report data via LoadReportAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseReport()
 - **Lines:** [89-97]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.CloseReport() across lines 89-97.
+- **Behavior:** Closes employee financial report dialog. Increments _reportVersion to cancel in-flight queries, sets IsReportOpen = false, and clears report lines and errors.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.LoadReportAsync()
 - **Lines:** [101-131]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.EmployeesViewModel.LoadReportAsync() across lines 101-131.
+- **Behavior:** Queries API for employee financial report via Api.GetEmployeeFinancialReportAsync. Enforces optimistic version check (_reportVersion) to discard stale responses, populating ReportLines collection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

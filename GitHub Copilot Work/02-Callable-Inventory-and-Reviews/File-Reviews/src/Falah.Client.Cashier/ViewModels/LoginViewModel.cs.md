@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.LoginViewModel(Falah.Client.Cashier.Services.AppSession)
 - **Lines:** [15-15]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.LoginViewModel(Falah.Client.Cashier.Services.AppSession) across lines 15-15.
+- **Behavior:** Initializes LoginViewModel, injecting the client application session (AppSession) and storing it in the private readonly _session field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.OnPinChanged(string)
 - **Lines:** [30-30]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.OnPinChanged(string) across lines 30-30.
+- **Behavior:** Partial notification callback invoked when the Pin property changes; triggers a PropertyChanged notification for PinDisplay to update the bullet mask string ('●').
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.PressDigit(string)
 - **Lines:** [32-38]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.PressDigit(string) across lines 32-38.
+- **Behavior:** RelayCommand handler appending the selected digit to the current Pin if current length is under 6 digits, and clears any active ErrorMessage.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.Backspace()
 - **Lines:** [40-44]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.Backspace() across lines 40-44.
+- **Behavior:** RelayCommand handler removing the last entered character from the Pin buffer using range slicing (Pin[..^1]) when Pin is not empty.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.Clear()
 - **Lines:** [46-47]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.Clear() across lines 46-47.
+- **Behavior:** RelayCommand handler resetting the Pin input string to string.Empty.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.CanSubmit()
 - **Lines:** [49-49]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.CanSubmit() across lines 49-49.
+- **Behavior:** CanExecute predicate evaluated for SubmitCommand; returns true only when Pin has at least 4 characters and the ViewModel is not currently busy (!IsBusy).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.LoginViewModel.SubmitAsync()
 - **Lines:** [51-78]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.LoginViewModel.SubmitAsync() across lines 51-78.
+- **Behavior:** Asynchronous RelayCommand authenticating the user via _session.Api.LoginByPinAsync(Pin). Sets IsBusy and clears error text; on failed login or null result, displays an invalid PIN error and resets Pin. On success, assigns CurrentUser on the session, clears Pin, and triggers the LoggedIn event. Handles transport exceptions by displaying an error message, and ensures IsBusy is reset to false in the finally block.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.AssertDestinationDirectory(string?)
 - **Lines:** [27-33]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.AssertDestinationDirectory(string?) across lines 27-33.
+- **Behavior:** Validates backup destination directory path. Throws DomainException if path is null or whitespace, or if Directory.Exists returns false.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.AssertRestoreReason(string?)
 - **Lines:** [35-39]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.AssertRestoreReason(string?) across lines 35-39.
+- **Behavior:** Validates mandatory reason for database restoration. Throws DomainException("سبب الاستعادة مطلوب.") if string is null or whitespace.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.AssertRestoreConfirmationPhrase(string?)
 - **Lines:** [41-45]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.AssertRestoreConfirmationPhrase(string?) across lines 41-45.
+- **Behavior:** Validates that confirmation phrase exactly matches mandatory safety phrase "أؤكد استعادة النسخة الاحتياطية واستبدال قاعدة البيانات الحالية" (after trimming whitespace), throwing DomainException on mismatch.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.AssertNoActiveOperations(int)
 - **Lines:** [52-56]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.AssertNoActiveOperations(int) across lines 52-56.
+- **Behavior:** Guards database restore against active financial transactions. Throws DomainException if pendingJournalEntryCount > 0 to prevent data corruption during in-flight operations.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.AssertSafeDatabaseIdentifier(string)
 - **Lines:** [64-68]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.AssertSafeDatabaseIdentifier(string) across lines 64-68.
+- **Behavior:** Validates SQL Server database name against regex ^[A-Za-z0-9_]+$ to prevent SQL injection in statement templates interpolating database identifiers. Throws DomainException on invalid characters.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.IsAutomaticBackupDue(DateTimeOffset?, DateTimeOffset, double)
 - **Lines:** [76-81]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.IsAutomaticBackupDue(DateTimeOffset?, DateTimeOffset, double) across lines 76-81.
+- **Behavior:** Evaluates whether scheduled automatic backup is due based on elapsed time (maxAgeHours > 0). Returns true if no previous backup succeeded (lastSucceededAtUtc is null) or if time difference reaches maxAgeHours.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.PrunableBackupCount(int, int)
 - **Lines:** [89-93]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.PrunableBackupCount(int, int) across lines 89-93.
+- **Behavior:** Computes number of backup files eligible for retention pruning, preserving keepCount newest files. Returns 0 if keepCount <= 0 to safely prevent total deletion; otherwise returns Math.Max(0, recorded - keepCount).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bac
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Backup.BackupRules.SelectPrunableBackups(IEnumerable<Falah.Domain.Backup.BackupRules.RetainedBackup>, int)
 - **Lines:** [107-118]
-- **Behavior:** Executes logic for Falah.Domain.Backup.BackupRules.SelectPrunableBackups(IEnumerable<Falah.Domain.Backup.BackupRules.RetainedBackup>, int) across lines 107-118.
+- **Behavior:** Identifies prunable backup IDs based on retention policy. Returns empty if keepCount <= 0. Orders backups descending by date, protects the newest verified-valid backup from deletion regardless of age, skips keepCount newest backups, and returns remaining IDs.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

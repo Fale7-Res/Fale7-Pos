@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Con
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptionsInputs)
 - **Lines:** [39-85]
-- **Behavior:** Executes logic for Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptionsInputs) across lines 39-85.
+- **Behavior:** Aggregates and returns a list of operational and financial `ControlException` notifications by evaluating shift cash variances, large refunds, large expenses, unsettled driver custodies, uncommitted journal operations, unassigned ready deliveries, failed/returned deliveries, and overdue out-for-delivery orders.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Con
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [43-43]
-- **Behavior:** Executes logic for lambda expression across lines 43-43.
+- **Behavior:** Predicate lambda expression (`s => s.CashDifferencePiastres != 0`) filtering shifts exhibiting cash discrepancies.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Con
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [50-50]
-- **Behavior:** Executes logic for lambda expression across lines 50-50.
+- **Behavior:** Predicate lambda expression (`o => o.RefundAmountPiastres >= LargeRefundThresholdPiastres`) filtering refunded orders exceeding the large refund review threshold.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Con
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [53-53]
-- **Behavior:** Executes logic for lambda expression across lines 53-53.
+- **Behavior:** Predicate lambda expression (`e => e.AmountPiastres >= LargeExpenseThresholdPiastres`) filtering expense transactions exceeding the threshold requiring manager oversight.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

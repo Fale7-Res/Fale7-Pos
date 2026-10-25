@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.WasteViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [22-27]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.WasteViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 22-27.
+- **Behavior:** Initializes WasteViewModel, sets the injected AppSession, converts DateTimeOffset.UtcNow to Cairo local time (Egypt Standard Time), and initializes BusinessDate with today's local date.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.OnBusinessDateChanged(DateOnly)
 - **Lines:** [40-40]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.OnBusinessDateChanged(DateOnly) across lines 40-40.
+- **Behavior:** Partial property change notification handler for BusinessDate; raises PropertyChanged for BusinessDateLabel to refresh the formatted 'yyyy-MM-dd' string.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.LabelFor(string)
 - **Lines:** [44-50]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.LabelFor(string) across lines 44-50.
+- **Behavior:** Maps loss type discriminator strings to Arabic UI display labels: 'Waste' to 'هدر تحضير', 'Spoilage' to 'تلف وانتهاء صلاحية', 'Breakage' to 'كسر', and defaults to the input string for any unrecognized type.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.LoadAsync()
 - **Lines:** [52-86]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.LoadAsync() across lines 52-86.
+- **Behavior:** Asynchronously loads waste and loss data for the current BusinessDate. If already loading, returns immediately; otherwise sets IsLoading, resets LoadError, fetches the loss summary from Api.GetLossSummaryAsync for the current actor and date, populates ByType collection with sorted loss breakdown entries and Arabic labels, and queries stock movements (up to 200 items), filtering Movements collection to Waste, Spoilage, and Breakage types. Notifies HasNoLoss and resets IsLoading in finally.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [78-78]
-- **Behavior:** Executes logic for lambda expression across lines 78-78.
+- **Behavior:** Predicate lambda filtering stock movements to only those matching loss types: 'Waste', 'Spoilage', or 'Breakage'.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.PreviousDay()
 - **Lines:** [88-89]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.PreviousDay() across lines 88-89.
+- **Behavior:** RelayCommand decrementing BusinessDate by one day and triggering an asynchronous reload via LoadAsync().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.WasteViewModel.NextDay()
 - **Lines:** [91-92]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.WasteViewModel.NextDay() across lines 91-92.
+- **Behavior:** RelayCommand incrementing BusinessDate by one day and triggering an asynchronous reload via LoadAsync().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

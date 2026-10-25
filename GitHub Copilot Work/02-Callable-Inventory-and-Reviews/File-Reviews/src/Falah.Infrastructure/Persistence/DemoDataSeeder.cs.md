@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Persistence.DemoDataSeeder.SeedIfEmptyAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)
 - **Lines:** [14-214]
-- **Behavior:** Executes logic for Falah.Infrastructure.Persistence.DemoDataSeeder.SeedIfEmptyAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken) across lines 14-214.
+- **Behavior:** Checks whether products exist in the database and, if empty, populates baseline demonstration data including default cashier and manager accounts (with hashed PINs), categories, inventory items, recipes, product catalog items (with and without variants), and payment method entries.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** LocalFunctionStatement
 - **Symbol:** Simple(string, string, string, bool, int, long)
 - **Lines:** [115-120]
-- **Behavior:** Executes logic for Simple(string, string, string, bool, int, long) across lines 115-120.
+- **Behavior:** Helper local function that creates and attaches a single-item `ProductEntity` without variants to `db.Products`, converting price in EGP to piastres and configuring kitchen station routing.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** LocalFunctionStatement
 - **Symbol:** WithVariants(string, string, string, bool, int, params (string Id, string Name, long PriceEgp)[])
 - **Lines:** [122-132]
-- **Behavior:** Executes logic for WithVariants(string, string, string, bool, int, params (string Id, string Name, long PriceEgp)[]) across lines 122-132.
+- **Behavior:** Helper local function that constructs a multi-variant `ProductEntity` with associated `ProductVariantEntity` records converted to piastres, attaching the product hierarchy to `db.Products`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

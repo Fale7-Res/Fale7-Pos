@@ -4,7 +4,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Purchasing/PayablesAging.cs:21:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Purchasing.PayablesAging.Label(Falah.Domain.Purchasing.PayablesAging.Bucket)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Purchasing.PayablesAging.Label(Falah.Domain.Purchasing.PayablesAging.Bucket) across lines 21-29.
+- **Behavior**: Returns the Arabic localized description text for an accounts payable aging bucket.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

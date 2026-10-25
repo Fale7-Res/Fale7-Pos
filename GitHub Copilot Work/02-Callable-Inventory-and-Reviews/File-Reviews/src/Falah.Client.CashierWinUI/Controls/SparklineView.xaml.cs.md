@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.SparklineView()
 - **Lines:** [22-27]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.SparklineView() across lines 22-27.
+- **Behavior:** Initializes SparklineView control via InitializeComponent() and registers SizeChanged and Loaded event handlers to trigger geometry rendering once control bounds are measured.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.Points.get
 - **Lines:** [37-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.Points.get across lines 37-37.
+- **Behavior:** Getter for Points dependency property returning raw numeric data series.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.Points.set
 - **Lines:** [38-38]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.Points.set across lines 38-38.
+- **Behavior:** Setter for Points dependency property triggering re-render when new data points are bound.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.LineBrush.get
 - **Lines:** [47-47]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.LineBrush.get across lines 47-47.
+- **Behavior:** Getter for LineBrush dependency property returning brush used for sparkline stroke and fill.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.LineBrush.set
 - **Lines:** [48-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.LineBrush.set across lines 48-48.
+- **Behavior:** Setter for LineBrush dependency property updating stroke and fill styling.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.Render()
 - **Lines:** [53-102]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.Render() across lines 53-102.
+- **Behavior:** Constructs and renders sparkline vector geometry. If dimensions are <= 1, returns early. If series has fewer than 2 points or is completely flat, displays FlatLabel. Otherwise scales points to control dimensions, generates line and filled area geometries, and positions EndPoint marker at final value.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.BuildLine(IReadOnlyList<Windows.Foundation.Point>)
 - **Lines:** [104-111]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.BuildLine(IReadOnlyList<Windows.Foundation.Point>) across lines 104-111.
+- **Behavior:** Constructs an unclosed PathGeometry representing the trend line connecting mapped coordinate points.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.SparklineView.BuildArea(IReadOnlyList<Windows.Foundation.Point>, double)
 - **Lines:** [115-123]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.SparklineView.BuildArea(IReadOnlyList<Windows.Foundation.Point>, double) across lines 115-123.
+- **Behavior:** Constructs a closed PathGeometry descending from the trend line to the bottom baseline for shaded area fill.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

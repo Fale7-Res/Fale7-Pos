@@ -4,21 +4,21 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/BalanceLockContention.cs:29:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(Exception)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.BalanceLockContention.IsContention(Exception) across lines 29-30.
+- **Behavior**: Inspects an exception hierarchy via `Sql()` to determine if the root failure is a SQL Server concurrency lock contention error (error code 1205 for deadlock victim or 1222 for lock timeout).
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/BalanceLockContention.cs:32:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.BalanceLockContention.Sql(Exception?)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.BalanceLockContention.Sql(Exception?) across lines 32-37.
+- **Behavior**: Traverses the exception's inner exception chain recursively to find and return the first encountered `SqlException`, or `null` if none exists.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Treasury/BalanceLockContention.cs:46:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync<T>(Func<Task<T?>>, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Treasury.BalanceLockContention.AwaitSiblingAsync<T>(Func<Task<T?>>, CancellationToken) across lines 46-54.
+- **Behavior**: Retries an entity lookup asynchronously up to 5 times with incremental backoff (40ms * attempt count) to detect if a concurrent sibling transaction with the same request ID successfully completed.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

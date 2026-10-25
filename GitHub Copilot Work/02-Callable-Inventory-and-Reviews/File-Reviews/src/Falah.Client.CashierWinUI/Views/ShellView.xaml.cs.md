@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.ShellView()
 - **Lines:** [19-23]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.ShellView() across lines 19-23.
+- **Behavior:** Initializes UI components via InitializeComponent() and registers a DataContextChanged event handler to attach the ShellViewModel when bound.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.AttachViewModel()
 - **Lines:** [25-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.AttachViewModel() across lines 25-37.
+- **Behavior:** Detaches previous PropertyChanged handlers, casts DataContext to ShellViewModel, invokes BuildNavBar() to construct navigation controls, registers OnViewModelPropertyChanged, and applies the current page and active navigation selection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.BuildNavBar()
 - **Lines:** [43-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.BuildNavBar() across lines 43-55.
+- **Behavior:** Builds top navigation bar buttons directly in C# code. Clears existing controls in NavBar and _navButtons cache, iterates over viewModel.NavGroups, creates each navigation button via CreateNavButton, and adds them to NavBar and _navButtons.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [53-53]
-- **Behavior:** Executes logic for lambda expression across lines 53-53.
+- **Behavior:** LINQ projection mapping group items to their string key identifiers: group.Items.Select(i => i.Key).ToList().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.CreateNavButton(Falah.Client.CashierWinUI.ViewModels.ShellNavGroup)
 - **Lines:** [57-96]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.CreateNavButton(Falah.Client.CashierWinUI.ViewModels.ShellNavGroup) across lines 57-96.
+- **Behavior:** Constructs a WinUI Button with icon glyph and localized label for a navigation group. For single-destination groups (IsDirect), attaches a click handler dispatching NavigateCommand. For multi-item groups, attaches a dropdown MenuFlyout containing individual destination items.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs)
 - **Lines:** [98-109]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs) across lines 98-109.
+- **Behavior:** Handles ViewModel property notifications. Dispatches ApplyCurrentPage() when CurrentPage changes, and ApplySelectedItem() when SelectedItem changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.ApplyCurrentPage()
 - **Lines:** [113-144]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.ApplyCurrentPage() across lines 113-144.
+- **Behavior:** Instantiates and assigns the appropriate WinUI page view into PageHost.Content based on the runtime type of viewModel.CurrentPage (e.g. CashierView, DeliveryView, ReportsView, ShiftsView, etc.).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShellView.ApplySelectedItem()
 - **Lines:** [148-161]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShellView.ApplySelectedItem() across lines 148-161.
+- **Behavior:** Updates visual highlight styling across navigation buttons in _navButtons by comparing each button's associated screen keys against viewModel.SelectedItem, applying active accent brush and bold weight or resetting to transparent background.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

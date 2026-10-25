@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.MainWindow()
 - **Lines:** [13-30]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.MainWindow() across lines 13-30.
+- **Behavior:** Constructor initializing XAML components, instantiating MainViewModel, binding CloseNotice and HeaderHost DataContexts, wiring AppWindow.Closing cancellation check to TryClose(), unhooking events and calling Stop() on Closed, connecting HeaderHost lock requests to LockCommand, subscribing to PropertyChanged events on the ViewModel, applying initial visibility states (IsLoggedIn, IsOnline, CurrentView), and maximizing the window on target display hardware.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for lambda expression across lines 19-19.
+- **Behavior:** Window Closed event handler lambda unregistering OnViewModelPropertyChanged and stopping background timers via _viewModel.Stop() to prevent memory leaks.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.MaximizeOnTargetDisplay()
 - **Lines:** [34-38]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.MaximizeOnTargetDisplay() across lines 34-38.
+- **Behavior:** Maximizes the application window if AppWindow.Presenter is an OverlappedPresenter, dedicating full screen real estate on station hardware.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs)
 - **Lines:** [40-54]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.OnViewModelPropertyChanged(object?, System.ComponentModel.PropertyChangedEventArgs) across lines 40-54.
+- **Behavior:** Dispatches ViewModel property changes: updates header visibility for IsLoggedIn, toggles offline banner visibility for IsOnline, and updates the view host content for CurrentView.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.ApplyIsLoggedIn()
 - **Lines:** [56-57]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.ApplyIsLoggedIn() across lines 56-57.
+- **Behavior:** Toggles HeaderHost visibility between Visible (when _viewModel.IsLoggedIn is true) and Collapsed (when logged out).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.ApplyIsOnline()
 - **Lines:** [59-60]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.ApplyIsOnline() across lines 59-60.
+- **Behavior:** Toggles OfflineBanner visibility between Collapsed (when _viewModel.IsOnline is true) and Visible (when offline).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.MainWindow.ApplyCurrentView()
 - **Lines:** [62-70]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.MainWindow.ApplyCurrentView() across lines 62-70.
+- **Behavior:** Resolves and sets RootContent.Content dynamically based on _viewModel.CurrentView: instantiates LoginView for LoginViewModel, CallCenterView for CallCenterViewModel, or null otherwise.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

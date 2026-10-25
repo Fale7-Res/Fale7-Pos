@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.ApiClient(string)
 - **Lines:** [22-25]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.ApiClient(string) across lines 22-25.
+- **Behavior:** Initializes ApiClient with an internal HttpClient configured with BaseAddress (defaulting to "http://localhost:5151") and a request timeout of 10 seconds.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.PingHealthAsync(CancellationToken)
 - **Lines:** [27-38]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.PingHealthAsync(CancellationToken) across lines 27-38.
+- **Behavior:** Sends an HTTP GET request to "/health" endpoint to test server responsiveness. Returns true if response has a success status code; catches any exception (connection refused, timeout) and returns false.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken)
 - **Lines:** [42-67]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.ReadResultAsync<T>(System.Net.Http.HttpResponseMessage, CancellationToken) across lines 42-67.
+- **Behavior:** Deserializes HTTP responses into standardized ApiResult<T>. On success status code, parses response JSON into T. On failure, parses ErrorBody JSON; if missing, maps status code to Arabic error messages (Unauthorized -> "رمز الدخول غير صحيح.", NotFound -> "العنصر المطلوب غير موجود.", or default server error).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.LoginByPinAsync(string, CancellationToken)
 - **Lines:** [71-75]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.LoginByPinAsync(string, CancellationToken) across lines 71-75.
+- **Behavior:** Posts LoginByPinRequest JSON to "/api/auth/login-by-pin" endpoint and returns deserialized UserSummaryDto in an ApiResult.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.GetMenuAsync(CancellationToken)
 - **Lines:** [77-81]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.GetMenuAsync(CancellationToken) across lines 77-81.
+- **Behavior:** Issues an HTTP GET request to "/api/menu" and deserializes the full menu structure (categories, products, variants, offers) into MenuResponse.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken)
 - **Lines:** [83-87]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.OpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest, CancellationToken) across lines 83-87.
+- **Behavior:** Posts OpenShiftRequest JSON to "/api/shifts/open" to open a new cashier shift and returns the OpenShiftResult.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.CheckoutAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken)
 - **Lines:** [89-93]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.CheckoutAsync(Falah.Application.Orders.CheckoutOrderRequest, CancellationToken) across lines 89-93.
+- **Behavior:** Posts CheckoutOrderRequest JSON to "/api/orders/checkout" to record order items, discount, tax, and payments, returning CheckoutOrderResult.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.RefundAsync(Falah.Application.Orders.RefundOrderRequest, CancellationToken)
 - **Lines:** [95-99]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.RefundAsync(Falah.Application.Orders.RefundOrderRequest, CancellationToken) across lines 95-99.
+- **Behavior:** Posts RefundOrderRequest JSON to "/api/orders/refund" to refund items or entire orders, returning RefundOrderResult.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken)
 - **Lines:** [101-105]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.ConfirmElectronicPaymentAsync(Falah.Application.Orders.ConfirmElectronicPaymentRequest, CancellationToken) across lines 101-105.
+- **Behavior:** Posts ConfirmElectronicPaymentRequest JSON to "/api/orders/confirm-electronic-payment" to verify and record electronic/wallet payments, returning ConfirmElectronicPaymentResult.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.LookupOrderByNumberAsync(string, CancellationToken)
 - **Lines:** [107-111]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.LookupOrderByNumberAsync(string, CancellationToken) across lines 107-111.
+- **Behavior:** Sends an HTTP GET request to "/api/orders/lookup?orderNumber={Uri.EscapeDataString(orderNumber)}" to retrieve OrderDetailsDto by display order number.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.ApiClient.GetOrderAsync(string, CancellationToken)
 - **Lines:** [113-117]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.ApiClient.GetOrderAsync(string, CancellationToken) across lines 113-117.
+- **Behavior:** Sends an HTTP GET request to "/api/orders/{Uri.EscapeDataString(orderId)}" to retrieve OrderDetailsDto by internal order ID.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

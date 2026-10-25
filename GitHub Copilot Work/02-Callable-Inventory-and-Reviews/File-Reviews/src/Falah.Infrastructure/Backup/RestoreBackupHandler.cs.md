@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.RestoreBackupHandler.RestoreBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Falah.Infrastructure.Backup.CreateBackupHandler)
 - **Lines:** [41-47]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.RestoreBackupHandler.RestoreBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Falah.Infrastructure.Backup.CreateBackupHandler) across lines 41-47.
+- **Behavior:** Injects FalahDbContext, IApprovalRegistry, IAuditLog, and CreateBackupHandler dependencies for database access, manager approval authorization, audit logging, and safety backup creation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.RestoreBackupHandler.HandleAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken)
 - **Lines:** [49-195]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.RestoreBackupHandler.HandleAsync(Falah.Application.Backup.RestoreBackupRequest, CancellationToken) across lines 49-195.
+- **Behavior:** Handles destructive database restoration. Validates actor user and backup record existence, verifies restore reason and confirmation phrase via BackupRules, enforces manager approval via AuthorizationPolicy, asserts physical backup file exists on disk, asserts zero pending financial operations via BackupRules.AssertNoActiveOperations, validates database identifier safety, creates a pre-restore safety backup, forces SQL Server into SINGLE_USER mode with rollback immediate, restores database with replace, and switches back to MULTI_USER mode. Catches errors to release single-user mode and logs audit events.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException, DomainException, DomainException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for lambda expression across lines 51-51.
+- **Behavior:** LINQ query predicate lambda u => u.Id == request.ActorUserId used to locate the initiating actor user entity.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [55-55]
-- **Behavior:** Executes logic for lambda expression across lines 55-55.
+- **Behavior:** LINQ query predicate lambda b => b.Id == request.BackupRecordId used to retrieve the target backup record entity.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [74-74]
-- **Behavior:** Executes logic for lambda expression across lines 74-74.
+- **Behavior:** LINQ query predicate lambda u => u.Id == request.ManagerApproverUserId used to look up the manager approver user.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [85-85]
-- **Behavior:** Executes logic for lambda expression across lines 85-85.
+- **Behavior:** LINQ query predicate lambda j => j.Status == nameof(FinancialJournalStatus.Pending) used to count in-flight financial journal entries.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.RestoreBackupHandler.RecordOutcomeAsync(Falah.Infrastructure.Persistence.Entities.BackupRecordEntity, bool, string, CancellationToken)
 - **Lines:** [211-235]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.RestoreBackupHandler.RecordOutcomeAsync(Falah.Infrastructure.Persistence.Entities.BackupRecordEntity, bool, string, CancellationToken) across lines 211-235.
+- **Behavior:** Persists restore outcome to database. If database was replaced, clears connection pools (SqlConnection.ClearPool) and adds restore record as a new row in the newly restored database to ensure auditability, catching and logging any persistence errors.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.RestoreBackupHandler.TryReleaseSingleUserAsync(string, string)
 - **Lines:** [237-253]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.RestoreBackupHandler.TryReleaseSingleUserAsync(string, string) across lines 237-253.
+- **Behavior:** Emergency recovery routine connecting to master database after a failed restore attempt to reset the target database from SINGLE_USER back to MULTI_USER, preventing restaurant-wide database lockout.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

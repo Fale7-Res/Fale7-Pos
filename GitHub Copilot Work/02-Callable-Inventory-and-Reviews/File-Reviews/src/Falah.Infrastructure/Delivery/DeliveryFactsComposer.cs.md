@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of DeliveryFactsComp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.DeliveryFactsComposer.Compose(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, Falah.Infrastructure.Persistence.Entities.OrderEntity)
 - **Lines:** [13-38]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.DeliveryFactsComposer.Compose(Falah.Infrastructure.Persistence.Entities.DeliveryEntity, Falah.Infrastructure.Persistence.Entities.OrderEntity) across lines 13-38.
+- **Behavior:** Composes a domain `DeliveryFacts` record by combining `DeliveryEntity` metadata with financial state from `OrderEntity`. Converts piastre integers to domain `Money` value objects, computes `AmountToCollect` as total minus refunded amount, sets `PaymentAlreadySettled` from `order.IsPaid`, and parses delivery status and payment method enums.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of DeliveryFactsComp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.DeliveryFactsComposer.ToDriverCustody(Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity)
 - **Lines:** [40-43]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.DeliveryFactsComposer.ToDriverCustody(Falah.Infrastructure.Persistence.Entities.DriverCustodyEntity) across lines 40-43.
+- **Behavior:** Maps a `DriverCustodyEntity` persistence model to a domain `DriverCustody` record, converting expected, collected, settled, and difference amounts from piastres into `Money` representations and parsing the `CustodyStatus` enum.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

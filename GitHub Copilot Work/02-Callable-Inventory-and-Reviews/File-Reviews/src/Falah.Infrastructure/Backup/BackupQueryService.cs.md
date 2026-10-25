@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.BackupQueryService.BackupQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [11-11]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.BackupQueryService.BackupQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 11-11.
+- **Behavior:** Initializes a new instance of BackupQueryService, storing the injected FalahDbContext database context in the private readonly _db field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.BackupQueryService.ListAsync(CancellationToken)
 - **Lines:** [13-14]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.BackupQueryService.ListAsync(CancellationToken) across lines 13-14.
+- **Behavior:** Asynchronously queries all backup history records from the database using AsNoTracking, orders them descending by RequestedAtUtc, projects each entity to BackupRecordDto via ToDto, and returns the list.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [14-14]
-- **Behavior:** Executes logic for lambda expression across lines 14-14.
+- **Behavior:** Key selector lambda expression ordering backup records descending by their RequestedAtUtc timestamp property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [14-14]
-- **Behavior:** Executes logic for lambda expression across lines 14-14.
+- **Behavior:** Projection lambda invoking static ToDto to transform each BackupRecordEntity into a BackupRecordDto.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.BackupQueryService.GetAsync(string, CancellationToken)
 - **Lines:** [16-18]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.BackupQueryService.GetAsync(string, CancellationToken) across lines 16-18.
+- **Behavior:** Asynchronously retrieves a specific backup record by its unique identifier using AsNoTracking. Throws InvalidOperationException ("سجل النسخة الاحتياطية غير موجود.") when no matching record is found, and returns the mapped BackupRecordDto.
 - **Validations:** Validation checks detected: False. Throws: InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [17-17]
-- **Behavior:** Executes logic for lambda expression across lines 17-17.
+- **Behavior:** Predicate lambda expression filtering BackupRecordEntity rows to match the specified id parameter.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.BackupQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.BackupRecordEntity)
 - **Lines:** [20-22]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.BackupQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.BackupRecordEntity) across lines 20-22.
+- **Behavior:** Internal static mapping function projecting a BackupRecordEntity to a BackupRecordDto record containing backup metadata (Id, Kind, FilePath, Status, FileSizeBytes, VerificationStatus, VerifiedAtUtc, RequestedBy, RequestedAtUtc, CompletedAtUtc, ErrorMessage, Reason, ApprovedBy).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

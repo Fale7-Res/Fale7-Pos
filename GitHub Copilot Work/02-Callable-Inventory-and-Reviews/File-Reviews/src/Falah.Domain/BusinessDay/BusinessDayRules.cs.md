@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.IsActive(Falah.Domain.BusinessDay.BusinessDayRecord?)
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.IsActive(Falah.Domain.BusinessDay.BusinessDayRecord?) across lines 24-24.
+- **Behavior:** Determines whether a business day record represents an active operational state (Open, Closing, or Reopened). Returns false if record is null.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.AssertTransition(Falah.Domain.BusinessDay.BusinessDayStatus, Falah.Domain.BusinessDay.BusinessDayStatus)
 - **Lines:** [34-38]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.AssertTransition(Falah.Domain.BusinessDay.BusinessDayStatus, Falah.Domain.BusinessDay.BusinessDayStatus) across lines 34-38.
+- **Behavior:** Enforces legal business day lifecycle status transitions (Open -> Closing, Reopened -> Closing, Closing -> Closed, Closed -> Reopened). Throws DomainException if transition is disallowed.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.Open(string, DateOnly, string, DateTimeOffset, IEnumerable<Falah.Domain.BusinessDay.BusinessDayRecord>)
 - **Lines:** [40-44]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.Open(string, DateOnly, string, DateTimeOffset, IEnumerable<Falah.Domain.BusinessDay.BusinessDayRecord>) across lines 40-44.
+- **Behavior:** Opens a new business day. Asserts that no existing day in existingDays is currently active (throws DomainException if active day found), and instantiates a new BusinessDayRecord with Open status and CloseRevision = 0.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.Reopen(Falah.Domain.BusinessDay.BusinessDayRecord, IEnumerable<Falah.Domain.BusinessDay.BusinessDayRecord>, string, string, DateTimeOffset)
 - **Lines:** [46-56]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.Reopen(Falah.Domain.BusinessDay.BusinessDayRecord, IEnumerable<Falah.Domain.BusinessDay.BusinessDayRecord>, string, string, DateTimeOffset) across lines 46-56.
+- **Behavior:** Reopens a closed business day. Validates day status is Closed, asserts no other active business day exists, asserts original SnapshotId is present, and asserts non-empty reason. Returns updated record with Reopened status, trimmed reason, and approver name.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.EvaluateCloseBlockers(Falah.Domain.BusinessDay.BusinessDayRules.CloseBlockerInputs)
 - **Lines:** [73-105]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.EvaluateCloseBlockers(Falah.Domain.BusinessDay.BusinessDayRules.CloseBlockerInputs) across lines 73-105.
+- **Behavior:** Evaluates comprehensive closure gating preconditions: checks for open shifts, unfinalized delivery trips, unsettled driver custodies, in-flight financial journal entries, pending electronic payments, unhealthy persistence state, lost writer lease, uncompleted checklist items, and critical reconciliation failures. Returns a list of CloseBlocker items.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -154,7 +154,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.AssertCanClose(IReadOnlyList<Falah.Domain.BusinessDay.CloseBlocker>)
 - **Lines:** [107-110]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.AssertCanClose(IReadOnlyList<Falah.Domain.BusinessDay.CloseBlocker>) across lines 107-110.
+- **Behavior:** Validates that no blockers exist to close the business day. If blockers is non-empty, aggregates all blocker codes and error messages into a structured Arabic error message and throws DomainException.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -165,7 +165,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.BusinessDay.BusinessDayRules.CalculateDenominationCount(IReadOnlyList<(long DenominationPiastres, long Quantity)>, long)
 - **Lines:** [125-135]
-- **Behavior:** Executes logic for Falah.Domain.BusinessDay.BusinessDayRules.CalculateDenominationCount(IReadOnlyList<(long DenominationPiastres, long Quantity)>, long) across lines 125-135.
+- **Behavior:** Performs cash drawer denomination counting. Normalizes input denomination rows by clamping negative quantities to zero, multiplies quantity by denomination piastres, computes total cash piastres, and returns a DenominationCountResult with variance against expectedPiastres.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -176,7 +176,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [128-132]
-- **Behavior:** Executes logic for lambda expression across lines 128-132.
+- **Behavior:** LINQ projection mapping each denomination tuple to a DenominationRow record with clamped quantity Math.Max(0, r.Quantity) and total piastres.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

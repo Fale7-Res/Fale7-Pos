@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OrdersViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [18-18]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OrdersViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 18-18.
+- **Behavior:** Initializes OrdersViewModel with injected AppSession dependency for authenticated API communication.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OnSelectedOrderChanged(Falah.Application.Orders.OrderDetailsDto?)
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OnSelectedOrderChanged(Falah.Application.Orders.OrderDetailsDto?) across lines 31-31.
+- **Behavior:** Partial property-changed callback for SelectedOrder. Fires OnPropertyChanged for IsDetailOpen to toggle order detail panel display.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OnSearchQueryChanged(string)
 - **Lines:** [35-35]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OnSearchQueryChanged(string) across lines 35-35.
+- **Behavior:** Partial property-changed callback for SearchQuery. Invokes ApplyFilter() on input changes to dynamically filter orders by order number, customer name, or phone.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.ApplyFilter()
 - **Lines:** [37-51]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.ApplyFilter() across lines 37-51.
+- **Behavior:** Filters cached orders in _all by SearchQuery matching OrderNumber, CustomerName, or CustomerPhone (case-insensitive). Clears and repopulates Orders collection and notifies HasNoOrders.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [44-47]
-- **Behavior:** Executes logic for lambda expression across lines 44-47.
+- **Behavior:** LINQ filter predicate matching OrderNumber, CustomerName, or CustomerPhone against trimmed query string q.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.LoadAsync()
 - **Lines:** [53-76]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.LoadAsync() across lines 53-76.
+- **Behavior:** Asynchronously loads orders from server via Api.GetOrdersAsync(_session.CurrentUser!.Id). On failure sets LoadError; on success populates _all cache, applies filter, and updates HasNoOrders.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OpenOrder(Falah.Application.Orders.OrderDetailsDto)
 - **Lines:** [78-79]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.OpenOrder(Falah.Application.Orders.OrderDetailsDto) across lines 78-79.
+- **Behavior:** Sets SelectedOrder to the chosen order, opening the order detail flyout.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.CloseOrder()
 - **Lines:** [81-82]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.OrdersViewModel.CloseOrder() across lines 81-82.
+- **Behavior:** Resets SelectedOrder to null, closing the order detail flyout.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

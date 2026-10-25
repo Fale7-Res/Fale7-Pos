@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?)
 - **Lines:** [11-12]
-- **Behavior:** Executes logic for Falah.Infrastructure.Persistence.CommandReceipt.Id(string, string?) across lines 11-12.
+- **Behavior:** Generates an idempotency receipt identifier; formats as `audit-{action}-{requestId}` if a non-whitespace `requestId` is supplied, or falls back to a newly generated GUID string (`audit-{Guid.NewGuid():N}`).
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken)
 - **Lines:** [14-24]
-- **Behavior:** Executes logic for Falah.Infrastructure.Persistence.CommandReceipt.FindAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, CancellationToken) across lines 14-24.
+- **Behavior:** Queries for an existing audit receipt in `AuditEvents` with `UPDLOCK, ROWLOCK, HOLDLOCK` within an active database transaction (throwing `InvalidOperationException` if no transaction is active), and verifies that any found receipt matches both `referenceId` and `actorUserId`, throwing a `DomainException` if a key mismatch/collision occurs.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

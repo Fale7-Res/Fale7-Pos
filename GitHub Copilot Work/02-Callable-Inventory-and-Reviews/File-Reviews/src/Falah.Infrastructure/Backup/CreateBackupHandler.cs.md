@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.CreateBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Microsoft.Extensions.Configuration.IConfiguration)
 - **Lines:** [26-32]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.CreateBackupHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog, Microsoft.Extensions.Configuration.IConfiguration) across lines 26-32.
+- **Behavior:** Initializes the backup handler with dependencies for database context operations, approval/permission registry enforcement, audit logging, and configuration retrieval.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken)
 - **Lines:** [34-41]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.HandleAsync(Falah.Application.Backup.CreateBackupRequest, CancellationToken) across lines 34-41.
+- **Behavior:** Authorizes an operator-initiated backup by loading the actor user entity from `_db.Users` (throwing `InvalidOperationException` if not found), enforcing the `backup_manage` permission via `AuthorizationPolicy.AuthorizeCommand`, and delegating execution to `RunAsync`.
 - **Validations:** Validation checks detected: False. Throws: InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [36-36]
-- **Behavior:** Executes logic for lambda expression across lines 36-36.
+- **Behavior:** Predicate lambda expression (`u => u.Id == request.ActorUserId`) matching user entities by actor user identifier in `_db.Users`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken)
 - **Lines:** [47-103]
-- **Behavior:** Executes logic for Falah.Infrastructure.Backup.CreateBackupHandler.RunAsync(Falah.Infrastructure.Backup.BackupActor, string?, CancellationToken) across lines 47-103.
+- **Behavior:** Executes native SQL Server database backup with `COPY_ONLY`, `CHECKSUM`, and `FORMAT` options to a timestamped file in the destination directory, persists a `BackupRecordEntity` tracking initial request, success/failure status, and size, and writes an audit event to `IAuditLog`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 

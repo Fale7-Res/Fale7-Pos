@@ -11,7 +11,7 @@ Substantive security, cash custody, and authorization audit of MarkDeliveryReady
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.MarkDeliveryReadyHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [19-23]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.MarkDeliveryReadyHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 19-23.
+- **Behavior:** Initializes the handler by injecting the `FalahDbContext` for persistence operations and `IApprovalRegistry` for manager approval policy validation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, cash custody, and authorization audit of MarkDeliveryReady
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.HandleAsync(Falah.Application.Delivery.MarkDeliveryReadyRequest, CancellationToken)
 - **Lines:** [25-61]
-- **Behavior:** Executes logic for Falah.Infrastructure.Delivery.MarkDeliveryReadyHandler.HandleAsync(Falah.Application.Delivery.MarkDeliveryReadyRequest, CancellationToken) across lines 25-61.
+- **Behavior:** Transitions a delivery to `Ready` status within an explicit transaction using `UPDLOCK, ROWLOCK, HOLDLOCK` to prevent concurrency races. Verifies actor permissions and manager approval for `delivery_manage`, checks for idempotent already-ready invocations, enforces state machine transitions via `DeliveryTransitions.AssertTransition`, updates the entity version, and records a ready `DeliveryEventEntity`.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, cash custody, and authorization audit of MarkDeliveryReady
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for lambda expression across lines 27-27.
+- **Behavior:** Predicate lambda expression (`u => u.Id == request.ActorUserId`) matching user entities in `_db.Users` by actor user identifier.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, cash custody, and authorization audit of MarkDeliveryReady
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [34-34]
-- **Behavior:** Executes logic for lambda expression across lines 34-34.
+- **Behavior:** Predicate lambda expression (`u => u.Id == request.ManagerApproverUserId`) matching user entities in `_db.Users` by manager approver identifier.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

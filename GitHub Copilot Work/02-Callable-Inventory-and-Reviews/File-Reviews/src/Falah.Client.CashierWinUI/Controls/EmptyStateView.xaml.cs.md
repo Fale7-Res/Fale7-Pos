@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.EmptyStateView()
 - **Lines:** [14-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.EmptyStateView() across lines 14-19.
+- **Behavior:** Constructor initializing XAML components via InitializeComponent() and synchronizing initial text in TitleBlock and MessageBlock with Title and Message dependency property values.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.Title.get
 - **Lines:** [23-23]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.Title.get across lines 23-23.
+- **Behavior:** CLR property getter returning the string value of the TitleProperty dependency property via GetValue(TitleProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.Title.set
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.Title.set across lines 24-24.
+- **Behavior:** CLR property setter storing the string value into TitleProperty dependency property via SetValue(TitleProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.Message.get
 - **Lines:** [29-29]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.Message.get across lines 29-29.
+- **Behavior:** CLR property getter returning the string value of the MessageProperty dependency property via GetValue(MessageProperty).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.Message.set
 - **Lines:** [30-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.Message.set across lines 30-30.
+- **Behavior:** CLR property setter storing the string value into MessageProperty dependency property via SetValue(MessageProperty, value).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.OnTitleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [33-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.OnTitleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 33-34.
+- **Behavior:** Static property changed callback updating the Text property of the TitleBlock TextBlock control on the target EmptyStateView instance with the new string value from e.NewValue.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.EmptyStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [36-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.EmptyStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 36-37.
+- **Behavior:** Static property changed callback updating the Text property of the MessageBlock TextBlock control on the target EmptyStateView instance with the new string value from e.NewValue.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

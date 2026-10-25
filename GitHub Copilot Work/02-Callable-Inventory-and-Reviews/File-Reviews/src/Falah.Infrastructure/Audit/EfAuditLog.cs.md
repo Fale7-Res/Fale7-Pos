@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Audit.EfAuditLog.EfAuditLog(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [15-15]
-- **Behavior:** Executes logic for Falah.Infrastructure.Audit.EfAuditLog.EfAuditLog(Falah.Infrastructure.Persistence.FalahDbContext) across lines 15-15.
+- **Behavior:** Initializes the audit log service with the scoped `FalahDbContext` instance used for change tracking.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Audit.EfAuditLog.Append(Falah.Domain.Audit.AuditEvent)
 - **Lines:** [17-28]
-- **Behavior:** Executes logic for Falah.Infrastructure.Audit.EfAuditLog.Append(Falah.Domain.Audit.AuditEvent) across lines 17-28.
+- **Behavior:** Validates the audit event severity via `AuditRules.AssertValidSeverity`, constructs a new `AuditEventEntity` mapping all domain event properties, and adds it to the DbContext's change tracker without calling `SaveChangesAsync`, ensuring atomic persistence with the parent business transaction.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

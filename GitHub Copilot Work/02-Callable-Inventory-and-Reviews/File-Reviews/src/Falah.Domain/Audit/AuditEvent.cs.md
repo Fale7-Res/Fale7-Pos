@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Aud
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Audit.IAuditLog.Append(Falah.Domain.Audit.AuditEvent)
 - **Lines:** [41-41]
-- **Behavior:** Executes logic for Falah.Domain.Audit.IAuditLog.Append(Falah.Domain.Audit.AuditEvent) across lines 41-41.
+- **Behavior:** Declares the write-side contract for appending an immutable `AuditEvent` to the audit log store.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Aud
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Audit.InMemoryAuditLog.Append(Falah.Domain.Audit.AuditEvent)
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for Falah.Domain.Audit.InMemoryAuditLog.Append(Falah.Domain.Audit.AuditEvent) across lines 51-51.
+- **Behavior:** Appends an `AuditEvent` to an in-memory `List<AuditEvent>` backing store for testing purposes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Aud
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Audit.AuditRules.AssertValidSeverity(string)
 - **Lines:** [59-63]
-- **Behavior:** Executes logic for Falah.Domain.Audit.AuditRules.AssertValidSeverity(string) across lines 59-63.
+- **Behavior:** Validates that the specified severity string exists within the permitted set ('info', 'normal', 'warning', 'critical'), throwing a `DomainException` if invalid.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

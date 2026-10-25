@@ -4,42 +4,42 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:19:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.AddSupplierHandler.AddSupplierHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.AddSupplierHandler.AddSupplierHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 19-23.
+- **Behavior**: Initializes AddSupplierHandler, injecting FalahDbContext and IApprovalRegistry into private readonly fields _db and _approvalRegistry.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:25:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.AddSupplierHandler.HandleAsync(Falah.Application.Purchasing.AddSupplierRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.AddSupplierHandler.HandleAsync(Falah.Application.Purchasing.AddSupplierRequest, CancellationToken) across lines 25-65.
+- **Behavior**: Handles adding a new supplier with idempotency support. Derives supplier ID as 'sup-{request.RequestId}' and returns replayed result if already exists. Validates non-empty supplier name, resolves actor user (throwing InvalidOperationException if missing), resolves optional manager approval (validating approver user existence), validates authorization via AuthorizationPolicy.AuthorizeAddSupplier, constructs SupplierEntity with default category 'مورد خامات' if blank, and commits to the database, handling unique constraint DbUpdateException by replaying the committed supplier record.
 - **Validations**: Validation checks detected: True. Throws: DomainException, InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:28:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 28-28.
+- **Behavior**: Predicate lambda matching an existing SupplierEntity by its generated identifier 'sup-{RequestId}'.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:33:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 33-33.
+- **Behavior**: Predicate lambda querying UserEntity matching request.ActorUserId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:40:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 40-40.
+- **Behavior**: Predicate lambda querying UserEntity matching request.ManagerApproverUserId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/AddSupplierHandler.cs:60:81:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 60-60.
+- **Behavior**: Predicate lambda retrieving the existing SupplierEntity on DbUpdateException replay check.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

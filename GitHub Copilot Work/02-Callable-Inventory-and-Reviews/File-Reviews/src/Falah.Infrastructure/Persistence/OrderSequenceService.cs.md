@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)
 - **Lines:** [19-29]
-- **Behavior:** Executes logic for Falah.Infrastructure.Persistence.OrderSequenceService.AllocateNextAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken) across lines 19-29.
+- **Behavior:** Executes an atomic `UPDATE ... OUTPUT INSERTED.LastAllocated` statement against the `OrderSequence` table within the caller's active SQL transaction, atomically incrementing and returning the next order number while preventing sequence gaps and concurrency races. Throws `InvalidOperationException` if the sequence table row is missing.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

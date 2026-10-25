@@ -4,21 +4,21 @@
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderValueBreakdown.cs:11:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.OrderValueBreakdown.Compute(IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.OrderValueBreakdown.Compute(IReadOnlyList<Falah.Domain.Orders.OrderItem>, Falah.Domain.Common.Money) across lines 11-21.
+- **Behavior**: Calculates the financial pricing buckets for an order (ListValue, OfferValue, Subtotal, CompValue, and Collected payable amount) by summing line item prices, applying discount differentials, and subtracting comp amounts with negative safeguards.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderValueBreakdown.cs:13:54:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 13-13.
+- **Behavior**: Lambda selector expression (`item => item.ListUnitPrice.Piastres * item.Quantity`) aggregating the gross undiscounted list value across order items.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderValueBreakdown.cs:14:57:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 14-14.
+- **Behavior**: Lambda selector expression (`item => item.TotalPrice.Piastres`) extracting total charged piastres per order line item.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

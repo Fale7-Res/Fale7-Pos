@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ControlCenterViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [22-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ControlCenterViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 22-34.
+- **Behavior:** Initializes ControlCenterViewModel with injected AppSession, instantiates CashCountViewModel, and hooks CashCount.Saved to reload control center data.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OpenCashCountAsync()
 - **Lines:** [42-46]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OpenCashCountAsync() across lines 42-46.
+- **Behavior:** Opens the physical cash drawer counting dialog by delegating to CashCount.OpenAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnIsLoadingChanged(bool)
 - **Lines:** [60-60]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnIsLoadingChanged(bool) across lines 60-60.
+- **Behavior:** Partial property-changed callback for IsLoading; notifies UI of updates to HasNoControlData computed property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnLoadErrorChanged(string?)
 - **Lines:** [61-61]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnLoadErrorChanged(string?) across lines 61-61.
+- **Behavior:** Partial property-changed callback for LoadError; notifies UI of updates to HasNoControlData computed property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnBusinessDayChanged(Falah.Application.BusinessDay.BusinessDayDto?)
 - **Lines:** [70-75]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.OnBusinessDayChanged(Falah.Application.BusinessDay.BusinessDayDto?) across lines 70-75.
+- **Behavior:** Partial property-changed callback for BusinessDay; notifies UI of HasActiveDay, DayStatusLabel, CanCloseDay, and CanReopenDay changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadAsync()
 - **Lines:** [77-82]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.LoadAsync() across lines 77-82.
+- **Behavior:** Loads control center data if not already loaded and not loading, delegating to ReloadAsync().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ReloadAsync()
 - **Lines:** [84-145]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ReloadAsync() across lines 84-145.
+- **Behavior:** Queries API for business day status, close blockers, checklist items, and reconciliation checks via Api.GetBusinessDayStatusAsync and Api.GetCloseBlockersAsync, updating observable state.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ToggleChecklistItemAsync(Falah.Application.BusinessDay.ChecklistItemStatusDto)
 - **Lines:** [147-154]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ToggleChecklistItemAsync(Falah.Application.BusinessDay.ChecklistItemStatusDto) across lines 147-154.
+- **Behavior:** Toggles a checklist item completion status by submitting CompleteChecklistItemRequest via Api.CompleteChecklistItemAsync using RunOperationAsync.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.CompleteChecklistItemHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [18-22]
-- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.CompleteChecklistItemHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 18-22.
+- **Behavior:** Initializes CompleteChecklistItemHandler with injected FalahDbContext and IApprovalRegistry instances, storing them in private fields _db and _approvalRegistry.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.HandleAsync(Falah.Application.BusinessDay.CompleteChecklistItemRequest, CancellationToken)
 - **Lines:** [24-52]
-- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.CompleteChecklistItemHandler.HandleAsync(Falah.Application.BusinessDay.CompleteChecklistItemRequest, CancellationToken) across lines 24-52.
+- **Behavior:** Handles completing or un-completing a business day checklist item. Verifies actor user exists, verifies authorization under 'business_day_close' permission via AuthorizationPolicy.AuthorizeCommand, validates that both the checklist item and the business day exist in the database, and upserts a ChecklistCompletionEntity with the completion state, timestamp (UTC), and completing actor name before saving changes.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, InvalidOperationException, InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [26-26]
-- **Behavior:** Executes logic for lambda expression across lines 26-26.
+- **Behavior:** Predicate lambda finding the UserEntity matching request.ActorUserId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [30-30]
-- **Behavior:** Executes logic for lambda expression across lines 30-30.
+- **Behavior:** Predicate lambda finding the ChecklistItemEntity matching request.ItemId.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [32-32]
-- **Behavior:** Executes logic for lambda expression across lines 32-32.
+- **Behavior:** Predicate lambda finding the BusinessDayEntity matching request.BusinessDayId.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security and authorization audit of CompleteChecklistItemHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [36-36]
-- **Behavior:** Executes logic for lambda expression across lines 36-36.
+- **Behavior:** Predicate lambda locating an existing ChecklistCompletionEntity matching both day.Id and item.Id for upsert handling.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

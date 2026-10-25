@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.MenuViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [25-32]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.MenuViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 25-32.
+- **Behavior:** Initializes MenuViewModel with AppSession, instantiates MenuEditorViewModel, and hooks Editor.Closed event to automatically trigger LoadAsync() after menu edits.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.OpenEditorAsync()
 - **Lines:** [41-42]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.OpenEditorAsync() across lines 41-42.
+- **Behavior:** Opens the full menu authoring modal editor by invoking Editor.OpenAsync().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [51-51]
-- **Behavior:** Executes logic for lambda expression across lines 51-51.
+- **Behavior:** Event callback lambda () => _ = LoadAsync() wired to Editor.Closed to refresh menu and pricing data when the editor closes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.OnSearchQueryChanged(string)
 - **Lines:** [77-77]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.OnSearchQueryChanged(string) across lines 77-77.
+- **Behavior:** Partial property-changed callback for SearchQuery; invokes ApplyFilter() to update the visible product list.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.ApplyFilter()
 - **Lines:** [79-88]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.ApplyFilter() across lines 79-88.
+- **Behavior:** Filters _all product rows by product name, category name, or barcode. Clears and repopulates Products collection, notifying HasNoProducts.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -165,7 +165,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [84-85]
-- **Behavior:** Executes logic for lambda expression across lines 84-85.
+- **Behavior:** LINQ filter predicate checking if product name, category name, or barcode contains the trimmed search query.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -176,7 +176,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.LoadAsync()
 - **Lines:** [90-127]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.LoadAsync() across lines 90-127.
+- **Behavior:** Asynchronously queries API for menu structure, tax rules, and price rules via GetMenuAsync, GetTaxRulesAsync, and GetPriceRulesAsync. Populates cached product rows, TaxRules, PriceRules, and calls ApplyFilter().
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: true
 
@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.MenuViewModel.ToggleAvailabilityAsync(Falah.Client.CashierWinUI.ViewModels.MenuViewModel.MenuProductRow)
 - **Lines:** [129-150]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.MenuViewModel.ToggleAvailabilityAsync(Falah.Client.CashierWinUI.ViewModels.MenuViewModel.MenuProductRow) across lines 129-150.
+- **Behavior:** Toggles product availability in the kitchen. Enforces CanManageMenu authorization, calls Api.SetProductAvailabilityAsync with inverted availability flag, updates row state, and displays confirmation notice in ActionNote.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

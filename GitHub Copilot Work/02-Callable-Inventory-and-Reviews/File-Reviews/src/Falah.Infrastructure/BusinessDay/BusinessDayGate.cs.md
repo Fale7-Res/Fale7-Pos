@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)
 - **Lines:** [14-15]
-- **Behavior:** Executes logic for Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken) across lines 14-15.
+- **Behavior:** Ensures an active business day exists by calling `TryGetActiveAsync`; returns the active business day ID or throws a `DomainException` ("لا يوجد يوم عمل مفتوح - يجب فتح يوم العمل أولًا.") if none is open.
 - **Validations:** Validation checks detected: False. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken)
 - **Lines:** [23-29]
-- **Behavior:** Executes logic for Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(Falah.Infrastructure.Persistence.FalahDbContext, CancellationToken) across lines 23-29.
+- **Behavior:** Queries `_db.BusinessDays` without tracking for an active business day in `Open`, `Closing`, or `Reopened` status and returns its identifier, or `null` if no active day is present.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [26-26]
-- **Behavior:** Executes logic for lambda expression across lines 26-26.
+- **Behavior:** Predicate lambda expression filtering business days where status equals `Open`, `Closing`, or `Reopened`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

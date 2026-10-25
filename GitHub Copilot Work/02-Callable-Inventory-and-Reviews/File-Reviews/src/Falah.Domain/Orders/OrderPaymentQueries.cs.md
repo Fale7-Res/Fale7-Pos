@@ -4,7 +4,7 @@
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderPaymentQueries.cs:26:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.OrderPaymentQueries.PaymentMethodTotals(IEnumerable<Falah.Domain.Orders.Order>) across lines 26-54.
+- **Behavior**: Aggregates net collected revenue by payment method (Cash, Card, InstaPay, Wallet) from non-cancelled orders, accounting for immediate vs. confirmed electronic split legs and subtracting refunds from single-method paid orders.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
@@ -25,14 +25,14 @@
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderPaymentQueries.cs:58:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.OrderPaymentQueries.CashSalesFromOrders(IEnumerable<Falah.Domain.Orders.Order>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.OrderPaymentQueries.CashSalesFromOrders(IEnumerable<Falah.Domain.Orders.Order>) across lines 58-59.
+- **Behavior**: Retrieves net cash received into the till across non-cancelled orders by querying the `PaymentMethod.Cash` channel of `PaymentMethodTotals`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/OrderPaymentQueries.cs:71:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.OrderPaymentQueries.CashRefundsFromOrders(IEnumerable<Falah.Domain.Orders.Order>) across lines 71-81.
+- **Behavior**: Sums total cash refund amounts from paid non-cancelled single-method cash orders for reporting and drawer handover disclosure.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': False, 'affects_persistence': False}
 

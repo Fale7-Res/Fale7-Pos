@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Expenses.ExpenseQueryService.ExpenseQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [17-17]
-- **Behavior:** Executes logic for Falah.Infrastructure.Expenses.ExpenseQueryService.ExpenseQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 17-17.
+- **Behavior:** Initializes a new instance of ExpenseQueryService, injecting the EF Core database context FalahDbContext and storing it in the private readonly _db field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Expenses.ExpenseQueryService.GetVisibleExpensesAsync(string, string?, string?, CancellationToken)
 - **Lines:** [19-42]
-- **Behavior:** Executes logic for Falah.Infrastructure.Expenses.ExpenseQueryService.GetVisibleExpensesAsync(string, string?, string?, CancellationToken) across lines 19-42.
+- **Behavior:** Enforces role-based server-side visibility rules for expenses. Queries the actor user by actorUserId; if not found, throws InvalidOperationException. If actor role is 'cashier', validates shiftId is present (throwing DomainException if missing), retrieves shift entity, returning empty list if shift is missing or not Open, and filters expenses to those matching shiftId and PaidFromDrawer. For non-cashier roles (managers/admins), validates and parses businessDate (throwing DomainException if invalid), and queries expenses matching that BusinessDate. Results are ordered descending by CreatedAtUtc and mapped to ExpenseDto.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [22-22]
-- **Behavior:** Executes logic for lambda expression across lines 22-22.
+- **Behavior:** Predicate expression matching a UserEntity whose primary key Id equals the provided actorUserId string.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [29-29]
-- **Behavior:** Executes logic for lambda expression across lines 29-29.
+- **Behavior:** Predicate expression matching a ShiftEntity whose Id equals the specified shiftId string.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for lambda expression across lines 31-31.
+- **Behavior:** Predicate filter restricting ExpenseEntity records to those tied to the specified shiftId and flagged as PaidFromDrawer.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [37-37]
-- **Behavior:** Executes logic for lambda expression across lines 37-37.
+- **Behavior:** Predicate filter restricting ExpenseEntity records to those matching the parsed DateOnly businessDate.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -88,7 +88,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Expenses.ExpenseQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.ExpenseEntity)
 - **Lines:** [44-46]
-- **Behavior:** Executes logic for Falah.Infrastructure.Expenses.ExpenseQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.ExpenseEntity) across lines 44-46.
+- **Behavior:** Maps an ExpenseEntity database entity into an ExpenseDto data transfer object, projecting Id, Category, AmountPiastres, Description, ShiftId, PaidFromDrawer, PaymentAccountId, CreatedByUserId, formatted BusinessDate string ('yyyy-MM-dd'), and CreatedAtUtc.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

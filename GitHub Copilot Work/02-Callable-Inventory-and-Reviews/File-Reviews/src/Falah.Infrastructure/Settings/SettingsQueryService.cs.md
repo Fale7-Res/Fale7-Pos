@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.SettingsQueryService.SettingsQueryService(Falah.Infrastructure.Persistence.FalahDbContext)
 - **Lines:** [14-14]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.SettingsQueryService.SettingsQueryService(Falah.Infrastructure.Persistence.FalahDbContext) across lines 14-14.
+- **Behavior:** Initializes the settings query service with the scoped `FalahDbContext` instance for database reads.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.SettingsQueryService.GetAsync(CancellationToken)
 - **Lines:** [32-36]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.SettingsQueryService.GetAsync(CancellationToken) across lines 32-36.
+- **Behavior:** Queries the database for the singleton `SettingsEntity` without tracking; returns the static fallback `Defaults` if no configuration row exists yet, or maps the found entity to `SettingsDto`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [34-34]
-- **Behavior:** Executes logic for lambda expression across lines 34-34.
+- **Behavior:** Predicate lambda expression (`s => s.Id == SettingsEntity.SingletonId`) matching the singleton settings entity in `_db.Settings`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.SettingsQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.SettingsEntity)
 - **Lines:** [38-44]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.SettingsQueryService.ToDto(Falah.Infrastructure.Persistence.Entities.SettingsEntity) across lines 38-44.
+- **Behavior:** Projects a `SettingsEntity` to a `SettingsDto`, transferring store profile details, operating policies, financial thresholds, printer options, and default drawer amounts.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

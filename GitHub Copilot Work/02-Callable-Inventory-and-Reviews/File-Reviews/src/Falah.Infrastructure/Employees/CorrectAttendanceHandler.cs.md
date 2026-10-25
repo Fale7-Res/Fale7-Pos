@@ -4,42 +4,42 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:24:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CorrectAttendanceHandler.CorrectAttendanceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CorrectAttendanceHandler.CorrectAttendanceHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 24-28.
+- **Behavior**: Initializes CorrectAttendanceHandler, injecting FalahDbContext and IApprovalRegistry into private readonly fields _db and _approvalRegistry.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:30:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.CorrectAttendanceHandler.HandleAsync(Falah.Application.Employees.CorrectAttendanceRequest, CancellationToken) across lines 30-131.
+- **Behavior**: Corrects an existing attendance record and adjusts employee payroll ledger entries within a ReadCommitted database transaction. Validates reason presence and AttendanceStatus enum parsing. Acquires pessimistic locks (UPDLOCK, ROWLOCK, HOLDLOCK) on the attendance record; checks for previous audit replay via auditId; verifies actor user and manager approval under 'attendance_manage' permission. Updates attendance record fields (Status, LateMinutes, WorkHours, OvertimeHours, TatbiqCount, IsManualCorrection, CorrectedBy, CorrectionReason). If the employee has a daily wage, locks the employee's ledger rows, recalculates late penalties and overtime using PayrollRules, and posts delta ledger adjustments (crediting/debiting via EmployeeLedgerPoster) without altering past records. Finally records an audit event and commits the transaction.
 - **Validations**: Validation checks detected: True. Throws: DomainException, DomainException, InvalidOperationException, DomainException, InvalidOperationException, InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': True, 'affects_printing': True, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:45:81:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 45-45.
+- **Behavior**: Predicate lambda matching an AuditEventEntity by its deterministic audit identifier for idempotent correction replays.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:55:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 55-55.
+- **Behavior**: Predicate lambda querying UserEntity matching request.ActorUserId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:60:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 60-60.
+- **Behavior**: Predicate lambda querying UserEntity matching request.ManagerApproverUserId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs:68:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 68-68.
+- **Behavior**: Predicate lambda querying the EmployeeEntity matching record.EmployeeId.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

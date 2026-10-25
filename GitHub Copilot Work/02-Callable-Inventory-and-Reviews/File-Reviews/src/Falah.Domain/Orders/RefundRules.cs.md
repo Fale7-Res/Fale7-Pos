@@ -4,28 +4,28 @@
 ## Canonical Callable ID: src/Falah.Domain/Orders/RefundRules.cs:9:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.RefundRules.RefundableRemaining(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.RefundRules.RefundableRemaining(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 9-13.
+- **Behavior**: Calculates remaining refundable balance by subtracting already refunded amount from order total, flooring at zero.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/RefundRules.cs:15:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.RefundRules.ClampRefundAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.RefundRules.ClampRefundAmount(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 15-20.
+- **Behavior**: Restricts the requested refund amount to be non-negative and not exceed the remaining refundable balance on the order.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/RefundRules.cs:22:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.RefundRules.AssertOrderCanBeCancelled(Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.RefundRules.AssertOrderCanBeCancelled(Falah.Domain.Common.Money) across lines 22-26.
+- **Behavior**: Verifies that no refunds have previously been issued for the order before permitting cancellation, throwing a `DomainException` if a refund already exists.
 - **Validations**: Validation checks detected: True. Throws: DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Orders/RefundRules.cs:34:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Orders.RefundRules.ResolveOperationalShift(string, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Financial.PaymentMethod)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Orders.RefundRules.ResolveOperationalShift(string, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Financial.PaymentMethod) across lines 34-42.
+- **Behavior**: Resolves whether the refund targets the original shift or current active shift (if original is closed/immutable), requiring an active open shift when issuing cash refunds against a closed shift.
 - **Validations**: Validation checks detected: True. Throws: DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

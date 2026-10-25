@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.CartPanelView()
 - **Lines:** [14-26]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.CartPanelView() across lines 14-26.
+- **Behavior:** Initializes UserControl components via InitializeComponent(), hooks DataContextChanged to subscribe to cart updates and refresh visibility, and hooks SizeChanged to adjust responsive footer density.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [19-23]
-- **Behavior:** Executes logic for lambda expression across lines 19-23.
+- **Behavior:** DataContextChanged event callback lambda invoking Subscribe() and UpdateEmptyCartVisibility() when a new ViewModel is bound.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for lambda expression across lines 25-25.
+- **Behavior:** SizeChanged event callback lambda invoking ApplyFooterDensity(e.NewSize.Height) to adjust footer vertical layout dynamically.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.ApplyFooterDensity(double)
 - **Lines:** [28-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.ApplyFooterDensity(double) across lines 28-48.
+- **Behavior:** Dynamically tunes cart footer margins, row heights, and button paddings based on available panel height to prevent clipping on low-resolution displays.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.Subscribe()
 - **Lines:** [50-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.Subscribe() across lines 50-55.
+- **Behavior:** Unsubscribes from previous cart collection changes and registers OnCartChanged handler on current ViewModel.Cart collection.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.OnCartChanged(object?, System.Collections.Specialized.NotifyCollectionChangedEventArgs)
 - **Lines:** [57-57]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.OnCartChanged(object?, System.Collections.Specialized.NotifyCollectionChangedEventArgs) across lines 57-57.
+- **Behavior:** CollectionChanged event handler for the shopping cart; invokes UpdateEmptyCartVisibility() upon item addition, removal, or reset.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.UpdateEmptyCartVisibility()
 - **Lines:** [59-64]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.UpdateEmptyCartVisibility() across lines 59-64.
+- **Behavior:** Toggles EmptyCartPlaceholder and CartContent visual elements based on whether ViewModel.Cart has items.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CartPanelView.OnNoteChipClicked(object, Microsoft.UI.Xaml.RoutedEventArgs)
 - **Lines:** [68-72]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CartPanelView.OnNoteChipClicked(object, Microsoft.UI.Xaml.RoutedEventArgs) across lines 68-72.
+- **Behavior:** Click handler for preset item note chips. Retrieves note text from button content/tag and appends it to the selected cart item note.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

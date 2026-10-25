@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPickupDateChanged(DateTimeOffset?)
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPickupDateChanged(DateTimeOffset?) across lines 27-27.
+- **Behavior:** Partial property-changed callback for PickupDate; notifies UI of updates to PickupSummary property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPickupTimeChanged(TimeSpan?)
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OnPickupTimeChanged(TimeSpan?) across lines 28-28.
+- **Behavior:** Partial property-changed callback for PickupTime; notifies UI of updates to PickupSummary property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RequestedPickupAtUtc.get
 - **Lines:** [37-42]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.RequestedPickupAtUtc.get across lines 37-42.
+- **Behavior:** Combines PickupDate and PickupTime into a single UTC DateTimeOffset, interpreting input as Cairo local time and converting to UTC. Returns null if either component is missing.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClearRequestedPickupTime()
 - **Lines:** [45-49]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClearRequestedPickupTime() across lines 45-49.
+- **Behavior:** Resets both PickupDate and PickupTime to null, clearing any scheduled collection time.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.PickupSummary.get
 - **Lines:** [53-60]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.PickupSummary.get across lines 53-60.
+- **Behavior:** Generates human-readable customer pickup summary text displaying customer name, phone, and optional formatted Cairo pickup time.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenPickupEditor()
 - **Lines:** [63-69]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenPickupEditor() across lines 63-69.
+- **Behavior:** Opens pickup details dialog when CanEditOperation is true, clearing PickupError and setting IsPickupEditorOpen = true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClosePickupEditor()
 - **Lines:** [71-72]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.ClosePickupEditor() across lines 71-72.
+- **Behavior:** Closes the pickup editor dialog by setting IsPickupEditorOpen = false.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SavePickupDetails()
 - **Lines:** [76-106]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SavePickupDetails() across lines 76-106.
+- **Behavior:** Validates pickup customer details via DeliveryRules.FirstMissingPickupField, asserts both date and time are provided or omitted together, validates pickup time via CheckoutRules.AssertRequestedPickupTime, trims contact details, and closes editor.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

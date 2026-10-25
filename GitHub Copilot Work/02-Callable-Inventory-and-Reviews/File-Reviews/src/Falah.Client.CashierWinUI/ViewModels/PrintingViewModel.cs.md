@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.PrintingViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.PrintingViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 25-25.
+- **Behavior:** Initializes a new PrintingViewModel instance, binding the injected AppSession to the private readonly _session field.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.StateLine.get
 - **Lines:** [41-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.StateLine.get across lines 41-48.
+- **Behavior:** Computes an Arabic summary string of the printer route's status. Assembles count strings for pending ('X في الانتظار'), failed ('X فشل'), and stuck ('X متوقف') tickets separated by middle dots, or returns 'لا يوجد شيء في الطابور' if the queue is clear.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Describe(TimeSpan)
 - **Lines:** [60-64]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.RouteQueue.Describe(TimeSpan) across lines 60-64.
+- **Behavior:** Formats an elapsed TimeSpan into an Arabic human-readable string (e.g., 'X دقيقة' if under 60 minutes, or 'X ساعة وY دقيقة' for longer durations).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -143,7 +143,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.OnSelectedRouteChanged(string)
 - **Lines:** [138-138]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.OnSelectedRouteChanged(string) across lines 138-138.
+- **Behavior:** Property change callback invoked when SelectedRoute changes; initiates an asynchronous reload of pending jobs for the new route via LoadAsync().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -154,7 +154,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadAsync()
 - **Lines:** [140-179]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadAsync() across lines 140-179.
+- **Behavior:** Asynchronously loads the printer overview and route queue details. If already executing, flags _reloadRequested and exits. Otherwise fetches overview data via Api.GetPrintingOverviewAsync(), updates Queues collection with status for each defined physical printer route ('Receipt', 'CallCenter', 'Charcoal', 'Grill'), populates NeedsAttention list with problematic jobs, and invokes LoadJobsAsync() to fetch jobs for the currently selected route. Ensures flags and headline notification properties are updated in finally, re-executing if another reload was requested.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -176,7 +176,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadJobsAsync()
 - **Lines:** [181-194]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.LoadJobsAsync() across lines 181-194.
+- **Behavior:** Queries pending print jobs for the currently active SelectedRoute using Api.GetPendingPrintJobsAsync. Checks if SelectedRoute remained unchanged upon return; if so, populates RouteJobs collection with wrapped JobRow items and notifies HasNoPending. If an error occurs, populates LoadError.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.SelectRoute(string)
 - **Lines:** [196-197]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.PrintingViewModel.SelectRoute(string) across lines 196-197.
+- **Behavior:** RelayCommand updating the SelectedRoute property, which automatically initiates loading the queue for the specified printer route.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

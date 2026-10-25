@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryTrip.Create(string, string, IReadOnlyList<string>, string, DateTimeOffset)
 - **Lines:** [12-19]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryTrip.Create(string, string, IReadOnlyList<string>, string, DateTimeOffset) across lines 12-19.
+- **Behavior:** Factory method that validates driver assignment and order uniqueness before creating a `DeliveryTrip` record. Throws a `DomainException` if the driver ID is missing, order list is empty, or duplicate order IDs are present.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DriverCustody.ReassignTo(string)
 - **Lines:** [28-29]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DriverCustody.ReassignTo(string) across lines 28-29.
+- **Behavior:** Reassigns the cash custody record to a new driver identifier, returning a new copy with the updated `DriverId` unless the custody status is already `Settled`, in which case it returns unmodified.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

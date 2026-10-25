@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Del
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Delivery.DeliveryTransitions.AssertTransition(Falah.Domain.Delivery.DeliveryStatus, Falah.Domain.Delivery.DeliveryStatus)
 - **Lines:** [28-32]
-- **Behavior:** Executes logic for Falah.Domain.Delivery.DeliveryTransitions.AssertTransition(Falah.Domain.Delivery.DeliveryStatus, Falah.Domain.Delivery.DeliveryStatus) across lines 28-32.
+- **Behavior:** Enforces the delivery lifecycle state machine by checking if transitioning from status `from` to `to` is registered in the `Allowed` dictionary, throwing a `DomainException` if the transition is invalid.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

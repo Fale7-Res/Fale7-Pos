@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.ErrorStateView()
 - **Lines:** [17-21]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.ErrorStateView() across lines 17-21.
+- **Behavior:** Initializes ErrorStateView UserControl via InitializeComponent() and synchronizes MessageBlock.Text with initial Message property value.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.Message.get
 - **Lines:** [25-25]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.Message.get across lines 25-25.
+- **Behavior:** Getter for Message dependency property returning error description text.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.Message.set
 - **Lines:** [26-26]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.Message.set across lines 26-26.
+- **Behavior:** Setter for Message dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.RetryCommandVisible.get
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.RetryCommandVisible.get across lines 31-31.
+- **Behavior:** Getter for RetryCommandVisible dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.RetryCommandVisible.set
 - **Lines:** [32-32]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.RetryCommandVisible.set across lines 32-32.
+- **Behavior:** Setter for RetryCommandVisible dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [35-36]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 35-36.
+- **Behavior:** Property-changed handler for MessageProperty; updates MessageBlock.Text with the new string value.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnRetryVisibleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [38-39]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnRetryVisibleChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 38-39.
+- **Behavior:** Property-changed handler for RetryCommandVisibleProperty; toggles RetryButton visibility between Visible and Collapsed.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnRetryClick(object, Microsoft.UI.Xaml.RoutedEventArgs)
 - **Lines:** [41-41]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.ErrorStateView.OnRetryClick(object, Microsoft.UI.Xaml.RoutedEventArgs) across lines 41-41.
+- **Behavior:** Click handler for retry button; raises RetryRequested event to notify parent view to re-execute failed operation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

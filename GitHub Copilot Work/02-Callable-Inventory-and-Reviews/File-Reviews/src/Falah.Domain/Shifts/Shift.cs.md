@@ -253,7 +253,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.Shift(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset)
 - **Lines:** [36-46]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.Shift(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset) across lines 36-46.
+- **Behavior:** Private domain aggregate constructor for opening a new shift. Enforces invariant that opening cash cannot be negative (throwing DomainException), sets Id, ShiftName, OpenedByUserId, OpeningCash, BusinessDate, and OpenedAtUtc, and sets Status = ShiftStatus.Open.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -264,7 +264,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.Open(string, string, string, Falah.Domain.Common.Money, DateTimeOffset)
 - **Lines:** [48-49]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.Open(string, string, string, Falah.Domain.Common.Money, DateTimeOffset) across lines 48-49.
+- **Behavior:** Domain factory method creating a new Open shift instance, computing the business date using BusinessClock.BusinessDate(nowUtc).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -275,7 +275,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.Shift(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, string?, string?, DateTimeOffset?)
 - **Lines:** [54-72]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.Shift(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, string?, string?, DateTimeOffset?) across lines 54-72.
+- **Behavior:** Private reconstitution constructor rehydrating an existing Shift aggregate from persistence with all historical financial and audit fields intact without re-validating opening invariants.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -286,7 +286,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.Reconstitute(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, string?, string?, DateTimeOffset?)
 - **Lines:** [74-79]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.Reconstitute(string, string, string, Falah.Domain.Common.Money, DateOnly, DateTimeOffset, Falah.Domain.Shifts.ShiftStatus, string?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, Falah.Domain.Common.Money?, string?, string?, DateTimeOffset?) across lines 74-79.
+- **Behavior:** Domain factory method rehydrating an existing Shift instance from persisted storage, preserving status, actual/expected cash, discrepancy amounts, manager approvals, and timestamps.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -297,7 +297,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.PrepareBlindClose(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Lines:** [91-99]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.PrepareBlindClose(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 91-99.
+- **Behavior:** Prepares a blind shift close evaluation without mutating aggregate state. Validates the shift is currently Open (throwing DomainException if closed) and actualCashCounted is not negative. Calculates cash difference (actual - expected), evaluates whether discrepancy exceeds threshold via FinancialRules.DiscrepancyNeedsApproval, and returns a BlindCloseResult struct.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -308,7 +308,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Shifts.Shift.Close(string, Falah.Domain.Shifts.Shift.BlindCloseResult, string?, string?, DateTimeOffset)
 - **Lines:** [103-117]
-- **Behavior:** Executes logic for Falah.Domain.Shifts.Shift.Close(string, Falah.Domain.Shifts.Shift.BlindCloseResult, string?, string?, DateTimeOffset) across lines 103-117.
+- **Behavior:** Commits closing of the shift aggregate. Validates shift is Open. If result.RequiresManagerApproval is true, requires non-empty manager authorization name and explanation reason (throwing DomainException if missing). Records ClosedByUserId, ActualCash, ExpectedCash, CashDifference, DifferenceReason, DifferenceAuthorizedBy, sets Status = ShiftStatus.Closed, and records ClosedAtUtc.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
