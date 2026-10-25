@@ -4,28 +4,28 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/ProfitabilityRules.cs:35:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.ProfitabilityRules.ComputeGrossProfit(Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int) across lines 35-60.
+- **Behavior**: Computes gross profit and cost percentages against net sales, withholding profit figures when sold lines have zero recorded cost data to avoid false margin calculations.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/ProfitabilityRules.cs:84:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.ProfitabilityRules.ComputeOperatingMargin(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int, int)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.ProfitabilityRules.ComputeOperatingMargin(Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, Falah.Domain.Common.Money, int, int, int) across lines 84-106.
+- **Behavior**: Computes operating margin and expense/wage percentages by deducting food cost, expenses, and wages from net sales, marking the result incomplete if cost data is missing.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/ProfitabilityRules.cs:90:9:LocalFunctionStatement
 - **Symbol**: Percent(Falah.Domain.Common.Money)
 - **Kind**: LocalFunctionStatement
-- **Behavior**: Executes logic for Percent(Falah.Domain.Common.Money) across lines 90-92.
+- **Behavior**: Local helper computing the percentage of a monetary figure relative to positive net sales, returning null if sales are zero or negative.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/ProfitabilityRules.cs:94:9:LocalFunctionStatement
 - **Symbol**: WagePercent()
 - **Kind**: LocalFunctionStatement
-- **Behavior**: Executes logic for WagePercent() across lines 94-94.
+- **Behavior**: Local helper returning the wage percentage of sales, returning null when no wage entries were posted to distinguish unrecorded labor from zero-cost labor.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

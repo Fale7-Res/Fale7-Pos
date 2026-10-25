@@ -11,21 +11,21 @@
 ## Canonical Callable ID: src/Falah.Domain/Purchasing/PayablesAging.cs:33:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Purchasing.PayablesAging.DaysOverdue(DateOnly?, DateOnly)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Purchasing.PayablesAging.DaysOverdue(DateOnly?, DateOnly) across lines 33-38.
+- **Behavior**: Computes the number of days an invoice is past due relative to the reference date, returning null if no due date was assigned or zero if not yet overdue.
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Purchasing/PayablesAging.cs:40:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Purchasing.PayablesAging.Classify(DateOnly?, DateOnly)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Purchasing.PayablesAging.Classify(DateOnly?, DateOnly) across lines 40-48.
+- **Behavior**: Categorizes an invoice into an overdue aging bucket (NoDueDate, NotYetDue, Days1To30, Days31To60, Days61To90, or Over90) based on overdue days.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Purchasing/PayablesAging.cs:52:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Purchasing.PayablesAging.AgeInDays(DateOnly, DateOnly)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Purchasing.PayablesAging.AgeInDays(DateOnly, DateOnly) across lines 52-53.
+- **Behavior**: Computes total calendar days elapsed since an invoice was received on the books, floored at zero.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

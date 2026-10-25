@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierView.CashierView()
 - **Lines:** [16-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierView.CashierView() across lines 16-19.
+- **Behavior:** Constructor initializing CashierView XAML components via InitializeComponent().
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierView.OnSearchAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs)
 - **Lines:** [30-35]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierView.OnSearchAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs) across lines 30-35.
+- **Behavior:** Handles search keyboard accelerator keypress; marks args.Handled = true, checks IsWorkspaceInteractive guard, and focuses the search input on CategoryStrip.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierView.OnOperationsAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs)
 - **Lines:** [37-42]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierView.OnOperationsAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs) across lines 37-42.
+- **Behavior:** Handles cashier operations menu keyboard shortcut; marks args.Handled = true, checks IsWorkspaceInteractive guard, and opens the flyout attached to CashierOperationsButton.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierView.OnCheckoutAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs)
 - **Lines:** [44-52]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierView.OnCheckoutAccelerator(Microsoft.UI.Xaml.Input.KeyboardAccelerator, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs) across lines 44-52.
+- **Behavior:** Handles checkout keyboard shortcut; marks args.Handled = true, verifies IsWorkspaceInteractive, and invokes OpenCheckoutCommand on the ViewModel if CanOpenCheckout is true.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierView.OnWorkspaceSizeChanged(object, Microsoft.UI.Xaml.SizeChangedEventArgs)
 - **Lines:** [54-71]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierView.OnWorkspaceSizeChanged(object, Microsoft.UI.Xaml.SizeChangedEventArgs) across lines 54-71.
+- **Behavior:** SizeChanged event handler responding to workspace layout changes. Dispatches a layout task via DispatcherQueue.TryEnqueue to dynamically adjust the cart column width (CartColumn.Width) to 30% of workspace width clamped between 350px and 420px, deferring assignment until the active layout pass completes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [66-70]
-- **Behavior:** Executes logic for lambda expression across lines 66-70.
+- **Behavior:** Dispatcher callback lambda calculating the clamped cart column width (Math.Clamp(width * CartWidthRatio, CartMinWidth, CartMaxWidth)) and updating CartColumn.Width with a new GridLength.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -4,21 +4,21 @@
 ## Canonical Callable ID: src/Falah.Domain/Reports/TrendRules.cs:24:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.TrendRules.ComparablePeriod(Falah.Domain.Common.BusinessDateRange)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.TrendRules.ComparablePeriod(Falah.Domain.Common.BusinessDateRange) across lines 24-25.
+- **Behavior**: Generates a matching comparison date range by shifting the current date span back exactly seven days to align days of the week.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/TrendRules.cs:31:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.TrendRules.Compare(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.TrendRules.Compare(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 31-38.
+- **Behavior**: Compares current and previous monetary values, computing delta piastres and percentage variance rounded to one decimal place (returning null percent when prior value is zero).
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Domain/Reports/TrendRules.cs:40:5:MethodDeclaration
 - **Symbol**: Falah.Domain.Reports.TrendRules.Compare(long, long)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Domain.Reports.TrendRules.Compare(long, long) across lines 40-41.
+- **Behavior**: Converts raw piastre integers to `Money` value objects and delegates to `Compare(Money, Money)` to determine change and growth percentage.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
