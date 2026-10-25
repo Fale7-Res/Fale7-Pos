@@ -590,5 +590,47 @@ gantt
 - **WinUI Cashier:** Full client (~60 endpoints across 3 partials), bifurcated `ReadAsync`/`SendAsync`/`SendEmptyAsync`, bearer token auth, in-memory pending checkout retention (`UI-001`).
 - **WinUI Call Center:** 27 endpoints (14 dead), unified `SendAsync` causing `SEM-MIRROR-072`, bearer token auth sharing `SEC-008`, disk-backed pending checkout retention (`RetainedRequestStorage`).
 
+---
+
+### 8.6 Wave 7: Inventory & Operational Parity Deep Audit (150 Callables)
+
+#### 1. Scope and Targets Audited
+- `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs` (150 callables: 1 constructor, 30 methods, 119 lambdas)
+- Review File: `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs.md`
+- Target Symbols: All 150 canonical symbols from `Codex Work/Knowledge/Source-Symbols/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs.json`.
+
+#### 2. Deep Inventory Forensics and Findings
+
+##### A. Resilient Stock Balance Calculation vs `FIN-013` Sign Inversion Bug
+- **Resilient Calculation in `InventoryQueryService`:**
+  - `ListInventoryItemsAsync`: `g.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits)`
+  - `GetStockBalanceAsync`: Calls `InventoryRules.StockBalanceMilliUnits` (`m.Direction == StockDirection.In ? m.QuantityMilliUnits : -m.QuantityMilliUnits`)
+  - `GetInventoryOverviewAsync`: `itemMovements.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits)`
+- **Contrasting Defect in `OwnerDashboardQueryService.cs` (`FIN-013`):**
+  - `OwnerDashboardQueryService.LoadStockAsync` aggregates:
+    `g.Sum(m => m.QuantityMilliUnits)` (ignoring `Direction`).
+  - Outgoing consumption/waste is added instead of subtracted, inflating stock balances (e.g. 1000 purchased - 800 used = 200 actual vs 1800 dashboard) and suppressing low-stock replenishment warnings. `InventoryQueryService` is verified correct and resilient.
+
+##### B. Unbounded In-Memory Aggregations (`INV-OPT-001`)
+- In `ListInventoryItemsAsync` (lines 23-26), the query executes:
+  `await _db.StockMovements.AsNoTracking().Select(m => new { m.InventoryItemId, m.Direction, m.QuantityMilliUnits }).ToListAsync(ct)`
+- Pulls the entire `StockMovements` table into memory to group by `InventoryItemId` in LINQ-to-Objects. As movements scale to hundreds of thousands of rows, this presents severe memory pressure and latency bottlenecks.
+
+##### C. Item Detail Range Filter Omission (`INV-DAT-001`)
+- In `GetInventoryItemDetailAsync(string inventoryItemId, DateTimeOffset? from, DateTimeOffset? to, int movementLimit = 60, ...)`:
+  - `from` and `to` are passed to `ActualMovementTotals` and `GetVarianceAsync`.
+  - However, when fetching the movement rows table, it calls `ListStockMovementRowsAsync(inventoryItemId, movementLimit, ct)` omitting `from` and `to`.
+  - The UI presents summary movement totals scoped to the requested date window, but displays movement rows from the latest 60 movements overall.
+
+##### D. Recipe Selling Price Provenance Drift (`INV-PAR-001`)
+- `ResolveSellingPriceAsync` looks up `Product.RecipeId == recipeId` via the foreign key on `Product`.
+- `ListRecipeCostSummariesAsync` looks up `recipe.ProductId` on `RecipeEntity`.
+- Asymmetrical linkages in database result in different selling prices and profit margins between the single-recipe detail screen and the bulk recipe list screen.
+
+##### E. Uncosted Waste Coercion (`INV-FIN-001`)
+- `GetLossSummaryAsync` coerces null `LossValuePiastres` to 0 (`m.LossValuePiastres ?? 0`).
+- Uncosted waste contributes 0 EGP to total loss without returning an `UnknownLossCount` indicator, understating financial spoilage figures.
+
+
 
 

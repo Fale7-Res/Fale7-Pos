@@ -183,11 +183,35 @@
       "callable_count": 212,
       "verdict": "DOUBLE_QA_VERIFIED",
       "challenge_summary": "Double QA challenge verified integer piastre architecture across 45 tables, FIN-009 missing filtered unique index on BusinessDayEntity Status='Open', PRT-001 missing composite unique constraint on PrintJobEntity(OrderId, Route), concurrency token disparity on PurchaseEntity/PayrollRunEntity, and soft-delete global query filter omissions."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs.md": {
+      "timestamp_utc": "2026-10-25T05:10:53Z",
+      "source_path": "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
+      "source_sha256": "3ff16ec5eb50957c11ad1ba39ed5e45cd8f29b972674d49b4e3448e0e3aee6de",
+      "callable_count": 150,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified INV-PERF-001 (in-memory grouping), INV-DAT-001 (date filter omission), FIN-013 comparison (correct signed summation), and INV-FIN-001 (null loss coercion)."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.md": {
+      "timestamp_utc": "2026-10-25T05:10:53Z",
+      "source_path": "src/Falah.Infrastructure/Reports/ReportingQueryService.cs",
+      "source_sha256": "452d58690fb3e6e06613cdd5892969c1afd137b7be0ed9cb3758b1e210c99509",
+      "callable_count": 202,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified strict integer piastres across 25 queries, delivery cash segregation, preserved tax snapshot immutability, and shift drawer shortage/overage reconciliation."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Server/Program.cs.md": {
+      "timestamp_utc": "2026-10-25T05:10:53Z",
+      "source_path": "src/Falah.Server/Program.cs",
+      "source_sha256": "5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6",
+      "callable_count": 241,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified SEC-001 casing mismatch bypass, Minimal API body actor deserialization without context.ActorId(), 67+ unpermissioned GET endpoints, and manager approval TTL omission."
     }
   },
   "summary": {
-    "total_accepted": 23,
+    "total_accepted": 26,
     "total_rejected": 0,
-    "total_callables_verified": 432
+    "total_callables_verified": 1025
   }
 }

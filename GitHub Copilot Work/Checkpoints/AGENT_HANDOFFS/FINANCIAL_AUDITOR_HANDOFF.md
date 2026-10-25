@@ -532,10 +532,24 @@ Output review generated: [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews
 
 ---
 
+### 7.3 Specialist Wave 7: Analytical Reporting & Financial Statement Integrity (`ReportingQueryService.cs`)
+Wave 7 conducted an exhaustive, per-callable financial and reporting integrity audit of [`src/Falah.Infrastructure/Reports/ReportingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/ReportingQueryService.cs) (202 callables: 1 Constructor, 25 Methods, 174 query/aggregation lambdas across 26 method blocks).
+Output review generated: [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Reports/ReportingQueryService.cs.md) (4,158 lines).
+
+#### Core Reporting Findings Confirmed in Wave 7:
+1. **Daily Statement & Revenue Hierarchy Calculations:** Verified that `GetSalesReportAsync` correctly breaks down revenue into `ListSales`, `OffersValue`, `CompsValue`, `ManualDiscounts`, `GrossSales`, `NetSales`, and `CollectedSales`. Dates are mapped to Cairo midnight boundaries via `BusinessDateRange.ToUtcRange()`. Empty shift strings (`&shiftId=`) are safely guarded with `!string.IsNullOrEmpty(shiftId)`.
+2. **Delivery Driver Cash Segregation (`LoadOrderIdsWithCashOutsideRestaurantAsync`):** Cash-on-delivery orders without settled custody are excluded from `CollectedSales` (`CashWithDrivers`), ensuring that money currently in transit with drivers is never reported as cash held by the restaurant till. Driver cash settlements post directly to `tre-main` (not `tre-drawer`).
+3. **Historical Tax Immutability (`GetTaxReportAsync`):** Taxes aggregate exclusively from frozen order snapshots (`TaxAmountPiastres`, `TaxableBasePiastres`), preventing future tax policy mutations from altering historical accounting statements.
+4. **Non-Offsetting Cash Drawer Discrepancies (`GetBusinessDayReconciliationAsync`):** Cashier shortages and overages are summed independently across shifts (`shortage` = sum of negative variances, `overage` = sum of positive variances). An overage on Shift 1 never offsets or conceals a shortage on Shift 2.
+5. **Defect `FIN-010` Confirmed (Split Payment Whole-Order Pending Deduction):** In split payment orders with unconfirmed electronic tender, the pending deduction subtracts `o.Total.Piastres` (the entire order amount), incorrectly deducting the cash split portion already physically collected in the drawer until electronic confirmation.
+6. **Defect `FIN-004` Confirmed (Accrual vs Cash-Basis Refund Timing Divergence):** `GetSalesReportAsync` attributes refunds to the original order's sale date, while `GetRefundActivityAsync` and shift drawer reconciliations attribute refunds to the operational shift that physically disbursed the cash payout.
+
+---
+
 ## 8. Verification Status & Final Handoff Sign-off
 
-- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & WAVES 1-6 FULLY AUDITED & DOCUMENTED**
-- **Total Callables Audited Across Waves 1–6:** **439 Callables** across **22 Critical Files**
+- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & WAVES 1-7 FULLY AUDITED & DOCUMENTED**
+- **Total Callables Audited Across Waves 1–7:** **641 Callables** across **23 Critical Files**
 - **Code Modifications:** **0 files modified in `src/` or `tests/` (100% clean audit compliance)**
 - **Next Phase:** Implementation of architectural remediations by authorized implementation agents in an isolated branch with dedicated disposable SQL Server container verification.
 

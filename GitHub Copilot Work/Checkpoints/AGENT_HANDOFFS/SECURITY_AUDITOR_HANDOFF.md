@@ -505,6 +505,7 @@ To address these vulnerabilities without breaking the contract of existing deskt
 - **Wave 4:** `UsersViewModel.cs` (29 callables), `UsersViewModel.Actions.cs` (20 callables), `SessionToken.cs` (3 callables), `PermissionCatalog.cs` (1 callable). Identified SEC-008.
 - **Wave 5:** Canonical symbol alignment and deep review for `AuthenticationMiddleware.cs` (6 callables), `SessionService.cs` (7 callables), `IssueManagerApprovalHandler.cs` (4 callables), `ChangePinHandler.cs` (4 callables), `CreateUserHandler.cs` (7 callables), `UpdateUserPermissionsHandler.cs` (7 callables), `UserManagementRules.cs` (7 callables).
 - **Wave 6:** `UserManagementQueryService.cs` (6 callables), `PinUniquenessChecker.cs` (4 callables), `SetUserActiveHandler.cs` (7 callables), `EfApprovalRegistry.cs` (11 callables) — Total: 28 callables completed with exact canonical symbols and SHA-256 baseline tracking. Identified SEC-009 through SEC-012.
+- **Wave 7:** `src/Falah.Server/Program.cs` (241 callables, 188 Minimal API endpoints). Exhaustive source audit of server routing, Minimal API dispatch, identity binding disconnects (`SEC-001`), unpermissioned sensitive reads (`SEC-003`, `SEC-005`), shift close spoofing (`SEC-004`), rate limiting (`AddRateLimiter` login policy), and exception handling envelopes (`app.UseExceptionHandler`). Identified `SEC-013` (Wildcard CORS).
 
 ---
 *Report filed by Security and Authorization Auditor.*

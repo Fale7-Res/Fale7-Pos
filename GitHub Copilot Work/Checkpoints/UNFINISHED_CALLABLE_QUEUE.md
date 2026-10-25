@@ -1,8 +1,8 @@
 # Fale7 POS — Unfinished Callable Review Queue
 
-- **Timestamp (UTC):** `2026-10-25T02:04:07Z`
+- **Timestamp (UTC):** `2026-10-25T05:10:59Z`
 - **Total Indexed Callables:** `11,653`
-- **Pending Substantive Review:** `5,521`
+- **Pending Substantive Review:** `5,034`
 - **Governance Gate:** `STRICT_CALLABLE_ACCEPTANCE — INDEPENDENT_CHALLENGER_REQUIRED`
 
 ---
@@ -11,11 +11,11 @@
 
 | Classification Status | Callable Count | Percentage | Acceptance Standard & Evidence Requirement |
 | :--- | :---: | :---: | :--- |
-| `PRIOR_REASONING_UNVERIFIED` | **5,521** | **47.38%** | Production callables awaiting authentic, per-callable specialist review. |
+| `PRIOR_REASONING_UNVERIFIED` | **5,034** | **43.20%** | Production callables awaiting authentic, per-callable specialist review. |
 | `GENERATED_OR_TRIVIAL_JUSTIFIED` | **2,879** | **24.71%** | Auto-properties, simple DTO records, generated XAML components with individually defensible justifications. |
 | `INDEXED` | **2,145** | **18.41%** | Unit, integration, stress tests, benchmark utilities, and tools (out of production audit scope). |
 | `SUBSTANTIVE_SOURCE_REVIEWED` | **783** | **6.72%** | Genuine per-callable source reviews substantiated by exact canonical ID, SHA-256 hash, and line citation in Markdown. |
-| `INDEPENDENTLY_VERIFIED` | **325** | **2.79%** | Callables with documented independent challenge artifacts by a separate reviewer challenging the code implementation. |
+| `INDEPENDENTLY_VERIFIED` | **812** | **6.97%** | Callables with documented independent challenge artifacts by a separate reviewer challenging the code implementation. |
 | **Total** | **11,653** | **100.00%** | **Complete project scope verified.** |
 
 ---
@@ -23,12 +23,12 @@
 ## 2. Acceptance Gate Quality Metrics
 
 - **Accepted Substantive Source Reviews:** **783**
-- **Accepted Independently Verified Reviews:** **325**
+- **Accepted Independently Verified Reviews:** **812**
 - **Downgraded Unsupported Regex Promotions (to Substantive):** **0**
 - **Downgraded Unsubstantiated Callables (to Unverified):** **0**
 - **Preserved Structural/Trivial Justifications:** **2,879**
 - **Preserved Indexed Tests/Tools:** **2,145**
-- **Total Remaining Pending Callables:** **5,521**
+- **Total Remaining Pending Callables:** **5,034**
 
 ---
 
@@ -41,4 +41,4 @@
 | **Mirrored Code Specialist** | `167` | `CashierViewModel.Refund.cs` (WPF vs WinUI refund parity) |
 | **Printing Specialist** | `109` | `BitmapTicketRenderer.cs` (rasterization), `TicketLayout.cs` |
 | **UI Specialist** | `1,186` | `TreasuryViewModel.cs`, `PurchasingViewModel.cs` |
-| **Architecture Coordinator** | `3,712` | Queue governance, registry synchronization |
+| **Architecture Coordinator** | `3,225` | Queue governance, registry synchronization |
