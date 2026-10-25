@@ -4,143 +4,131 @@
 - **Component:** `Falah.Infrastructure.Users.UserManagementQueryService`
 - **Assembly:** `Falah.Infrastructure`
 - **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **File SHA-256:** `703985d05102060061f17385f5dc50c04ebf6e97d6c5eef8668d32fd647691e8`
 - **Auditor:** Security and Authorization Auditor
+- **Total Callables:** 6
 - **Status:** **SUBSTANTIVE_SOURCE_REVIEWED**
 
 ---
 
-## 1. Architectural Role & Responsibilities
+## 1. Architectural & Domain Responsibility Overview
 
-`UserManagementQueryService` provides read-only administrative projections of user accounts and permissions in Fale7 POS. Its architectural characteristics include:
-- **Administrative Transparency:** Unlike `GET /api/users` (which returns only active users for operational till and lock-screen pickers), `UserManagementQueryService` projects both active and inactive accounts so that administrators can audit, inspect, and reactivate accounts ([UserManagementQueryService.cs#L8-L10](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L8-L10)).
-- **Credential Hygiene:** Strictly strips credential secrets (`PinHash`, `PinSalt`, `PinIterations`) from projected DTOs, ensuring that password/PIN hashes are never serialized over the wire ([UserManagementQueryService.cs#L27-L29](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L27-L29)).
-- **Permission Normalization:** Parses comma-separated permission strings into distinct, whitespace-trimmed collections (`IReadOnlyList<string>`).
-- **Permission Catalog Authority:** Exposes the authoritative catalog of domain permission keys and localized labels via `PermissionCatalog.All`.
+`UserManagementQueryService` provides read-only projections of staff user accounts for administrative user management screens in Fale7 POS. Unlike the public till operator picker (`GET /api/users`), which filters strictly to active accounts (`u.Active == true`), this service retrieves both active and inactive accounts to enable administrative account reactivation and permission auditing.
+
+### Key Security & Data Exposure Invariants:
+1. **Credential Hygiene (No Hash Leakage):** The private mapper `ToDto` strictly omits `PinHash`, `PinSalt`, and `PinIterations` from `UserDetailsDto`. Credential stretching artifacts are never serialized over the API.
+2. **Access Control Gating:** In `Program.cs` lines 1885–1894, endpoints calling `ListAllAsync` and `GetAsync` (`GET /api/users/all` and `GET /api/users/{id}`) are guarded by `RequireUsersManageAsync(db, actorUserId, ct)`, ensuring only holders of `users_manage` or `"all"` can enumerate user profiles.
+3. **Internal vs Public Visibility:** Serves as the authoritative source for the administrative management UI (`UsersViewModel`), while public till pickers consume `UserSummaryDto`.
 
 ---
 
 ## 2. Comprehensive Callable Inventory
 
-| Callable ID | Name | Signature | Line Span | Classification |
-| :--- | :--- | :--- | :--- | :--- |
-| `CAL-UMQ-001` | Constructor | `public UserManagementQueryService(FalahDbContext db)` | 14 | Substantive (DI Hook) |
-| `CAL-UMQ-002` | `ListAllAsync` | `public async Task<List<UserDetailsDto>> ListAllAsync(CancellationToken ct = default)` | 16-17 | Substantive (Data Projection) |
-| `CAL-UMQ-003` | `ListAllAsync::<method_group>ToDto` | `ToDto` | 17 | Trivial / Method Group Projection |
-| `CAL-UMQ-004` | `GetAsync` | `public async Task<UserDetailsDto?> GetAsync(string id, CancellationToken ct = default)` | 19-23 | Substantive (Data Retrieval) |
-| `CAL-UMQ-005` | `GetAsync::<lambda_user_lookup>` | `u => u.Id == id` | 21 | Generated / Linq Expression |
-| `CAL-UMQ-006` | `GetPermissionCatalog` | `public IReadOnlyList<PermissionDefinition> GetPermissionCatalog()` | 25 | Substantive (Domain Catalog) |
-| `CAL-UMQ-007` | `ToDto` | `private static UserDetailsDto ToDto(UserEntity u)` | 27-29 | Substantive (DTO Transformer) |
+| Callable ID | Canonical Symbol ID | Line Span | Classification |
+| :--- | :--- | :--- | :--- |
+| `CAL-UQS-001` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:14:5:ConstructorDeclaration` | [14](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L14) | Constructor (DI Hook) |
+| `CAL-UQS-002` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:16:5:MethodDeclaration` | [16-17](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L16-L17) | Substantive (Query Projection) |
+| `CAL-UQS-003` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:19:5:MethodDeclaration` | [19-23](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L19-L23) | Substantive (Query Projection) |
+| `CAL-UQS-004` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:21:71:SimpleLambdaExpression` | [21](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L21) | Lambda Predicate |
+| `CAL-UQS-005` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:25:5:MethodDeclaration` | [25](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L25) | Catalog Gateway |
+| `CAL-UQS-006` | `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:27:5:MethodDeclaration` | [27-30](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L27-L30) | Substantive (DTO Projection) |
 
 ---
 
 ## 3. Deep Source-Grounded Callable Analysis
 
-### CAL-UMQ-001: Constructor `UserManagementQueryService(FalahDbContext db)`
-- **Line:** [14](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L14)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:14:5:ConstructorDeclaration`
-- **Exact Line Range:** Lines 14–14
-- **Actual Behavior & Inputs:** Injects `FalahDbContext` into private readonly field `_db`.
-- **Callers & Dependencies:** Resolved via ASP.NET Core DI in `Program.cs` for endpoints `GET /api/users/all` and `GET /api/users/{id}`.
-- **Side Effects:** Stores DB context reference.
-- **Classification Justification:** Substantive dependency injection hook.
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:14:5:ConstructorDeclaration
+- **Exact Line Range:** Line 14
+- **Signature:** `public UserManagementQueryService(FalahDbContext db)`
+- **Actual Behavior & Inputs:** Captures `FalahDbContext` for read-only query operations in private readonly field `_db`.
+- **Concurrency & Lifecycle:** Registered with scoped lifetime per HTTP request.
 
 ---
 
-### CAL-UMQ-002: `ListAllAsync(CancellationToken ct = default)`
-- **Line Span:** [16-17](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L16-L17)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:16:5:MethodDeclaration`
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:16:5:MethodDeclaration
 - **Exact Line Range:** Lines 16–17
-- **Actual Behavior & Inputs:**
-  1. Executes `await _db.Users.AsNoTracking().ToListAsync(ct)` to retrieve all users from the SQL database without tracking overhead.
-  2. Projects in-memory using `.Select(ToDto).ToList()`.
-  3. Returns a complete list of `UserDetailsDto` (containing both active and inactive users).
-- **Callers & Dependencies:**
-  - Invoked exclusively by `GET /api/users/all` in `src/Falah.Server/Program.cs` lines 1885-1886.
-- **Side Effects:** Issues SQL `SELECT` query on the `Users` table.
+- **Signature:** `public async Task<List<UserDetailsDto>> ListAllAsync(CancellationToken ct = default)`
+- **Actual Behavior & Execution Path:**
+  1. Issues non-tracking query: `await _db.Users.AsNoTracking().ToListAsync(ct)`.
+  2. Projects each `UserEntity` via `.Select(ToDto).ToList()`.
+  3. Returns full list of user details including inactive users.
 - **Trust Boundaries & Security Implications:**
-  - **Endpoint Authorization Gate:** `GET /api/users/all` is protected at the Minimal API layer by `await RequireUsersManageAsync(db, actorUserId, ct)`. An authenticated caller lacking `users_manage` or `"all"` receives `422 UnprocessableEntity`.
-  - **Credential Safety:** The projection strictly omits `PinHash`, `PinSalt`, and `PinIterations`. Only public identifiers and granted permission lists are returned.
-  - **Memory Impact:** In realistic restaurant deployments (10-50 staff accounts), loading all users into memory is fast and negligible in memory consumption.
-- **Failure Modes:** Database connectivity errors or cancellation token cancellation.
-- **Test Coverage:**
-  - *Covered:* `AuthenticationTests.The_user_list_is_not_readable_without_logging_in`, `UserManagementVerticalSliceTests`.
-  - *Missing Tests:* Missing verification that `ListAllAsync` returns inactive accounts while `GET /api/users` excludes them.
+  - Invoked exclusively by `GET /api/users/all`.
+  - Guarded in `Program.cs` line 1885 by `RequireUsersManageAsync`.
+  - Exposes usernames, roles, active flags, and permissions. Completely strips PIN hashes and salts.
+- **Test Coverage:** Tested in `UserManagementVerticalSliceTests.Creating_a_user_with_valid_data_succeeds_and_the_new_pin_logs_in`.
 
 ---
 
-### CAL-UMQ-003: `ListAllAsync::<method_group>ToDto`
-- **Line:** [17](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L17)
-- **Actual Behavior & Inputs:** Method group delegate reference passed to LINQ `Select` to transform each `UserEntity` into a `UserDetailsDto`.
-- **Classification Justification:** Trivial method group reference.
-
----
-
-### CAL-UMQ-004: `GetAsync(string id, CancellationToken ct = default)`
-- **Line Span:** [19-23](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L19-L23)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:19:5:MethodDeclaration`
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:19:5:MethodDeclaration
 - **Exact Line Range:** Lines 19–23
+- **Signature:** `public async Task<UserDetailsDto?> GetAsync(string id, CancellationToken ct = default)`
+- **Actual Behavior & Execution Path:**
+  1. Issues query: `user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct)`.
+  2. If `user is null`, returns `null`.
+  3. Returns `ToDto(user)`.
+- **Security Implications:** Guarded by `RequireUsersManageAsync` in `Program.cs` line 1888. Does not leak credentials.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:21:71:SimpleLambdaExpression
+- **Exact Line Range:** Line 21
+- **Signature:** `u => u.Id == id`
+- **Actual Behavior:** LINQ expression compiled to SQL primary key filter `WHERE [Id] = @id`.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:25:5:MethodDeclaration
+- **Exact Line Range:** Line 25
+- **Signature:** `public IReadOnlyList<PermissionDefinition> GetPermissionCatalog()`
+- **Actual Behavior & Inputs:** Returns `PermissionCatalog.All`.
+- **Security Implications:** Exposed via `GET /api/permissions/catalog`. Completely public/read-only metadata.
+
+---
+
+### Callable: src/Falah.Infrastructure/Users/UserManagementQueryService.cs:27:5:MethodDeclaration
+- **Exact Line Range:** Lines 27–30
+- **Signature:** `private static UserDetailsDto ToDto(UserEntity u)`
 - **Actual Behavior & Inputs:**
-  1. Queries `_db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct)`.
-  2. If user is null, returns `null`.
-  3. Otherwise, returns `ToDto(user)`.
-- **Callers & Dependencies:**
-  - Invoked by `GET /api/users/{id}` in `src/Falah.Server/Program.cs` lines 1888-1894.
-- **Side Effects:** Issues SQL `SELECT TOP(1)` query by primary key.
-- **Trust Boundaries & Security Implications:**
-  - Protected at endpoint level by `RequireUsersManageAsync(db, actorUserId, ct)`.
-  - Safe against SQL injection (parameterized by EF Core).
-- **Test Coverage:**
-  - *Covered:* Tested indirectly via user modification tests.
-  - *Missing Tests:* Direct unit test asserting that querying an unknown `id` returns `null` rather than throwing.
-
----
-
-### CAL-UMQ-005: `GetAsync::<lambda_user_lookup>` (`u => u.Id == id`)
-- **Line:** [21](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L21)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:21:71:SimpleLambdaExpression`
-- **Exact Line Range:** Lines 21–21
-- **Actual Behavior & Inputs:** Expression predicate for `FirstOrDefaultAsync` performing primary key lookup on `id`.
-- **Classification Justification:** Generated LINQ expression tree compiled to SQL query filter.
-
----
-
-### CAL-UMQ-006: `GetPermissionCatalog()`
-- **Line:** [25](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L25)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:25:5:MethodDeclaration`
-- **Exact Line Range:** Lines 25–25
-- **Actual Behavior & Inputs:** Takes no inputs; returns static read-only list `PermissionCatalog.All`.
-- **Callers & Dependencies:**
-  - Invoked by `GET /api/permissions/catalog` in `src/Falah.Server/Program.cs` line 1896.
-  - Dependencies: `Falah.Domain.Authorization.PermissionCatalog`.
-- **Side Effects:** None (pure in-memory getter).
-- **Trust Boundaries & Security Implications:**
-  - Exposes metadata about system permissions (keys, descriptions, roles).
-  - Contains no secret or tenant-specific information. Safe for authenticated client consumption to render permission toggle UIs.
-- **Test Coverage:**
-  - *Covered:* Used during UI initialization and catalog validation.
-  - *Missing Tests:* Missing unit test asserting immutability of the returned collection.
-
----
-
-### CAL-UMQ-007: `ToDto(UserEntity u)`
-- **Line Span:** [27-29](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UserManagementQueryService.cs#L27-L29)
-- **Canonical Callable ID:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:27:5:MethodDeclaration`
-- **Exact Line Range:** Lines 27–29
-- **Actual Behavior & Inputs:**
-  1. Accepts `UserEntity u`.
-  2. Parses `u.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()`.
-  3. Constructs and returns `UserDetailsDto(u.Id, u.Name, u.Role, u.Active, permissions)`.
-- **Side Effects:** In-memory allocation of string array and List.
-- **Trust Boundaries & Security Implications:**
-  - Ensures robust parsing even if the database contains extra whitespace or trailing commas.
-  - Redacts sensitive columns (`PinHash`, `PinSalt`, `PinIterations`).
-- **Test Coverage:**
-  - *Covered:* Exercised across all user query operations.
-  - *Missing Tests:* Edge cases with empty permissions string (`""`) or permissions with mixed whitespace.
+  - Maps `u.Id`, `u.Name`, `u.Role`, `u.Active`.
+  - Splits comma-separated permissions: `u.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()`.
+  - Deliberately omits `PinHash`, `PinSalt`, and `PinIterations`.
+- **Trust Boundaries & Data Hygiene:** Ensures sensitive cryptographic material never crosses the wire to client applications.
 
 ---
 
 ## 4. Verification & Recommendations
 
-1. **Defensive Validation:** Add explicit test cases for `ToDto` handling malformed or null `Permissions` strings to ensure no unhandled exceptions can be triggered during list operations.
-2. **Verification:** Static source audit confirmed; no application source modified.
+1. **Query Authentication Consistency:** Ensure `RequireUsersManageAsync` validates actor identity against verified server session context (`context.ActorId()`) rather than query string parameters.
+2. **Static Verification:** Verified complete against `src/Falah.Infrastructure/Users/UserManagementQueryService.cs`. No application source modified.
+
+
+---
+
+## Independent QA L1 Review & Verification
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
+- **Verification Date:** 2026-10-25T01:52:00Z
+- **Source SHA-256 Verified:** `703985d05102060061f17385f5dc50c04ebf6e97d6c5eef8668d32fd647691e8`
+- **Callable ID Checked:** `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:14:5:ConstructorDeclaration`, `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:16:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:19:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:21:71:SimpleLambdaExpression`, `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:25:5:MethodDeclaration`, `src/Falah.Infrastructure/Users/UserManagementQueryService.cs:27:5:MethodDeclaration` (6 of 6 callables checked)
+- **Verdict:** ACCEPTED
+- **Challenger Analysis:**
+  1. Verified SHA-256 matches actual production source `src/Falah.Infrastructure/Users/UserManagementQueryService.cs` (31 lines).
+  2. Verified query projections and credential hygiene: `ToDto` (lines 27-30) maps only non-sensitive columns (`Id`, `Name`, `Role`, `Active`, `Permissions`), strictly omitting `PinHash`, `PinSalt`, and `PinIterations` from API serialization.
+  3. Verified non-tracking execution (`AsNoTracking()`) in `ListAllAsync` (including inactive accounts for administrative audits) and `GetAsync`.
+  4. All 6 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
+
+
+---
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T01:53:17Z
+- **Source SHA-256 Verified:** `2b5ec45037dbe188ec9f6a735c03798547ca9252cb7ec5d6b412bcf49451ba97`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+1. Verified SHA-256 match `2b5ec45037dbe188ec9f6a735c03798547ca9252cb7ec5d6b412bcf49451ba97` against `src/Falah.Infrastructure/Users/UserManagementQueryService.cs` (31 lines).
+2. Concur with L1 analysis on secure DTO projection in `ToDto` (lines 27-30) stripping cryptographic hash and salt columns from API outputs.
+3. Additional L2 Challenger Assessment:
+   - Query service functions `ListAllAsync` and `GetAsync` execute non-tracking reads (`AsNoTracking()`) but contain zero internal permission checks, relying entirely on upstream ASP.NET Core endpoint routing.
+   - `GetAsync` returns null for non-existent users, supporting standard RESTful null-result propagation.
+4. All 6 callables rigorously double-verified. Elevation to `DOUBLE_QA_VERIFIED` accepted.

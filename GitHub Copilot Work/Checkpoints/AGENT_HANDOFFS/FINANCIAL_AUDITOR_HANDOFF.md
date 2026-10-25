@@ -510,10 +510,33 @@ During Wave 4 forensic evaluation of Treasury & Idempotency handlers, the follow
 
 ---
 
-## 7. Verification Status & Handoff Sign-off
+## 7. Specialist Waves 5 & 6 Audit Addendum & Schema Forensics
 
-- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & WAVES 1-4 FULLY AUDITED & DOCUMENTED**
-- **Code Modifications:** **0 files modified in `src/` or `tests/`**
+### 7.1 Specialist Wave 5: Domain Financial Rules & Mirrored UI ViewModels
+Wave 5 audited 42 callables across core domain calculation rules and cashier/shift UI ViewModels:
+- [`CheckoutRules.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Orders/CheckoutRules.cs.md) (15 callables): Confirmed `FIN-MULTI-ELEC-001` (split payment electronic split ceiling restriction).
+- [`FinancialRules.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Financial/FinancialRules.cs.md) (11 callables): Verified drawer reconciliation formula, safe drop ceilings, and holdlock queries.
+- [`TaxRule.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Domain/Pricing/TaxRule.cs.md) (4 callables): Verified integer basis points VAT calculations without decimal drift.
+- [`OrdersViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/ViewModels/OrdersViewModel.cs.md) (6 callables) & [`ShiftsViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/ViewModels/ShiftsViewModel.cs.md) (6 callables): Verified UI client-side validation gates, blind close cash denomination collection, and shift float inputs.
+
+### 7.2 Specialist Wave 6: Core EF Core DbContext & Database Schema Audit (`FalahDbContext.cs`)
+Wave 6 conducted an exhaustive, per-callable database and relational schema audit of [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs) (212 callables: 1 Constructor, 1 Method, 210 entity configuration lambdas across 58 entity blocks).
+Output review generated: [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Persistence/FalahDbContext.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Persistence/FalahDbContext.cs.md).
+
+#### Core Schema Findings Confirmed in Wave 6:
+1. **Integer Piastres Currency Architecture:** All monetary amounts across the database schema (`Orders`, `OrderItems`, `Shifts`, `TreasuryMovements`, `Expenses`, `Purchases`, `PurchaseLines`, `SupplierLedger`, `EmployeeLedger`, `PayrollRuns`, `PayrollLines`) are represented as 64-bit signed integers (`long`), denominated in Piastres (1 EGP = 100 Piastres). Floating-point errors and decimal scale drift are completely eliminated.
+2. **Defect `PRT-001` Confirmed (Hardware Ticket Duplication):** Lines 365–377 define `PrintJobEntity` with `b.HasIndex(j => j.CreateRequestId);` (non-unique) and lack a composite unique index on `(OrderId, Route)`. Network retries or re-dispatches create duplicate kitchen and customer receipts.
+3. **Defect `FIN-009` Confirmed (Active Business Day Concurrency Window):** Lines 137–141 define `BusinessDayEntity` with `b.HasIndex(d => d.OpenRequestId).IsUnique();`. Unlike `ShiftEntity` (which enforces single-open concurrency via `[Status] = 'Open'`), `BusinessDayEntity` lacks a filtered unique index on `[Status] = 'Open'`, allowing racing requests to open multiple concurrent business days.
+4. **Defects `FIN-005` & `FIN-006` Confirmed (Missing Concurrency Tokens):** While `OrderEntity`, `ShiftEntity`, and `DeliveryEntity` define `b.Property(x => x.Version).IsConcurrencyToken()`, `PurchaseEntity` and `PayrollRunEntity` lack concurrency tokens, permitting lost updates during concurrent payments or status transitions.
+5. **Deduplication Success:** Verified that `PayrollRunEntity` includes `IX_PayrollRuns_Period_Live` filtered unique index on `Period` where `[Status] <> 'Cancelled'`, preventing concurrent double payroll runs.
+
+---
+
+## 8. Verification Status & Final Handoff Sign-off
+
+- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & WAVES 1-6 FULLY AUDITED & DOCUMENTED**
+- **Total Callables Audited Across Waves 1–6:** **439 Callables** across **22 Critical Files**
+- **Code Modifications:** **0 files modified in `src/` or `tests/` (100% clean audit compliance)**
 - **Next Phase:** Implementation of architectural remediations by authorized implementation agents in an isolated branch with dedicated disposable SQL Server container verification.
 
 *Report compiled and certified by Financial & Database Integrity Specialist.*

@@ -492,6 +492,19 @@ To address these vulnerabilities without breaking the contract of existing deskt
 | **SEC-006** | Manager Approval Tokens Lack Expiration (TTL) Check | **YES** | `ValidateApproval` never checks `ApprovedAtUtc`; tokens valid indefinitely | `ApprovalRegistry.cs#L91-L93`, `IssueManagerApprovalHandler.cs#L40` |
 | **SEC-007** | Approval Double-Spending Concurrency Hazard | **YES** | Non-atomic `IsConsumed`/`MarkConsumed` and lack of concurrency token in `EfApprovalRegistry` | `EfApprovalRegistry.cs#L41-L53`, `ManagerApprovalEntity.cs#L5-L15` |
 | **SEC-008** | Session Token Replacement & Identity Confusion in PIN Replay | **YES** | `LoginByPinAsync` in `ChangePinAsync` replay proof overwrites `_http` Authorization header | `UsersViewModel.Actions.cs#L170`, `ApiClient.cs#L164-L166` |
+| **SEC-009** | PIN Uniqueness Check-Then-Act Race Condition | **YES** | In-memory verification runs without DB-level row or serializable locking across concurrent creates/updates | `PinUniquenessChecker.cs#L16-L23`, `CreateUserHandler.cs#L52` |
+| **SEC-010** | High PBKDF2 Computational Cost on PIN Uniqueness Validation | **YES** | Sequential PBKDF2-SHA256 (210,000 iter) verification across all active staff accounts | `PinUniquenessChecker.cs#L21`, `PinHasher.cs#L22` |
+| **SEC-011** | User Reactivation Missing PIN Uniqueness Verification | **YES** | `SetUserActiveHandler` sets `Active = true` without checking if candidate PIN was claimed while deactivated | `SetUserActiveHandler.cs#L62` |
+| **SEC-012** | User Deactivation Omits Explicit Session Token Revocation | **YES** | Deactivating user leaves records in `UserSessions` (mitigated by dynamic active check in `ResolveAsync`) | `SetUserActiveHandler.cs#L62`, `SessionService.cs#L52` |
+
+---
+
+## 7. Wave Review Audit History
+
+- **Wave 3:** `ApprovalRegistry.cs` (17 callables), `PinHasher.cs` (6 callables), `UserManagementRules.cs` (7 callables). Identified SEC-006, SEC-007.
+- **Wave 4:** `UsersViewModel.cs` (29 callables), `UsersViewModel.Actions.cs` (20 callables), `SessionToken.cs` (3 callables), `PermissionCatalog.cs` (1 callable). Identified SEC-008.
+- **Wave 5:** Canonical symbol alignment and deep review for `AuthenticationMiddleware.cs` (6 callables), `SessionService.cs` (7 callables), `IssueManagerApprovalHandler.cs` (4 callables), `ChangePinHandler.cs` (4 callables), `CreateUserHandler.cs` (7 callables), `UpdateUserPermissionsHandler.cs` (7 callables), `UserManagementRules.cs` (7 callables).
+- **Wave 6:** `UserManagementQueryService.cs` (6 callables), `PinUniquenessChecker.cs` (4 callables), `SetUserActiveHandler.cs` (7 callables), `EfApprovalRegistry.cs` (11 callables) — Total: 28 callables completed with exact canonical symbols and SHA-256 baseline tracking. Identified SEC-009 through SEC-012.
 
 ---
 *Report filed by Security and Authorization Auditor.*

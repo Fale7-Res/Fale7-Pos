@@ -528,4 +528,67 @@ gantt
 - **Read-Side Parity:** `OrderMapper.ToDto` accurately projects all monetary snapshots, tax figures, split tenders, structured delivery addresses, and pickup times to `OrderDetailsDto`. Client-side calculations (`RefundRemainingDisplay`, `RefundableRemainingPiastres`) match server totals with zero calculation drift.
 - **Reconstitution Safety:** `OrderMapper.ToDomain` maps all 38 snapshot fields into `Order.Reconstitute`. However, it relies on callers executing EF Core `.Include(o => o.Items).Include(o => o.Refunds)` to avoid aggregate truncation.
 
+---
+
+### 8.4 Wave 5: Call Center ViewModel Lifecycle & WPF Cashier Parity (53 Callables)
+
+#### 1. Scope and Targets Audited
+- `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs` (21 callables)
+- `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs` (26 callables)
+- `src/Falah.Client.Cashier/ViewModels/CashierViewModel.ElectronicPayment.cs` (1 callable)
+- `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Shift.cs` (1 callable)
+- `src/Falah.Client.Cashier/ViewModels/HeaderViewModel.cs` (4 callables)
+- Total: 53 callables across 5 review documents.
+
+#### 2. Key Architectural Discoveries
+- **Durable Retention in Call Center (`RetainedRequestStorage`):** Unlike `CashierWinUI` which kept `_pendingCheckout` in-memory only (finding `UI-001`), `CallCenterViewModel.Checkout.cs` persists `_pendingCheckout` and `_pendingPrint` to disk keyed by operator (`callcenter.checkout.{OwnerUserId}`), guaranteeing survival across station crashes.
+- **Delivery Financial Semantics:** Cash payments in Call Center are treated as Cash-On-Delivery with `amountPaidPiastres = 0`. No cash is collected at the desk; physical drawer movement is deferred to delivery reconciliation. Electronic payments (`instapay`, `wallet`) are submitted as pending payment claims.
+- **Automated Server-Side Printing:** The server automatically queues kitchen and confirmation tickets via `OrderAutoPrintService` using `CustomerPrintRoute: "CallCenter"`.
+- **Customer Phone Normalization:** `CallCenterViewModel.Customer.cs` enforces Egyptian telephone normalization (converting Arabic-Indic numerals `٠-٩` to ASCII `0-9`, stripping spaces/dashes, and requiring a valid 11-digit mobile prefix `010|011|012|015`).
+- **WPF Cashier Stubs:** In `Falah.Client.Cashier`, `CashierViewModel.ElectronicPayment.cs` (1 callable) and `CashierViewModel.Shift.cs` (1 callable) are stubbed out or lack retry retention, while `HeaderViewModel.cs` implements basic clock polling and shift naming without real-time health connectivity indicators.
+
+---
+
+### 8.5 Wave 6: Call Center API Client & Tri-Client Parity Deep Audit (55 Callables)
+
+#### 1. Scope and Targets Audited
+- `src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs` (55 callables)
+- Review File: `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs.md`
+- Target Symbols: All 55 canonical symbols from `Codex Work/Knowledge/Source-Symbols/src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs.json` (2 constructors, 25 endpoint methods, 1 image helper, 1 ping health, 1 result reader, 1 universal pipeline wrapper, 24 lambdas).
+
+#### 2. Architectural Findings and Parity Disparities
+
+##### A. Vulnerability `SEC-008`: Shared HttpClient Bearer Token Mutation & Screen Lock Session Leak
+- In `LoginByPinAsync(string pin)`, the client mutates the shared `HttpClient` instance directly:
+  ```csharp
+  _sessionToken = result.Value.Token;
+  _http.DefaultRequestHeaders.Authorization =
+      new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+  ```
+- Mutating `_http.DefaultRequestHeaders` impacts all in-flight or background tasks across all threads.
+- In `MainViewModel.Lock()`, the Call Center station navigates to `LoginViewModel` without calling `LogoutAsync()`. The Bearer token remains permanently active in memory and on the server, and subsequent requests or retries by a switching operator risk executing under the previous operator's bearer token.
+
+##### B. Defect `SEM-MIRROR-072`: Universal `SendAsync` Flags Read-Only GET Operations as `OutcomeUnknown: true`
+- In `CashierWinUI`, reads are segregated into `ReadAsync<T>` (which honestly reports network failure without claiming funds moved) and `SendAsync<T>` (which flags `OutcomeUnknown: true` for mutating commands).
+- In `CallCenterWinUI`, ALL requests—including GET `/api/shifts/current`, `/api/tax-rules`, `/api/settings`, `/api/customers/lookup`, `/api/menu`, `/api/delivery/services`, and `/api/orders/lookup`—are sent via `SendAsync<T>`.
+- Transport timeouts or drops during safe read queries return `OutcomeUnknown: true`, misleading retry managers and operators into treating idempotent reads as ambiguous financial operations.
+
+##### C. Defect `SEM-MIRROR-073`: Misleading 401 Error Mapping Across Non-Auth Endpoints
+- `ReadResultAsync` hardcodes `HttpStatusCode.Unauthorized => "Invalid PIN or inactive user"`.
+- If a session token expires or is revoked during `CheckoutAsync`, `SaveCustomerAsync`, or `LookupCustomerAsync`, the UI displays "Invalid PIN or inactive user" instead of notifying the user of an expired session.
+
+##### D. Defect `SEM-MIRROR-074`: False-Positive Rejection of Empty 200/204 Responses
+- Unlike `CashierWinUI` which implements `SendEmptyAsync`, `CallCenterWinUI` only implements `SendAsync<T>` with `ReadResultAsync<T>`.
+- Any successful HTTP 200 or 204 response returning an empty body or null JSON is rejected with `"Unexpected empty response from server"` and `OutcomeUnknown: true`.
+
+##### E. Mirrored Code Bloat: 14 Dead Cashier Transport Wrappers
+- Call Center is a specialized phone-delivery station without physical cash drawers, safe drop hardware, shift close settlements, or manager approval prompts.
+- However, `ApiClient.cs` defines 14 completely unused wrapper methods copied from `CashierWinUI`: `LogoutAsync`, `OpenShiftAsync`, `PrepareShiftCloseAsync`, `CloseShiftAsync`, `RefundAsync`, `ConfirmElectronicPaymentAsync`, `CancelPendingElectronicPaymentAsync`, `GetOrderAsync`, `IssueManagerApprovalAsync`, `AddExpenseAsync`, `SafeDropAsync`, `CashierCashMovementAsync`, `OpenCashDrawerAsync`, `GetTreasuryBalanceAsync`.
+
+##### F. Tri-Client Architectural Parity Synthesis
+- **WPF Cashier:** 8 endpoints, no bearer tokens, no `OutcomeUnknown` resilience, network drops throw unhandled exceptions, no request retention.
+- **WinUI Cashier:** Full client (~60 endpoints across 3 partials), bifurcated `ReadAsync`/`SendAsync`/`SendEmptyAsync`, bearer token auth, in-memory pending checkout retention (`UI-001`).
+- **WinUI Call Center:** 27 endpoints (14 dead), unified `SendAsync` causing `SEM-MIRROR-072`, bearer token auth sharing `SEC-008`, disk-backed pending checkout retention (`RetainedRequestStorage`).
+
+
 

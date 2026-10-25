@@ -135,11 +135,59 @@
       "callable_count": 7,
       "verdict": "DOUBLE_QA_VERIFIED",
       "challenge_summary": "2. Concur with L1 on immutable owner protection, privilege escalation guards, and surviving administrator invariants."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/UserManagementQueryService.cs.md": {
+      "timestamp_utc": "2026-10-25T01:53:17Z",
+      "source_path": "src/Falah.Infrastructure/Users/UserManagementQueryService.cs",
+      "source_sha256": "2b5ec45037dbe188ec9f6a735c03798547ca9252cb7ec5d6b412bcf49451ba97",
+      "callable_count": 6,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 analysis on secure DTO projection in `ToDto` (lines 27-30) stripping cryptographic hash and salt columns from API outputs."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs.md": {
+      "timestamp_utc": "2026-10-25T01:53:17Z",
+      "source_path": "src/Falah.Infrastructure/Users/PinUniquenessChecker.cs",
+      "source_sha256": "bf5c54f6230fc18e6c55484a58bad12759551a426dad04f01b086c2356d81a4b",
+      "callable_count": 4,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on in-memory sequential PBKDF2 hash scanning and confirmed check-then-act concurrency race."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs.md": {
+      "timestamp_utc": "2026-10-25T01:53:17Z",
+      "source_path": "src/Falah.Infrastructure/Users/SetUserActiveHandler.cs",
+      "source_sha256": "a8e7093c5b410adee29d6fece0c4f15cc532cf10cb686a37dc05e79aba80d9e7",
+      "callable_count": 7,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 on owner account deactivation immunity and `IsolationLevel.Serializable` locking against surviving administrator revocation."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs.md": {
+      "timestamp_utc": "2026-10-25T01:53:17Z",
+      "source_path": "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
+      "source_sha256": "b5028b69a7df5c0e5101466ad51f2c5b84f15089e8d572d71e4ff7b8dc5e0bce",
+      "callable_count": 11,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "2. Concur with L1 confirming `SEC-006` (absence of expiration TTL on approval tokens) and `SEC-007` (non-atomic check and consumption allowing double-spending)."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs.md": {
+      "timestamp_utc": "2026-10-25T01:58:15Z",
+      "source_path": "src/Falah.Client.CallCenterWinUI/Services/ApiClient.cs",
+      "source_sha256": "5702006b3b43ba4cd7242080292fa2ce6c4b232f6db1a85ad04e93bf94d277db",
+      "callable_count": 55,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified SEC-008 HttpClient header mutation, SEM-MIRROR-072 OutcomeUnknown overreach on GET reads, SEM-MIRROR-073 401 message misattribution, SEM-MIRROR-074 204 NoContent rejection, and 14 dead code cashier wrappers."
+    },
+    "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Persistence/FalahDbContext.cs.md": {
+      "timestamp_utc": "2026-10-25T02:03:24Z",
+      "source_path": "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
+      "source_sha256": "7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c",
+      "callable_count": 212,
+      "verdict": "DOUBLE_QA_VERIFIED",
+      "challenge_summary": "Double QA challenge verified integer piastre architecture across 45 tables, FIN-009 missing filtered unique index on BusinessDayEntity Status='Open', PRT-001 missing composite unique constraint on PrintJobEntity(OrderId, Route), concurrency token disparity on PurchaseEntity/PayrollRunEntity, and soft-delete global query filter omissions."
     }
   },
   "summary": {
-    "total_accepted": 17,
+    "total_accepted": 23,
     "total_rejected": 0,
-    "total_callables_verified": 137
+    "total_callables_verified": 432
   }
 }
