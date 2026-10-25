@@ -214,4 +214,40 @@ Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBr
    ```
 
 ---
+
+## 7. Wave 3 Parity Audit Findings: Cashier ViewModels (WPF vs WinUI 3 Core & State)
+
+### 7.1 Scope & Callable Inventory Summary (96 Callables Audited)
+Wave 3 conducted an exhaustive, source-grounded inspection of the Cashier presentation controllers across 3 core files:
+1. `src/Falah.Client.Cashier/ViewModels/CashierViewModel.cs` (28 callables / 36 members)
+2. `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs` (47 callables)
+3. `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs` (21 callables / 49 members)
+
+Individual callable review artifacts written:
+- [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.Cashier/ViewModels/CashierViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.Cashier/ViewModels/CashierViewModel.cs.md)
+- [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs.md)
+- [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs.md)
+
+### 7.2 Key Findings & Vulnerabilities Uncovered in Wave 3
+
+#### A. ASYNC-001: Unhandled Network Exceptions in Fire-and-Forget `InitializeAsync` & `LoadMenuAsync`
+- In `CashierViewModel.State.cs:86-111`, `InitializeAsync` contains `try / finally` but **lacks a `catch` block**.
+- In `CashierViewModel.cs:109-152` (WinUI) and `CashierViewModel.cs:54-74` (WPF), `LoadMenuAsync` also contains `try / finally` without a `catch` block.
+- In `MainViewModel.cs:125` and `ShellViewModel.cs:346`, `InitializeAsync` is invoked as a fire-and-forget task discard: `_ = vm.InitializeAsync();`.
+- **Impact:** Any transient network failure (HTTP 503, timeout, socket abort, or JSON deserialization error) causes an unobserved task exception that either crashes the process or leaves the screen in an uninitialized dead state without user notification.
+
+#### B. PERF-001 / UI-001: Search Keystroke Storm & UI Thread Freezes
+- In both WPF (`CashierViewModel.cs:42`) and WinUI 3 (`CashierViewModel.cs:56`), `SearchQuery` is two-way bound with `UpdateSourceTrigger=PropertyChanged` and triggers `RefreshVisibleProducts()` synchronously on **every keystroke with zero debouncing**.
+- In WinUI 3, every keystroke flattens all categories with LINQ `SelectMany`, groups products, builds a dictionary, instantiates new `ProductTile` objects, and executes `VisibleProducts.Add()` in a tight loop.
+- Every `Add` raises `CollectionChanged`, hammering the UI thread with layout passes. Rapid cashier typing or barcode scanning produces severe frame drops.
+
+#### C. PERF-001: Double Evaluation of Domain Tax Engine & Redundant Totaling
+- In `CashierViewModel.State.cs:74-84`, `NotifyTotals()` triggers `GrandTotalPiastres` and `TaxDisplay` back-to-back, causing `Falah.Domain.Financial.TaxEngine.Calculate` to be evaluated **twice per total refresh**.
+- In both WPF and WinUI 3, `DecreaseQuantity` and `RemoveLine` manually invoke `RecomputeCartTotals()` immediately after calling `Cart.Remove(line)`. Because `Cart.CollectionChanged` is already wired to `RecomputeCartTotals()`, cart totals are computed twice for every item removed.
+
+#### D. Concurrency Architecture Disparity: WPF Mutation Vulnerability
+- In WinUI 3 (`CashierViewModel.State.cs:22-24`), `CanEditOperation` coordinates 11 busy flags and 11 pending modal states, preventing cart modifications during active checkout, shift, or expense operations.
+- In WPF (`CashierViewModel.cs:82-87, 145-156`), commands like `SelectProduct`, `SelectOffer`, `IncreaseQuantity`, and `DecreaseQuantity` **completely lack `CanEditOperation` guards**, permitting cashiers to alter order lines while background HTTP writes are in-flight.
+
+---
 *Report certified by UI/UX, Performance, and Code Maintainability Specialist Auditor.*

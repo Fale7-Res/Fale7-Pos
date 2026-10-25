@@ -1,200 +1,127 @@
-# Substantive Callable Audit: `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`
+# Deep Per-Callable Source Audit: `TransitionPayrollHandler.cs`
 
-- **Source File:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`
-- **Baseline Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
-- **File SHA-256:** `0d8401a67d756fe1854ff8228e9efea17db6e1db91d8a5abb40499ae1eb982c4`
-- **Auditor Specialist:** `financial-auditor`
-- **Total File Callables:** **5**
-- **Audit Status:** **SUBSTANTIVE_REVIEW_COMPLETE**
-
----
-
-## 1. Architectural & Domain Responsibility Overview
-
-Payroll run lifecycle state machine handler transitioning runs between Draft, Approved, Paid, and Cancelled.
+- **File Path:** [`src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs)
+- **Role:** Payroll Run State Machine Transition Orchestrator
+- **Author:** Financial & Database Integrity Specialist
+- **Audit Date:** 2026-10-25T00:55:00Z
+- **Baseline Git Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
+- **Total In-Scope Callables:** 5 (1 Constructor, 1 Method, 3 Lambdas)
 
 ---
 
-## 2. Callable-by-Callable Detailed Forensic Audit Ledger
+## Callable Inventory & Detailed Behavioral Audit
 
-<a id="callable-1"></a>
-### Callable 1: `Falah.Infrastructure.Employees.TransitionPayrollHandler.TransitionPayrollHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)`
-- **Callable ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:18:5:ConstructorDeclaration`
-- **Declaration Kind:** `ConstructorDeclaration` | **Line Range:** `18-22`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes ConstructorDeclaration for Falah.Infrastructure.Employees.TransitionPayrollHandler.TransitionPayrollHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry). Manages internal state transition within src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 18-22):**
-```csharp
-  18 |     public TransitionPayrollHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
-  19 |     {
-  20 |         _db = db;
-  21 |         _approvalRegistry = approvalRegistry;
-  22 |     }
-```
+### 1. `TransitionPayrollHandler` Constructor
+- **Symbol ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:18:5:ConstructorDeclaration`
+- **Signature:** `public TransitionPayrollHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)`
+- **Line Span:** Lines 18–22
+- **Actual Behavior & Inputs:**
+  Receives `FalahDbContext` and `IApprovalRegistry` via dependency injection and stores them into private readonly fields `_db` and `_approvalRegistry`.
+- **Callers, Dependencies & Side Effects:**
+  - Invoked by the ASP.NET Core DI container (scoped lifetime) during API route dispatch for `POST /api/payroll-runs/{id}/transition`.
+  - Dependencies: `FalahDbContext`, `IApprovalRegistry`.
+  - Side effects: None.
+- **Classification:** Infrastructure wiring constructor.
 
 ---
 
-<a id="callable-2"></a>
-### Callable 2: `Falah.Infrastructure.Employees.TransitionPayrollHandler.HandleAsync(Falah.Application.Employees.TransitionPayrollRequest, CancellationToken)`
-- **Callable ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:24:5:MethodDeclaration`
-- **Declaration Kind:** `MethodDeclaration` | **Line Range:** `24-61`
-- **Audit Classification:** `INDEPENDENTLY_VERIFIED`
-- **Linked Vulnerability Finding:** **`FIN-006`**
+### 2. `HandleAsync`
+- **Symbol ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:24:5:MethodDeclaration`
+- **Signature:** `public async Task<PayrollRunDto> HandleAsync(TransitionPayrollRequest request, CancellationToken ct = default)`
+- **Line Span:** Lines 24–61
+- **Actual Behavior & Inputs:**
+  Receives `TransitionPayrollRequest(PayrollRunId, Status, ActorUserId, ManagerApprovalId, ManagerApproverUserId)`. Orchestrates:
+  1. *Target Status Parse (Lines 26–27):* Parses `request.Status` into enum `PayrollRunStatus`. Throws `DomainException` if invalid.
+  2. *Actor Authorization (Lines 29–32):* Queries `_db.Users.AsNoTracking()` for `request.ActorUserId`. Validates permission `employees_manage` via `AuthorizationPolicy.AuthorizeCommand`.
+  3. *Payroll Run Lookup (Lines 34–35):* Queries `_db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)`. Throws `InvalidOperationException` if missing.
+  4. *State Transition Validation (Lines 36–37):* Parses `run.Status` into `currentStatus` and validates transition via `PayrollRules.AssertTransition(currentStatus, targetStatus)`.
+  5. *Approval Gate for `Approved` Status (Lines 39–52):* If `targetStatus == PayrollRunStatus.Approved`, requires manager approval and validates `payroll_approve` permission.
+  6. *State Mutation (Lines 54–57):* Sets `run.Status = targetStatus.ToString()`. If `Approved`, sets `run.ApprovedBy`. If `Reviewed`, sets `run.ReviewedBy` and `run.ReviewedAtUtc`.
+  7. *Persistence (Lines 59–60):* Calls `await _db.SaveChangesAsync(ct)` and returns DTO via `CreatePayrollHandler.ToDto(run, wasReplayed: false)`.
+- **Callers, Dependencies & Side Effects:**
+  - Callers: `POST /api/payroll-runs/{id}/transition` API endpoint.
+  - Dependencies: `FalahDbContext`, `IApprovalRegistry`, `PayrollRules`, `AuthorizationPolicy`, `CreatePayrollHandler`.
+  - Side effects: Updates `PayrollRuns` row in database.
+- **Critical Financial Integrity Flaws:**
 
-**A. Actual Behavior & Execution Path:**  
-Loads PayrollRunEntity and updates Status to requested transition target. When target is Paid, marks run as paid without posting financial journal or employee ledger movements.
+  > [!CRITICAL]
+  > **Vulnerability `FIN-006` (Phantom Payroll Payout via Unconstrained Status Transition to `Paid`):**
+  > At lines 26, 36–37, and 54–59:
+  > ```csharp
+  > if (!Enum.TryParse<PayrollRunStatus>(request.Status, ignoreCase: true, out var targetStatus))
+  >     throw new DomainException("حالة Payroll غير صالحة.");
+  > ...
+  > var currentStatus = Enum.Parse<PayrollRunStatus>(run.Status);
+  > PayrollRules.AssertTransition(currentStatus, targetStatus);
+  > ...
+  > run.Status = targetStatus.ToString();
+  > await _db.SaveChangesAsync(ct);
+  > ```
+  > And in domain [`PayrollRules.cs:18`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs#L18):
+  > ```csharp
+  > [PayrollRunStatus.Approved] = new[] { PayrollRunStatus.Paid, PayrollRunStatus.Cancelled },
+  > ```
+  > **FLAW MECHANISM:**
+  > 1. In `PayrollRules.Transitions`, the transition from `Approved` to `Paid` is defined as a valid state machine transition.
+  > 2. `TransitionPayrollHandler` accepts *any* valid target status without checking whether that transition represents an operational status update or a financial disbursement.
+  > 3. If an operator or external API caller invokes `POST /api/payroll-runs/{id}/transition` with `request.Status = "Paid"`:
+  >    - If `currentStatus` is `Approved`, `PayrollRules.AssertTransition(Approved, Paid)` succeeds!
+  >    - No manager approval is verified (lines 40–52 only validate approvals when `targetStatus == PayrollRunStatus.Approved`).
+  >    - No financial permissions (`payroll_pay`) are verified (only `employees_manage` is checked at line 32).
+  >    - **NO DATABASE TRANSACTION IS STARTED.**
+  >    - **NO FINANCIAL JOURNAL ENTRY IS CREATED (`EfFinancialJournal`).**
+  >    - **NO TREASURY DISBURSEMENT MOVEMENT IS CREATED (`TreasuryMovements`).**
+  >    - **NO EMPLOYEE LEDGER SETTLEMENT ENTRIES ARE GENERATED (`EmployeeLedgerEntries`).**
+  >    - **EMPLOYEE ADVANCE DEDUCTIONS ARE NOT SETTLED OR CLEARED.**
+  >    - The handler updates `run.Status = "Paid"` and commits to the database!
+  > 4. **Catastrophic Impact:**
+  >    - The payroll run (often tens of thousands of EGP) is permanently marked `Paid` in the database.
+  >    - If an accountant subsequently attempts to legitimately pay the payroll through the dedicated payment handler ([`PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs)), `PayPayrollHandler` rejects the request because `run.Status` is no longer `Approved`!
+  >    - The employees' ledger balances are never credited/settled, leaving employee advance and wage records corrupt, while the UI displays that all salaries were paid.
+  > 5. **Root Cause:** A generic state-transition handler was allowed to transition directly into a high-consequence financial settlement state (`Paid`) that should only ever be reachable through the dedicated atomic payment orchestrator (`PayPayrollHandler`).
 
-**B. Trust Boundaries & Validation:**  
-Manager payroll command.
-
-**C. State Mutations & Side Effects:**  
-Mutates PayrollRunEntity.Status and AuditLog.
-
-**D. Concurrency & Transaction Implications:**  
-Guarded by database transaction.
-
-**E. Specialist Risks & Invariants:**  
-CRITICAL FLAW FIN-006: Status reaches Paid with zero cash treasury movement or employee disbursement records.
-
-> **Verbatim Code Excerpt (Lines 24-61):**
-```csharp
-  24 |     public async Task<PayrollRunDto> HandleAsync(TransitionPayrollRequest request, CancellationToken ct = default)
-  25 |     {
-  26 |         if (!Enum.TryParse<PayrollRunStatus>(request.Status, ignoreCase: true, out var targetStatus))
-  27 |             throw new DomainException("حالة Payroll غير صالحة.");
-  28 | 
-  29 |         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
-  30 |             ?? throw new InvalidOperationException("المستخدم غير موجود.");
-  31 |         var actor = OrderMapper.ToActor(actorUser);
-  32 |         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_manage");
-  33 | 
-  34 |         var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)
-  35 |             ?? throw new InvalidOperationException("مسير الرواتب غير موجود.");
-  36 |         var currentStatus = Enum.Parse<PayrollRunStatus>(run.Status);
-  37 |         PayrollRules.AssertTransition(currentStatus, targetStatus);
-  38 | 
-  39 |         string? approvedByName = null;
-  40 |         if (targetStatus == PayrollRunStatus.Approved)
-  41 |         {
-  42 |             ManagerApproval? approval = null;
-  43 |             if (!string.IsNullOrEmpty(request.ManagerApprovalId))
-  44 |             {
-  45 |                 var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
-  46 |                     ?? throw new DomainException("المعتمد غير موجود.");
-  47 |                 approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
-  48 |                     approverUser.Role, DateTimeOffset.UtcNow, "payroll_approve", "اعتماد Payroll");
-  49 |             }
-  50 |             var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "payroll_approve", approval, requireApproval: true);
-  51 |             approvedByName = authorization.Approver?.ApproverName ?? actor.Name;
-  52 |         }
-  53 | 
-  54 |         var now = DateTimeOffset.UtcNow;
-  55 |         run.Status = targetStatus.ToString();
-  56 |         if (targetStatus == PayrollRunStatus.Approved) run.ApprovedBy = approvedByName;
-  57 |         if (targetStatus == PayrollRunStatus.Reviewed) { run.ReviewedBy = actor.Name; run.ReviewedAtUtc = now; }
-  58 | 
-  59 |         await _db.SaveChangesAsync(ct);
-  60 |         return CreatePayrollHandler.ToDto(run, wasReplayed: false);
-  61 |     }
-```
-
----
-
-<a id="callable-3"></a>
-### Callable 3: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:29:76:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `29-29`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 29-29):**
-```csharp
-  29 |         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
-```
+- **Concurrency & Locking Assessment:**
+  - `_db.PayrollRuns` is queried with simple `FirstOrDefaultAsync` without pessimistic locking (`UPDLOCK`) or version check.
+  - No explicit transaction is used.
+- **Tests & Missing Regressions:**
+  - Existing: `tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs` (verifies transition through Draft -> Calculated -> Reviewed -> Approved, and separately tests `/api/payroll-runs/{id}/pay`).
+  - Missing Regression: Integration test attempting to transition directly to `Paid` via `/api/payroll-runs/{id}/transition` — currently missing, allowing `FIN-006` to pass.
+- **Classification:** State transition handler with critical financial workflow bypass vulnerability (`FIN-006`).
 
 ---
 
-<a id="callable-4"></a>
-### Callable 4: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:34:61:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `34-34`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 34-34):**
-```csharp
-  34 |         var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)
-```
+### 3. Actor User Lookup Predicate (`u => u.Id == request.ActorUserId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:29:76:SimpleLambdaExpression`
+- **Signature:** `u => u.Id == request.ActorUserId`
+- **Line Span:** Line 29
+- **Actual Behavior & Inputs:**
+  Queries `_db.Users.AsNoTracking()` to load the actor initiating the transition.
+- **Classification:** Query filter lambda.
 
 ---
 
-<a id="callable-5"></a>
-### Callable 5: `lambda expression`
-- **Callable ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:45:87:SimpleLambdaExpression`
-- **Declaration Kind:** `SimpleLambdaExpression` | **Line Range:** `45-45`
-- **Audit Classification:** `SUBSTANTIVE_SOURCE_REVIEWED`
-
-**A. Actual Behavior & Execution Path:**  
-Executes SimpleLambdaExpression for lambda expression. Manages internal state transition within src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs.
-
-**B. Trust Boundaries & Validation:**  
-Internal application boundary; inputs validated by callers and domain rules.
-
-**C. State Mutations & Side Effects:**  
-Mutates scoped entity properties or commits database transaction.
-
-**D. Concurrency & Transaction Implications:**  
-Scoped to request lifecycle; thread safety governed by database transaction isolation.
-
-**E. Specialist Risks & Invariants:**  
-None identified beyond standard operation.
-
-> **Verbatim Code Excerpt (Lines 45-45):**
-```csharp
-  45 |                 var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
-```
+### 4. Payroll Run Lookup Predicate (`r => r.Id == request.PayrollRunId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:34:61:SimpleLambdaExpression`
+- **Signature:** `r => r.Id == request.PayrollRunId`
+- **Line Span:** Line 34
+- **Actual Behavior & Inputs:**
+  Filters `_db.PayrollRuns` by primary key `request.PayrollRunId`.
+- **Classification:** Query filter lambda.
 
 ---
+
+### 5. Manager Approver Lookup Predicate (`u => u.Id == request.ManagerApproverUserId`)
+- **Symbol ID:** `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs:45:87:SimpleLambdaExpression`
+- **Signature:** `u => u.Id == request.ManagerApproverUserId`
+- **Line Span:** Line 45
+- **Actual Behavior & Inputs:**
+  Queries `_db.Users.AsNoTracking()` to retrieve manager approver for approval validation.
+- **Classification:** Query filter lambda.
+
+---
+
+## Comprehensive Vulnerability Summary & Fix Recommendations
+
+| Finding ID | Severity | Root Cause Code Span | Impact | Recommended Remediation |
+| :--- | :--- | :--- | :--- | :--- |
+| **`FIN-006`** | **CRITICAL** | `TransitionPayrollHandler.cs:26-37, 54-59` | Calling transition endpoint with `Status="Paid"` marks payroll run Paid without transaction, treasury disbursement, or employee ledger settlement, corrupting payroll accounting. | Explicitly disallow transitioning to `PayrollRunStatus.Paid` in `TransitionPayrollHandler.cs`: `if (targetStatus == PayrollRunStatus.Paid) throw new DomainException("لا يمكن تحويل حالة مسير الرواتب إلى مدفوع عبر هذا المسار، يجب استخدام مسار الصرف المالي /pay.");` |

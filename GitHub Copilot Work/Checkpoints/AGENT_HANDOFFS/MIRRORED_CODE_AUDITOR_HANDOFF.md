@@ -450,3 +450,56 @@ gantt
 - **Semantic Registry Reconciliation:** All 71 Semantic Mirror groups in [`semantic-comparison-registry.json`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/Imported-Codex-Work/Deep-Audit/Duplication-and-Architecture/semantic-comparison-registry.json) verified.
 - **Substantive Callable Review Denominator:** 11,653 callables recognized across 690 source files; baseline `c35816ecae49633674775dd32061c6ee92f94aaf` clean.
 - **Sign-off Authority:** Mirrored Code and Architectural Parity Specialist, Fale7 POS Independent Deep Audit Team.
+
+---
+
+## 8. Specialist Wave 2 & Wave 3 Deep Audits: Domain Orders & Checkout Parity
+
+### 8.1 Wave 2: Domain Order Entity & Menu Pricing Service Audit
+
+#### 1. The "Frozen Financial Snapshot" Pattern (`Order.cs`)
+- **Architectural Discovery:** `Order.cs` contains **NO** cart mutation methods (`AddItem`, `RemoveItem`, `ApplyDiscount`, `SetDeliveryFee`). The domain aggregate is immutable with respect to order lines, discount, taxes, and pricing. It is instantiated strictly via `Order.Create(...)` from a frozen `CheckoutRules.CheckoutPlan`.
+- **Finding FIN-003 (Uncollected Order Refund):**
+  [`Order.ApplyRefund`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L220) checks `Status != Cancelled` and `PaymentMethod != Multi`, but **never checks `IsPaid == true`**. Cash-on-delivery (COD) or pending electronic orders can be refunded at the till before money is ever collected, causing real cash payouts for uncollected sales.
+- **Finding FIN-002 / SEM-MIRROR-053 (Split Payment Electronic Cancellation):**
+  [`Order.CancelElectronicPayment`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs#L200) cancels the entire order even if a cash leg was collected at the till. The cash remains unreversed in drawer custody without compensatory treasury movement, and inventory is not restored to stock.
+
+#### 2. Server Pricing Sovereignty (`MenuPricingService.cs`)
+- **Server Pricing Authority:** Clients transmit `CheckoutItemRequest` with `{ ProductId, VariantId, Quantity, RequestedPriceRuleId, Notes }`. No price is accepted on the wire.
+- **Finding FIN-CAND-NEGATIVE-VARIANT-PRICE-001 (Negative Line Total Pass-Through):**
+  `MenuPricingService.ResolveAsync` lacks non-negativity checks on resolved prices. A negative variant price produces a negative `OrderItem.TotalPrice`, reducing order subtotal.
+- **Inactive Category Bypass:** `ResolveAsync` does not verify `product.Category.Active`.
+- **Test Coverage Gap:** Zero direct unit tests exist for `MenuPricingService` in `tests/`.
+
+---
+
+### 8.2 Wave 3: Comparative Cashier Checkout ViewModels Audit (WPF vs WinUI 3)
+
+#### 1. The Critical `ChangeDuePiastres` Unit-Mismatch Bug (`UI-013`)
+- **Defect in WPF (`CashierViewModel.Checkout.cs:29-37`):**
+  `ChangeDuePiastres` parses `AmountPaidText` as `long.TryParse(AmountPaidText, out var paidPiastresInput)`. However, `OpenCheckout()` formats `AmountPaidText` as decimal EGP (`"150.00"`). `long.TryParse` fails on decimal strings, causing change due to permanently calculate as `0`! Quick cash buttons (`"200"`) are parsed as 200 piastres (2.00 EGP), also evaluating to `0` change due against standard totals.
+- **WinUI 3 Parity (`CashierViewModel.Checkout.cs:196-204`):**
+  Uses `CashInput.TryParse`, correctly parsing `"150.00"` as 15000 piastres and `"200"` as 20000 piastres, computing accurate change.
+
+#### 2. Client vs Server Validation Divergence (SEM-MIRROR-065)
+- **Manual Discounts:**
+  * WPF sends hardcoded `DiscountPiastres: 0`. Cashier cannot apply discounts.
+  * WinUI 3 checks `orders_discount` permission, validates input via `CashInput`, and updates totals reactively.
+- **Hospitality Comps:**
+  * WPF sends hardcoded `CompAmountPiastres: 0`, `CompApprovalId: null`.
+  * WinUI 3 implements dual-control PIN verification via `ResolveManagerApprovalIfNeededAsync`, binding the authoritative 5-reason taxonomy (`CompReasonCodes`).
+- **Delivery & Pickup Intake:**
+  * WPF bypasses delivery/pickup address collection, sending nulls; server rejects pickup/delivery checkouts from WPF.
+  * WinUI 3 pre-emptively intercepts checkout via `OpenDeliveryEditor()` and `OpenPickupEditor()` if mandatory fields are missing.
+
+#### 3. Mixed Tender / Split Payment Execution Parity
+- **WPF:** Completely lacks split payment execution (`SplitPayments: null`).
+- **WinUI 3:** Supports dual split tenders (`PaymentMethod: "multi"`), validates that split legs sum to the payable total, and binds wallet providers dynamically.
+
+#### 4. Error Handling, Idempotency, and Durability Defects
+- **Cart Mutation During Retry Gap in WPF:** When checkout fails, WPF retains `CurrentCheckoutRequestId` but leaves the cart unlocked. The operator can modify cart lines and retry, submitting a different order payload under an already-minted request ID.
+- **Frozen Payload Retry in WinUI 3 (`_pendingCheckout`):** WinUI 3 freezes the exact `CheckoutOrderRequest` DTO upon first submission and resends the frozen DTO on retry.
+- **Finding UI-001 (In-Memory Pending Checkout Loss):** In WinUI 3, `_pendingCheckout` is kept in an in-memory field only; if the app crashes during an ambiguous network drop, the pending request is lost.
+- **Finding UI-005 (Electronic Payment Recovery Dead End):** `CanConfirmPendingPayment` and `CanCancelPendingPayment` require `LastCheckoutResult != null`. Process restarts nullify `LastCheckoutResult`, locking out electronic confirmation even if `RetainedRequest` holds the pending operation.
+- **Finding UI-006 (Pickup State Leak):** `StartNewOrder()` resets delivery state but forgets to reset `RequestedPickupAtUtc`, leaking the previous customer's requested pickup time into subsequent orders.
+

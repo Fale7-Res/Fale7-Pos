@@ -320,6 +320,70 @@ foreach (var field in ActorFields)
 
 ---
 
+### Finding SEC-006 (NEW): Manager Approval Tokens Lack Expiration (TTL) Check
+
+- **Severity:** `HIGH` (CVSS v3.1: 7.4 - AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N)
+- **Status:** **NEWLY DISCOVERED & VERIFIED (Wave 3 Domain Audit)**
+- **Affected Components:**
+  - [`ApprovalRegistry.cs#L89-L97`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L89-L97) (`AuthorizationPolicy.ValidateApproval`)
+  - [`IssueManagerApprovalHandler.cs#L40`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs#L40)
+  - Handlers consuming approvals (`RefundOrderHandler.cs`, `CheckoutOrderHandler.cs`, `CloseShiftHandler.cs`, `AddExpenseHandler.cs`)
+
+#### Root Cause Analysis:
+1. When a manager issues an approval token via `AuthorizationPolicy.IssueManagerApproval`, the domain record stores `ApprovedAtUtc: nowUtc`.
+2. In `AuthorizationPolicy.ValidateApproval`:
+   ```csharp
+   var issued = registry.Find(approval.ApprovalId);
+   if (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))
+       throw new DomainException("اعتماد المدير غير صالح أو لا يطابق العملية.");
+   if (consume) registry.MarkConsumed(approval.ApprovalId);
+   return issued;
+   ```
+3. **The timestamp `ApprovedAtUtc` is never evaluated.** There is zero check for token age or expiration.
+4. **Impact:** Once minted, an approval token remains valid in the database indefinitely until consumed. A cashier can induce a manager to sign off on a transaction, cancel or abort the till interaction, and retain the unconsumed `approvalId`. Hours, days, or weeks later—long after the approving manager's shift has ended—the cashier can present the stockpiled `approvalId` to execute unauthorized refunds, comps, or cash movements without real-time manager oversight.
+
+---
+
+### Finding SEC-007 (NEW): Manager Approval Double-Spending Concurrency Race
+
+- **Severity:** `HIGH` (CVSS v3.1: 7.5 - AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:N)
+- **Status:** **NEWLY DISCOVERED & VERIFIED (Wave 3 Domain Audit)**
+- **Affected Components:**
+  - [`EfApprovalRegistry.cs#L41-L53`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs#L41-L53) (`IsConsumed`, `MarkConsumed`)
+  - [`ManagerApprovalEntity.cs#L5-L15`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/ManagerApprovalEntity.cs#L5-L15)
+  - [`ApprovalRegistry.cs#L92-L95`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs#L92-L95)
+
+#### Root Cause Analysis:
+1. In `AuthorizationPolicy.ValidateApproval`, checking consumption (`registry.IsConsumed`) and marking consumption (`registry.MarkConsumed`) are separate, non-atomic calls.
+2. In `EfApprovalRegistry.cs`:
+   ```csharp
+   public bool IsConsumed(string approvalId) =>
+       (_db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)
+           ?? _db.ManagerApprovals.AsNoTracking().FirstOrDefault(a => a.ApprovalId == approvalId))?.Consumed ?? false;
+
+   public void MarkConsumed(string approvalId)
+   {
+       var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)
+           ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId)
+           ?? throw new InvalidOperationException("الاعتماد غير موجود لتحديده كمستهلك.");
+       if (entity.Consumed)
+           throw new Falah.Domain.Common.DomainException("اعتماد المدير مستخدم بالفعل.");
+       entity.Consumed = true;
+   }
+   ```
+3. `ManagerApprovalEntity` possesses no optimistic concurrency token (`[Timestamp]` or `RowVersion`).
+4. In EF Core, executing `entity.Consumed = true` generates:
+   `UPDATE [ManagerApprovals] SET [Consumed] = 1 WHERE [ApprovalId] = @p0`
+   The SQL statement does NOT assert `AND [Consumed] = 0`.
+5. **Impact:** If two concurrent requests (e.g., parallel checkout comps or refund requests) submit the same `ManagerApprovalId` simultaneously across two separate HTTP connections:
+   - Request A checks `IsConsumed` -> returns `false`.
+   - Request B checks `IsConsumed` -> returns `false`.
+   - Request A sets `Consumed = true` and commits `SaveChangesAsync()`.
+   - Request B sets `Consumed = true` and commits `SaveChangesAsync()`.
+   Both database updates commit with rows affected = 1, resulting in **double spending** of a single manager approval token.
+
+---
+
 ## 5. Architectural Remediation Plan
 
 To address these vulnerabilities without breaking the contract of existing desktop clients, the following remediation blueprint is recommended for implementation:
@@ -366,6 +430,14 @@ To address these vulnerabilities without breaking the contract of existing deskt
    - Protect `GET /api/backups/*` with `RequirePermission(context, "backups_manage")`.
    - Protect `GET /api/purchases/*` with `RequirePermission(context, "purchasing_manage")`.
 
+### Phase 4: Manager Approval Lifecycle & Concurrency Hardening (Fixes SEC-006 & SEC-007)
+1. **Approval Token Expiration Enforcement (TTL):**
+   - In `AuthorizationPolicy.ValidateApproval`, add parameter `DateTimeOffset nowUtc` and reject tokens where `nowUtc - issued.ApprovedAtUtc > TimeSpan.FromMinutes(15)`.
+2. **Atomic Approval Consumption & Concurrency Token:**
+   - Add `[Timestamp] public byte[] RowVersion { get; set; } = default!;` to `ManagerApprovalEntity`.
+   - In `EfApprovalRegistry.MarkConsumed`, enforce atomic conditional updates:
+     `UPDATE ManagerApprovals SET Consumed = 1 WHERE ApprovalId = @id AND Consumed = 0`
+     and verify that exactly 1 row was affected; throw `DomainException` if already consumed.
 ---
 
 ## 6. Verification Status Summary Matrix
@@ -377,6 +449,8 @@ To address these vulnerabilities without breaking the contract of existing deskt
 | **SEC-003** | Unpermissioned Employee Salary/PII Exposure | **YES** | `GET /api/employees` and sub-routes lack permission checks in Minimal APIs | `Program.cs#L685-L697`, `EmployeeQueryService.cs#L81` |
 | **SEC-004** | Shift Close Identity Spoofing (`ClosedByUserId`) | **YES** | `closedByUserId` omitted from `AuthenticationMiddleware.ActorFields` | `AuthenticationMiddleware.cs#L86-L90`, `CloseShiftHandler.cs#L52` |
 | **SEC-005** | Unguarded Payroll, Backup, and Treasury Reads | **YES** | Read routes return sensitive financial/operational data without permission gates | `Program.cs#L819, L862, L1828, L2203` |
+| **SEC-006** | Manager Approval Tokens Lack Expiration (TTL) Check | **YES** | `ValidateApproval` never checks `ApprovedAtUtc`; tokens valid indefinitely | `ApprovalRegistry.cs#L91-L93`, `IssueManagerApprovalHandler.cs#L40` |
+| **SEC-007** | Approval Double-Spending Concurrency Hazard | **YES** | Non-atomic `IsConsumed`/`MarkConsumed` and lack of concurrency token in `EfApprovalRegistry` | `EfApprovalRegistry.cs#L41-L53`, `ManagerApprovalEntity.cs#L5-L15` |
 
 ---
 *Report filed by Security and Authorization Auditor.*
