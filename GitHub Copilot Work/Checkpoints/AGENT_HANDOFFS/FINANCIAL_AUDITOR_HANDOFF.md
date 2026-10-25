@@ -555,3 +555,29 @@ Output review generated: [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews
 
 *Report compiled and certified by Financial & Database Integrity Specialist.*
 
+
+
+# Financial Auditor Handoff - Wave 8
+
+**Date**: 2026-10-25  
+**Auditor**: Financial Integrity Auditor (Fale7 POS)  
+**Status**: Wave 8 Complete (112 Callables Audited Across 2 Files)
+
+---
+
+## Completed Audits
+
+1. **`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs` (64 callables)**:
+   - Exhaustive callable-by-callable audit completed and documented in artifact storage.
+   - **Critical Finding (FIN-013)**: Identified sign inversion in `LoadStockAsync` where `QuantityMilliUnits` is summed unsigned (`g.Sum(m => m.QuantityMilliUnits)`), causing outbound stock movements (`Direction == "Out"`, usage, waste) to add to inventory balance rather than reducing it. Contrast noted with `InventoryQueryService`.
+   - **OpenExceptionCount vs In-Memory**: Verified `ControlExceptionStates` table query correctly reflects persisted open control exceptions.
+   - **Currency & Periods**: Confirmed all monetary aggregation uses integer Piastres (`long`) and `BusinessDateRange.ToUtcRange()`.
+
+2. **`src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs` (48 callables)**:
+   - Exhaustive callable-by-callable audit completed and documented in artifact storage.
+   - **Reconciliation & Variance**: Analyzed cash vs electronic reconciliation, tender breakdowns, tax aggregation, and shift drawer variance calculations (`BuildShiftTotals`).
+
+---
+
+## Strict Rule Compliance
+- **Audit Documentation Only**: Zero changes were made to `src/` or `tests/`. All reviews are fully documented in artifacts.

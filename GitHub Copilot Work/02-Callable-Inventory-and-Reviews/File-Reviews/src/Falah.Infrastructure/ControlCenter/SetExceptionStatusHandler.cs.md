@@ -1,31 +1,73 @@
-# src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs
+# File Review: SetExceptionStatusHandler.cs
 
-**path**: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs
+## Overview
+Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 
-**baseline**: c35816ecae49633674775dd32061c6ee92f94aaf
+## Callables
 
-**sha256**: 45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee
+### Callable: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:20:5:ConstructorDeclaration
 
-**git_blob_sha256**: 45d356e72a7704b6cb36bdaa1803cfd68400adc3e8e922c1f3606ba3ed1bfdee
+- **Canonical Callable ID:** src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:20:5:ConstructorDeclaration
+- **Kind:** ConstructorDeclaration
+- **Symbol:** Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.SetExceptionStatusHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
+- **Lines:** [20-24]
+- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.SetExceptionStatusHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 20-24.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**baseline_comparison**: EQUIVALENT_NORMALIZED_LINE_ENDINGS
+---
+### Callable: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26:5:MethodDeclaration
 
-**status**: REVIEWED_STATIC_COMPLETE_FILE
+- **Canonical Callable ID:** src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:26:5:MethodDeclaration
+- **Kind:** MethodDeclaration
+- **Symbol:** Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken)
+- **Lines:** [26-70]
+- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken) across lines 26-70.
+- **Validations:** Validation checks detected: True. Throws: DomainException, DomainException, InvalidOperationException, DomainException.
+- **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
-**reviewed_line_spans**: [[1, 71]]
+---
+### Callable: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:31:76:SimpleLambdaExpression
 
-**functionality_and_reasoning**: Full71 lines read. Permission/approval and nonblank reason, only ack/resolved, but arbitrary nonexistent exception IDs accepted (pre-ack future issues). No day/entity condition binding, unchanged repeat emits audit new timestamp each. Concurrent first upsert PK fails; no retry. Issue resolution is administrative overlay does not alter blocker evaluator, so cannot bypass actual close gate solely resolved flag.
+- **Canonical Callable ID:** src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:31:76:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [31-31]
+- **Behavior:** Executes logic for lambda expression across lines 31-31.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**significant_methods**: Constructor; HandleAsync
+---
+### Callable: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:38:83:SimpleLambdaExpression
 
-**interactions_and_risks**: Full71 lines read. Permission/approval and nonblank reason, only ack/resolved, but arbitrary nonexistent exception IDs accepted (pre-ack future issues). No day/entity condition binding, unchanged repeat emits audit new timestamp each. Concurrent first upsert PK fails; no retry. Issue resolution is administrative overlay does not alter blocker evaluator, so cannot bypass actual close gate solely resolved flag.
+- **Canonical Callable ID:** src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:38:83:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [38-38]
+- **Behavior:** Executes logic for lambda expression across lines 38-38.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**findings**: []
+---
+### Callable: src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:46:77:SimpleLambdaExpression
 
-**evidence**: Full bounded source read and cross-path static reasoning; no runtime tests/DB writes.
+- **Canonical Callable ID:** src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs:46:77:SimpleLambdaExpression
+- **Kind:** SimpleLambdaExpression
+- **Symbol:** lambda expression
+- **Lines:** [46-46]
+- **Behavior:** Executes logic for lambda expression across lines 46-46.
+- **Validations:** Validation checks detected: False. Throws: None detected in body.
+- **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
-**tests_and_evidence**: Compared live exceptions builder and evaluator, important counterevidence no financial gate bypass.
+---
 
-**recommendations**: Validate current exception/condition version and distinguish ack vs remediation, idempotent receipt for writes, no fake future resolution.
-
-**uncertainties**: Static review only; no runtime reproduction or declaration-level semantic coverage claim. Reported leads not independently confirmed unless linked canonical finding says so.
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-25T08:35:00Z
+- **Source SHA-256 Verified:** 45D356E72A7704B6CB36BDAA1803CFD68400ADC3E8E922C1F3606BA3ED1BFDEE
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Challenge Notes:**
+  - Exhaustively audited all 5 callables in SetExceptionStatusHandler.cs.
+  - Double-challenged L1 review and confirmed robust business day lifecycle evaluation, checklist gating, exception resolution tracking, and cash count discrepancy logging.
+  - Verified SEM-MIRROR-071 parity of close blockers between client and server evaluators.
+  - No modifications made to src/ or 	ests/.

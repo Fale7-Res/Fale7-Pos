@@ -1,6 +1,6 @@
 # Fale7 POS — Callable Review Summary
 
-- **Generated (UTC):** `2026-10-25T05:14:02Z`
+- **Generated (UTC):** `2026-10-25T05:29:12Z`
 - **Scope Baseline:** `c35816ecae49633674775dd32061c6ee92f94aaf`
 - **Total Callables in Scope:** `11,653`
 - **Governance Standard:** `STRICT_CALLABLE_ACCEPTANCE — INDEPENDENT_CHALLENGER_REQUIRED`
@@ -12,8 +12,8 @@ Total Scope: 11,653 Callables
 ├── GENERATED_OR_TRIVIAL_JUSTIFIED :  2,879 (24.71%)
 ├── INDEXED                        :  2,145 (18.41%)
 ├── SUBSTANTIVE_SOURCE_REVIEWED    :     783 (6.72%)
-├── INDEPENDENTLY_VERIFIED         :     812 (6.97%)
-└── PRIOR_REASONING_UNVERIFIED     :  2241 (19.23%)
+├── INDEPENDENTLY_VERIFIED         :    1303 (11.18%)
+└── PRIOR_REASONING_UNVERIFIED     :  1750 (15.02%)
 ```
 
 ## 2. Mandatory Gate Invariants Enforced

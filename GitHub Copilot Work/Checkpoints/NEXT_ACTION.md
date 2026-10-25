@@ -2,8 +2,8 @@
 
 - **Audit Governance:** Strict Callable Acceptance Gate Enforced.
 - **Accepted Substantive Callables:** `783`
-- **Accepted Independently Verified:** `812`
-- **Current Unfinished Production Callables:** `2,241`
+- **Accepted Independently Verified:** `1,303`
+- **Current Unfinished Production Callables:** `1,750`
 - **Immediate Task:** Dispatch Wave 4 batches to the 5 active subagents with mandatory exact callable ID mapping:
   1. `financial-auditor`: `src/Falah.Infrastructure/Treasury/DepositHandler.cs`, `SafeDropHandler.cs`, `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs`, `EfFinancialJournal.cs`.
   2. `security-auditor`: `src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs`, `UsersViewModel.Actions.cs` (SEC-002 RetainedRequestStore PIN storage).

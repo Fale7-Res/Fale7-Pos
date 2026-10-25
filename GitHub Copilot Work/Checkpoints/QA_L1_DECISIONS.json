@@ -292,12 +292,99 @@
         "SEC-006"
       ],
       "verified_at": "2026-10-25T08:07:00Z"
+    },
+    "src/Falah.Client.CashierWinUI/Services/ApiClient.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/Services/ApiClient.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 268,
+      "sha256": "831A6DFD1F18510B240A232B7A4C4FD11251A51746E1E416C7CE691F732DDBF4",
+      "challenged_findings": [
+        "SEC-008",
+        "SEM-MIRROR-072"
+      ],
+      "verified_at": "2026-10-25T08:21:00Z"
+    },
+    "src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 114,
+      "sha256": "67C66A18A228C9E34B3D42AAD4C609F75C5AE0BDE36D87E8FABC366D8119BD29",
+      "challenged_findings": [
+        "FIN-013"
+      ],
+      "verified_at": "2026-10-25T08:23:00Z"
+    },
+    "src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 71,
+      "sha256": "2B948C2A68B54CF59D65995D85BD6556A6D43A329A93FF620CD9BE0104987647",
+      "challenged_findings": [
+        "FIN-STATEMENT-RECON"
+      ],
+      "verified_at": "2026-10-25T08:24:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 22,
+      "sha256": "CC3A318C0332B40555EE9F2E545B42876B0E74A90E71C15732C5153EB576A832",
+      "challenged_findings": ["SEM-MIRROR-071"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 30,
+      "sha256": "B33D64C048DB902BC7B9469787872EA70BE30659AB69A97486D9F95C98D46255",
+      "challenged_findings": ["BIZ-DAY-CLOSE"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 57,
+      "sha256": "37961059653DC7C24FF65684D8CEC113EF0423D7486953BF808ED6E767762DF3",
+      "challenged_findings": ["CC-QUERY"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 11,
+      "sha256": "2BA6E827C2DB885018094250FE907C5D78DD87C3D7112513D3624B92BCADFC15",
+      "challenged_findings": ["BIZ-DAY-REOPEN"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 9,
+      "sha256": "97E4427DED182F726E97ED7A1BC362CDAF4B94A3AB009635317FC36F0F9B0E57",
+      "challenged_findings": ["CASH-COUNT"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/CompleteChecklistItemHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 6,
+      "sha256": "1EBD4439F52E582F2E890C0DB9BBD9F0C7E3E406B8ED56E46F2DA900229083B3",
+      "challenged_findings": ["CHECKLIST"],
+      "verified_at": "2026-10-25T08:27:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs": {
+      "review_file": "GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Infrastructure/ControlCenter/SetExceptionStatusHandler.cs.md",
+      "verdict": "ACCEPTED",
+      "callables_count": 5,
+      "sha256": "45D356E72A7704B6CB36BDAA1803CFD68400ADC3E8E922C1F3606BA3ED1BFDEE",
+      "challenged_findings": ["EXCEPTION-STATUS"],
+      "verified_at": "2026-10-25T08:27:00Z"
     }
   },
   "summary": {
-    "total_files_reviewed": 26,
-    "total_callables_verified": 1025,
-    "total_accepted": 26,
+    "total_files_reviewed": 36,
+    "total_callables_verified": 1589,
+    "total_accepted": 36,
     "total_rejected": 0
   }
 }

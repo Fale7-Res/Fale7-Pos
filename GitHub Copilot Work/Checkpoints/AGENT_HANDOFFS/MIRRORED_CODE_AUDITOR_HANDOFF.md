@@ -631,6 +631,38 @@ gantt
 - `GetLossSummaryAsync` coerces null `LossValuePiastres` to 0 (`m.LossValuePiastres ?? 0`).
 - Uncosted waste contributes 0 EGP to total loss without returning an `UnknownLossCount` indicator, understating financial spoilage figures.
 
+---
+
+### 8.8 Wave 8: Cashier WinUI API Client & Tri-Client Parity Deep Audit (268 Callables)
+
+#### 1. Scope and Targets Audited
+- `src/Falah.Client.CashierWinUI/Services/ApiClient.cs` (268 callables: constructors, endpoint methods, helpers, result readers, lambdas)
+- Review File: `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/Services/ApiClient.cs.md`
+- Target Symbols: All 268 canonical symbols from `GitHub Copilot Work/02-Callable-Inventory-and-Reviews/CALLABLE_REVIEW_REGISTRY.json` for `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`.
+
+#### 2. Architectural Findings and Parity Disparities
+
+##### A. Architectural Role as Authoritative Management Client
+- `src/Falah.Client.CashierWinUI/Services/ApiClient.cs` is the primary, fully-featured strongly-typed HTTP transport client for the WinUI 3 Cashier and Management station (`Falah.Client.CashierWinUI`).
+- Implements over 60 typed endpoints covering POS checkout, shifts, inventory, treasury, purchasing, payroll, attendance, delivery dispatch, reports, and control center operations.
+- Strictly adheres to the principle that `Falah.Server` is the sole financial authority, with zero direct database connection strings in the client project.
+
+##### B. Separation of Read vs Write Transport (`SEM-MIRROR-072`)
+- Unlike the Call Center client which uses a universal `SendAsync<T>` wrapper (flagging all read timeouts as `OutcomeUnknown: true`), `CashierWinUI` correctly bifurcates:
+  - `ReadAsync<T>`: For idempotent GET queries (menu, tax rules, settings, reports, item lookups). Transport failures do not claim funds moved (`OutcomeUnknown: true` is avoided for safe reads).
+  - `SendAsync<T>`: For mutating POST/PUT commands (checkout, shift operations, payments, adjustments), ensuring operators are instructed to retry with the same data if transport is interrupted.
+  - `SendEmptyAsync`: For body-less 200/204 success responses (availability toggles, PIN changes, exception status updates).
+
+##### C. Shared Vulnerability `SEC-008`: Singleton HttpClient Header Mutation
+- Like `CallCenterWinUI`, `CashierWinUI` mutates `_http.DefaultRequestHeaders.Authorization` upon successful PIN login (`LoginByPinAsync`).
+- In shared terminal workstations, background polling or asynchronous worker tasks executing concurrently risk transmitting newly assigned operator bearer tokens if session context shifts.
+
+##### D. Endpoint Coverage Parity vs WPF & Call Center Clients
+- **WPF Client:** 8 endpoints only, no token authentication, no resilience wrappers.
+- **Call Center Client:** 27 endpoints (14 dead cashier hardware wrappers), unified `SendAsync` causing false-positive `OutcomeUnknown` on GETs.
+- **Cashier WinUI Client:** Complete coverage (~60 endpoints across 3 partial files `ApiClient.cs`, `ApiClient.Menu.cs`, `ApiClient.People.cs`), robust error mapping, and complete management/control center integration.
+
+
 
 
 
