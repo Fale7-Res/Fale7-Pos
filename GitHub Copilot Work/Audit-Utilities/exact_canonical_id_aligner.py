@@ -96,6 +96,25 @@ def align_file(rel_path):
 
 def main():
     target_files = [
+        # Wave 4 files
+        'src/Falah.Infrastructure/Treasury/DepositHandler.cs',
+        'src/Falah.Infrastructure/Treasury/SafeDropHandler.cs',
+        'src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs',
+        'src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs',
+        'src/Falah.Domain/Idempotency/FinancialJournal.cs',
+        'src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs',
+        'src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs',
+        'src/Falah.Infrastructure/Orders/OrderMapper.cs',
+        'src/Falah.PrintAgent/BitmapTicketRenderer.cs',
+        'src/Falah.Domain/Printing/TicketLayout.cs',
+        'src/Falah.PrintAgent/PrintServerClient.cs',
+        'src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs',
+        'src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs',
+        'src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.cs',
+        'src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs',
+        'src/Falah.Domain/Authorization/SessionToken.cs',
+        'src/Falah.Domain/Authorization/PermissionCatalog.cs',
+
         # Wave 3 files
         'src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs',
         'src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs',

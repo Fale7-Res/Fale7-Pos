@@ -481,7 +481,7 @@ gantt
 - **WinUI 3 Parity (`CashierViewModel.Checkout.cs:196-204`):**
   Uses `CashInput.TryParse`, correctly parsing `"150.00"` as 15000 piastres and `"200"` as 20000 piastres, computing accurate change.
 
-#### 2. Client vs Server Validation Divergence (SEM-MIRROR-065)
+#### 2. Client vs Server Validation Divergence
 - **Manual Discounts:**
   * WPF sends hardcoded `DiscountPiastres: 0`. Cashier cannot apply discounts.
   * WinUI 3 checks `orders_discount` permission, validates input via `CashInput`, and updates totals reactively.
@@ -502,4 +502,30 @@ gantt
 - **Finding UI-001 (In-Memory Pending Checkout Loss):** In WinUI 3, `_pendingCheckout` is kept in an in-memory field only; if the app crashes during an ambiguous network drop, the pending request is lost.
 - **Finding UI-005 (Electronic Payment Recovery Dead End):** `CanConfirmPendingPayment` and `CanCancelPendingPayment` require `LastCheckoutResult != null`. Process restarts nullify `LastCheckoutResult`, locking out electronic confirmation even if `RetainedRequest` holds the pending operation.
 - **Finding UI-006 (Pickup State Leak):** `StartNewOrder()` resets delivery state but forgets to reset `RequestedPickupAtUtc`, leaking the previous customer's requested pickup time into subsequent orders.
+
+---
+
+### 8.3 Wave 4: Order Lookup, Refund Orchestration & DTO Mapping Parity
+
+#### 1. Finding FIN-CAND-WPF-REFUND-AMBIGUOUS-RETRY-001 (WPF Refund Duplicate Payouts)
+- **Defect Mechanism in WPF (`CashierViewModel.OrderLookup.cs:82`):**
+  WPF mints a brand new `RefundRequestId: $"rreq-{Guid.NewGuid():N}"` on every invocation of `SubmitRefundAsync()`. It does not cache or retain the in-flight request ID.
+- **Financial Risk:** If a network drop, timeout, or 504 Gateway Timeout occurs after `RefundOrderHandler` commits the refund on the server, `result.Success` is false. The cashier clicks "استرجاع" to retry. WPF submits a new `RefundRequestId`, which the server treats as an independent second refund, disbursing duplicate cash from the drawer and double-debiting treasury accounts.
+- **WinUI 3 Parity (`CashierViewModel.Refund.cs:110-122`):**
+  WinUI 3 stores `_pendingRefund = request` and re-submits the exact frozen request upon retry, rotating `_refundRequestId` only AFTER the server confirms success.
+
+#### 2. Defense-in-Depth Disparity on Unpaid Order Refunds (FIN-003)
+- **Defect in WPF (`CashierViewModel.OrderLookup.cs:64`):**
+  `CanRefund()` only checks `LookedUpOrder is not null && !IsRefunding`. It never verifies `IsPaid: true`. Unpaid cash-on-delivery or pending electronic orders can be refunded, extracting physical cash for uncollected revenue.
+- **WinUI 3 Enforcement (`CashierViewModel.Refund.cs:20-21`):**
+  `CanRefundOrder` strictly verifies `OrderLookupResult is { IsPaid: true, PaymentMethod: not "multi", Status: not "cancelled" }`, preventing cash extraction on unpaid orders at the UI boundary.
+
+#### 3. Cross-Shift Refund Drawer Discrepancy (FIN-004)
+- **Reconciliation Impact:**
+  `RefundOrderHandler` subtracts cash from the active operational shift (`shiftPolicy.OperationalShiftId`), but records the original sale's shift (`order.ShiftId`). Both IDs are mapped to `OrderRefundEntity` by `OrderMapper.ToEntity(refund)`. Reports must separate shift drawer balance movements from historical order shift totals.
+
+#### 4. Order DTO & Entity Mapping Parity (`OrderMapper.cs`)
+- **Read-Side Parity:** `OrderMapper.ToDto` accurately projects all monetary snapshots, tax figures, split tenders, structured delivery addresses, and pickup times to `OrderDetailsDto`. Client-side calculations (`RefundRemainingDisplay`, `RefundableRemainingPiastres`) match server totals with zero calculation drift.
+- **Reconstitution Safety:** `OrderMapper.ToDomain` maps all 38 snapshot fields into `Order.Reconstitute`. However, it relies on callers executing EF Core `.Include(o => o.Items).Include(o => o.Refunds)` to avoid aggregate truncation.
+
 

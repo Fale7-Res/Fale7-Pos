@@ -478,12 +478,43 @@ The following remediation specifications are documented for implementation by de
   Assert that `request.DeliveryFeePiastres >= 0`.
   For delivery orders with `DeliveryServiceId`, assert that the fee equals the configured service fee, or require `orders_discount` / `orders_comp` manager approval if the delivery fee is waived or reduced.
 
+### 5.16 Remediation for FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001 (Safe Drop Closed Shift Guard)
+- In [`SafeDropHandler.cs:45`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs#L45):
+  Assert that the referenced shift is currently `Open`:
+  ```csharp
+  var shift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
+      ?? throw new InvalidOperationException("الوردية غير موجودة.");
+  if (shift.Status != nameof(ShiftStatus.Open))
+      throw new DomainException("لا يمكن تسجيل إيداع آمن لوردية مغلقة. يجب أن تكون الوردية مفتوحة.");
+  ```
+
+### 5.17 Remediation for FIN-GATE-001 (In-Transaction Business Day Gate Verification)
+- In [`DepositHandler.cs:58`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/DepositHandler.cs#L58), [`SafeDropHandler.cs:58`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs#L58), and [`AddExpenseHandler.cs:69`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs#L69):
+  Move `BusinessDayGate.RequireOpenAsync` or re-validate inside the active transaction with `SELECT ... WITH (UPDLOCK)` on `BusinessDays` before committing movements.
+
+### 5.18 Remediation for FIN-LSP-001 (Liskov Substitution in EfFinancialJournal)
+- In [`EfFinancialJournal.cs:56`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs#L56):
+  Implement `Find(string idempotencyKey)` to query `_db.FinancialJournalEntries` and map to `FinancialJournalEntry` instead of throwing `NotSupportedException`.
+
 ---
 
-## 6. Verification Status & Handoff Sign-off
+## 6. Specialist Wave 4 Audit Addendum & Invariant Mapping
 
-- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & FINDINGS INDEPENDENTLY CORROBORATED FROM SOURCE**
+During Wave 4 forensic evaluation of Treasury & Idempotency handlers, the following additional findings were confirmed:
+
+| Finding ID | Severity | Root Cause Code Span | Impact | Remediation Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001`** | **CRITICAL** | [`SafeDropHandler.cs:17-19, 45-46`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs#L17-L46) | Safe drop allows attributing drawer skimming movements to already-closed shifts, retroactively modifying printed shift reconciliations and creating false shortages in the active shift. | Documented in review file; remediation 5.16 defined. |
+| **`FIN-GATE-001`** | **MEDIUM** | [`DepositHandler.cs:58`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/DepositHandler.cs#L58), [`SafeDropHandler.cs:58`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs#L58), [`AddExpenseHandler.cs:69`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs#L69) | `BusinessDayGate.RequireOpenAsync` executed with `.AsNoTracking()` outside transaction; movements commit under closed business day IDs. | Documented in review files; remediation 5.17 defined. |
+| **`FIN-LSP-001`** | **MEDIUM** | [`EfFinancialJournal.cs:56-57`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs#L56-L57) | `IFinancialJournal.Find` throws `NotSupportedException` in production EF Core implementation, breaking polymorphic contract with `InMemoryFinancialJournal`. | Documented in review file; remediation 5.18 defined. |
+
+---
+
+## 7. Verification Status & Handoff Sign-off
+
+- **Workstream Status:** **AUDIT INVESTIGATION COMPLETE — ALL 16 FINANCIAL WORKFLOWS & WAVES 1-4 FULLY AUDITED & DOCUMENTED**
 - **Code Modifications:** **0 files modified in `src/` or `tests/`**
 - **Next Phase:** Implementation of architectural remediations by authorized implementation agents in an isolated branch with dedicated disposable SQL Server container verification.
 
 *Report compiled and certified by Financial & Database Integrity Specialist.*
+

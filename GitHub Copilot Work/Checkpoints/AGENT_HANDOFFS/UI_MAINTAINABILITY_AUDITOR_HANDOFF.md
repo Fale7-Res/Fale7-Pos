@@ -250,4 +250,57 @@ Individual callable review artifacts written:
 - In WPF (`CashierViewModel.cs:82-87, 145-156`), commands like `SelectProduct`, `SelectOffer`, `IncreaseQuantity`, and `DecreaseQuantity` **completely lack `CanEditOperation` guards**, permitting cashiers to alter order lines while background HTTP writes are in-flight.
 
 ---
+
+## 8. Wave 4 Parity Audit Findings: Management ViewModels (Treasury & Purchasing)
+
+### 8.1 Scope & Callable Inventory Summary (115 Callables Audited)
+Wave 4 conducted an exhaustive, source-grounded inspection of the WinUI 3 management ViewModels governing fiscal treasury movements, cash desk reconciliation, supplier lifecycle, and purchasing invoices:
+1. `src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs` (49 canonical callables audited, 415 lines)
+2. `src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs` (66 canonical callables audited, 626 lines)
+
+Individual callable review artifacts written:
+- [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs.md)
+- [`GitHub Copilot Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/File-Reviews/src/Falah.Client.CashierWinUI/ViewModels/PurchasingViewModel.cs.md)
+
+### 8.2 Key Findings & Architectural Disparities in Wave 4
+
+#### A. UI-001 / Concurrency: Volatile Idempotency Token Discard vs. Durable Retained Request Pattern
+- **Treasury Vulnerability:** In `TreasuryViewModel.cs:23-24`, pending operations are tracked via volatile memory fields:
+  ```csharp
+  private Func<Task<(bool, bool, string?)>>? _pendingCommit;
+  private string? _requestId;
+  ```
+  When a deposit, withdrawal, or vault transfer encounters an ambiguous timeout or network failure, `_outcomeUnknown` is set to `true`, allowing the user to click `RetryPendingAsync()`. However, if the desktop application is closed, killed, or the dialog is dismissed and reopened, `_pendingCommit` and `_requestId` are permanently lost. Reopening the modal mints a brand-new `Guid.NewGuid().ToString("N")`, creating a severe risk of **duplicate fiscal transactions (double deposit or double withdrawal)** if the initial request actually committed on the server.
+- **Purchasing Contrast:** In `PurchasingViewModel.cs:24-27`, pending operations use durable disk-backed `RetainedRequest<TRequest>` objects:
+  ```csharp
+  private readonly RetainedRequest<CreateSupplierRequest> _supplierRequest;
+  private readonly RetainedRequest<ReceiveInvoiceRequest> _receiveRequest;
+  private readonly RetainedRequest<PayInvoiceRequest> _payRequest;
+  ```
+  These persist across application restarts, preventing duplicate supplier registration or double payment of supplier invoices upon network partition.
+
+#### B. PERF-001: Missing UI Virtualization in High-Density Tables
+- In `TreasuryView.xaml:148-150`, `Movements` is bound to a standard non-virtualizing `ItemsControl` inside a vertical `ScrollViewer`. Up to 200 fiscal movement records are materialized simultaneously as full visual subtrees with complex layouts, causing significant memory allocation and UI thread rendering stalls.
+- In `PurchasingView.xaml:50, 177`, both `Suppliers` and `Purchases` are rendered inside unvirtualized `ItemsControl` containers within `ScrollViewer` elements. Historical purchasing invoices (up to hundreds per period) are rendered concurrently.
+- On every search keystroke in `PurchasingViewModel.SearchSuppliersAsync` and date filter changes in `TreasuryViewModel`, collections are updated via `ObservableCollection.Clear()` followed by sequential `Add()` in tight loops. Each `Add()` raises `CollectionChanged`, triggering N layout passes and freezing low-spec POS terminals.
+
+#### C. ASYNC-001: Systemic Fire-and-Forget Task Discards & Missing Exception Handlers
+- Both `TreasuryViewModel.LoadAsync()` and `PurchasingViewModel.LoadAsync()` employ `try / finally` blocks with **no `catch (Exception ex)` clause**.
+- In `ShellViewModel.cs:228, 238`, navigation triggers both methods as unobserved task discards:
+  ```csharp
+  _ = vm.LoadAsync();
+  ```
+  Any transient socket abort, HTTP 500/503, or deserialization error creates an unhandled faulted task that is surfaced to `TaskScheduler.UnobservedTaskException`.
+- In `PurchasingViewModel.cs`, 5 asynchronous commands (`SearchSuppliersAsync`, `OpenCreateSupplierModalAsync`, `OpenReceiveModalAsync`, `OpenPayModalAsync`, `OpenDetailModalAsync`) lack `try/catch` protection, exposing the UI thread to unhandled task exceptions during API lookups.
+
+#### D. UI-002: Dark Theme Color Contrast Failure in Purchasing Modals
+- In `PurchasingModalsView.xaml:118-131, 208-220`, payment method selection buttons define:
+  ```xml
+  Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|WhiteBrush|BrandPrimaryBrush}"
+  Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|WhiteBrush}"
+  ```
+  When selected, the button renders `BrandPrimaryBrush` text (`#3B82F6` in Dark Theme) over `WhiteBrush` (`#FFFFFF`).
+- The resulting contrast ratio is **3.69:1**, violating the **WCAG 2.1 AA 4.5:1** requirement for standard text.
+
+---
 *Report certified by UI/UX, Performance, and Code Maintainability Specialist Auditor.*

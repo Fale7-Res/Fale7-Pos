@@ -384,6 +384,41 @@ foreach (var field in ActorFields)
 
 ---
 
+### Finding SEC-008 (NEW): Session Token Replacement & Identity Confusion in PIN Replay
+
+- **Severity:** `HIGH` (CVSS v3.1: 7.5 - AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:N)
+- **Status:** **NEWLY DISCOVERED & VERIFIED (Wave 4 Client ViewModels Audit)**
+- **Affected Components:**
+  - [`UsersViewModel.Actions.cs#L163-L174`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs#L163-L174)
+  - [`ApiClient.cs#L157-L171`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs#L157-L171) (`LoginByPinAsync`)
+
+#### Root Cause Analysis:
+1. In `UsersViewModel.Actions.cs`, when replaying a retained self-service PIN change request:
+   ```csharp
+   var result = await _pendingPin.SendAsync(request, async original =>
+   {
+       // The self-service endpoint proves the OLD PIN, so replay after a committed
+       // change may reject it. Confirm the intended new credential belongs to this
+       // exact user before issuing another write. Never change the logged-in session.
+       if (wasPending && original.UserId == original.ActorUserId)
+       {
+           var proof = await _session.Api.LoginByPinAsync(original.NewPin);
+           if (proof.Success && proof.Value?.Id == original.UserId) return new ApiClient.ApiResult<bool>(true, true, null);
+       }
+       return await _session.Api.ChangePinAsync(original);
+   });
+   ```
+2. Despite the comment claiming *"Never change the logged-in session"*, inspecting `ApiClient.LoginByPinAsync` reveals:
+   ```csharp
+   _sessionToken = result.Value.Token;
+   _http.DefaultRequestHeaders.Authorization =
+       new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+   ```
+3. Calling `LoginByPinAsync` unconditionally overwrites `_sessionToken` and `_http.DefaultRequestHeaders.Authorization` on the shared `HttpClient` instance.
+4. **Impact:** If the new PIN authenticates as another user (e.g. if another account held that PIN), the client's bearer token is permanently overwritten with the other user's identity, while `_session.CurrentUser` remains unchanged. All subsequent requests issued from that terminal (refunds, drawer opens, orders) are authenticated under the other user's session token, resulting in identity confusion and session hijacking.
+
+---
+
 ## 5. Architectural Remediation Plan
 
 To address these vulnerabilities without breaking the contract of existing desktop clients, the following remediation blueprint is recommended for implementation:
@@ -438,6 +473,11 @@ To address these vulnerabilities without breaking the contract of existing deskt
    - In `EfApprovalRegistry.MarkConsumed`, enforce atomic conditional updates:
      `UPDATE ManagerApprovals SET Consumed = 1 WHERE ApprovalId = @id AND Consumed = 0`
      and verify that exactly 1 row was affected; throw `DomainException` if already consumed.
+### Phase 5: Client Session & Credential Isolation (Fixes SEC-008)
+1. **Dedicated Credential Proof Endpoint:**
+   - Introduce `POST /api/auth/verify-pin` that accepts a PIN and validates validity/user mapping without minting a new bearer token or mutating client authorization headers.
+2. **Isolate Replay Verification:**
+   - Update `UsersViewModel.Actions.cs` to verify credentials via an isolated, stateless check rather than invoking `_session.Api.LoginByPinAsync`.
 ---
 
 ## 6. Verification Status Summary Matrix
@@ -451,6 +491,7 @@ To address these vulnerabilities without breaking the contract of existing deskt
 | **SEC-005** | Unguarded Payroll, Backup, and Treasury Reads | **YES** | Read routes return sensitive financial/operational data without permission gates | `Program.cs#L819, L862, L1828, L2203` |
 | **SEC-006** | Manager Approval Tokens Lack Expiration (TTL) Check | **YES** | `ValidateApproval` never checks `ApprovedAtUtc`; tokens valid indefinitely | `ApprovalRegistry.cs#L91-L93`, `IssueManagerApprovalHandler.cs#L40` |
 | **SEC-007** | Approval Double-Spending Concurrency Hazard | **YES** | Non-atomic `IsConsumed`/`MarkConsumed` and lack of concurrency token in `EfApprovalRegistry` | `EfApprovalRegistry.cs#L41-L53`, `ManagerApprovalEntity.cs#L5-L15` |
+| **SEC-008** | Session Token Replacement & Identity Confusion in PIN Replay | **YES** | `LoginByPinAsync` in `ChangePinAsync` replay proof overwrites `_http` Authorization header | `UsersViewModel.Actions.cs#L170`, `ApiClient.cs#L164-L166` |
 
 ---
 *Report filed by Security and Authorization Auditor.*
