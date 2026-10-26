@@ -1,29 +1,30 @@
 {
-  "timestamp_utc": "2026-10-25T07:23:30Z",
+  "timestamp_utc": "2026-10-26T00:46:25Z",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "total_findings": 90,
+  "total_findings": 100,
   "disposition_counts": {
-    "INDEPENDENTLY_CORROBORATED": 29,
+    "INDEPENDENTLY_CORROBORATED": 35,
     "REQUIRES_RUNTIME_VERIFICATION": 21,
-    "REQUIRES_OWNER_BUSINESS_DECISION": 5,
+    "REQUIRES_OWNER_BUSINESS_DECISION": 6,
     "CORROBORATED_WITH_QUALIFICATIONS": 24,
     "INDEPENDENTLY_CORROBORATED_AND_CORRECTED": 2,
     "CHALLENGED_COUNTEREVIDENCE_FOUND": 1,
-    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 8
+    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 10,
+    "THEORETICAL_BCL_LIMITATION": 1
   },
   "severity_counts": {
-    "HIGH": 37,
-    "MEDIUM": 45,
+    "HIGH": 40,
+    "MEDIUM": 52,
     "LOW": 7,
     "HIGH_REQUIREMENT_GAP": 1
   },
   "category_counts": {
-    "FINANCIAL_AND_DATABASE_INTEGRITY": 46,
+    "FINANCIAL_AND_DATABASE_INTEGRITY": 54,
     "ORDER_LIFECYCLE_AND_WORKFLOW": 2,
     "PRINTING_AND_HARDWARE": 6,
     "SECURITY_AND_ACCESS_CONTROL": 12,
-    "UI_UX_AND_DESKTOP_CLIENT_STATE": 21,
-    "INVENTORY_AND_COSTING": 3
+    "UI_UX_AND_DESKTOP_CLIENT_STATE": 22,
+    "INVENTORY_AND_COSTING": 4
   },
   "findings": [
     {
@@ -266,7 +267,7 @@
         "Race refund with cancel/confirm and concurrent refunds; rejected cases create no refund/movement and balances remain unchanged."
       ],
       "acceptance_criteria": [
-        "Cumulative refunds never exceed the order’s actually settled amount per tender leg.",
+        "Cumulative refunds never exceed the order\u2019s actually settled amount per tender leg.",
         "Rejected unpaid refund leaves no partial writes; valid refund atomically records refund and outflow."
       ]
     },
@@ -682,7 +683,7 @@
         }
       ],
       "root_cause": "Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.",
-      "impact": "Restore’s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
+      "impact": "Restore\u2019s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
       "remediation_plan": "Use a database-backed maintenance admission lease respected by all mutating handlers and background workers; drain in-flight operations, pause workers, take safety backup, restore and verify, clear stale pools/caches/sessions as designed, then resume only after durable outcome recording.",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
@@ -953,7 +954,7 @@
         }
       ],
       "root_cause": "Correction records signed Adjustment entries; payroll includes Adjustment debits only, with no credit earnings bucket.",
-      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll’s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
+      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll\u2019s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
       "remediation_plan": "Reconcile both credit and debit sides of Adjustment into payroll net; preserve correction attribution and original earning basis if required; keep payroll freeze semantics explicit.",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -7497,7 +7498,7 @@
         "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs"
       ],
       "required_tests": [
-        "Enter1.5,2.999Arabic١٫٥; must reject with explicit integer requirement before HTTP, not send1/2.",
+        "Enter1.5,2.999Arabic\u0661\u066b\u0665; must reject with explicit integer requirement before HTTP, not send1/2.",
         "Whole numbers1,2and textual2.000 accepted exactly, enforce overflow bound."
       ],
       "acceptance_criteria": "Invariant holds under retries and concurrent executions."
@@ -8229,7 +8230,7 @@
       "acceptance_criteria": [
         "Shift close requires caller identity matching authenticated bearer token."
       ],
-      "code_excerpt": "// src/Falah.Server/AuthenticationMiddleware.cs lines 86-90:\nprivate static readonly string[] ActorFields =\n{\n    \"actorUserId\", \"cashierId\", \"createdByUserId\", \"openedByUserId\", \"reportedByUserId\",\n};\n\n// src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs lines 52-54:\nvar cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ClosedByUserId, ct)\n    ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\nvar actor = OrderMapper.ToActor(cashierUser);"
+      "code_excerpt": "// src/Falah.Server/AuthenticationMiddleware.cs lines 86-90:\nprivate static readonly string[] ActorFields =\n{\n    \"actorUserId\", \"cashierId\", \"createdByUserId\", \"openedByUserId\", \"reportedByUserId\",\n};\n\n// src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs lines 52-54:\nvar cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ClosedByUserId, ct)\n    ?? throw new InvalidOperationException(\"\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\nvar actor = OrderMapper.ToActor(cashierUser);"
     },
     {
       "id": "SEC-005",
@@ -8321,13 +8322,13 @@
         "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs"
       ],
       "required_tests": [
-        "Validate approval issued 16 minutes prior; assert DomainException('انتهت صلاحية اعتماد المدير').",
+        "Validate approval issued 16 minutes prior; assert DomainException('\u0627\u0646\u062a\u0647\u062a \u0635\u0644\u0627\u062d\u064a\u0629 \u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631').",
         "Validate approval within 15 minutes; assert success."
       ],
       "acceptance_criteria": [
         "Manager approvals expire after 15 minutes if unconsumed."
       ],
-      "code_excerpt": "// src/Falah.Domain/Authorization/ApprovalRegistry.cs lines 89-97:\nvar issued = registry.Find(approval.ApprovalId);\nif (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))\n    throw new DomainException(\"اعتماد المدير غير صالح أو لا يطابق العملية.\");\nif (consume) registry.MarkConsumed(approval.ApprovalId);\nreturn issued;"
+      "code_excerpt": "// src/Falah.Domain/Authorization/ApprovalRegistry.cs lines 89-97:\nvar issued = registry.Find(approval.ApprovalId);\nif (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))\n    throw new DomainException(\"\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d \u0623\u0648 \u0644\u0627 \u064a\u0637\u0627\u0628\u0642 \u0627\u0644\u0639\u0645\u0644\u064a\u0629.\");\nif (consume) registry.MarkConsumed(approval.ApprovalId);\nreturn issued;"
     },
     {
       "id": "SEC-007",
@@ -8375,7 +8376,7 @@
       ],
       "root_cause": "Earlier static analysis overlooked FalahDbContext's Fluent API configuration where Consumed is registered as an EF Core concurrency token.",
       "impact": "Mitigated in production by EF Core DbUpdateConcurrencyException; however, client receives an unhandled concurrency exception instead of a clean domain error message.",
-      "remediation_plan": "Retain concurrency token in FalahDbContext, and catch DbUpdateConcurrencyException in command handlers to translate to DomainException('اعتماد المدير مستخدم بالفعل').",
+      "remediation_plan": "Retain concurrency token in FalahDbContext, and catch DbUpdateConcurrencyException in command handlers to translate to DomainException('\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644').",
       "affected_files": [
         "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
         "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs"
@@ -8386,7 +8387,7 @@
       "acceptance_criteria": [
         "Manager approval double-spending is strictly blocked by database-level concurrency token."
       ],
-      "code_excerpt": "// src/Falah.Infrastructure/Persistence/FalahDbContext.cs lines 178-184:\nmodelBuilder.Entity<ManagerApprovalEntity>(b =>\n{\n    b.HasKey(a => a.ApprovalId);\n    // Two requests may validate the same unused approval before either saves.\n    // Only the first false -> true update may commit with its financial operation.\n    b.Property(a => a.Consumed).IsConcurrencyToken();\n});\n\n// src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs lines 45-53:\npublic void MarkConsumed(string approvalId)\n{\n    var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? throw new InvalidOperationException(\"الاعتماد غير موجود لتحديده كمستهلك.\");\n    if (entity.Consumed)\n        throw new Falah.Domain.Common.DomainException(\"اعتماد المدير مستخدم بالفعل.\");\n    entity.Consumed = true;\n}"
+      "code_excerpt": "// src/Falah.Infrastructure/Persistence/FalahDbContext.cs lines 178-184:\nmodelBuilder.Entity<ManagerApprovalEntity>(b =>\n{\n    b.HasKey(a => a.ApprovalId);\n    // Two requests may validate the same unused approval before either saves.\n    // Only the first false -> true update may commit with its financial operation.\n    b.Property(a => a.Consumed).IsConcurrencyToken();\n});\n\n// src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs lines 45-53:\npublic void MarkConsumed(string approvalId)\n{\n    var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? throw new InvalidOperationException(\"\u0627\u0644\u0627\u0639\u062a\u0645\u0627\u062f \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f \u0644\u062a\u062d\u062f\u064a\u062f\u0647 \u0643\u0645\u0633\u062a\u0647\u0644\u0643.\");\n    if (entity.Consumed)\n        throw new Falah.Domain.Common.DomainException(\"\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644.\");\n    entity.Consumed = true;\n}"
     },
     {
       "id": "SEC-008",
@@ -8477,12 +8478,12 @@
         "src/Falah.Infrastructure/Users/CreateUserHandler.cs"
       ],
       "required_tests": [
-        "Execute concurrent CreateUser requests with identical PINs; assert second request fails with DomainException('رمز PIN مستخدم بالفعل')."
+        "Execute concurrent CreateUser requests with identical PINs; assert second request fails with DomainException('\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644')."
       ],
       "acceptance_criteria": [
         "Concurrent user creation or PIN modification cannot assign colliding PINs."
       ],
-      "code_excerpt": "// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 18-23:\nvar activeUsers = await db.Users.AsNoTracking()\n    .Where(u => u.Active && u.Id != excludeUserId)\n    .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.\");"
+      "code_excerpt": "// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 18-23:\nvar activeUsers = await db.Users.AsNoTracking()\n    .Where(u => u.Active && u.Id != excludeUserId)\n    .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644 \u0644\u062d\u0633\u0627\u0628 \u0622\u062e\u0631 - \u0627\u062e\u062a\u0631 \u0631\u0645\u0632\u064b\u0627 \u0645\u062e\u062a\u0644\u0641\u064b\u0627.\");"
     },
     {
       "id": "SEC-010",
@@ -8530,7 +8531,7 @@
       "acceptance_criteria": [
         "PIN uniqueness validation scales in O(1) time without linear PBKDF2 recomputation."
       ],
-      "code_excerpt": "// src/Falah.Domain/Authorization/PinHasher.cs line 22:\npublic const int DefaultIterations = 210_000;\n\n// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 21-22:\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.\");"
+      "code_excerpt": "// src/Falah.Domain/Authorization/PinHasher.cs line 22:\npublic const int DefaultIterations = 210_000;\n\n// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 21-22:\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644 \u0644\u062d\u0633\u0627\u0628 \u0622\u062e\u0631 - \u0627\u062e\u062a\u0631 \u0631\u0645\u0632\u064b\u0627 \u0645\u062e\u062a\u0644\u0641\u064b\u0627.\");"
     },
     {
       "id": "SEC-011",
@@ -8783,6 +8784,482 @@
         "Inventory loss reporting explicitly distinguishes 0 EGP waste from unpriced uncosted waste."
       ],
       "code_excerpt": "// src/Falah.Infrastructure/Inventory/InventoryQueryService.cs lines 63-64:\nvar byType = rows.GroupBy(m => m.Type).ToDictionary(g => g.Key, g => g.Sum(m => m.LossValuePiastres ?? 0));\nreturn new LossSummaryDto(rows.Sum(m => m.LossValuePiastres ?? 0), rows.Count, byType);"
+    },
+    {
+      "id": "FIN-030",
+      "title": "Arithmetic Overflow Exception in Money.Abs() on long.MinValue (Candidate: MONEY-ABS-OVERFLOW-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "THEORETICAL_BCL_LIMITATION",
+      "disposition_rationale": "QA L2 / Specialist Wave 3 independent source verification confirmed that while Money.Abs() invokes Math.Abs(Piastres) which throws OverflowException on long.MinValue (-9,223,372,036,854,775,808), an exhaustive search of src/ identified only three call sites: FinancialRules.DiscrepancyNeedsApproval (line 47), PrintRules.DescribeDifference (line 568), and CloseShiftHandler.HandleAsync (line 118). All three call sites operate exclusively on shift cash drawer discrepancy (actual counted cash minus expected drawer cash). Because physical restaurant cash drawer amounts are bounded within realistic currency denominations (orders of magnitude below 92 quadrillion Egyptian pounds), long.MinValue is mathematically impossible to reach during runtime operations. Zero call sites pass untrusted external 64-bit inputs to Money.Abs(). This issue represents a theoretical Base Class Library boundary limitation with no viable production exploit or operational impact.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Common/Money.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              43,
+              50
+            ]
+          ],
+          "sha256": "da6aa95727609eef384a975cefd4d124bf6f211f6a98a6a75828b42b414c5a5f"
+        }
+      ],
+      "root_cause": "Direct invocation of Math.Abs(Piastres) without handling long.MinValue boundary edge condition.",
+      "impact": "System.OverflowException crash when computing absolute monetary value on corrupt, default-overflow, or boundary inputs.",
+      "remediation_plan": "Guard against Piastres == long.MinValue in Money.Abs() by throwing a DomainException or clamping to long.MaxValue, or explicitly validating input ranges before arithmetic operations.",
+      "affected_files": [
+        "src/Falah.Domain/Common/Money.cs"
+      ],
+      "required_tests": [
+        "Assert.Throws<DomainException>(() => Money.FromPiastres(long.MinValue).Abs()); or assert bounded behavior without unhandled OverflowException."
+      ],
+      "acceptance_criteria": [
+        "Money.Abs() handles or rejects long.MinValue safely without unhandled System.OverflowException."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Common/Money.cs line 47:\npublic Money Abs() => new(Math.Abs(Piastres));",
+      "counterevidence_note": "Exhaustive search of src/ verified exactly 3 call sites of .Abs(): FinancialRules.cs:47, PrintRules.cs:568, and CloseShiftHandler.cs:118. All three compute absolute values of shift cash differences (counted cash vs expected cash). Zero call sites accept untrusted raw 64-bit user input into Money.Abs(). A difference of long.MinValue (-9.22 * 10^18 piastres) cannot be produced by valid or bounded integer arithmetic in the POS application."
+    },
+    {
+      "id": "FIN-031",
+      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions (Candidate: PAYROLL-CASE-SENSITIVITY-001)",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "disposition_rationale": "Verified defect in src/Falah.Domain/Payroll/PayrollRules.cs line 68: 'entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0))'. The string literals 'advance' and 'payroll_settlement' were ported verbatim from legacy JavaScript lowercase constants. However, RecordEmployeeCashOutHandler.cs line 124 writes nameof(LedgerEntryType.Advance) ('Advance'), and PayPayrollHandler.cs line 143 writes nameof(LedgerEntryType.PayrollSettlement) ('PayrollSettlement'). Because C# string equality (==) is ordinal and case-sensitive, OutstandingAdvance always evaluates to 0 for all production ledger entries. As a direct consequence, employee advances are never deducted from payroll settlements, leading to financial loss and overpayment.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              63,
+              71
+            ]
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              122,
+              126
+            ]
+          ],
+          "sha256": "c3665f0dc54809b0f822fc8152dd8dd7d610ab7318a84bdbacd51ab974a09573"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              141,
+              145
+            ]
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        }
+      ],
+      "root_cause": "Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).",
+      "impact": "Employees who receive cash advances never have them deducted during payroll generation; advance deduction calculates as 0, causing cash loss and accounting mismatch between treasury advances and payroll expense.",
+      "remediation_plan": "Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).",
+      "affected_files": [
+        "src/Falah.Domain/Payroll/PayrollRules.cs",
+        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
+        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+      ],
+      "required_tests": [
+        "Create employee cash advance with Type=\"Advance\" (Debit=500 EGP); call PayrollRules.OutstandingAdvance; assert outstanding advance equals 500 EGP.",
+        "Add settlement with Type=\"PayrollSettlement\" (AdvanceDeduction=200 EGP); assert outstanding advance reduces to 300 EGP."
+      ],
+      "acceptance_criteria": [
+        "PayrollRules.OutstandingAdvance recognizes both PascalCase and lowercase ledger entry type strings."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Payroll/PayrollRules.cs lines 66-70:\npublic static Money OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero = 0)\n{\n    var net = entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0));\n    return Money.FromPiastres(Math.Max(floorAtZero, net));\n}\n\n// src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs line 124:\nType = request.Kind == \"advance\" ? nameof(LedgerEntryType.Advance) : nameof(LedgerEntryType.Withdrawal),"
+    },
+    {
+      "id": "FIN-032",
+      "title": "Unvalidated Negative Delivery Service Fee Allows Artificially Reduced Order Payable Total (Candidate: DELIVERY-FEE-NEGATIVE-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "disposition_rationale": "Verified in src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs lines 51 and 118: CreateDeliveryServiceHandler and UpdateDeliveryServiceHandler accept FeePiastres without validating that FeePiastres >= 0. In src/Falah.Domain/Orders/CheckoutRules.cs line 37, ComputePayableTotal adds deliveryFee to cartTotal ('cartTotal + deliveryFee - compAmount'). If a delivery service is configured with a negative fee, the delivery fee acts as an unauthorized arbitrary discount, reducing the payable total collected from the customer.",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              49,
+              54
+            ],
+            [
+              117,
+              121
+            ]
+          ],
+          "sha256": "5e9b303c467a1e3a74dead4f035d7f867cb4f0dc6dde654b42c1dc4aecad2a01"
+        },
+        {
+          "path": "src/Falah.Domain/Orders/CheckoutRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              35,
+              39
+            ]
+          ],
+          "sha256": "a594ce2aa6ab60d232942ef4af790c0dd7c2a90b49db772e277eaf79d5af84d4"
+        }
+      ],
+      "root_cause": "Delivery service creation and update endpoints lack validation asserting FeePiastres >= 0, and CheckoutRules does not guard against negative delivery fee amounts.",
+      "impact": "Configuring a delivery service with negative fee reduces order total payable at checkout, allowing fraudulent order discounts or unintended cashier under-collection.",
+      "remediation_plan": "Add validation in CreateDeliveryServiceHandler, UpdateDeliveryServiceHandler, and DeliveryServiceRequests validating FeePiastres >= 0; add domain assertion in CheckoutRules asserting deliveryFee.IsPositive || deliveryFee.IsZero.",
+      "affected_files": [
+        "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+        "src/Falah.Domain/Orders/CheckoutRules.cs"
+      ],
+      "required_tests": [
+        "Submit CreateDeliveryServiceRequest with FeePiastres = -100; assert validation fails with DomainException or 400 Bad Request.",
+        "Invoke CheckoutRules.ComputePayableTotal with negative delivery fee; assert DomainException is thrown."
+      ],
+      "acceptance_criteria": [
+        "Delivery service fees cannot be negative anywhere in the domain or persistence layer."
+      ],
+      "code_excerpt": "// src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs line 51:\nId = $\"delivery-service-{request.RequestId}\", Name = normalized, FeePiastres = request.FeePiastres,\n\n// src/Falah.Domain/Orders/CheckoutRules.cs lines 35-38:\npublic static Money ComputePayableTotal(Money cartTotal, Money deliveryFee, Money compAmount)\n{\n    var result = cartTotal + deliveryFee - compAmount;\n    return result.IsNegative ? Money.Zero : result;\n}"
+    },
+    {
+      "id": "FIN-033",
+      "title": "BusinessClock DST Spring-Forward Transition Causes ArgumentException on Business Date Boundary Calculation (Candidate: BUSINESSCLOCK-DST-ARGUMENT-001)",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Domain/Common/BusinessClock.cs lines 35-41. In UtcRangeForBusinessDate, localMidnight is constructed via date.ToDateTime(TimeOnly.MinValue) producing 00:00:00 local time. Under Egypt's reinstated Daylight Saving Time (Law No. 24 of 2023), clocks advance by 1 hour at midnight (00:00:00) on the last Friday of April, jumping directly from 23:59:59 Thursday to 01:00:00 Friday. Consequently, 00:00:00 is an invalid nonexistent wall-clock time in the Cairo time zone on that day. Invoking TimeZoneInfo.ConvertTimeToUtc throws System.ArgumentException ('The supplied DateTime represents an invalid time'). This crashes all daily statements, shift close calculations, and date-range filtered EF queries for both the transition day and the preceding day.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Common/BusinessClock.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              35,
+              41
+            ]
+          ],
+          "sha256": "f9a82540cadfcdc043a630041f2877f527591b2d9d400fb870da2c98f9ec9208"
+        }
+      ],
+      "root_cause": "UtcRangeForBusinessDate passes midnight (00:00:00) directly to TimeZoneInfo.ConvertTimeToUtc without verifying whether the time falls within a daylight saving time spring-forward gap.",
+      "impact": "Unhandled System.ArgumentException crashes all API endpoints, reports, and background jobs that calculate date ranges for the last Friday of April (and the preceding Thursday when computing range end).",
+      "remediation_plan": "Before calling ConvertTimeToUtc, check CairoTimeZone.IsInvalidTime(localMidnight). If true, adjust forward by the DST gap (e.g. 1 hour to 01:00:00) or calculate the UTC instant using TimeZoneInfo.GetUtcOffset with gap tolerance.",
+      "affected_files": [
+        "src/Falah.Domain/Common/BusinessClock.cs"
+      ],
+      "required_tests": [
+        "Call BusinessClock.UtcRangeForBusinessDate with DateOnly(2024, 4, 26) and DateOnly(2025, 4, 25); assert method returns valid UTC range without throwing System.ArgumentException.",
+        "Call BusinessClock.UtcRangeForBusinessDate with the preceding Thursday; assert method returns valid UTC range without throwing ArgumentException."
+      ],
+      "acceptance_criteria": [
+        "BusinessClock.UtcRangeForBusinessDate handles DST spring-forward boundary dates without throwing System.ArgumentException and maintains continuous UTC coverage."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Common/BusinessClock.cs lines 35-41:\npublic static (DateTimeOffset Start, DateTimeOffset End) UtcRangeForBusinessDate(DateOnly date)\n{\n    var localMidnight = date.ToDateTime(TimeOnly.MinValue);\n    var start = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight, DateTimeKind.Unspecified), CairoTimeZone);\n    var end = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight.AddDays(1), DateTimeKind.Unspecified), CairoTimeZone);\n    return (new DateTimeOffset(start, TimeSpan.Zero), new DateTimeOffset(end, TimeSpan.Zero));\n}"
+    },
+    {
+      "id": "FIN-034",
+      "title": "Payroll Advance Deduction Missing from Employee Ledger Posting and Ledger Schema (Candidate: PAYROLL-ADVANCE-LEDGER-POSTING-001)",
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Infrastructure/Employees/PayPayrollHandler.cs line 144, src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs, and src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs. When PayPayrollHandler settles a payroll run, it iterates through all lines and posts a single ledger entry with Debit=Money.FromPiastres(line.NetPayablePiastres), Credit=Money.Zero. If a payroll line includes an advance deduction (line.AdvanceDeductionsPiastres > 0), no corresponding advance deduction or recovery entry is posted to EmployeeLedgerEntries, nor does EmployeeLedgerEntryEntity have an AdvanceDeduction column or field. Furthermore, in CreatePayrollHandler.cs line 62, OutstandingAdvance is hardcoded to Money.Zero and RequestedAdvanceDeduction is hardcoded to Money.Zero, bypassing payroll advance deductions entirely. In the domain model (PayrollRules.cs lines 66-70), OutstandingAdvance expects entries to track AdvanceDeduction on payroll settlement rows to decrement accumulated advances. Because this column and posting are absent in infrastructure and persistence, advance deductions cannot be tracked in employee ledgers.",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              137,
+              147
+            ]
+          ],
+          "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              10,
+              25
+            ]
+          ],
+          "sha256": "e531e400a2194017e664c848ce8a13679ce064ea1b40d1c07f392a210db1571b"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              25,
+              40
+            ]
+          ],
+          "sha256": "2a827c742cb0c078ae436c936830f9e77d3f1f1c2cc58c9f473988dea2c9ec04"
+        },
+        {
+          "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              63,
+              71
+            ]
+          ],
+          "sha256": "4a2b2460a8e991c874a4965b244ffa4f36d229d6460897d54968b6c0047f0f86"
+        }
+      ],
+      "root_cause": "EmployeeLedgerEntryEntity lacks an AdvanceDeduction column and PayPayrollHandler only posts net settlement debit without recording the advance deduction component into the employee ledger.",
+      "impact": "Employee cash advances recovered during payroll runs are not credited against the employee's advance ledger balance, leaving outstanding advances unadjusted in ledger history and causing accounting discrepancies.",
+      "remediation_plan": "Add an AdvanceDeductionPiastres column to EmployeeLedgerEntryEntity and update PayPayrollHandler to record the advance deduction amount on the posted settlement entry or post a distinct advance recovery entry.",
+      "affected_files": [
+        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
+        "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+        "src/Falah.Domain/Employees/Employee.cs",
+        "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs"
+      ],
+      "required_tests": [
+        "Execute payroll run with an employee having advance deduction; execute PayPayrollHandler; assert EmployeeLedgerEntry records advance deduction and reduces outstanding advance."
+      ],
+      "acceptance_criteria": [
+        "Payroll settlement postings in EmployeeLedger record both net payable payout and advance deduction recovery."
+      ],
+      "code_excerpt": "// src/Falah.Infrastructure/Employees/PayPayrollHandler.cs lines 141-146:\nvar settlementId = $\"payroll-settlement-{run.Id}-{line.Id}\";\nline.SettlementEntryId = settlementId;\nawait EmployeeLedgerPoster.PostIfNewAsync(_db, settlementId, line.EmployeeId, nameof(LedgerEntryType.PayrollSettlement),\n    $\"\u062a\u0633\u0648\u064a\u0629 Payroll {run.Period}\", Money.FromPiastres(line.NetPayablePiastres), Money.Zero,\n    actorUser.Name, authorization.Approver?.ApproverName, null, run.Id, null, null, null, ct);\nsettlementCount++;"
+    },
+    {
+      "id": "FIN-035",
+      "title": "BusinessDayCloseEvaluator Performs Global Unbounded Table Scans Blocking Business Day Close on Historical Data (Candidate: CLOSE-EVALUATOR-UNBOUNDED-SCAN-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs lines 28-30. EvaluateAsync loads all records from db.Shifts, db.DriverCustodies, and db.FinancialJournalEntries into memory using .ToListAsync() without filtering by the target business day (e.g. day.Id or day.BusinessDate). This causes two major defects: 1) Functional blocker: An unclosed shift or unsettled driver custody from weeks or months prior permanently blocks closing the CURRENT business day, because BusinessDayRules.EvaluateCloseBlockers checks all returned items; 2) Scalability and performance: Every close evaluation query performs full table scans across historical operations, leading to linear query degradation, memory consumption, and potential timeout as the restaurant accumulates months of operational data.",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              28,
+              33
+            ]
+          ],
+          "sha256": "cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832"
+        }
+      ],
+      "root_cause": "BusinessDayCloseEvaluator queries shifts, driver custodies, and financial journal entries without predicate scoping to the target business day or date.",
+      "impact": "Historical unclosed shifts or unsettled custodies from previous days permanently prevent any future business day from closing; database performance degrades linearly with operational lifetime.",
+      "remediation_plan": "Add WHERE predicates restricting shifts and driver custodies to the specific business day being closed (e.g. s.BusinessDate == day.BusinessDate or s.BusinessDayId == day.Id), and scope journal checks to the relevant window.",
+      "affected_files": [
+        "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs"
+      ],
+      "required_tests": [
+        "Seed an unclosed shift on date D-1 and an open shift on date D; close date D shift; call EvaluateAsync for date D; assert unclosed shift from D-1 does not block day close for date D."
+      ],
+      "acceptance_criteria": [
+        "BusinessDayCloseEvaluator only evaluates blockers relevant to the target business day and executes bounded queries."
+      ],
+      "code_excerpt": "// src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs lines 28-32:\nvar shifts = await db.Shifts.AsNoTracking().Select(s => new { s.Id, s.Status }).ToListAsync(ct);\nvar driverCustodies = await db.DriverCustodies.AsNoTracking().Select(c => new { c.Id, c.Status }).ToListAsync(ct);\nvar journalEntries = await db.FinancialJournalEntries.AsNoTracking().Select(j => new { j.IdempotencyKey, j.Status }).ToListAsync(ct);\nvar pendingElectronicOrderIds = await db.Orders.AsNoTracking()\n    .Where(o => o.ElectronicPaymentStatus == \"Pending\").Select(o => o.Id).ToListAsync(ct);"
+    },
+    {
+      "id": "FIN-036",
+      "title": "PurchasingQueryService Performs Unbounded Full Table Scan on Supplier Ledger Entries in ListSuppliersAsync (Candidate: PURCHASING-LEDGER-FULL-SCAN-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs lines 18-20. In ListSuppliersAsync, all rows from SupplierLedgerEntries are loaded unconditionally into application memory via 'var ledger = await _db.SupplierLedgerEntries.AsNoTracking().ToListAsync(ct);'. For each supplier, in-memory LINQ filtering (ledger.Where(e => e.SupplierId == s.Id)) is executed to calculate TotalInvoiced, TotalPaid, and Outstanding balances. In a production restaurant environment with continuous purchasing invoices and payments, this table grows indefinitely, causing quadratic-style memory overhead, massive payload transfer from the database, high GC pressure, and UI latency whenever the supplier list is viewed.",
+      "source_references": [
+        {
+          "path": "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              18,
+              21
+            ]
+          ],
+          "sha256": "3e4bf1de133d15b4a412d5c8201a5738595bb8a8afe397ceb063eb7288ba259a"
+        }
+      ],
+      "root_cause": "ListSuppliersAsync fetches the entire SupplierLedgerEntries table into memory instead of computing supplier ledger balance aggregations via SQL GROUP BY in the database.",
+      "impact": "Unbounded memory consumption, thread pool starvation, and severe API latency on supplier listings as supplier ledger entry count increases.",
+      "remediation_plan": "Replace the full-table memory load with an EF Core query that groups by SupplierId and aggregates Debit and Credit sums directly in SQL Server.",
+      "affected_files": [
+        "src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs"
+      ],
+      "required_tests": [
+        "Seed 10,000 SupplierLedgerEntries across 50 suppliers; verify ListSuppliersAsync generates a grouped SQL query and executes in bounded memory without loading all entity instances into memory."
+      ],
+      "acceptance_criteria": [
+        "ListSuppliersAsync does not load full ledger table into memory and derives supplier totals via database aggregation."
+      ],
+      "code_excerpt": "// src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs lines 18-21:\npublic async Task<List<SupplierDto>> ListSuppliersAsync(CancellationToken ct = default)\n{\n    var suppliers = await _db.Suppliers.AsNoTracking().ToListAsync(ct);\n    var ledger = await _db.SupplierLedgerEntries.AsNoTracking().ToListAsync(ct);\n    return suppliers.Select(s => ToDto(s, ledger.Where(e => e.SupplierId == s.Id))).ToList();\n}"
+    },
+    {
+      "id": "FIN-037",
+      "title": "Multi-Payment Order Refund Inability in Cashier UI and Backend Domain Exception on Treasury Allocation (Candidate: REFUND-MULTI-PAYMENT-UNSUPPORTED-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "REQUIRES_OWNER_BUSINESS_DECISION",
+      "disposition_rationale": "Verified in src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21, src/Falah.Domain/Financial/TreasuryMovement.cs line 38, and src/Falah.Infrastructure/Orders/RefundOrderHandler.cs line 91. The Cashier UI explicitly disables refunds for any split-payment order via 'CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", ... }'. Furthermore, on the server, RefundOrderHandler line 91 passes order.PaymentMethod to TreasuryMovementFactory.PaymentAccountFor, which throws DomainException('\u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0645\u062a\u0639\u062f\u062f \u063a\u064a\u0631 \u0645\u062f\u0639\u0648\u0645 \u0641\u064a \u0645\u0633\u0627\u0631 \u0627\u0644\u062a\u062d\u0635\u064a\u0644 \u0627\u0644\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0627\u0644\u064a.') when PaymentMethod is Multi. Consequently, orders settled with split payment (e.g. part cash, part card) can never be refunded either partially or fully. Handling split refunds requires owner business policy decisions regarding tender source attribution (e.g., whether refunds should be prorated across original tender accounts, returned to cash by default, or prompted to the manager).",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              20,
+              22
+            ]
+          ],
+          "sha256": "bc399716e95c2a9b42e3c5db4ad92d6e3fe9879f2b042fa539ec6298d6adea7a"
+        },
+        {
+          "path": "src/Falah.Domain/Financial/TreasuryMovement.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              32,
+              39
+            ]
+          ],
+          "sha256": "89ef6f7f2c32e04dd844670ebae972518ab598feb6a8540f26ba1681c9664f87"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              90,
+              93
+            ]
+          ],
+          "sha256": "ca7d3922495ad8ed8f9979feeca461f3fca0aa150fde7790714e29046e32d085"
+        }
+      ],
+      "root_cause": "The Cashier UI hard-disables refunds for orders with PaymentMethod == \"multi\", and TreasuryMovementFactory lacks treasury allocation rules for multi-method refunds.",
+      "impact": "Cashiers cannot process legitimate customer refund requests on split-tender orders, forcing manual off-book treasury adjustments or preventing customer returns.",
+      "remediation_plan": "Obtain restaurant owner business decision on multi-payment refund settlement rules (e.g., refund to cash drawer vs original tender pro-rata). Update UI to allow refund initiation and extend RefundOrderHandler and TreasuryMovementFactory to allocate multi-payment refund legs.",
+      "affected_files": [
+        "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+        "src/Falah.Domain/Financial/TreasuryMovement.cs",
+        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs"
+      ],
+      "required_tests": [
+        "Submit refund on multi-payment order with designated tender refund legs; verify appropriate treasury accounts are debited/credited according to owner business policy."
+      ],
+      "acceptance_criteria": [
+        "Multi-payment orders can be refunded according to agreed owner business policies without throwing unhandled DomainException."
+      ],
+      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21:\npublic bool CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", Status: not \"cancelled\" } order &&\n    order.TotalPiastres > order.RefundAmountPiastres;\n\n// src/Falah.Domain/Financial/TreasuryMovement.cs lines 32-39:\npublic static string PaymentAccountFor(PaymentMethod method) => method switch\n{\n    PaymentMethod.Cash => TreasuryAccounts.Drawer,\n    PaymentMethod.Card => TreasuryAccounts.Bank,\n    PaymentMethod.InstaPay => TreasuryAccounts.InstaPay,\n    PaymentMethod.Wallet => TreasuryAccounts.Wallet,\n    _ => throw new DomainException(\"\u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0645\u062a\u0639\u062f\u062f \u063a\u064a\u0631 \u0645\u062f\u0639\u0648\u0645 \u0641\u064a \u0645\u0633\u0627\u0631 \u0627\u0644\u062a\u062d\u0635\u064a\u0644 \u0627\u0644\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0627\u0644\u064a.\"),\n};"
+    },
+    {
+      "id": "UI-023",
+      "title": "EmployeesViewModel Sequentially Executes N+1 API Calls for Balances and Exits Early on First Failure Leaving Employee List Empty (Candidate: EMPLOYEES-VIEWMODEL-N-PLUS-ONE-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "UI_UX_AND_DESKTOP_CLIENT_STATE",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs lines 101-106. In LoadEmployeesAsync, after clearing the collections and fetching the employee list, the view model executes a sequential foreach loop making an individual HTTP call (_session.Api.GetEmployeeBalanceAsync(row.Employee.Id)) for every single employee. If any individual balance request fails (e.g. employee 15 of 20 fails due to network glitch or timeout), the loop immediately executes 'return;' with LoadError set. Because ApplyFilter() at line 107 is never reached, the Employees collection (cleared at line 98) remains empty, completely blanking the UI and preventing the user from viewing or managing any employees.",
+      "source_references": [
+        {
+          "path": "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              97,
+              107
+            ]
+          ],
+          "sha256": "04f70fc8f689932e34bc5cdf5f9ee1b5c04dbdb35a053f6ed2719a17cfd0eb7b"
+        }
+      ],
+      "root_cause": "Sequential N+1 API balance calls in UI loading routine coupled with catastrophic early exit on single failure prior to applying display filter.",
+      "impact": "A single employee balance failure wipes the entire employee list in the UI, causing complete operational lockout from employee management, daily wages, and biometric review.",
+      "remediation_plan": "Introduce a bulk employee balance endpoint on the server, or fetch balances concurrently with Task.WhenAll and gracefully degrade individual failed balances while still displaying successfully loaded employees.",
+      "affected_files": [
+        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs"
+      ],
+      "required_tests": [
+        "Simulate employee balance API failure for 1 out of 10 employees; assert EmployeesViewModel displays remaining 9 employees and shows non-blocking warning rather than an empty list."
+      ],
+      "acceptance_criteria": [
+        "EmployeesViewModel displays all successfully loaded employees even if an individual employee balance lookup fails, and eliminates sequential N+1 network requests."
+      ],
+      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs lines 97-107:\n_all.Clear();\nEmployees.Clear();\nforeach (var e in employees.Value) _all.Add(new EmployeeRow { Employee = e });\n\nforeach (var row in _all)\n{\n    var balance = await _session.Api.GetEmployeeBalanceAsync(row.Employee.Id);\n    if (!balance.Success || balance.Value is null) { LoadError = balance.Error ?? \"\u062a\u0639\u0630\u0631 \u062a\u062d\u0645\u064a\u0644 \u0631\u0635\u064a\u062f \u0627\u0644\u0645\u0648\u0638\u0641.\"; return; }\n    if (balance.Success && balance.Value is not null) row.BalancePiastres = balance.Value.BalancePiastres;\n}\nApplyFilter();"
+    },
+    {
+      "id": "INV-ROUND-001",
+      "title": "CostingRules Yield Unit Conversion Uses Midpoint Banker's Rounding Causing Asymmetric Stock Deduction Truncation (Candidate: COSTING-YIELD-ROUNDING-001)",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "category": "INVENTORY_AND_COSTING",
+      "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
+      "copilot_disposition": "INDEPENDENTLY_CORROBORATED",
+      "disposition_rationale": "Verified in src/Falah.Domain/Inventory/CostingRules.cs line 140. In BaseQuantityMilliUnits, the yield conversion executes '(long)Math.Round((double)line.QuantityMilliUnits / ratio)'. In .NET, Math.Round(double) defaults to MidpointRounding.ToEven (Banker's Rounding). Furthermore, in InventoryDeductionService.cs lines 45-58, this rounded baseQuantity is calculated on a per-single-portion basis before being multiplied by item quantity: 'baseQuantity.Value * resolved.Item.Quantity'. For ingredients with non-integer division ratios (e.g., 1000 / 3 = 333.333 or 1000 / 6 = 166.667), rounding to the nearest integer milliUnit before multiplication introduces systematic rounding truncation (e.g. 333 * 3 = 999 instead of 1000 milliUnits), leading to cumulative discrepancies between physical kitchen stock and digital inventory over time.",
+      "source_references": [
+        {
+          "path": "src/Falah.Domain/Inventory/CostingRules.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              136,
+              141
+            ]
+          ],
+          "sha256": "c1624846b505dd4e13798efa8cbf39129c3b711500c5da064e30c3dace0278ca"
+        },
+        {
+          "path": "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
+          "exists_in_tree": true,
+          "lines": [
+            [
+              42,
+              58
+            ]
+          ],
+          "sha256": "2fe3c06b9088f36947671e498a2b4f555848cf889f08c77c9b792e6833e67cdc"
+        }
+      ],
+      "root_cause": "CostingRules.BaseQuantityMilliUnits applies default MidpointRounding.ToEven on single portion quantities before multiplying by order quantity, truncating fractional units.",
+      "impact": "Systematic under-deduction or drift in inventory stock movements over high-volume sales for dishes configured with yield ratios (e.g. portions/slices per bulk base unit).",
+      "remediation_plan": "Compute total deducted base milliUnits across the entire ordered quantity using integer division with rounding: (line.QuantityMilliUnits * orderQuantity + ratio / 2) / ratio, or specify explicit MidpointRounding.AwayFromZero.",
+      "affected_files": [
+        "src/Falah.Domain/Inventory/CostingRules.cs",
+        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs"
+      ],
+      "required_tests": [
+        "Calculate stock deduction for 3 units of an item with a yield ratio of 3 and 1000 milliUnits declared; verify total deducted milliUnits equals exactly 1000 rather than 999."
+      ],
+      "acceptance_criteria": [
+        "Inventory stock deduction for yield-ratio recipe lines preserves exact aggregate integer milliUnits without rounding truncation."
+      ],
+      "code_excerpt": "// src/Falah.Domain/Inventory/CostingRules.cs lines 136-141:\npublic static long? BaseQuantityMilliUnits(RecipeLine line)\n{\n    if (line.Kind != RecipeLineKind.Yield) return line.QuantityMilliUnits;\n    if (line.YieldUnitsPerBaseUnit is not { } ratio || ratio <= 0) return null;\n    return (long)Math.Round((double)line.QuantityMilliUnits / ratio);\n}\n\n// src/Falah.Infrastructure/Orders/InventoryDeductionService.cs lines 45, 58:\nvar baseQuantity = CostingRules.BaseQuantityMilliUnits(recipeLine);\n...\nQuantityMilliUnits = baseQuantity.Value * resolved.Item.Quantity,"
     }
   ]
 }

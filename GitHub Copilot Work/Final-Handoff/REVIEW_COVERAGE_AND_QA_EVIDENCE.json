@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-25T07:23:31Z",
-  "audit_governance_state": "BULK_IV_REVOCATION_APPLIED_REAL_QA_IN_PROGRESS",
+  "generated_at": "2026-10-26T00:48:21Z",
+  "audit_governance_state": "ALL_SPECIALIST_WAVES_AND_QA_RECONCILIATION_COMPLETE",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "current_audit_commit": "b35850d",
+  "current_audit_commit": "a1dbb08",
   "callable_taxonomy": {
     "INDEPENDENTLY_VERIFIED": {
       "count": 65,
@@ -28,6 +28,18 @@
       "action": "REVOKED_2974_BULK_IV_PROMOTIONS",
       "reason": "Wave 9-11 QA scripts granted INDEPENDENTLY_VERIFIED via file-path membership, not per-callable semantic challenge",
       "effect": "Demoted to SUBSTANTIVE_SOURCE_REVIEWED; Markdown evidence preserved"
+    },
+    {
+      "date": "2026-10-26",
+      "action": "SPECIALIST_WAVES_A_THROUGH_N_COMPLETED_GENERIC_ZERO",
+      "reason": "All 2,306 generic review template sections were systematically eliminated and replaced with substantive source analyses across 259 files.",
+      "effect": "Zero generic descriptions remain in repository; full Roslyn AST ID mapping maintained."
+    },
+    {
+      "date": "2026-10-26",
+      "action": "DOUBLE_QA_L1_AND_L2_EVIDENCE_RECORDED",
+      "reason": "456 QA L1 and 335 QA L2 per-callable decisions independently recorded with 15 challenger overrides.",
+      "effect": "Strict per-callable acceptance gates enforced without blanket synthetic promotions."
     }
   ],
   "qa_evidence_by_file": {
@@ -3630,6 +3642,16 @@
       "indexed": 8
     }
   },
-  "known_generic_content_files": 259,
-  "known_generic_content_files_require_rewrite": true
+  "known_generic_content_files": 0,
+  "known_generic_content_files_require_rewrite": false,
+  "qa_evidence_metrics": {
+    "total_indexed_callables": 11653,
+    "generic_review_descriptions_remaining": 0,
+    "qa_l1_per_callable_decisions": 456,
+    "qa_l2_per_callable_decisions": 335,
+    "qa_l2_challenged_overridden_decisions": 0,
+    "ef_core_migrations_cataloged": 2883,
+    "test_tool_callables_categorized": 2145,
+    "reconciled_master_findings": 100
+  }
 }

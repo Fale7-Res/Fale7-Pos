@@ -1,17 +1,32 @@
 # Detailed Implementation Specifications & Remediation Blueprints
 
-- **Total Actionable Specifications:** **90**
+- **Total Actionable Specifications:** **100**
 - **Baseline Git Commit:** `c35816ecae49633674775dd32061c6ee92f94aaf`
 - **Audit Mode:** Pure Forensic Blueprint Specification (Zero Application Code Modified)
 - **Target Audience:** Implementation Engineers, System Architects & QA Automation Specialists
+- **Specification Standard:** Atomic, test-driven, source-referenced blueprints with exact acceptance gates.
 
 ---
 
-## P0 CRITICAL STOP SHIP (9 Specifications)
+## Executive Implementation Matrix
+
+| Priority Level | Scope & Operational Risk | Count | Immediate Action Required |
+| :--- | :--- | :---: | :--- |
+| **P0_CRITICAL_STOP_SHIP** | Financial loss, hard crashes, till lockout, corrupted ledger entries | **9** | Immediate remediation before any production release |
+| **P1_HIGH_CORE_OPERATIONS** | Daily settlement errors, shift closeout races, security bypasses, UI lockouts | **35** | Stage 1 Sprint: core transaction and workflow integrity |
+| **P2_STABILITY_AND_MAINTAINABILITY** | Memory bloat, N+1 scans, background async errors, rounding drift | **56** | Stage 2 Sprint: performance optimization and code health |
+| **TOTAL** | **Comprehensive Engineering Backlog** | **100** | **Full Audit Resolution** |
+
+---
+
+## 1. P0 CRITICAL STOP SHIP (9 Specifications)
+
+> [!CAUTION]
+> **STOP-SHIP MANDATE:** Deploying the application without remediating these 9 critical defects will result in direct till drawer cash discrepancies, split payment lockouts, silent supplier overpayments, or unrecoverable journal collisions.
 
 ### Spec: FIN-001 — Mixed cash/electronic checkout cannot confirm its electronic leg
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`, `src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs), [`src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs)
 
 **Root Cause Diagnosis:**  
 CheckoutOrderHandler.cs (line 148) posts the cash tender leg using idempotency key 'sale-{CheckoutRequestId}'. When ConfirmElectronicPaymentHandler.cs (line 75) attempts to post the deferred electronic split leg, it attempts to insert into EfFinancialJournal using the exact same key 'sale-{CheckoutRequestId}', throwing a unique constraint violation.
@@ -34,7 +49,7 @@ Key journal entries by stable leg identity, e.g. 'sale-{CheckoutRequestId}-{Tend
 
 ### Spec: FIN-002 — Cancelling pending mixed electronic payment hides collected cash without reversal
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs)
 
 **Root Cause Diagnosis:**  
 Order.cs:CancelElectronicPayment sets order Status to Cancelled without issuing a reversal journal entry for cash tender legs that were already deposited into the till drawer at checkout.
@@ -58,7 +73,7 @@ When cancelling a mixed tender order, check if any cash leg was deposited and at
 
 ### Spec: FIN-003 — Refund can debit money for an order that was never collected
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs)
 
 **Root Cause Diagnosis:**  
 Order.cs:ApplyRefund and RefundOrderHandler.cs do not verify that the order was actually settled (IsPaid == true) before approving a cash refund.
@@ -81,7 +96,7 @@ Enforce invariant in Order.ApplyRefund that order must be fully collected (IsPai
 
 ### Spec: FIN-005 — Concurrent distinct invoice settlements can overpay supplier and corrupt invoice cache
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`, `src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`, `src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`, `src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`, `src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`, `src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs), [`src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs), [`src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs), [`src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs), [`src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs), [`src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs)
 
 **Root Cause Diagnosis:**  
 PayPurchaseHandler.cs (lines 59-74) reads supplier invoice balance without UPDLOCK or serializable isolation, allowing concurrent transactions to each read the remaining balance before either updates it.
@@ -105,7 +120,7 @@ Execute invoice settlement within an explicit Serializable transaction or apply 
 
 ### Spec: FIN-016 — Unvalidated signed delivery fee can bypass intended discount and comp authorization
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Application/Orders/CheckoutOrderRequest.cs`, `src/Falah.Domain/Common/Money.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Orders/CheckoutOrderRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Orders/CheckoutOrderRequest.cs), [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 CheckoutOrderHandler.cs (line 142) accepts request.DeliveryFeePiastres directly from client payload without verifying against DeliveryService.DefaultFee or checking manager authorization.
@@ -128,7 +143,7 @@ Validate delivery fee server-side against configured delivery rates or require m
 
 ### Spec: FIN-MULTI-ELEC-001 — Split Payment Electronic Split Ceiling Restriction
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/Order.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs)
 
 **Root Cause Diagnosis:**  
 CheckoutRules.SelectElectronicLeg assumes at most one electronic leg in a split payment, discarding all subsequent electronic legs via .First().
@@ -149,7 +164,7 @@ Refactor Order and CheckoutPlan to support IReadOnlyList<ElectronicPayment> or e
 
 ### Spec: SEC-001 — JSON actor casing mismatch permits body-selected authorization identity
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Application/Users/UserManagementRequests.cs`, `src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs`, `src/Falah.Server/AuthenticationMiddleware.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Users/UserManagementRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Users/UserManagementRequests.cs), [`src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs), [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 In AuthenticationMiddleware.cs (lines 86-133), FindActorMismatchAsync uses case-sensitive TryGetProperty("actorUserId", out _) against lowercase string names. An incoming JSON payload with PascalCase 'ActorUserId' silently bypasses the mismatch check. Minimal API model binding in Program.cs (lines 1951-1958) binds case-insensitively into UpdateUserPermissionsRequest.ActorUserId. UpdateUserPermissionsHandler.cs (lines 32-36) queries DB for request.ActorUserId and authorizes the operation using that user's permissions instead of context.ActorId() from the verified bearer session token.
@@ -174,7 +189,7 @@ Source-Proven: Complete privilege escalation. Any authenticated user holding a v
 
 ### Spec: SEC-004 — Shift Close Identity Spoofing via Unchecked ClosedByUserId
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Server/AuthenticationMiddleware.cs`, `src/Falah.Application/Shifts/CloseShiftRequest.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`
+- **Target Files:** [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs), [`src/Falah.Application/Shifts/CloseShiftRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Shifts/CloseShiftRequest.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs)
 
 **Root Cause Diagnosis:**  
 AuthenticationMiddleware.ActorFields defines ['actorUserId', 'cashierId', 'createdByUserId', 'openedByUserId', 'reportedByUserId'] but omits 'closedByUserId'. When CloseShiftRequest is processed, the middleware performs no mismatch check against the authenticated user token, permitting arbitrary identity spoofing during shift closure.
@@ -196,7 +211,7 @@ Add 'closedByUserId' to ActorFields in AuthenticationMiddleware.cs, or inject Ht
 
 ### Spec: SEC-008 — Session Token Replacement & Identity Confusion in PIN Replay Proof
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P0_CRITICAL_STOP_SHIP`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`, `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs), [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs)
 
 **Root Cause Diagnosis:**  
 LoginByPinAsync has the side effect of mutating the shared ApiClient session token. Using it as a credential verification probe overwrites the logged-in operator's token.
@@ -215,11 +230,14 @@ Implement dedicated POST /api/auth/verify-pin endpoint that validates PIN withou
 
 ---
 
-## P1 HIGH CORE OPERATIONS (32 Specifications)
+## 2. P1 HIGH CORE OPERATIONS (35 Specifications)
+
+> [!IMPORTANT]
+> **CORE OPERATIONS MANDATE:** These 35 specifications resolve critical daily operational workflows, including daylight saving time calendar boundary crashes (Cairo DST spring-forward), payroll cash advance recovery omissions, authorization token validation, and shift closing races.
 
 ### Spec: FIN-004 — Historical cash refund omitted from current-shift expected cash
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs)
 
 **Root Cause Diagnosis:**  
 Drawer mixes lifetime order net amounts with selected operational movement types and does not allocate refunds by OperationalShiftId.
@@ -243,7 +261,7 @@ Compute drawer flow from posted operational cash movements or join refund rows b
 
 ### Spec: FIN-006 — Generic payroll transition marks run Paid without paying treasury or employee ledger
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`, `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs), [`src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs)
 
 **Root Cause Diagnosis:**  
 TransitionPayrollHandler.cs permits generic status transition of an approved payroll run directly to 'Paid' without generating corresponding treasury journal disbursements or employee ledger settlement entries.
@@ -268,7 +286,7 @@ Disallow transition to Paid via generic TransitionPayrollHandler. Require execut
 
 ### Spec: FIN-008 — Restore pending-journal check does not exclude active or newly accepted financial work
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs)
 
 **Root Cause Diagnosis:**  
 Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.
@@ -293,7 +311,7 @@ Use a database-backed maintenance admission lease respected by all mutating hand
 
 ### Spec: FIN-011 — Shift opening and purchase receipt check protected account balance before their transactions
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`, `src/Falah.Infrastructure/Treasury/TreasuryMapper.cs`, `src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`, `src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs), [`src/Falah.Infrastructure/Treasury/TreasuryMapper.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/TreasuryMapper.cs), [`src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs), [`src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs)
 
 **Root Cause Diagnosis:**  
 UPDLOCK/HOLDLOCK loader invoked before BeginTransaction; statement-end implicit transaction releases lock, balance snapshot stale at spending. SingleOpen index protects only shift rows.
@@ -317,7 +335,7 @@ Start transaction before protected account balance load/check and hold lock thro
 
 ### Spec: FIN-012 — Attendance correction credits do not enter calculated payroll
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs)
 
 **Root Cause Diagnosis:**  
 Correction records signed Adjustment entries; payroll includes Adjustment debits only, with no credit earnings bucket.
@@ -341,7 +359,7 @@ Reconcile both credit and debit sides of Adjustment into payroll net; preserve c
 
 ### Spec: FIN-014 — Restore success followed by MULTI_USER failure is classified as database not replaced
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs)
 
 **Root Cause Diagnosis:**  
 databaseWasReplaced becomes true only after RESTORE and MULTI_USER both return. If restore159 succeeded and MULTI_USER164 throws/cancels, catch releases mode best-effort but leaves false flag and Failed status.
@@ -364,7 +382,7 @@ Track restore replacement separately from recovery/availability state; persist e
 
 ### Spec: FIN-015 — Checkout can commit after its previously open shift has completed handover
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Financial/TreasuryMovement.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`, `src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`, `src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/OrderSequenceService.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`, `src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Domain/Financial/TreasuryMovement.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TreasuryMovement.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/InventoryDeductionService.cs), [`src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs), [`src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/OrderSequenceService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/OrderSequenceService.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/InventoryDeductionService.cs), [`src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/InventoryDeductionService.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Open shift predicate read before checkout transaction is not revalidated/held through commit; closing uses a different correctly locked Shift update that checkout does not perform.
@@ -388,7 +406,7 @@ Serialize checkout admission and shift close with a shared transaction-held Shif
 
 ### Spec: FIN-019 — Pending mixed delivery includes already collected payment leg in driver custody
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Application/Delivery/DeliveryRequests.cs`, `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`, `src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`, `src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml`, `src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml`, `src/Falah.Domain/Delivery/DeliveryRules.cs`, `src/Falah.Domain/Delivery/DeliveryStatus.cs`, `src/Falah.Domain/Financial/FinancialRules.cs`, `src/Falah.Domain/Financial/TreasuryMovement.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/ElectronicPayment.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs`, `src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs`, `src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs`, `src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs`, `src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Orders/OrderEnumMapping.cs`, `src/Falah.Infrastructure/Orders/OrderMapper.cs`, `src/Falah.Server/AuthenticationMiddleware.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Delivery/DeliveryRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Delivery/DeliveryRequests.cs), [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs), [`src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs), [`src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml), [`src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml), [`src/Falah.Domain/Delivery/DeliveryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRules.cs), [`src/Falah.Domain/Delivery/DeliveryStatus.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryStatus.cs), [`src/Falah.Domain/Financial/FinancialRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/FinancialRules.cs), [`src/Falah.Domain/Financial/TreasuryMovement.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TreasuryMovement.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/ElectronicPayment.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/ElectronicPayment.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs), [`src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/DeliveryFactsComposer.cs), [`src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs), [`src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/MarkDeliveryReadyHandler.cs), [`src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Orders/OrderEnumMapping.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/OrderEnumMapping.cs), [`src/Falah.Infrastructure/Orders/OrderMapper.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/OrderMapper.cs), [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Delivery responsibility collapses per-leg payment collection into one whole-order IsPaid flag and Total-refund. Mixed pending order is partially collected, but modeled as wholly uncollected for driver custody.
@@ -409,9 +427,74 @@ Use per-tender-leg collection status/amount when deriving driver custody. Do not
 
 ---
 
+### Spec: FIN-031 — Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions
+- **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
+- **Target Files:** [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs)
+
+**Root Cause Diagnosis:**  
+Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).
+
+**Operational Impact:**  
+Payroll calculation silently skips cash advance deductions; employees receive unreduced net salaries, causing immediate financial loss to the restaurant.
+
+**Engineering Implementation Blueprint:**  
+Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).
+
+**Required Verification & Regression Tests:**
+- Create employee cash advance with Type="Advance" (Debit=500 EGP); call PayrollRules.OutstandingAdvance; assert outstanding advance equals 500 EGP.
+- Add settlement with Type="PayrollSettlement" (AdvanceDeduction=200 EGP); assert outstanding advance reduces to 300 EGP.
+
+**Acceptance Criteria:**
+- PayrollRules.OutstandingAdvance recognizes both PascalCase and lowercase ledger entry type strings.
+
+---
+
+### Spec: FIN-033 — BusinessClock DST Spring-Forward Transition Causes ArgumentException on Business Date Boundary Calculation
+- **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
+- **Target Files:** [`src/Falah.Domain/Common/BusinessClock.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/BusinessClock.cs)
+
+**Root Cause Diagnosis:**  
+UtcRangeForBusinessDate passes midnight (00:00:00) directly to TimeZoneInfo.ConvertTimeToUtc without verifying whether the time falls within a daylight saving time spring-forward gap.
+
+**Operational Impact:**  
+Unhandled System.ArgumentException crashes all API endpoints, reports, and background jobs that calculate date ranges for the last Friday of April (and the preceding Thursday when computing range end).
+
+**Engineering Implementation Blueprint:**  
+Before calling ConvertTimeToUtc, check CairoTimeZone.IsInvalidTime(localMidnight). If true, adjust forward by the DST gap (e.g. 1 hour to 01:00:00) or calculate the UTC instant using TimeZoneInfo.GetUtcOffset with gap tolerance.
+
+**Required Verification & Regression Tests:**
+- Call BusinessClock.UtcRangeForBusinessDate with DateOnly(2024, 4, 26) and DateOnly(2025, 4, 25); assert method returns valid UTC range without throwing System.ArgumentException.
+- Call BusinessClock.UtcRangeForBusinessDate with the preceding Thursday; assert method returns valid UTC range without throwing ArgumentException.
+
+**Acceptance Criteria:**
+- BusinessClock.UtcRangeForBusinessDate handles DST spring-forward boundary dates without throwing System.ArgumentException and maintains continuous UTC coverage.
+
+---
+
+### Spec: FIN-034 — Payroll Advance Deduction Missing from Employee Ledger Posting and Ledger Schema
+- **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
+- **Target Files:** [`src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs), [`src/Falah.Infrastructure/Persistence/Entities/EmployeeLedgerEntryEntity.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/EmployeeLedgerEntryEntity.cs), [`src/Falah.Infrastructure/Payroll/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Payroll/PayPayrollHandler.cs)
+
+**Root Cause Diagnosis:**  
+EmployeeLedgerEntryEntity lacks an AdvanceDeduction column and PayPayrollHandler only posts net settlement debit without recording the advance deduction component into the employee ledger.
+
+**Operational Impact:**  
+Outstanding employee advance balance is never credited or reduced in the ledger when payroll is disbursed; ledger reports continue to show the advance as unpaid, leading to double deductions or accounting discrepancies.
+
+**Engineering Implementation Blueprint:**  
+Add an AdvanceDeductionPiastres column to EmployeeLedgerEntryEntity and update PayPayrollHandler to record the advance deduction amount on the posted settlement entry or post a distinct advance recovery entry.
+
+**Required Verification & Regression Tests:**
+- Execute payroll run with an employee having advance deduction; execute PayPayrollHandler; assert EmployeeLedgerEntry records advance deduction and reduces outstanding advance.
+
+**Acceptance Criteria:**
+- Payroll settlement postings in EmployeeLedger record both net payable payout and advance deduction recovery.
+
+---
+
 ### Spec: FIN-CAND-CLOSEDAY-ADMISSION-001 — Previously admitted treasury deposit can post after authoritative business-day close
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`, `src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs`, `src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`, `src/Falah.Infrastructure/Reports/ReportingQueryService.cs`, `src/Falah.Infrastructure/Treasury/DepositHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs), [`src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs), [`src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs), [`src/Falah.Infrastructure/Reports/ReportingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/ReportingQueryService.cs), [`src/Falah.Infrastructure/Treasury/DepositHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/DepositHandler.cs)
 
 **Root Cause Diagnosis:**  
 Financial write admission is validated outside its monetary transaction and no shared day-state lock, revision predicate, or revalidation is visible in the selected path. Close snapshot and blocker reads therefore do not source-demonstrably drain operations that already passed the gate.
@@ -437,7 +520,7 @@ Confirm whether financial writes are forbidden after close. If yes, coordinate d
 
 ### Spec: FIN-CAND-EMPLOYEE-PAYROLL-OVERLAP-001 — Standalone employee settlements remain payable through frozen period payroll
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs`, `src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`, `src/Falah.Server/Program.cs`, `tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs`, `tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`, `src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs), [`src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs), [`tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs), [`src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs)
 
 **Root Cause Diagnosis:**  
 PayrollRules computes payroll from earning categories and named deductions but ignores standalone Settlement debits. PayEmployee reduces current balance, while CreatePayroll freezes period net and PayPayroll pays that frozen amount without revalidating outstanding employee balance.
@@ -463,7 +546,7 @@ Owner decision first. If settlements prepay same-period earnings, derive remaini
 
 ### Spec: FIN-CAND-PAYROLL-001 — Concurrent pay/cancel can overwrite payroll terminal status
 - **Severity:** `HIGH` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`, `src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`, `src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`
+- **Target Files:** [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/PayPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayPayrollHandler.cs), [`src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/TransitionPayrollHandler.cs), [`src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/PayrollEntities.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs)
 
 **Root Cause Diagnosis:**  
 Pay and cancel authorize from independent Approved snapshots; no shared run-level transaction lock, compare-and-swap state predicate, or concurrency token is visible. Payment protects source-account balance, not PayrollRun state.
@@ -491,7 +574,7 @@ Use one database-coordinated PayrollRun state transition primitive for pay/cance
 
 ### Spec: FLOW-001 — Requested two-stage pickup preparation and final payment lifecycle is absent
 - **Severity:** `HIGH_REQUIREMENT_GAP` | **Category:** `ORDER_LIFECYCLE_AND_WORKFLOW` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Application/Orders/CheckoutOrderRequest.cs`, `src/Falah.Application/Orders/OrderDetailsDto.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Orders/CheckoutOrderRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Orders/CheckoutOrderRequest.cs), [`src/Falah.Application/Orders/OrderDetailsDto.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Orders/OrderDetailsDto.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Creation, stock consumption and payment checkout share one use case (CheckoutOrderHandler); only Delivery Cash has explicit deferred cash rule. No state machine exists for pay-on-collection pickup orders.
@@ -506,68 +589,13 @@ Design separate pickup fulfilment state and payment state with server-authoritat
 - Recommend lifecycle acceptance tests: unpaid reservation queues kitchen once, payment later posts once, handover only after policy gate, cancellation/restock/close blockers, network replay at each stage.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: INV-PERF-001 — In-Memory Full Table Pull on StockMovements in ListInventoryItemsAsync
 - **Severity:** `MEDIUM` | **Category:** `INVENTORY_AND_COSTING` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs)
 
 **Root Cause Diagnosis:**  
 Full table read into RAM instead of server-side SQL GROUP BY aggregation.
@@ -588,7 +616,7 @@ Perform GROUP BY and conditional SUM at the database level via EF Core / SQL que
 
 ### Spec: INV-SYNC-001 — Inventory Deduction / Order Refund Restock Synchronization Gap
 - **Severity:** `MEDIUM` | **Category:** `INVENTORY_AND_COSTING` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/InventoryDeductionService.cs)
 
 **Root Cause Diagnosis:**  
 RefundOrderHandler does not interact with InventoryDeductionService or emit Return/Restock movements when an order is cancelled or refunded.
@@ -609,7 +637,7 @@ Introduce restock movement option in RefundOrderHandler to credit inventory upon
 
 ### Spec: PRT-001 — Two machines can submit the same pending kitchen job
 - **Severity:** `HIGH` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`, `src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs`, `src/Falah.PrintAgent/PrintJobProcessor.cs`, `src/Falah.PrintAgent/Program.cs`, `src/Falah.PrintAgent/UnreportedAttemptStore.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/PrintJobQueryService.cs), [`src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs), [`src/Falah.PrintAgent/PrintJobProcessor.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/PrintJobProcessor.cs), [`src/Falah.PrintAgent/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Program.cs), [`src/Falah.PrintAgent/UnreportedAttemptStore.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/UnreportedAttemptStore.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 CreatePrintJobsHandler.cs generates job ID using request.RequestId, and PrintJobs table in FalahDbContext lacks a composite unique constraint on (OrderId, Route).
@@ -624,68 +652,13 @@ Add composite unique index on (OrderId, Route, DocumentKind) in PrintJobEntity c
 - Existing PrintAgentTests cover route selection and one-agent report retry only; add concurrent two-agent claim/fencing test, and replacement-agent unknown-outcome recovery.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: PRT-005 — Printer verification tool can delete preexisting restaurant tickets
 - **Severity:** `HIGH` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.PrintAgent/Program.cs`, `src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`, `tools/verify-windows-printer-transport.ps1`
+- **Target Files:** [`src/Falah.PrintAgent/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Program.cs), [`src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs), [`tools/verify-windows-printer-transport.ps1`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tools/verify-windows-printer-transport.ps1)
 
 **Root Cause Diagnosis:**  
 Generic document-name matching replaces exact submission ownership; ignored pause result invalidates no-paper guarantee.
@@ -700,71 +673,16 @@ Use dedicated test queue and exact returned job ID, verify pause state, never de
 - Add fake queue fixture preserving preexisting IDs, failure-to-pause abort, failed-cleanup no-resume policy. Only isolated queue integration after approval.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: SEC-002 — PIN-bearing user-management requests are durably stored as unencrypted JSON
 - **Severity:** `MEDIUM` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Application/Users/UserManagementRequests.cs`, `src/Falah.Client.CashierWinUI/App.xaml.cs`, `src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`, `src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs`, `src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`
+- **Target Files:** [`src/Falah.Application/Users/UserManagementRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Users/UserManagementRequests.cs), [`src/Falah.Client.CashierWinUI/App.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/App.xaml.cs), [`src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs), [`src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs), [`src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs)
 
 **Root Cause Diagnosis:**  
-FileRetainedRequestStore.cs in CashierWinUI and CallCenterWinUI writes raw in-flight request payloads to %LOCALAPPDATA%/Falah/pending-operations/{station}/{ownerKey}.json as unencrypted plaintext JSON. User creation, PIN changes, and manager overrides that run while offline or mid-dispatch persist plaintext PINs on disk.
+FileRetainedRequestStore.cs in CashierWinUI and CallCenterWinUI writes raw in-flight request payloads to %LOCALAPPDATA%\Falah\pending-operations\{station}\{ownerKey}.json as unencrypted plaintext JSON. User creation, PIN changes, and manager overrides that run while offline or mid-dispatch persist plaintext PINs on disk.
 
 **Operational Impact:**  
 Workstation credential exposure. Anyone with read access to the local machine's user directory (%LOCALAPPDATA%) can read persistent and in-flight employee and manager PINs in plaintext.
@@ -776,68 +694,13 @@ Encrypt retained request payloads using Windows Data Protection API (ProtectedDa
 - Execute CreateUser or PIN change request in CashierWinUI while offline; inspect persisted JSON in %LOCALAPPDATA%; assert payload is ciphertext and PIN is unreadable in plaintext.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: SEC-003 — Authenticated employee reads expose complete sensitive profiles without employee permission or self-access restriction
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Application/Employees/EmployeeRequests.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs`, `src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`, `src/Falah.Server/AuthenticationMiddleware.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Employees/EmployeeRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Employees/EmployeeRequests.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs), [`src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeQueryService.cs), [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 GET /api/employees and GET /api/employees/{employeeId} in Program.cs (lines 685-687) have no permission policy attribute. EmployeeQueryService.cs (lines 81-85) unconditionally projects all database columns (NationalId, DailyWagePiastres, MonthlySalaryPiastres, OvertimeRatePiastres, FingerprintId, Address, Phone) into EmployeeDto.
@@ -853,68 +716,13 @@ Introduce PublicEmployeeSummaryDto for operational cashier selection. Restrict G
 - Query GET /api/employees with manager bearer token; assert full profile is returned.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: SEC-006 — Manager Approval Tokens Lack Expiration (TTL) Check
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs`
+- **Target Files:** [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs)
 
 **Root Cause Diagnosis:**  
 ValidateApproval has no TTL check on ApprovedAtUtc. A manager approval issued for an aborted action can be stockpiled and replayed days or weeks later.
@@ -936,7 +744,7 @@ Pass DateTimeOffset nowUtc into AuthorizationPolicy.ValidateApproval and reject 
 
 ### Spec: SEC-009 — PIN Uniqueness Check-Then-Act Race Condition
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`, `src/Falah.Infrastructure/Users/CreateUserHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs), [`src/Falah.Infrastructure/Users/CreateUserHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/CreateUserHandler.cs)
 
 **Root Cause Diagnosis:**  
 PIN uniqueness check is performed in application memory across salted PBKDF2 hashes without an atomic database isolation lock.
@@ -957,7 +765,7 @@ Wrap user creation and PIN modification inside a transaction with serializable i
 
 ### Spec: SEC-011 — User Reactivation Missing PIN Uniqueness Verification
 - **Severity:** `HIGH` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Users/SetUserActiveHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs)
 
 **Root Cause Diagnosis:**  
 SetUserActiveHandler reactivates account without checking if candidate PIN is currently in use by another active account.
@@ -978,7 +786,7 @@ In SetUserActiveHandler, if request.Active is true, verify PIN uniqueness or req
 
 ### Spec: UI-001 — Primary cashier and treasury money requests lose original retry identity on process loss
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`, `src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs`, `src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs`, `src/Falah.Client.CashierWinUI/Services/AppSession.cs`, `src/Falah.Client.CashierWinUI/App.xaml.cs`, `tests/Falah.Client.Tests/CloseoutRegressionTests.cs`, `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs), [`src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs), [`src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/RetainedRequestStore.cs), [`src/Falah.Client.CashierWinUI/Services/AppSession.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/AppSession.cs), [`src/Falah.Client.CashierWinUI/App.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/App.xaml.cs), [`tests/Falah.Client.Tests/CloseoutRegressionTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Client.Tests/CloseoutRegressionTests.cs), [`src/Falah.Infrastructure/Treasury/SafeDropHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs)
 
 **Root Cause Diagnosis:**  
 Normal close/edit gates and same-process fixed keys cannot preserve immutable submitted DTO/key across forced termination. Primary financial partials bypass existing durable helper.
@@ -994,68 +802,13 @@ Persist exact versioned typed financial request and owner before dispatch; expos
 - Repeat for refund, expense, safe drop, drawer transfer, shift open/close and treasury operations; assert server ledger unaffected on replay in isolated integration fixture.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-003 — Requested pickup kitchen-before-payment stage is absent from active client workflow
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs`, `src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs), [`src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml.cs)
 
 **Root Cause Diagnosis:**  
 Pickup is a detail variant of common checkout, not separate persisted preparation/awaiting-payment state with stage-aware primary command.
@@ -1072,68 +825,13 @@ Design explicit persisted pickup preparation/payment lifecycle using existing ba
 - Concurrent stage clicks and ambiguous print/payment responses retain stable identities.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-005 — Recovered electronic confirmation/cancellation has no reachable cashier retry context
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs`, `src/Falah.Client.CashierWinUI/Views/CashierView.xaml`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs), [`src/Falah.Client.CashierWinUI/Views/CashierView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CashierView.xaml)
 
 **Root Cause Diagnosis:**  
 Retained DTO loads but transient LastCheckoutResult does not; all retry reachability assumes that result. Main session sees unresolved op and blocks lock/navigation/normal close.
@@ -1149,68 +847,13 @@ Recover operation order context from persisted request or present a standalone p
 - Confirm no new checkout, result discard or owner change until original outcome resolved; test another operator sees appropriate recovery ownership.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-007 — Late CallCenter customer lookup can overwrite a different phone/new order
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`, `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs`
+- **Target Files:** [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs), [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Customer.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs)
 
 **Root Cause Diagnosis:**  
 No requested-phone equality/epoch check after await; async lookup completion mutates latest mutable form regardless of source identity.
@@ -1227,68 +870,13 @@ Snapshot normalized phone and monotonic form generation; discard stale responses
 - Lookup failure 404 vs timeout must show correct status; changing phone should invalidate old customer/address selections.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-012 — CallCenter customer-copy reprint requests kitchen preparation routes again
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Application/Printing/PrintingRequests.cs`, `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`
+- **Target Files:** [`src/Falah.Application/Printing/PrintingRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Printing/PrintingRequests.cs), [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs)
 
 **Root Cause Diagnosis:**  
 CallCenter omitted explicit false flag added to corresponding cashier reprint path.
@@ -1304,68 +892,13 @@ Send false for customer-only reprint; expose explicit separately confirmed kitch
 - Isolated print-job handler fixture with grill/charcoal items asserts customer copy only for follow-up; explicit kitchen reprint separate labeled action.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-014 — Successful restore is reported incomplete because UI expects Completed instead of Succeeded
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs`, `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/BackupViewModel.cs), [`src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs)
 
 **Root Cause Diagnosis:**  
 UI compares result status to wrong literal Completed; server stores enum Succeeded.
@@ -1381,68 +914,13 @@ Use shared enum/contract success vocabulary and avoid treating generic HTTP succ
 - Blocked/Failed records must remain reported non-success; no production DB restore needed for client contract test.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-016 — Management shift actions abandon unknown outcomes and generate a new request identity per retry
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs)
 
 **Root Cause Diagnosis:**  
 Separate management presentation did not adopt cashier immutable pending/outcomeUnknown protocol; only own busy booleans, no session registration or retained key.
@@ -1459,68 +937,13 @@ Share durable operation coordination between both shift presentations and regist
 - First definite rejection permits correction/new attempt, unknown requires same attempt reconciliation.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-017 — Recovered payroll transition or payment cannot reach its retry command
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/PayrollViewModel.cs)
 
 **Root Cause Diagnosis:**  
 Durable DTO recovery is not accompanied by run selection/pay-dialog reconstruction; all routes to restore context blocked by same pending state.
@@ -1536,68 +959,13 @@ Recover run/visible action from stored request or expose generic pending-action 
 - Read original target by stored identity and show original intended action; exact DTO resends; no new payment until resolved.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-018 — Late recipe-detail response can replace another recipe selection before editing
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs)
 
 **Root Cause Diagnosis:**  
 No version/selected-ID validation around asynchronous recipe detail publishing.
@@ -1613,68 +981,13 @@ Use monotonic detail generation and validate again after every await; freeze tar
 - Close/change selection while reading must invalidate old response/finally flags.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-020 — PIN-change retry proof replaces shared bearer despite preserving visible user identity
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`, `src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs), [`src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs)
 
 **Root Cause Diagnosis:**  
 LoginByPinAsync has bearer installation side effect, but proof caller assumes read-only credential test and does not reconcile session.CurrentUser.
@@ -1690,68 +1003,13 @@ Use isolated non-session-mutating proof client/endpoint and explicit owner conte
 - Recovered self-PIN request owned by another actor must be visibly routed/blocked; no session switch as side effect.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-021 — Late product-image completion changes save target beneath another product form
 - **Severity:** `HIGH` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P1_HIGH_CORE_OPERATIONS`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs`, `src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs), [`src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml)
 
 **Root Cause Diagnosis:**  
 Image completion unconditionally overwrites shared editor identity captured before await. IsImageBusy only disables image controls; ReloadAsync reloads catalogs but does not reset/rebind visible form or editing identity.
@@ -1768,70 +1026,18 @@ Keep immutable operation target independent from current editor; only update vis
 - Assert saved product ID matches displayed selected item after every async completion.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
-## P2 STABILITY AND MAINTAINABILITY (49 Specifications)
+## 3. P2 STABILITY AND MAINTAINABILITY (56 Specifications)
+
+> [!NOTE]
+> **STABILITY & PERFORMANCE MANDATE:** These 56 specifications address memory-intensive table scans, missing database filtered indexes, arithmetic overflow boundary protections, rounding drift on yield-ratio recipe lines, and UI responsiveness.
 
 ### Spec: FIN-007 — Backup filenames collide within a second and WITH FORMAT can overwrite prior backup
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`, `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs`, `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`, `src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/CreateBackupHandler.cs), [`src/Falah.Infrastructure/Backup/ScheduledBackupService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/ScheduledBackupService.cs), [`src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/CreateBackupHandler.cs), [`src/Falah.Infrastructure/Backup/CreateBackupHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Backup/CreateBackupHandler.cs)
 
 **Root Cause Diagnosis:**  
 Second-resolution timestamp treated as unique filename; no GUID/exclusive reservation. Retention reasons over records not unique physical paths.
@@ -1856,7 +1062,7 @@ Use collision-resistant immutable backup identity and exclusive create/no-overwr
 
 ### Spec: FIN-009 — Concurrent different open-day requests create multiple active business days
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`, `src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`, `src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`
+- **Target Files:** [`src/Falah.Domain/BusinessDay/BusinessDayRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/BusinessDay/BusinessDayRules.cs), [`src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/BusinessDayGate.cs), [`src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs)
 
 **Root Cause Diagnosis:**  
 Single-active invariant protected only by read check; no shared singleton lock or unique active-day representation.
@@ -1880,7 +1086,7 @@ Represent single active ownership with a database-enforced singleton/unique acti
 
 ### Spec: FIN-010 — Collected sales report drops immediate money from pending mixed payments
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Domain/Reports/SalesRules.cs`, `tests/Falah.Domain.Tests/CheckoutRulesTests.cs`
+- **Target Files:** [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Domain/Reports/SalesRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs), [`tests/Falah.Domain.Tests/CheckoutRulesTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Domain.Tests/CheckoutRulesTests.cs)
 
 **Root Cause Diagnosis:**  
 Any pending electronic leg triggers subtraction of whole order total, instead of pending leg amount; report contradicts own cash channel totals.
@@ -1903,7 +1109,7 @@ Compute pending collection as the pending leg amount(s) and separately report gr
 
 ### Spec: FIN-013 — Owner dashboard adds outgoing stock instead of subtracting it
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs)
 
 **Root Cause Diagnosis:**  
 OwnerDashboardQueryService.cs calculates inventory stock movements by summing QuantityMilliUnits without multiplying by -1 when Direction == Out.
@@ -1926,7 +1132,7 @@ Apply proper sign negation: (m.Direction == StockMovementDirection.Out ? -m.Quan
 
 ### Spec: FIN-017 — Financial approval provenance can retain unvalidated shift presenter or discard verified driver variance approver
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Shifts/CloseShiftRequest.cs`, `src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Domain/Shifts/Shift.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`, `src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`, `src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`
+- **Target Files:** [`src/Falah.Application/Shifts/CloseShiftRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Shifts/CloseShiftRequest.cs), [`src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Domain/Shifts/Shift.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Shifts/Shift.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs), [`src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs), [`src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs)
 
 **Root Cause Diagnosis:**  
 Financial attribution derives from presentation or earlier base gate rather than the actual verified relevant authorization result. Original shift evidence and related driver variance variant are preserved separately.
@@ -1949,7 +1155,7 @@ Carry verified gate result, actor, and actual approver identity separately to al
 
 ### Spec: FIN-018 — Negative receipt quantity and unit cost can post stock reduction with supplier debt
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Purchasing/PurchasingRequests.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`, `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`, `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`
+- **Target Files:** [`src/Falah.Application/Purchasing/PurchasingRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Purchasing/PurchasingRequests.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs), [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs), [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs)
 
 **Root Cause Diagnosis:**  
 Aggregate payment validation substituted for per-line positive receipt quantity/nonnegative purchase cost validation.
@@ -1972,7 +1178,7 @@ Validate direction-specific positive receipt quantities and nonnegative costs be
 
 ### Spec: FIN-020 — First stock receipt can race unit-change admission and reinterpret movement history
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Inventory/InventoryItemRequests.cs`, `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs`, `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`, `src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Inventory/InventoryItemRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Inventory/InventoryItemRequests.cs), [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs), [`src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryItemHandlers.cs), [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs), [`src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/InventoryEntities.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Immutable-unit predicate is evaluated before write without coordinating the first stock-movement admission. InventoryItem mapping244 is primary key only, no concurrency token; movement FK protects existence, not unit interpretation.
@@ -1995,7 +1201,7 @@ Coordinate unit edits and first movement admission through a shared DB transacti
 
 ### Spec: FIN-021 — Accepted numeric Inclusive tax mode is persisted raw and consumed as Exclusive
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Pricing/TaxRuleRequests.cs`, `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs`, `src/Falah.Domain/Financial/TaxRule.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Pricing/TaxRuleRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Pricing/TaxRuleRequests.cs), [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs), [`src/Falah.Domain/Financial/TaxRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TaxRule.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Pricing/TaxRuleHandlers.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Validation discards parsed TaxMode and persists noncanonical raw string; three amount consumers silently map every nonliteralInclusive value toExclusive, including accepted definedInclusive numeric0.
@@ -2018,7 +1224,7 @@ Persist parsed TaxMode canonical enum value, reject undefined/unsupported forms,
 
 ### Spec: FIN-022 — Accepted case-insensitive compensation type is stored raw but wage/payroll consumers require canonical names
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Employees/EmployeeRequests.cs`, `src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs`, `src/Falah.Domain/Employees/Employee.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`, `src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`, `src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs`, `src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`, `src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Employees/EmployeeRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Employees/EmployeeRequests.cs), [`src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeeEditorViewModel.cs), [`src/Falah.Domain/Employees/Employee.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Employee.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs), [`src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs), [`src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs), [`src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeQueryService.cs), [`src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Shared compensation enum validation accepts multiple spellings but persistence retainsrawstring, while two financial consumers use exactname comparison instead of the parsedmeaning.
@@ -2041,7 +1247,7 @@ Persist parsed CompensationType canonical value and use parsed enum in attendanc
 
 ### Spec: FIN-023 — Attendance checkout reconstructs check-in on checkout UTC date and can omit overtime
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Common/BusinessClock.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`, `src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs`, `src/Falah.Infrastructure/Settings/SettingsQueryService.cs`
+- **Target Files:** [`src/Falah.Domain/Common/BusinessClock.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/BusinessClock.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs), [`src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs), [`src/Falah.Infrastructure/Settings/SettingsQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Settings/SettingsQueryService.cs)
 
 **Root Cause Diagnosis:**  
 Loss of check-in UTC date, followed by reconstruction from checkout UTC date despite selecting attendance by Cairo date.
@@ -2064,7 +1270,7 @@ Retain full check-in date/time and compute elapsed interval from that persisted 
 
 ### Spec: FIN-024 — Manual daily-wage and overtime commands admit negative earning credits
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Employees/AttendanceRequests.cs`, `src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`, `src/Falah.Domain/Employees/EmployeeRules.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`, `src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs`, `src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Employees/AttendanceRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Employees/AttendanceRequests.cs), [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs), [`src/Falah.Domain/Employees/EmployeeRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/EmployeeRules.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs), [`src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs), [`src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Signed custom wage/rate is used as earning Credit without command-specific sign validation; positive finitehours do not ensure positive earning.
@@ -2087,7 +1293,7 @@ Reject negative command-specific wage/rate and overflow before posting; define z
 
 ### Spec: FIN-025 — Manual ledger accepts undefined numeric types excluded from named financial categories
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Employees/EmployeeRequests.cs`, `src/Falah.Domain/Employees/Employee.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`, `src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs`, `src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Employees/EmployeeRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Employees/EmployeeRequests.cs), [`src/Falah.Domain/Employees/Employee.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Employee.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeQueryService.cs), [`src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/20260904190229_AddEmployees.cs), [`src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Enum.TryParse result is canonicalized without Enum.IsDefined/supported-category admission; undefined numeric strings remain unnamed numeric types.
@@ -2110,7 +1316,7 @@ Require Enum.IsDefined plus an explicit supported-type/credit-debit policy befor
 
 ### Spec: FIN-026 — Distinct employee credit requests can persist and display stale running-balance snapshots
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml`, `src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs`, `src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`, `src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml), [`src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs), [`src/Falah.Infrastructure/Employees/EmployeeQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeQueryService.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs), [`src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs)
 
 **Root Cause Diagnosis:**  
 BalanceAfter snapshot computed from readsum before Save without cross-command employee serialization; own pendingDelta and same-key dedup do not cover different writers.
@@ -2133,7 +1339,7 @@ Either serialize all ledger appends on one employee anchor with consistent lock 
 
 ### Spec: FIN-027 — Frozen business-day financial snapshots omit the corresponding live-report permission gate
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs`, `src/Falah.Application/Reports/ReportingDtos.cs`, `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs`, `src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs`, `src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml`, `src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`, `src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs`, `src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Server/AuthenticationMiddleware.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs), [`src/Falah.Application/Reports/ReportingDtos.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Reports/ReportingDtos.cs), [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs), [`src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs), [`src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml), [`src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs), [`src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs), [`src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/ReopenBusinessDayHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Frozen report payload endpoint/client path uses session-only admission instead of live reports_view/all policy.
@@ -2156,7 +1362,7 @@ Apply reports_view to latest/history financial snapshot reads using verified aut
 
 ### Spec: FIN-028 — Spent manager approval prevents acknowledgement replay of committed overtime and extra-shift credits
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Employees/AttendanceRequests.cs`, `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`, `src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`, `src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`, `src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`, `src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`, `src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`, `src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`
+- **Target Files:** [`src/Falah.Application/Employees/AttendanceRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Employees/AttendanceRequests.cs), [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs), [`src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/RetainedRequest.cs), [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs), [`src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs), [`src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs), [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs), [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs)
 
 **Root Cause Diagnosis:**  
 RecordOvertime/RecordExtraShift validate one-use delegated approval before deterministic ledger receipt lookup. Successful first SaveChanges persists approval consumption; retry with same saved approval rejects before ledger dedupe/replay.
@@ -2179,7 +1385,7 @@ After validating actor/session and binding the durable request to target and pay
 
 ### Spec: FIN-029 — Owner dashboard stock projection ignores outbound movement direction
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`, `src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs`, `src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`, `src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`, `src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`, `tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs), [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs), [`src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/StockMovementHandlers.cs), [`src/Falah.Infrastructure/Orders/InventoryDeductionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/InventoryDeductionService.cs), [`src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs), [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs), [`tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 OwnerDashboardQueryService.LoadStockAsync groups stock movements and sums QuantityMilliUnits without applying Direction. Stock movement writers store positive magnitudes with Direction separately; canonical inventory projections subtract Out movements.
@@ -2199,9 +1405,115 @@ Use shared direction-aware stock balance projection or apply Direction sign in d
 
 ---
 
+### Spec: FIN-030 — Arithmetic Overflow Exception in Money.Abs() on long.MinValue
+- **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs)
+
+**Root Cause Diagnosis:**  
+Direct invocation of Math.Abs(Piastres) without handling long.MinValue boundary edge condition in Money.Abs().
+
+**Operational Impact:**  
+Unhandled System.OverflowException crashes execution if a long.MinValue piastres value is encountered.
+
+**Engineering Implementation Blueprint:**  
+Add guard in Money.Abs(): if (Piastres == long.MinValue) throw new DomainException("Cannot compute absolute value of minimum long piastres"); or clamp safely.
+
+**Required Verification & Regression Tests:**
+- Assert.Throws<DomainException>(() => Money.FromPiastres(long.MinValue).Abs()); or assert bounded behavior without unhandled OverflowException.
+
+**Acceptance Criteria:**
+- Money.Abs() handles or rejects long.MinValue safely without unhandled System.OverflowException.
+
+---
+
+### Spec: FIN-032 — Unvalidated Negative Delivery Service Fee Allows Artificially Reduced Order Payable Total
+- **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Infrastructure/Delivery/CreateDeliveryServiceHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/CreateDeliveryServiceHandler.cs), [`src/Falah.Infrastructure/Delivery/UpdateDeliveryServiceHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/UpdateDeliveryServiceHandler.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs)
+
+**Root Cause Diagnosis:**  
+Delivery service creation and update endpoints lack validation asserting FeePiastres >= 0, and CheckoutRules does not guard against negative delivery fee amounts.
+
+**Operational Impact:**  
+Negative delivery service fees can be injected to artificially deflate order payable totals, leading to cash drawer shortages and corrupted financial journal entries.
+
+**Engineering Implementation Blueprint:**  
+Add validation in CreateDeliveryServiceHandler, UpdateDeliveryServiceHandler, and DeliveryServiceRequests validating FeePiastres >= 0; add domain assertion in CheckoutRules asserting deliveryFee.IsPositive || deliveryFee.IsZero.
+
+**Required Verification & Regression Tests:**
+- Submit CreateDeliveryServiceRequest with FeePiastres = -100; assert validation fails with DomainException or 400 Bad Request.
+- Invoke CheckoutRules.ComputePayableTotal with negative delivery fee; assert DomainException is thrown.
+
+**Acceptance Criteria:**
+- Delivery service fees cannot be negative anywhere in the domain or persistence layer.
+
+---
+
+### Spec: FIN-035 — BusinessDayCloseEvaluator Performs Global Unbounded Table Scans Blocking Business Day Close on Historical Data
+- **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Infrastructure/BusinessDay/BusinessDayCloseEvaluator.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/BusinessDayCloseEvaluator.cs)
+
+**Root Cause Diagnosis:**  
+BusinessDayCloseEvaluator queries shifts, driver custodies, and financial journal entries without predicate scoping to the target business day or date.
+
+**Operational Impact:**  
+An unclosed shift or outstanding custody from an old date permanently blocks closing any subsequent business day; queries degrade as tables grow.
+
+**Engineering Implementation Blueprint:**  
+Add WHERE predicates restricting shifts and driver custodies to the specific business day being closed (e.g. s.BusinessDate == day.BusinessDate or s.BusinessDayId == day.Id), and scope journal checks to the relevant window.
+
+**Required Verification & Regression Tests:**
+- Seed an unclosed shift on date D-1 and an open shift on date D; close date D shift; call EvaluateAsync for date D; assert unclosed shift from D-1 does not block day close for date D.
+
+**Acceptance Criteria:**
+- BusinessDayCloseEvaluator only evaluates blockers relevant to the target business day and executes bounded queries.
+
+---
+
+### Spec: FIN-036 — PurchasingQueryService Performs Unbounded Full Table Scan on Supplier Ledger Entries in ListSuppliersAsync
+- **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Purchasing/PurchasingQueryService.cs)
+
+**Root Cause Diagnosis:**  
+ListSuppliersAsync fetches the entire SupplierLedgerEntries table into memory instead of computing supplier ledger balance aggregations via SQL GROUP BY in the database.
+
+**Operational Impact:**  
+Memory consumption scales linearly O(N) with the entire historical purchasing ledger; causes out-of-memory crashes and severe database contention as supplier ledger entries grow.
+
+**Engineering Implementation Blueprint:**  
+Replace the full-table memory load with an EF Core query that groups by SupplierId and aggregates Debit and Credit sums directly in SQL Server.
+
+**Required Verification & Regression Tests:**
+- Seed 10,000 SupplierLedgerEntries across 50 suppliers; verify ListSuppliersAsync generates a grouped SQL query and executes in bounded memory without loading all entity instances into memory.
+
+**Acceptance Criteria:**
+- ListSuppliersAsync does not load full ledger table into memory and derives supplier totals via database aggregation.
+
+---
+
+### Spec: FIN-037 — Multi-Payment Order Refund Inability in Cashier UI and Backend Domain Exception on Treasury Allocation
+- **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Client.Cashier/ViewModels/CashierViewModel.Refund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/CashierViewModel.Refund.cs), [`src/Falah.Domain/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Treasury/TreasuryMovementFactory.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/TreasuryMovementFactory.cs)
+
+**Root Cause Diagnosis:**  
+The Cashier UI hard-disables refunds for orders with PaymentMethod == "multi", and TreasuryMovementFactory lacks treasury allocation rules for multi-method refunds.
+
+**Operational Impact:**  
+Cashiers cannot process legitimate returns for customers who paid using mixed tenders (e.g. Cash + InstaPay); backend throws DomainException if invoked directly.
+
+**Engineering Implementation Blueprint:**  
+Obtain restaurant owner business decision on multi-payment refund settlement rules (e.g., refund to cash drawer vs original tender pro-rata). Update UI to allow refund initiation and extend RefundOrderHandler and TreasuryMovementFactory to allocate multi-payment refund legs.
+
+**Required Verification & Regression Tests:**
+- Submit refund on multi-payment order with designated tender refund legs; verify appropriate treasury accounts are debited/credited according to owner business policy.
+
+**Acceptance Criteria:**
+- Multi-payment orders can be refunded according to agreed owner business policies without throwing unhandled DomainException.
+
+---
+
 ### Spec: FIN-CAND-BUSINESS-DAY-OPEN-RACE-001 — Distinct concurrent business-day opens can pass pre-insert active-state validation
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs`, `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`, `src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs`, `src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`
+- **Target Files:** [`src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs), [`src/Falah.Domain/BusinessDay/BusinessDayRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/BusinessDay/BusinessDayRules.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs), [`src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/20260903154545_AddBusinessDay.cs), [`src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs)
 
 **Root Cause Diagnosis:**  
 Active-day admission is a read-check-insert invariant. OpenBusinessDayHandler reads current active rows and invokes BusinessDayRules.Open before a separate insert; there is no shared transaction/conditional state claim, while the schema has uniqueness only by request ID.
@@ -2228,7 +1540,7 @@ Confirm the invariant scope. If one active BusinessDay is intended, enforce it a
 
 ### Spec: FIN-CAND-CANCELLED-LOOKUP-PAYMENT-LABEL-001 — Call Center labels a cancelled unpaid electronic order as collectible on delivery
 - **Severity:** `LOW` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`, `src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml`, `src/Falah.Client.CallCenterWinUI/Converters/Converters.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Infrastructure/Orders/OrderMapper.cs`, `src/Falah.Application/Orders/OrderDetailsDto.cs`
+- **Target Files:** [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs), [`src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml), [`src/Falah.Client.CallCenterWinUI/Converters/Converters.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/Converters/Converters.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Infrastructure/Orders/OrderMapper.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/OrderMapper.cs), [`src/Falah.Application/Orders/OrderDetailsDto.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Orders/OrderDetailsDto.cs)
 
 **Root Cause Diagnosis:**  
 The payment display infers collect-on-delivery solely from IsPaid=false after special-casing only pending electronic status; it ignores order cancellation and cancelled electronic status.
@@ -2253,7 +1565,7 @@ Make payment text state-aware: cancelled orders should show cancelled/no collect
 
 ### Spec: FIN-CAND-CASHCOUNT-001 — Unvalidated denomination and unchecked arithmetic can corrupt finalized count values
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs`, `src/Falah.Domain/Audit/AuditEvent.cs`, `src/Falah.Domain/Authorization/Actor.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Domain/Authorization/ManagerApproval.cs`, `src/Falah.Domain/Authorization/PermissionCatalog.cs`, `src/Falah.Domain/Authorization/PinHasher.cs`, `src/Falah.Domain/Authorization/SessionToken.cs`, `src/Falah.Domain/Authorization/UserManagementRules.cs`, `src/Falah.Domain/Backup/BackupRules.cs`, `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`, `src/Falah.Domain/Common/BusinessClock.cs`, `src/Falah.Domain/Common/DomainException.cs`, `src/Falah.Domain/Common/Money.cs`, `src/Falah.Domain/ControlCenter/ControlCenterRules.cs`, `src/Falah.Domain/Customers/Customer.cs`, `src/Falah.Domain/Delivery/DeliveryRecords.cs`, `src/Falah.Domain/Delivery/DeliveryRules.cs`, `src/Falah.Domain/Delivery/DeliveryStatus.cs`, `src/Falah.Domain/Employees/Attendance.cs`, `src/Falah.Domain/Employees/Employee.cs`, `src/Falah.Domain/Employees/EmployeeRules.cs`, `src/Falah.Domain/Financial/FinancialRules.cs`, `src/Falah.Domain/Financial/PaymentMethod.cs`, `src/Falah.Domain/Financial/TaxRule.cs`, `src/Falah.Domain/Financial/TreasuryMovement.cs`, `src/Falah.Domain/Idempotency/FinancialJournal.cs`, `src/Falah.Domain/Inventory/CostingRules.cs`, `src/Falah.Domain/Inventory/InventoryRecords.cs`, `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Domain/Inventory/PrepRecipeLine.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`, `src/Falah.Domain/Menu/ProductImageRules.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/ElectronicPayment.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Domain/Orders/OrderEnums.cs`, `src/Falah.Domain/Orders/OrderItem.cs`, `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Domain/Orders/OrderRefund.cs`, `src/Falah.Domain/Orders/OrderValueBreakdown.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Domain/Pricing/ItemPricingRules.cs`, `src/Falah.Domain/Pricing/PriceRule.cs`, `src/Falah.Domain/Pricing/PricingRules.cs`, `src/Falah.Domain/Printing/EscPosTicketRenderer.cs`, `src/Falah.Domain/Printing/PrintRecords.cs`, `src/Falah.Domain/Printing/PrintRules.cs`, `src/Falah.Domain/Printing/TicketLayout.cs`, `src/Falah.Domain/Purchasing/PayablesAging.cs`, `src/Falah.Domain/Reports/ProfitabilityRules.cs`, `src/Falah.Domain/Reports/SalesRules.cs`, `src/Falah.Domain/Reports/TrendRules.cs`, `src/Falah.Domain/Shifts/Shift.cs`, `src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs`, `src/Falah.Server/Program.cs`, `src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs`
+- **Target Files:** [`src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/BusinessDay/CloseBusinessDayRequest.cs), [`src/Falah.Domain/Audit/AuditEvent.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Audit/AuditEvent.cs), [`src/Falah.Domain/Authorization/Actor.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/Actor.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Domain/Authorization/ManagerApproval.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ManagerApproval.cs), [`src/Falah.Domain/Authorization/PermissionCatalog.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PermissionCatalog.cs), [`src/Falah.Domain/Authorization/PinHasher.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs), [`src/Falah.Domain/Authorization/SessionToken.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/SessionToken.cs), [`src/Falah.Domain/Authorization/UserManagementRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs), [`src/Falah.Domain/Backup/BackupRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Backup/BackupRules.cs), [`src/Falah.Domain/BusinessDay/BusinessDayRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/BusinessDay/BusinessDayRules.cs), [`src/Falah.Domain/Common/BusinessClock.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/BusinessClock.cs), [`src/Falah.Domain/Common/DomainException.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/DomainException.cs), [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs), [`src/Falah.Domain/ControlCenter/ControlCenterRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/ControlCenter/ControlCenterRules.cs), [`src/Falah.Domain/Customers/Customer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Customers/Customer.cs), [`src/Falah.Domain/Delivery/DeliveryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRecords.cs), [`src/Falah.Domain/Delivery/DeliveryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRules.cs), [`src/Falah.Domain/Delivery/DeliveryStatus.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryStatus.cs), [`src/Falah.Domain/Employees/Attendance.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Attendance.cs), [`src/Falah.Domain/Employees/Employee.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Employee.cs), [`src/Falah.Domain/Employees/EmployeeRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/EmployeeRules.cs), [`src/Falah.Domain/Financial/FinancialRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/FinancialRules.cs), [`src/Falah.Domain/Financial/PaymentMethod.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/PaymentMethod.cs), [`src/Falah.Domain/Financial/TaxRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TaxRule.cs), [`src/Falah.Domain/Financial/TreasuryMovement.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TreasuryMovement.cs), [`src/Falah.Domain/Idempotency/FinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Idempotency/FinancialJournal.cs), [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs), [`src/Falah.Domain/Inventory/InventoryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRecords.cs), [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs), [`src/Falah.Domain/Inventory/PrepRecipeLine.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PrepRecipeLine.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs), [`src/Falah.Domain/Menu/ProductImageRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Menu/ProductImageRules.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/ElectronicPayment.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/ElectronicPayment.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Domain/Orders/OrderEnums.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderEnums.cs), [`src/Falah.Domain/Orders/OrderItem.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderItem.cs), [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Domain/Orders/OrderRefund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderRefund.cs), [`src/Falah.Domain/Orders/OrderValueBreakdown.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderValueBreakdown.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Domain/Pricing/ItemPricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/ItemPricingRules.cs), [`src/Falah.Domain/Pricing/PriceRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PriceRule.cs), [`src/Falah.Domain/Pricing/PricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PricingRules.cs), [`src/Falah.Domain/Printing/EscPosTicketRenderer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/EscPosTicketRenderer.cs), [`src/Falah.Domain/Printing/PrintRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRecords.cs), [`src/Falah.Domain/Printing/PrintRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRules.cs), [`src/Falah.Domain/Printing/TicketLayout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/TicketLayout.cs), [`src/Falah.Domain/Purchasing/PayablesAging.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Purchasing/PayablesAging.cs), [`src/Falah.Domain/Reports/ProfitabilityRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/ProfitabilityRules.cs), [`src/Falah.Domain/Reports/SalesRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs), [`src/Falah.Domain/Reports/TrendRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/TrendRules.cs), [`src/Falah.Domain/Shifts/Shift.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Shifts/Shift.cs), [`src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs), [`src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs)
 
 **Root Cause Diagnosis:**  
 Arithmetic and domain validation are not bounded at the finalization boundary; persisted audit data records the derived result without enforcing the supported denomination set or representable totals.
@@ -2281,7 +1593,7 @@ Owner must first decide whether ExpectedPiastres is a client-supplied comparison
 
 ### Spec: FIN-CAND-CLOSE-SNAPSHOT-REVISION-001 — Close snapshot revision and authoritative-row admission lack an explicit shared invariant
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`, `src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`
+- **Target Files:** [`src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs), [`src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs)
 
 **Root Cause Diagnosis:**  
 Read/status admission outside transaction plus Count+1/demotion lacks explicit perday uniqueness/state-token enforcement in inspected source.
@@ -2304,7 +1616,7 @@ Do not implement a concurrency fix based on assumed SQL ordering. First test pro
 
 ### Spec: FIN-CAND-CORRECTION-BASIS-001 — Attendance corrections revalue old effects at current rates instead of posted monetary basis
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`, `src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs`, `src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs`, `src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs`, `src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs`
+- **Target Files:** [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Infrastructure/Employees/AttendanceHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/AttendanceHandlers.cs), [`src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/CorrectAttendanceHandler.cs), [`src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs), [`src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/EmployeeManagementHandlers.cs), [`src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs)
 
 **Root Cause Diagnosis:**  
 Correction reads current employee DailyWage/current Settings then recomputes BOTH old and new overtime/penalty. It never reads frozen actual original amount/rate or cumulative prior correction effect for delta. Row+ledger serialization and immutable retry audit are real controls, but do not restore old monetary basis.
@@ -2327,7 +1639,7 @@ After owner decision, calculate correction delta against actual posted original 
 
 ### Spec: FIN-CAND-DELIVERY-CUSTODY-EXPECTED-001 — Delivery report field labeled expected unsettled custody aggregates collected amount instead
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Reports/ReportingQueryService.cs`, `src/Falah.Application/Reports/ReportingDtos.cs`, `src/Falah.Domain/Delivery/DeliveryRules.cs`, `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs`, `src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs`, `src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`, `src/Falah.Application/Reports/OwnerDashboardDtos.cs`, `src/Falah.Client.CashierWinUI/Views/ReportsView.xaml`, `src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml`, `tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs`, `tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Reports/ReportingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/ReportingQueryService.cs), [`src/Falah.Application/Reports/ReportingDtos.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Reports/ReportingDtos.cs), [`src/Falah.Domain/Delivery/DeliveryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRules.cs), [`src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs), [`src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs), [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs), [`src/Falah.Application/Reports/OwnerDashboardDtos.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Reports/OwnerDashboardDtos.cs), [`src/Falah.Client.CashierWinUI/Views/ReportsView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/ReportsView.xaml), [`src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml), [`tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs), [`tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 Delivery report field labeled expected unsettled custody aggregates collected amount instead
@@ -2353,7 +1665,7 @@ Confirm report contract. Existing DTO name, owner dashboard, and test comments s
 
 ### Spec: FIN-CAND-NEGATIVE-VARIANT-PRICE-001 — Server accepts a negative product-variant price that can reduce checkout totals while stock is consumed
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs`, `src/Falah.Application/Menu/MenuManagementRequests.cs`, `src/Falah.Infrastructure/Menu/ProductHandlers.cs`, `src/Falah.Domain/Common/Money.cs`, `src/Falah.Domain/Pricing/ItemPricingRules.cs`, `src/Falah.Infrastructure/Orders/MenuPricingService.cs`, `src/Falah.Domain/Orders/OrderItem.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs`, `tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/MenuEditorViewModel.cs), [`src/Falah.Application/Menu/MenuManagementRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Menu/MenuManagementRequests.cs), [`src/Falah.Infrastructure/Menu/ProductHandlers.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Menu/ProductHandlers.cs), [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs), [`src/Falah.Domain/Pricing/ItemPricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/ItemPricingRules.cs), [`src/Falah.Infrastructure/Orders/MenuPricingService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/MenuPricingService.cs), [`src/Falah.Domain/Orders/OrderItem.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderItem.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/Migrations/20260902120327_InitialCreate.cs), [`tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 Server accepts a negative product-variant price that can reduce checkout totals while stock is consumed
@@ -2378,7 +1690,7 @@ Confirm whether zero-priced variants are allowed. If prices must be positive, ce
 
 ### Spec: FIN-CAND-PACKAGING-COVERAGE-001 — Unknown once-per-order packaging cost does not invalidate aggregate profit completeness
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Audit/AuditEvent.cs`, `src/Falah.Domain/Authorization/Actor.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Domain/Authorization/ManagerApproval.cs`, `src/Falah.Domain/Authorization/PermissionCatalog.cs`, `src/Falah.Domain/Authorization/PinHasher.cs`, `src/Falah.Domain/Authorization/SessionToken.cs`, `src/Falah.Domain/Authorization/UserManagementRules.cs`, `src/Falah.Domain/Backup/BackupRules.cs`, `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`, `src/Falah.Domain/Common/BusinessClock.cs`, `src/Falah.Domain/Common/DomainException.cs`, `src/Falah.Domain/Common/Money.cs`, `src/Falah.Domain/ControlCenter/ControlCenterRules.cs`, `src/Falah.Domain/Customers/Customer.cs`, `src/Falah.Domain/Delivery/DeliveryRecords.cs`, `src/Falah.Domain/Delivery/DeliveryRules.cs`, `src/Falah.Domain/Delivery/DeliveryStatus.cs`, `src/Falah.Domain/Employees/Attendance.cs`, `src/Falah.Domain/Employees/Employee.cs`, `src/Falah.Domain/Employees/EmployeeRules.cs`, `src/Falah.Domain/Financial/FinancialRules.cs`, `src/Falah.Domain/Financial/PaymentMethod.cs`, `src/Falah.Domain/Financial/TaxRule.cs`, `src/Falah.Domain/Financial/TreasuryMovement.cs`, `src/Falah.Domain/Idempotency/FinancialJournal.cs`, `src/Falah.Domain/Inventory/CostingRules.cs`, `src/Falah.Domain/Inventory/InventoryRecords.cs`, `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Domain/Inventory/PrepRecipeLine.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`, `src/Falah.Domain/Menu/ProductImageRules.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/ElectronicPayment.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Domain/Orders/OrderEnums.cs`, `src/Falah.Domain/Orders/OrderItem.cs`, `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Domain/Orders/OrderRefund.cs`, `src/Falah.Domain/Orders/OrderValueBreakdown.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Domain/Pricing/ItemPricingRules.cs`, `src/Falah.Domain/Pricing/PriceRule.cs`, `src/Falah.Domain/Pricing/PricingRules.cs`, `src/Falah.Domain/Printing/EscPosTicketRenderer.cs`, `src/Falah.Domain/Printing/PrintRecords.cs`, `src/Falah.Domain/Printing/PrintRules.cs`, `src/Falah.Domain/Printing/TicketLayout.cs`, `src/Falah.Domain/Purchasing/PayablesAging.cs`, `src/Falah.Domain/Reports/ProfitabilityRules.cs`, `src/Falah.Domain/Reports/SalesRules.cs`, `src/Falah.Domain/Reports/TrendRules.cs`, `src/Falah.Domain/Shifts/Shift.cs`, `src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`, `src/Falah.Infrastructure/Reports/ReportingQueryService.cs`
+- **Target Files:** [`src/Falah.Domain/Audit/AuditEvent.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Audit/AuditEvent.cs), [`src/Falah.Domain/Authorization/Actor.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/Actor.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Domain/Authorization/ManagerApproval.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ManagerApproval.cs), [`src/Falah.Domain/Authorization/PermissionCatalog.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PermissionCatalog.cs), [`src/Falah.Domain/Authorization/PinHasher.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs), [`src/Falah.Domain/Authorization/SessionToken.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/SessionToken.cs), [`src/Falah.Domain/Authorization/UserManagementRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs), [`src/Falah.Domain/Backup/BackupRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Backup/BackupRules.cs), [`src/Falah.Domain/BusinessDay/BusinessDayRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/BusinessDay/BusinessDayRules.cs), [`src/Falah.Domain/Common/BusinessClock.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/BusinessClock.cs), [`src/Falah.Domain/Common/DomainException.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/DomainException.cs), [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs), [`src/Falah.Domain/ControlCenter/ControlCenterRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/ControlCenter/ControlCenterRules.cs), [`src/Falah.Domain/Customers/Customer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Customers/Customer.cs), [`src/Falah.Domain/Delivery/DeliveryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRecords.cs), [`src/Falah.Domain/Delivery/DeliveryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRules.cs), [`src/Falah.Domain/Delivery/DeliveryStatus.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryStatus.cs), [`src/Falah.Domain/Employees/Attendance.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Attendance.cs), [`src/Falah.Domain/Employees/Employee.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Employee.cs), [`src/Falah.Domain/Employees/EmployeeRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/EmployeeRules.cs), [`src/Falah.Domain/Financial/FinancialRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/FinancialRules.cs), [`src/Falah.Domain/Financial/PaymentMethod.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/PaymentMethod.cs), [`src/Falah.Domain/Financial/TaxRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TaxRule.cs), [`src/Falah.Domain/Financial/TreasuryMovement.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TreasuryMovement.cs), [`src/Falah.Domain/Idempotency/FinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Idempotency/FinancialJournal.cs), [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs), [`src/Falah.Domain/Inventory/InventoryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRecords.cs), [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs), [`src/Falah.Domain/Inventory/PrepRecipeLine.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PrepRecipeLine.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs), [`src/Falah.Domain/Menu/ProductImageRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Menu/ProductImageRules.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/ElectronicPayment.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/ElectronicPayment.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Domain/Orders/OrderEnums.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderEnums.cs), [`src/Falah.Domain/Orders/OrderItem.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderItem.cs), [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Domain/Orders/OrderRefund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderRefund.cs), [`src/Falah.Domain/Orders/OrderValueBreakdown.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderValueBreakdown.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Domain/Pricing/ItemPricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/ItemPricingRules.cs), [`src/Falah.Domain/Pricing/PriceRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PriceRule.cs), [`src/Falah.Domain/Pricing/PricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PricingRules.cs), [`src/Falah.Domain/Printing/EscPosTicketRenderer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/EscPosTicketRenderer.cs), [`src/Falah.Domain/Printing/PrintRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRecords.cs), [`src/Falah.Domain/Printing/PrintRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRules.cs), [`src/Falah.Domain/Printing/TicketLayout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/TicketLayout.cs), [`src/Falah.Domain/Purchasing/PayablesAging.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Purchasing/PayablesAging.cs), [`src/Falah.Domain/Reports/ProfitabilityRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/ProfitabilityRules.cs), [`src/Falah.Domain/Reports/SalesRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs), [`src/Falah.Domain/Reports/TrendRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/TrendRules.cs), [`src/Falah.Domain/Shifts/Shift.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Shifts/Shift.cs), [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs), [`src/Falah.Infrastructure/Reports/ReportingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/ReportingQueryService.cs)
 
 **Root Cause Diagnosis:**  
 Completeness boolean uses dish-line counters while food-cost total also includes separately accumulated order-level packaging; packaging unknown state is not passed to profitability completeness calculation.
@@ -2405,7 +1717,7 @@ Carry an explicit aggregate cost-coverage/completeness signal across dish and or
 
 ### Spec: FIN-CAND-PREPGRAPH-001 — Concurrent opposite prep edges can evade pretransaction cycle admission
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Inventory/CostingRules.cs`, `src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`, `src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`, `src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`, `src/Falah.Domain/Inventory/CostingRules.cs`, `src/Falah.Domain/Inventory/CostingRules.cs`
+- **Target Files:** [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs), [`src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs), [`src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs), [`src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs), [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs), [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs)
 
 **Root Cause Diagnosis:**  
 Cycle validation is a shared-graph predicate read before the transaction, while each transaction writes only one recipe; no database-level serialization/revalidation of the graph-wide invariant is visible.
@@ -2433,7 +1745,7 @@ Coordinate graph mutations with a transaction-scoped shared graph revision/lock,
 
 ### Spec: FIN-CAND-REFUND-REPLAY-001 — Overlapping full-refund replay can reject after same-key sibling committed
 - **Severity:** `LOW` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`, `src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`, `src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`, `tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`, `tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`, `tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs), [`src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs), [`src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs), [`tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs), [`tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs), [`tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 Durable refund-key lookup happens before parent order serialization, with no repeat lookup after sibling full refund changes refundable state; DomainException cap rejection is not handled by saved-receipt recovery catch.
@@ -2456,7 +1768,7 @@ Recheck same-key durable refund receipt after acquiring order lock and before ca
 
 ### Spec: FIN-CAND-REPORT-RANGE-001 — Reversed report endpoints normalize sales but independently filter cost with contradictory date bounds
 - **Severity:** `MEDIUM` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Domain/Audit/AuditEvent.cs`, `src/Falah.Domain/Authorization/Actor.cs`, `src/Falah.Domain/Authorization/ApprovalRegistry.cs`, `src/Falah.Domain/Authorization/ManagerApproval.cs`, `src/Falah.Domain/Authorization/PermissionCatalog.cs`, `src/Falah.Domain/Authorization/PinHasher.cs`, `src/Falah.Domain/Authorization/SessionToken.cs`, `src/Falah.Domain/Authorization/UserManagementRules.cs`, `src/Falah.Domain/Backup/BackupRules.cs`, `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`, `src/Falah.Domain/Common/BusinessClock.cs`, `src/Falah.Domain/Common/DomainException.cs`, `src/Falah.Domain/Common/Money.cs`, `src/Falah.Domain/ControlCenter/ControlCenterRules.cs`, `src/Falah.Domain/Customers/Customer.cs`, `src/Falah.Domain/Delivery/DeliveryRecords.cs`, `src/Falah.Domain/Delivery/DeliveryRules.cs`, `src/Falah.Domain/Delivery/DeliveryStatus.cs`, `src/Falah.Domain/Employees/Attendance.cs`, `src/Falah.Domain/Employees/Employee.cs`, `src/Falah.Domain/Employees/EmployeeRules.cs`, `src/Falah.Domain/Financial/FinancialRules.cs`, `src/Falah.Domain/Financial/PaymentMethod.cs`, `src/Falah.Domain/Financial/TaxRule.cs`, `src/Falah.Domain/Financial/TreasuryMovement.cs`, `src/Falah.Domain/Idempotency/FinancialJournal.cs`, `src/Falah.Domain/Inventory/CostingRules.cs`, `src/Falah.Domain/Inventory/InventoryRecords.cs`, `src/Falah.Domain/Inventory/InventoryRules.cs`, `src/Falah.Domain/Inventory/PrepRecipeLine.cs`, `src/Falah.Domain/Inventory/PurchasingRules.cs`, `src/Falah.Domain/Menu/ProductImageRules.cs`, `src/Falah.Domain/Orders/CheckoutRules.cs`, `src/Falah.Domain/Orders/ElectronicPayment.cs`, `src/Falah.Domain/Orders/Order.cs`, `src/Falah.Domain/Orders/OrderEnums.cs`, `src/Falah.Domain/Orders/OrderItem.cs`, `src/Falah.Domain/Orders/OrderPaymentQueries.cs`, `src/Falah.Domain/Orders/OrderRefund.cs`, `src/Falah.Domain/Orders/OrderValueBreakdown.cs`, `src/Falah.Domain/Orders/RefundRules.cs`, `src/Falah.Domain/Payroll/PayrollRules.cs`, `src/Falah.Domain/Pricing/ItemPricingRules.cs`, `src/Falah.Domain/Pricing/PriceRule.cs`, `src/Falah.Domain/Pricing/PricingRules.cs`, `src/Falah.Domain/Printing/EscPosTicketRenderer.cs`, `src/Falah.Domain/Printing/PrintRecords.cs`, `src/Falah.Domain/Printing/PrintRules.cs`, `src/Falah.Domain/Printing/TicketLayout.cs`, `src/Falah.Domain/Purchasing/PayablesAging.cs`, `src/Falah.Domain/Reports/ProfitabilityRules.cs`, `src/Falah.Domain/Reports/SalesRules.cs`, `src/Falah.Domain/Reports/TrendRules.cs`, `src/Falah.Domain/Shifts/Shift.cs`, `src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`, `src/Falah.Infrastructure/Reports/ReportingQueryService.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Domain/Audit/AuditEvent.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Audit/AuditEvent.cs), [`src/Falah.Domain/Authorization/Actor.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/Actor.cs), [`src/Falah.Domain/Authorization/ApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ApprovalRegistry.cs), [`src/Falah.Domain/Authorization/ManagerApproval.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/ManagerApproval.cs), [`src/Falah.Domain/Authorization/PermissionCatalog.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PermissionCatalog.cs), [`src/Falah.Domain/Authorization/PinHasher.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs), [`src/Falah.Domain/Authorization/SessionToken.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/SessionToken.cs), [`src/Falah.Domain/Authorization/UserManagementRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/UserManagementRules.cs), [`src/Falah.Domain/Backup/BackupRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Backup/BackupRules.cs), [`src/Falah.Domain/BusinessDay/BusinessDayRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/BusinessDay/BusinessDayRules.cs), [`src/Falah.Domain/Common/BusinessClock.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/BusinessClock.cs), [`src/Falah.Domain/Common/DomainException.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/DomainException.cs), [`src/Falah.Domain/Common/Money.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Common/Money.cs), [`src/Falah.Domain/ControlCenter/ControlCenterRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/ControlCenter/ControlCenterRules.cs), [`src/Falah.Domain/Customers/Customer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Customers/Customer.cs), [`src/Falah.Domain/Delivery/DeliveryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRecords.cs), [`src/Falah.Domain/Delivery/DeliveryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryRules.cs), [`src/Falah.Domain/Delivery/DeliveryStatus.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Delivery/DeliveryStatus.cs), [`src/Falah.Domain/Employees/Attendance.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Attendance.cs), [`src/Falah.Domain/Employees/Employee.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/Employee.cs), [`src/Falah.Domain/Employees/EmployeeRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Employees/EmployeeRules.cs), [`src/Falah.Domain/Financial/FinancialRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/FinancialRules.cs), [`src/Falah.Domain/Financial/PaymentMethod.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/PaymentMethod.cs), [`src/Falah.Domain/Financial/TaxRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TaxRule.cs), [`src/Falah.Domain/Financial/TreasuryMovement.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Financial/TreasuryMovement.cs), [`src/Falah.Domain/Idempotency/FinancialJournal.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Idempotency/FinancialJournal.cs), [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs), [`src/Falah.Domain/Inventory/InventoryRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRecords.cs), [`src/Falah.Domain/Inventory/InventoryRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/InventoryRules.cs), [`src/Falah.Domain/Inventory/PrepRecipeLine.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PrepRecipeLine.cs), [`src/Falah.Domain/Inventory/PurchasingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/PurchasingRules.cs), [`src/Falah.Domain/Menu/ProductImageRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Menu/ProductImageRules.cs), [`src/Falah.Domain/Orders/CheckoutRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/CheckoutRules.cs), [`src/Falah.Domain/Orders/ElectronicPayment.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/ElectronicPayment.cs), [`src/Falah.Domain/Orders/Order.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/Order.cs), [`src/Falah.Domain/Orders/OrderEnums.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderEnums.cs), [`src/Falah.Domain/Orders/OrderItem.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderItem.cs), [`src/Falah.Domain/Orders/OrderPaymentQueries.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderPaymentQueries.cs), [`src/Falah.Domain/Orders/OrderRefund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderRefund.cs), [`src/Falah.Domain/Orders/OrderValueBreakdown.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/OrderValueBreakdown.cs), [`src/Falah.Domain/Orders/RefundRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Orders/RefundRules.cs), [`src/Falah.Domain/Payroll/PayrollRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Payroll/PayrollRules.cs), [`src/Falah.Domain/Pricing/ItemPricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/ItemPricingRules.cs), [`src/Falah.Domain/Pricing/PriceRule.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PriceRule.cs), [`src/Falah.Domain/Pricing/PricingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Pricing/PricingRules.cs), [`src/Falah.Domain/Printing/EscPosTicketRenderer.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/EscPosTicketRenderer.cs), [`src/Falah.Domain/Printing/PrintRecords.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRecords.cs), [`src/Falah.Domain/Printing/PrintRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/PrintRules.cs), [`src/Falah.Domain/Printing/TicketLayout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Printing/TicketLayout.cs), [`src/Falah.Domain/Purchasing/PayablesAging.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Purchasing/PayablesAging.cs), [`src/Falah.Domain/Reports/ProfitabilityRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/ProfitabilityRules.cs), [`src/Falah.Domain/Reports/SalesRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/SalesRules.cs), [`src/Falah.Domain/Reports/TrendRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Reports/TrendRules.cs), [`src/Falah.Domain/Shifts/Shift.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Shifts/Shift.cs), [`src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs), [`src/Falah.Infrastructure/Reports/ReportingQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Reports/ReportingQueryService.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Range ordering handled inconsistently between normalized sales UTC interval and raw cost/date series consumers.
@@ -2479,7 +1791,7 @@ Normalize or reject reversed date endpoints once at shared request boundary and 
 
 ### Spec: FIN-CAND-SAFE-DROP-CLOSED-SHIFT-ATTRIBUTION-001 — SafeDrop may attribute a later drawer movement to a closed shift and change its reprinted breakdown
 - **Severity:** `LOW` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Treasury/SafeDropHandler.cs`, `src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`, `src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`, `src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`, `src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs`, `tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs`, `tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Treasury/SafeDropHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Treasury/SafeDropHandler.cs), [`src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs), [`src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/PrintJobQueryService.cs), [`src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs), [`src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/CashDrawer/CashierCashMovementHandler.cs), [`tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs), [`tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/CashierCashMovementVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 SafeDrop validates only that the request ShiftId exists; it does not require the referenced shift to remain Open. It posts with the current open BusinessDayId plus that request ShiftId. ShiftReconciliation later selects Posted safe_drop rows by ShiftId. Reprinting a close slip recomputes detail from current rows but restores the stored expected, actual and difference headline.
@@ -2488,7 +1800,8 @@ SafeDrop validates only that the request ShiftId exists; it does not require the
 The closed shift close-slip component breakdown can reflect a later SafeDrop while its headline remains the original saved close values. This can reduce reconciliation clarity or attribute later custody to an earlier shift if that is not the intended policy.
 
 **Engineering Implementation Blueprint:**  
-['If prohibit: enforce shift-open state in a concurrency-safe transaction boundary shared with shift close.', 'If allow: represent later movement as an explicit post-close adjustment/revision and distinguish it from the immutable close snapshot in reprints.']
+- If prohibit: enforce shift-open state in a concurrency-safe transaction boundary shared with shift close.
+- If allow: represent later movement as an explicit post-close adjustment/revision and distinguish it from the immutable close snapshot in reprints.
 
 **Required Verification & Regression Tests:**
 - Open BusinessDay and closed Shift: assert the owner-selected accepted/rejected outcome and posted movement ShiftId/BusinessDayId.
@@ -2506,7 +1819,7 @@ The closed shift close-slip component breakdown can reflect a later SafeDrop whi
 
 ### Spec: FIN-CAND-WPF-REFUND-AMBIGUOUS-RETRY-001 — Legacy WPF refund submit does not preserve the same idempotency key after an ambiguous outcome
 - **Severity:** `LOW` | **Category:** `FINANCIAL_AND_DATABASE_INTEGRITY` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs`, `src/Falah.Client.Cashier/Services/ApiClient.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`, `src/Falah.Client.CashierWinUI/Services/ApiClient.cs`, `src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`
+- **Target Files:** [`src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/CashierViewModel.OrderLookup.cs), [`src/Falah.Client.Cashier/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/Services/ApiClient.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs), [`src/Falah.Client.CashierWinUI/Services/ApiClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ApiClient.cs), [`src/Falah.Infrastructure/Orders/RefundOrderHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/RefundOrderHandler.cs), [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs)
 
 **Root Cause Diagnosis:**  
 WPF SubmitRefundAsync creates a fresh RefundRequestId per invocation and WPF ApiClient does not expose transport ambiguity as OutcomeUnknown or retain the request for replay. WinUI keeps _pendingRefund and retries the same request ID during the current ViewModel lifetime.
@@ -2515,7 +1828,7 @@ WPF SubmitRefundAsync creates a fresh RefundRequestId per invocation and WPF Api
 If WPF is supported/deployed, response loss after a successful partial refund can leave the operator without explicit unknown-outcome recovery; a subsequent submit generates a new key and may create a separate additional partial refund. Impact depends on deployment, transport outcome and operator action.
 
 **Engineering Implementation Blueprint:**  
-['If WPF is supported, route refund commands through explicit unknown-outcome state and retain/reconcile the same request ID before allowing a new submit. If WPF is retired, record that operational fact. Decide whether WinUI unresolved refund intent must survive restart; if so, persist a safe pending key or require authoritative refund lookup before another command. Preserve server amount and account guards.']
+- If WPF is supported, route refund commands through explicit unknown-outcome state and retain/reconcile the same request ID before allowing a new submit. If WPF is retired, record that operational fact. Decide whether WinUI unresolved refund intent must survive restart; if so, persist a safe pending key or require authoritative refund lookup before another command. Preserve server amount and account guards.
 
 **Required Verification & Regression Tests:**
 - Inject response loss after server commit in WPF; retry must reuse the key or require server reconciliation before a new command.
@@ -2533,7 +1846,7 @@ If WPF is supported/deployed, response loss after a successful partial refund ca
 
 ### Spec: FLOW-002 — Held electronic preparation is not automatically released on confirmation
 - **Severity:** `MEDIUM` | **Category:** `ORDER_LIFECYCLE_AND_WORKFLOW` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Settings/SettingsRequests.cs`, `src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`, `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs`, `src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`, `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Application/Settings/SettingsRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Settings/SettingsRequests.cs), [`src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs), [`src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs), [`src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs), [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Suppression is a one-time checkout decision without durable preparation-release state or confirmation outbox event.
@@ -2548,68 +1861,13 @@ Explicitly communicate manual release now; future approved implementation should
 - Add hold->confirm release exactly once, replay, mixed payment failure, cancellation-before-release and manual reprint tests.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: INV-FIN-001 — Uncosted Waste Coercion to Zero in Loss Summary
 - **Severity:** `LOW` | **Category:** `INVENTORY_AND_COSTING` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Inventory/InventoryQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Inventory/InventoryQueryService.cs)
 
 **Root Cause Diagnosis:**  
 Null loss value on unpriced inventory item is coerced to zero.
@@ -2628,9 +1886,30 @@ Expose UnknownCostCount in LossSummaryDto to inform managers when loss values ar
 
 ---
 
+### Spec: INV-ROUND-001 — CostingRules Yield Unit Conversion Uses Midpoint Banker's Rounding Causing Asymmetric Stock Deduction Truncation
+- **Severity:** `MEDIUM` | **Category:** `INVENTORY_AND_COSTING` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Domain/Inventory/CostingRules.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Inventory/CostingRules.cs)
+
+**Root Cause Diagnosis:**  
+CostingRules.BaseQuantityMilliUnits applies default MidpointRounding.ToEven on single portion quantities before multiplying by order quantity, truncating fractional units.
+
+**Operational Impact:**  
+Asymmetric rounding truncation leads to cumulative inventory drift where physical stock and system stock diverge over time across high-volume recipe lines.
+
+**Engineering Implementation Blueprint:**  
+Compute total deducted base milliUnits across the entire ordered quantity using integer division with rounding: (line.QuantityMilliUnits * orderQuantity + ratio / 2) / ratio, or specify explicit MidpointRounding.AwayFromZero.
+
+**Required Verification & Regression Tests:**
+- Calculate stock deduction for 3 units of an item with a yield ratio of 3 and 1000 milliUnits declared; verify total deducted milliUnits equals exactly 1000 rather than 999.
+
+**Acceptance Criteria:**
+- Inventory stock deduction for yield-ratio recipe lines preserves exact aggregate integer milliUnits without rounding truncation.
+
+---
+
 ### Spec: PRT-002 — Succeeded and print health collapse transport acceptance into physical completion
 - **Severity:** `MEDIUM` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Printing/PrintingRequests.cs`, `src/Falah.Application/Reports/OwnerDashboardDtos.cs`, `src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`, `src/Falah.PrintAgent/PrintJobProcessor.cs`, `src/Falah.PrintAgent/Transports.cs`, `src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`, `tools/pre-demo-check.ps1`
+- **Target Files:** [`src/Falah.Application/Printing/PrintingRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Printing/PrintingRequests.cs), [`src/Falah.Application/Reports/OwnerDashboardDtos.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Reports/OwnerDashboardDtos.cs), [`src/Falah.Infrastructure/Printing/PrintJobQueryService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/PrintJobQueryService.cs), [`src/Falah.PrintAgent/PrintJobProcessor.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/PrintJobProcessor.cs), [`src/Falah.PrintAgent/Transports.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Transports.cs), [`src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs), [`tools/pre-demo-check.ps1`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/tools/pre-demo-check.ps1)
 
 **Root Cause Diagnosis:**  
 Boolean transport contract has no acknowledgement level or spooler submission ID; job status has no accepted/unknown/confirmed distinction.
@@ -2645,68 +1924,13 @@ Use distinct Simulated, Submitted, SpoolerQueued, Failed, OutcomeUnknown and Phy
 - Existing success test verifies only fake transport Sent list. Add file-simulation status, paused spooler status under explicit authorization, and operator-confirmation tests.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: PRT-003 — Blocking spooler submission ignores cancellation and completion failures
 - **Severity:** `MEDIUM` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.PrintAgent/AgentOptions.cs`, `src/Falah.PrintAgent/Program.cs`, `src/Falah.PrintAgent/Transports.cs`, `src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`
+- **Target Files:** [`src/Falah.PrintAgent/AgentOptions.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/AgentOptions.cs), [`src/Falah.PrintAgent/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Program.cs), [`src/Falah.PrintAgent/Transports.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Transports.cs), [`src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/WindowsSpoolerTicketTransport.cs)
 
 **Root Cause Diagnosis:**  
 Timeout configuration applies to HTTP/TCP/serial write but not full native spooler lifecycle; unmanaged result handling is incomplete.
@@ -2721,68 +1945,13 @@ Check finalization results, retain submission job ID, move blocking native submi
 - Add injectable spooler API tests for failure and hang, short writes already checked in implementation; separate integration verification from physical output.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: PRT-004 — Agent never authenticates again after session loss
 - **Severity:** `MEDIUM` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.PrintAgent/PrintServerClient.cs`, `src/Falah.PrintAgent/Program.cs`, `src/Falah.Server/AuthenticationMiddleware.cs`
+- **Target Files:** [`src/Falah.PrintAgent/PrintServerClient.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/PrintServerClient.cs), [`src/Falah.PrintAgent/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/Program.cs), [`src/Falah.Server/AuthenticationMiddleware.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/AuthenticationMiddleware.cs)
 
 **Root Cause Diagnosis:**  
 No token-expiry or reauthentication recovery path; agent lifecycle assumes continuously sliding valid session.
@@ -2797,68 +1966,13 @@ Add controlled reauthentication and explicit offline/authentication alarm withou
 - Add 401-then-authenticate recovery, deactivated-account terminal failure, and queued outcome reporting across reauth tests.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: PRT-006 — Saved printer width and receipt copy count do not control inspected print pipeline
 - **Severity:** `LOW` | **Category:** `PRINTING_AND_HARDWARE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Application/Settings/SettingsRequests.cs`, `src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs`, `src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`, `src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs`, `src/Falah.PrintAgent/AgentOptions.cs`
+- **Target Files:** [`src/Falah.Application/Settings/SettingsRequests.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Application/Settings/SettingsRequests.cs), [`src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs), [`src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Printing/OrderAutoPrintService.cs), [`src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs), [`src/Falah.PrintAgent/AgentOptions.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.PrintAgent/AgentOptions.cs)
 
 **Root Cause Diagnosis:**  
 Persistence/UI configuration has no mapped consumer in render/dispatch implementation.
@@ -2873,68 +1987,13 @@ Define per-station paper capability and copy semantics; explicitly label unsuppo
 - Add intended copy/width contract tests or disable unsupported setting UI.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: SEC-005 — Unguarded Read Access to Payroll Runs, Backups, Treasury, and Purchases
 - **Severity:** `MEDIUM` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Server/Program.cs`
+- **Target Files:** [`src/Falah.Server/Program.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Server/Program.cs)
 
 **Root Cause Diagnosis:**  
 Minimal API GET endpoints for payroll runs, backup metadata, treasury handovers, and supplier debts lack authorization policy filters or permission checks.
@@ -2956,7 +2015,7 @@ Apply RequirePermission(context, permission) filters to all sensitive read endpo
 
 ### Spec: SEC-007 — Approval Double-Spending Concurrency Hazard (CHALLENGED WITH COUNTEREVIDENCE)
 - **Severity:** `MEDIUM` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Persistence/FalahDbContext.cs`, `src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Persistence/FalahDbContext.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/FalahDbContext.cs), [`src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs)
 
 **Root Cause Diagnosis:**  
 Earlier static analysis overlooked FalahDbContext's Fluent API configuration where Consumed is registered as an EF Core concurrency token.
@@ -2977,7 +2036,7 @@ Retain concurrency token in FalahDbContext, and catch DbUpdateConcurrencyExcepti
 
 ### Spec: SEC-010 — High PBKDF2 Computational Cost on PIN Uniqueness Validation
 - **Severity:** `MEDIUM` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`, `src/Falah.Domain/Authorization/PinHasher.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Users/PinUniquenessChecker.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/PinUniquenessChecker.cs), [`src/Falah.Domain/Authorization/PinHasher.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Domain/Authorization/PinHasher.cs)
 
 **Root Cause Diagnosis:**  
 Sequential synchronous evaluation of high-iteration PBKDF2 hashes across all active staff on server thread pool.
@@ -2998,7 +2057,7 @@ Use deterministic HMAC blind indexing with a server pepper for O(1) uniqueness l
 
 ### Spec: SEC-012 — User Deactivation Omits Explicit Session Token Revocation
 - **Severity:** `LOW` | **Category:** `SECURITY_AND_ACCESS_CONTROL` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Infrastructure/Users/SetUserActiveHandler.cs`, `src/Falah.Infrastructure/Authorization/SessionService.cs`
+- **Target Files:** [`src/Falah.Infrastructure/Users/SetUserActiveHandler.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Users/SetUserActiveHandler.cs), [`src/Falah.Infrastructure/Authorization/SessionService.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Infrastructure/Authorization/SessionService.cs)
 
 **Root Cause Diagnosis:**  
 User deactivation modifies user entity status only, omitting explicit session revocation.
@@ -3019,7 +2078,7 @@ In SetUserActiveHandler, mark all active sessions for the user as revoked (Revok
 
 ### Spec: UI-002 — Unselected expense and payment buttons combine literal white with dark-theme pale text
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/Services/ThemeResources.cs`, `src/Falah.Client.CashierWinUI/Styles/Colors.xaml`, `src/Falah.Client.CashierWinUI/Views/CashierView.xaml`, `src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/Services/ThemeResources.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ThemeResources.cs), [`src/Falah.Client.CashierWinUI/Styles/Colors.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Styles/Colors.xaml), [`src/Falah.Client.CashierWinUI/Views/CashierView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CashierView.xaml), [`src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml)
 
 **Root Cause Diagnosis:**  
 Instance background bindings override correctly-themed SecondaryButtonStyle/PaymentMethodButtonStyle with WhiteBrush; text continues themed.
@@ -3035,68 +2094,13 @@ Use coherent semantic card/neutral background with themed primary text for unsel
 - Check disabled/hover/pressed states separately, preserving stored category values.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-004 — Imperative/converter brush results do not track live per-window theme reliably
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/App.xaml`, `src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs`, `src/Falah.Client.CashierWinUI/MainWindow.xaml.cs`, `src/Falah.Client.CashierWinUI/Services/ThemeResources.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/App.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/App.xaml), [`src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Controls/StatusPillView.xaml.cs), [`src/Falah.Client.CashierWinUI/MainWindow.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/MainWindow.xaml.cs), [`src/Falah.Client.CashierWinUI/Services/ThemeResources.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Services/ThemeResources.cs)
 
 **Root Cause Diagnosis:**  
 Converter returns concrete Brush object; unlike ThemeResource expression, no dependency informs it theme changed. Explicit dictionary lookup also does not traverse merged dictionaries.
@@ -3112,68 +2116,13 @@ Prefer theme-bound visual states/resources; explicitly observe ActualThemeChange
 - Toggle repeatedly without changing Text/ExpenseCategory/PaymentMethod; compare same realized objects and brushes.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-006 — A new pickup inherits previous order optional collection schedule
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs`, `src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs), [`src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs)
 
 **Root Cause Diagnosis:**  
 Order reset named ResetDelivery also owns shared pickup customer fields but omits pickup-specific schedule.
@@ -3189,68 +2138,13 @@ Reset optional schedule with resolved new-order lifecycle and explicit cart canc
 - Repeat ClearCart/StartNewOrder and historic pending-order review to ensure intentional preserved live draft schedule is not erased.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-009 — Printer status UI exposes only four of six implemented routes
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs)
 
 **Root Cause Diagnosis:**  
 Hardcoded status-route list lags shared print route vocabulary.
@@ -3265,68 +2159,13 @@ Derive displayed route options from complete shared contract plus localized labe
 - Provide overview with six routes and each pending/failed/stuck; assert all selectable and counts true.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-010 — Workspace shortcut guard omits most open operational modals
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/Views/CashierView.xaml`, `src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/Views/CashierView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CashierView.xaml), [`src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/CashierView.xaml.cs)
 
 **Root Cause Diagnosis:**  
 Custom overlays do not centralize modal state and shortcut predicate only checks variant/payment/result.
@@ -3341,68 +2180,13 @@ Centralize IsAnyModalOpen plus accessible focus isolation and apply to all short
 - Actual WinUI keyboard F2/F3/F12 + Tab/ShiftTab/Escape for every modal, assert no background focus/action and only one modal active.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-011 — Discarded definitively rejected CallCenter reprint survives in journal
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`
+- **Target Files:** [`src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs)
 
 **Root Cause Diagnosis:**  
 Safe discard memory path omits corresponding persistent store clear.
@@ -3418,68 +2202,13 @@ Clear disk atomically when explicitly discarding known-rejected print; preserve 
 - Ambiguous failure must continue surviving same clear attempt.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-013 — Legacy WPF change display parses EGP tender as integer piastres
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs`
+- **Target Files:** [`src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.Cashier/ViewModels/CashierViewModel.Checkout.cs)
 
 **Root Cause Diagnosis:**  
 Display parses 100 as100 piastres or fails for100.00 while authoritative send converts to10000.
@@ -3494,68 +2223,13 @@ If WPF remains supported, use same tested CashInput units and notifications; oth
 - WPF ChangeDue test 90 EGP total with100 and100.00 tender both returns1000 piastres; Arabic/current-culture formats reviewed separately.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-015 — CallCenter lock/unlock retains old order-panel visual trees through cart subscription
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs`, `src/Falah.Client.CallCenterWinUI/Services/AppSession.cs`, `src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs`
+- **Target Files:** [`src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/MainWindow.xaml.cs), [`src/Falah.Client.CallCenterWinUI/Services/AppSession.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/Services/AppSession.cs), [`src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/Views/CallCenterOrderPanelView.xaml.cs)
 
 **Root Cause Diagnosis:**  
 Long-lived cached VM Cart event holds every prior UserControl handler; subscriptions never removed on unload or DataContext replacement.
@@ -3571,68 +2245,13 @@ Track subscribed VM, detach on change/unload, reattach once Loaded.
 - DataContext A->B->A event subscription counts exactly1 and no callbacks on detached view.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-019 — Recipe yield conversion silently truncates fractional pieces-per-base-unit
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs)
 
 **Root Cause Diagnosis:**  
 MilliUnits parser accepts fractional unit then conversion to integer floor without checking remainder.
@@ -3648,68 +2267,13 @@ Validate integer divisibility before division or use dedicated localized positiv
 - Whole numbers1,2and textual2.000 accepted exactly, enforce overflow bound.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
 
 ---
 
 ### Spec: UI-022 — Recipe ingredient picker truncates to60 choices without exposing its search input
 - **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
-- **Target Files:** `src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`, `src/Falah.Client.CashierWinUI/Views/RecipesView.xaml`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs), [`src/Falah.Client.CashierWinUI/Views/RecipesView.xaml`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/Views/RecipesView.xaml)
 
 **Root Cause Diagnosis:**  
 VM implemented bounded searchable choices but XAML exposes only ComboBox over current60 and no search binding to query full cached ingredients.
@@ -3725,61 +2289,27 @@ Bind explicit ingredient search to IngredientSearchText or provide searchable fu
 - Exclude chosenIDs while searching fullcached inventory; clearing search should preserve selected choice and exact recipe lines.
 
 **Acceptance Criteria:**
-- I
-- n
-- v
-- a
-- r
-- i
-- a
-- n
-- t
--  
-- h
-- o
-- l
-- d
-- s
--  
-- u
-- n
-- d
-- e
-- r
--  
-- r
-- e
-- t
-- r
-- i
-- e
-- s
--  
-- a
-- n
-- d
--  
-- c
-- o
-- n
-- c
-- u
-- r
-- r
-- e
-- n
-- t
--  
-- e
-- x
-- e
-- c
-- u
-- t
-- i
-- o
-- n
-- s
-- .
+- Invariant holds under retries and concurrent executions.
+
+---
+
+### Spec: UI-023 — EmployeesViewModel Sequentially Executes N+1 API Calls for Balances and Exits Early on First Failure Leaving Employee List Empty
+- **Severity:** `MEDIUM` | **Category:** `UI_UX_AND_DESKTOP_CLIENT_STATE` | **Priority:** `P2_STABILITY_AND_MAINTAINABILITY`
+- **Target Files:** [`src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs), [`src/Falah.Client.CallCenterWinUI/ViewModels/EmployeesViewModel.cs`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/src/Falah.Client.CallCenterWinUI/ViewModels/EmployeesViewModel.cs)
+
+**Root Cause Diagnosis:**  
+Sequential N+1 API balance calls in UI loading routine coupled with catastrophic early exit on single failure prior to applying display filter.
+
+**Operational Impact:**  
+A single network hiccup or unmapped employee ledger record results in the entire employee list disappearing from the UI, blocking shift attendance and payroll operations.
+
+**Engineering Implementation Blueprint:**  
+Introduce a bulk employee balance endpoint on the server, or fetch balances concurrently with Task.WhenAll and gracefully degrade individual failed balances while still displaying successfully loaded employees.
+
+**Required Verification & Regression Tests:**
+- Simulate employee balance API failure for 1 out of 10 employees; assert EmployeesViewModel displays remaining 9 employees and shows non-blocking warning rather than an empty list.
+
+**Acceptance Criteria:**
+- EmployeesViewModel displays all successfully loaded employees even if an individual employee balance lookup fails, and eliminates sequential N+1 network requests.
 
 ---
