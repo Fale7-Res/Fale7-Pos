@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.RetainedRequest(string?, Falah.Client.CashierWinUI.Services.IRetainedRequestStore?)
 - **Lines:** [19-25]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.RetainedRequest(string?, Falah.Client.CashierWinUI.Services.IRetainedRequestStore?) across lines 19-25.
+- **Behavior:** Initializes the retained request instance with an optional durability `ownerKey` and backing store (falling back to `RetainedRequestStorage.Current`). If an owner key is specified, loads any previously persisted unconfirmed request from disk into `Value` and sets `WasRecovered` to `true` when a pending request is restored.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>)
 - **Lines:** [34-51]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.SendAsync<TResult>(TRequest, Func<TRequest, Task<Falah.Client.CashierWinUI.Services.ApiClient.ApiResult<TResult>>>) across lines 34-51.
+- **Behavior:** Safely coordinates request dispatch with crash-recovery persistence. Holds the request in `Value` and persists it to disk prior to invocation. Invokes the `send` delegate and, if the operation succeeds with a value or definitively fails on a fresh submission without an unknown outcome, clears `Value`, resets `WasRecovered`, and deletes the persisted request from `_store`. Otherwise retains the original request for idempotent retries.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.FailureMessage(string?)
 - **Lines:** [53-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.RetainedRequest<TRequest>.FailureMessage(string?) across lines 53-55.
+- **Behavior:** Resolves an appropriate localized status message. If `HasPending` is `true` (an in-flight or recovered request remains unconfirmed), returns a warning prompting the operator to retry before leaving; otherwise returns the provided error message or default failure text.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.AppHeaderView.AppHeaderView()
 - **Lines:** [13-16]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.AppHeaderView.AppHeaderView() across lines 13-16.
+- **Behavior:** Instantiates the `AppHeaderView` UserControl and calls `InitializeComponent()` to inflate the header layout, wiring up status badges, connection indicator, and interactive action controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.AppHeaderView.OnLockClicked(object, Microsoft.UI.Xaml.RoutedEventArgs)
 - **Lines:** [18-18]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.AppHeaderView.OnLockClicked(object, Microsoft.UI.Xaml.RoutedEventArgs) across lines 18-18.
+- **Behavior:** Event handler triggered upon clicking the header lock button, raising the `LockRequested` event to instruct `MainWindow` to invoke `MainViewModel.LockCommand` and transition the app to the login screen.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

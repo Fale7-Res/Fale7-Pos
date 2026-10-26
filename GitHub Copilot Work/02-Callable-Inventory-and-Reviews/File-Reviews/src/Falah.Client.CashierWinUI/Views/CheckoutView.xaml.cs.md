@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CheckoutView.CheckoutView()
 - **Lines:** [3-3]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CheckoutView.CheckoutView() across lines 3-3.
+- **Behavior:** Instantiates the `CheckoutView` UserControl and invokes `InitializeComponent()` to inflate the order settlement, payment tender selection, and cash change UI layout.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

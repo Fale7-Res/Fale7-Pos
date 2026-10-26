@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.RefundView.RefundView()
 - **Lines:** [3-3]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.RefundView.RefundView() across lines 3-3.
+- **Behavior:** Initializes RefundView components by invoking generated InitializeComponent() to inflate the XAML visual tree for the refund modal dialog (amount input, refund reason, remaining balance validation, and confirmation actions), and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

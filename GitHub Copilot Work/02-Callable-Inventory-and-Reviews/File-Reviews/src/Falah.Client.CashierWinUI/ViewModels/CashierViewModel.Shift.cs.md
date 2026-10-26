@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync()
 - **Lines:** [14-43]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenShiftAsync() across lines 14-43.
+- **Behavior:** Validates UI state guards (`IsOpeningShift`, `IsInitializing`, `CanOpenShift`), retrying any existing `_pendingOpenShift` immediately if present. Parses `OpeningCashText` into integral piastres via `CashInput.TryParse`, constructs an `OpenShiftRequest` with a client-generated GUID `RequestId`, time-based shift classification (morning before 16:00, evening otherwise), current user ID, and opening cash balance, then delegates execution to `CompleteOpenShiftAsync`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteOpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest)
 - **Lines:** [46-66]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteOpenShiftAsync(Falah.Application.Shifts.OpenShiftRequest) across lines 46-66.
+- **Behavior:** Submits the shift opening payload to `_session.Api.OpenShiftAsync` while tracking it in `_pendingOpenShift` to survive network drops. Upon success, clears pending state, regenerates the client request ID, assigns shift identifiers to `_session`, triggers reactive property notifications for `IsShiftOpen`, updates the header display, and triggers an asynchronous menu refresh via `LoadMenuAsync()`. If an error occurs, populates `OpenShiftError`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.PurchasingView.PurchasingView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.PurchasingView.PurchasingView() across lines 7-10.
+- **Behavior:** Initializes PurchasingView components by invoking generated InitializeComponent() to inflate the XAML visual tree for supplier directory tables, invoice history grids, balance tracking, and purchasing action controls, and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.MilliUnits.TryParse(string?, out long)
 - **Lines:** [15-25]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.MilliUnits.TryParse(string?, out long) across lines 15-25.
+- **Behavior:** Parses inventory quantity strings into integral milli-units (1 base unit = 1000 milli-units). Normalizes Arabic-Indic and Persian numerals as well as Arabic decimal commas to ASCII equivalents, validates non-negativity, capacity limits, and precision up to 3 decimal places, returning the scaled `long` value.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [18-20]
-- **Behavior:** Executes logic for lambda expression across lines 18-20.
+- **Behavior:** Normalizes input characters by translating Eastern Arabic-Indic numerals (`'٠'`..`'٩'`) and Persian numerals (`'۰'`..`'۹'`) to Western ASCII digits (`'0'`..`'9'`), and Arabic decimal comma (`'٫'`) to standard period (`'.'`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.MilliUnits.Format(long)
 - **Lines:** [29-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.MilliUnits.Format(long) across lines 29-30.
+- **Behavior:** Formats integral milli-units into an invariant decimal string with pattern `"0.###"`, omitting trailing zeros for whole quantities while preserving fractional inventory up to three decimal places.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

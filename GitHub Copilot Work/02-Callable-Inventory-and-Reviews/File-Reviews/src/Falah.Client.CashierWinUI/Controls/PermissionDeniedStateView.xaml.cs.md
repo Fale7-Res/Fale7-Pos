@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.PermissionDeniedStateView.PermissionDeniedStateView()
 - **Lines:** [8-11]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.PermissionDeniedStateView.PermissionDeniedStateView() across lines 8-11.
+- **Behavior:** Instantiates the `PermissionDeniedStateView` UserControl and executes `InitializeComponent()` to inflate the XAML element hierarchy and wire up visual state resources for displaying permission-denied feedback.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

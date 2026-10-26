@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.MenuEditorView.MenuEditorView()
 - **Lines:** [9-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.MenuEditorView.MenuEditorView() across lines 9-19.
+- **Behavior:** Initializes MenuEditorView components by invoking generated InitializeComponent() to inflate the menu editor XAML visual tree, and subscribes an event handler to DataContextChanged to provide the ViewModel with a window-aware file picker delegate.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [15-18]
-- **Behavior:** Executes logic for lambda expression across lines 15-18.
+- **Behavior:** Event handler callback for DataContextChanged that inspects if the newly assigned DataContext is a MenuEditorViewModel instance, and if so, binds the window-aware ImageFilePicker.PickAsync delegate to vm.PickImageAsync to decouple UI window handle resolution from the ViewModel.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

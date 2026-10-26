@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeResources.Get(string)
 - **Lines:** [18-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeResources.Get(string) across lines 18-34.
+- **Behavior:** Dynamically resolves a XAML resource key against the active window theme. Inspects the `ActualTheme` of `App.MainAppWindow.Content` to determine whether `"Dark"` or `"Light"` theme dictionaries apply, attempts lookup within that dictionary, and falls back to flat application-level resources if not defined in the themed dictionary.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

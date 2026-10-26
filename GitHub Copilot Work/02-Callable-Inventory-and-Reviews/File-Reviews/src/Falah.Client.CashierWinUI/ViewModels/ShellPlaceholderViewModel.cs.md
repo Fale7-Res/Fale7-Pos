@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShellPlaceholderViewModel.ShellPlaceholderViewModel(string)
 - **Lines:** [13-16]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShellPlaceholderViewModel.ShellPlaceholderViewModel(string) across lines 13-16.
+- **Behavior:** Initializes the placeholder ViewModel with the specified `moduleTitle`, binding the destination module name to display an explicit "not built yet" status in the placeholder view without mock data.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

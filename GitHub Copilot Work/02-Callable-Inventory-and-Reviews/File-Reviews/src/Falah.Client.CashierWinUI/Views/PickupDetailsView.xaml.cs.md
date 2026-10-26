@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.PickupDetailsView.PickupDetailsView()
 - **Lines:** [3-3]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.PickupDetailsView.PickupDetailsView() across lines 3-3.
+- **Behavior:** Initializes PickupDetailsView components by invoking generated InitializeComponent() to inflate the XAML visual tree for the pickup customer details modal overlay (customer name and phone entry), and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

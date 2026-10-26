@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Platform.ImageFilePicker.PickAsync()
 - **Lines:** [15-41]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Platform.ImageFilePicker.PickAsync() across lines 15-41.
+- **Behavior:** Asynchronously displays a WinRT `FileOpenPicker` configured for image formats (`.jpg`, `.jpeg`, `.png`, `.webp`) by parenting the dialog to the unpackaged application's Win32 HWND via `InitializeWithWindow`. If the user cancels or closes the dialog, returns `null`; otherwise, reads the selected file stream into memory, derives the normalized MIME content-type (`image/png`, `image/webp`, or `image/jpeg`) from the file extension, and returns the binary payload tuple.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 

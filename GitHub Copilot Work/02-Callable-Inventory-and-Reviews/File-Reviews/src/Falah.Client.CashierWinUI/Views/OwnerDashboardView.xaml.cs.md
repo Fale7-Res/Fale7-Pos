@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.OwnerDashboardView.OwnerDashboardView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.OwnerDashboardView.OwnerDashboardView() across lines 7-10.
+- **Behavior:** Initializes OwnerDashboardView components by invoking generated InitializeComponent() to inflate the XAML visual tree for executive KPI metric cards, sales breakdown charts, alerts, and operational indicators, and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

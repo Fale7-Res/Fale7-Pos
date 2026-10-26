@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.DailySummaryView.DailySummaryView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.DailySummaryView.DailySummaryView() across lines 7-10.
+- **Behavior:** Instantiates the `DailySummaryView` UserControl and calls `InitializeComponent()` to inflate the end-of-day business summary sheet, payment breakdowns, cash drawer reconciliation cards, and cashier sign-off controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.DeliveryDetailsView.DeliveryDetailsView()
 - **Lines:** [3-3]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.DeliveryDetailsView.DeliveryDetailsView() across lines 3-3.
+- **Behavior:** Instantiates the `DeliveryDetailsView` UserControl and calls `InitializeComponent()` to inflate the delivery address, contact phone, and driver assignment dialog layout.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

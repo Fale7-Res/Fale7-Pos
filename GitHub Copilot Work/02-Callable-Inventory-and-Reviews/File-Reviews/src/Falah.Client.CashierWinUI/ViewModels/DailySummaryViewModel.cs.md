@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.DailySummaryViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [27-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.DailySummaryViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 27-30.
+- **Behavior:** Initializes the ViewModel and stores the injected `AppSession` dependency, providing access to active user authentication, permission verification, and backend API endpoints.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.FormatArabicLongDate(string)
 - **Lines:** [43-49]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.FormatArabicLongDate(string) across lines 43-49.
+- **Behavior:** Parses an ISO `yyyy-MM-dd` business date string using invariant culture and formats it into an Arabic localized long date format (`"dddd، d MMMM yyyy"`) using the `ar-EG` culture, falling back to the raw string if parsing fails.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.LoadAsync()
 - **Lines:** [63-111]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.DailySummaryViewModel.LoadAsync() across lines 63-111.
+- **Behavior:** Asynchronously loads daily summary report data. Fetches application settings, determines the relevant business day ID (using the current open day or falling back to the most recent closed day), queries `GetDailySummaryAsync`, updates `Summary` and `Settings`, handles graceful empty states when no business day exists, and broadcasts `PropertyChanged` notifications for dependent display and calculation properties.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

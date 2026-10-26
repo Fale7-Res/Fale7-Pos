@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CategoryStripView.CategoryStripView()
 - **Lines:** [12-12]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CategoryStripView.CategoryStripView() across lines 12-12.
+- **Behavior:** Instantiates the `CategoryStripView` UserControl and calls `InitializeComponent()` to inflate the category navigation strip and product search box controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CategoryStripView.FocusSearch()
 - **Lines:** [16-20]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CategoryStripView.FocusSearch() across lines 16-20.
+- **Behavior:** Programmatically assigns keyboard focus to the `ProductSearchBox` input control and selects all contained text to facilitate immediate query replacement via hotkey.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)
 - **Lines:** [22-26]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs) across lines 22-26.
+- **Behavior:** Handles category strip selection clicks by extracting the clicked `CategoryTile` and dispatching it to `CashierViewModel.SelectCategoryCommand` to update active catalog filtering.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

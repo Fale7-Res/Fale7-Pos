@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashCountView.CashCountView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashCountView.CashCountView() across lines 7-10.
+- **Behavior:** Instantiates the `CashCountView` UserControl and calls `InitializeComponent()` to inflate the XAML element hierarchy for denomination breakdown entry and cash drawer count reconciliation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

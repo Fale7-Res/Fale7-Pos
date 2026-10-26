@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.CashInput.TryParse(string?, out long)
 - **Lines:** [7-17]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.CashInput.TryParse(string?, out long) across lines 7-17.
+- **Behavior:** Parses user currency text into integral piastres (1 EGP = 100 piastres). Normalizes Eastern Arabic and Persian numerals as well as Arabic decimal separators into ASCII equivalents, parses with invariant culture, validates that the value is non-negative, fits within the long bounds, and has at most 2 decimal places, outputting the converted piastre amount.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [10-12]
-- **Behavior:** Executes logic for lambda expression across lines 10-12.
+- **Behavior:** Normalizes input characters by translating Eastern Arabic-Indic numerals (`'٠'`..`'٩'`) and Persian numerals (`'۰'`..`'۹'`) to standard ASCII digits (`'0'`..`'9'`), and Arabic decimal comma (`'٫'`) to standard period (`'.'`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.CashInput.Format(long)
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.CashInput.Format(long) across lines 19-19.
+- **Behavior:** Formats a `long` piastres value into a 2-decimal invariant Egyptian Pound currency string (`piastres / 100m`) for UI presentation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.OrdersView.OrdersView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.OrdersView.OrdersView() across lines 7-10.
+- **Behavior:** Initializes OrdersView components by invoking generated InitializeComponent() to inflate the XAML visual tree for the orders history grid, search and status filters, order detail panel, and lifecycle actions, and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

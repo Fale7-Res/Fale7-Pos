@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [24-24]
-- **Behavior:** Executes logic for lambda expression across lines 24-24.
+- **Behavior:** Selector lambda `v => v.PricePiastres` evaluated within `Enumerable.Min` across `Product.Variants` to resolve the minimum variant unit price in piastres for the `StartingPriceDisplay` string formatting.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto)
 - **Lines:** [45-45]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto) across lines 45-45.
+- **Behavior:** Initializes a new `CategoryTile` observable instance, assigning the wrapped `MenuCategoryDto` model to enable single-boolean `IsSelected` tracking for WinUI category strip collection binding.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.BackupView.BackupView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.BackupView.BackupView() across lines 7-10.
+- **Behavior:** Instantiates the `BackupView` UserControl and invokes `InitializeComponent()` to inflate the XAML element hierarchy for database snapshot, backup, and restore administration.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

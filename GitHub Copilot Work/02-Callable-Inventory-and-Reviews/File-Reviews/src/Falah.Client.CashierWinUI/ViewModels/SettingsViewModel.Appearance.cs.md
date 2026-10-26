@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance()
 - **Lines:** [28-31]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance() across lines 28-31.
+- **Behavior:** Synchronizes the initial UI theme selection during ViewModel construction by locating the `ThemeOption` in `ThemeOptions` that matches the current runtime theme in `ThemeService.Instance.Current` and updating `SelectedTheme`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [30-30]
-- **Behavior:** Executes logic for lambda expression across lines 30-30.
+- **Behavior:** Predicate lambda matching a `ThemeOption` whose `Value` corresponds to `ThemeService.Instance.Current` for initial selection resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.OnSelectedThemeChanged(Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.ThemeOption)
 - **Lines:** [33-33]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.OnSelectedThemeChanged(Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.ThemeOption) across lines 33-33.
+- **Behavior:** Property change callback invoked when the user selects a theme option, immediately applying the new `AppTheme` value via `ThemeService.Instance.Set(value.Value)` across the running window without requiring an explicit save.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

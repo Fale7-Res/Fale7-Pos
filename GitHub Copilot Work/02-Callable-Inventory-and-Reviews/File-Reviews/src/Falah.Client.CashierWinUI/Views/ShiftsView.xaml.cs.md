@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ShiftsView.ShiftsView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ShiftsView.ShiftsView() across lines 7-10.
+- **Behavior:** Initializes ShiftsView components by invoking generated InitializeComponent() to inflate the XAML visual tree for active shift status cards, shift history tables, and open/blind-close shift modal dialogs, and establish DataContext resolution.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

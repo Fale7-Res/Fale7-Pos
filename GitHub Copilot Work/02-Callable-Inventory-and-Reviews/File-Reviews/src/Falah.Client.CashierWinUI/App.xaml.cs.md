@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.App.App()
 - **Lines:** [19-27]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.App.App() across lines 19-27.
+- **Behavior:** Initializes the WinUI application by invoking `InitializeComponent()` to parse and load application-level XAML resources. Configures global offline durability by initializing `Services.RetainedRequestStorage.Current` with a `FileRetainedRequestStore` pointing to the `"cashier"` directory prior to ViewModel construction, ensuring retained requests restore state during field initialization.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)
 - **Lines:** [29-42]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs) across lines 29-42.
+- **Behavior:** Handles application startup activation. Instantiates `MainWindow`, assigns it to static `MainAppWindow` to serve as the Win32 window parent for dialogs and pickers in unpackaged WinUI scenarios, and activates the window for rendering (or initiates verification test probes under compile-time flags `FOOTER_LAYOUT_PROBE` / `SCREEN_LAYOUT_PROBE`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

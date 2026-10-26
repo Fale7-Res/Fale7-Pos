@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.CashierOperationsModalsView.CashierOperationsModalsView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.CashierOperationsModalsView.CashierOperationsModalsView() across lines 7-10.
+- **Behavior:** Instantiates the `CashierOperationsModalsView` UserControl and calls `InitializeComponent()` to inflate the modal dialog overlays hosting cashier workflow dialogs (shift open/close, cash drops, expenses).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

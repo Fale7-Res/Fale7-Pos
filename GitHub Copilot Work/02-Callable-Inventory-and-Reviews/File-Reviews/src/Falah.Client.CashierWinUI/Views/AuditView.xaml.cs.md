@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.AuditView.AuditView()
 - **Lines:** [7-10]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.AuditView.AuditView() across lines 7-10.
+- **Behavior:** Instantiates the `AuditView` UserControl and executes `InitializeComponent()` to inflate the XAML element hierarchy and wire up the audit log viewer and filtering controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

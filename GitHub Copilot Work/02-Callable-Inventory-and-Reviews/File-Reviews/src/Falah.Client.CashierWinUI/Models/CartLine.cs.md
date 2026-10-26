@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Models.CartLine.OnQuantityChanged(int)
 - **Lines:** [33-37]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Models.CartLine.OnQuantityChanged(int) across lines 33-37.
+- **Behavior:** Partial lifecycle callback invoked when the `Quantity` property changes via CommunityToolkit.Mvvm source generation. Dispatches `PropertyChanged` notifications for dependent computed properties `LineTotalPiastres` and `LineTotalDisplay`, triggering UI re-evaluation of line totals in the active cashier cart.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
