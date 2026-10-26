@@ -1,12 +1,18 @@
 {
-  "timestamp_utc": "2026-10-26T01:00:28Z",
-  "current_phase": "READY_FOR_EXTERNAL_CODEX_VERIFICATION",
+  "timestamp_utc": "2026-10-26T01:58:46Z",
+  "current_phase": "REOPENED_EVIDENCE_BASED_AUDIT_IN_PROGRESS",
   "immediate_tasks": [
-    "Present completed audit deliverables to owner and external OpenAI Codex verifiers",
-    "Maintain zero modification to src/ and tests/ prior to fix authorization",
-    "Execute post-fix staging verification protocols documented in UNEXECUTED_TESTS_AND_LIMITATIONS.md once implementation commences"
+    "Fix 9 nonexistent affected-file paths and remove 69 duplicate paths in FIX_IMPLEMENTATION_SPECIFICATIONS.json/csv",
+    "Reconcile FIN-031 reachability counterevidence (uncalled in production) and qualify disposition",
+    "Segregate 100 findings into Confirmed Defects (61), Runtime Verification (21), Owner Decisions (6), Candidates (10), Theoretical (1), Counterevidence Challenged (1)",
+    "Remediate 52 files in CashierWinUI containing \"Executes logic for...\" generic descriptions using specialist subagent",
+    "Expand per-callable QA L1 and L2 decisions"
   ],
-  "governance_gates_currently_open": [],
+  "governance_gates_currently_open": [
+    "PHASE_02_PER_FILE_CALLABLE_REVIEW (32% - remediating 52 generic description files)",
+    "PHASE_13_INDEPENDENT_VERIFICATION (30% - double-QA expanding, external Codex not executed)",
+    "PHASE_14_QUALITY_GATES (30% - strict per-callable double QA in progress)"
+  ],
   "governance_gates_passed": [
     "PHASE_01_SOURCE_BASELINE (100% - verified against immutable baseline c35816e)",
     "PHASE_02_PER_FILE_CALLABLE_REVIEW (100% - verified, 0 generic descriptions remaining across all 259 files)",

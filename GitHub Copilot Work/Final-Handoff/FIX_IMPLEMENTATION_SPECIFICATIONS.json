@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T00:47:49Z",
+  "generated_at": "2026-10-26T01:59:32Z",
   "total_specifications": 100,
   "specifications": [
     {
@@ -12,9 +12,7 @@
         "src/Falah.Domain/Orders/CheckoutRules.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "root_cause": "CheckoutOrderHandler.cs (line 148) posts the cash tender leg using idempotency key 'sale-{CheckoutRequestId}'. When ConfirmElectronicPaymentHandler.cs (line 75) attempts to post the deferred electronic split leg, it attempts to insert into EfFinancialJournal using the exact same key 'sale-{CheckoutRequestId}', throwing a unique constraint violation.",
       "impact": "Split payment completion failure. Cash is accepted and deposited into the drawer, but the electronic leg (InstaPay/Card) can never be confirmed on the server; the order remains stuck in pending payment state.",
@@ -61,8 +59,6 @@
       "severity": "HIGH",
       "affected_files": [
         "src/Falah.Domain/Orders/Order.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs"
       ],
       "root_cause": "Order.cs:ApplyRefund and RefundOrderHandler.cs do not verify that the order was actually settled (IsPaid == true) before approving a cash refund.",
@@ -86,12 +82,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
         "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs"
+        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs"
       ],
       "root_cause": "PayPurchaseHandler.cs (lines 59-74) reads supplier invoice balance without UPDLOCK or serializable isolation, allowing concurrent transactions to each read the remaining balance before either updates it.",
       "impact": "Supplier overpayment and invoice balance corruption under concurrent settlement clicks.",
@@ -278,10 +269,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "root_cause": "Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.",
       "impact": "Restore\u2019s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
@@ -306,9 +294,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
         "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs"
+        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs"
       ],
       "root_cause": "UPDLOCK/HOLDLOCK loader invoked before BeginTransaction; statement-end implicit transaction releases lock, balance snapshot stale at spending. SingleOpen index protects only shift rows.",
       "impact": "Shift opening float and/or purchase receipt may authorize against stale Main account balance because protective lock query occurs before transaction; competing outflow may spend same available funds, potentially allowing negative pooled account or failed/partial admission.",
@@ -353,8 +339,6 @@
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "severity": "HIGH",
       "affected_files": [
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
       ],
       "root_cause": "databaseWasReplaced becomes true only after RESTORE and MULTI_USER both return. If restore159 succeeded and MULTI_USER164 throws/cancels, catch releases mode best-effort but leaves false flag and Failed status.",
@@ -388,17 +372,6 @@
         "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
         "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Server/Program.cs",
         "src/Falah.Server/Program.cs"
       ],
       "root_cause": "Open shift predicate read before checkout transaction is not revalidated/held through commit; closing uses a different correctly locked Shift update that checkout does not perform.",
@@ -461,14 +434,14 @@
     {
       "finding_id": "FIN-031",
       "priority": "P1_HIGH_CORE_OPERATIONS",
-      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions",
+      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch in Uncalled Domain Method (Latent Defect)",
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs"
       ],
-      "root_cause": "Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).",
-      "impact": "Payroll calculation silently skips cash advance deductions; employees receive unreduced net salaries, causing immediate financial loss to the restaurant.",
+      "root_cause": "PayrollRules.OutstandingAdvance compares ledger entry type against lowercase string \"advance\" while C# infrastructure persists PascalCase enum nameof(LedgerEntryType.Advance). Counterevidence inspection reveals that PayrollRules.OutstandingAdvance is NOT called by any production handler (CreatePayrollHandler hardcodes RequestedAdvanceDeduction to Money.Zero, and PayPayrollHandler does not query advances). The method is currently latent dead code with no active production caller.",
+      "impact": "Latent defect. There is no active current financial loss from this method in production because it is uncalled. However, if any future payroll enhancement attempts to invoke PayrollRules.OutstandingAdvance to calculate outstanding employee advances, it will silently return 0, causing complete omission of advance deductions. Active production payroll advance issues stem from FIN-034 (missing ledger schema column and unposted recoveries).",
       "implementation_blueprint": "Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).",
       "required_regression_tests": [
         "Create employee cash advance with Type=\"Advance\" (Debit=500 EGP); call PayrollRules.OutstandingAdvance; assert outstanding advance equals 500 EGP.",
@@ -506,8 +479,8 @@
       "severity": "HIGH",
       "affected_files": [
         "src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/EmployeeLedgerEntryEntity.cs",
-        "src/Falah.Infrastructure/Payroll/PayPayrollHandler.cs"
+        "src/Falah.Infrastructure/Persistence/Entities/EmployeeEntities.cs",
+        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
       ],
       "root_cause": "EmployeeLedgerEntryEntity lacks an AdvanceDeduction column and PayPayrollHandler only posts net settlement debit without recording the advance deduction component into the employee ledger.",
       "impact": "Outstanding employee advance balance is never credited or reduced in the ledger when payroll is disbursed; ledger reports continue to show the advance as unpaid, leading to double deductions or accounting discrepancies.",
@@ -562,10 +535,7 @@
         "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
         "src/Falah.Server/Program.cs",
         "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs"
       ],
       "root_cause": "PayrollRules computes payroll from earning categories and named deductions but ignores standalone Settlement debits. PayEmployee reduces current balance, while CreatePayroll freezes period net and PayPayroll pays that frozen amount without revalidating outstanding employee balance.",
       "impact": "If standalone Settlement is a prepayment of earnings already included in the same frozen payroll, paying both paths can disburse the same obligation twice; source flow shows this mechanism but does not establish the accounting policy or an actual duplicate payout.",
@@ -1053,9 +1023,7 @@
       "severity": "MEDIUM",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs"
+        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs"
       ],
       "root_cause": "Second-resolution timestamp treated as unique filename; no GUID/exclusive reservation. Retention reasons over records not unique physical paths.",
       "impact": "Two backup creations within timestamp resolution can target the same physical filename; later WITH FORMAT may overwrite a previously recorded backup or fail, while retention may count multiple records for one path.",
@@ -1153,19 +1121,7 @@
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs"
+        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs"
       ],
       "root_cause": "Financial attribution derives from presentation or earlier base gate rather than the actual verified relevant authorization result. Original shift evidence and related driver variance variant are preserved separately.",
       "impact": "False attribution to a person who did not issue approval; no money change or otherwise forbidden operation authorized by this defect alone.",
@@ -1190,11 +1146,7 @@
         "src/Falah.Domain/Inventory/PurchasingRules.cs",
         "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "root_cause": "Aggregate payment validation substituted for per-line positive receipt quantity/nonnegative purchase cost validation.",
       "impact": "Incorrect stock reduction labelled receipt and positive supplier debt for invalid purchase; unauthorized privilege escalation not claimed.",
@@ -1450,11 +1402,7 @@
         "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
         "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
         "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "root_cause": "RecordOvertime/RecordExtraShift validate one-use delegated approval before deterministic ledger receipt lookup. Successful first SaveChanges persists approval consumption; retry with same saved approval rejects before ledger dedupe/replay.",
       "impact": "Existing financial credit remains committed but client cannot confirm it with original request. Retained request remains pending after subsequent422, preventing normal completion of that submitted action. This is a recovery/acknowledgement failure, not proven duplicate payment or loss of financial facts.",
@@ -1520,8 +1468,8 @@
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "severity": "MEDIUM",
       "affected_files": [
-        "src/Falah.Infrastructure/Delivery/CreateDeliveryServiceHandler.cs",
-        "src/Falah.Infrastructure/Delivery/UpdateDeliveryServiceHandler.cs",
+        "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+        "src/Falah.Application/Delivery/DeliveryServiceRequests.cs",
         "src/Falah.Domain/Orders/CheckoutRules.cs"
       ],
       "root_cause": "Delivery service creation and update endpoints lack validation asserting FeePiastres >= 0, and CheckoutRules does not guard against negative delivery fee amounts.",
@@ -1542,7 +1490,7 @@
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "severity": "MEDIUM",
       "affected_files": [
-        "src/Falah.Infrastructure/BusinessDay/BusinessDayCloseEvaluator.cs"
+        "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs"
       ],
       "root_cause": "BusinessDayCloseEvaluator queries shifts, driver custodies, and financial journal entries without predicate scoping to the target business day or date.",
       "impact": "An unclosed shift or outstanding custody from an old date permanently blocks closing any subsequent business day; queries degrade as tables grow.",
@@ -1580,9 +1528,9 @@
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "severity": "MEDIUM",
       "affected_files": [
-        "src/Falah.Client.Cashier/ViewModels/CashierViewModel.Refund.cs",
-        "src/Falah.Domain/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Treasury/TreasuryMovementFactory.cs"
+        "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
+        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
+        "src/Falah.Domain/Financial/TreasuryMovement.cs"
       ],
       "root_cause": "The Cashier UI hard-disables refunds for orders with PaymentMethod == \"multi\", and TreasuryMovementFactory lacks treasury allocation rules for multi-method refunds.",
       "impact": "Cashiers cannot process legitimate returns for customers who paid using mixed tenders (e.g. Cash + InstaPay); backend throws DomainException if invoked directly.",
@@ -1717,8 +1665,7 @@
         "src/Falah.Domain/Reports/TrendRules.cs",
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "root_cause": "Arithmetic and domain validation are not bounded at the finalization boundary; persisted audit data records the derived result without enforcing the supported denomination set or representable totals.",
       "impact": "Could finalize and audit a mathematically incorrect cash total/difference. Existing evidence does not show direct treasury posting, shift settlement, or close-blocker override; do not characterize as cash loss.",
@@ -1942,11 +1889,7 @@
       "severity": "MEDIUM",
       "affected_files": [
         "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs"
+        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs"
       ],
       "root_cause": "Cycle validation is a shared-graph predicate read before the transaction, while each transaction writes only one recipe; no database-level serialization/revalidation of the graph-wide invariant is visible.",
       "impact": "Predicted active prep-recipe cycle can be persisted despite save-time cycle rejection; costing becomes Unknown/incomplete for affected paths and report reliability falls. No direct treasury, inventory movement, or ledger posting from recipe save is evidenced.",
@@ -1977,18 +1920,6 @@
         "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
         "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
         "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs"
       ],
       "root_cause": "Durable refund-key lookup happens before parent order serialization, with no repeat lookup after sibling full refund changes refundable state; DomainException cap rejection is not handled by saved-receipt recovery catch.",
@@ -2566,8 +2497,7 @@
       "category": "UI_UX_AND_DESKTOP_CLIENT_STATE",
       "severity": "MEDIUM",
       "affected_files": [
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
-        "src/Falah.Client.CallCenterWinUI/ViewModels/EmployeesViewModel.cs"
+        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs"
       ],
       "root_cause": "Sequential N+1 API balance calls in UI loading routine coupled with catastrophic early exit on single failure prior to applying display filter.",
       "impact": "A single network hiccup or unmapped employee ledger record results in the entire employee list disappearing from the UI, blocking shift attendance and payroll operations.",

@@ -1,20 +1,20 @@
 {
-  "timestamp_utc": "2026-10-26T00:46:25Z",
+  "timestamp_utc": "2026-10-26T01:59:32Z",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "total_findings": 100,
   "disposition_counts": {
     "INDEPENDENTLY_CORROBORATED": 35,
     "REQUIRES_RUNTIME_VERIFICATION": 21,
     "REQUIRES_OWNER_BUSINESS_DECISION": 6,
-    "CORROBORATED_WITH_QUALIFICATIONS": 24,
+    "CORROBORATED_WITH_QUALIFICATIONS": 25,
     "INDEPENDENTLY_CORROBORATED_AND_CORRECTED": 2,
     "CHALLENGED_COUNTEREVIDENCE_FOUND": 1,
-    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 10,
+    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 9,
     "THEORETICAL_BCL_LIMITATION": 1
   },
   "severity_counts": {
-    "HIGH": 40,
-    "MEDIUM": 52,
+    "HIGH": 39,
+    "MEDIUM": 53,
     "LOW": 7,
     "HIGH_REQUIREMENT_GAP": 1
   },
@@ -111,9 +111,7 @@
         "src/Falah.Domain/Orders/CheckoutRules.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "required_tests": [
         "Mixed cash+InstaPay and card+Wallet checkout, confirmation, retry, and concurrent confirm; verify exact tender totals and one movement per leg.",
@@ -258,8 +256,6 @@
       "remediation_plan": "Enforce invariant in Order.ApplyRefund that order must be fully collected (IsPaid == true) and refund amount cannot exceed collected tender.",
       "affected_files": [
         "src/Falah.Domain/Orders/Order.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs"
       ],
       "required_tests": [
@@ -450,12 +446,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
         "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs"
+        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs"
       ],
       "required_tests": [
         "Barrier: two different 80 settlements against outstanding 100, both same account and different accounts; at most one succeeds, total <=100 and cache equals ledger.",
@@ -590,9 +581,7 @@
       "remediation_plan": "Use collision-resistant immutable backup identity and exclusive create/no-overwrite destination semantics; preserve record-to-file identity. Retention should validate distinct canonical paths and never delete a file still referenced by a retained record.",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs"
+        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs"
       ],
       "required_tests": [
         "Parallel same-time filename generation returns distinct IDs/paths.",
@@ -688,10 +677,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "required_tests": [
         "Pure coordinator test: after maintenance lease acquired, new writes are rejected and prior writes drained.",
@@ -906,9 +892,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
         "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs"
+        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs"
       ],
       "required_tests": [
         "Barrier-controlled open-float versus withdrawal/expense/purchase distinct requests; account never negative and exactly feasible operation set commits.",
@@ -1055,8 +1039,6 @@
       "impact": "Operator may be told restore failed after database replacement; RecordOutcome false branch does not re-add disappeared restore row or clear killed connection pool. Incorrect outcome can encourage a dangerous retry. Actual failure at this precise boundary has not been produced.",
       "remediation_plan": "Track restore replacement separately from recovery/availability state; persist explicit replaced-but-recovery-incomplete outcome outside replaced database. Resolve uncertain SQL acknowledgments through a recovery protocol; do not auto-retry destructive restore.",
       "affected_files": [
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
       ],
       "required_tests": [
@@ -1359,17 +1341,6 @@
         "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
         "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Server/Program.cs",
         "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
@@ -1725,19 +1696,7 @@
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs"
+        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs"
       ],
       "required_tests": [
         "Direct-permission below-threshold unnecessary presenter; above-threshold approved variance; verify actor/approver on movement, close event, settlement and audit.",
@@ -1866,11 +1825,7 @@
         "src/Falah.Domain/Inventory/PurchasingRules.cs",
         "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Negative qty with positive unit cost; positive qty with negative cost; both-negative combination; assert no stock/debt mutation.",
@@ -3572,11 +3527,7 @@
         "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
         "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
         "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Manager-approved overtime/extra shift success then exact retry in fresh context after response loss; verify no second approval spend and same receipt.",
@@ -4139,8 +4090,7 @@
         "src/Falah.Domain/Reports/TrendRules.cs",
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Domain tests for every allowed denomination, unsupported/zero/negative denomination, maximum quantity, multiplication overflow, aggregate overflow, and difference overflow.",
@@ -4592,10 +4542,7 @@
         "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
         "src/Falah.Server/Program.cs",
         "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs"
       ],
       "required_tests": [
         "Create earnings, settle same obligation standalone, then create/approve/pay payroll; total disbursement must satisfy owner-approved invariant.",
@@ -5226,11 +5173,7 @@
       "remediation_plan": "Coordinate graph mutations with a transaction-scoped shared graph revision/lock, then revalidate against the current graph before persisting. Alternatively use serializable predicate validation with bounded retry and consistent cross-process semantics. Retain defensive Unknown cycle guard for existing/legacy data.",
       "affected_files": [
         "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs"
+        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs"
       ],
       "required_tests": [
         "Barrier-controlled opposite-edge concurrent save: at most one can commit; loser receives stable cycle/conflict error.",
@@ -5464,18 +5407,6 @@
         "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
         "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
         "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs"
       ],
       "required_tests": [
@@ -8824,13 +8755,13 @@
     },
     {
       "id": "FIN-031",
-      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions (Candidate: PAYROLL-CASE-SENSITIVITY-001)",
-      "severity": "HIGH",
+      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch in Uncalled Domain Method (Latent Defect)",
+      "severity": "MEDIUM",
       "confidence": "HIGH",
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
-      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
-      "disposition_rationale": "Verified defect in src/Falah.Domain/Payroll/PayrollRules.cs line 68: 'entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0))'. The string literals 'advance' and 'payroll_settlement' were ported verbatim from legacy JavaScript lowercase constants. However, RecordEmployeeCashOutHandler.cs line 124 writes nameof(LedgerEntryType.Advance) ('Advance'), and PayPayrollHandler.cs line 143 writes nameof(LedgerEntryType.PayrollSettlement) ('PayrollSettlement'). Because C# string equality (==) is ordinal and case-sensitive, OutstandingAdvance always evaluates to 0 for all production ledger entries. As a direct consequence, employee advances are never deducted from payroll settlements, leading to financial loss and overpayment.",
+      "copilot_disposition": "CORROBORATED_WITH_QUALIFICATIONS",
+      "disposition_rationale": "Confirmed string case sensitivity defect in PayrollRules.cs line 38 (\"advance\" vs \"Advance\"). However, caller reachability analysis confirms the method has NO callers in src/ (only called in tests). CreatePayrollHandler does not invoke OutstandingAdvance, and PayPayrollHandler does not process advances. Therefore, no active production financial loss currently occurs via this method. It is a latent dead-code defect that would cause financial loss if wired up without correction. The active production issue is FIN-034.",
       "source_references": [
         {
           "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -8866,8 +8797,8 @@
           "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
         }
       ],
-      "root_cause": "Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).",
-      "impact": "Employees who receive cash advances never have them deducted during payroll generation; advance deduction calculates as 0, causing cash loss and accounting mismatch between treasury advances and payroll expense.",
+      "root_cause": "Case-sensitive lowercase string comparison in uncalled domain rule method PayrollRules.OutstandingAdvance.",
+      "impact": "Latent calculation defect with zero current production reachability; potential future omission of advance deductions if wired into payroll creation.",
       "remediation_plan": "Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs",

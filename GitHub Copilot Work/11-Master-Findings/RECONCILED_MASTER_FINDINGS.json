@@ -1,20 +1,20 @@
 {
-  "timestamp_utc": "2026-10-25T14:05:16Z",
+  "timestamp_utc": "2026-10-26T01:59:32Z",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "total_findings": 100,
   "disposition_counts": {
     "INDEPENDENTLY_CORROBORATED": 35,
     "REQUIRES_RUNTIME_VERIFICATION": 21,
     "REQUIRES_OWNER_BUSINESS_DECISION": 6,
-    "CORROBORATED_WITH_QUALIFICATIONS": 24,
+    "CORROBORATED_WITH_QUALIFICATIONS": 25,
     "INDEPENDENTLY_CORROBORATED_AND_CORRECTED": 2,
     "CHALLENGED_COUNTEREVIDENCE_FOUND": 1,
-    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 10,
+    "CANDIDATE_FROM_SPECIALIST_HANDOFF": 9,
     "THEORETICAL_BCL_LIMITATION": 1
   },
   "severity_counts": {
-    "HIGH": 40,
-    "MEDIUM": 52,
+    "HIGH": 39,
+    "MEDIUM": 53,
     "LOW": 7,
     "HIGH_REQUIREMENT_GAP": 1
   },
@@ -111,9 +111,7 @@
         "src/Falah.Domain/Orders/CheckoutRules.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/ConfirmElectronicPaymentHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "required_tests": [
         "Mixed cash+InstaPay and card+Wallet checkout, confirmation, retry, and concurrent confirm; verify exact tender totals and one movement per leg.",
@@ -258,8 +256,6 @@
       "remediation_plan": "Enforce invariant in Order.ApplyRefund that order must be fully collected (IsPaid == true) and refund amount cannot exceed collected tender.",
       "affected_files": [
         "src/Falah.Domain/Orders/Order.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs"
       ],
       "required_tests": [
@@ -267,7 +263,7 @@
         "Race refund with cancel/confirm and concurrent refunds; rejected cases create no refund/movement and balances remain unchanged."
       ],
       "acceptance_criteria": [
-        "Cumulative refunds never exceed the order’s actually settled amount per tender leg.",
+        "Cumulative refunds never exceed the order\u2019s actually settled amount per tender leg.",
         "Rejected unpaid refund leaves no partial writes; valid refund atomically records refund and outflow."
       ]
     },
@@ -450,12 +446,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
         "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs",
-        "src/Falah.Infrastructure/Persistence/Entities/PurchasingEntities.cs"
+        "src/Falah.Infrastructure/Purchasing/PayPurchaseHandler.cs"
       ],
       "required_tests": [
         "Barrier: two different 80 settlements against outstanding 100, both same account and different accounts; at most one succeeds, total <=100 and cache equals ledger.",
@@ -590,9 +581,7 @@
       "remediation_plan": "Use collision-resistant immutable backup identity and exclusive create/no-overwrite destination semantics; preserve record-to-file identity. Retention should validate distinct canonical paths and never delete a file still referenced by a retained record.",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/CreateBackupHandler.cs"
+        "src/Falah.Infrastructure/Backup/ScheduledBackupService.cs"
       ],
       "required_tests": [
         "Parallel same-time filename generation returns distinct IDs/paths.",
@@ -683,15 +672,12 @@
         }
       ],
       "root_cause": "Pending journal staged and completed before common SaveChanges cannot reliably reveal in-flight work; a count snapshot is not writer exclusion. Restore does not put API/print/background writers into maintenance barrier.",
-      "impact": "Restore’s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
+      "impact": "Restore\u2019s pending-journal check does not exclude active or newly accepted writes. Restore may enter SINGLE_USER/replace while acknowledged financial operation or background writer is in flight; recovery of latest acknowledged work is not assured by the current check.",
       "remediation_plan": "Use a database-backed maintenance admission lease respected by all mutating handlers and background workers; drain in-flight operations, pause workers, take safety backup, restore and verify, clear stale pools/caches/sessions as designed, then resume only after durable outcome recording.",
       "affected_files": [
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
+        "src/Falah.Infrastructure/Persistence/EfFinancialJournal.cs"
       ],
       "required_tests": [
         "Pure coordinator test: after maintenance lease acquired, new writes are rejected and prior writes drained.",
@@ -906,9 +892,7 @@
       "affected_files": [
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
         "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs"
+        "src/Falah.Infrastructure/Treasury/TreasuryMapper.cs"
       ],
       "required_tests": [
         "Barrier-controlled open-float versus withdrawal/expense/purchase distinct requests; account never negative and exactly feasible operation set commits.",
@@ -954,7 +938,7 @@
         }
       ],
       "root_cause": "Correction records signed Adjustment entries; payroll includes Adjustment debits only, with no credit earnings bucket.",
-      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll’s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
+      "impact": "A positive attendance correction recorded as Adjustment credit may be ignored by payroll\u2019s included earnings/deduction categories, so the corrected employee period net can remain lower than ledger balance.",
       "remediation_plan": "Reconcile both credit and debit sides of Adjustment into payroll net; preserve correction attribution and original earning basis if required; keep payroll freeze semantics explicit.",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -1055,8 +1039,6 @@
       "impact": "Operator may be told restore failed after database replacement; RecordOutcome false branch does not re-add disappeared restore row or clear killed connection pool. Incorrect outcome can encourage a dangerous retry. Actual failure at this precise boundary has not been produced.",
       "remediation_plan": "Track restore replacement separately from recovery/availability state; persist explicit replaced-but-recovery-incomplete outcome outside replaced database. Resolve uncertain SQL acknowledgments through a recovery protocol; do not auto-retry destructive restore.",
       "affected_files": [
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
-        "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs",
         "src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs"
       ],
       "required_tests": [
@@ -1359,17 +1341,6 @@
         "src/Falah.Infrastructure/Persistence/OrderSequenceService.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
         "src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Infrastructure/Orders/InventoryDeductionService.cs",
-        "src/Falah.Server/Program.cs",
         "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
@@ -1725,19 +1696,7 @@
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
         "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Infrastructure/Delivery/SettleDriverCustodyHandler.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
-        "src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs"
+        "tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs"
       ],
       "required_tests": [
         "Direct-permission below-threshold unnecessary presenter; above-threshold approved variance; verify actor/approver on movement, close event, settlement and audit.",
@@ -1866,11 +1825,7 @@
         "src/Falah.Domain/Inventory/PurchasingRules.cs",
         "src/Falah.Infrastructure/Inventory/InventoryQueryService.cs",
         "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs",
-        "src/Falah.Domain/Inventory/PurchasingRules.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Negative qty with positive unit cost; positive qty with negative cost; both-negative combination; assert no stock/debt mutation.",
@@ -3572,11 +3527,7 @@
         "src/Falah.Domain/Authorization/ApprovalRegistry.cs",
         "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
         "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Infrastructure/Employees/RecordDailyWageHandlers.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs",
-        "src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Manager-approved overtime/extra shift success then exact retry in fresh context after response loss; verify no second approval spend and same receipt.",
@@ -4139,8 +4090,7 @@
         "src/Falah.Domain/Reports/TrendRules.cs",
         "src/Falah.Domain/Shifts/Shift.cs",
         "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
-        "src/Falah.Server/Program.cs",
-        "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs"
+        "src/Falah.Server/Program.cs"
       ],
       "required_tests": [
         "Domain tests for every allowed denomination, unsupported/zero/negative denomination, maximum quantity, multiplication overflow, aggregate overflow, and difference overflow.",
@@ -4592,10 +4542,7 @@
         "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs",
         "src/Falah.Server/Program.cs",
         "tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/CreatePayrollHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayPayrollHandler.cs"
+        "tests/Falah.Server.IntegrationTests/PayrollVerticalSliceTests.cs"
       ],
       "required_tests": [
         "Create earnings, settle same obligation standalone, then create/approve/pay payroll; total disbursement must satisfy owner-approved invariant.",
@@ -5226,11 +5173,7 @@
       "remediation_plan": "Coordinate graph mutations with a transaction-scoped shared graph revision/lock, then revalidate against the current graph before persisting. Alternatively use serializable predicate validation with bounded retry and consistent cross-process semantics. Retain defensive Unknown cycle guard for existing/legacy data.",
       "affected_files": [
         "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs",
-        "src/Falah.Domain/Inventory/CostingRules.cs"
+        "src/Falah.Infrastructure/Inventory/SavePrepRecipeHandler.cs"
       ],
       "required_tests": [
         "Barrier-controlled opposite-edge concurrent save: at most one can commit; loser receives stable cycle/conflict error.",
@@ -5464,18 +5407,6 @@
         "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
         "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
         "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Infrastructure/Orders/RefundOrderHandler.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Domain/Orders/RefundRules.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "src/Falah.Infrastructure/Employees/RecordEmployeeCashOutHandler.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
-        "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs",
         "tests/Falah.Server.IntegrationTests/RefundVerticalSliceTests.cs"
       ],
       "required_tests": [
@@ -7498,7 +7429,7 @@
         "src/Falah.Client.CashierWinUI/ViewModels/RecipesViewModel.cs"
       ],
       "required_tests": [
-        "Enter1.5,2.999Arabic١٫٥; must reject with explicit integer requirement before HTTP, not send1/2.",
+        "Enter1.5,2.999Arabic\u0661\u066b\u0665; must reject with explicit integer requirement before HTTP, not send1/2.",
         "Whole numbers1,2and textual2.000 accepted exactly, enforce overflow bound."
       ],
       "acceptance_criteria": "Invariant holds under retries and concurrent executions."
@@ -8230,7 +8161,7 @@
       "acceptance_criteria": [
         "Shift close requires caller identity matching authenticated bearer token."
       ],
-      "code_excerpt": "// src/Falah.Server/AuthenticationMiddleware.cs lines 86-90:\nprivate static readonly string[] ActorFields =\n{\n    \"actorUserId\", \"cashierId\", \"createdByUserId\", \"openedByUserId\", \"reportedByUserId\",\n};\n\n// src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs lines 52-54:\nvar cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ClosedByUserId, ct)\n    ?? throw new InvalidOperationException(\"المستخدم غير موجود.\");\nvar actor = OrderMapper.ToActor(cashierUser);"
+      "code_excerpt": "// src/Falah.Server/AuthenticationMiddleware.cs lines 86-90:\nprivate static readonly string[] ActorFields =\n{\n    \"actorUserId\", \"cashierId\", \"createdByUserId\", \"openedByUserId\", \"reportedByUserId\",\n};\n\n// src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs lines 52-54:\nvar cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ClosedByUserId, ct)\n    ?? throw new InvalidOperationException(\"\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f.\");\nvar actor = OrderMapper.ToActor(cashierUser);"
     },
     {
       "id": "SEC-005",
@@ -8322,13 +8253,13 @@
         "src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs"
       ],
       "required_tests": [
-        "Validate approval issued 16 minutes prior; assert DomainException('انتهت صلاحية اعتماد المدير').",
+        "Validate approval issued 16 minutes prior; assert DomainException('\u0627\u0646\u062a\u0647\u062a \u0635\u0644\u0627\u062d\u064a\u0629 \u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631').",
         "Validate approval within 15 minutes; assert success."
       ],
       "acceptance_criteria": [
         "Manager approvals expire after 15 minutes if unconsumed."
       ],
-      "code_excerpt": "// src/Falah.Domain/Authorization/ApprovalRegistry.cs lines 89-97:\nvar issued = registry.Find(approval.ApprovalId);\nif (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))\n    throw new DomainException(\"اعتماد المدير غير صالح أو لا يطابق العملية.\");\nif (consume) registry.MarkConsumed(approval.ApprovalId);\nreturn issued;"
+      "code_excerpt": "// src/Falah.Domain/Authorization/ApprovalRegistry.cs lines 89-97:\nvar issued = registry.Find(approval.ApprovalId);\nif (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))\n    throw new DomainException(\"\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d \u0623\u0648 \u0644\u0627 \u064a\u0637\u0627\u0628\u0642 \u0627\u0644\u0639\u0645\u0644\u064a\u0629.\");\nif (consume) registry.MarkConsumed(approval.ApprovalId);\nreturn issued;"
     },
     {
       "id": "SEC-007",
@@ -8376,7 +8307,7 @@
       ],
       "root_cause": "Earlier static analysis overlooked FalahDbContext's Fluent API configuration where Consumed is registered as an EF Core concurrency token.",
       "impact": "Mitigated in production by EF Core DbUpdateConcurrencyException; however, client receives an unhandled concurrency exception instead of a clean domain error message.",
-      "remediation_plan": "Retain concurrency token in FalahDbContext, and catch DbUpdateConcurrencyException in command handlers to translate to DomainException('اعتماد المدير مستخدم بالفعل').",
+      "remediation_plan": "Retain concurrency token in FalahDbContext, and catch DbUpdateConcurrencyException in command handlers to translate to DomainException('\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644').",
       "affected_files": [
         "src/Falah.Infrastructure/Persistence/FalahDbContext.cs",
         "src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs"
@@ -8387,7 +8318,7 @@
       "acceptance_criteria": [
         "Manager approval double-spending is strictly blocked by database-level concurrency token."
       ],
-      "code_excerpt": "// src/Falah.Infrastructure/Persistence/FalahDbContext.cs lines 178-184:\nmodelBuilder.Entity<ManagerApprovalEntity>(b =>\n{\n    b.HasKey(a => a.ApprovalId);\n    // Two requests may validate the same unused approval before either saves.\n    // Only the first false -> true update may commit with its financial operation.\n    b.Property(a => a.Consumed).IsConcurrencyToken();\n});\n\n// src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs lines 45-53:\npublic void MarkConsumed(string approvalId)\n{\n    var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? throw new InvalidOperationException(\"الاعتماد غير موجود لتحديده كمستهلك.\");\n    if (entity.Consumed)\n        throw new Falah.Domain.Common.DomainException(\"اعتماد المدير مستخدم بالفعل.\");\n    entity.Consumed = true;\n}"
+      "code_excerpt": "// src/Falah.Infrastructure/Persistence/FalahDbContext.cs lines 178-184:\nmodelBuilder.Entity<ManagerApprovalEntity>(b =>\n{\n    b.HasKey(a => a.ApprovalId);\n    // Two requests may validate the same unused approval before either saves.\n    // Only the first false -> true update may commit with its financial operation.\n    b.Property(a => a.Consumed).IsConcurrencyToken();\n});\n\n// src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs lines 45-53:\npublic void MarkConsumed(string approvalId)\n{\n    var entity = _db.ManagerApprovals.Local.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? _db.ManagerApprovals.FirstOrDefault(a => a.ApprovalId == approvalId)\n        ?? throw new InvalidOperationException(\"\u0627\u0644\u0627\u0639\u062a\u0645\u0627\u062f \u063a\u064a\u0631 \u0645\u0648\u062c\u0648\u062f \u0644\u062a\u062d\u062f\u064a\u062f\u0647 \u0643\u0645\u0633\u062a\u0647\u0644\u0643.\");\n    if (entity.Consumed)\n        throw new Falah.Domain.Common.DomainException(\"\u0627\u0639\u062a\u0645\u0627\u062f \u0627\u0644\u0645\u062f\u064a\u0631 \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644.\");\n    entity.Consumed = true;\n}"
     },
     {
       "id": "SEC-008",
@@ -8478,12 +8409,12 @@
         "src/Falah.Infrastructure/Users/CreateUserHandler.cs"
       ],
       "required_tests": [
-        "Execute concurrent CreateUser requests with identical PINs; assert second request fails with DomainException('رمز PIN مستخدم بالفعل')."
+        "Execute concurrent CreateUser requests with identical PINs; assert second request fails with DomainException('\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644')."
       ],
       "acceptance_criteria": [
         "Concurrent user creation or PIN modification cannot assign colliding PINs."
       ],
-      "code_excerpt": "// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 18-23:\nvar activeUsers = await db.Users.AsNoTracking()\n    .Where(u => u.Active && u.Id != excludeUserId)\n    .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.\");"
+      "code_excerpt": "// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 18-23:\nvar activeUsers = await db.Users.AsNoTracking()\n    .Where(u => u.Active && u.Id != excludeUserId)\n    .Select(u => new { u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644 \u0644\u062d\u0633\u0627\u0628 \u0622\u062e\u0631 - \u0627\u062e\u062a\u0631 \u0631\u0645\u0632\u064b\u0627 \u0645\u062e\u062a\u0644\u0641\u064b\u0627.\");"
     },
     {
       "id": "SEC-010",
@@ -8531,7 +8462,7 @@
       "acceptance_criteria": [
         "PIN uniqueness validation scales in O(1) time without linear PBKDF2 recomputation."
       ],
-      "code_excerpt": "// src/Falah.Domain/Authorization/PinHasher.cs line 22:\npublic const int DefaultIterations = 210_000;\n\n// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 21-22:\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"رمز PIN مستخدم بالفعل لحساب آخر - اختر رمزًا مختلفًا.\");"
+      "code_excerpt": "// src/Falah.Domain/Authorization/PinHasher.cs line 22:\npublic const int DefaultIterations = 210_000;\n\n// src/Falah.Infrastructure/Users/PinUniquenessChecker.cs lines 21-22:\nif (activeUsers.Any(u => PinHasher.Verify(candidatePin, u.PinHash, u.PinSalt, u.PinIterations)))\n    throw new DomainException(\"\u0631\u0645\u0632 PIN \u0645\u0633\u062a\u062e\u062f\u0645 \u0628\u0627\u0644\u0641\u0639\u0644 \u0644\u062d\u0633\u0627\u0628 \u0622\u062e\u0631 - \u0627\u062e\u062a\u0631 \u0631\u0645\u0632\u064b\u0627 \u0645\u062e\u062a\u0644\u0641\u064b\u0627.\");"
     },
     {
       "id": "SEC-011",
@@ -8824,13 +8755,13 @@
     },
     {
       "id": "FIN-031",
-      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch Causes Zero Advance Deductions (Candidate: PAYROLL-CASE-SENSITIVITY-001)",
-      "severity": "HIGH",
+      "title": "Payroll Advance Calculation Ledger Entry Type Case Mismatch in Uncalled Domain Method (Latent Defect)",
+      "severity": "MEDIUM",
       "confidence": "HIGH",
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
-      "copilot_disposition": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
-      "disposition_rationale": "Verified defect in src/Falah.Domain/Payroll/PayrollRules.cs line 68: 'entries.Sum(e => (e.Type == \"advance\" ? e.Debit.Piastres : 0) - (e.Type == \"payroll_settlement\" ? e.AdvanceDeduction.Piastres : 0))'. The string literals 'advance' and 'payroll_settlement' were ported verbatim from legacy JavaScript lowercase constants. However, RecordEmployeeCashOutHandler.cs line 124 writes nameof(LedgerEntryType.Advance) ('Advance'), and PayPayrollHandler.cs line 143 writes nameof(LedgerEntryType.PayrollSettlement) ('PayrollSettlement'). Because C# string equality (==) is ordinal and case-sensitive, OutstandingAdvance always evaluates to 0 for all production ledger entries. As a direct consequence, employee advances are never deducted from payroll settlements, leading to financial loss and overpayment.",
+      "copilot_disposition": "CORROBORATED_WITH_QUALIFICATIONS",
+      "disposition_rationale": "Confirmed string case sensitivity defect in PayrollRules.cs line 38 (\"advance\" vs \"Advance\"). However, caller reachability analysis confirms the method has NO callers in src/ (only called in tests). CreatePayrollHandler does not invoke OutstandingAdvance, and PayPayrollHandler does not process advances. Therefore, no active production financial loss currently occurs via this method. It is a latent dead-code defect that would cause financial loss if wired up without correction. The active production issue is FIN-034.",
       "source_references": [
         {
           "path": "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -8866,8 +8797,8 @@
           "sha256": "d7a614f6752b5a33513b3cd4ecf1e4e1cfe0022d010822e38bb43160c40e4084"
         }
       ],
-      "root_cause": "Verbatim port of legacy JavaScript lowercase string comparisons ('advance', 'payroll_settlement') in PayrollRules.cs while the C# infrastructure persists PascalCase enum names (nameof(LedgerEntryType.Advance), nameof(LedgerEntryType.PayrollSettlement)).",
-      "impact": "Employees who receive cash advances never have them deducted during payroll generation; advance deduction calculates as 0, causing cash loss and accounting mismatch between treasury advances and payroll expense.",
+      "root_cause": "Case-sensitive lowercase string comparison in uncalled domain rule method PayrollRules.OutstandingAdvance.",
+      "impact": "Latent calculation defect with zero current production reachability; potential future omission of advance deductions if wired into payroll creation.",
       "remediation_plan": "Update PayrollRules.OutstandingAdvance to check string equality using StringComparison.OrdinalIgnoreCase or match against nameof(LedgerEntryType.Advance) / nameof(LedgerEntryType.PayrollSettlement).",
       "affected_files": [
         "src/Falah.Domain/Payroll/PayrollRules.cs",
@@ -9043,7 +8974,7 @@
       "acceptance_criteria": [
         "Payroll settlement postings in EmployeeLedger record both net payable payout and advance deduction recovery."
       ],
-      "code_excerpt": "// src/Falah.Infrastructure/Employees/PayPayrollHandler.cs lines 141-146:\nvar settlementId = $\"payroll-settlement-{run.Id}-{line.Id}\";\nline.SettlementEntryId = settlementId;\nawait EmployeeLedgerPoster.PostIfNewAsync(_db, settlementId, line.EmployeeId, nameof(LedgerEntryType.PayrollSettlement),\n    $\"تسوية Payroll {run.Period}\", Money.FromPiastres(line.NetPayablePiastres), Money.Zero,\n    actorUser.Name, authorization.Approver?.ApproverName, null, run.Id, null, null, null, ct);\nsettlementCount++;"
+      "code_excerpt": "// src/Falah.Infrastructure/Employees/PayPayrollHandler.cs lines 141-146:\nvar settlementId = $\"payroll-settlement-{run.Id}-{line.Id}\";\nline.SettlementEntryId = settlementId;\nawait EmployeeLedgerPoster.PostIfNewAsync(_db, settlementId, line.EmployeeId, nameof(LedgerEntryType.PayrollSettlement),\n    $\"\u062a\u0633\u0648\u064a\u0629 Payroll {run.Period}\", Money.FromPiastres(line.NetPayablePiastres), Money.Zero,\n    actorUser.Name, authorization.Approver?.ApproverName, null, run.Id, null, null, null, ct);\nsettlementCount++;"
     },
     {
       "id": "FIN-035",
@@ -9125,7 +9056,7 @@
       "category": "FINANCIAL_AND_DATABASE_INTEGRITY",
       "codex_prior_status": "CANDIDATE_FROM_SPECIALIST_HANDOFF",
       "copilot_disposition": "REQUIRES_OWNER_BUSINESS_DECISION",
-      "disposition_rationale": "Verified in src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21, src/Falah.Domain/Financial/TreasuryMovement.cs line 38, and src/Falah.Infrastructure/Orders/RefundOrderHandler.cs line 91. The Cashier UI explicitly disables refunds for any split-payment order via 'CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", ... }'. Furthermore, on the server, RefundOrderHandler line 91 passes order.PaymentMethod to TreasuryMovementFactory.PaymentAccountFor, which throws DomainException('الدفع المتعدد غير مدعوم في مسار التحصيل المالي الحالي.') when PaymentMethod is Multi. Consequently, orders settled with split payment (e.g. part cash, part card) can never be refunded either partially or fully. Handling split refunds requires owner business policy decisions regarding tender source attribution (e.g., whether refunds should be prorated across original tender accounts, returned to cash by default, or prompted to the manager).",
+      "disposition_rationale": "Verified in src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21, src/Falah.Domain/Financial/TreasuryMovement.cs line 38, and src/Falah.Infrastructure/Orders/RefundOrderHandler.cs line 91. The Cashier UI explicitly disables refunds for any split-payment order via 'CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", ... }'. Furthermore, on the server, RefundOrderHandler line 91 passes order.PaymentMethod to TreasuryMovementFactory.PaymentAccountFor, which throws DomainException('\u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0645\u062a\u0639\u062f\u062f \u063a\u064a\u0631 \u0645\u062f\u0639\u0648\u0645 \u0641\u064a \u0645\u0633\u0627\u0631 \u0627\u0644\u062a\u062d\u0635\u064a\u0644 \u0627\u0644\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0627\u0644\u064a.') when PaymentMethod is Multi. Consequently, orders settled with split payment (e.g. part cash, part card) can never be refunded either partially or fully. Handling split refunds requires owner business policy decisions regarding tender source attribution (e.g., whether refunds should be prorated across original tender accounts, returned to cash by default, or prompted to the manager).",
       "source_references": [
         {
           "path": "src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs",
@@ -9175,7 +9106,7 @@
       "acceptance_criteria": [
         "Multi-payment orders can be refunded according to agreed owner business policies without throwing unhandled DomainException."
       ],
-      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21:\npublic bool CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", Status: not \"cancelled\" } order &&\n    order.TotalPiastres > order.RefundAmountPiastres;\n\n// src/Falah.Domain/Financial/TreasuryMovement.cs lines 32-39:\npublic static string PaymentAccountFor(PaymentMethod method) => method switch\n{\n    PaymentMethod.Cash => TreasuryAccounts.Drawer,\n    PaymentMethod.Card => TreasuryAccounts.Bank,\n    PaymentMethod.InstaPay => TreasuryAccounts.InstaPay,\n    PaymentMethod.Wallet => TreasuryAccounts.Wallet,\n    _ => throw new DomainException(\"الدفع المتعدد غير مدعوم في مسار التحصيل المالي الحالي.\"),\n};"
+      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs lines 20-21:\npublic bool CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not \"multi\", Status: not \"cancelled\" } order &&\n    order.TotalPiastres > order.RefundAmountPiastres;\n\n// src/Falah.Domain/Financial/TreasuryMovement.cs lines 32-39:\npublic static string PaymentAccountFor(PaymentMethod method) => method switch\n{\n    PaymentMethod.Cash => TreasuryAccounts.Drawer,\n    PaymentMethod.Card => TreasuryAccounts.Bank,\n    PaymentMethod.InstaPay => TreasuryAccounts.InstaPay,\n    PaymentMethod.Wallet => TreasuryAccounts.Wallet,\n    _ => throw new DomainException(\"\u0627\u0644\u062f\u0641\u0639 \u0627\u0644\u0645\u062a\u0639\u062f\u062f \u063a\u064a\u0631 \u0645\u062f\u0639\u0648\u0645 \u0641\u064a \u0645\u0633\u0627\u0631 \u0627\u0644\u062a\u062d\u0635\u064a\u0644 \u0627\u0644\u0645\u0627\u0644\u064a \u0627\u0644\u062d\u0627\u0644\u064a.\"),\n};"
     },
     {
       "id": "UI-023",
@@ -9211,7 +9142,7 @@
       "acceptance_criteria": [
         "EmployeesViewModel displays all successfully loaded employees even if an individual employee balance lookup fails, and eliminates sequential N+1 network requests."
       ],
-      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs lines 97-107:\n_all.Clear();\nEmployees.Clear();\nforeach (var e in employees.Value) _all.Add(new EmployeeRow { Employee = e });\n\nforeach (var row in _all)\n{\n    var balance = await _session.Api.GetEmployeeBalanceAsync(row.Employee.Id);\n    if (!balance.Success || balance.Value is null) { LoadError = balance.Error ?? \"تعذر تحميل رصيد الموظف.\"; return; }\n    if (balance.Success && balance.Value is not null) row.BalancePiastres = balance.Value.BalancePiastres;\n}\nApplyFilter();"
+      "code_excerpt": "// src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs lines 97-107:\n_all.Clear();\nEmployees.Clear();\nforeach (var e in employees.Value) _all.Add(new EmployeeRow { Employee = e });\n\nforeach (var row in _all)\n{\n    var balance = await _session.Api.GetEmployeeBalanceAsync(row.Employee.Id);\n    if (!balance.Success || balance.Value is null) { LoadError = balance.Error ?? \"\u062a\u0639\u0630\u0631 \u062a\u062d\u0645\u064a\u0644 \u0631\u0635\u064a\u062f \u0627\u0644\u0645\u0648\u0638\u0641.\"; return; }\n    if (balance.Success && balance.Value is not null) row.BalancePiastres = balance.Value.BalancePiastres;\n}\nApplyFilter();"
     },
     {
       "id": "INV-ROUND-001",

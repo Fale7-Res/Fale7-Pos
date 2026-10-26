@@ -1,12 +1,11 @@
 {
-  "checkpoint_utc": "2026-10-26T01:00:28Z",
-  "audit_state": "INTERNAL_AUDIT_COMPLETE_READY_FOR_EXTERNAL_CODEX_VERIFICATION",
+  "checkpoint_utc": "2026-10-26T01:58:46Z",
+  "audit_state": "REOPENED_EVIDENCE_BASED_AUDIT_IN_PROGRESS",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
-  "current_head": "765a058",
+  "current_head": "9cd6d78",
   "phases": {
     "PHASE_01_SOURCE_BASELINE": {
       "status": "COMPLETED",
-      "completion_percentage": 100,
       "deliverables": [
         "01-Source-Baseline/SOURCE_BASELINE_REPORT.md",
         "01-Source-Baseline/VERIFIED_FILE_INVENTORY.json",
@@ -16,30 +15,26 @@
       "completion_percent": 100
     },
     "PHASE_02_PER_FILE_CALLABLE_REVIEW": {
-      "status": "COMPLETED",
-      "completion_percentage": 32,
+      "status": "IN_PROGRESS_REMEDIATING_GENERIC_DESCRIPTIONS",
       "total_callables": 11653,
       "notes": "Previous 100% heuristic promotion revoked; multi-agent work queue active.",
-      "completion_percent": 100
+      "completion_percent": 32
     },
     "PHASE_03_SECURITY_INVESTIGATION": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "notes": "SEC-001 casing mismatch vs body actor claim investigated and corrected; SEC-002 and SEC-003 verified.",
       "handoff": "Checkpoints/AGENT_HANDOFFS/SECURITY_AUDITOR_HANDOFF.md",
       "completion_percent": 100
     },
     "PHASE_04_SUPPLY_CHAIN_DEPENDENCIES": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "08-Performance-and-Dependencies/DEPENDENCY_SECURITY_AND_SBOM.md"
       ],
       "completion_percent": 100
     },
     "PHASE_05_PICKUP_WORKFLOW": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "09-Pickup-and-Delivery/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md"
       ],
@@ -47,8 +42,7 @@
       "completion_percent": 100
     },
     "PHASE_06_DELIVERY_WORKFLOW": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "09-Pickup-and-Delivery/PICKUP_AND_DELIVERY_WORKFLOW_AUDIT.md"
       ],
@@ -56,8 +50,7 @@
       "completion_percent": 100
     },
     "PHASE_07_PRINTING_RELIABILITY": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "06-Printing/PRINTING_RELIABILITY_AND_PREVIEW.md"
       ],
@@ -65,8 +58,7 @@
       "completion_percent": 100
     },
     "PHASE_08_UI_UX_ACCESSIBILITY": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "07-UI-UX/UI_UX_VISUAL_AUDIT.md"
       ],
@@ -74,8 +66,7 @@
       "completion_percent": 100
     },
     "PHASE_09_DATABASE_FINANCIAL_INTEGRITY": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "03-Financial-Integrity/DATABASE_AND_FINANCIAL_INTEGRITY.md",
         "03-Financial-Integrity/FINANCIAL_WORKFLOWS_DEEP_AUDIT.md"
@@ -84,16 +75,14 @@
       "completion_percent": 100
     },
     "PHASE_10_PERFORMANCE_HARDWARE": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "08-Performance-and-Dependencies/PERFORMANCE_AND_MINIMUM_HARDWARE.md"
       ],
       "completion_percent": 100
     },
     "PHASE_11_CODE_DUPLICATION": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "04-Mirrored-Code-and-Architecture/CODE_DUPLICATION_AND_ARCHITECTURE.md",
         "04-Mirrored-Code-and-Architecture/MIRROR_RECONCILIATION_REPORT.md"
@@ -102,8 +91,7 @@
       "completion_percent": 100
     },
     "PHASE_12_RECOMMENDATIONS": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
+      "status": "COMPLETED_PRELIMINARY",
       "deliverables": [
         "12-Implementation-Handoff/IMMEDIATE_FIXES_AND_FEATURES.md",
         "12-Implementation-Handoff/FUTURE_IMPROVEMENTS_AND_FEATURES.md"
@@ -111,25 +99,23 @@
       "completion_percent": 100
     },
     "PHASE_13_INDEPENDENT_VERIFICATION": {
-      "status": "READY_FOR_EXTERNAL_CODEX_VERIFICATION",
-      "completion_percentage": 100,
+      "status": "IN_PROGRESS_NOT_EXTERNAL_CERTIFIED",
       "deliverables": [
         "13-Independent-Verification/CODEX_VERIFICATION_MANIFEST.json",
         "13-Independent-Verification/CODEX_VERIFICATION_INSTRUCTIONS.md"
       ],
-      "completion_percent": 100
+      "completion_percent": 30,
+      "notes": "Internal Double QA L1 & L2 in progress; external OpenAI Codex verification not yet executed."
     },
     "PHASE_14_QUALITY_GATES": {
-      "status": "COMPLETED",
-      "completion_percentage": 20,
-      "completion_percent": 100
+      "status": "REOPENED_STRICT_DOUBLE_QA_IN_PROGRESS",
+      "completion_percent": 30
     },
     "PHASE_15_FINAL_DELIVERABLES": {
-      "status": "COMPLETED",
-      "completion_percentage": 100,
-      "completion_percent": 100
+      "status": "REOPENED_RECONCILING_FINDINGS_AND_SPECS",
+      "completion_percent": 80
     }
   },
   "governance_correction_applied": true,
-  "governance_correction_reason": "All specialist waves A-N completed (0 generic remaining), double QA L1 (456 decisions) & L2 (335 decisions, 15 overrides) recorded, 100 master findings reconciled, 9 final deliverables produced in MD, JSON, CSV."
+  "governance_correction_reason": "Reopened invalid final certification per owner directive. Only 303 callables have double-QA acceptance out of 11,653 callables. Contradictory completion percentages resolved. 52 files with generic \"Executes logic for...\" descriptions identified for remediation. FIN-031 reachability counterevidence reconciled. 9 nonexistent paths and 69 duplicate paths in fix specs identified for correction."
 }
