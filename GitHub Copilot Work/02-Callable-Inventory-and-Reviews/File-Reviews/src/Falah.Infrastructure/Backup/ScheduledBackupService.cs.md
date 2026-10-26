@@ -178,10 +178,27 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:48:02Z
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa`
 - **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `2be57d0fdbed7a4784fe2a86235170e7fa97a9a03df634b5aa7a7fa9d04ef0aa` against production source `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs`. All 10 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 10 callables.
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:31:5:ConstructorDeclaration`:
+     - *Verified Lines 31–36*: Injects `IServiceScopeFactory`, `IConfiguration`, and `ILogger<ScheduledBackupService>`. Readonly field storage, zero mutable state. Verdict: **ACCEPTED**.
+  2. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:50:5:MethodDeclaration`:
+     - *Verified Lines 50–57*: `Setting(string key, double fallback)` defensive configuration reader. Uses invariant culture and number parsing with safe fallback to prevent daemon crashes on invalid values. Verdict: **ACCEPTED**.
+  3. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:59:5:MethodDeclaration`:
+     - *Verified Lines 59–82*: `ExecuteAsync(CancellationToken stoppingToken)` background worker loop. Honors `Enabled` flag. Incorporates startup delay (`StartupDelay`, default 90s) to prevent DB thrashing during cold starts. Executes cycles in a resilient try/catch loop where exceptions log errors but do not terminate the background daemon. Verdict: **ACCEPTED**.
+  4. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:84:5:MethodDeclaration`:
+     - *Verified Lines 84–118*: `RunCycleAsync(CancellationToken ct)` performs automated backup execution. Queries newest successful backup and checks eligibility via `BackupRules.IsAutomaticBackupDue` based on `MaxAgeHours` (default 20h). If due, invokes `CreateBackupHandler.RunAsync` followed immediately by `VerifyBackupHandler.RunAsync` (`RESTORE VERIFYONLY`). Only verified backups proceed to retention pruning. Verdict: **ACCEPTED**.
+  5. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:90:20:SimpleLambdaExpression`:
+     - *Verified Lines 90–91*: `b => b.Kind == nameof(BackupRecordKind.Backup) && b.Status == nameof(BackupRecordStatus.Succeeded)` on `db.BackupRecords.AsNoTracking()`. Filters for successful backup records. Verdict: **ACCEPTED**.
+  6. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:92:32:SimpleLambdaExpression`:
+     - *Verified Line 92*: `b => b.CompletedAtUtc` ordering expression to locate the latest completed backup. Verdict: **ACCEPTED**.
+  7. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:124:5:MethodDeclaration`:
+     - *Verified Lines 124–158*: `PruneAsync(FalahDbContext db, CancellationToken ct)` manages disk retention. Selects prunable files using `BackupRules.SelectPrunableBackups` retaining newest `KeepCount` (default 60). Deletes physical `.bak` file via `File.Delete` and sets `record.FileSizeBytes = null`. Retains the database record so audit history of past backups is preserved while disk space is reclaimed. Verdict: **ACCEPTED**.
+  8. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:129:20:SimpleLambdaExpression`:
+     - *Verified Lines 129–131*: `b => b.Kind == nameof(BackupRecordKind.Backup) && b.Status == nameof(BackupRecordStatus.Succeeded) && b.FileSizeBytes != null`. Identifies successful backups with active files on disk. Verdict: **ACCEPTED**.
+  9. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:135:29:SimpleLambdaExpression`:
+     - *Verified Lines 135–136*: `b => new Falah.Domain.Backup.BackupRules.RetainedBackup(...)` projection mapping to domain retention record. Verdict: **ACCEPTED**.
+  10. `src/Falah.Infrastructure/Backup/ScheduledBackupService.cs:141:47:SimpleLambdaExpression`:
+      - *Verified Line 141*: `b => prunable.Contains(b.Id)` filter selecting records designated for physical file deletion. Verdict: **ACCEPTED**.

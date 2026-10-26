@@ -383,12 +383,60 @@ Substantive security and authorization audit of CloseBusinessDayHandler.cs.
 ---
 
 ## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T08:35:00Z
-- **Source SHA-256 Verified:** B33D64C048DB902BC7B9469787872EA70BE30659AB69A97486D9F95C98D46255
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-  - Exhaustively audited all 30 callables in CloseBusinessDayHandler.cs.
-  - Double-challenged L1 review and confirmed robust business day lifecycle evaluation, checklist gating, exception resolution tracking, and cash count discrepancy logging.
-  - Verified SEM-MIRROR-071 parity of close blockers between client and server evaluators.
-  - No modifications made to src/ or 	ests/.
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (QA-L2-Challenger-Wave4A)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Source SHA-256 Verified:** `b33d64c048db902bc7b9469787872ea70be30659ab69a97486d9f95c98d46255`
+- **Total Callables Audited:** 30
+- **Verdicts:** 29 ACCEPTED, 1 CHALLENGED
+
+### Substantive Architectural & Callable Audit Findings:
+1. **Critical Defect / Operational Risk Verified — `BUSINESSDAY-GLOBAL-SCAN-BLOCKER` (`CloseBusinessDayHandler.cs:34:5:MethodDeclaration`):**
+   - At line 73, `HandleAsync` delegates blocker detection to `BusinessDayCloseEvaluator.EvaluateAsync(_db, day, ct)`.
+   - `BusinessDayCloseEvaluator` executes global, un-scoped queries over `db.Shifts`, `db.DriverCustodies`, and `db.FinancialJournalEntries` without `BusinessDate` or `BusinessDayId` filters.
+   - If any historical cashier shift or driver custody from days or months ago remained unclosed, it returns `OPEN_SHIFT` or `UNSETTLED_DRIVER_CUSTODY`, permanently blocking the current day's closure with no administrative override option.
+   - In addition, loading all historical entities via `ToListAsync()` performs an unbounded table scan on every business day close attempt.
+   - **Verdict:** `CHALLENGED` (Overriding unconditioned L1 acceptance).
+
+2. **Idempotency & Concurrency Replay Safety:**
+   - Lines 36-38: Deterministic snapshot identifier `$"snapshot-{request.RequestId}"` enables fast early exit if replayed.
+   - Lines 122-128: Concurrency collision protection via `catch (DbUpdateException)` rolling back transaction and checking for an existing snapshot, preventing duplicate closures under concurrent requests.
+   - Line 93: Superseded snapshots are de-authoritative bulk updated atomically via `ExecuteUpdateAsync(s => s.SetProperty(x => x.Authoritative, false))`.
+
+3. **Security & Authorization Verification:**
+   - Line 52: Mandatory manager authorization gating via `AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "business_day_close", approval, requireApproval: true)`.
+   - Lines 44-51: Validates manager approver user identity before issuing approval token.
+
+4. **Exception Aggregation Scope (`BuildDayExceptionsAsync`, lines 136-160):**
+   - Correctly segregates day-scoped data (`s.BusinessDate == day.BusinessDate`, `o.BusinessDayId == day.Id`, `e.BusinessDayId == day.Id`) from system-wide operational integrity queues (`CustodyStatus.Settled`, `Status == "Complete"`).
+
+### Detailed Callable Decisions Summary:
+- `CloseBusinessDayHandler.cs:27:5:ConstructorDeclaration` [Lines 27-32] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:34:5:MethodDeclaration` [Lines 34-129] -> CHALLENGED (Defect: `BUSINESSDAY-GLOBAL-SCAN-BLOCKER`)
+- `CloseBusinessDayHandler.cs:37:95:SimpleLambdaExpression` [Line 37] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:40:76:SimpleLambdaExpression` [Line 40] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:47:83:SimpleLambdaExpression` [Line 47] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:54:62:SimpleLambdaExpression` [Line 54] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:80:81:SimpleLambdaExpression` [Line 80] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:84:76:SimpleLambdaExpression` [Line 84] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:89:83:SimpleLambdaExpression` [Line 89] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:91:75:SimpleLambdaExpression` [Line 91] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:92:55:SimpleLambdaExpression` [Line 92] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:93:37:SimpleLambdaExpression` [Line 93] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:93:56:SimpleLambdaExpression` [Line 93] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:102:77:SimpleLambdaExpression` [Line 102] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:125:97:SimpleLambdaExpression` [Line 125] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:136:5:MethodDeclaration` [Lines 136-160] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:139:20:SimpleLambdaExpression` [Line 139] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:140:21:SimpleLambdaExpression` [Line 140] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:142:20:SimpleLambdaExpression` [Line 142] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:143:21:SimpleLambdaExpression` [Line 143] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:145:20:SimpleLambdaExpression` [Line 145] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:145:59:SimpleLambdaExpression` [Line 145] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:147:20:SimpleLambdaExpression` [Line 147] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:147:75:SimpleLambdaExpression` [Line 147] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:149:20:SimpleLambdaExpression` [Line 149] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:149:64:SimpleLambdaExpression` [Line 149] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:153:40:SimpleLambdaExpression` [Line 153] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:155:43:SimpleLambdaExpression` [Line 155] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:156:37:SimpleLambdaExpression` [Line 156] -> ACCEPTED
+- `CloseBusinessDayHandler.cs:162:5:MethodDeclaration` [Lines 162-165] -> ACCEPTED

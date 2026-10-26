@@ -190,3 +190,40 @@
 - **Actual Behavior & Inputs:**
   Selects piastre amounts of safe drop movements for summation into `safeDrops`.
 - **Classification:** In-memory summation projection.
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (QA-L2-Challenger-Wave4A)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Source SHA-256 Verified:** `cd1a406323ee3e43ac267321d1b9d8b42cc739fb7e18ad87fdc5ca9c2162f099`
+- **Total Callables Audited:** 14
+- **Verdicts:** 14 ACCEPTED (0 CHALLENGED)
+
+### Substantive Financial & Infrastructure Audit Findings:
+1. **Mathematical Drawer Reconciliation Formula:**
+   - Verified lines 67-68: `FinancialRules.CalculateExpectedDrawerCash(openingCash, netCashSales, drawerExpenses, cashIn, withdrawals + safeDrops)`.
+   - Adheres strictly to the accounting invariant: `Expected = Opening + NetCashSales + CashIn - DrawerExpenses - (Withdrawals + SafeDrops)`.
+2. **Drawer Cash Parity for Employee Advances & Withdrawals (FIN-001 Parity):**
+   - Lines 28, 61, 64 explicitly include `DrawerWithdrawalTypes = { "cash_out", "employee_advance", "employee_withdrawal" }`.
+   - Resolves a critical historical discrepancy where paying an employee out of drawer cash caused an artificial cash shortage at shift close.
+3. **Drawer Expense Isolation:**
+   - Lines 55-57 filter `e.ShiftId == shiftId && e.PaidFromDrawer`. Expenses paid via bank transfer, InstaPay, or main treasury do not impact the cashier drawer balance.
+4. **Refund and Net Sales Alignment:**
+   - Lines 48-50 eagerly load `Items` and `Refunds` (line 45) and use `OrderPaymentQueries` to compute net cash sales, ensuring cash refunds are not double-subtracted.
+5. **Exact Integer Piastre Arithmetic:**
+   - All currency values are calculated in integer piastres (`AmountPiastres` and `Money.FromPiastres`), completely eliminating floating-point rounding errors.
+
+### Detailed Callable Decisions Summary:
+- `ShiftReconciliation.cs:30:5:MethodDeclaration` [Lines 30-31] -> ACCEPTED
+- `ShiftReconciliation.cs:42:5:MethodDeclaration` [Lines 42-81] -> ACCEPTED
+- `ShiftReconciliation.cs:45:22:SimpleLambdaExpression` [Line 45] -> ACCEPTED
+- `ShiftReconciliation.cs:45:44:SimpleLambdaExpression` [Line 45] -> ACCEPTED
+- `ShiftReconciliation.cs:46:20:SimpleLambdaExpression` [Line 46] -> ACCEPTED
+- `ShiftReconciliation.cs:56:20:SimpleLambdaExpression` [Line 56] -> ACCEPTED
+- `ShiftReconciliation.cs:57:23:SimpleLambdaExpression` [Line 57] -> ACCEPTED
+- `ShiftReconciliation.cs:60:20:SimpleLambdaExpression` [Lines 60-61] -> ACCEPTED
+- `ShiftReconciliation.cs:63:57:SimpleLambdaExpression` [Line 63] -> ACCEPTED
+- `ShiftReconciliation.cs:63:87:SimpleLambdaExpression` [Line 63] -> ACCEPTED
+- `ShiftReconciliation.cs:64:62:SimpleLambdaExpression` [Line 64] -> ACCEPTED
+- `ShiftReconciliation.cs:64:111:SimpleLambdaExpression` [Line 64] -> ACCEPTED
+- `ShiftReconciliation.cs:65:60:SimpleLambdaExpression` [Line 65] -> ACCEPTED
+- `ShiftReconciliation.cs:65:92:SimpleLambdaExpression` [Line 65] -> ACCEPTED

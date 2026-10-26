@@ -281,12 +281,45 @@ Substantive security and authorization audit of BusinessDayCloseEvaluator.cs.
 ---
 
 ## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T08:35:00Z
-- **Source SHA-256 Verified:** CC3A318C0332B40555EE9F2E545B42876B0E74A90E71C15732C5153EB576A832
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-  - Exhaustively audited all 22 callables in BusinessDayCloseEvaluator.cs.
-  - Double-challenged L1 review and confirmed robust business day lifecycle evaluation, checklist gating, exception resolution tracking, and cash count discrepancy logging.
-  - Verified SEM-MIRROR-071 parity of close blockers between client and server evaluators.
-  - No modifications made to src/ or 	ests/.
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (QA-L2-Challenger-Wave4A)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Source SHA-256 Verified:** `cc3a318c0332b40555ee9f2e545b42876b0e74a90e71c15732c5153eb576a832`
+- **Total Callables Audited:** 22
+- **Verdicts:** 21 ACCEPTED, 1 CHALLENGED
+
+### Substantive Architectural & Operational Audit Findings:
+1. **Critical Operational Risk Verified — `BUSINESSDAY-GLOBAL-SCAN-BLOCKER` (`BusinessDayCloseEvaluator.cs:26:5:MethodDeclaration`):**
+   - Lines 28-30 execute unbounded `ToListAsync` table scans across `Shifts`, `DriverCustodies`, and `FinancialJournalEntries` without filtering by `BusinessDate` or `BusinessDayId`.
+   - While intended to prevent closing if any legacy operation is unsettled, it creates an operational vulnerability: an unresolved shift from months ago permanently wedges business day closing with no bypass mechanism.
+   - At production scale, loading all historical shifts and custodies into memory on every evaluation causes latency degradation and memory pressure.
+   - **Verdict:** `CHALLENGED` (Overriding unconditioned L1 acceptance).
+2. **Defensive Reconciliation Checks (`ComputeReconciliationChecksAsync`, lines 62-86):**
+   - Line 67: Detects duplicate idempotency keys on `TreasuryMovements` via `GroupBy(m => m.IdempotencyKey).Where(g => g.Count() > 1)`.
+   - Lines 73-77: Verifies non-negative balances on protected treasury accounts (`TreasuryAccounts.Protected`) across posted movements.
+   - Lines 79-83: Scopes unauthorized drawer discrepancy checks strictly to `day.BusinessDate` against the configured tolerance threshold.
+3. **SEM-MIRROR-071 Client/Server Parity:**
+   - Accurately mirrors all frontend close blockers: `OPEN_SHIFT`, `UNSETTLED_DRIVER_CUSTODY`, `JOURNAL_INCOMPLETE`, `PENDING_ELECTRONIC_PAYMENT`, `CHECKLIST_INCOMPLETE`, and `RECONCILIATION_CRITICAL`.
+
+### Detailed Callable Decisions Summary:
+- `BusinessDayCloseEvaluator.cs:26:5:MethodDeclaration` [Lines 26-55] -> CHALLENGED (Defect: `BUSINESSDAY-GLOBAL-SCAN-BLOCKER`)
+- `BusinessDayCloseEvaluator.cs:28:60:SimpleLambdaExpression` [Line 28] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:29:78:SimpleLambdaExpression` [Line 29] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:30:85:SimpleLambdaExpression` [Line 30] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:32:20:SimpleLambdaExpression` [Line 32] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:32:72:SimpleLambdaExpression` [Line 32] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:35:20:SimpleLambdaExpression` [Line 35] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:36:78:SimpleLambdaExpression` [Line 36] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:38:21:SimpleLambdaExpression` [Line 38] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:38:58:SimpleLambdaExpression` [Line 38] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:44:35:SimpleLambdaExpression` [Line 44] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:46:53:SimpleLambdaExpression` [Line 46] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:47:51:SimpleLambdaExpression` [Line 47] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:48:54:SimpleLambdaExpression` [Line 48] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:62:5:MethodDeclaration` [Lines 62-86] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:67:22:SimpleLambdaExpression` [Line 67] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:67:51:SimpleLambdaExpression` [Line 67] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:71:20:SimpleLambdaExpression` [Line 71] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:72:21:SimpleLambdaExpression` [Line 72] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:75:47:SimpleLambdaExpression` [Line 75] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:81:20:SimpleLambdaExpression` [Line 81] -> ACCEPTED
+- `BusinessDayCloseEvaluator.cs:82:23:SimpleLambdaExpression` [Line 82] -> ACCEPTED

@@ -323,13 +323,51 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Shi
 - **Verdict:** ACCEPTED
 - **Challenger Analysis:** Independently inspected source file `src/Falah.Domain/Shifts/Shift.cs`. Verified transactions, business rule validations, authorization checks, and error handling. Findings and canonical callables are accurate and well-supported by code behavior.
 
-
 ## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:48:02Z
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (QA-L2-Challenger-Wave4A)
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690`
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `e96a44389205732b3bb8a6c095d811bae3c117b03a1ec82fc7b9ca3036756690` against production source `src/Falah.Domain/Shifts/Shift.cs`. All 28 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 28 callables.
+- **Total Callables Audited:** 28
+- **Verdicts:** 28 ACCEPTED (0 CHALLENGED)
+
+### Substantive Domain & Aggregate Audit Findings:
+1. **Blind Close Two-Step Invariant Enforcement:**
+   - Step 1 (`PrepareBlindClose`, lines 91-99): Strictly enforces non-mutating preview. Asserts `Status == ShiftStatus.Open`, guards against negative physical cash count (`actualCashCounted.IsNegative` throws `DomainException`), evaluates discrepancy against threshold (`FinancialRules.DiscrepancyNeedsApproval`), and returns immutable `BlindCloseResult`.
+   - Step 2 (`Close`, lines 103-117): Enforces `Status == ShiftStatus.Open`. Strict manager approval gate: if `result.RequiresManagerApproval` is true, requires non-null, non-whitespace `authorizedBy` AND `reason` (throws `DomainException`), guaranteeing that significant drawer discrepancies cannot be silently closed by cashiers. Mutates all closing state properties atomically.
+2. **Opening Invariants & Operational Clock Parity:**
+   - Constructor (lines 36-46) forbids negative opening balance (`openingCash.IsNegative` throws `DomainException`).
+   - Factory `Open(...)` (lines 48-49) resolves `businessDate` through `BusinessClock.BusinessDate(nowUtc)`, preserving timezone and 4:00 AM operational transition rules.
+3. **Reconstitution Safety (`Reconstitute`, lines 74-79):**
+   - Private reconstitution constructor (lines 54-72) cleanly rehydrates full aggregate state from persistence without re-validating opening rules, supporting seamless domain-driven operations.
+4. **Encapsulation & Immutability:**
+   - All properties use private setters or get-only access, ensuring mutation occurs exclusively through legitimate aggregate methods.
+
+### Detailed Callable Decisions Summary:
+- `Shift.cs:21:24:GetAccessorDeclaration` (Id get) -> ACCEPTED
+- `Shift.cs:22:31:GetAccessorDeclaration` (ShiftName get) -> ACCEPTED
+- `Shift.cs:23:36:GetAccessorDeclaration` (OpenedByUserId get) -> ACCEPTED
+- `Shift.cs:24:37:GetAccessorDeclaration` (ClosedByUserId get) -> ACCEPTED
+- `Shift.cs:24:42:SetAccessorDeclaration` (ClosedByUserId set) -> ACCEPTED
+- `Shift.cs:25:32:GetAccessorDeclaration` (OpeningCash get) -> ACCEPTED
+- `Shift.cs:26:32:GetAccessorDeclaration` (ActualCash get) -> ACCEPTED
+- `Shift.cs:26:37:SetAccessorDeclaration` (ActualCash set) -> ACCEPTED
+- `Shift.cs:27:34:GetAccessorDeclaration` (ExpectedCash get) -> ACCEPTED
+- `Shift.cs:27:39:SetAccessorDeclaration` (ExpectedCash set) -> ACCEPTED
+- `Shift.cs:28:36:GetAccessorDeclaration` (CashDifference get) -> ACCEPTED
+- `Shift.cs:28:41:SetAccessorDeclaration` (CashDifference set) -> ACCEPTED
+- `Shift.cs:29:39:GetAccessorDeclaration` (DifferenceReason get) -> ACCEPTED
+- `Shift.cs:29:44:SetAccessorDeclaration` (DifferenceReason set) -> ACCEPTED
+- `Shift.cs:30:45:GetAccessorDeclaration` (DifferenceAuthorizedBy get) -> ACCEPTED
+- `Shift.cs:30:50:SetAccessorDeclaration` (DifferenceAuthorizedBy set) -> ACCEPTED
+- `Shift.cs:31:33:GetAccessorDeclaration` (Status get) -> ACCEPTED
+- `Shift.cs:31:38:SetAccessorDeclaration` (Status set) -> ACCEPTED
+- `Shift.cs:32:36:GetAccessorDeclaration` (BusinessDate get) -> ACCEPTED
+- `Shift.cs:33:41:GetAccessorDeclaration` (OpenedAtUtc get) -> ACCEPTED
+- `Shift.cs:34:42:GetAccessorDeclaration` (ClosedAtUtc get) -> ACCEPTED
+- `Shift.cs:34:47:SetAccessorDeclaration` (ClosedAtUtc set) -> ACCEPTED
+- `Shift.cs:36:5:ConstructorDeclaration` [Lines 36-46] -> ACCEPTED
+- `Shift.cs:48:5:MethodDeclaration` [Lines 48-49] -> ACCEPTED
+- `Shift.cs:54:5:ConstructorDeclaration` [Lines 54-72] -> ACCEPTED
+- `Shift.cs:74:5:MethodDeclaration` [Lines 74-79] -> ACCEPTED
+- `Shift.cs:91:5:MethodDeclaration` [Lines 91-99] -> ACCEPTED
+- `Shift.cs:103:5:MethodDeclaration` [Lines 103-117] -> ACCEPTED

@@ -150,10 +150,31 @@ Substantive security, cash custody, and authorization audit of ReassignDeliveryH
 
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:38:17Z
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `adf3fa04c4e79acd26d25fdf5d2010b55397638a7f4b9405617d690c81050a1f`
 - **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `adf3fa04c4e79acd26d25fdf5d2010b55397638a7f4b9405617d690c81050a1f` against production source `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs`. All 12 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 12 callables.
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:27:5:ConstructorDeclaration`:
+     - *Verified Lines 27–32*: Constructor injection for `FalahDbContext`, `IApprovalRegistry`, and `IAuditLog`. Correctly initializes readonly fields without side effects. Verdict: **ACCEPTED**.
+  2. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:34:5:MethodDeclaration`:
+     - *Verified Lines 34–153*: `HandleAsync(ReassignDeliveryRequest, CancellationToken)` implements the transfer dispatch protocol. Concurrency check: pessimistic lock via `SELECT ... WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}` inside an explicit ReadCommitted transaction prevents race conditions with concurrent assignments or driver settlements. Same-driver transfer is a verified safe no-op returning `WasNoOp: true` without phantom history records. Status validation prevents reassignment of settled or cancelled deliveries. Enforces tiered permissions: `delivery_override` for completed outcomes (Delivered/Failed/Returned) vs `delivery_manage` for in-flight deliveries. Safely shifts unsettled driver custody (`custody.DriverId = newDriver.Id`), adds immutable audit event, generates deduplicated print job (`printjob-{request.RequestId}-DriverDispatch`), and handles `DbUpdateException` with transaction rollback and replay check. Verdict: **ACCEPTED**.
+  3. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:37:98:SimpleLambdaExpression`:
+     - *Verified Line 37*: `h => h.Id == historyId` on `_db.DeliveryReassignments.AsNoTracking()`. Idempotency pre-check query against reassignment history table. Verdict: **ACCEPTED**.
+  4. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:40:84:SimpleLambdaExpression`:
+     - *Verified Line 40*: `d => d.Id == request.DeliveryId` on `_db.Deliveries.AsNoTracking()`. Replay query reloading delivery state. Verdict: **ACCEPTED**.
+  5. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:45:76:SimpleLambdaExpression`:
+     - *Verified Line 45*: `u => u.Id == request.ActorUserId` on `_db.Users.AsNoTracking()`. Resolves actor user for authorization. Verdict: **ACCEPTED**.
+  6. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:57:82:SimpleLambdaExpression`:
+     - *Verified Line 57*: `d => d.Id == request.NewDriverId && d.Active` on `_db.Drivers.AsNoTracking()`. Enforces that target driver exists and is currently active. Verdict: **ACCEPTED**.
+  7. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:81:87:SimpleLambdaExpression`:
+     - *Verified Line 81*: `u => u.Id == request.ManagerApproverUserId` on `_db.Users.AsNoTracking()`. Resolves manager approver for approval token. Verdict: **ACCEPTED**.
+  8. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:89:82:SimpleLambdaExpression`:
+     - *Verified Line 89*: `d => d.Id == oldDriverId` on `_db.Drivers.AsNoTracking()`. Resolves previous driver for audit traceability. Verdict: **ACCEPTED**.
+  9. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:90:77:SimpleLambdaExpression`:
+     - *Verified Line 90*: `o => o.Id == delivery.OrderId` on `_db.Orders.AsNoTracking()`. Loads order record to populate print dispatch job with human-readable order number. Verdict: **ACCEPTED**.
+  10. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94:73:SimpleLambdaExpression`:
+      - *Verified Line 94*: `c => c.DeliveryId == delivery.Id` on `_db.DriverCustodies`. Identifies associated custody record for driver reassignment. Verdict: **ACCEPTED**.
+  11. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:144:93:SimpleLambdaExpression`:
+      - *Verified Line 144*: `h => h.Id == historyId` on `_db.DeliveryReassignments.AsNoTracking()`. Catch-block query checking for concurrent duplicate insert. Verdict: **ACCEPTED**.
+  12. `src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:147:88:SimpleLambdaExpression`:
+      - *Verified Line 147*: `d => d.Id == request.DeliveryId` on `_db.Deliveries.AsNoTracking()`. Catch-block reload of delivery entity for idempotent result payload. Verdict: **ACCEPTED**.

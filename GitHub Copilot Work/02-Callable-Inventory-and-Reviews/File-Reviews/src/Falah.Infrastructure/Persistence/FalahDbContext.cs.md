@@ -3091,22 +3091,58 @@ The database schema enforces idempotency via unique constraints, acting as the u
 ---
 
 ## Independent QA L1 Review & Verification
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
-- **Verification Date:** 2026-10-25T02:00:00Z
+- **QA Reviewer:** QA-L1-Challenger-Wave4 (Specialist: `audit-qa-l1`)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Baseline Git Commit:** `7cefeba`
+- **Source File:** `src/Falah.Infrastructure/Persistence/FalahDbContext.cs` (481 lines)
 - **Source SHA-256 Verified:** `7fda50ac64f49021d17d7ea9636456dd15556c6d8d4a76f5e553be0a42f88d3c`
-- **Callable ID Checked:** 212 of 212 in-scope callables verified (`src/Falah.Infrastructure/Persistence/FalahDbContext.cs:8:5:ConstructorDeclaration`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs:76:5:MethodDeclaration`, and 210 entity configuration lambdas across 58 entity mapping blocks)
-- **Verdict:** ACCEPTED
-- **Challenger Analysis:**
-  1. Verified SHA-256 matches actual production source `src/Falah.Infrastructure/Persistence/FalahDbContext.cs` (481 lines). Git blob SHA-256 matches `2f6bb83f8c78021361915c6496db1a49aac61f50651d51f0aabfc3fb8ce31e1e`.
-  2. Verified monetary representation across all entities: Stored exclusively as 64-bit integer (`long`) piastres (`SubtotalPiastres`, `DeliveryFeePiastres`, `OpeningCashPiastres`, `TotalNetPiastres`, `AmountPiastres`, etc.). Zero floating-point or database decimal scale drift occurs.
-  3. Confirmed database-level idempotency and unique indexes: `Orders(CheckoutRequestId)` (unique), `Orders(SequenceNumber)` (unique), `Shifts(OpenRequestId)` (unique), `Shifts(CloseRequestId)` (filtered unique), `Shifts(Status='Open')` (filtered unique), `TreasuryMovements(IdempotencyKey)` (unique), `Expenses(IdempotencyKey)` (unique), `PayrollRuns(Period)` (filtered unique).
-  4. Confirmed `FIN-009`: `BusinessDayEntity` lacks a filtered unique index on `[Status] = 'Open'`, allowing concurrent business day activations.
-  5. Confirmed `PRT-001`: `PrintJobEntity` lacks a composite unique index on `(OrderId, Route)`, risking duplicate physical ticket spooling.
-  6. Confirmed optimistic locking and concurrency gaps: `OrderEntity.Version`, `ShiftEntity.Version`, `DeliveryEntity.Version`, and `ManagerApprovalEntity.Consumed` define `IsConcurrencyToken()`. However, `PurchaseEntity` and `PayrollRunEntity` lack concurrency tokens (`FIN-005`, `FIN-006`).
-  7. Confirmed referential integrity: Master data foreign keys enforce `DeleteBehavior.Restrict`, while parent-child aggregates specify `DeleteBehavior.Cascade`.
-  8. Confirmed soft delete hygiene: `CategoryEntity` and `ProductEntity` have `IsActive` flags without EF global query filters (`HasQueryFilter`), requiring manual repository filtering.
-  9. All 212 canonical callable IDs, method signatures, line numbers, and classification metadata verified against Roslyn AST and source lines.
+- **Callable Coverage:** 212 of 212 callables independently verified (`src/Falah.Infrastructure/Persistence/FalahDbContext.cs:8:5:ConstructorDeclaration`, `src/Falah.Infrastructure/Persistence/FalahDbContext.cs:76:5:MethodDeclaration`, and 210 entity configuration lambdas across 58 entity mapping blocks)
+- **Verdict:** `QA_ACCEPTED`
 
+### Challenger Analysis & Source-Grounded Findings:
+
+1. **Entity Configurations & Model Builders:**
+   - Verified all 48 `DbSet<T>` property declarations spanning lines 10–74. Each property initializes via `Set<T>()` with zero lazy-loading or dynamic proxy overhead.
+   - `OnModelCreating(ModelBuilder modelBuilder)` (lines 76–480) provides the authoritative enterprise schema mapping across 45 database tables. All 210 nested builder lambdas were checked against the Roslyn syntax tree, confirming complete alignment of column mappings, table names, keys, and navigational graphs.
+
+2. **Optimistic Concurrency Control Tokens:**
+   - **`OrderEntity.Version`** (line 91: `b.Property(o => o.Version).IsConcurrencyToken()`): Verified application-managed concurrency token generating `WHERE Version = @original` on all updates. Critical for preventing lost updates during concurrent refunds or status changes.
+   - **`ShiftEntity.Version`** (line 128: `b.Property(s => s.Version).IsConcurrencyToken()`): Prevents race conditions during simultaneous shift closure or cash movements.
+   - **`DeliveryEntity.Version`** (line 330: `b.Property(d => d.Version).IsConcurrencyToken()`): Protects against concurrent driver reassignments and delivery lifecycle race conditions.
+   - **`ManagerApprovalEntity.Consumed`** (line 183: `b.Property(a => a.Consumed).IsConcurrencyToken()`): Crucial concurrency token ensuring atomic single-use semantics. When two parallel requests attempt to redeem the same approval token, only the first `false -> true` transition succeeds, throwing `DbUpdateConcurrencyException` on the second.
+   - **Audited Gaps Confirmed:** High-value financial aggregates `PurchaseEntity` (`FIN-005`) and `PayrollRunEntity` (`FIN-006`) lack concurrency tokens, leaving them exposed to concurrent lost update anomalies during invoice settlement and payroll execution.
+
+3. **Foreign Key Constraints & Delete Behaviors:**
+   - **Cascade Deletion (`DeleteBehavior.Cascade`):** Applied exclusively to strictly owned child aggregates whose lifecycles are subordinate to their parent entity: `OrderEntity.Items` (line 92), `OrderEntity.Refunds` (line 93), `ProductEntity.Variants` (line 201), `ProductImageEntity` (line 215), `PriceRuleEntity.Products` (line 221), `PriceRuleEntity.Days` (line 222), `PriceRuleProductEntity` (line 227), `RecipeEntity.Product` (line 236), `RecipeEntity.Items` (line 237), `PrepRecipeEntity.Lines` (line 261), `PurchaseEntity.Lines` (line 284), `PurchaseEntity.Payments` (line 285), `CustomerEntity.Addresses` (line 314), `PrintJobEntity.Attempts` (line 373).
+   - **Restrict Deletion (`DeleteBehavior.Restrict`):** Strictly enforced across all historical master records, preventing catastrophic accidental cascades or orphaned ledger data: `OrderEntity.ShiftId` (line 97), `OrderEntity.CashierId` (line 98), `OrderItemEntity.ProductId` (line 107), `OrderItemEntity.VariantId` (line 108), `ProductEntity.CategoryId` (line 200), `RecipeItemEntity.InventoryItemId` (line 242), `StockMovementEntity.InventoryItemId` (line 253), `StockMovementEntity.SupplierId` (line 254), `PrepRecipeEntity.OutputInventoryItemId` (line 260), `PrepRecipeLineEntity.InventoryItemId` (line 266), `OrderPackagingRuleEntity.InventoryItemId` (line 272), `PurchaseEntity.SupplierId` (line 283), `PurchaseLineEntity.InventoryItemId` (line 290), `SupplierLedgerEntryEntity.SupplierId` (line 304), `DeliveryEntity.OrderId` (line 327), `DeliveryEntity.ShiftId` (line 328), `DeliveryEntity.DriverId` (line 329), `DriverCustodyEntity.DeliveryId` (line 341), `DriverCustodyEntity.DriverId` (line 342), `BusinessDayCloseSnapshotEntity.BusinessDayId` (line 404).
+
+4. **Shadow Properties & Architectural Decoupling:**
+   - **`OrderEntity` Shadow Foreign Keys:** Intentionally omits CLR navigation properties to `ShiftEntity` and `UserEntity` (lines 94–98). The model builder establishes strict database-level foreign key constraints (`b.HasOne<ShiftEntity>().WithMany().HasForeignKey(o => o.ShiftId).OnDelete(DeleteBehavior.Restrict)`) without forcing EF Core to load shift or cashier entities into memory during order processing.
+   - **`PrintJobEntity` Decoupling:** Line 374–376 explicitly omits a foreign key constraint to `OrderEntity`. Print jobs represent hardware dispatch facts; hardware spooler failures, delays, or retries must never block or participate in financial order transactions.
+   - **Unidirectional Recipe Linkage:** `ProductEntity.RecipeId` is a plain nullable reference rather than an enforced FK, because `RecipeEntity` already owns the relational foreign key pointing back to `ProductEntity` (`b.HasOne<ProductEntity>().WithMany().HasForeignKey(r => r.ProductId).OnDelete(DeleteBehavior.Cascade)`).
+
+5. **Relational Indices & Database-Level Idempotency Guarantees:**
+   - **Core Idempotency Unique Indexes:** `Orders(CheckoutRequestId)` (line 84), `Orders(SequenceNumber)` (line 85), `OrderRefunds(IdempotencyKey)` (line 113), `Shifts(OpenRequestId)` (line 119), `TreasuryMovements(IdempotencyKey)` (line 134), `BusinessDays(OpenRequestId)` (line 140), `Expenses(IdempotencyKey)` (line 146), `StockMovements(IdempotencyKey)` (line 252), `Purchases(IdempotencyKey)` (line 282), `PurchasePayments(IdempotencyKey)` (line 295), `SupplierLedgerEntries(IdempotencyKey)` (line 300), `DriverSettlements(IdempotencyKey)` (line 362), `PrintJobAttempts(IdempotencyKey)` (line 381), `FinancialJournalEntries(IdempotencyKey)` as PK (line 154).
+   - **Filtered Unique Indexes:**
+     - `Shifts.CloseRequestId` (line 122): `.HasFilter("[CloseRequestId] IS NOT NULL")` allows multiple open shifts with null close request IDs while ensuring closure requests cannot collide.
+     - `Shifts.Status` (line 127): `.HasFilter("[Status] = 'Open'")` guarantees at the database schema level that at most one open shift exists system-wide.
+     - `CashHandovers.TreasuryMovementId` (line 438): `.HasFilter("[TreasuryMovementId] IS NOT NULL")`.
+     - `EmployeeLedgerEntries.IdempotencyKey` (line 451): `.HasFilter("[IdempotencyKey] IS NOT NULL")`.
+     - `PayrollRuns.IdempotencyKey` (line 463): `.HasFilter("[IdempotencyKey] IS NOT NULL")`.
+     - `PayrollRuns.Period` (line 469–471): Filtered unique index `IX_PayrollRuns_Period_Live` with `.HasFilter("[Status] <> 'Cancelled'")` ensures that only one active run exists per payroll period, preventing duplicate employee salary disbursements.
+   - **Database Vulnerabilities Confirmed:**
+     - `FIN-009`: `BusinessDayEntity` (lines 137–141) lacks a filtered unique index on `[Status] = 'Open'`, leaving a critical vulnerability where concurrent opening requests can create multiple active business days.
+     - `PRT-001`: `PrintJobEntity` (lines 365–377) lacks a composite unique constraint on `(OrderId, Route)`, risking duplicate physical tickets under retry conditions.
+
+6. **Seed Data Invariants:**
+   - `OrderSequenceEntity`: Seeded with `Id = 1, LastAllocated = 127` (line 162), guaranteeing that fresh installations start numbering from `#0128`.
+   - `ChecklistItemEntity`: Seeded with 7 standard operational checklist items (lines 389–396) for opening (`open-drawer`, `open-printer`, `open-stations`) and closing (`close-shifts`, `close-drawer`, `close-delivery`, `close-review`).
+
+7. **Monetary Representation:**
+   - All financial amounts across all entities are modeled strictly as 64-bit integer (`long`) piastres (`SubtotalPiastres`, `DeliveryFeePiastres`, `OpeningCashPiastres`, `TotalNetPiastres`, `AmountPiastres`, etc.). Zero floating-point or database decimal scale drift occurs.
+
+### Verified Per-Callable Inventory Ledger (212 Decisions Recorded):
+All 212 callables in `src/Falah.Infrastructure/Persistence/FalahDbContext.cs` have been individually verified against source lines and committed to `QA_L1_CALLABLE_DECISIONS.json` with verdict `QA_ACCEPTED`.
 
 ---
 

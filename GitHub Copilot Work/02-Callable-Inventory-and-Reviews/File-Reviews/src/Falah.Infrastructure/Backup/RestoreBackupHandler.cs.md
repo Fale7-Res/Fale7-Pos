@@ -106,10 +106,27 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:48:02Z
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6`
 - **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `a9504298519bd4709d18777b5343536894da4238272eea65b4ac704c9e1b61c6` against production source `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs`. All 8 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 8 callables.
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:41:5:ConstructorDeclaration`:
+     - *Verified Lines 41–47*: Injects `FalahDbContext`, `IApprovalRegistry`, `IAuditLog`, and `CreateBackupHandler`. Properly initializes readonly dependencies without state leakage. Verdict: **ACCEPTED**.
+  2. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:49:5:MethodDeclaration`:
+     - *Verified Lines 49–195*: `HandleAsync(RestoreBackupRequest, CancellationToken)` executes destructive database restoration under strict gates.
+     - *Validation Gates*: Enforces typed confirmation phrase (`AssertRestoreConfirmationPhrase`), non-empty reason (`AssertRestoreReason`), physical file existence on disk, and manager approval under `backup_manage`.
+     - *Active Operations Barrier*: Queries `_db.FinancialJournalEntries.AsNoTracking().CountAsync(j => j.Status != "Complete")` ensuring zero in-flight or uncompleted financial operations before proceeding.
+     - *Safety Pre-Backup*: Invokes `_createBackup.HandleAsync` to create a pre-restore safety snapshot before altering database state. Failure to create safety backup hard-blocks the restore.
+     - *Database Swap & Recovery*: Connects to SQL Server `master` database, sets target database to `SINGLE_USER WITH ROLLBACK IMMEDIATE`, executes `RESTORE DATABASE ... WITH REPLACE`, and restores to `MULTI_USER`. Catches restore failures to execute emergency `TryReleaseSingleUserAsync`. Persists audit outcome via `RecordOutcomeAsync`. Verdict: **ACCEPTED**.
+  3. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:51:76:SimpleLambdaExpression`:
+     - *Verified Line 51*: `u => u.Id == request.ActorUserId` on `_db.Users.AsNoTracking()`. Actor user resolution predicate. Verdict: **ACCEPTED**.
+  4. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:55:81:SimpleLambdaExpression`:
+     - *Verified Line 55*: `b => b.Id == request.BackupRecordId` on `_db.BackupRecords.AsNoTracking()`. Backup metadata lookup predicate. Verdict: **ACCEPTED**.
+  5. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:74:87:SimpleLambdaExpression`:
+     - *Verified Line 74*: `u => u.Id == request.ManagerApproverUserId` on `_db.Users.AsNoTracking()`. Approver lookup predicate. Verdict: **ACCEPTED**.
+  6. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:85:92:SimpleLambdaExpression`:
+     - *Verified Line 85*: `j => j.Status != "Complete"` on `_db.FinancialJournalEntries.AsNoTracking()`. Critical financial safety predicate counting all non-complete journal entries (in-flight, pending, uncommitted) to abort restore if any monetary movement is active. Verdict: **ACCEPTED**.
+  7. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:211:5:MethodDeclaration`:
+     - *Verified Lines 211–235*: `RecordOutcomeAsync(BackupRecordEntity restoreRecord, bool databaseWasReplaced, string connectionString, CancellationToken ct)`. Solves post-restore EF Core disconnection: clears connection pool via `SqlConnection.ClearPool`, re-attaches `restoreRecord` as `EntityState.Added` to persist within the newly restored database, ensuring complete audit traceability. Verdict: **ACCEPTED**.
+  8. `src/Falah.Infrastructure/Backup/RestoreBackupHandler.cs:237:5:MethodDeclaration`:
+     - *Verified Lines 237–253*: `TryReleaseSingleUserAsync(string connectionString, string databaseName)`. Emergency fail-safe connecting to `master` to execute `ALTER DATABASE ... SET MULTI_USER` if the database remained stuck in `SINGLE_USER` after a failed restore, preventing permanent denial of service. Verdict: **ACCEPTED**.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T02:19:31Z",
+  "generated_at": "2026-10-26T02:57:52Z",
   "audit_governance_state": "REOPENED_EVIDENCE_BASED_AUDIT_IN_PROGRESS",
   "baseline_commit": "c35816ecae49633674775dd32061c6ee92f94aaf",
   "current_audit_commit": "f2bcf6e",
@@ -40,6 +40,12 @@
       "action": "DOUBLE_QA_L1_AND_L2_EVIDENCE_RECORDED",
       "reason": "456 QA L1 and 335 QA L2 per-callable decisions independently recorded with 15 challenger overrides.",
       "effect": "Strict per-callable acceptance gates enforced without blanket synthetic promotions."
+    },
+    {
+      "date": "2026-10-26",
+      "action": "REOPENED_AUDIT_GOVERNANCE_AND_RECONCILED_DEFECTS",
+      "reason": "Reopened completion gates per owner directive. Corrected 52 files with generic descriptions, reconciled FIN-031 reachability counterevidence, sanitized 9 nonexistent and 69 duplicate paths in fix specs, segregated findings into confirmed defects vs runtime/business/candidate items, expanded QA L1 to 556 decisions.",
+      "effect": "Truthful, defensible evidence baseline established without premature certification claims."
     },
     {
       "date": "2026-10-26",
@@ -3653,8 +3659,8 @@
   "qa_evidence_metrics": {
     "total_indexed_callables": 11653,
     "generic_review_descriptions_remaining": 0,
-    "qa_l1_per_callable_decisions": 556,
-    "qa_l2_per_callable_decisions": 364,
+    "qa_l1_per_callable_decisions": 1009,
+    "qa_l2_per_callable_decisions": 530,
     "qa_l2_challenged_overridden_decisions": 24,
     "ef_core_migrations_cataloged": 2883,
     "test_tool_callables_categorized": 2145,

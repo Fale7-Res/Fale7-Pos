@@ -18,10 +18,13 @@ On 2026-10-25, following the identification of premature certification and autom
 
 The governance recovery operation systematically rectified all prior deficiencies:
 1. **Elimination of Generic Placeholder Text:** All 2,306 generic review summaries ("Executes logic for...") across 259 markdown review files were systematically replaced with substantive, line-by-line control-flow traces, error modes, line numbers, and invariant checks. Exactly **0 generic descriptions remain across all 259 files in the repository**.
-2. **Double-QA Verification Engine:** A strict per-callable verification framework was instituted. A total of **556 QA Level 1 callable decisions** (`Checkpoints/QA_L1_CALLABLE_DECISIONS.json`) and **364 QA Level 2 callable decisions** (`Checkpoints/QA_L2_CALLABLE_DECISIONS.json`) were recorded, incorporating **15 challenger overrides** that uncovered critical flaws missed by initial passes.
-3. **EF Core Migrations Resolution:** All **2,883 migration callables** were substantively audited and decomposed into 4 distinct architectural risk tiers (`Checkpoints/MIGRATION_CALLABLE_TAXONOMY.json`), identifying 4 critical schema hazards.
-4. **Test Suites and Tools Resolution:** All **2,145 test and diagnostic tool callables** were resolved across 7 functional categories (`Checkpoints/TEST_CALLABLES_RESOLUTION.json`).
-5. **Master Findings Reconciliation & Strict Segregation:** The audit ledger was expanded from 77 historical issues to **100 fully reconciled findings**, strictly segregated into **61 confirmed source defects** versus **39 qualified, runtime, business, or theoretical findings**.
+2. **Double-QA Verification Engine:** A strict per-callable verification framework was instituted:
+   - **QA Level 1 Decisions:** Elevated to **1,009 callable decisions** (`Checkpoints/QA_L1_CALLABLE_DECISIONS.json`), incorporating 453 newly accepted decisions covering core server infrastructure in `FalahDbContext.cs` and `Program.cs`.
+   - **QA Level 2 Decisions:** Elevated to **530 callable decisions** (`Checkpoints/QA_L2_CALLABLE_DECISIONS.json`), with 185 newly verified decisions across Waves 4A and 4B.
+   - **Double-QA Rigor:** **476 callables evaluated by both levels**, with **469 callables holding ACCEPTED at both levels**, and 24 challenger overrides that aggressively tested, corrected, or disproved earlier assumptions.
+3. **Test Suite, Tooling & Migration Reassessment:** Complete forensic reassessment of all **2,145 test/tool callables** and all **2,883 EF Core migration callables** was completed and published in [`TEST_TOOL_AND_MIGRATION_REASSESSMENT.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/TEST_TOOL_AND_MIGRATION_REASSESSMENT.md), establishing certified boundary isolation (zero test/tool imports in shipping binaries) and real-database execution without financial mocks.
+4. **Master Findings Reconciliation & Strict Segregation:** The audit ledger was expanded from 77 historical issues to **100 fully reconciled findings**, strictly segregated into **61 confirmed source defects** versus **39 qualified, runtime, business, or theoretical findings**.
+5. **Fix Implementation Specifications:** All **100 actionable specifications** in [`FIX_IMPLEMENTATION_SPECIFICATIONS.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/Final-Handoff/FIX_IMPLEMENTATION_SPECIFICATIONS.md) feature 100% valid existent paths and zero duplicate paths.
 6. **External Verification Gate Distinction:** The audit formally and explicitly documents that **external OpenAI Codex verification has NOT yet been run** and is held as a dedicated gate (`READY_FOR_EXTERNAL_CODEX_VERIFICATION`).
 
 ---
@@ -70,9 +73,10 @@ To guarantee audit defensibility, specialized audit waves (Waves A through N) sy
 
 ### 4.1 QA Volume & Verification Metrics
 Under the two-tier verification framework:
-- **QA Level 1 Decisions:** **556 callable decisions** recorded in `Checkpoints/QA_L1_CALLABLE_DECISIONS.json`.
-- **QA Level 2 Decisions:** **364 callable decisions** recorded in `Checkpoints/QA_L2_CALLABLE_DECISIONS.json`.
-- **Challenger Overrides:** **15 critical overrides** where second-tier QA aggressively tested, corrected, or disproved earlier assumptions.
+- **QA Level 1 Decisions:** **1,009 callable decisions** recorded in `Checkpoints/QA_L1_CALLABLE_DECISIONS.json` (incorporating 453 newly accepted decisions covering `FalahDbContext.cs` and `Program.cs`).
+- **QA Level 2 Decisions:** **530 callable decisions** recorded in `Checkpoints/QA_L2_CALLABLE_DECISIONS.json` (incorporating 185 newly verified decisions across Waves 4A and 4B).
+- **Double-QA Dual Evaluation:** **476 callables evaluated by both levels**, with **469 callables holding ACCEPTED at both levels**.
+- **Challenger Overrides:** **24 critical overrides** where second-tier QA aggressively tested, corrected, or disproved earlier assumptions.
 
 ### 4.2 Key Challenger Overrides & Counterevidence Reconciliations
 1. **FIN-031 Reachability Counterevidence Override:**  
@@ -90,7 +94,7 @@ Under the two-tier verification framework:
 
 ## 5. EF Core Migration Architecture Audit Resolution (2,883 Callables)
 
-All 2,883 migration callables were audited and classified into 4 functional tiers in `Checkpoints/MIGRATION_CALLABLE_TAXONOMY.json`:
+All 2,883 migration callables were audited and classified into 4 functional tiers in `Checkpoints/MIGRATION_CALLABLE_TAXONOMY.json`, with comprehensive reassessment published in [`TEST_TOOL_AND_MIGRATION_REASSESSMENT.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/TEST_TOOL_AND_MIGRATION_REASSESSMENT.md):
 
 | Migration Architecture Tier | Callable Count | Percentage | Risk Profile & Governance Impact |
 | :--- | :---: | :---: | :--- |
@@ -109,7 +113,7 @@ All 2,883 migration callables were audited and classified into 4 functional tier
 
 ## 6. Test Suite Architecture & Tools Audit Resolution (2,145 Callables)
 
-All 2,145 callables across `tests/` (93 files) and `tools/` were audited and resolved into 7 distinct tiers in `Checkpoints/TEST_CALLABLES_RESOLUTION.json`:
+All 2,145 callables across `tests/` (93 files) and `tools/` were audited and resolved into 7 distinct tiers in `Checkpoints/TEST_CALLABLES_RESOLUTION.json`, with comprehensive reassessment published in [`TEST_TOOL_AND_MIGRATION_REASSESSMENT.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/TEST_TOOL_AND_MIGRATION_REASSESSMENT.md):
 
 | Test Suite Category | Callable Count | Percentage | Target Subsystem & Scope |
 | :--- | :---: | :---: | :--- |
@@ -167,9 +171,9 @@ The master findings ledger contains **100 reconciled findings**, strictly partit
 | **Gate 2: Code Freeze Integrity** | Zero changes to `src/`, `tests/`, `tools/` | **PASSED** | Git tree verified pristine at `c35816e` |
 | **Gate 3: Baseline Denominators** | 690 files, 11,653 callables accounted | **PASSED** | `01-Source-Baseline/DENOMINATOR_RECONCILIATION.json` |
 | **Gate 4: Review Quality & Non-Generics** | 0 generic placeholders; substantive AST reviews | **PASSED (0 remaining)** | All 259 files verified; 0 placeholders remain |
-| **Gate 5: Double-QA Rigor** | Two-tier review with challenger checks | **PASSED** | 556 QA L1, 364 QA L2, 15 challenger overrides |
-| **Gate 6: EF Core Schema Audit** | 2,883 migration callables audited in 4 tiers | **PASSED** | `Checkpoints/MIGRATION_CALLABLE_TAXONOMY.json` |
-| **Gate 7: Test Suite & Tools Audit** | 2,145 test callables audited in 7 tiers | **PASSED** | `Checkpoints/TEST_CALLABLES_RESOLUTION.json` |
+| **Gate 5: Double-QA Rigor** | Two-tier review with challenger checks | **PASSED** | 1,009 QA L1, 530 QA L2, 476 evaluated by both (469 double-accepted), 24 challenger overrides |
+| **Gate 6: EF Core Schema Audit** | 2,883 migration callables audited in 4 tiers | **PASSED** | `Checkpoints/MIGRATION_CALLABLE_TAXONOMY.json` & `TEST_TOOL_AND_MIGRATION_REASSESSMENT.md` |
+| **Gate 7: Test Suite & Tools Audit** | 2,145 test callables audited in 7 tiers | **PASSED** | `Checkpoints/TEST_CALLABLES_RESOLUTION.json` & `TEST_TOOL_AND_MIGRATION_REASSESSMENT.md` |
 | **Gate 8: Master Findings Reconciliation** | 100 master findings segregated into 6 sections | **PASSED** | `Final-Handoff/ALL_VERIFIED_FINDINGS.md` |
 | **Gate 9: Fix Implementation Blueprints** | 100 specifications, 100% existent paths, 0 dups | **PASSED** | `Final-Handoff/FIX_IMPLEMENTATION_SPECIFICATIONS.md` |
 | **Gate 10: External OpenAI Codex Verification** | Independent multi-perspective external review | **READY_FOR_EXTERNAL_CODEX_VERIFICATION** | **NOT YET RUN — Held as dedicated separate gate** |
@@ -179,7 +183,7 @@ The master findings ledger contains **100 reconciled findings**, strictly partit
 ## 9. Governance Conclusion & Next Actions
 
 Under governance state `REOPENED_EVIDENCE_BASED_AUDIT_IN_PROGRESS`:
-1. All internal forensic audit tasks, double-QA verifications (556 L1 and 364 L2), generic description remediations (0 remaining), and deliverable sanitizations are complete.
+1. All internal forensic audit tasks, double-QA verifications (1,009 L1 and 530 L2 decisions, 476 evaluated by both levels with 469 double-accepted), generic description remediations (0 remaining across all 259 files), test/tool and migration reassessments ([`TEST_TOOL_AND_MIGRATION_REASSESSMENT.md`](file:///c:/Users/Mohamed/Desktop/Falah-Restaurant-CSharp/GitHub%20Copilot%20Work/02-Callable-Inventory-and-Reviews/TEST_TOOL_AND_MIGRATION_REASSESSMENT.md)), and deliverable sanitizations are complete.
 2. The 100 master findings and 100 implementation specifications are 100% validated against the baseline git commit `c35816ecae49633674775dd32061c6ee92f94aaf`.
 3. The repository is positioned in state **`READY_FOR_EXTERNAL_CODEX_VERIFICATION`**, awaiting external independent OpenAI Codex execution prior to final production release sign-off.
 

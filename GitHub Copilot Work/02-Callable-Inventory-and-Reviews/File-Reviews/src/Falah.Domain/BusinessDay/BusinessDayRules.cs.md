@@ -202,13 +202,42 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Bus
 - **Verdict:** ACCEPTED
 - **Challenger Analysis:** Independently inspected source file `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`. Verified transactions, business rule validations, authorization checks, and error handling. Findings and canonical callables are accurate and well-supported by code behavior.
 
-
 ## Independent QA L2 Double Challenge
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:48:02Z
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (QA-L2-Challenger-Wave4A)
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06`
-- **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `cdc3306873f2b6f46029186ec995b90415eda247ee3ec5b7408a9285f390ed06` against production source `src/Falah.Domain/BusinessDay/BusinessDayRules.cs`. All 17 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 17 callables.
+- **Total Callables Audited:** 17
+- **Verdicts:** 17 ACCEPTED (0 CHALLENGED)
+
+### Substantive Domain Rules Audit Findings:
+1. **Lifecycle State Machine Integrity:**
+   - Lines 26-38: `AssertTransition(from, to)` verifies allowed transitions (`Open -> Closing`, `Reopened -> Closing`, `Closing -> Closed`, `Closed -> Reopened`). Disallowed transitions throw `DomainException`.
+2. **Single Active Day Invariant:**
+   - Lines 40-44: `Open(...)` verifies `!existingDays.Any(IsActive)`, enforcing that only one business day can be active across the entire system.
+   - Lines 46-56: `Reopen(...)` verifies `!allDays.Any(other => other.Id != day.Id && IsActive(other))`, ensuring reopening is blocked if another day has since been opened.
+3. **Reopening Audit Requirements:**
+   - Reopen requires original status `Closed`, valid `SnapshotId`, non-empty `reason`, and captures `approverName` as `ReopenedBy`.
+4. **Deterministic Blocker Evaluation:**
+   - Lines 73-105: `EvaluateCloseBlockers` maps operational inputs to 9 blocker categories (`OPEN_SHIFT`, `UNSETTLED_DELIVERY_TRIP`, `UNSETTLED_DRIVER_CUSTODY`, `JOURNAL_INCOMPLETE`, `PENDING_ELECTRONIC_PAYMENT`, `PERSISTENCE_UNHEALTHY`, `WRITER_NOT_OWNED`, `CHECKLIST_INCOMPLETE`, `RECONCILIATION_CRITICAL`).
+   - Line 107-110: `AssertCanClose` provides strict invariant barrier.
+5. **Denomination Cash Breakdown Arithmetic:**
+   - Lines 125-135: `CalculateDenominationCount` clamps negative counts to zero (`Math.Max(0, r.Quantity)`), computes line totals and discrepancy using pure integer piastre math.
+
+### Detailed Callable Decisions Summary:
+- `BusinessDayRules.cs:24:5:MethodDeclaration` [Line 24] -> ACCEPTED
+- `BusinessDayRules.cs:34:5:MethodDeclaration` [Lines 34-38] -> ACCEPTED
+- `BusinessDayRules.cs:40:5:MethodDeclaration` [Lines 40-44] -> ACCEPTED
+- `BusinessDayRules.cs:46:5:MethodDeclaration` [Lines 46-56] -> ACCEPTED
+- `BusinessDayRules.cs:50:25:SimpleLambdaExpression` [Line 50] -> ACCEPTED
+- `BusinessDayRules.cs:73:5:MethodDeclaration` [Lines 73-105] -> ACCEPTED
+- `BusinessDayRules.cs:77:50:SimpleLambdaExpression` [Line 77] -> ACCEPTED
+- `BusinessDayRules.cs:80:56:SimpleLambdaExpression` [Line 80] -> ACCEPTED
+- `BusinessDayRules.cs:83:61:SimpleLambdaExpression` [Line 83] -> ACCEPTED
+- `BusinessDayRules.cs:86:60:SimpleLambdaExpression` [Line 86] -> ACCEPTED
+- `BusinessDayRules.cs:89:50:SimpleLambdaExpression` [Line 89] -> ACCEPTED
+- `BusinessDayRules.cs:98:60:SimpleLambdaExpression` [Line 98] -> ACCEPTED
+- `BusinessDayRules.cs:101:64:SimpleLambdaExpression` [Line 101] -> ACCEPTED
+- `BusinessDayRules.cs:107:5:MethodDeclaration` [Lines 107-110] -> ACCEPTED
+- `BusinessDayRules.cs:125:5:MethodDeclaration` [Lines 125-135] -> ACCEPTED
+- `BusinessDayRules.cs:128:38:SimpleLambdaExpression` [Lines 128-132] -> ACCEPTED
+- `BusinessDayRules.cs:133:36:SimpleLambdaExpression` [Line 133] -> ACCEPTED

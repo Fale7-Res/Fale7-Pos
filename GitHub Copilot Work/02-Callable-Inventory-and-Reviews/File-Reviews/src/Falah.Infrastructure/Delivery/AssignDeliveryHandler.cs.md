@@ -139,10 +139,29 @@ Substantive security, cash custody, and authorization audit of AssignDeliveryHan
 
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
-- **Verification Date:** 2026-10-25T05:38:17Z
+- **Verification Date:** 2026-10-26T02:50:00Z
 - **Source SHA-256 Verified:** `a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b`
 - **Status Upgrade:** DOUBLE_QA_VERIFIED
-- **Challenger Challenge Notes:**
-1. Verified SHA-256 match `a083e3ed905ba0874f782967aa4d3dc9cfbaddbf8fd06c59d4269ff27f0e3e2b` against production source `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs`. All 11 canonical callables in-scope verified against Roslyn AST.
-2. Second-tier challenge confirmed: Validated domain transactional boundaries, business rule enforcement, security access controls, and financial integrity.
-3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 11 callables.
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:29:5:ConstructorDeclaration`:
+     - *Verified Lines 29–34*: Injects `FalahDbContext`, `IApprovalRegistry`, and `IAuditLog`. Pure dependency injection into readonly fields. Verdict: **ACCEPTED**.
+  2. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:36:5:MethodDeclaration`:
+     - *Verified Lines 36–151*: `HandleAsync(AssignDeliveryRequest, CancellationToken)` executes atomic dispatch assignment. Pre-checks idempotency against `DeliveryEvents` using `delivery-assignment-{request.RequestId}`. Enforces `delivery_manage` permission. Acquires pessimistic lock `SELECT ... WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}` inside a ReadCommitted transaction. Enforces that order status is strictly `Ready`. Validates driver assignability via `DeliveryRules.AssertDriverAssignable`. Validates lifecycle state transitions: `Ready -> Assigned` and `Assigned -> OutForDelivery`. Creates `DriverCustodyEntity` in `Open` status for cash orders via `DeliveryRules.CreateCashCustody`. Creates `PrintJobEntity` for driver dispatch ticket with idempotent key `printjob-{request.RequestId}-DriverDispatch`. Logs audit event. Robust exception recovery: intercepts `DbUpdateException`, rolls back transaction, checks for idempotent replay, and returns existing state. Verdict: **ACCEPTED**.
+  3. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:39:89:SimpleLambdaExpression`:
+     - *Verified Line 39*: `e => e.Id == eventId` on `_db.DeliveryEvents.AsNoTracking()`. Idempotency pre-check query predicate. Verdict: **ACCEPTED**.
+  4. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:42:84:SimpleLambdaExpression`:
+     - *Verified Line 42*: `d => d.Id == request.DeliveryId` on `_db.Deliveries.AsNoTracking()`. Replay query reloading delivery entity. Verdict: **ACCEPTED**.
+  5. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:47:76:SimpleLambdaExpression`:
+     - *Verified Line 47*: `u => u.Id == request.ActorUserId` on `_db.Users.AsNoTracking()`. Actor user resolution predicate. Verdict: **ACCEPTED**.
+  6. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:54:83:SimpleLambdaExpression`:
+     - *Verified Line 54*: `u => u.Id == request.ManagerApproverUserId` on `_db.Users.AsNoTracking()`. Manager approver lookup predicate. Verdict: **ACCEPTED**.
+  7. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:71:85:SimpleLambdaExpression`:
+     - *Verified Line 71*: `d => d.Id == request.DriverId` on `_db.Drivers.AsNoTracking()`. Driver existence and profile lookup predicate. Verdict: **ACCEPTED**.
+  8. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:81:77:SimpleLambdaExpression`:
+     - *Verified Line 81*: `o => o.Id == delivery.OrderId` on `_db.Orders.AsNoTracking()`. Loads linked order to compose financial delivery facts. Verdict: **ACCEPTED**.
+  9. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:142:86:SimpleLambdaExpression`:
+     - *Verified Line 142*: `e => e.Id == eventId` on `_db.DeliveryEvents.AsNoTracking()`. DbUpdateException catch handler replay check predicate. Verdict: **ACCEPTED**.
+  10. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:145:88:SimpleLambdaExpression`:
+      - *Verified Line 145*: `d => d.Id == request.DeliveryId` on `_db.Deliveries.AsNoTracking()`. DbUpdateException reload predicate. Verdict: **ACCEPTED**.
+  11. `src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:153:5:MethodDeclaration`:
+      - *Verified Lines 153–155*: `ToResult(DeliveryEntity delivery, bool wasReplayed)` maps entity properties to immutable `AssignDeliveryResult`. Side-effect-free projection. Verdict: **ACCEPTED**.

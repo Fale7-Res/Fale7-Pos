@@ -170,3 +170,39 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **`FIN-GATE-001`** | **MEDIUM** | `AddExpenseHandler.cs:69` | `BusinessDayGate.RequireOpenAsync` executes outside transaction with `AsNoTracking()`. Expenses can commit against a business day that closed mid-flight. | Re-validate business day status inside the transaction using `SELECT ... WITH (UPDLOCK)` on `BusinessDays` before committing movements. |
 | **`FIN-SHIFT-002`** | **MEDIUM** | `AddExpenseHandler.cs:53-55` | Shift open status is verified outside transaction with `AsNoTracking()`. Concurrent shift closure allows expenses to be attributed to a closed shift. | Re-validate shift status inside transaction with `SELECT ... WITH (UPDLOCK)` on `Shifts`. |
+
+## Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Source SHA-256 Verified:** `02f51c8d0598d6772894850b3f02638a5cf57769d75033a62d78a9cf7a69f3a1`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:29:5:ConstructorDeclaration`:
+     - *Verified Lines 29–34*: DI constructor injecting `FalahDbContext`, `IApprovalRegistry`, and `IAuditLog`. Assigns private readonly fields, no mutations or side effects. Verdict: **ACCEPTED**.
+  2. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:36:5:MethodDeclaration`:
+     - *Verified Lines 36–151*: `HandleAsync(AddExpenseRequest, CancellationToken)` orchestrates expense disbursement and financial ledger posting.
+     - *Pre-Checks & Validation*: Idempotency pre-check via `Expenses` using `exp-{request.RequestId}`. Verifies protected account membership (`tre-drawer`, `tre-main`, `tre-bank`, `tre-instapay`). Enforces positive amount, non-empty description, and non-empty category.
+     - *Authorization Gates*: Differentiates drawer vs main treasury expenses: main treasury expenses require direct `expenses_add_main` permission with no approval fallback; drawer expenses permit manager approval fallback via `expenses_add_drawer`.
+     - *Concurrency & Financial Balance Integrity*: Explicit transaction begins at line 70. Acquires pessimistic lock via `TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync` (`SELECT ... WITH (UPDLOCK, HOLDLOCK)`) preventing concurrent overdraft. Financial journal idempotency enforced via `EfFinancialJournal.TryStart`. Records `TreasuryMovement`, `ExpenseEntity`, audit event, and voucher `PrintJobEntity`.
+     - *Verified Findings Confirmed*:
+       - `FIN-GATE-001` (Medium): `BusinessDayGate.RequireOpenAsync` executes outside transaction at line 69 with `AsNoTracking()`. Concurrent business day closure allows expense attribution to closed day.
+       - `FIN-SHIFT-002` (Medium): Shift open status checked at lines 53–55 outside transaction.
+     - *Contention Resilience*: Catch block intercepts `BalanceLockContention` and uses `AwaitSiblingAsync` to await concurrent sibling commit before failing.
+     - Verdict: **ACCEPTED** (with verified architectural findings `FIN-GATE-001` and `FIN-SHIFT-002`).
+  3. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:39:78:SimpleLambdaExpression`:
+     - *Verified Line 39*: `e => e.Id == expenseId` on `_db.Expenses.AsNoTracking()`. Idempotency pre-check lookup. Verdict: **ACCEPTED**.
+  4. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:49:80:SimpleLambdaExpression`:
+     - *Verified Line 49*: `u => u.Id == request.CreatedByUserId` on `_db.Users.AsNoTracking()`. Submitting user lookup. Verdict: **ACCEPTED**.
+  5. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:53:79:SimpleLambdaExpression`:
+     - *Verified Line 53*: `s => s.Id == request.ShiftId` on `_db.Shifts.AsNoTracking()`. Shift lookup. Verdict: **ACCEPTED**.
+  6. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:60:83:SimpleLambdaExpression`:
+     - *Verified Line 60*: `u => u.Id == request.ManagerApproverUserId` on `_db.Users.AsNoTracking()`. Approver lookup. Verdict: **ACCEPTED**.
+  7. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:137:80:SimpleLambdaExpression`:
+     - *Verified Line 137*: `e => e.Id == expenseId` on `_db.Expenses.AsNoTracking()`. Catch-block replay check. Verdict: **ACCEPTED**.
+  8. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:143:21:ParenthesizedLambdaExpression`:
+     - *Verified Line 143*: `async () => await _db.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == expenseId, ct)` polling delegate passed to `BalanceLockContention.AwaitSiblingAsync`. Verdict: **ACCEPTED**.
+  9. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:143:87:SimpleLambdaExpression`:
+     - *Verified Line 143*: `e => e.Id == expenseId` query predicate within polling delegate. Verdict: **ACCEPTED**.
+  10. `src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs:153:5:MethodDeclaration`:
+      - *Verified Lines 153–155*: `ToResult(ExpenseEntity entity, bool wasReplayed)` maps entity fields to immutable `AddExpenseResult`. Zero side effects. Verdict: **ACCEPTED**.
+

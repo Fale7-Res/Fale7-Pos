@@ -88,8 +88,27 @@
 
 ---
 
-## 3. Independent QA Review & Verification
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1 / L2
-- **Verification Date:** 2026-10-25T05:55:00Z
-- **Callable ID Checked:** 7 of 7 in-scope callables verified
-- **Verdict:** ACCEPTED
+## 3. Independent QA L2 Double Challenge
+- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Source SHA-256 Verified:** `d2959ea1c3fa702c47649369dbbe471792ec0e753a6ad61547395a302903ec7b`
+- **Status Upgrade:** DOUBLE_QA_VERIFIED
+- **Challenger Independent Code-Level Findings & Per-Callable Rationale:**
+  1. `src/Falah.Domain/Pricing/PricingRules.cs:12:5:MethodDeclaration`:
+     - *Verified Lines 12–25*: `IsActiveAt(PriceRule rule, DateTimeOffset whenUtc, TimeZoneInfo timeZone)` evaluates promo active status. Converts UTC to configured restaurant time zone. Evaluates DayOfWeek membership. Handles cross-midnight operational shifts accurately: `start <= end ? now >= start && now <= end : now >= start || now <= end`. Half-configured windows safely evaluate to active without crashing. Pure, side-effect-free domain logic. Verdict: **ACCEPTED**.
+  2. `src/Falah.Domain/Pricing/PricingRules.cs:28:5:MethodDeclaration`:
+     - *Verified Lines 28–30*: `ApplicableRules(string productId, IEnumerable<PriceRule> rules, DateTimeOffset whenUtc, TimeZoneInfo timeZone)` filters rule set to those matching product ID and active at the given instant. Pure list projection. Verdict: **ACCEPTED**.
+  3. `src/Falah.Domain/Pricing/PricingRules.cs:30:21:SimpleLambdaExpression`:
+     - *Verified Line 30*: `rule => rule.ProductIds.Contains(productId) && IsActiveAt(rule, whenUtc, timeZone)` predicate filtering applicable rules. Pure evaluation. Verdict: **ACCEPTED**.
+  4. `src/Falah.Domain/Pricing/PricingRules.cs:35:5:MethodDeclaration`:
+     - *Verified Lines 35–42*: `ValidateAppliedRule(string productId, string? ruleId, IEnumerable<PriceRule> rules, DateTimeOffset whenUtc, TimeZoneInfo timeZone)` revalidates applied rules at checkout instant. Protects against promo expiration between item addition and final payment. Verdict: **ACCEPTED**.
+  5. `src/Falah.Domain/Pricing/PricingRules.cs:39:41:SimpleLambdaExpression`:
+     - *Verified Line 39*: `r => r.Id == ruleId` predicate matching specific rule ID. Pure evaluation. Verdict: **ACCEPTED**.
+  6. `src/Falah.Domain/Pricing/PricingRules.cs:46:5:MethodDeclaration`:
+     - *Verified Lines 46–51*: `AssertCompAmount(Money compAmount, Money orderValue)` validates hospitality/comp discounts. Rejects non-positive comp amounts (`compAmount.Piastres <= 0`), rejects zero-value orders (`orderValue.Piastres <= 0`), and asserts `compAmount <= orderValue`. Guarantees financial invariant that comps cannot exceed order total. Verdict: **ACCEPTED**.
+  7. `src/Falah.Domain/Pricing/PricingRules.cs:62:5:MethodDeclaration`:
+     - *Verified Lines 62–66*: `AssertCompReasonCode(string? code)` enforces closed reason taxonomy (`hospitality`, `complaint`, `kitchen_error`, `staff_meal`, `owner_guest`). Prevents unclassified discretionary discounts. Verdict: **ACCEPTED**.
+  8. `src/Falah.Domain/Pricing/PricingRules.cs:74:5:MethodDeclaration`:
+     - *Verified Lines 74–81*: `AssertPriceRuleInput(string name, IReadOnlyCollection<string> productIds, Money fixedPrice, IReadOnlyCollection<int>? daysOfWeek)` validates rule creation/edit inputs. Asserts non-whitespace name, non-empty product collection, positive fixed price (`fixedPrice.IsPositive`), and day-of-week integers between 0 and 6. Verdict: **ACCEPTED**.
+  9. `src/Falah.Domain/Pricing/PricingRules.cs:79:59:SimpleLambdaExpression`:
+     - *Verified Line 79*: `d => d is < 0 or > 6` predicate identifying out-of-range day-of-week indices. Pure boundary check. Verdict: **ACCEPTED**.

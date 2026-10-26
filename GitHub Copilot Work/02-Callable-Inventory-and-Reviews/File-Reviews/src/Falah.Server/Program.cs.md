@@ -5694,16 +5694,65 @@ var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorU
 ---
 
 ## Independent QA L1 Review & Verification
-- **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
-- **Verification Date:** 2026-10-25T08:07:00Z
-- **Source SHA-256 Verified:** `5B11D5B03D7010D890808029D561880A056C6EA922223B70567FC657B7261FC6`
-- **Callable ID Checked:** `src/Falah.Server/Program.cs:1:1:File` (All 241 callables verified)
-- **Verdict:** ACCEPTED
-- **Challenger Analysis:** 
-  - Verified source SHA-256 matches production file `src/Falah.Server/Program.cs`.
-  - Exhaustively reviewed all 241 callables (188 route handlers, middlewares, lambdas, local functions) and confirmed exact canonical IDs, line numbers, and return types.
-  - Validated critical security findings: SEC-001 (casing mismatch bypass in `AuthenticationMiddleware`), unauthenticated request payload actor ingestion instead of `context.ActorId()`, unpermissioned access to sensitive endpoints (`/api/employees`, `/api/payroll-runs`, `/api/backups`, etc.), and lack of manager approval TTL enforcement.
-  - All specialist auditor claims and architectural findings are fully substantiated and accurate. No modifications made to `src/` or `tests/`.
+- **QA Reviewer:** QA-L1-Challenger-Wave4 (Specialist: `audit-qa-l1`)
+- **Verification Date:** 2026-10-26T02:50:00Z
+- **Baseline Git Commit:** `7cefeba`
+- **Source File:** `src/Falah.Server/Program.cs` (2305 lines)
+- **Source SHA-256 Verified:** `5b11d5b03d7010d890808029d561880a056c6ea922223b70567fc657b7261fc6`
+- **Callable Coverage:** 241 of 241 callables independently verified (188 Minimal API route endpoints, 5 rate limiting/host lambdas, 2 CORS lambdas, 1 SQL Server DbContext configuration lambda, 1 diagnostic logging lambda, 2 global exception handling lambdas, and 42 nested predicate/projection lambdas and local functions)
+- **Verdict:** `QA_ACCEPTED`
+
+### Challenger Analysis & Source-Grounded Findings:
+
+1. **Minimal API Route Registrations & Domain Coverage:**
+   - Exhaustively verified all 188 Minimal API route handlers spanning lines 288–2268 across 14 business slices:
+     - Shift Management (`/api/shifts/open`, `/api/shifts/current`, `/api/shifts/prepare-close`, `/api/shifts/close`, `/api/shifts/reconcile-drawer`, `/api/shifts/cash-movement`)
+     - Cash Handover & Treasury (`/api/cash-handovers`, `/api/treasury/movements`)
+     - Expense Management (`/api/expenses`, `/api/expenses/summary`)
+     - Order Processing & Refunds (`/api/orders`, `/api/orders/<built-in function id>`, `/api/orders/<built-in function id>/refund`, `/api/orders/search`)
+     - Menu & Catalog (`/api/categories`, `/api/products`, `/api/products/<built-in function id>/variants`, `/api/price-rules`, `/api/tax-rules`)
+     - Inventory & Kitchen Recipes (`/api/inventory/items`, `/api/inventory/stock-movements`, `/api/recipes`, `/api/prep-recipes`)
+     - Purchasing & Suppliers (`/api/purchases`, `/api/suppliers`, `/api/suppliers/<built-in function id>/ledger`, `/api/purchases/payables-aging`)
+     - Customer & Dispatch (`/api/customers`, `/api/deliveries`, `/api/deliveries/<built-in function id>/assign`, `/api/deliveries/<built-in function id>/reassign`, `/api/deliveries/driver-custody`)
+     - Operational Control Center (`/api/control/business-day/open`, `/api/control/business-day/close`, `/api/control/checklists`, `/api/control/cash-counts`)
+     - Human Resources & Attendance (`/api/employees`, `/api/attendance/check-in`, `/api/attendance/check-out`, `/api/attendance/<built-in function id>/correct`)
+     - Enterprise Payroll (`/api/payroll-runs`, `/api/payroll-runs/<built-in function id>/approve`, `/api/payroll-runs/<built-in function id>/cancel`, `/api/payroll-runs/<built-in function id>/lines`)
+     - Hardware Print Agent (`/api/print-jobs/pending`, `/api/print-jobs/<built-in function id>/attempt`, `/api/print-jobs/<built-in function id>/reprint`)
+     - Authentication & Session (`/api/auth/login-by-pin`, `/api/auth/logout`, `/api/auth/me`)
+     - System Maintenance & Backups (`/api/backups`, `/api/backups/<built-in function id>/download`, `/api/backups/restore`)
+
+2. **Authorization Policy Enforcement & Security Flaws Confirmed:**
+   - **SEC-001 (Middleware Casing Mismatch Bypass):** `AuthenticationMiddleware` uses case-sensitive `TryGetProperty("actorUserId")`. When an untrusted client sends PascalCase `"ActorUserId"`, the middleware bypasses claim enforcement, allowing unauthenticated actors to execute privileged requests.
+   - **SEC-002 (Identity Binding Disconnect):** Zero Minimal API route handlers extract the caller identity from authenticated claims context (`context.ActorId()`). Instead, endpoints directly ingest untrusted caller IDs (`request.ActorUserId`, `request.CashierId`, `request.ClosedByUserId`) from the deserialized request body, enabling impersonation of managers and cashiers.
+   - **Missing Authorization Policies:** 67+ sensitive query and management endpoints lack explicit `.RequireAuthorization()` or permission checks. Endpoints exposing full employee salary PII (`GET /api/employees`), payroll runs (`GET /api/payroll-runs`), financial aging (`GET /api/purchases/payables-aging`), and database backup archives (`GET /api/backups`) can be queried by any network client without authentication.
+
+3. **Global Exception Handling & Error Masking:**
+   - `app.UseExceptionHandler` (lines 253–286) with lambda `branch.Run(async context => ...)` intercepts unhandled exceptions repository-wide.
+   - Maps domain and infrastructure exceptions to standard HTTP status codes:
+     - `ArgumentException` -> 400 Bad Request
+     - `UnauthorizedAccessException` -> 401 Unauthorized
+     - `KeyNotFoundException` -> 404 Not Found
+     - `InvalidOperationException` -> 409 Conflict
+     - `DbUpdateConcurrencyException` -> 409 Conflict
+     - Default unhandled -> 500 Internal Server Error
+   - Verified that detailed internal stack traces and server internals are completely masked from external responses, conforming to security best practices.
+
+4. **CORS Policy Permissiveness:**
+   - Lines 191–193 (`builder.Services.AddCors(...)`): Configures a default policy using `AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()`.
+   - **SEC-013 Confirmed:** Overly permissive wildcard configuration permits arbitrary web browser origins to issue cross-site requests to POS APIs, creating CSRF and browser-based intrusion risks in restaurant local network environments.
+
+5. **Dependency Injection Lifecycles & Startup Wiring:**
+   - `FalahDbContext` is registered as a Scoped service (line 66) using SQL Server with an execution strategy (`EnableRetryOnFailure`) and a 30-second command timeout.
+   - All domain command handlers and query services are registered with Scoped lifetimes, ensuring thread safety and alignment with DbContext unit-of-work boundaries.
+   - Host is integrated with Windows Service hosting (`builder.Host.UseWindowsService(...)`, line 36) for unattended kiosk/server execution.
+   - Connection string credentials are safely masked during diagnostic startup logging (lines 223–225).
+
+6. **Rate Limiting Policies:**
+   - Lines 51–60: Configures IP-based fixed window rate limiting policy (`login`) for `POST /api/auth/login-by-pin`. Defaults to a 60-second window with 10 permit limits, rejecting excess traffic with HTTP 429 Too Many Requests.
+   - Keyed strictly by `context.Connection.RemoteIpAddress`. While mitigating single-host brute force attacks, distributed attacks or shared NAT IP addresses represent known operational boundaries.
+
+### Verified Per-Callable Inventory Ledger (241 Decisions Recorded):
+All 241 callables in `src/Falah.Server/Program.cs` have been individually verified against source lines and committed to `QA_L1_CALLABLE_DECISIONS.json` with verdict `QA_ACCEPTED`.
 
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
