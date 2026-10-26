@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Stop()
 - **Lines:** [16-16]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Stop() across lines 16-16.
+- **Behavior:** Stops the background `_clockTimer` to prevent further periodic UI clock ticks when the header view is disposed.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CallCenterWinUI.Services.AppSession)
 - **Lines:** [20-27]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CallCenterWinUI.Services.AppSession) across lines 20-27.
+- **Behavior:** Injects `AppSession`, formats initial Egyptian Arabic date and time via `UpdateClock()`, sets up a 30-second `DispatcherTimer`, hooks its `Tick` event, and starts the timer.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.SetIdentity(string)
 - **Lines:** [32-32]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.SetIdentity(string) across lines 32-32.
+- **Behavior:** Updates `_restaurantName` backing field with the configured restaurant name and fires `PropertyChanged` for `RestaurantName`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.UpdateClock()
 - **Lines:** [38-44]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.UpdateClock() across lines 38-44.
+- **Behavior:** Formats current system time and date in Egyptian Arabic (`ar-EG`) culture ("hh:mm tt" and "dddd، d MMMM") and assigns them to observable properties `TimeText` and `DateText`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Refresh()
 - **Lines:** [61-69]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel.Refresh() across lines 61-69.
+- **Behavior:** Raises property change notifications for `CanLock`, `IsShiftOpen`, `ShiftLabel`, `UserName`, `UserInitial`, and `RoleLabel` to update Call Center header UI controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

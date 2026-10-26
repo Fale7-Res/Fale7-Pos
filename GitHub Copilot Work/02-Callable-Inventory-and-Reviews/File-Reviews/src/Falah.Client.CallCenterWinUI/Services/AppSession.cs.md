@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.AppSession.AppSession(Falah.Client.CallCenterWinUI.Services.ApiClient?)
 - **Lines:** [16-17]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.AppSession.AppSession(Falah.Client.CallCenterWinUI.Services.ApiClient?) across lines 16-17.
+- **Behavior:** Configures the HTTP `ApiClient` using the supplied client or instantiates one pointing to the `FALAH_SERVER_URL` environment variable (defaulting to `"http://localhost:5151"`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -99,7 +99,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.AppSession.GetOrderDesk(Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel)
 - **Lines:** [27-33]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.AppSession.GetOrderDesk(Falah.Client.CallCenterWinUI.ViewModels.HeaderViewModel) across lines 27-33.
+- **Behavior:** Looks up or creates a `CallCenterViewModel` from `_drafts` for the current user, preserving active phone order line items and customer details across lock-screen transitions.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -110,7 +110,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [38-38]
-- **Behavior:** Executes logic for lambda expression across lines 38-38.
+- **Behavior:** Predicate expression `draft => !draft.CanEditOperation` determining if any active phone order draft is currently engaged in an unresolved financial operation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -121,7 +121,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.AppSession.HasPermission(string)
 - **Lines:** [40-41]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.AppSession.HasPermission(string) across lines 40-41.
+- **Behavior:** Evaluates whether `CurrentUser` holds the necessary authorization by checking for the administrative wildcard `"all"` or matching the specified permission string.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.AppSession.RefreshCurrentShiftAsync(CancellationToken)
 - **Lines:** [46-58]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.AppSession.RefreshCurrentShiftAsync(CancellationToken) across lines 46-58.
+- **Behavior:** Asynchronously queries `Api.GetCurrentShiftAsync(ct)`; on success updates session `ShiftId` and `ShiftName` returning true, or on failure sets them to null and returns false.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

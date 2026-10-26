@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.PermissionDeniedStateView.PermissionDeniedStateView()
 - **Lines:** [8-11]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.PermissionDeniedStateView.PermissionDeniedStateView() across lines 8-11.
+- **Behavior:** Initializes the permission denied user control and instantiates its visual layout via `InitializeComponent()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

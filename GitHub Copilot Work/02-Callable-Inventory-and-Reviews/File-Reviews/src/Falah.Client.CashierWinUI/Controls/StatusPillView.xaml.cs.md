@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.StatusPillView.StatusPillView()
 - **Lines:** [11-14]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.StatusPillView.StatusPillView() across lines 11-14.
+- **Behavior:** Initializes XAML UI components via `InitializeComponent()` for the status pill control.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.StatusPillView.Text.get
 - **Lines:** [18-18]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.StatusPillView.Text.get across lines 18-18.
+- **Behavior:** Accessor 'get' retrieving the string value from `TextProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.StatusPillView.Text.set
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.StatusPillView.Text.set across lines 19-19.
+- **Behavior:** Accessor 'set' storing the string value into `TextProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.StatusPillView.OnTextChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [22-29]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.StatusPillView.OnTextChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 22-29.
+- **Behavior:** Static property-changed callback; assigns the new text value to `view.Label.Text` and applies a dynamic status background brush via `StatusToPillBrushConverter`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

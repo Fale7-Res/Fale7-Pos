@@ -11,7 +11,7 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.SetExceptionStatusHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Lines:** [20-24]
-- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.SetExceptionStatusHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 20-24.
+- **Behavior:** Injects `FalahDbContext` and `IApprovalRegistry` for managing control center exception status overrides and validating manager authorization approvals.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken)
 - **Lines:** [26-70]
-- **Behavior:** Executes logic for Falah.Infrastructure.ControlCenter.SetExceptionStatusHandler.HandleAsync(Falah.Application.BusinessDay.SetExceptionStatusRequest, CancellationToken) across lines 26-70.
+- **Behavior:** Validates that status is 'acknowledged' or 'resolved' and that a non-empty reason is supplied; confirms actor existence and validates manager approval if provided; enforces `control_center` authorization with required approval; upserts the `ControlExceptionStateEntity` keyed by exception ID; appends an audit event to `ControlAuditEvents`; and saves changes to the database.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException, InvalidOperationException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -33,7 +33,7 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [31-31]
-- **Behavior:** Executes logic for lambda expression across lines 31-31.
+- **Behavior:** Predicate expression `u => u.Id == request.ActorUserId` matching the actor user record in `_db.Users`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [38-38]
-- **Behavior:** Executes logic for lambda expression across lines 38-38.
+- **Behavior:** Predicate expression `u => u.Id == request.ManagerApproverUserId` matching the approving manager record in `_db.Users`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [46-46]
-- **Behavior:** Executes logic for lambda expression across lines 46-46.
+- **Behavior:** Predicate expression `e => e.Id == request.ExceptionId` searching for existing exception override state in `_db.ControlExceptionStates`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -70,4 +70,4 @@ Substantive security and authorization audit of SetExceptionStatusHandler.cs.
   - Exhaustively audited all 5 callables in SetExceptionStatusHandler.cs.
   - Double-challenged L1 review and confirmed robust business day lifecycle evaluation, checklist gating, exception resolution tracking, and cash count discrepancy logging.
   - Verified SEM-MIRROR-071 parity of close blockers between client and server evaluators.
-  - No modifications made to src/ or 	ests/.
+  - No modifications made to src/ or tests/.

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.CallCenterOrderPanelView()
 - **Lines:** [13-21]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.CallCenterOrderPanelView() across lines 13-21.
+- **Behavior:** Initializes XAML UI components via `InitializeComponent()` and registers a `DataContextChanged` event handler to wire up cart mutation subscriptions and initialize empty-cart visibility.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ParenthesizedLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [16-20]
-- **Behavior:** Executes logic for lambda expression across lines 16-20.
+- **Behavior:** `DataContextChanged` event handler that subscribes to `vm.Cart.CollectionChanged` with `OnCartChanged` and invokes `UpdateEmptyCartVisibility()`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.OnCartChanged(object?, System.Collections.Specialized.NotifyCollectionChangedEventArgs)
 - **Lines:** [23-23]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.OnCartChanged(object?, System.Collections.Specialized.NotifyCollectionChangedEventArgs) across lines 23-23.
+- **Behavior:** Collection-changed event listener for `ViewModel.Cart` that triggers `UpdateEmptyCartVisibility()` when line items are added, removed, or cleared.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.UpdateEmptyCartVisibility()
 - **Lines:** [25-30]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.UpdateEmptyCartVisibility() across lines 25-30.
+- **Behavior:** Toggles UI element visibility between `EmptyCartHint` and `CartScrollViewer` based on whether the cart has 0 items or contains active order lines.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.OnNoteChipClicked(object, Microsoft.UI.Xaml.RoutedEventArgs)
 - **Lines:** [32-36]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView.OnNoteChipClicked(object, Microsoft.UI.Xaml.RoutedEventArgs) across lines 32-36.
+- **Behavior:** Click handler for quick-note chips on cart items; extracts `CartLine` from DataContext and note text from the button's Tag, calling `vm.AppendNoteText(line, note)`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

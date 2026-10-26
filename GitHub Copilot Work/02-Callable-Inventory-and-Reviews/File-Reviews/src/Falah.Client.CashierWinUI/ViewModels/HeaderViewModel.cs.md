@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop()
 - **Lines:** [16-16]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Stop() across lines 16-16.
+- **Behavior:** Stops the background `_clockTimer` to halt periodic UI clock updates when the view is detached.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CashierWinUI.Services.AppSession)
 - **Lines:** [20-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.CashierWinUI.Services.AppSession) across lines 20-28.
+- **Behavior:** Binds to `AppSession.OperationStateChanged` with `Refresh()`, initializes Egyptian Arabic date/time display via `UpdateClock()`, sets up a 30-second `DispatcherTimer`, subscribes to its `Tick` event, and starts the timer.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.SetIdentity(string)
 - **Lines:** [33-33]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.SetIdentity(string) across lines 33-33.
+- **Behavior:** Updates the `_restaurantName` backing field with the brand identity provided by system configuration and triggers a property-changed notification for `RestaurantName`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.UpdateClock()
 - **Lines:** [39-45]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.UpdateClock() across lines 39-45.
+- **Behavior:** Formats current system time and date using Egyptian Arabic (`ar-EG`) culture ("hh:mm tt" and "dddd، d MMMM") and updates observable properties `TimeText` and `DateText`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh()
 - **Lines:** [62-70]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.HeaderViewModel.Refresh() across lines 62-70.
+- **Behavior:** Raises property change notifications for `CanLock`, `IsShiftOpen`, `ShiftLabel`, `UserName`, `UserInitial`, and `RoleLabel` to synchronize header UI state with the current session.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

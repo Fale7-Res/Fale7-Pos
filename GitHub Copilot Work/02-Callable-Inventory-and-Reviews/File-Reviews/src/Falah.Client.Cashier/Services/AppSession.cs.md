@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.Services.AppSession.HasPermission(string)
 - **Lines:** [15-16]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Services.AppSession.HasPermission(string) across lines 15-16.
+- **Behavior:** Checks whether `CurrentUser` is non-null and possesses either the specified permission key or the wildcard 'all' authority.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 

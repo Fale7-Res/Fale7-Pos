@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.AppHeaderView.AppHeaderView()
 - **Lines:** [13-16]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.AppHeaderView.AppHeaderView() across lines 13-16.
+- **Behavior:** Initializes the application header view layout via `InitializeComponent()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.AppHeaderView.OnLockClicked(object, Microsoft.UI.Xaml.RoutedEventArgs)
 - **Lines:** [18-18]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.AppHeaderView.OnLockClicked(object, Microsoft.UI.Xaml.RoutedEventArgs) across lines 18-18.
+- **Behavior:** Click event handler for the lock button that raises the `LockRequested` event to trigger terminal lock from the parent window.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

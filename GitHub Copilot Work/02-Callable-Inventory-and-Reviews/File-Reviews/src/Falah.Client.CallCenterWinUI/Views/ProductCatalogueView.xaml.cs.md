@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.ProductCatalogueView()
 - **Lines:** [18-25]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.ProductCatalogueView() across lines 18-25.
+- **Behavior:** Initializes the product catalogue view via `InitializeComponent()` and wires `SizeChanged` and `Loaded` callbacks to dynamically calculate responsive tile widths.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.ApplyItemWidth(double)
 - **Lines:** [27-39]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.ApplyItemWidth(double) across lines 27-39.
+- **Behavior:** Dynamically calculates and sets `ItemsWrapGrid.ItemWidth` based on available width and target card size to maintain an evenly filled grid without clipping.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.OnProductClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)
 - **Lines:** [44-48]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.OnProductClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs) across lines 44-48.
+- **Behavior:** GridView item click handler extracting `ProductTile.Product` and executing `CallCenterViewModel.SelectProductCommand`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.OnOfferTapped(object, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs)
 - **Lines:** [54-59]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.ProductCatalogueView.OnOfferTapped(object, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs) across lines 54-59.
+- **Behavior:** Marks the tap event as handled to suppress bubbling to the item click handler and dispatches the tapped `OfferChoice` to `CallCenterViewModel.SelectOfferCommand`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

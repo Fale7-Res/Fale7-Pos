@@ -4,35 +4,35 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:27:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.SetPurchaseDueDateHandler.SetPurchaseDueDateHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.SetPurchaseDueDateHandler.SetPurchaseDueDateHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 27-32.
+- **Behavior**: Injects `FalahDbContext`, `IApprovalRegistry`, and `IAuditLog` dependencies for purchase invoice due date management and auditing.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:34:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Purchasing.SetPurchaseDueDateHandler.HandleAsync(Falah.Application.Purchasing.SetPurchaseDueDateRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Purchasing.SetPurchaseDueDateHandler.HandleAsync(Falah.Application.Purchasing.SetPurchaseDueDateRequest, CancellationToken) across lines 34-60.
+- **Behavior**: Validates actor existence, enforces `purchasing_manage` permission, and retrieves the purchase invoice including lines and payments. If the requested due date matches current due date, returns immediately with replayed status; otherwise updates `purchase.DueDate`, records a structured audit event logging previous and new due dates, commits to database via `SaveChangesAsync`, and returns the mapped `PurchaseDto`.
 - **Validations**: Validation checks detected: True. Throws: InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': True, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:36:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 36-36.
+- **Behavior**: Predicate expression `u => u.Id == request.ActorUserId` matching the actor user record in `_db.Users`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:40:52:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 40-40.
+- **Behavior**: Navigation inclusion expression `p => p.Lines` eager-loading invoice line items.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Purchasing/SetPurchaseDueDateHandler.cs:40:74:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 40-40.
+- **Behavior**: Navigation inclusion expression `p => p.Payments` eager-loading associated payment records.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': True, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.Cashier.Views.LoginView.LoginView()
 - **Lines:** [7-7]
-- **Behavior:** Executes logic for Falah.Client.Cashier.Views.LoginView.LoginView() across lines 7-7.
+- **Behavior:** Initializes the WPF login view user control via `InitializeComponent()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

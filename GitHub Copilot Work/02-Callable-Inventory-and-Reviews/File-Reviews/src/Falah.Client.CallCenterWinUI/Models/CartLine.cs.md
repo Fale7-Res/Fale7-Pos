@@ -187,7 +187,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Models.CartLine.OnQuantityChanged(int)
 - **Lines:** [33-37]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Models.CartLine.OnQuantityChanged(int) across lines 33-37.
+- **Behavior:** Property change notification hook that raises `PropertyChanged` events for dependent computed properties `LineTotalPiastres` and `LineTotalDisplay` when the quantity changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

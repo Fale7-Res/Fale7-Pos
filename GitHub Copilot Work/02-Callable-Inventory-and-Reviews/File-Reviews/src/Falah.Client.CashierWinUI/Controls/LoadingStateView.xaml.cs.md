@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.LoadingStateView.LoadingStateView()
 - **Lines:** [11-15]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.LoadingStateView.LoadingStateView() across lines 11-15.
+- **Behavior:** Initializes the loading state control via `InitializeComponent()` and binds the initial `Message` value to the `MessageBlock.Text` UI label.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.LoadingStateView.Message.get
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.LoadingStateView.Message.get across lines 19-19.
+- **Behavior:** Retrieves the string value of the `MessageProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.LoadingStateView.Message.set
 - **Lines:** [20-20]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.LoadingStateView.Message.set across lines 20-20.
+- **Behavior:** Stores the string value of the `MessageProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Controls.LoadingStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [23-24]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Controls.LoadingStateView.OnMessageChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 23-24.
+- **Behavior:** Property-changed callback updating the `MessageBlock.Text` UI label when the `Message` dependency property changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

@@ -4,35 +4,35 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs:22:5:ConstructorDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.RecordManualLedgerEntryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry)
 - **Kind**: ConstructorDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.RecordManualLedgerEntryHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry) across lines 22-26.
+- **Behavior**: Injects `FalahDbContext` and `IApprovalRegistry` for persisting manual employee ledger entries and verifying manager approval requirements.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs:28:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.HandleAsync(Falah.Application.Employees.RecordManualLedgerEntryRequest, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.RecordManualLedgerEntryHandler.HandleAsync(Falah.Application.Employees.RecordManualLedgerEntryRequest, CancellationToken) across lines 28-76.
+- **Behavior**: Parses and normalizes the ledger entry type into canonical casing, asserts amount is strictly positive via `EmployeeRules.AssertLedgerAmount`, validates presence of description, verifies actor and employee existence, validates manager approval credentials if supplied, enforces `employees_ledger` authorization requiring approval, computes current cumulative balance from sum of credits minus debits, calculates new balance after applying debit or credit, inserts a new `EmployeeLedgerEntryEntity`, saves changes via `SaveChangesAsync`, and returns the mapped `EmployeeLedgerEntryDto`.
 - **Validations**: Validation checks detected: True. Throws: DomainException, DomainException, InvalidOperationException, InvalidOperationException, DomainException.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': True, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs:42:76:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 42-42.
+- **Behavior**: Predicate expression `u => u.Id == request.ActorUserId` matching the actor user record in `_db.Users`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs:46:79:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 46-46.
+- **Behavior**: Predicate expression `e => e.Id == request.EmployeeId` verifying that the target employee exists in `_db.Employees`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/RecordManualLedgerEntryHandler.cs:52:83:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 52-52.
+- **Behavior**: Predicate expression `u => u.Id == request.ManagerApproverUserId` matching the approving manager record in `_db.Users`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 

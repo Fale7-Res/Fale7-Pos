@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.CashInput.TryParse(string?, out long)
 - **Lines:** [7-17]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.CashInput.TryParse(string?, out long) across lines 7-17.
+- **Behavior:** Parses a string representation of an amount in EGP into integer piastres, normalizing Arabic-Indic digits to ASCII and validating positive range and two-decimal precision.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [10-12]
-- **Behavior:** Executes logic for lambda expression across lines 10-12.
+- **Behavior:** Character mapping lambda converting Eastern Arabic/Persian digits and decimal commas to standard Latin digits and dots.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Services.CashInput.Format(long)
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Services.CashInput.Format(long) across lines 19-19.
+- **Behavior:** Formats a piastre count into an invariant decimal currency string with two fractional decimal digits.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

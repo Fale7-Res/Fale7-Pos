@@ -4,14 +4,14 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs:15:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.EmployeeLedgerPoster.GetCurrentBalanceAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.EmployeeLedgerPoster.GetCurrentBalanceAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, CancellationToken) across lines 15-26.
+- **Behavior**: Asynchronously computes an employee's cumulative balance by summing committed credits minus debits from the database and incorporating any uncommitted pending additions from EF Core's ChangeTracker for the employee to prevent undercounting in multi-entry operations.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs:17:75:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 17-17.
+- **Behavior**: Predicate expression `e => e.EmployeeId == employeeId` filtering ledger entries by employee ID.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
@@ -39,14 +39,14 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs:25:47:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 25-25.
+- **Behavior**: Aggregate projection `e => e.CreditPiastres - e.DebitPiastres` calculating net change across loaded database entries.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs:31:5:MethodDeclaration
 - **Symbol**: Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken)
 - **Kind**: MethodDeclaration
-- **Behavior**: Executes logic for Falah.Infrastructure.Employees.EmployeeLedgerPoster.PostIfNewAsync(Falah.Infrastructure.Persistence.FalahDbContext, string, string, string, string, Falah.Domain.Common.Money, Falah.Domain.Common.Money, string, string?, string?, string?, double?, long?, long?, CancellationToken) across lines 31-51.
+- **Behavior**: Deduplicates ledger entries by verifying deterministic ID is not already in local ChangeTracker or database; calculates running balance after debit and credit via `GetCurrentBalanceAsync`, creates and adds a new `EmployeeLedgerEntryEntity`, and returns it (or null if duplicate).
 - **Validations**: Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': True, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': True}
 
@@ -60,7 +60,7 @@
 ## Canonical Callable ID: src/Falah.Infrastructure/Employees/EmployeeLedgerPoster.cs:37:71:SimpleLambdaExpression
 - **Symbol**: lambda expression
 - **Kind**: SimpleLambdaExpression
-- **Behavior**: Executes logic for lambda expression across lines 37-37.
+- **Behavior**: Predicate expression `e => e.Id == id` used in asynchronous database existence check `AnyAsync`.
 - **Validations**: Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile**: {'affects_money': False, 'affects_permissions': False, 'affects_inventory': False, 'affects_orders': False, 'affects_printing': False, 'affects_persistence': False}
 

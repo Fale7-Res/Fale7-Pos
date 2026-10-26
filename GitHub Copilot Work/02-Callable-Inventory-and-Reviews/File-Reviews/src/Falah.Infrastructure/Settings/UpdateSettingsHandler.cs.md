@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.UpdateSettingsHandler.UpdateSettingsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog)
 - **Lines:** [22-27]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.UpdateSettingsHandler.UpdateSettingsHandler(Falah.Infrastructure.Persistence.FalahDbContext, Falah.Domain.Authorization.IApprovalRegistry, Falah.Domain.Audit.IAuditLog) across lines 22-27.
+- **Behavior:** Injects the EF Core `FalahDbContext`, `IApprovalRegistry` for manager permission verification, and `IAuditLog` for recording administrative configuration modifications.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.UpdateSettingsHandler.NormalizeMenuUrl(string)
 - **Lines:** [35-43]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.UpdateSettingsHandler.NormalizeMenuUrl(string) across lines 35-43.
+- **Behavior:** Trims the input URL; returns null if empty (removing QR code from customer receipts); validates that the URL is an absolute URI with an http or https scheme, throwing a `DomainException` if invalid.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Infrastructure.Settings.UpdateSettingsHandler.HandleAsync(Falah.Application.Settings.UpdateSettingsRequest, CancellationToken)
 - **Lines:** [45-132]
-- **Behavior:** Executes logic for Falah.Infrastructure.Settings.UpdateSettingsHandler.HandleAsync(Falah.Application.Settings.UpdateSettingsRequest, CancellationToken) across lines 45-132.
+- **Behavior:** Asynchronously performs a partial merge of incoming settings properties onto the singleton settings row (initializing it from `SettingsQueryService.Defaults` if absent). Validates actor existence, enforces `settings_manage` authorization unless only `GrillScreenSoundAlert` is updated, ensures `DefaultOpeningCashPiastres` is non-negative, normalizes `MenuUrl`, logs an audit event with severity 'warning', commits via `SaveChangesAsync`, and returns the mapped `SettingsDto`.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: true
 
@@ -44,7 +44,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [47-47]
-- **Behavior:** Executes logic for lambda expression across lines 47-47.
+- **Behavior:** Predicate expression `u => u.Id == request.ActorUserId` matching the actor user record in `_db.Users`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Infrastruc
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [63-63]
-- **Behavior:** Executes logic for lambda expression across lines 63-63.
+- **Behavior:** Predicate expression `s => s.Id == SettingsEntity.SingletonId` matching the singleton settings entity in `_db.Settings`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 

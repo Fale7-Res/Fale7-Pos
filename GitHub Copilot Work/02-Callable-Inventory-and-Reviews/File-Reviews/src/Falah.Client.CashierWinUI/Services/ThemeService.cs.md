@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeService.ThemeService()
 - **Lines:** [38-44]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeService.ThemeService() across lines 38-44.
+- **Behavior:** Resolves preference file path in LocalApplicationData (`Falah/preferences/cashier-appearance.json`) and initializes `Current` theme by calling `Load()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeService.Set(Falah.Client.CashierWinUI.Services.AppTheme)
 - **Lines:** [46-55]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeService.Set(Falah.Client.CashierWinUI.Services.AppTheme) across lines 46-55.
+- **Behavior:** Thread-safely updates the `Current` theme setting under `_lock`, persists the choice to disk via `Save(theme)`, and triggers the `Changed` event to immediately notify subscribers.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeService.ToElementTheme(Falah.Client.CashierWinUI.Services.AppTheme)
 - **Lines:** [60-65]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeService.ToElementTheme(Falah.Client.CashierWinUI.Services.AppTheme) across lines 60-65.
+- **Behavior:** Maps the application `AppTheme` selection to native WinUI `ElementTheme` (`ElementTheme.Light`, `ElementTheme.Dark`, or `ElementTheme.Default` for OS System theme matching).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeService.Load()
 - **Lines:** [69-83]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeService.Load() across lines 69-83.
+- **Behavior:** Reads and deserializes JSON preference file `cashier-appearance.json`, parsing the stored theme name and falling back safely to `AppTheme.System` if absent or corrupt.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -88,7 +88,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.ThemeService.Save(Falah.Client.CashierWinUI.Services.AppTheme)
 - **Lines:** [85-100]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.ThemeService.Save(Falah.Client.CashierWinUI.Services.AppTheme) across lines 85-100.
+- **Behavior:** Persists theme setting atomically to disk by creating the parent directory, writing serialized JSON to a temporary file (`.tmp`), and overwriting the destination file via `File.Move`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -98,7 +98,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 ## Independent QA L1 Review & Verification
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L1
 - **Verification Date:** 2026-10-25T05:57:45Z
-- **Source SHA-256 Verified:** `283b346b238c9c8fff8b920cfab3c2507a2590ff0a8a1372d737a8b1d6ed31c8`
+- **Source SHA-256 Verified:** `54df4ca74e64f7b6d19a0a035272a8fe77cb2d80dff0cfa6667104b904e57e9c`
 - **Callable ID Checked:** All 8 callables in `src/Falah.Client.CashierWinUI/Services/ThemeService.cs` verified
 - **Verdict:** ACCEPTED
 - **Challenger Analysis:** Independently inspected client source file `src/Falah.Client.CashierWinUI/Services/ThemeService.cs`. Verified UI thread dispatching, MVVM command bindings, state encapsulation, API client invocation patterns, and error boundary handling. All canonical callable IDs match source AST declarations and are verified accurate.
@@ -107,9 +107,9 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 ## Independent QA L2 Double Challenge
 - **QA Reviewer:** INDEPENDENT_AUDIT_QA_L2 (Tier 2 Lead Challenger)
 - **Verification Date:** 2026-10-25T05:57:51Z
-- **Source SHA-256 Verified:** `283b346b238c9c8fff8b920cfab3c2507a2590ff0a8a1372d737a8b1d6ed31c8`
+- **Source SHA-256 Verified:** `54df4ca74e64f7b6d19a0a035272a8fe77cb2d80dff0cfa6667104b904e57e9c`
 - **Status Upgrade:** DOUBLE_QA_VERIFIED
 - **Challenger Challenge Notes:**
-1. Verified SHA-256 match `283b346b238c9c8fff8b920cfab3c2507a2590ff0a8a1372d737a8b1d6ed31c8` against client source `src/Falah.Client.CashierWinUI/Services/ThemeService.cs`. All 8 canonical callables in-scope verified against Roslyn AST.
+1. Verified SHA-256 match `54df4ca74e64f7b6d19a0a035272a8fe77cb2d80dff0cfa6667104b904e57e9c` against client source `src/Falah.Client.CashierWinUI/Services/ThemeService.cs`. All 8 canonical callables in-scope verified against Roslyn AST.
 2. Second-tier challenge confirmed: Validated client-side state synchronization, UI thread dispatch safety, offline request durability, and cross-client architectural parity.
 3. Elevation to `DOUBLE_QA_VERIFIED` accepted across all 8 callables.

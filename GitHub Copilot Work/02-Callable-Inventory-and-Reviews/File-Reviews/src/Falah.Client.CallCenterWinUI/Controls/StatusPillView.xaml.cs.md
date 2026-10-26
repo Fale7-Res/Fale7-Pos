@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.StatusPillView.StatusPillView()
 - **Lines:** [11-14]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.StatusPillView.StatusPillView() across lines 11-14.
+- **Behavior:** Initializes the status pill control via `InitializeComponent()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** GetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.StatusPillView.Text.get
 - **Lines:** [18-18]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.StatusPillView.Text.get across lines 18-18.
+- **Behavior:** Retrieves the text string from the `TextProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SetAccessorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.StatusPillView.Text.set
 - **Lines:** [19-19]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.StatusPillView.Text.set across lines 19-19.
+- **Behavior:** Stores the text string into the `TextProperty` dependency property.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Controls.StatusPillView.OnTextChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs)
 - **Lines:** [22-29]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Controls.StatusPillView.OnTextChanged(Microsoft.UI.Xaml.DependencyObject, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs) across lines 22-29.
+- **Behavior:** Dependency property callback that updates the `Label.Text` UI string and dynamically applies background pill brush styling using `StatusToPillBrushConverter`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

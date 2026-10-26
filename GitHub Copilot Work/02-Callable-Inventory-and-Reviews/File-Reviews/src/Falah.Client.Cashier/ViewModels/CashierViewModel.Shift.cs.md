@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.CashierViewModel.OpenShiftAsync()
 - **Lines:** [13-49]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.CashierViewModel.OpenShiftAsync() across lines 13-49.
+- **Behavior:** Validates opening cash text input, executes shift opening via `ApiClient.OpenShiftAsync`, records returned shift ID and name in session, triggers header refresh, and initiates menu catalog loading.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

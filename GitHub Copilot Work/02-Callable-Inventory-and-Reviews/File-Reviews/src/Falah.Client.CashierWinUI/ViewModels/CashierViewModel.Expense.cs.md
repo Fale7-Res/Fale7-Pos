@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenAddExpense()
 - **Lines:** [29-40]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.OpenAddExpense() across lines 29-40.
+- **Behavior:** Prepares and displays the drawer petty-cash expense modal if `CanEditOperation` is true; resets category, amount, description, manager PIN, and error states, opens modal (`IsAddExpenseOpen = true`), and notifies the UI of `ExpenseNeedsApproval`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SetExpenseCategory(string)
 - **Lines:** [42-43]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SetExpenseCategory(string) across lines 42-43.
+- **Behavior:** Updates the observable `ExpenseCategory` property with the user-selected expense classification.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CancelAddExpense()
 - **Lines:** [45-46]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CancelAddExpense() across lines 45-46.
+- **Behavior:** Dismisses the expense modal; prevents dismissal when operation is busy or when an unresolved pending expense exists (requiring retry before closing), otherwise sets `IsAddExpenseOpen = false`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitExpenseAsync()
 - **Lines:** [48-103]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.SubmitExpenseAsync() across lines 48-103.
+- **Behavior:** Asynchronously processes drawer expense recording. Re-attempts `CompleteExpenseAsync` if an unresolved pending expense is present; validates amount in piastres via `CashInput.TryParse` (> 0) and non-empty description; if cashier lacks `expenses_add_drawer`, validates 4-digit manager PIN and requests an approval token via `_session.Api.IssueManagerApprovalAsync`; constructs an `AddExpenseRequest` with active shift and drawer account ID, and delegates to `CompleteExpenseAsync`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteExpenseAsync(Falah.Application.Expenses.AddExpenseRequest)
 - **Lines:** [106-122]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.CashierViewModel.CompleteExpenseAsync(Falah.Application.Expenses.AddExpenseRequest) across lines 106-122.
+- **Behavior:** Handles idempotent dispatch of the expense request via `_session.Api.AddExpenseAsync(request)`. Stores the request in `_pendingExpense` before execution and clears it upon conclusive success or failure; regenerates the request ID on success and closes the modal; or populates `ExpenseError` on failure.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

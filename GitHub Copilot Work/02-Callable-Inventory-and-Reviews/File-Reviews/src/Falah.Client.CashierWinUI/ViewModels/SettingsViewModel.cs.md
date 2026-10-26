@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SettingsViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)
 - **Lines:** [25-30]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SettingsViewModel(Falah.Client.CashierWinUI.Services.AppSession, Falah.Client.CashierWinUI.ViewModels.HeaderViewModel) across lines 25-30.
+- **Behavior:** Injects `AppSession` and `HeaderViewModel`, and calls `InitializeAppearance()` to load the local client theme configuration.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance()
 - **Lines:** [34-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.InitializeAppearance() across lines 34-34.
+- **Behavior:** Partial method declaration implemented in `SettingsViewModel.Appearance.cs` to initialize local UI appearance and theme controls.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.LoadAsync()
 - **Lines:** [69-109]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.LoadAsync() across lines 69-109.
+- **Behavior:** Asynchronously fetches singleton settings via `_session.Api.GetSettingsAsync()`; populates view-model properties for identity, contact information, receipt footer, QR menu URL, delivery fee, cash discrepancy threshold, overtime rate, opening cash float, lock timer, print flags, and kitchen hold option, notifying UI of `HasData` and `CanEdit`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SaveAsync()
 - **Lines:** [111-175]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.SettingsViewModel.SaveAsync() across lines 111-175.
+- **Behavior:** Validates form inputs including non-negative default opening cash float and positive amounts via `CashInput.TryParse`, as well as numeric ranges for auto-lock minutes and receipt copies; dispatches `UpdateSettingsRequest` via `_session.Api.UpdateSettingsAsync`; on success caches updated settings DTO, sets `SavedNote`, and calls `_header.SetIdentity(RestaurantName)` to immediately update the visible header branding.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

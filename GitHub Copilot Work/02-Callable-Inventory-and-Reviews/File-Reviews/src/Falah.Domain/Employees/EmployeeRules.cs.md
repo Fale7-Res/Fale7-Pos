@@ -11,7 +11,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Emp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Employees.EmployeeRules.AssertEmployeeInput(string, string, string, string)
 - **Lines:** [11-17]
-- **Behavior:** Executes logic for Falah.Domain.Employees.EmployeeRules.AssertEmployeeInput(string, string, string, string) across lines 11-17.
+- **Behavior:** Validates employee master profile inputs, asserting that name, employeeNumber, jobTitle, and phone are non-empty and non-whitespace, throwing Arabic `DomainException` messages if missing.
 - **Validations:** Validation checks detected: True. Throws: DomainException, DomainException, DomainException, DomainException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Emp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Employees.EmployeeRules.CalculateBalance(IEnumerable<Falah.Domain.Employees.EmployeeLedgerEntry>)
 - **Lines:** [21-26]
-- **Behavior:** Executes logic for Falah.Domain.Employees.EmployeeRules.CalculateBalance(IEnumerable<Falah.Domain.Employees.EmployeeLedgerEntry>) across lines 21-26.
+- **Behavior:** Calculates the net employee account balance in exact integer piastres by summing credit piastres and debit piastres across all supplied ledger entries and returning the net difference (`totalCredits - totalDebits`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Emp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Employees.EmployeeRules.AssertLedgerAmount(Falah.Domain.Common.Money)
 - **Lines:** [30-33]
-- **Behavior:** Executes logic for Falah.Domain.Employees.EmployeeRules.AssertLedgerAmount(Falah.Domain.Common.Money) across lines 30-33.
+- **Behavior:** Enforces that a manual or automated employee ledger movement amount is strictly positive (`amount.IsPositive`), throwing a `DomainException` if zero or negative.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Emp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Employees.EmployeeRules.AssertWithdrawalWithinBalance(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Lines:** [37-40]
-- **Behavior:** Executes logic for Falah.Domain.Employees.EmployeeRules.AssertWithdrawalWithinBalance(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 37-40.
+- **Behavior:** Enforces business rule that an employee cash withdrawal from the drawer cannot exceed their currently accrued unpaid balance (`amount > currentBalance`), preventing negative employee account balances.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -77,7 +77,7 @@ Substantive security, lifecycle, and authorization audit of src/Falah.Domain/Emp
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Domain.Employees.EmployeeRules.AssertPaymentWithinBalance(Falah.Domain.Common.Money, Falah.Domain.Common.Money)
 - **Lines:** [46-49]
-- **Behavior:** Executes logic for Falah.Domain.Employees.EmployeeRules.AssertPaymentWithinBalance(Falah.Domain.Common.Money, Falah.Domain.Common.Money) across lines 46-49.
+- **Behavior:** Enforces that an official salary or wage disbursement to an employee cannot exceed their outstanding balance owed (`amount > currentBalance`), ensuring the business never overpays an employee.
 - **Validations:** Validation checks detected: True. Throws: DomainException.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 

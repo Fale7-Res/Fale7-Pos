@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OnMainTreasuryBalancePiastresChanged(long?)
 - **Lines:** [36-36]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OnMainTreasuryBalancePiastresChanged(long?) across lines 36-36.
+- **Behavior:** Property change callback that raises `PropertyChanged` for `MainTreasuryIsEmpty` whenever the tracked main treasury balance changes.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenOpenShiftModalAsync()
 - **Lines:** [38-68]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.OpenOpenShiftModalAsync() across lines 38-68.
+- **Behavior:** Prepares and displays the shift opening modal; checks `CanOpenShift` and `!HasActiveShift`; selects default morning shift; loads suggested default opening cash from settings (`GetSettingsAsync`); if operator is authorized, queries `GetTreasuryBalanceAsync("tre-main")` and bounds suggested cash to available funds; formats text via `CashInput.Format` and sets `IsOpenShiftModalOpen = true`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CloseOpenShiftModal()
 - **Lines:** [70-71]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.CloseOpenShiftModal() across lines 70-71.
+- **Behavior:** Dismisses the open shift modal by setting `IsOpenShiftModalOpen = false`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmOpenShiftAsync()
 - **Lines:** [73-115]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.ViewModels.ShiftsViewModel.ConfirmOpenShiftAsync() across lines 73-115.
+- **Behavior:** Submits shift opening command; parses opening cash (>= 0); dispatches `OpenShiftRequest` with generated request ID, shift name, and opening piastres via `_session.Api.OpenShiftAsync`; masks raw "insufficient source balance" errors for users lacking main treasury permissions; on success closes modal, refreshes header, and reloads shifts via `LoadAsync()`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: true, Affects Permissions: true, Affects Persistence: false
 

@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ProductCatalogueView.ProductCatalogueView()
 - **Lines:** [18-25]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ProductCatalogueView.ProductCatalogueView() across lines 18-25.
+- **Behavior:** Calls `InitializeComponent()` and registers event handlers for `ProductsGridView.SizeChanged` and `UserControl.Loaded` to dynamically adapt product card item widths across various POS display resolutions.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ProductCatalogueView.ApplyItemWidth(double)
 - **Lines:** [27-39]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ProductCatalogueView.ApplyItemWidth(double) across lines 27-39.
+- **Behavior:** Calculates the responsive column count (at least 2) and configures `panel.ItemWidth` on `ItemsWrapGrid` based on usable width minus padding, leaving `ItemHeight` automatic so variable card content heights are accommodated without clipping.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ProductCatalogueView.OnProductClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)
 - **Lines:** [44-48]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ProductCatalogueView.OnProductClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs) across lines 44-48.
+- **Behavior:** GridView item click handler; casts clicked item to `ProductTile` and executes `ViewModel.SelectProductCommand` with `tile.Product`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -66,7 +66,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Views.ProductCatalogueView.OnOfferTapped(object, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs)
 - **Lines:** [54-59]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Views.ProductCatalogueView.OnOfferTapped(object, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs) across lines 54-59.
+- **Behavior:** Offer chip tap handler; marks `e.Handled = true` to stop event bubbling to the parent GridViewItem (preventing accidental base product selection) and executes `ViewModel.SelectOfferCommand` with the clicked `OfferChoice`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

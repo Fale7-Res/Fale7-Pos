@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.Cashier.Services.AppSession)
 - **Lines:** [19-26]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.HeaderViewModel.HeaderViewModel(Falah.Client.Cashier.Services.AppSession) across lines 19-26.
+- **Behavior:** Captures the shared `AppSession`, performs initial clock formatting via `UpdateClock`, and starts a `DispatcherTimer` set to refresh every 30 seconds.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.HeaderViewModel.UpdateClock()
 - **Lines:** [34-40]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.HeaderViewModel.UpdateClock() across lines 34-40.
+- **Behavior:** Reads current local time and formats Arabic time and date strings using `ar-EG` culture, updating `TimeText` and `DateText` properties.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.Cashier.ViewModels.HeaderViewModel.Refresh()
 - **Lines:** [55-61]
-- **Behavior:** Executes logic for Falah.Client.Cashier.ViewModels.HeaderViewModel.Refresh() across lines 55-61.
+- **Behavior:** Notifies property change updates for shift status and operator identity properties (`IsShiftOpen`, `ShiftLabel`, `UserName`, and `RoleLabel`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

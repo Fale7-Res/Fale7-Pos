@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.AppSession.AppSession(Falah.Client.CashierWinUI.Services.ApiClient?)
 - **Lines:** [11-11]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.AppSession.AppSession(Falah.Client.CashierWinUI.Services.ApiClient?) across lines 11-11.
+- **Behavior:** Initializes the HTTP `ApiClient` using the provided instance or falls back to the `FALAH_SERVER_URL` environment variable (defaulting to `"http://localhost:5151"`).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [12-12]
-- **Behavior:** Executes logic for lambda expression across lines 12-12.
+- **Behavior:** Predicate expression `vm => !vm.CanEditOperation || vm.IsOperationBusy` checking if any active cashier view-model has an unresolved or in-flight operation.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.AppSession.SetManagementOperationPending(object, bool)
 - **Lines:** [16-20]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.AppSession.SetManagementOperationPending(object, bool) across lines 16-20.
+- **Behavior:** Tracks in-flight background/management tasks in `_managementOperations` and fires `OperationStateChanged` whenever an operation begins or ends.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: true
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.AppSession.GetCashier(Falah.Client.CashierWinUI.ViewModels.HeaderViewModel)
 - **Lines:** [22-28]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.AppSession.GetCashier(Falah.Client.CashierWinUI.ViewModels.HeaderViewModel) across lines 22-28.
+- **Behavior:** Retrieves or instantiates a user-scoped `CashierViewModel` from `_drafts` for `CurrentUser.Id`, retaining drafts and operation states across screen navigations.
 - **Validations:** Validation checks detected: True. Throws: InvalidOperationException.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -132,7 +132,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CashierWinUI.Services.AppSession.HasPermission(string)
 - **Lines:** [33-34]
-- **Behavior:** Executes logic for Falah.Client.CashierWinUI.Services.AppSession.HasPermission(string) across lines 33-34.
+- **Behavior:** Verifies whether `CurrentUser` is non-null and possesses the wildcard permission `"all"` or the specific requested permission string.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: true, Affects Persistence: false
 

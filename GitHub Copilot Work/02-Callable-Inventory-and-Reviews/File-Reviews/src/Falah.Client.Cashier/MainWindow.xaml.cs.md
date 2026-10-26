@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.Cashier.MainWindow.MainWindow()
 - **Lines:** [18-22]
-- **Behavior:** Executes logic for Falah.Client.Cashier.MainWindow.MainWindow() across lines 18-22.
+- **Behavior:** Initializes the WPF window components via `InitializeComponent()` and binds `DataContext` to a new `MainViewModel` instance.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

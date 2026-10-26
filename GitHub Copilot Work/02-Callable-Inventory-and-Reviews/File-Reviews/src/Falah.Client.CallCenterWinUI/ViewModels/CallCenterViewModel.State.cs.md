@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsProcessingCheckoutChanged(bool)
 - **Lines:** [27-27]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsProcessingCheckoutChanged(bool) across lines 27-27.
+- **Behavior:** Property change callback for `IsProcessingCheckout` that invokes `RefreshOperationState` to update operation status flags and command executability.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsReprintingChanged(bool)
 - **Lines:** [28-28]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsReprintingChanged(bool) across lines 28-28.
+- **Behavior:** Property change callback for `IsReprinting` that invokes `RefreshOperationState`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -44,7 +44,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsLookingUpOrderChanged(bool)
 - **Lines:** [29-29]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.OnIsLookingUpOrderChanged(bool) across lines 29-29.
+- **Behavior:** Property change callback for `IsLookingUpOrder` that invokes `RefreshOperationState`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -55,7 +55,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.RefreshOperationState()
 - **Lines:** [31-37]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel.RefreshOperationState() across lines 31-37.
+- **Behavior:** Centralizes state refresh by notifying changes for `IsOperationBusy` and `CanEditOperation`, re-evaluating `SubmitOrderCommand` executability, and updating header UI status.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

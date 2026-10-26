@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** SimpleLambdaExpression
 - **Symbol:** lambda expression
 - **Lines:** [23-23]
-- **Behavior:** Executes logic for lambda expression across lines 23-23.
+- **Behavior:** Lambda selector expression (`v => v.PricePiastres`) extracting variant price in piastres to determine minimum starting price across variants.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -33,7 +33,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto)
 - **Lines:** [44-44]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Models.CategoryTile.CategoryTile(Falah.Application.Menu.MenuCategoryDto) across lines 44-44.
+- **Behavior:** Initializes the category tile model with the underlying `MenuCategoryDto`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

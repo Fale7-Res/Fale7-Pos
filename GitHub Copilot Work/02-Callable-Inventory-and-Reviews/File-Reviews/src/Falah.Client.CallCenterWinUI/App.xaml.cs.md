@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.App.App()
 - **Lines:** [12-19]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.App.App() across lines 12-19.
+- **Behavior:** Initializes application resources via `InitializeComponent()` and configures persistent retained request storage for offline recovery in the Call Center directory.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)
 - **Lines:** [21-30]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs) across lines 21-30.
+- **Behavior:** Lifecycle method activated on launch that instantiates and activates `MainWindow` (or starts `NativeScreenLayoutProbe` in layout verification builds).
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 

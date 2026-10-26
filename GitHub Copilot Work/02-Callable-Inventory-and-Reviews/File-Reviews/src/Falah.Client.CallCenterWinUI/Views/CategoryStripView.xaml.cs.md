@@ -11,7 +11,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** ConstructorDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CategoryStripView.CategoryStripView()
 - **Lines:** [11-11]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CategoryStripView.CategoryStripView() across lines 11-11.
+- **Behavior:** Initializes the category horizontal strip control via `InitializeComponent()`.
 - **Validations:** Validation checks detected: False. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
@@ -22,7 +22,7 @@ Substantive client architecture, thread-safety, and UI state audit of src/Falah.
 - **Kind:** MethodDeclaration
 - **Symbol:** Falah.Client.CallCenterWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs)
 - **Lines:** [13-17]
-- **Behavior:** Executes logic for Falah.Client.CallCenterWinUI.Views.CategoryStripView.OnCategoryClicked(object, Microsoft.UI.Xaml.Controls.ItemClickEventArgs) across lines 13-17.
+- **Behavior:** Item click handler that casts the clicked item to `CategoryTile` and dispatches it to `CallCenterViewModel.SelectCategoryCommand`.
 - **Validations:** Validation checks detected: True. Throws: None detected in body.
 - **Risk Profile:** Affects Money: false, Affects Permissions: false, Affects Persistence: false
 
