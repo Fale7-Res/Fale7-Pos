@@ -8075,11 +8075,2163 @@
       "verdict": "ACCEPTED",
       "verdict_rationale": "Complete DTO projection.",
       "decided_at_utc": "2026-10-25T13:55:00Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:26:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:26:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "EvaluateAsync gathers financial and operational inputs straight from SQL Server persistence tables (Shifts, DriverCustodies, FinancialJournalEntries, Orders, ChecklistItems, ChecklistCompletions, TreasuryMovements) and delegates to pure domain BusinessDayRules.EvaluateCloseBlockers.",
+      "counterevidence_and_edge_cases": "Executes AsNoTracking read-only queries. Verified finding FIN-035: Shifts, DriverCustodies, and FinancialJournalEntries are scanned without day/date predicate filtering, creating historical full-table scan overhead. PersistenceHealthy and WriterOwned are deliberately hardcoded to true for SQL Server ACID semantics.",
+      "counterevidence_checked": "Executes AsNoTracking read-only queries. Verified finding FIN-035: Shifts, DriverCustodies, and FinancialJournalEntries are scanned without day/date predicate filtering, creating historical full-table scan overhead. PersistenceHealthy and WriterOwned are deliberately hardcoded to true for SQL Server ACID semantics.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately evaluates all closing blockers and correctly verifies finding FIN-035 (global unbounded query scan).",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:28:60:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:28:60:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline projection lambda 's => new { s.Id, s.Status }' selecting shift ID and status for shift closure evaluation.",
+      "counterevidence_and_edge_cases": "Lightweight anonymous projection minimizes payload over EF Core; operates within AsNoTracking query.",
+      "counterevidence_checked": "Lightweight anonymous projection minimizes payload over EF Core; operates within AsNoTracking query.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects minimal shift attributes for domain gating rules.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:29:78:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:29:78:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline projection lambda 'c => new { c.Id, c.Status }' selecting driver custody ID and status.",
+      "counterevidence_and_edge_cases": "Lightweight projection minimizing memory overhead; part of unbounded custody scan under FIN-035.",
+      "counterevidence_checked": "Lightweight projection minimizing memory overhead; part of unbounded custody scan under FIN-035.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately captures driver custody settlement status.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:30:85:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:30:85:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline projection lambda 'j => new { j.IdempotencyKey, j.Status }' selecting financial journal entry idempotency key and status.",
+      "counterevidence_and_edge_cases": "Extracts journal status to verify background journal completion before day close.",
+      "counterevidence_checked": "Extracts journal status to verify background journal completion before day close.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly extracts journal key and status fields.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:32:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:32:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline predicate lambda 'o => o.ElectronicPaymentStatus == \"Pending\"' filtering orders with pending electronic payment confirmation.",
+      "counterevidence_and_edge_cases": "Prevents day close while digital payments remain unconfirmed; evaluates against persisted Orders table.",
+      "counterevidence_checked": "Prevents day close while digital payments remain unconfirmed; evaluates against persisted Orders table.",
+      "findings_evaluated": [
+        "FIN-001",
+        "FIN-002"
+      ],
+      "findings_verified": [
+        "FIN-001",
+        "FIN-002"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly isolates pending electronic orders as day-close blockers.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:32:72:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:32:72:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline selector lambda 'o => o.Id' extracting order ID for pending electronic orders.",
+      "counterevidence_and_edge_cases": "Projects order primary key string/Guid without loading full entity graph.",
+      "counterevidence_checked": "Projects order primary key string/Guid without loading full entity graph.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate primary key projection.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:35:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:35:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline predicate lambda 'i => i.Phase == \"Closing\" && i.Active && i.Required' selecting active mandatory closing checklist items.",
+      "counterevidence_and_edge_cases": "Properly filters closing checklist items in SQL WHERE clause.",
+      "counterevidence_checked": "Properly filters closing checklist items in SQL WHERE clause.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly scopes required checklist items to the closing phase.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:36:78:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:36:78:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Inline predicate lambda 'c => c.BusinessDayId == day.Id' selecting completions for the target business day.",
+      "counterevidence_and_edge_cases": "Accurately restricts completion records to the specific business day being closed.",
+      "counterevidence_checked": "Accurately restricts completion records to the specific business day being closed.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly indexed foreign key filtering on BusinessDayId.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:38:21:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:38:21:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'i => (i.Id, i.Label, completions.Any(...))' pairing checklist items with completion status.",
+      "counterevidence_and_edge_cases": "Pure in-memory tuple construction for domain inputs.",
+      "counterevidence_checked": "Pure in-memory tuple construction for domain inputs.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately constructs required checklist input tuples.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:38:58:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:38:58:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory predicate lambda 'c => c.ItemId == i.Id && c.Completed' matching completion record to checklist item ID.",
+      "counterevidence_and_edge_cases": "Evaluates in-memory across the day's completion records; checks Completed boolean.",
+      "counterevidence_checked": "Evaluates in-memory across the day's completion records; checks Completed boolean.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly verifies checklist item completion status.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:44:35:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:44:35:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 's => (s.Id, s.Status == \"Closed\")' mapping shift entities to closure tuples.",
+      "counterevidence_and_edge_cases": "Checks canonical 'Closed' status string in memory.",
+      "counterevidence_checked": "Checks canonical 'Closed' status string in memory.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately determines whether each shift is closed.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:46:53:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:46:53:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'c => (c.Id, c.Status == nameof(CustodyStatus.Settled))' mapping custody records to settled boolean tuples.",
+      "counterevidence_and_edge_cases": "Uses type-safe nameof(CustodyStatus.Settled) check.",
+      "counterevidence_checked": "Uses type-safe nameof(CustodyStatus.Settled) check.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately determines custody settlement status.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:47:51:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:47:51:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'j => (j.IdempotencyKey, j.Status == \"Complete\")' mapping journal entries to completion tuples.",
+      "counterevidence_and_edge_cases": "Verifies 'Complete' status string for financial journal records.",
+      "counterevidence_checked": "Verifies 'Complete' status string for financial journal records.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately identifies completed journal entries.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:48:54:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:48:54:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'id => (id, true)' mapping pending order IDs to domain blocker input tuples.",
+      "counterevidence_and_edge_cases": "Marks pending electronic order IDs as active blocking conditions.",
+      "counterevidence_checked": "Marks pending electronic order IDs as active blocking conditions.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly flags pending orders as blockers.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:62:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:62:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ComputeReconciliationChecksAsync performs defensive reconciliation checks on database invariants: duplicate idempotency keys, negative protected treasury balances, and unauthorized drawer discrepancies.",
+      "counterevidence_and_edge_cases": "Queries TreasuryMovements with AsNoTracking. Correctly verifies duplicate idempotency keys across all movements, verifies net balance non-negativity for protected accounts (Main, Drawer, Bank, InstaPay, Wallet), and checks shift drawer cash differences against threshold. Subject to FIN-035 in memory summation across all time.",
+      "counterevidence_checked": "Queries TreasuryMovements with AsNoTracking. Correctly verifies duplicate idempotency keys across all movements, verifies net balance non-negativity for protected accounts (Main, Drawer, Bank, InstaPay, Wallet), and checks shift drawer cash differences against threshold. Subject to FIN-035 in memory summation across all time.",
+      "findings_evaluated": [
+        "FIN-035",
+        "FIN-011"
+      ],
+      "findings_verified": [
+        "FIN-035",
+        "FIN-011"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately evaluates treasury and shift reconciliation invariants.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:67:22:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:67:22:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "GroupBy key selector lambda 'm => m.IdempotencyKey' on TreasuryMovements.",
+      "counterevidence_and_edge_cases": "Translates to SQL GROUP BY IdempotencyKey to detect duplicate postings.",
+      "counterevidence_checked": "Translates to SQL GROUP BY IdempotencyKey to detect duplicate postings.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly groups movements by idempotency key.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:67:51:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:67:51:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Having filter lambda 'g => g.Count() > 1' on grouped TreasuryMovements.",
+      "counterevidence_and_edge_cases": "Translates to SQL HAVING COUNT(*) > 1 to identify duplicate idempotency keys.",
+      "counterevidence_checked": "Translates to SQL HAVING COUNT(*) > 1 to identify duplicate idempotency keys.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately detects idempotency key collisions.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:71:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:71:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'm => m.Status == nameof(MovementStatus.Posted)' selecting posted treasury movements.",
+      "counterevidence_and_edge_cases": "Restricts balance reconciliation to posted movements, ignoring cancelled or pending movements.",
+      "counterevidence_checked": "Restricts balance reconciliation to posted movements, ignoring cancelled or pending movements.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly scopes balance evaluation to posted treasury movements.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:72:21:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:72:21:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda 'm => new { m.SourceAccountId, m.DestinationAccountId, m.AmountPiastres }' extracting movement accounts and amount.",
+      "counterevidence_and_edge_cases": "Projects only required fields for balance calculation over memory.",
+      "counterevidence_checked": "Projects only required fields for balance calculation over memory.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects financial movement flow fields.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:75:47:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:75:47:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory aggregation lambda calculating net balance inflows minus outflows for a protected account.",
+      "counterevidence_and_edge_cases": "Sums destination inflows minus source outflows in piastres; compares against zero to detect negative protected balance.",
+      "counterevidence_checked": "Sums destination inflows minus source outflows in piastres; compares against zero to detect negative protected balance.",
+      "findings_evaluated": [
+        "FIN-011"
+      ],
+      "findings_verified": [
+        "FIN-011"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly calculates net account balance.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:81:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:81:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 's => s.BusinessDate == day.BusinessDate && s.CashDifferencePiastres != null && s.DifferenceAuthorizedBy == null' selecting shifts with unauthorized discrepancies.",
+      "counterevidence_and_edge_cases": "Day-scoped on BusinessDate; correctly handles null cash difference and null difference authorization.",
+      "counterevidence_checked": "Day-scoped on BusinessDate; correctly handles null cash difference and null difference authorization.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately isolates unauthorized drawer discrepancies for the business date.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:82:23:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs:82:23:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "AnyAsync predicate lambda 's => s.CashDifferencePiastres! > threshold || s.CashDifferencePiastres! < -threshold' evaluating discrepancy threshold breach.",
+      "counterevidence_and_edge_cases": "Symmetric boundary check against configured discrepancy threshold in piastres.",
+      "counterevidence_checked": "Symmetric boundary check against configured discrepancy threshold in piastres.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately detects threshold violations on unauthorized cash differences.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:27:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:27:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext, IApprovalRegistry, and ReportingQueryService.",
+      "counterevidence_and_edge_cases": "Standard dependency injection; initializes readonly service fields.",
+      "counterevidence_checked": "Standard dependency injection; initializes readonly service fields.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:37:95:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:37:95:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Idempotency lookup predicate lambda 's => s.Id == snapshotId' checking for prior close snapshot.",
+      "counterevidence_and_edge_cases": "AsNoTracking query on primary key Id prevents duplicate close executions on retries.",
+      "counterevidence_checked": "AsNoTracking query on primary key Id prevents duplicate close executions on retries.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate idempotency replay check.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:40:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:40:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId' resolving initiating user.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates existence of actor user.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:47:83:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:47:83:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Approver lookup predicate lambda 'u => u.Id == request.ManagerApproverUserId' resolving manager approver user.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws DomainException if approver not found.",
+      "counterevidence_checked": "AsNoTracking query; throws DomainException if approver not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates manager approver identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54:62:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:54:62:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Business day lookup predicate lambda 'd => d.Id == request.BusinessDayId' loading target business day entity.",
+      "counterevidence_and_edge_cases": "Loads tracked business day entity for state transition; throws InvalidOperationException if not found.",
+      "counterevidence_checked": "Loads tracked business day entity for state transition; throws InvalidOperationException if not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly resolves business day entity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:80:81:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:80:81:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Selector lambda 'b => b.Code' projecting close blocker codes to string list for audit event JSON serialization.",
+      "counterevidence_and_edge_cases": "Extracts blocker code string for audit log payload.",
+      "counterevidence_checked": "Extracts blocker code string for audit log payload.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately serializes blocker codes in audit event.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:84:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:84:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Selector lambda 'b => new CloseBlockerDto(b.Code, b.EntityType, b.EntityId, b.Message)' projecting domain blockers to DTOs for exception payload.",
+      "counterevidence_and_edge_cases": "Translates domain CloseBlocker value object to CloseBlockerDto.",
+      "counterevidence_checked": "Translates domain CloseBlocker value object to CloseBlockerDto.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately projects blocker DTOs.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:89:83:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:89:83:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'c => c.BusinessDayId == day.Id' selecting checklist completions for the closing day.",
+      "counterevidence_and_edge_cases": "AsNoTracking query scoped to day.Id.",
+      "counterevidence_checked": "AsNoTracking query scoped to day.Id.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly retrieves day-scoped checklist completions.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:91:75:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:91:75:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Count predicate lambda 's => s.BusinessDayId == day.Id' computing close revision number.",
+      "counterevidence_and_edge_cases": "Counts historical snapshots for the business day to determine CloseRevision = count + 1.",
+      "counterevidence_checked": "Counts historical snapshots for the business day to determine CloseRevision = count + 1.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correctly calculates snapshot revision sequence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:92:55:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:92:55:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ExecuteUpdateAsync filter predicate lambda 's => s.BusinessDayId == day.Id' targeting existing snapshots.",
+      "counterevidence_and_edge_cases": "Direct SQL update targeting previous snapshots for this business day.",
+      "counterevidence_checked": "Direct SQL update targeting previous snapshots for this business day.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly isolates target snapshots for de-authoritative bulk update.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:93:37:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:93:37:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ExecuteUpdateAsync setter lambda 's => s.SetProperty(x => x.Authoritative, false)' marking prior snapshots non-authoritative.",
+      "counterevidence_and_edge_cases": "Bulk SQL UPDATE setting Authoritative = 0.",
+      "counterevidence_checked": "Bulk SQL UPDATE setting Authoritative = 0.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly clears Authoritative flag on superseded snapshots.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:93:56:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:93:56:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Property selector lambda 'x => x.Authoritative' for EF Core SetProperty call.",
+      "counterevidence_and_edge_cases": "Specifies Authoritative column for ExecuteUpdateAsync.",
+      "counterevidence_checked": "Specifies Authoritative column for ExecuteUpdateAsync.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate property selector for bulk update.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:102:77:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:102:77:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda 'c => new { c.ItemId, c.Completed, c.CompletedAtUtc, c.CompletedBy }' shaping checklist completion data for snapshot JSON serialization.",
+      "counterevidence_and_edge_cases": "Creates anonymous projection with completion provenance for audit snapshot.",
+      "counterevidence_checked": "Creates anonymous projection with completion provenance for audit snapshot.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately captures checklist completion audit state.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:125:97:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:125:97:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 's => s.Id == snapshotId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query checking if snapshot was inserted by a concurrent transaction.",
+      "counterevidence_checked": "AsNoTracking recovery query checking if snapshot was inserted by a concurrent transaction.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly checks idempotency replay on database conflict.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:136:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:136:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "BuildDayExceptionsAsync aggregates day-scoped and system-wide operational exceptions (shift discrepancies, refunds, expenses, unsettled custodies, incomplete journals) into domain ControlException list.",
+      "counterevidence_and_edge_cases": "Day-scoped queries correctly restrict shifts by BusinessDate and orders/expenses by BusinessDayId. DriverCustodies and FinancialJournalEntries are scanned system-wide (FIN-035). Computes exceptions via pure ControlCenterRules.BuildExceptions.",
+      "counterevidence_checked": "Day-scoped queries correctly restrict shifts by BusinessDate and orders/expenses by BusinessDayId. DriverCustodies and FinancialJournalEntries are scanned system-wide (FIN-035). Computes exceptions via pure ControlCenterRules.BuildExceptions.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately gathers day exceptions and verifies scope behaviors.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:139:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:139:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 's => s.BusinessDate == day.BusinessDate && s.Status == \"Closed\" && s.CashDifferencePiastres != null' selecting closed shifts with discrepancies.",
+      "counterevidence_and_edge_cases": "Day-scoped on BusinessDate; ensures shifts are closed and cash difference is non-null.",
+      "counterevidence_checked": "Day-scoped on BusinessDate; ensures shifts are closed and cash difference is non-null.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately filters closed shifts with cash variance.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:140:21:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:140:21:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda 's => new { s.Id, Diff = s.CashDifferencePiastres!.Value }' extracting shift ID and variance value.",
+      "counterevidence_and_edge_cases": "Extracts non-null cash difference value.",
+      "counterevidence_checked": "Extracts non-null cash difference value.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects shift ID and variance amount.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:142:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:142:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'o => o.BusinessDayId == day.Id && o.RefundAmountPiastres > 0' selecting refunded orders.",
+      "counterevidence_and_edge_cases": "Properly scoped to current business day ID and positive refund amount.",
+      "counterevidence_checked": "Properly scoped to current business day ID and positive refund amount.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately filters refunded orders for the day.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:143:21:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:143:21:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda 'o => new { o.Id, o.RefundAmountPiastres }' extracting order ID and refund amount.",
+      "counterevidence_and_edge_cases": "Minimal anonymous projection for refunded orders.",
+      "counterevidence_checked": "Minimal anonymous projection for refunded orders.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects order refund fields.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:145:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:145:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'e => e.BusinessDayId == day.Id' selecting expenses for the business day.",
+      "counterevidence_and_edge_cases": "Day-scoped on BusinessDayId.",
+      "counterevidence_checked": "Day-scoped on BusinessDayId.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately filters expenses for the day.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:145:59:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:145:59:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda 'e => new { e.Id, e.AmountPiastres }' extracting expense ID and amount.",
+      "counterevidence_and_edge_cases": "Minimal projection for expense calculations.",
+      "counterevidence_checked": "Minimal projection for expense calculations.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects expense ID and amount.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:147:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:147:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'c => c.Status != nameof(CustodyStatus.Settled)' selecting unsettled driver custodies.",
+      "counterevidence_and_edge_cases": "System-wide filter without day scope; subject to FIN-035 query scan across historical custodies.",
+      "counterevidence_checked": "System-wide filter without day scope; subject to FIN-035 query scan across historical custodies.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately identifies non-settled driver custodies.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:147:75:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:147:75:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Selector lambda 'c => c.Id' extracting unsettled custody IDs.",
+      "counterevidence_and_edge_cases": "Projects primary key string/Guid.",
+      "counterevidence_checked": "Projects primary key string/Guid.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects custody IDs.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:149:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:149:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'j => j.Status != \"Complete\"' selecting incomplete financial journals.",
+      "counterevidence_and_edge_cases": "System-wide filter without date bounds; identifies incomplete journal entries.",
+      "counterevidence_checked": "System-wide filter without date bounds; identifies incomplete journal entries.",
+      "findings_evaluated": [
+        "FIN-035"
+      ],
+      "findings_verified": [
+        "FIN-035"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately identifies incomplete journal entries.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:149:64:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:149:64:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Selector lambda 'j => j.IdempotencyKey' extracting incomplete journal idempotency keys.",
+      "counterevidence_and_edge_cases": "Projects idempotency key identifier.",
+      "counterevidence_checked": "Projects idempotency key identifier.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly projects journal idempotency keys.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:153:40:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:153:40:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 's => (s.Id, s.Diff)' mapping shift discrepancy records into domain input tuple.",
+      "counterevidence_and_edge_cases": "In-memory tuple transformation.",
+      "counterevidence_checked": "In-memory tuple transformation.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately maps shift discrepancies to domain tuple.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:155:43:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:155:43:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'o => (o.Id, o.RefundAmountPiastres)' mapping refunded orders into domain input tuple.",
+      "counterevidence_and_edge_cases": "In-memory tuple transformation.",
+      "counterevidence_checked": "In-memory tuple transformation.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately maps order refunds to domain tuple.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:156:37:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:156:37:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'e => (e.Id, e.AmountPiastres)' mapping expenses into domain input tuple.",
+      "counterevidence_and_edge_cases": "In-memory tuple transformation.",
+      "counterevidence_checked": "In-memory tuple transformation.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately maps expenses to domain tuple.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:162:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs:162:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ToDto projects BusinessDayCloseSnapshotEntity to BusinessDayCloseSnapshotDto, formatting BusinessDate as 'yyyy-MM-dd' and propagating wasReplayed status.",
+      "counterevidence_and_edge_cases": "Pure mapping function; preserves raw serialized JSON reconciliation, exceptions, and checklist payloads.",
+      "counterevidence_checked": "Pure mapping function; preserves raw serialized JSON reconciliation, exceptions, and checklist payloads.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate DTO projection.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:19:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:19:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext and IApprovalRegistry.",
+      "counterevidence_and_edge_cases": "Standard dependency injection; initializes database context and approval registry fields.",
+      "counterevidence_checked": "Standard dependency injection; initializes database context and approval registry fields.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:25:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "HandleAsync processes business day opening: checks OpenRequestId idempotency, verifies actor user, authorizes 'business_day_open' command, queries active business days, invokes BusinessDayRules.Open, and persists BusinessDayEntity.",
+      "counterevidence_and_edge_cases": "Verified finding FIN-009: Queries active business days with AsNoTracking outside an explicit database transaction and without table/range locking. Concurrent requests with distinct RequestIds can simultaneously read zero active days, pass BusinessDayRules.Open, and persist multiple active business days in SQL Server. Handles same-request idempotency replay via DbUpdateException catch.",
+      "counterevidence_checked": "Verified finding FIN-009: Queries active business days with AsNoTracking outside an explicit database transaction and without table/range locking. Concurrent requests with distinct RequestIds can simultaneously read zero active days, pass BusinessDayRules.Open, and persist multiple active business days in SQL Server. Handles same-request idempotency replay via DbUpdateException catch.",
+      "findings_evaluated": [
+        "FIN-009"
+      ],
+      "findings_verified": [
+        "FIN-009"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately evaluates open day workflow and verifies concurrency vulnerability FIN-009.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:27:88:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:27:88:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Idempotency lookup predicate lambda 'd => d.OpenRequestId == request.RequestId' checking for prior open business day request.",
+      "counterevidence_and_edge_cases": "AsNoTracking query on OpenRequestId index prevents duplicate execution on command retry.",
+      "counterevidence_checked": "AsNoTracking query on OpenRequestId index prevents duplicate execution on command retry.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate idempotency replay check.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:30:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:30:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.OpenedByUserId' resolving opening user.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates opening user identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:36:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:36:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Filter predicate lambda 'd => d.Status == nameof(BusinessDayStatus.Open) || d.Status == nameof(BusinessDayStatus.Closing) || d.Status == nameof(BusinessDayStatus.Reopened)' querying active business days.",
+      "counterevidence_and_edge_cases": "Identifies all active business day lifecycle states; vulnerable to race condition FIN-009 due to lack of lock.",
+      "counterevidence_checked": "Identifies all active business day lifecycle states; vulnerable to race condition FIN-009 due to lack of lock.",
+      "findings_evaluated": [
+        "FIN-009"
+      ],
+      "findings_verified": [
+        "FIN-009"
+      ],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately checks active business day statuses.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:39:20:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:39:20:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Projection lambda mapping BusinessDayEntity to domain BusinessDayRecord.",
+      "counterevidence_and_edge_cases": "Parses status string to BusinessDayStatus enum and constructs domain record.",
+      "counterevidence_checked": "Parses status string to BusinessDayStatus enum and constructs domain record.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately projects entity to domain record.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:59:88:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:59:88:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 'd => d.OpenRequestId == request.RequestId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query checking if business day was inserted concurrently under the same RequestId.",
+      "counterevidence_checked": "AsNoTracking recovery query checking if business day was inserted concurrently under the same RequestId.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly recovers replayed business day on unique key collision.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:65:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs:65:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/BusinessDay/OpenBusinessDayHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ToResult projects BusinessDayEntity to OpenBusinessDayResult, formatting BusinessDate as 'yyyy-MM-dd' and returning wasReplayed flag.",
+      "counterevidence_and_edge_cases": "Pure mapping function.",
+      "counterevidence_checked": "Pure mapping function.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate result projection.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:23:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:23:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext and IApprovalRegistry.",
+      "counterevidence_and_edge_cases": "Standard dependency injection wiring.",
+      "counterevidence_checked": "Standard dependency injection wiring.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:31:92:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:31:92:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Idempotency lookup predicate lambda 'c => c.Id == request.Id' checking for existing cash count.",
+      "counterevidence_and_edge_cases": "AsNoTracking query on primary key Id prevents duplicate denomination record creation on retries.",
+      "counterevidence_checked": "AsNoTracking query on primary key Id prevents duplicate denomination record creation on retries.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate idempotency replay check.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:34:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:34:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId' resolving user.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates actor user existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:38:71:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:38:71:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Business day validation predicate lambda 'd => d.Id == request.BusinessDayId' verifying business day exists.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if business day not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if business day not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly verifies business day existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:42:33:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:42:33:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "In-memory projection lambda 'r => (r.DenominationPiastres, r.Quantity)' transforming request rows into domain input tuples.",
+      "counterevidence_and_edge_cases": "Transforms request DTO denomination rows to tuple for BusinessDayRules.CalculateDenominationCount.",
+      "counterevidence_checked": "Transforms request DTO denomination rows to tuple for BusinessDayRules.CalculateDenominationCount.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately maps request rows to domain calculation inputs.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:65:94:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:65:94:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 'c => c.Id == request.Id'.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query checking if cash count was inserted concurrently under the same primary key.",
+      "counterevidence_checked": "AsNoTracking recovery query checking if cash count was inserted concurrently under the same primary key.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly recovers replayed cash count on database conflict.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:72:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:72:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ToDto projects CashDenominationCountEntity to CashDenominationCountDto, deserializing RowsJson to DenominationRowDto list and propagating totals and replayed flag.",
+      "counterevidence_and_edge_cases": "Deserializes persisted JSON denomination breakdown with null safety.",
+      "counterevidence_checked": "Deserializes persisted JSON denomination breakdown with null safety.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately projects cash count entity to DTO.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:75:21:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs:75:21:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/ControlCenter/SaveCashCountHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Selector lambda 'r => new DenominationRowDto(r.DenominationPiastres, r.Quantity, r.TotalPiastres)' mapping deserialized domain DenominationRow to DTO.",
+      "counterevidence_and_edge_cases": "Maps individual denomination count row to DTO representation.",
+      "counterevidence_checked": "Maps individual denomination count row to DTO representation.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately projects denomination row DTO.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:20:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:20:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-delivery-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext and IApprovalRegistry into CreateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "Standard dependency injection wiring.",
+      "counterevidence_checked": "Standard dependency injection wiring.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:28:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:28:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId' in CreateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates actor existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:35:83:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:35:83:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Approver lookup predicate lambda 'u => u.Id == request.ManagerApproverUserId' in CreateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws DomainException if approver not found.",
+      "counterevidence_checked": "AsNoTracking query; throws DomainException if approver not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates manager approver identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:46:34:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:46:34:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Duplicate check predicate lambda 's => s.Name.ToLower() == normalized.ToLower()' in CreateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query verifying case-insensitive name uniqueness; returns existing service if match found (idempotent-by-name).",
+      "counterevidence_checked": "AsNoTracking query verifying case-insensitive name uniqueness; returns existing service if match found (idempotent-by-name).",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately checks case-insensitive name duplicate.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:61:88:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:61:88:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 's => s.Id == entity.Id' in CreateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query on entity ID.",
+      "counterevidence_checked": "AsNoTracking recovery query on entity ID.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly recovers existing delivery service on collision.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:68:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:68:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "NormalizeName trims whitespace and collapses internal whitespace runs using Regex '\\s+' to single spaces.",
+      "counterevidence_and_edge_cases": "Ensures consistent casing and prevents whitespace spoofing in delivery service names.",
+      "counterevidence_checked": "Ensures consistent casing and prevents whitespace spoofing in delivery service names.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately normalizes delivery service names.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:71:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:71:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ToDto projects DeliveryServiceEntity to DeliveryServiceDto.",
+      "counterevidence_and_edge_cases": "Pure mapping function.",
+      "counterevidence_checked": "Pure mapping function.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate DTO projection.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:83:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:83:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-delivery-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext and IApprovalRegistry into UpdateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "Standard dependency injection wiring.",
+      "counterevidence_checked": "Standard dependency injection wiring.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:91:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:91:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId' in UpdateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates actor existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:98:83:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:98:83:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Approver lookup predicate lambda 'u => u.Id == request.ManagerApproverUserId' in UpdateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws DomainException if approver not found.",
+      "counterevidence_checked": "AsNoTracking query; throws DomainException if approver not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates manager approver identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:105:69:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:105:69:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Service lookup predicate lambda 's => s.Id == request.ServiceId' loading target delivery service entity.",
+      "counterevidence_and_edge_cases": "Tracked entity query; throws InvalidOperationException if service not found.",
+      "counterevidence_checked": "Tracked entity query; throws InvalidOperationException if service not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly resolves delivery service entity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:113:27:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs:113:27:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/DeliveryServiceHandlers.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Name clash predicate lambda 's => s.Id != entity.Id && s.Name.ToLower() == normalized.ToLower()' in UpdateDeliveryServiceHandler.",
+      "counterevidence_and_edge_cases": "AsNoTracking query verifying new normalized name does not conflict with another existing service.",
+      "counterevidence_checked": "AsNoTracking query verifying new normalized name does not conflict with another existing service.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately prevents name collisions during update.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:29:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:29:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-delivery-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext, IApprovalRegistry, and IAuditLog into AssignDeliveryHandler.",
+      "counterevidence_and_edge_cases": "Standard dependency injection wiring.",
+      "counterevidence_checked": "Standard dependency injection wiring.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:39:89:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:39:89:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Idempotency lookup predicate lambda 'e => e.Id == eventId' checking for prior delivery assignment event.",
+      "counterevidence_and_edge_cases": "AsNoTracking query on eventId ('delivery-assignment-{RequestId}') prevents duplicate dispatch execution on retries.",
+      "counterevidence_checked": "AsNoTracking query on eventId ('delivery-assignment-{RequestId}') prevents duplicate dispatch execution on retries.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate idempotency replay check.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:42:84:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:42:84:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Delivery replay lookup predicate lambda 'd => d.Id == request.DeliveryId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query loading delivery entity when assignment event already exists.",
+      "counterevidence_checked": "AsNoTracking query loading delivery entity when assignment event already exists.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly loads delivery record on replay.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:47:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:47:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates actor existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:54:83:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:54:83:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Approver lookup predicate lambda 'u => u.Id == request.ManagerApproverUserId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws DomainException if approver not found.",
+      "counterevidence_checked": "AsNoTracking query; throws DomainException if approver not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates manager approver identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:71:85:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:71:85:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Driver lookup predicate lambda 'd => d.Id == request.DriverId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query resolving driver entity before assignability domain check.",
+      "counterevidence_checked": "AsNoTracking query resolving driver entity before assignability domain check.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly loads driver entity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:81:77:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:81:77:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Order lookup predicate lambda 'o => o.Id == delivery.OrderId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query resolving linked order for DeliveryFactsComposer.",
+      "counterevidence_checked": "AsNoTracking query resolving linked order for DeliveryFactsComposer.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly loads order entity for delivery facts composition.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:142:86:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:142:86:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 'e => e.Id == eventId' checking for concurrent assignment event.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query on DeliveryEvents.",
+      "counterevidence_checked": "AsNoTracking recovery query on DeliveryEvents.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly checks idempotency event on database update conflict.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:145:88:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:145:88:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay delivery lookup predicate lambda 'd => d.Id == request.DeliveryId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query resolving delivery entity for replay result.",
+      "counterevidence_checked": "AsNoTracking query resolving delivery entity for replay result.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly retrieves delivery entity for conflict replay.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:153:5:MethodDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs:153:5:MethodDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "ToResult projects DeliveryEntity to AssignDeliveryResult, defaulting null driver and trip IDs to empty strings and propagating wasReplayed.",
+      "counterevidence_and_edge_cases": "Pure mapping function.",
+      "counterevidence_checked": "Pure mapping function.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate result projection.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:27:5:ConstructorDeclaration": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:27:5:ConstructorDeclaration",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-delivery-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Constructor injecting FalahDbContext, IApprovalRegistry, and IAuditLog into ReassignDeliveryHandler.",
+      "counterevidence_and_edge_cases": "Standard dependency injection wiring.",
+      "counterevidence_checked": "Standard dependency injection wiring.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Correct dependency injection wiring.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:37:98:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:37:98:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Idempotency lookup predicate lambda 'h => h.Id == historyId' checking for prior reassignment history.",
+      "counterevidence_and_edge_cases": "AsNoTracking query on historyId ('delivery-reassignment-{RequestId}') prevents duplicate transfers on retries.",
+      "counterevidence_checked": "AsNoTracking query on historyId ('delivery-reassignment-{RequestId}') prevents duplicate transfers on retries.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurate idempotency replay check.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:40:84:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:40:84:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Delivery replay lookup predicate lambda 'd => d.Id == request.DeliveryId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query loading delivery entity on replay.",
+      "counterevidence_checked": "AsNoTracking query loading delivery entity on replay.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly loads delivery record on replay.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:45:76:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:45:76:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Actor lookup predicate lambda 'u => u.Id == request.ActorUserId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "counterevidence_checked": "AsNoTracking query; throws InvalidOperationException if user not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates actor existence.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:57:82:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:57:82:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Driver validation predicate lambda 'd => d.Id == request.NewDriverId && d.Active' verifying destination driver is active.",
+      "counterevidence_and_edge_cases": "AsNoTracking query ensuring new driver exists and is currently active.",
+      "counterevidence_checked": "AsNoTracking query ensuring new driver exists and is currently active.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Accurately validates new driver active status.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:81:87:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:81:87:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Approver lookup predicate lambda 'u => u.Id == request.ManagerApproverUserId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query; throws DomainException if approver not found.",
+      "counterevidence_checked": "AsNoTracking query; throws DomainException if approver not found.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly validates manager approver identity.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:89:82:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:89:82:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Old driver lookup predicate lambda 'd => d.Id == oldDriverId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query capturing original driver name for audit history.",
+      "counterevidence_checked": "AsNoTracking query capturing original driver name for audit history.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly captures old driver name.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:90:77:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:90:77:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Order lookup predicate lambda 'o => o.Id == delivery.OrderId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query resolving linked order for dispatch ticket printing.",
+      "counterevidence_checked": "AsNoTracking query resolving linked order for dispatch ticket printing.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly resolves linked order.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94:73:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:94:73:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "Custody lookup predicate lambda 'c => c.DeliveryId == delivery.Id' finding linked driver custody.",
+      "counterevidence_and_edge_cases": "Loads tracked custody entity to update DriverId to new driver if custody is not settled.",
+      "counterevidence_checked": "Loads tracked custody entity to update DriverId to new driver if custody is not settled.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly locates driver custody for driver transfer.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:144:93:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:144:93:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException replay lookup predicate lambda 'h => h.Id == historyId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking recovery query on DeliveryReassignments.",
+      "counterevidence_checked": "AsNoTracking recovery query on DeliveryReassignments.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly checks reassignment history on database conflict.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
+    },
+    "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:147:88:SimpleLambdaExpression": {
+      "callable_id": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs:147:88:SimpleLambdaExpression",
+      "source_path": "src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs",
+      "qa_reviewer": "QA-L1-Challenger-Wave3",
+      "qa_l1_reviewer": "QA-L1-Challenger-Wave3",
+      "specialist_identity": "fale7-financial-deep",
+      "review_accepted": true,
+      "challenged_behavior": "DbUpdateException delivery lookup predicate lambda 'd => d.Id == request.DeliveryId'.",
+      "counterevidence_and_edge_cases": "AsNoTracking query resolving delivery entity on collision.",
+      "counterevidence_checked": "AsNoTracking query resolving delivery entity on collision.",
+      "findings_evaluated": [],
+      "findings_verified": [],
+      "findings_rejected": [],
+      "corrections": [],
+      "remaining_limitations": [
+        "Production verification pending end-to-end integration run"
+      ],
+      "verdict": "ACCEPTED",
+      "verdict_rationale": "Properly retrieves delivery entity for conflict replay.",
+      "decided_at_utc": "2026-10-26T02:14:15Z"
     }
   },
   "summary": {
-    "total_callable_decisions": 456,
-    "accepted": 456,
+    "total_callable_decisions": 556,
+    "accepted": 556,
     "rejected": 0,
     "pending": 0
   }
