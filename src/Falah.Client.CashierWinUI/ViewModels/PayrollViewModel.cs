@@ -26,6 +26,8 @@ public partial class PayrollViewModel : ObservableObject
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditAction));
+        OnPropertyChanged(nameof(HasPendingRequest));
+        OnPropertyChanged(nameof(CanRetryPending));
         OnPropertyChanged(nameof(CanAdvance));
         OnPropertyChanged(nameof(CanOpenPay));
         _session.SetManagementOperationPending(this, !CanEditAction);
@@ -34,6 +36,7 @@ public partial class PayrollViewModel : ObservableObject
     public PayrollViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         var cairo = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
         var today = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, cairo);
         _newPeriod = $"{today.Year:0000}-{today.Month:00}";
@@ -110,7 +113,7 @@ public partial class PayrollViewModel : ObservableObject
 
     /// <summary>The single legal next status for the selected run, or null when it is terminal.
     /// Mirrors the server's own transition table rather than inventing a parallel one.</summary>
-    public string? NextStatus => SelectedRun?.Status switch
+    public string? NextStatus => SelectedRun?.Status?.ToLowerInvariant() switch
     {
         "draft" => "calculated",
         "calculated" => "reviewed",
@@ -126,8 +129,8 @@ public partial class PayrollViewModel : ObservableObject
         _ => null,
     };
 
-    public bool CanAdvance => !IsBusy && !_createRequest.HasPending && !_payRequest.HasPending && CanManage && NextStatus is not null && (NextStatus != "approved" || CanApprove);
-    public bool IsApprovedAndUnpaid => SelectedRun?.Status == "approved";
+    public bool CanAdvance => !IsBusy && !_createRequest.HasPending && !_payRequest.HasPending && CanManage && (_transitionRequest.HasPending || NextStatus is not null && (NextStatus != "approved" || CanApprove));
+    public bool IsApprovedAndUnpaid => string.Equals(SelectedRun?.Status, "approved", StringComparison.OrdinalIgnoreCase);
     public bool CanOpenPay => CanEditAction && CanPay && IsApprovedAndUnpaid && !IsLoadingLines && LoadError is null;
     partial void OnIsLoadingLinesChanged(bool value) => OnPropertyChanged(nameof(CanOpenPay));
     partial void OnLoadErrorChanged(string? value) => OnPropertyChanged(nameof(CanOpenPay));
@@ -192,6 +195,7 @@ public partial class PayrollViewModel : ObservableObject
             if (version != _linesVersion) return;
             if (!lines.Success || lines.Value is null) { LoadError = lines.Error ?? "تعذر تحميل بنود مسيّر الرواتب."; return; }
             await EnsureEmployeeNamesAsync();
+            if (version != _linesVersion) return;
             foreach (var l in lines.Value)
                 Lines.Add(new PayrollLineRow
                 {
@@ -331,7 +335,7 @@ public partial class PayrollViewModel : ObservableObject
     [RelayCommand]
     private async Task PayRunAsync()
     {
-        if (IsBusy || _createRequest.HasPending || _transitionRequest.HasPending || !CanPay || !IsPayOpen) return;
+        if (IsBusy || _createRequest.HasPending || _transitionRequest.HasPending || !CanPay || (!IsPayOpen && !_payRequest.HasPending)) return;
         var request = _payRequest.Value;
         if (request is null)
         {
@@ -355,5 +359,16 @@ public partial class PayrollViewModel : ObservableObject
             await ReloadAsync();
         }
         finally { IsBusy = false; }
+    }
+
+    public bool HasPendingRequest => _createRequest.HasPending || _transitionRequest.HasPending || _payRequest.HasPending;
+    public bool CanRetryPending => !IsBusy && HasPendingRequest;
+    [RelayCommand]
+    private async Task RetryPendingOperationAsync()
+    {
+        if (!CanRetryPending) return;
+        if (_createRequest.HasPending) await CreateRunAsync();
+        else if (_transitionRequest.HasPending) await AdvanceRunAsync();
+        else if (_payRequest.HasPending) await PayRunAsync();
     }
 }

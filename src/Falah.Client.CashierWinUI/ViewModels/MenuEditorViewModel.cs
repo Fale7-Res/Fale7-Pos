@@ -20,7 +20,8 @@ public partial class MenuEditorViewModel : ObservableObject
     private IReadOnlyList<TaxRuleDto> _tax = Array.Empty<TaxRuleDto>();
     private IReadOnlyList<PriceRuleDto> _prices = Array.Empty<PriceRuleDto>();
     private object? _editing;
-    public MenuEditorViewModel(AppSession session) => _session = session;
+    private long _editorVersion;
+    public MenuEditorViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
     public event Action? Closed;
     public sealed record Choice(string? Id, string Label);
     public sealed record CatalogRow(string Name, string Detail, object Value);
@@ -153,6 +154,7 @@ public partial class MenuEditorViewModel : ObservableObject
     [RelayCommand] private void SetKind(string kind)
     {
         if (!CanBrowse || kind is not ("products" or "categories" or "tax" or "prices")) return;
+        ++_editorVersion;
         Kind = kind; HasEditor = false; _editing = null; ActionError = ActionNote = null; ProductImageUri = null;
         foreach (var name in new[] { nameof(IsProduct), nameof(IsCategory), nameof(IsTax), nameof(IsPriceRule), nameof(HasSortOrder), nameof(HasPrice), nameof(HasActive), nameof(CanManageKind), nameof(KindTitle), nameof(EmptySelectionHint) }) OnPropertyChanged(name);
         RefreshRows(); NotifyState();
@@ -191,6 +193,7 @@ public partial class MenuEditorViewModel : ObservableObject
     }
     private void ResetForm()
     {
+        ++_editorVersion;
         Name = Icon = PriceText = TaxRateText = StartTimeText = EndTimeText = ""; SortOrderText = "0";
         Category = null; Recipe = RecipeChoices.FirstOrDefault(); Station = Stations[0]; TaxMode = null;
         SendToGrill = Active = false; ActionError = ActionNote = null; Variants.Clear(); ProductImageUri = null;
@@ -258,10 +261,11 @@ public partial class MenuEditorViewModel : ObservableObject
     {
         if (!CanEditImage || PickImageAsync is null || _editing is not ProductDetailsDto product || _session.CurrentUser is null) return;
         ActionError = ActionNote = null;
+        var version = _editorVersion;
         (string ContentType, byte[] Bytes)? picked;
         try { picked = await PickImageAsync(); }
         catch (Exception ex) { ActionError = "تعذّر قراءة الملف: " + ex.Message; return; }
-        if (picked is null) return;
+        if (picked is null || version != _editorVersion || !ReferenceEquals(_editing, product)) return;
 
         if (picked.Value.Bytes.Length > Falah.Domain.Menu.ProductImageRules.MaxBytes)
         {
@@ -276,6 +280,7 @@ public partial class MenuEditorViewModel : ObservableObject
         {
             var result = await _session.Api.SetProductImageAsync(new SetProductImageRequest(
                 _session.CurrentUser.Id, product.Id, picked.Value.ContentType, Convert.ToBase64String(picked.Value.Bytes)));
+            if (version != _editorVersion || !ReferenceEquals(_editing, product)) return;
             if (!result.Success || result.Value is null) { ActionError = result.Error ?? "تعذّر حفظ الصورة."; return; }
 
             // The new version stamp makes a different URL, so the picture that comes back is the
@@ -292,10 +297,12 @@ public partial class MenuEditorViewModel : ObservableObject
     {
         if (!CanEditImage || !HasProductImage || _editing is not ProductDetailsDto product || _session.CurrentUser is null) return;
         ActionError = ActionNote = null;
+        var version = _editorVersion;
         IsImageBusy = true;
         try
         {
             var result = await _session.Api.RemoveProductImageAsync(product.Id, _session.CurrentUser.Id);
+            if (version != _editorVersion || !ReferenceEquals(_editing, product)) return;
             if (!result.Success) { ActionError = result.Error ?? "تعذّر حذف الصورة."; return; }
 
             _editing = product with { ImageVersion = null };

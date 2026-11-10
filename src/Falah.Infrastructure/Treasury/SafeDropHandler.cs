@@ -14,9 +14,9 @@ using Microsoft.EntityFrameworkCore;
 /// <summary>A cashier dropping excess drawer cash into the safe mid-shift. Ported from
 /// postSafeDrop in the reference app: gated on its own 'safe_drop' permission (deliberately
 /// distinct from 'treasury_manage' - this is a routine cashier action, not a manager-only one),
-/// always sourced from tre-drawer. The shift referenced only needs to exist (a referential-integrity
-/// check, matching how other handlers validate foreign ids) - the reference app does not itself
-/// require that shift still be open, and this does not invent a stricter rule than that.</summary>
+/// always sourced from tre-drawer. Its shift must still be open when admitted inside the transaction,
+/// so a movement cannot alter an already-handed-over shift.
+/// </summary>
 public sealed class SafeDropHandler
 {
     private readonly FalahDbContext _db;
@@ -55,10 +55,15 @@ public sealed class SafeDropHandler
         }
         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "safe_drop", approval, requireApproval: true);
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            var admittedShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+            if (admittedShift?.Status != "Open") throw new DomainException("يجب أن تكون الوردية مفتوحة قبل تسجيل العملية.");
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate

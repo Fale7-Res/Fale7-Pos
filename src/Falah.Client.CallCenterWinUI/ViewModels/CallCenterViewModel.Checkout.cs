@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Customers;
 using Falah.Application.Orders;
@@ -251,6 +251,16 @@ public partial class CallCenterViewModel
     [ObservableProperty] private string _lookupOrderNumber = "";
     [ObservableProperty] private OrderDetailsDto? _lookedUpOrder;
 
+    /// <summary>An operator taking a follow-up call about a pickup needs to know when the customer
+    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.
+    /// The Call Center itself only ever creates delivery orders, but it looks up every order.</summary>
+    public string LookedUpRequestedPickupLine =>
+        LookedUpOrder?.RequestedPickupAtUtc is { } at
+            ? TimeZoneInfo.ConvertTime(at, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm")
+            : "";
+
+    public bool HasLookedUpRequestedPickup => LookedUpRequestedPickupLine.Length > 0;
+
     /// <summary>Whether the money for a looked-up order is settled - which an operator taking a
     /// follow-up call has to know before promising anything. Three states, not two: an electronic
     /// transfer nobody has confirmed is neither paid nor collect-on-delivery.</summary>
@@ -260,22 +270,54 @@ public partial class CallCenterViewModel
         {
             if (LookedUpOrder is not { } order) return "";
             var how = order.SplitPayments is { Count: > 0 } splits
-                ? string.Join(" + ", splits.Select(s => $"{s.Method} {CashInput.Format(s.AmountPiastres)} ج"))
-                : order.PaymentMethod;
+                ? string.Join(" + ", splits.Select(s => $"{PaymentLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"))
+                : PaymentLabel(order.PaymentMethod);
+            if (string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase))
+                return $"{how} - ملغى؛ لا يوجد مبلغ مطلوب تحصيله";
             return order.ElectronicPaymentStatus == "pending" ? $"{how} - تحويل لم يُؤكَّد"
-                : order.IsPaid ? $"{how} - مدفوع"
+                : order.IsPaid || order.CustomerFundsCollected ? $"{how} - مدفوع"
                 : $"{how} - تحصيل عند التسليم";
         }
     }
 
+    private static string PaymentLabel(string? method) => method?.ToLowerInvariant() switch
+    {
+        "cash" => "نقدي", "card" => "بطاقة", "instapay" => "إنستاباي", "wallet" => "محفظة", "multi" => "دفع مقسم", _ => "وسيلة دفع أخرى"
+    };
+
     public bool HasLookedUpPaymentLine => LookedUpPaymentLine.Length > 0;
     public bool IsLookedUpPaymentUnconfirmed => LookedUpOrder?.ElectronicPaymentStatus == "pending";
 
+    /// <summary>The whole delivery address, as stored at checkout. It falls back to composing the stored parts
+    /// with the shared rule. Showing only area and street left the operator reading half an address.</summary>
+    public string LookedUpAddressLine
+    {
+        get
+        {
+            if (LookedUpOrder is not { } o) return "";
+            if (!string.IsNullOrWhiteSpace(o.DeliveryAddress)) return o.DeliveryAddress;
+            if (new[] { o.DeliveryArea, o.DeliveryStreet, o.DeliveryBuilding, o.DeliveryFloor, o.DeliveryApartment, o.DeliveryLandmark }.All(string.IsNullOrWhiteSpace))
+                return "";
+            return Falah.Domain.Delivery.DeliveryRules.ComposeDeliveryAddress(
+                o.DeliveryArea, o.DeliveryStreet, o.DeliveryBuilding, o.DeliveryFloor, o.DeliveryApartment, o.DeliveryLandmark);
+        }
+    }
+
+    public bool HasLookedUpAddress => LookedUpAddressLine.Length > 0;
+    public string LookedUpDeliveryNotes => LookedUpOrder?.DeliveryNotes?.Trim() ?? "";
+    public bool HasLookedUpDeliveryNotes => LookedUpDeliveryNotes.Length > 0;
+
     partial void OnLookedUpOrderChanged(OrderDetailsDto? value)
     {
+        OnPropertyChanged(nameof(LookedUpAddressLine));
+        OnPropertyChanged(nameof(HasLookedUpAddress));
+        OnPropertyChanged(nameof(LookedUpDeliveryNotes));
+        OnPropertyChanged(nameof(HasLookedUpDeliveryNotes));
         OnPropertyChanged(nameof(LookedUpPaymentLine));
         OnPropertyChanged(nameof(HasLookedUpPaymentLine));
         OnPropertyChanged(nameof(IsLookedUpPaymentUnconfirmed));
+        OnPropertyChanged(nameof(LookedUpRequestedPickupLine));
+        OnPropertyChanged(nameof(HasLookedUpRequestedPickup));
     }
     [ObservableProperty] private string? _lookupError;
     [ObservableProperty] private bool _isLookingUpOrder;
@@ -328,7 +370,7 @@ public partial class CallCenterViewModel
         if (_pendingPrint is not null) { await SendPrintAsync(_pendingPrint); return; }
         if (LookedUpOrder is null) return;
         await SendPrintAsync(new CreatePrintJobsRequest($"pj-{Guid.NewGuid():N}",
-            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id));
+            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false));
     }
 
     [RelayCommand]
@@ -372,6 +414,7 @@ public partial class CallCenterViewModel
     private void ClearResolvedPrint()
     {
         if (_hasUnresolvedPrint) return;
+        PersistPending(PrintOwnerKey, null);
         _pendingPrint = null;
         ReprintNote = null;
         OnPropertyChanged(nameof(HasPendingPrint));

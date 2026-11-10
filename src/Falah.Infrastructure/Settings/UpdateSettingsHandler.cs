@@ -1,7 +1,8 @@
-namespace Falah.Infrastructure.Settings;
+﻿namespace Falah.Infrastructure.Settings;
 
 using Falah.Application.Settings;
 using Falah.Domain.Audit;
+using Falah.Domain.Common;
 using Falah.Domain.Authorization;
 using Falah.Infrastructure.Orders;
 using Falah.Infrastructure.Persistence;
@@ -25,6 +26,22 @@ public sealed class UpdateSettingsHandler
         _auditLog = auditLog;
     }
 
+    /// <summary>
+    /// The menu link becomes a QR code on every customer receipt, so it is checked before it is
+    /// stored: only an absolute http or https address is accepted. A mistyped value would otherwise
+    /// print a code that customers scan and land nowhere - and they would blame the restaurant, not
+    /// the typo. An empty value clears the link, which removes the QR from the receipt.
+    /// </summary>
+    internal static string? NormalizeMenuUrl(string value)
+    {
+        var trimmed = value.Trim();
+        if (trimmed.Length == 0) return null;
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            throw new DomainException("رابط المنيو غير صالح - يجب أن يبدأ بـ https:// أو http://");
+        return trimmed;
+    }
+
     public async Task<SettingsDto> HandleAsync(UpdateSettingsRequest request, CancellationToken ct = default)
     {
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -38,7 +55,8 @@ public sealed class UpdateSettingsHandler
             && request.AutoPrintReceipt is null && request.AutoPrintPreparationTicket is null && request.NumberOfReceiptCopies is null
             && request.StandardWorkdayHours is null && request.LateGraceMinutes is null && request.MaxLatePenaltyHours is null
             && request.LatePenaltyMultiplier is null && request.OvertimeMultiplier is null
-            && request.HoldPreparationUntilPaymentConfirmed is null;
+            && request.HoldPreparationUntilPaymentConfirmed is null && request.MenuUrl is null
+            && request.DefaultOpeningCashPiastres is null;
         if (!onlyGrillSound)
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
 
@@ -59,6 +77,7 @@ public sealed class UpdateSettingsHandler
                 LateGraceMinutes = d.LateGraceMinutes, MaxLatePenaltyHours = d.MaxLatePenaltyHours,
                 LatePenaltyMultiplier = d.LatePenaltyMultiplier, OvertimeMultiplier = d.OvertimeMultiplier,
                 HoldPreparationUntilPaymentConfirmed = d.HoldPreparationUntilPaymentConfirmed,
+                DefaultOpeningCashPiastres = d.DefaultOpeningCashPiastres,
             };
             _db.Settings.Add(entity);
         }
@@ -89,11 +108,23 @@ public sealed class UpdateSettingsHandler
         if (request.OvertimeMultiplier is not null) entity.OvertimeMultiplier = request.OvertimeMultiplier.Value;
         if (request.HoldPreparationUntilPaymentConfirmed is not null)
             entity.HoldPreparationUntilPaymentConfirmed = request.HoldPreparationUntilPaymentConfirmed.Value;
+        if (request.MenuUrl is not null) entity.MenuUrl = NormalizeMenuUrl(request.MenuUrl);
+        if (request.DefaultOpeningCashPiastres is { } defaultOpeningCash)
+        {
+            // A negative float is not a smaller float - it is a number nobody can put in a drawer.
+            if (defaultOpeningCash < 0) throw new DomainException("الرصيد الافتتاحي الافتراضي لا يمكن أن يكون بالسالب.");
+            entity.DefaultOpeningCashPiastres = defaultOpeningCash;
+        }
+
+        // The float every shift starts from is named explicitly when it changes: it decides what the
+        // next cashier is handed, so a reviewer should see who changed it and to what.
+        var details = $"تم تحديث الإعدادات (سعر الساعة الإضافية: {entity.OvertimeHourlyRatePiastres} قرش)"
+            + (request.DefaultOpeningCashPiastres is null ? ""
+                : $" (الرصيد الافتتاحي الافتراضي: {entity.DefaultOpeningCashPiastres} قرش)");
 
         _auditLog.Append(new AuditEvent(
             $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-            "تحديث إعدادات النظام وقواعد التشغيل", "settings",
-            $"تم تحديث الإعدادات (سعر الساعة الإضافية: {entity.OvertimeHourlyRatePiastres} قرش)",
+            "تحديث إعدادات النظام وقواعد التشغيل", "settings", details,
             "warning", DateTimeOffset.UtcNow));
 
         await _db.SaveChangesAsync(ct);

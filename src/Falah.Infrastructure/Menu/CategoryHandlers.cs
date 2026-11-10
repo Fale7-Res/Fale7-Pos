@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Menu;
+﻿namespace Falah.Infrastructure.Menu;
 
 using Falah.Application.Menu;
 using Falah.Domain.Audit;
@@ -94,7 +94,7 @@ public sealed class UpdateCategoryHandler
 
         _auditLog.Append(new AuditEvent(
             receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
-            $"تعديل قسم بالمنيو: {entity.Name}", "menu", $"تعديل القسم {entity.Id}", "normal", DateTimeOffset.UtcNow,
+            $"تعديل قسم بالمنيو: {entity.Name}", "menu", $"تعديل القسم {entity.Name}", "normal", DateTimeOffset.UtcNow,
             ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
@@ -133,7 +133,8 @@ public sealed class SetCategoryActiveHandler
         _auditLog.Append(new AuditEvent(
             receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             request.Active ? $"تفعيل قسم: {entity.Name}" : $"تعطيل قسم: {entity.Name}", "menu",
-            $"القسم {entity.Id}", "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
+            $"القسم {entity.Name} أصبح {(request.Active ? "مُفعَّلًا" : "مُعطَّلًا")}",
+            "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
     }

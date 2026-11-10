@@ -1,4 +1,4 @@
-using Falah.Client.CashierWinUI.Services;
+﻿using Falah.Client.CashierWinUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.CashDrawer;
@@ -315,9 +315,11 @@ public partial class CashierViewModel
         ReprintStatusMessage = null;
         try
         {
+            // Receipt only. Reprinting a customer's copy must not send the order to the kitchen
+            // again - a second Charcoal/Grill ticket is an order to cook the food twice.
             var request = _pendingReprint ?? new CreatePrintJobsRequest(
                 RequestId: $"rp-{Guid.NewGuid():N}", OrderId: OrderLookupResult.Id, CustomerRoute: "Receipt",
-                IsReprint: true, ActorUserId: _session.CurrentUser!.Id);
+                IsReprint: true, ActorUserId: _session.CurrentUser!.Id, IncludeKitchenRoutes: false);
             var wasUnresolved = _pendingReprint is not null;
             _pendingReprint = request; RefreshOperationState();
             var result = await _session.Api.CreatePrintJobsAsync(request.OrderId, request);
@@ -369,9 +371,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingSafeDrop is not null;
         _pendingSafeDrop = request;
+        Remember(SafeDropOperation, request);
         RefreshOperationState();
         var result = await _session.Api.SafeDropAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingSafeDrop = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingSafeDrop = null; Remember(SafeDropOperation, null); }
+        NoteRetryOutcome(SafeDropOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         if (result.Success) _SafeDropRequestId = Guid.NewGuid().ToString("N");
         RefreshOperationState();
         if (!result.Success || result.Value is null)
@@ -389,9 +393,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingCashMovement is not null;
         _pendingCashMovement = request;
+        Remember(CashMovementOperation, request);
         RefreshOperationState();
         var result = await _session.Api.CashierCashMovementAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCashMovement = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingCashMovement = null; Remember(CashMovementOperation, null); }
+        NoteRetryOutcome(CashMovementOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         if (result.Success) _CashMovementRequestId = Guid.NewGuid().ToString("N");
         RefreshOperationState();
         if (!result.Success || result.Value is null)
@@ -409,9 +415,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingCashDrawer is not null;
         _pendingCashDrawer = request;
+        Remember(CashDrawerOperation, request);
         RefreshOperationState();
         var result = await _session.Api.OpenCashDrawerAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCashDrawer = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingCashDrawer = null; Remember(CashDrawerOperation, null); }
+        NoteRetryOutcome(CashDrawerOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         if (result.Success) _CashDrawerRequestId = Guid.NewGuid().ToString("N");
         RefreshOperationState();
         if (!result.Success || result.Value is null)

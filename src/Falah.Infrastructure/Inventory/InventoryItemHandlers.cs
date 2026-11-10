@@ -78,6 +78,8 @@ public sealed class UpdateInventoryItemHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "inventory_manage");
 
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await InventoryWriteLock.AcquireAsync(_db, ct);
         var entity = await _db.InventoryItems.FirstOrDefaultAsync(i => i.Id == request.Id, ct)
             ?? throw new InvalidOperationException("الخامة غير موجودة.");
 
@@ -98,5 +100,6 @@ public sealed class UpdateInventoryItemHandler
         entity.StandardDailyUsageMilliUnits = request.StandardDailyUsageMilliUnits;
 
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }

@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Persistence.Entities;
+﻿namespace Falah.Infrastructure.Persistence.Entities;
 
 /// <summary>Ported from SystemSettings in types.ts / updateSettings in lib/store.tsx - a single
 /// system-wide settings row (Id is always the fixed constant SettingsEntity.SingletonId, matching
@@ -23,8 +23,16 @@ public class SettingsEntity
     public string PhoneLandline { get; set; } = default!;
     public string ComplaintsPhone { get; set; } = default!;
     public string ReceiptFooter { get; set; } = default!;
+
+    /// <summary>The restaurant's online menu, encoded as a QR on the customer receipt. Nullable:
+    /// nothing is printed until the owner configures a real address.</summary>
+    public string? MenuUrl { get; set; }
     public long OvertimeHourlyRatePiastres { get; set; }
     public long DeliveryFeePiastres { get; set; }
+
+    /// <summary>The float the open-shift dialog offers, in piastres. A suggestion only - each shift
+    /// stores the amount actually entered, and that stored amount is what its reconciliation uses.</summary>
+    public long DefaultOpeningCashPiastres { get; set; }
     public string Currency { get; set; } = default!;
     public long CashDiscrepancyThresholdPiastres { get; set; }
     public int AutoLockMinutes { get; set; }

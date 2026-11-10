@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Orders;
+﻿namespace Falah.Infrastructure.Orders;
 
 using Falah.Application.Orders;
 using Falah.Domain.Authorization;
@@ -35,7 +35,8 @@ public static class OrderMapper
         order.SplitPaymentsJson is null ? null
             : System.Text.Json.JsonSerializer.Deserialize<List<WireSplit>>(order.SplitPaymentsJson)!
                 .Select(s => new OrderSplitPaymentDto(s.method, s.amountPiastres)).ToList(),
-        order.TableNumber);
+        order.TableNumber,
+        order.RequestedPickupAtUtc);
 
     public static Order ToDomain(OrderEntity entity)
     {

@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Persistence.Entities;
+﻿namespace Falah.Infrastructure.Persistence.Entities;
 
 /// <summary>One print job = one physical ticket destined for one station printer. An order that
 /// touches two kitchen stations gets TWO separate rows here, each independently retryable - a
@@ -12,8 +12,15 @@ public class PrintJobEntity
     /// exact call find every job it already created (a batch may contain several jobs, one per
     /// route) without parsing the Id string.</summary>
     public string CreateRequestId { get; set; } = default!;
+    /// <summary>The document this job prints: an order id, or - for a shift or expense slip - that
+    /// shift's or expense's id. Named OrderId because every job was an order's ticket before slips
+    /// existed; DocumentKind says which it is. Deliberately not a foreign key (see FalahDbContext).</summary>
     public string OrderId { get; set; } = default!;
+    /// <summary>What the Printing screen shows for this job: an order number, or a slip's name.</summary>
     public string OrderNumber { get; set; } = default!;
+    /// <summary>Order (null for every job written before slips existed), ShiftOpen, ShiftClose or
+    /// Expense. Chooses the composition; the print agent never sees it.</summary>
+    public string? DocumentKind { get; set; }
     public string Route { get; set; } = default!;
     public string Status { get; set; } = default!;
     /// <summary>How many attempts have been reported against this job (success or failure) - a
@@ -22,6 +29,12 @@ public class PrintJobEntity
     public int AttemptCount { get; set; }
     public DateTimeOffset? LastAttemptAtUtc { get; set; }
     public string? LastError { get; set; }
+    /// <summary>The print agent currently holding this job, and until when. A job is handed to one
+    /// agent at a time (PrintJobQueryService.ClaimPendingJobsForRouteAsync), so two agents serving one
+    /// route from two machines never both print it; reporting a result releases it, and an expired
+    /// lease lets another agent take the job of one that crashed.</summary>
+    public string? ClaimedBy { get; set; }
+    public DateTimeOffset? ClaimedUntilUtc { get; set; }
     /// <summary>True when this job was created by an explicit reprint request rather than the
     /// original post-checkout print request - purely informational, never affects routing/content.</summary>
     public bool IsReprint { get; set; }

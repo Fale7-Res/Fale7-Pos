@@ -1,4 +1,4 @@
-namespace Falah.Application.Reports;
+﻿namespace Falah.Application.Reports;
 
 /// <summary>
 /// Everything an owner needs to judge the restaurant, in one read.
@@ -65,7 +65,7 @@ public sealed record CashPositionDto(
     long CardPiastres,
     long InstaPayPiastres,
     long WalletPiastres,
-    long DineInPiastres,
+    long PickupPiastres,
     long TakeawayPiastres,
     long DeliveryPiastres,
     TreasuryBalancesDto TreasuryNow,
@@ -130,7 +130,17 @@ public sealed record AttentionDto(
     /// invoice during the period. Far more often a misplaced decimal than a real price move, and
     /// it silently rewrites every recipe cost and the gross margin - see
     /// PurchasingRules.DescribeUnitCostChange.</summary>
-    int UnusualCostChangeCount = 0);
+    int UnusualCostChangeCount = 0,
+    /// <summary>How much money the pending electronic payments counted above are - each pending
+    /// leg's own amount - and how long the oldest has waited. A count says something is unconfirmed;
+    /// only the amount and the age say whether it matters today.</summary>
+    long PendingElectronicPiastres = 0,
+    double? OldestPendingElectronicMinutes = null,
+    /// <summary>FIN-0042: delivery orders that were already PAID (card, confirmed transfer) but never
+    /// reached the customer (failed or returned) and are not yet fully refunded - money the restaurant
+    /// holds that the customer is owed. Visibility only; it does not block the day close.</summary>
+    int PaidUndeliveredOrderCount = 0,
+    long PaidUndeliveredOwedPiastres = 0);
 
 public sealed record StockPositionDto(
     int TrackedItemCount,

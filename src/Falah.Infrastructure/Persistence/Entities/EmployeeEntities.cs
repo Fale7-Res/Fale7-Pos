@@ -64,6 +64,8 @@ public class AttendanceRecordEntity
     public DateOnly Date { get; set; }
     public string? CheckIn { get; set; }
     public string? CheckOut { get; set; }
+    public DateTimeOffset? CheckInAtUtc { get; set; }
+    public DateTimeOffset? CheckOutAtUtc { get; set; }
     public string ShiftName { get; set; } = default!;
     public string Status { get; set; } = default!;
     public int LateMinutes { get; set; }

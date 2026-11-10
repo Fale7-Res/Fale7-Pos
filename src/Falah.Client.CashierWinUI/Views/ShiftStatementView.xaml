@@ -1,0 +1,81 @@
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.ShiftStatementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- UI-REQ-002: the closing and handover statement exactly as it prints (the lines come from the
+         same composed paper the print agent receives), its print status, and a marked reprint. -->
+    <Grid Background="{ThemeResource OverlayBrush}" AutomationProperties.AutomationId="ShiftStatementOverlay"
+          Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="520" MaxHeight="760"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <controls:ModalHeaderView Title="{Binding Title}" CloseCommand="{Binding CloseCommand}" CloseAutomationId="ShiftStatement_Close"/>
+
+                <StackPanel Grid.Row="1" Spacing="6">
+                    <Border AutomationProperties.AutomationId="ShiftStatement_PrintStatus" CornerRadius="10" Padding="12,8"
+                            Background="{ThemeResource InfoBackgroundBrush}"
+                            Visibility="{Binding PrintFailed, Converter={StaticResource InverseBoolToVisibleConverter}}">
+                        <TextBlock Text="{Binding PrintStatus}" TextWrapping="Wrap" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                    </Border>
+                    <Border CornerRadius="10" Padding="12,8" Background="{ThemeResource DangerBackgroundBrush}"
+                            Visibility="{Binding PrintFailed, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="{Binding PrintStatus}" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{ThemeResource DangerBrush}"/>
+                    </Border>
+                    <TextBlock Text="{Binding Error}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                               Visibility="{Binding Error, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <ProgressRing IsActive="{Binding IsLoading}" Width="28" Height="28" HorizontalAlignment="Center"
+                                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}"/>
+                </StackPanel>
+
+                <!-- The paper. -->
+                <Border Grid.Row="2" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="12"
+                        Background="{ThemeResource SurfaceBrush}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12" AutomationProperties.AutomationId="ShiftStatement_Paper">
+                        <ItemsControl ItemsSource="{Binding Lines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="{ThemeResource TextPrimaryBrush}"
+                                                   FontWeight="{Binding Bold, Converter={StaticResource BoolToBoldConverter}}"
+                                                   TextAlignment="{Binding Centered, Converter={StaticResource BoolToCenterAlignmentConverter}}"
+                                                   Visibility="{Binding IsText, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                        <Grid ColumnSpacing="12" Visibility="{Binding IsRow, Converter={StaticResource BoolToVisibleConverter}}">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" Foreground="{ThemeResource TextPrimaryBrush}"
+                                                       FontWeight="{Binding Bold, Converter={StaticResource BoolToBoldConverter}}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="{ThemeResource TextPrimaryBrush}"
+                                                       FontWeight="{Binding Bold, Converter={StaticResource BoolToBoldConverter}}"/>
+                                        </Grid>
+                                        <Border Height="1" Margin="0,4" Background="{ThemeResource CardBorderBrush}"
+                                                Visibility="{Binding IsRule, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="3" Spacing="8">
+                    <TextBlock Text="{Binding ReprintMessage}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
+                               Visibility="{Binding ReprintMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button AutomationProperties.AutomationId="ShiftStatement_Reprint" Content="إعادة طباعة الورقة"
+                                Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch" MinHeight="48"
+                                Command="{Binding ReprintCommand}"/>
+                        <Button Grid.Column="1" AutomationProperties.AutomationId="ShiftStatement_Done" Content="تم"
+                                Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" MinHeight="48"
+                                Command="{Binding CloseCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

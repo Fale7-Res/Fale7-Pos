@@ -292,7 +292,32 @@ public partial class CallCenterViewModel : ObservableObject
     public void AppendNoteText(CartLine line, string note)
     {
         if (!CanEditOperation) return;
-        line.Notes = string.IsNullOrWhiteSpace(line.Notes) ? note : $"{line.Notes}، {note}";
+        if (string.IsNullOrWhiteSpace(line.Notes)) { line.Notes = note; return; }
+        // A chip adds its note once: a double tap on the touch till must not print "حار، حار" for the kitchen.
+        if (line.Notes.Split('،').Any(part => part.Trim() == note)) return;
+        line.Notes = $"{line.Notes.TrimEnd()}، {note}";
+    }
+
+    /// <summary>Asks before throwing away a phone order: one tap on the small link used to clear the items
+    /// and the caller's name, phone and address together. Nothing to lose, nothing to ask.</summary>
+    [ObservableProperty] private bool _isClearOrderOpen;
+
+    [RelayCommand]
+    private void RequestClearOrder()
+    {
+        if (!CanEditOperation) return;
+        if (Cart.Count == 0 && string.IsNullOrWhiteSpace(CustomerPhone) && string.IsNullOrWhiteSpace(CustomerName)) { ClearOrder(); return; }
+        IsClearOrderOpen = true;
+    }
+
+    [RelayCommand] private void CancelClearOrder() => IsClearOrderOpen = false;
+
+    [RelayCommand]
+    private void ConfirmClearOrder()
+    {
+        if (!CanEditOperation) return;
+        ClearOrder();
+        IsClearOrderOpen = false;
     }
 
     [RelayCommand]

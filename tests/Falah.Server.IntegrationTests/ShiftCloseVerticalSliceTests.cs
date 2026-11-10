@@ -32,6 +32,11 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
+    /// <summary>The main treasury balance exactly as the server derives it (from its movements).</summary>
+    private Task<long> MainBalanceAsync() => _factory.QueryAsync(async db =>
+        Falah.Domain.Financial.FinancialRules.TreasuryBalanceFromMovements(
+            await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(db, "tre-main", default), "tre-main").Piastres);
+
     private async Task<string> OpenShiftAsync(long openingCashPiastres = 50000) =>
         (await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, openingCashPiastres)))
@@ -174,6 +179,45 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
         // shift_opening_float (from OpenShiftAsync) + reconciliation + handover - never doubled by the retry.
         var movementCount = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ShiftId == shiftId));
         Assert.Equal(3, movementCount);
+    }
+
+    /// <summary>UI-0001 (shift screens): the client now re-sends a lost open unchanged. The retry
+    /// arrives while the shift it opened is open, so it must replay - not fail as "already open" -
+    /// and the float must leave the main treasury once.</summary>
+    [Fact]
+    public async Task Retrying_a_shift_open_whose_response_was_lost_replays_and_moves_the_float_once()
+    {
+        var mainBefore = await MainBalanceAsync();
+        var request = new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000);
+        var first = await (await _client.PostAsJsonAsync("/api/shifts/open", request)).Content.ReadFromJsonAsync<OpenShiftResult>();
+        var retry = await _client.PostAsJsonAsync("/api/shifts/open", request);
+
+        retry.EnsureSuccessStatusCode();
+        var second = await retry.Content.ReadFromJsonAsync<OpenShiftResult>();
+        Assert.True(second!.WasReplayed);
+        Assert.Equal(first!.ShiftId, second.ShiftId);
+        Assert.Equal(1, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ShiftId == first.ShiftId && m.Type == "shift_opening_float")));
+        var mainAfter = await MainBalanceAsync();
+        Assert.Equal(mainBefore - 50000, mainAfter);
+    }
+
+    /// <summary>The client re-sends a lost approved close with the approval it already spent. The
+    /// replay check comes first, so the spent approval is not a reason to refuse it.</summary>
+    [Fact]
+    public async Task Retrying_an_approved_close_after_its_approval_was_spent_replays_the_close()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        var approval = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "shifts_manage", "فرق كبير")))
+            .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
+        var request = CloseRequest(shiftId, 40000, $"creq-{Guid.NewGuid():N}", "عجز كبير", approval.ApprovalId, _managerId);
+        (await _client.PostAsJsonAsync("/api/shifts/close", request)).EnsureSuccessStatusCode();
+
+        var retry = await _client.PostAsJsonAsync("/api/shifts/close", request);
+
+        retry.EnsureSuccessStatusCode();
+        Assert.True((await retry.Content.ReadFromJsonAsync<CloseShiftResult>())!.WasReplayed);
+        Assert.Equal(3, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ShiftId == shiftId)));
     }
 
     [Fact]

@@ -26,10 +26,18 @@ public partial class DeliveryViewModel : ObservableObject
         _session.SetManagementOperationPending(this, !CanEditAction);
     }
 
+    /// <summary>UI-REQ-001: a driver's daily statement (screen and paper).</summary>
+    public DriverStatementViewModel DriverStatement { get; }
+
+    [RelayCommand]
+    private Task OpenDriverStatementAsync() => DriverStatement.OpenAsync();
+
     public DeliveryViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         Directory = new DeliveryDirectoryViewModel(session);
+        DriverStatement = new DriverStatementViewModel(session);
         // Adding or retiring a driver changes who this board can assign, so the board re-reads.
         Directory.Changed += () => _ = LoadAsync();
     }
@@ -64,17 +72,17 @@ public partial class DeliveryViewModel : ObservableObject
         public bool HasAddress => AddressDisplay.Length > 0;
 
         public string AmountToCollectDisplay =>
-            Delivery.AmountToCollectPiastres > 0 ? CashInput.Format(Delivery.AmountToCollectPiastres) + " ج" : "—";
+            CollectPiastres(Delivery) > 0 ? CashInput.Format(CollectPiastres(Delivery)) + " ج" : "—";
 
         /// <summary>Three states, not two. "Paid" and "collect on delivery" are both settled
         /// questions; a transfer nobody has confirmed is neither, and handing that order to a driver
         /// without saying so is how an order goes out with nothing to collect and nothing collected.</summary>
         public string PaymentStateLabel =>
-            Delivery.ElectronicPaymentStatus == "Pending" ? "تحويل لم يُؤكَّد"
+            IsPaymentUnconfirmed ? "تحويل لم يُؤكَّد"
             : Delivery.PaymentAlreadySettled ? "مدفوع"
             : "تحصيل عند التسليم";
 
-        public bool IsPaymentUnconfirmed => Delivery.ElectronicPaymentStatus == "Pending";
+        public bool IsPaymentUnconfirmed => string.Equals(Delivery.ElectronicPaymentStatus, "pending", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>How long this order has been on the board. The single most useful number on a
         /// dispatch screen and the one it did not have.</summary>
@@ -197,8 +205,17 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private DeliveryDto? _assignTarget;
     [ObservableProperty] private DriverDto? _assignDriver;
     [ObservableProperty] private string? _assignError;
+    /// <summary>What the driver actually has to bring back - the same rule the server uses to open a
+    /// custody (DeliveryRules.DeliveryCashResponsibility): cash on delivery always, any other method
+    /// only while its money has not arrived. A paid card order shows nothing to collect.</summary>
+    public static long CollectPiastres(DeliveryDto d) =>
+        d.PaymentMethod == "cash" || !d.PaymentAlreadySettled ? d.AmountToCollectPiastres : 0;
+
+    public string AssignCollectDisplay => AssignTarget is { } t && CollectPiastres(t) > 0
+        ? CashInput.Format(CollectPiastres(t)) + " ج" : "لا شيء (مدفوع)";
+
     public bool IsAssignOpen => AssignTarget is not null;
-    partial void OnAssignTargetChanged(DeliveryDto? value) => OnPropertyChanged(nameof(IsAssignOpen));
+    partial void OnAssignTargetChanged(DeliveryDto? value) { OnPropertyChanged(nameof(IsAssignOpen)); OnPropertyChanged(nameof(AssignCollectDisplay)); }
 
     /// <summary>Minted once per assignment dialog and reused by a retry, so a lost response cannot
     /// become a second assignment - the server keys its own idempotency on this value.</summary>
@@ -264,7 +281,11 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private string _outcomeNotes = "";
     [ObservableProperty] private string? _outcomeError;
     public bool IsOutcomeOpen => OutcomeTarget is not null;
-    partial void OnOutcomeTargetChanged(DeliveryDto? value) => OnPropertyChanged(nameof(IsOutcomeOpen));
+    partial void OnOutcomeTargetChanged(DeliveryDto? value)
+    {
+        OnPropertyChanged(nameof(IsOutcomeOpen));
+        OnPropertyChanged(nameof(NeedsFoodDisposition));
+    }
 
     public bool IsDeliveredOutcome => OutcomeResult == "delivered";
     public bool IsFailedOutcome => OutcomeResult == "failed";
@@ -272,6 +293,34 @@ public partial class DeliveryViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsDeliveredOutcome));
         OnPropertyChanged(nameof(IsFailedOutcome));
+        OnPropertyChanged(nameof(NeedsFoodDisposition));
+    }
+
+    /// <summary>A cash-on-delivery order that failed or came back is voided by the server, which then
+    /// needs to know what became of its food - prepared (waste) or not (back to stock). A paid order
+    /// is not voided here (its money goes back through a refund), so it is not asked.</summary>
+    public bool NeedsFoodDisposition =>
+        OutcomeResult is "failed" or "returned"
+        && OutcomeTarget is { PaymentMethod: "cash", PaymentAlreadySettled: false, AmountToCollectPiastres: > 0 };
+
+    [ObservableProperty] private string? _outcomeStockDisposition;
+
+    public bool IsOutcomeFoodPrepared
+    {
+        get => OutcomeStockDisposition == "prepared";
+        set { if (value) OutcomeStockDisposition = "prepared"; }
+    }
+
+    public bool IsOutcomeFoodNotPrepared
+    {
+        get => OutcomeStockDisposition == "not_prepared";
+        set { if (value) OutcomeStockDisposition = "not_prepared"; }
+    }
+
+    partial void OnOutcomeStockDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsOutcomeFoodPrepared));
+        OnPropertyChanged(nameof(IsOutcomeFoodNotPrepared));
     }
 
     private string? _outcomeRequestId;
@@ -302,6 +351,7 @@ public partial class DeliveryViewModel : ObservableObject
         OutcomeCollectedText = CashInput.Format(delivery.AmountToCollectPiastres);
         OutcomeReason = "";
         OutcomeNotes = "";
+        OutcomeStockDisposition = null;
         _outcomeRequestId = $"res-{Guid.NewGuid():N}";
         OutcomeTarget = delivery;
     }
@@ -338,6 +388,11 @@ public partial class DeliveryViewModel : ObservableObject
             }
             collected = piastres;
         }
+        if (NeedsFoodDisposition && OutcomeStockDisposition is null)
+        {
+            OutcomeError = "حدد هل تم تحضير الطلب (يُسجَّل هالكًا) أم لم يُحضَّر (يعود للمخزون).";
+            return;
+        }
 
         IsBusy = true;
         OutcomeError = null;
@@ -347,7 +402,8 @@ public partial class DeliveryViewModel : ObservableObject
                 _outcomeRequestId!, OutcomeTarget.DeliveryId, OutcomeResult, collected,
                 string.IsNullOrWhiteSpace(OutcomeReason) ? null : OutcomeReason,
                 string.IsNullOrWhiteSpace(OutcomeNotes) ? null : OutcomeNotes,
-                _session.CurrentUser!.Id, null, null));
+                _session.CurrentUser!.Id, null, null,
+                NeedsFoodDisposition ? OutcomeStockDisposition : null));
         }
         finally { IsBusy = false; }
     }
@@ -399,7 +455,13 @@ public partial class DeliveryViewModel : ObservableObject
         SettleReason = "";
         SettleManagerPin = "";
         _settleRequestId = $"set-{Guid.NewGuid():N}";
+        // The statistics panel shares this dialog: default it to today every time it opens, so a
+        // period left on "custom" from a previous driver never silently applies to a new one.
+        DriverStatistics = null;
+        StatisticsError = null;
+        SelectedStatsPeriod = StatsPeriods[0];
         await LoadDriverAccountAsync(driver.Id);
+        await LoadDriverStatisticsAsync(driver.Id);
     }
 
     private async Task LoadDriverAccountAsync(string driverId)
@@ -427,7 +489,10 @@ public partial class DeliveryViewModel : ObservableObject
     {
         if (!CanEditAction) return;
         _accountVersion++;
+        _statisticsVersion++;
         IsLoadingAccount = false;
+        IsLoadingStatistics = false;
+        DriverStatistics = null;
         AccountDriver = null;
     }
 

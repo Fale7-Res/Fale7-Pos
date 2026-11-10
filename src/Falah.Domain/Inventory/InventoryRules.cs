@@ -47,6 +47,15 @@ public static class InventoryRules
             throw new DomainException("لا يمكن تغيير وحدة خامة لها حركات مخزون مسجلة بالفعل.");
     }
 
+    /// <summary>The operator's answer to "was the food prepared?", from its wire form. There is no
+    /// default: a missing or unknown answer is refused rather than guessed.</summary>
+    public static StockDisposition ParseStockDisposition(string? value) => value?.Trim().ToLowerInvariant() switch
+    {
+        "prepared" => StockDisposition.Prepared,
+        "not_prepared" => StockDisposition.NotPrepared,
+        _ => throw new DomainException("حدد هل تم تحضير الطلب (يُسجَّل هالكًا) أم لم يُحضَّر (يعود للمخزون)."),
+    };
+
     public static long StockBalanceMilliUnits(IEnumerable<StockMovementFacts> movements, string inventoryItemId) =>
         movements.Where(m => m.InventoryItemId == inventoryItemId)
             .Sum(m => m.Direction == StockDirection.In ? m.QuantityMilliUnits : -m.QuantityMilliUnits);
@@ -64,7 +73,9 @@ public static class InventoryRules
             && (from is null || m.CreatedAtUtc >= from) && (to is null || m.CreatedAtUtc <= to)).ToList();
 
         var purchased = rows.Where(m => m.Type is StockMovementType.PurchaseReceipt or StockMovementType.ManualReceipt).Sum(m => m.QuantityMilliUnits);
-        var usage = rows.Where(m => m.Type == StockMovementType.Usage).Sum(m => m.QuantityMilliUnits);
+        // Net of reversals: an order voided after checkout gives its usage back (UsageReversal).
+        var usage = rows.Where(m => m.Type == StockMovementType.Usage).Sum(m => m.QuantityMilliUnits)
+            - rows.Where(m => m.Type == StockMovementType.UsageReversal).Sum(m => m.QuantityMilliUnits);
         var waste = rows.Where(m => LossTypes.Contains(m.Type)).Sum(m => m.QuantityMilliUnits);
         var countAdjustmentNet = rows.Where(m => m.Type == StockMovementType.CountAdjustment)
             .Sum(m => m.Direction == StockDirection.In ? m.QuantityMilliUnits : -m.QuantityMilliUnits);

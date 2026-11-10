@@ -140,6 +140,16 @@ public static class CostingRules
         return (long)Math.Round((double)line.QuantityMilliUnits / ratio);
     }
 
+    /// <summary>The quantity to deduct for <paramref name="quantity"/> sold portions. A yield line is
+    /// converted for the whole quantity and rounded ONCE (INV-0003): rounding each portion first
+    /// deducted 999 g for three portions at three per kilo, and the drift accumulated in stock.</summary>
+    public static long? BaseQuantityMilliUnits(RecipeLine line, int quantity)
+    {
+        if (line.Kind != RecipeLineKind.Yield) return line.QuantityMilliUnits * quantity;
+        if (line.YieldUnitsPerBaseUnit is not { } ratio || ratio <= 0) return null;
+        return (long)Math.Round((decimal)line.QuantityMilliUnits * quantity / ratio);
+    }
+
     public readonly record struct RecipeCostResult(Money KnownCost, Money FoodCost, Money PackagingCost, int CompletenessPercent, IReadOnlyList<string> Missing, int LineCount, int KnownLineCount)
     {
         /// <summary>Whether KnownCost is the WHOLE cost of this dish. Callers used to decide that

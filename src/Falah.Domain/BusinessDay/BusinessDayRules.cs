@@ -125,12 +125,21 @@ public static class BusinessDayRules
     public static DenominationCountResult CalculateDenominationCount(
         IReadOnlyList<(long DenominationPiastres, long Quantity)> rows, long expectedPiastres)
     {
-        var normalized = rows.Select(r =>
+        try
         {
-            var quantity = Math.Max(0, r.Quantity);
-            return new DenominationRow(r.DenominationPiastres, quantity, r.DenominationPiastres * quantity);
-        }).ToList();
-        var total = normalized.Sum(r => r.TotalPiastres);
-        return new DenominationCountResult(normalized, total, expectedPiastres, total - expectedPiastres);
+            var normalized = rows.Select(r =>
+            {
+                if (!EgyptianDenominationsPiastres.Contains(r.DenominationPiastres))
+                    throw new DomainException("فئة نقدية غير صالحة.");
+                var quantity = Math.Max(0, r.Quantity);
+                return new DenominationRow(r.DenominationPiastres, quantity, checked(r.DenominationPiastres * quantity));
+            }).ToList();
+            var total = normalized.Sum(r => r.TotalPiastres);
+            return new DenominationCountResult(normalized, total, expectedPiastres, checked(total - expectedPiastres));
+        }
+        catch (OverflowException)
+        {
+            throw new DomainException("قيمة عد النقدية أكبر من الحد المسموح.");
+        }
     }
 }

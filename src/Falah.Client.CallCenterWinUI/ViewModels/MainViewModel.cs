@@ -26,7 +26,7 @@ public partial class MainViewModel : ObservableObject
     {
         _session = session ?? new AppSession();
         Header = new HeaderViewModel(_session);
-        ShowLogin();
+        ShowLogin(RetainedRequestStorage.Current?.RecoveryError);
 
         _healthTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         _healthTimer.Tick += async (_, _) => await CheckHealthNowAsync();
@@ -73,6 +73,7 @@ public partial class MainViewModel : ObservableObject
     /// no separate "call_center" permission is invented for a check the backend already makes.</summary>
     private async void OnLoggedIn()
     {
+        if (RetainedRequestStorage.Current?.RecoveryError is { } recoveryError) { ShowLogin(recoveryError); return; }
         if (!_session.HasPermission("pos"))
         {
             ShowLogin("هذا الحساب لا يملك صلاحية تسجيل الطلبات، ولا يمكن استخدامه في محطة مركز الاتصال.");

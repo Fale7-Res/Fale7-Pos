@@ -1,0 +1,618 @@
+{
+  "schema": 1,
+  "prepared_utc": "2026-11-05",
+  "loop_status": "IMPLEMENTING",
+  "started": "2026-11-06",
+  "owner_instruction": "fix all issues (2026-11-06)",
+  "repository": {
+    "branch": "clients-and-operations-audit",
+    "head": "b3071be",
+    "preflight_status_file": "All Issues/REMEDIATION/preflight-status.txt"
+  },
+  "preservation_snapshot": {
+    "path": "E:\\falah-restaurant\\preservation\\worktree-2026-11-05",
+    "files": 23133,
+    "bytes": "3.377 GB",
+    "excludes": [
+      "bin",
+      "obj"
+    ],
+    "verified": "HEAD b3071be; git status identical; diff 211 files +8989/-1742",
+    "same_disk_as_original": true
+  },
+  "owner_decisions_required_before_start": [
+    "DECIDED: no commits; leave changes uncommitted",
+    "DECIDED: all batches (fix all issues)"
+  ],
+  "batches": [
+    {
+      "id": "B00",
+      "title": "Baseline: rebuild, re-run failing and never-run integration classes, full suite",
+      "issues": [
+        "TEST-0001"
+      ],
+      "kind": "verification-only",
+      "depends_on": [],
+      "blocked_by_decision": null,
+      "status": "IN_PROGRESS",
+      "note": "full baseline running in scratch copy (b00-tree), 2026-11-06"
+    },
+    {
+      "id": "B01",
+      "title": "DST-safe business clock",
+      "issues": [
+        "FIN-0028"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See CODEX_CHECKPOINT.md and artifacts/codex-remediation logs for exact scope; no production/hardware verification implied."
+    },
+    {
+      "id": "B02",
+      "title": "Paid only via payment (remove generic Approved->Paid)",
+      "issues": [
+        "PAYR-0001"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See CODEX_CHECKPOINT.md and artifacts/codex-remediation logs for exact scope; no production/hardware verification implied."
+    },
+    {
+      "id": "B03",
+      "title": "Replay before validation: refunds in-lock, ledger credits before approval",
+      "issues": [
+        "FIN-0025",
+        "PAYR-0014"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "scope_note": "daily wage via option D1 (optional RequestId, additive)",
+      "note": "See CODEX_CHECKPOINT.md and artifacts/codex-remediation logs for exact scope; no production/hardware verification implied."
+    },
+    {
+      "id": "B04",
+      "title": "Money admission inside the transaction",
+      "issues": [
+        "FIN-0010",
+        "FIN-0011",
+        "FIN-0012",
+        "FIN-0013",
+        "FIN-0023"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "FinancialAdmissionTests 8/8; current broader regression pending, see BATCHES/B04.md"
+    },
+    {
+      "id": "B05",
+      "title": "Refund only collected money",
+      "issues": [
+        "FIN-0007"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "decision": "Refuse until collected (owner 2026-11-06)",
+      "status": "CURRENT_TEST_VERIFIED",
+      "depends_on_runtime": "after B03 (same RefundOrderHandler)",
+      "note": "See CODEX_CHECKPOINT.md and artifacts/codex-remediation logs for exact scope; no production/hardware verification implied."
+    },
+    {
+      "id": "B06",
+      "title": "Split-payment model",
+      "issues": [
+        "FIN-0001",
+        "FIN-0002",
+        "FIN-0003",
+        "FIN-0004"
+      ],
+      "depends_on": [
+        "B04"
+      ],
+      "blocked_by_decision": null,
+      "decision": "Void whole order, reverse cash part (owner 2026-11-06)",
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Complete ConfirmElectronicPayment/SplitOrderVoid/Delivery suite78/78; BATCHES/B06.md"
+    },
+    {
+      "id": "B07",
+      "title": "Endpoint-enumeration test and gating of sensitive reads",
+      "issues": [
+        "ARCH-0001",
+        "SEC-0001",
+        "SEC-0002",
+        "SEC-0003",
+        "SEC-0004",
+        "SEC-0005",
+        "INV-0008",
+        "CUS-0001"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "decision": "Owner/all only; customers readable by pos/delivery (owner 2026-11-06)",
+      "status": "SPLIT",
+      "note": "split into B07a then B07b; brief in BATCHES/B07.md"
+    },
+    {
+      "id": "B07a",
+      "title": "Enumeration test; owner-only employee/payroll/backup/supplier/purchase reads; user list names only; inventory costs stripped",
+      "issues": [
+        "ARCH-0001",
+        "SEC-0001",
+        "SEC-0002",
+        "SEC-0003",
+        "INV-0008"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Owner/station/API route coverage7/7; full integration snapshot running, not yet claimed green."
+    },
+    {
+      "id": "B07b",
+      "title": "Ticket/queue gating; settings threshold withheld; business-days gated; customers for order takers",
+      "issues": [
+        "SEC-0004",
+        "SEC-0005",
+        "CUS-0001"
+      ],
+      "depends_on": [
+        "B07a"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Owner/station/API route coverage7/7; full integration snapshot running, not yet claimed green."
+    },
+    {
+      "id": "B08",
+      "title": "No PINs on disk; PIN check without session swap",
+      "issues": [
+        "SEC-0008",
+        "SEC-0009"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "scope_note": "SEC-0009 + SEC-0008(a) now; SEC-0008(b) DPAPI held: needs new package ProtectedData 6.0.0 or P/Invoke (owner question)",
+      "note": "See BATCHES and CODEX_CHECKPOINT for exact scope; B08 client178/178 + both native builds; B10/B12/B16 focused35/35 after broad printing80/81 and corrected READPAST test."
+    },
+    {
+      "id": "B09",
+      "title": "Self-starting, logged print agents",
+      "issues": [
+        "PRT-0012",
+        "PRT-0011",
+        "PRT-0010"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CODE_TEST_VERIFIED_ONSITE_PENDING",
+      "scope_note": "D1 = Option A: never exit on login; wait RefusedLoginPause on a refusal (orchestrator 2026-11-06)",
+      "note": "Runtime logs, journal recovery/probe, login retry, SCM host and installer implemented. Agent suite 40/40; installer parse passes. On-site registration/paper/power-cut acceptance pending."
+    },
+    {
+      "id": "B10",
+      "title": "Print ownership and duplicates",
+      "issues": [
+        "PRT-0003",
+        "PRT-0002",
+        "PRT-0001",
+        "PRT-0014"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See BATCHES and CODEX_CHECKPOINT for exact scope; B08 client178/178 + both native builds; B10/B12/B16 focused35/35 after broad printing80/81 and corrected READPAST test."
+    },
+    {
+      "id": "B11",
+      "title": "Deterministic errors definitive; retire sold sizes; discard for kept requests",
+      "issues": [
+        "API-0003",
+        "MENU-0002",
+        "UI-0003"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Menu SQL47/47, client173/173, nativeCashier build0warnings/errors; BATCHES/B11.md"
+    },
+    {
+      "id": "B12",
+      "title": "Drawer kick priority",
+      "issues": [
+        "HW-0001"
+      ],
+      "depends_on": [
+        "B09"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See BATCHES and CODEX_CHECKPOINT for exact scope; B08 client178/178 + both native builds; B10/B12/B16 focused35/35 after broad printing80/81 and corrected READPAST test."
+    },
+    {
+      "id": "B13",
+      "title": "Signed-input validation",
+      "issues": [
+        "FIN-0015",
+        "FIN-0016",
+        "MENU-0001",
+        "INV-0009",
+        "PAYR-0010",
+        "FIN-0019"
+      ],
+      "depends_on": [
+        "B00"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See CODEX_CHECKPOINT.md and artifacts/codex-remediation logs for exact scope; no production/hardware verification implied."
+    },
+    {
+      "id": "B14",
+      "title": "WinUI status casing (payroll screen, delivery board)",
+      "issues": [
+        "UI-0028",
+        "UI-0031"
+      ],
+      "depends_on": [
+        "B02"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "new findings from B02/B14 analysis; brief in BATCHES/B14.md"
+    },
+    {
+      "id": "B15",
+      "title": "Pickup-time DST validation (client)",
+      "issues": [
+        "UI-0029"
+      ],
+      "depends_on": [
+        "B01"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "new finding from B01 analysis"
+    },
+    {
+      "id": "B16",
+      "title": "Ledger-credit handlers: transaction + conflict-to-replay",
+      "issues": [
+        "PAYR-0020"
+      ],
+      "depends_on": [
+        "B03"
+      ],
+      "blocked_by_decision": null,
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "See BATCHES and CODEX_CHECKPOINT for exact scope; B08 client178/178 + both native builds; B10/B12/B16 focused35/35 after broad printing80/81 and corrected READPAST test."
+    },
+    {
+      "id": "B17",
+      "title": "Void undispatched COD orders; till refund for settled COD",
+      "issues": [
+        "FIN-0051",
+        "UI-0030"
+      ],
+      "depends_on": [
+        "B05"
+      ],
+      "blocked_by_decision": "Who may void a COD order before dispatch (owner)",
+      "status": "PENDING",
+      "note": "new findings from B05 analysis"
+    },
+    {
+      "id": "B18",
+      "title": "Payroll correction credits, Cairo month selection and pay/cancel serialization",
+      "issues": [
+        "PAYR-0002",
+        "PAYR-0003",
+        "PAYR-0008"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Domain435/435; payroll/salary/admission SQL36/36. PAYR-0004 policy not changed."
+    },
+    {
+      "id": "B19",
+      "title": "Reviewed startup migrations and forward-only data normalization",
+      "issues": [
+        "DB-0001",
+        "DB-0002",
+        "DB-0007"
+      ],
+      "status": "CURRENT_TEST_VERIFIED_OWNER_PRESERVATION_PENDING",
+      "note": "Migration/Demo safety11/11; idempotent script generated without DB connection; review docs and verified source archive. Production restored-copy rehearsal and commit remain owner operations."
+    },
+    {
+      "id": "B20",
+      "title": "Unique backups, referenced retention paths and missing-file availability",
+      "issues": [
+        "DB-0004"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "BackupVerticalSliceTests12/12, including fixed-clock and legacy duplicate-path cases."
+    },
+    {
+      "id": "B21",
+      "title": "Canonical roles, tax modes, compensation and ledger types; expense visibility",
+      "issues": [
+        "SEC-0014",
+        "FIN-0031",
+        "PAYR-0011",
+        "PAYR-0012"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Canonical input/scope regressions passed; affected class run129/130 had obsolete allow-list only. Fixed route coverage now green in B24-B25-B27."
+    },
+    {
+      "id": "B22",
+      "title": "Customer lookup race and printer verification ownership",
+      "issues": [
+        "UI-0008",
+        "PRT-0007"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Customer races and printer ownership: client211/211, helper5cases, agent compiled and regression tests passed."
+    },
+    {
+      "id": "B23",
+      "title": "UI retries, stale async completions, pickup reset and ingredient editor",
+      "issues": [
+        "UI-0007",
+        "UI-0010",
+        "UI-0013",
+        "UI-0014",
+        "UI-0015",
+        "UI-0016",
+        "UI-0017",
+        "UI-0018",
+        "UI-0028"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Client211/211, Cashier and CallCenter native builds0warnings/errors."
+    },
+    {
+      "id": "B24",
+      "title": "One active business day and current-day late electronic collection",
+      "issues": [
+        "FIN-0014",
+        "FIN-0021",
+        "FIN-0022"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "All day close/open/admission regressions passed in134-case run; sole failure was an unrelated fixture that had a third demo administrator."
+    },
+    {
+      "id": "B25",
+      "title": "Cross-process PIN ownership and safe reactivation",
+      "issues": [
+        "SEC-0010",
+        "SEC-0012"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Unique PIN changes/reactivation and all actual user-management behavior passed.133/134 suite; fixture constrained to exactly2admins now passes targeted rerun."
+    },
+    {
+      "id": "B26",
+      "title": "Checked money arithmetic boundaries",
+      "issues": [
+        "FIN-0026"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Full Domain443/443 after6red arithmetic boundaries."
+    },
+    {
+      "id": "B27",
+      "title": "Settled COD refund eligibility, Arabic payment state, complete print routes",
+      "issues": [
+        "UI-0030",
+        "UI-0022",
+        "UI-0023",
+        "PRT-0015"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Client211/211; settled/not-settled and under-collected custodySQL cases passed; both native builds0warnings/errors."
+    },
+    {
+      "id": "B28",
+      "title": "Keyboard modal gates and semantic contrast",
+      "issues": [
+        "UI-0004",
+        "UI-0009",
+        "UI-0019",
+        "UI-0020"
+      ],
+      "status": "NATIVE_UI_VERIFIED",
+      "note": "B32 native Cashier285/285; CallCenter43/43, reviewed Dark/Light screenshots and semantic contrast. Normal native builds both0warnings/errors."
+    },
+    {
+      "id": "B29",
+      "title": "Inventory range, unknown loss value, grouped stock balances",
+      "issues": [
+        "INV-0004",
+        "INV-0012",
+        "PERF-0005"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Current Inventory/MenuPricing/OrderVoid/endpoint SQL69/69; client214/214; native current-source UI build succeeds."
+    },
+    {
+      "id": "B30",
+      "title": "Serialized stock posting, unit metadata and prep graph; physical count totals",
+      "issues": [
+        "INV-0001",
+        "INV-0002",
+        "INV-0007"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "Current Inventory/MenuPricing/Purchasing/OrderVoid/FinancialAdmission SQL104/104, including four reproduced stock races; client214/214."
+    },
+    {
+      "id": "B31",
+      "title": "Financial journal Find contract",
+      "issues": [
+        "ARCH-0006"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "SQL contract RED then1/1GREEN; detached immutable rehydration, local pending/deletion handled."
+    },
+    {
+      "id": "B32",
+      "title": "Live themes and cart subscription lifecycle",
+      "issues": [
+        "UI-0004",
+        "UI-0005",
+        "UI-0019",
+        "UI-0020"
+      ],
+      "status": "NATIVE_UI_VERIFIED",
+      "note": "Cashier285/285, CallCenter43/43; test-only startup isolated from station pending files; normal builds restored."
+    },
+    {
+      "id": "B33",
+      "title": "Attendance instants and overnight shifts",
+      "issues": [
+        "PAYR-0009"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "4RED clock/repeated events;3RED midnight handling;42/42 current SQL with legacy UTC/Cairo reconstruction and nullable additive migration."
+    },
+    {
+      "id": "B34",
+      "title": "Serialize all employee running balances",
+      "issues": [
+        "PAYR-0013"
+      ],
+      "status": "CURRENT_TEST_VERIFIED",
+      "note": "accepted under owner account: employee lock group 97/97 (artifacts/claude-20261107/employee-locks.log)",
+      "completed": "2026-11-07"
+    },
+    {
+      "id": "B35",
+      "title": "TLS enforcement for remote endpoints",
+      "issues": [
+        "SEC-0006"
+      ],
+      "status": "CODE_TEST_VERIFIED_ONSITE_PENDING",
+      "note": "5RED client/4RED server cases; client223/223, server/agent32/32; explicit remote HTTP server/agent override logs; actual certificate installation/trust acceptance remains on site."
+    },
+    {
+      "id": "B36",
+      "title": "Restore maintenance barrier, irreversible outcome and backup UI states",
+      "issues": [
+        "DB-0005",
+        "DB-0006",
+        "UI-0012"
+      ],
+      "status": "CURRENT_TEST_VERIFIED_WITH_RESIDUALS",
+      "note": "19/19 + PhysicalRestoreTests 3/3; fixed ScheduledBackupService sync-scope crash; DB-0005 partial: multi-process and startup writers not verified",
+      "completed": "2026-11-07"
+    },
+    {
+      "id": "B38",
+      "title": "Native UI review against an isolated real server (2026-11-07)",
+      "issues": [],
+      "status": "CURRENT_TEST_VERIFIED_NATIVE_RUN",
+      "completed": "2026-11-07",
+      "findings_fixed": [
+        "Header shift pill said closed on every non-POS landing screen (MainViewModel loads current shift after login) - HeaderShiftStateTests RED->GREEN",
+        "Inventory screen always failed: movements read sent empty from=/to= -> 400 - InventoryMovementsQueryTests RED->GREEN",
+        "Orders list showed an unconfirmed transfer as plain \"مكتمل\" and hid refunds - pills added (native evidence)",
+        "Pickup labelled two ways (المحل/المطعم) - unified to \"استلام من المطعم\"",
+        "Dashboard sales mix clipped label and drew a fixed 150px track - auto label column + ProgressBar",
+        "Treasury ledger printed internal \"order_refund ord-...\" / \"external_funding ...\" - server resolves refund order numbers; client labels - TreasuryReferenceDisplayTests",
+        "Control Center blockers printed machine codes (OPEN_SHIFT...) under the Arabic message - removed",
+        "Dark theme: category chips, best-seller badges, offer pills and 22 segmented selectors used fixed white/light colours - theme brushes",
+        "Client test isolation: three classes shared RetainedRequestStorage.Current outside its collection (2-3 random failures per full run)",
+        "FALAH_CLIENT_DATA_ROOT process-scoped override so a verification session never touches station pending operations - ClientDataRootIsolationTests"
+      ],
+      "evidence": "docs/UI_VERIFICATION_AND_CHANGES.md; artifacts/claude-20261107/ui/"
+    }
+  ],
+  "later_phases_reference": "All Issues/03_PRIORITIZED_FIX_ROADMAP.md phases 3-7 (batches to be defined after B13)",
+  "owner_questions_pending": [
+    "B17: who may void a cash-on-delivery order before dispatch (FIN-0051)",
+    "B07 Q1: tighten the already reports_view-gated cost/employee reads (inventory cost/overview/detail/loss/variance, recipe costs, food-cost, employees financial-report) to owner/all? (permission grant)",
+    "B07 Q4: payroll-rule settings (overtime rate, late grace, penalty multipliers) visible to every session - acceptable?",
+    "FIN-0020: which system balance a business-day cash count is compared with (drawer / main treasury cash / shift expected)",
+    "FIN-0042: should a paid-but-undelivered order block the business-day close; how is the money returned"
+  ],
+  "last_codex_update_utc": "2026-11-07T23:30:51.242Z",
+  "handoff_document": "docs/CODEX_TAKEOVER_20261108.md",
+  "claude_execution_brief": "docs/CLAUDE_FULL_VERIFICATION_AND_UI_MASTER.md",
+  "owner_execution_constraint": "Only accept fixes that can be meaningfully verified; leave SQL/DPAPI/native/on-site blockers explicit. Owner also requests full Arabic project explanation and all active UI verification/improvement.",
+  "codex_takeover": {
+    "started": "2026-11-08",
+    "status": "IN_PROGRESS_SQL_AND_DPAPI_ENVIRONMENT_BLOCKED",
+    "checkpoint": "docs/CODEX_TAKEOVER_20261108.md",
+    "owner_requests": "docs/UI_OWNER_REQUESTS.md",
+    "verified_issue": "UI-0035",
+    "domain_tests": 454,
+    "native_shift_cases": 72,
+    "native_construction_cases": 285,
+    "print_renderer_tests": 13,
+    "normal_cashier_build": "0 warnings / 0 errors",
+    "note": "Native fixtures have no server or station-store access; SQL success and full client recovery cannot be reverified in the sandbox account.",
+    "documentation_index": "README.md"
+  },
+  "documentation_archive": {
+    "guide": "docs/archive/README.md",
+    "zip": "docs/archive/documentation-20261108.zip",
+    "manifest": "docs/archive/documentation-20261108-manifest.json",
+    "sha256": "4e44026d964057d789c2824ca9eb44276cf4f34ef53ed889155de56910b22d9f",
+    "historicalFiles": 9157,
+    "deletedLooseFiles": 9154
+  },
+  "claude_takeover_20261108": {
+    "status": "UI_REQ_001_AND_002_IMPLEMENTED; UI_CONSISTENCY_FROZEN; UI_ACCEPTANCE_IN_PROGRESS",
+    "execution_account": "owner account i-seven; SQL encrypted connection and DPAPI both available (Codex's sandbox blocker does not apply here)",
+    "source_fingerprint": "F8945DE9C3A2914B (integration); client-only changes after it",
+    "domain_tests": "475/475",
+    "client_tests": "371/371 (2026-11-09)",
+    "integration_targeted": "statements, midnight, shift close, business-day membership 24/24; full suite pending on this fingerprint",
+    "ui_req_002": "IMPLEMENTED_VERIFIED_SOFTWARE: frozen close statement, dialog on POS and Shifts screen, print status and reprint, lost response + forced restart + retry, print failure after close; physical paper on site",
+    "ui_req_001": "IMPLEMENTED_VERIFIED_SOFTWARE: driver daily statement with driver/business-day/payment filters, summary and detail papers; physical paper on site",
+    "new_issues": [
+      "UI-0036",
+      "UI-0037",
+      "UI-0038",
+      "UI-0039",
+      "UI-0040"
+    ],
+    "evidence": "artifacts/claude-20261107/ui/controls/ and docs/UI_OWNER_REQUESTS.md (Implementation status — Claude, 2026-11-08)",
+    "integration_full": "927 passed / 0 failed / 0 skipped on earlier tested source fingerprint F8945DE9C3A2914B (finished 2026-11-08 18:30); later changes client-only",
+    "shift_handover_20261109": {
+      "status": "IMPLEMENTED_VERIFIED_SQL_AND_NATIVE; full integration suite pending on B806353952F13D1C",
+      "change": "BusinessDayGate.ResolveForShiftOpenAsync inside OpenShiftHandler: reuse active day or create it atomically under authorized shift opening; closed date refused; no permission change",
+      "tests": "CashierShiftStartupTests 7/7; neighbours 70/70; BusinessDayAssociationTests superseded test rewritten to assert every shift has a day",
+      "native": "artifacts/claude-20261109/shift-handover (h01-h08)"
+    },
+    "ui_acceptance_20261109": "pass A done (login message defect fixed, LoginFailureMessageTests 3/3, client 374/374); pass B to re-run; pass C pending"
+  }
+}

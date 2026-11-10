@@ -43,7 +43,11 @@ public sealed record ReassignDeliveryResult(string DeliveryId, string DriverId, 
 /// comment for why.</summary>
 public sealed record RecordDeliveryResultRequest(
     string RequestId, string DeliveryId, string Result, long? CollectedAmountPiastres, string? Reason,
-    string? Notes, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);
+    string? Notes, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId,
+    /// <summary>For a cash-on-delivery order that Failed or was Returned, which voids the sale: was
+    /// its food prepared ("prepared" - recorded as waste) or not ("not_prepared" - its ingredients go
+    /// back into stock). Required in that case, ignored otherwise.</summary>
+    string? StockDisposition = null);
 
 public sealed record RecordDeliveryResultResult(string DeliveryId, string Status, bool WasReplayed);
 
@@ -65,7 +69,7 @@ public sealed record SettleDriverCustodyResult(
 /// was going: no customer, no area, no address, no phone. A dispatcher assigning a driver had to
 /// open each order separately to find out which side of town it was on.
 ///
-/// <paramref name="ElectronicPaymentStatus"/> is "Pending" while a transfer the customer says they
+/// <paramref name="ElectronicPaymentStatus"/> is "pending" while a transfer the customer says they
 /// sent has not been confirmed. That order's money is not settled and not cash-on-delivery either -
 /// the board has to say so before somebody hands it to a driver.</summary>
 public sealed record DeliveryDto(
@@ -85,6 +89,19 @@ public sealed record DeliveryEventDto(
 public enum DriverOperationalStatus { Available, Out, Returning, Assigned, SettlementPending }
 
 public sealed record BlockingOrderDto(string DeliveryId, string OrderId, string OrderNumber, string Status);
+
+/// <summary>One driver's figures over a date range - "today / last 7 days / month / custom period"
+/// per the final pre-go-live business rule. Every field is derived from the same Deliveries/
+/// DriverCustodies/DriverSettlements rows GetDriverAccountAsync and GetDeliveryOutcomesReportAsync
+/// already read - no invented metric. CurrentCustodyPiastres and LastSettlementAtUtc are
+/// deliberately NOT range-scoped ("current"/"last" mean now, not "within the period"), matching the
+/// same all-time convention treasury balances and running employee balances already use elsewhere.</summary>
+public sealed record DriverStatisticsDto(
+    string DriverId, string DriverName,
+    int AssignedCount, int DeliveredCount, int FailedCount, int ReturnedCount,
+    long OrderValuePiastres, long CashCollectedPiastres, long CurrentCustodyPiastres,
+    int SettlementCount, long SettlementShortagesPiastres, long SettlementOveragesPiastres,
+    long? AverageDeliveryMinutes, DateTimeOffset? LastOrderAtUtc, DateTimeOffset? LastSettlementAtUtc);
 
 /// <summary>Ported from driverAccountView in lib/delivery-domain.mjs - the full owner/dispatcher
 /// account view for one driver: current in-flight/unsettled position plus all-time settlement

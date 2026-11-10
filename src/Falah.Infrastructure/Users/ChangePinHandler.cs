@@ -20,47 +20,116 @@ public sealed class ChangePinHandler
 {
     private readonly FalahDbContext _db;
     private readonly IApprovalRegistry _approvalRegistry;
+    private readonly PinChoiceGuard _pinChoices;
 
-    public ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+    public ChangePinHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, PinChoiceGuard pinChoices)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
+        _pinChoices = pinChoices;
     }
 
     public async Task HandleAsync(ChangePinRequest request, CancellationToken ct = default)
     {
+        var auditId = string.IsNullOrWhiteSpace(request.RequestId) ? null
+            : $"audit-pin-changed-{request.ActorUserId}-{request.RequestId}";
+        async Task<bool> IsReplayAsync()
+        {
+            if (auditId is null) return false;
+            var receipt = await _db.ControlAuditEvents.AsNoTracking().FirstOrDefaultAsync(e => e.Id == auditId, ct);
+            if (receipt is null) return false;
+            if (receipt.Action != "pin_changed" || receipt.EntityId != request.UserId)
+                throw new DomainException("مفتاح الطلب مستخدم لعملية أخرى.");
+            return true;
+        }
+        if (await IsReplayAsync()) return;
+        if (request.RequestId?.Length > 100) throw new DomainException("مفتاح الطلب أطول من الحد المسموح.");
+        try { await ApplyAsync(request, auditId, ct); }
+        catch (Exception ex) when (ex is DbUpdateException or DomainException)
+        {
+            if (await IsReplayAsync()) return;
+            throw;
+        }
+    }
+
+    private async Task ApplyAsync(ChangePinRequest request, string? auditId, CancellationToken ct)
+    {
         var target = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
 
-        string actorName;
+        // First, and free: a mistyped new PIN tells nobody anything, so it should not cost a choice.
+        PinHasher.AssertValidPin(request.NewPin);
+
+        UserEntity actorUser;
         if (request.ActorUserId == request.UserId)
         {
+            // Claimed before the current PIN is checked: a wrong current PIN is a guess too.
+            await _pinChoices.ClaimAsync(_db, target, "تغيير الرمز السري الشخصي", ct);
             if (string.IsNullOrEmpty(request.CurrentPin) || !PinHasher.Verify(request.CurrentPin, target.PinHash, target.PinSalt, target.PinIterations))
                 throw new DomainException("رمز PIN الحالي غير صحيح.");
-            actorName = target.Name;
+            actorUser = target;
         }
         else
         {
-            var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
+            actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
                 ?? throw new InvalidOperationException("المستخدم غير موجود.");
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "users_manage");
             UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ");
-            actorName = actorUser.Name;
+            await _pinChoices.ClaimAsync(_db, actorUser, $"إعادة تعيين الرمز السري لـ {target.Name}", ct);
         }
+        var actorName = actorUser.Name;
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await UserIdentityLock.AcquireAsync(_db, ct);
+        if (auditId is not null)
+        {
+            var receipt = await _db.ControlAuditEvents.AsNoTracking().FirstOrDefaultAsync(e => e.Id == auditId, ct);
+            if (receipt is not null)
+            {
+                if (receipt.Action != "pin_changed" || receipt.EntityId != target.Id) throw new DomainException("مفتاح الطلب مستخدم لعملية أخرى.");
+                return;
+            }
+        }
+        await _db.Entry(target).ReloadAsync(ct);
+        if (request.ActorUserId == request.UserId)
+        {
+            if (request.Reactivate) throw new DomainException("إعادة تفعيل الحساب تتطلب مسؤول المستخدمين.");
+            if (string.IsNullOrEmpty(request.CurrentPin) || !PinHasher.Verify(request.CurrentPin, target.PinHash, target.PinSalt, target.PinIterations))
+                throw new DomainException("رمز PIN الحالي غير صحيح.");
+        }
+        else UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ");
+        if (request.Reactivate && target.Active) throw new DomainException("الحساب نشط بالفعل؛ حدّث قائمة المستخدمين.");
 
-        await PinUniquenessChecker.AssertNotInUseAsync(_db, request.NewPin, excludeUserId: target.Id, ct);
+        try
+        {
+            await PinUniquenessChecker.AssertNotInUseAsync(_db, request.NewPin, excludeUserId: target.Id, chosenBy: actorUser, ct);
+        }
+        catch (DomainException)
+        {
+            // The checker has saved a pin_collision record against the account whose PIN was hit;
+            // inside this transaction it would roll back with the refusal and the exposure would go
+            // unrecorded. Nothing else is pending here (target was only reloaded), so commit it.
+            await transaction.CommitAsync(ct);
+            throw;
+        }
         var hashed = PinHasher.Hash(request.NewPin);
         target.PinHash = hashed.HashBase64;
         target.PinSalt = hashed.SaltBase64;
         target.PinIterations = hashed.Iterations;
+        if (request.Reactivate)
+        {
+            target.Active = true;
+            _db.ControlAuditEvents.Add(new ControlAuditEventEntity { Id = $"audit-{Guid.NewGuid():N}", Action = "user_reactivated", Actor = actorName, EntityId = target.Id, Reason = "تفعيل برمز سري تم التحقق من عدم تكراره", CreatedAtUtc = DateTimeOffset.UtcNow });
+        }
 
         // Never logs the old or new PIN value itself - only that a change happened and who did it,
         // matching the reference app's own setEmployeePin audit line ("لم يتم عرض أو تخزين الرمز القديم").
         _db.ControlAuditEvents.Add(new ControlAuditEventEntity
         {
-            Id = $"audit-{Guid.NewGuid():N}", Action = "pin_changed", Actor = actorName, EntityId = target.Id,
+            Id = auditId ?? $"audit-{Guid.NewGuid():N}", Action = "pin_changed", Actor = actorName, EntityId = target.Id,
+            OperationId = request.RequestId,
             CreatedAtUtc = DateTimeOffset.UtcNow,
         });
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 }

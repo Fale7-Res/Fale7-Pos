@@ -9,15 +9,23 @@ namespace Falah.Client.CallCenterWinUI.Views;
 public sealed partial class CallCenterOrderPanelView : UserControl
 {
     private CallCenterViewModel? ViewModel => DataContext as CallCenterViewModel;
+    private CallCenterViewModel? _subscribed;
+    private bool _isLoaded;
 
     public CallCenterOrderPanelView()
     {
         InitializeComponent();
-        DataContextChanged += (_, _) =>
-        {
-            if (ViewModel is { } vm) vm.Cart.CollectionChanged += OnCartChanged;
-            UpdateEmptyCartVisibility();
-        };
+        Loaded += (_, _) => { _isLoaded = true; UpdateSubscription(); };
+        Unloaded += (_, _) => { _isLoaded = false; UpdateSubscription(); };
+        DataContextChanged += (_, _) => UpdateSubscription();
+    }
+
+    private void UpdateSubscription()
+    {
+        if (_subscribed is not null) _subscribed.Cart.CollectionChanged -= OnCartChanged;
+        _subscribed = _isLoaded ? ViewModel : null;
+        if (_subscribed is not null) _subscribed.Cart.CollectionChanged += OnCartChanged;
+        UpdateEmptyCartVisibility();
     }
 
     private void OnCartChanged(object? sender, NotifyCollectionChangedEventArgs e) => UpdateEmptyCartVisibility();

@@ -6,6 +6,7 @@ using Falah.Application.Approvals;
 using Falah.Application.Expenses;
 using Falah.Application.Shifts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 /// <summary>
@@ -37,7 +38,7 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
 
     private static AddExpenseRequest MakeRequest(string shiftId, string userId, string paymentAccountId,
         long amountPiastres = 5000, string? approvalId = null, string? approverId = null, string requestId = "") =>
-        new(string.IsNullOrEmpty(requestId) ? $"exp-{Guid.NewGuid():N}" : requestId, shiftId, "مستلزمات",
+        new(string.IsNullOrEmpty(requestId) ? $"exp-{Guid.NewGuid():N}" : requestId, shiftId, "مستلزمات تشغيل",
             amountPiastres, "شراء أدوات تنظيف", paymentAccountId, userId, approvalId, approverId);
 
     [Fact]
@@ -78,7 +79,8 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
     {
         var cashierId = await _factory.SeedUserAsync("كاشير بلا صلاحية", "cashier", "pos", "shifts_open_own");
         var shiftId = await OpenShiftAsync(cashierId);
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at the cashier's own till: an approval is spent only by the session that asked.
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, cashierId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_add_drawer", "اعتماد مصروف"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
 
         var response = await _client.PostAsJsonAsync("/api/expenses",
@@ -93,7 +95,7 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
         // approval token must not substitute for holding expenses_main_treasury directly.
         var cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own");
         var shiftId = await OpenShiftAsync(cashierId);
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, cashierId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_main_treasury", "محاولة اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
 
         var response = await _client.PostAsJsonAsync("/api/expenses",
@@ -125,19 +127,33 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task An_expense_requires_an_open_business_day_even_when_the_shift_itself_is_open()
     {
-        // A shift opened with ZERO cash never touches Treasury or requires a business day (see
-        // OpenShiftHandler) - the only way to get an open shift with NO open business day in this
-        // system, to isolate this gate from the shift-open gate that would otherwise also require one.
+        // The API can no longer produce an open shift with no business day: an authorized opening resolves (or,
+        // since the 2026-11-09 owner-approved handover, creates) its day in the same transaction - see
+        // CashierShiftStartupTests. A shift opened BEFORE shifts carried a day can still be in that state in a real
+        // database, which is the case this gate still has to hold for. So that row is seeded directly here, with no
+        // business day at all, to isolate the expense gate from the shift-open one.
         using var freshFactory = new FalahApiFactory();
         // Its own factory AND its own database - not a restart over a shared one, so its
         // sessions are its own. TokenFor mints lazily, so the client can be built before the
         // user it will act as exists.
         var freshClient = freshFactory.CreateAuthenticatedClient();
         var cashierId = await freshFactory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own", "expenses_add_drawer");
-        var shift = await (await freshClient.PostAsJsonAsync("/api/shifts/open",
-            new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", cashierId, 0))).Content.ReadFromJsonAsync<OpenShiftResult>();
+        Assert.Equal(0, await freshFactory.QueryAsync(db => db.BusinessDays.CountAsync()));
 
-        var response = await freshClient.PostAsJsonAsync("/api/expenses", MakeRequest(shift!.ShiftId, cashierId, "tre-drawer"));
+        var legacyShiftId = $"shift-{Guid.NewGuid():N}";
+        using (var scope = freshFactory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>();
+            db.Shifts.Add(new Falah.Infrastructure.Persistence.Entities.ShiftEntity
+            {
+                Id = legacyShiftId, ShiftName = "صباحية", OpenedByUserId = cashierId, OpeningCashPiastres = 0,
+                Status = "Open", BusinessDate = Falah.Domain.Common.BusinessClock.Today(),
+                OpenedAtUtc = DateTimeOffset.UtcNow, OpenRequestId = $"open-{Guid.NewGuid():N}",
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var response = await freshClient.PostAsJsonAsync("/api/expenses", MakeRequest(legacyShiftId, cashierId, "tre-drawer"));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
@@ -244,4 +260,21 @@ public class ExpenseVerticalSliceTests : IAsyncLifetime
         Assert.Equal(42000, preview!.ExpectedCashPiastres); // 50000 opening - 8000 drawer expense
         Assert.Equal(0, preview.DifferencePiastres);
     }
+
+    [Theory]
+    [InlineData("Cashier")]
+    [InlineData("station")]
+    public async Task A_role_spelling_cannot_grant_access_to_main_treasury_expenses(string role)
+    {
+        var id = await _factory.SeedUserAsync("محطة", role, "pos", "shifts_open_own", "expenses_add_drawer");
+        var shift = await OpenShiftAsync(id);
+        (await _client.PostAsJsonAsync("/api/expenses", MakeRequest(shift, id, "tre-drawer"))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/expenses", MakeRequest(shift, _managerId, "tre-main"))).EnsureSuccessStatusCode();
+        var response = await _client.GetAsync($"/api/expenses?actorUserId={id}&shiftId={shift}&businessDate={Falah.Domain.Common.BusinessClock.Today():yyyy-MM-dd}");
+        response.EnsureSuccessStatusCode();
+        var visible = (await response.Content.ReadFromJsonAsync<List<ExpenseDto>>())!;
+        Assert.Single(visible);
+        Assert.All(visible, e => Assert.True(e.PaidFromDrawer));
+    }
+
 }

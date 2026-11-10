@@ -2,6 +2,8 @@ namespace Falah.Infrastructure.Expenses;
 
 using Falah.Application.Expenses;
 using Falah.Domain.Common;
+using Falah.Domain.Authorization;
+using Falah.Infrastructure.Orders;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -9,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 /// <summary>Ported from expensesVisibleToActor in the reference app's lib/expense-visibility.mjs.
 /// A cashier sees only their OWN open shift's drawer-paid expenses (so they can reconcile their own
-/// drawer, and nothing about anyone else's spending); everyone else sees every expense for a given
+/// drawer, and nothing about anyone else's spending); only explicit report/treasury permission sees every expense for a given
 /// business date. This is not a UI-side filter - it is enforced here, server-side.</summary>
 public sealed class ExpenseQueryService
 {
@@ -23,11 +25,14 @@ public sealed class ExpenseQueryService
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
 
         IQueryable<ExpenseEntity> query;
-        if (actorUser.Role == "cashier")
+        var actor = OrderMapper.ToActor(actorUser);
+        var canReadAll = AuthorizationPolicy.HasPermission(actor, "reports_view")
+            || AuthorizationPolicy.HasPermission(actor, "expenses_main_treasury");
+        if (!canReadAll)
         {
             if (string.IsNullOrEmpty(shiftId)) throw new DomainException("لا بد من تحديد الوردية.");
             var shift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == shiftId, ct);
-            if (shift is null || shift.Status != nameof(ShiftStatus.Open)) return Array.Empty<ExpenseDto>();
+            if (shift is null || shift.Status != nameof(ShiftStatus.Open) || shift.OpenedByUserId != actorUserId) return Array.Empty<ExpenseDto>();
             query = _db.Expenses.AsNoTracking().Where(e => e.ShiftId == shiftId && e.PaidFromDrawer);
         }
         else

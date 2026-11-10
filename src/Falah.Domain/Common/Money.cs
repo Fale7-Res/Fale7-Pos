@@ -22,16 +22,20 @@ public readonly record struct Money : IComparable<Money>
     /// </summary>
     public static Money FromEgp(decimal egp)
     {
-        var piastres = decimal.Round(egp * 100m, 0, MidpointRounding.AwayFromZero);
-        return new Money((long)piastres);
+        try
+        {
+            var piastres = decimal.Round(egp * 100m, 0, MidpointRounding.AwayFromZero);
+            return new Money(checked((long)piastres));
+        }
+        catch (OverflowException) { throw OutOfRange(); }
     }
 
     public decimal Egp => Piastres / 100m;
 
-    public static Money operator +(Money a, Money b) => new(a.Piastres + b.Piastres);
-    public static Money operator -(Money a, Money b) => new(a.Piastres - b.Piastres);
-    public static Money operator -(Money a) => new(-a.Piastres);
-    public static Money operator *(Money a, long factor) => new(a.Piastres * factor);
+    public static Money operator +(Money a, Money b) => Calculate(() => checked(a.Piastres + b.Piastres));
+    public static Money operator -(Money a, Money b) => Calculate(() => checked(a.Piastres - b.Piastres));
+    public static Money operator -(Money a) => Calculate(() => checked(-a.Piastres));
+    public static Money operator *(Money a, long factor) => Calculate(() => checked(a.Piastres * factor));
 
     public static bool operator >(Money a, Money b) => a.Piastres > b.Piastres;
     public static bool operator <(Money a, Money b) => a.Piastres < b.Piastres;
@@ -44,7 +48,14 @@ public readonly record struct Money : IComparable<Money>
     public bool IsZero => Piastres == 0;
     public bool IsPositive => Piastres > 0;
 
-    public Money Abs() => new(Math.Abs(Piastres));
+    public Money Abs() => IsNegative ? -this : this;
+
+    private static DomainException OutOfRange() => new("المبلغ أو نتيجة الحساب تتجاوز الحد المالي المسموح.");
+    private static Money Calculate(Func<long> operation)
+    {
+        try { return new Money(operation()); }
+        catch (OverflowException) { throw OutOfRange(); }
+    }
 
     public override string ToString() => Egp.ToString("0.00");
 }

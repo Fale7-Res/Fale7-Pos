@@ -27,7 +27,8 @@ public partial class HeaderViewModel : ObservableObject
         _clockTimer.Start();
     }
 
-    private string _restaurantName = "فلاح";
+    // Shown until Settings supplies the configured name (and if Settings cannot be read).
+    private string _restaurantName = "فالح أبو العنبه";
     public string RestaurantName => _restaurantName;
     public void SetIdentity(string name) { _restaurantName = name; OnPropertyChanged(nameof(RestaurantName)); }
     public string LogoLetter => "ف";

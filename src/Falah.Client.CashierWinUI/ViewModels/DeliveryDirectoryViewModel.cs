@@ -25,7 +25,7 @@ public partial class DeliveryDirectoryViewModel : ObservableObject
     private readonly AppSession _session;
     private readonly RetainedRequest<object> _write = new("delivery.directory");
 
-    public DeliveryDirectoryViewModel(AppSession session) => _session = session;
+    public DeliveryDirectoryViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     public event Action? Changed;
 

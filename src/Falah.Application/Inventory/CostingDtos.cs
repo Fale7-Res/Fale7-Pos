@@ -22,7 +22,13 @@ public sealed record MovementTotalsDto(long PurchasedMilliUnits, long UsageMilli
 public sealed record VarianceDto(
     long TheoreticalUsageMilliUnits, long RecordedConsumptionMilliUnits, long VarianceMilliUnits, long CountAdjustmentNetMilliUnits);
 
-public sealed record LossSummaryDto(long TotalLossValuePiastres, int MovementCount, IReadOnlyDictionary<string, long> ValueByType);
+public sealed record LossSummaryDto(long TotalLossValuePiastres, int MovementCount, IReadOnlyDictionary<string, long> ValueByType)
+{
+    // Totals contain the known value only. Missing historical costs remain explicitly unknown.
+    public int UnknownValueMovementCount { get; init; }
+    public IReadOnlyDictionary<string, int> UnknownValueByType { get; init; } = new Dictionary<string, int>();
+    public bool IsValueComplete => UnknownValueMovementCount == 0;
+}
 
 public sealed record SharedConsumptionDto(
     long? ActualDailyAvgMilliUnits, long? StandardDailyUsageMilliUnits, long? VarianceMilliUnitsPerDay, long ConsumedMilliUnits);

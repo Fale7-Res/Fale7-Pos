@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Purchasing;
+﻿namespace Falah.Infrastructure.Purchasing;
 
 using Falah.Application.Purchasing;
 using Falah.Domain.Audit;
@@ -57,6 +57,9 @@ public sealed class ReceivePurchaseHandler
             ?? throw new DomainException("المورد المحدد غير موجود.");
         if (request.Lines.Count == 0) throw new DomainException("يجب إضافة صنف واحد على الأقل للفاتورة.");
 
+        if (request.Lines.Any(l => l.QuantityMilliUnits <= 0 || l.UnitCostPiastres < 0))
+            throw new DomainException("كمية كل بند يجب أن تكون أكبر من صفر والتكلفة يجب ألا تكون سالبة.");
+
         var lines = request.Lines.Select(l => new
         {
             l.InventoryItemId, l.QuantityMilliUnits, l.UnitCostPiastres,
@@ -72,11 +75,6 @@ public sealed class ReceivePurchaseHandler
 
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod);
         if (paid.IsPositive && accountId is null) throw new DomainException("يجب تحديد حساب دفع فعلي للمبلغ المدفوع.");
-        if (accountId is not null)
-        {
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
-            FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
-        }
         // Read each ingredient's current cost basis BEFORE this receipt is written, so the change
         // this invoice causes can be recorded. See PurchasingRules.DescribeUnitCostChange for why
         // this matters more here than it looks: one line rewrites every recipe using that item.
@@ -92,11 +90,19 @@ public sealed class ReceivePurchaseHandler
             previousUnitCosts[itemId] = lastCost is { } c ? Money.FromPiastres(c) : null;
         }
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindPurchaseAsync(purchaseId, ct);
+            if (admissionReplay is not null) return ToDto(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            if (accountId is not null)
+            {
+                var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
+                FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
+            }
             var idempotencyKey = $"purchase-{purchaseId}";
             var journal = new Falah.Infrastructure.Persistence.EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, "purchase"))
@@ -162,6 +168,7 @@ public sealed class ReceivePurchaseHandler
                 });
             }
 
+            await Falah.Infrastructure.Inventory.InventoryWriteLock.AcquireAsync(_db, ct);
             foreach (var line in lines)
             {
                 _db.StockMovements.Add(new Falah.Infrastructure.Persistence.Entities.StockMovementEntity
@@ -177,7 +184,7 @@ public sealed class ReceivePurchaseHandler
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "استلام فاتورة مشتريات", "cash", $"من المورد {supplier.Id} - الإجمالي {total.Piastres} قرش - المدفوع {paid.Piastres} قرش",
+                "استلام فاتورة مشتريات", "cash", $"من المورد {supplier.Name} - الإجمالي {total.Piastres} قرش - المدفوع {paid.Piastres} قرش",
                 "normal", now, AuthorizedBy: authorization.Approver?.ApproverName, OperationId: operationId, ReferenceId: purchaseId));
 
             // One audit line per ingredient whose cost basis this invoice actually moved. Recording

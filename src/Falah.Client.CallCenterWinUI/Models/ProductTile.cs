@@ -6,7 +6,12 @@ namespace Falah.Client.CallCenterWinUI.Models;
 /// <summary>Pre-pairs a product with its currently-applicable offers so the view never has to walk
 /// back up a nested items list to find "which product does this offer button belong to" - that
 /// pairing is decided once here, in C#, instead of via fragile ancestor lookups in the view.</summary>
-public sealed record OfferChoice(MenuProductDto Product, MenuOfferDto Offer);
+public sealed record OfferChoice(MenuProductDto Product, MenuOfferDto Offer)
+{
+    /// <summary>What a screen reader and UI Automation call the offer pill: what is printed on it.</summary>
+    public override string ToString() => $"{Offer.Name} {Services.CashInput.Format(Offer.FixedPricePiastres)} ج";
+    public string AccessibleName => ToString();
+}
 
 public sealed record ProductTile(MenuProductDto Product, IReadOnlyList<OfferChoice> Offers, Uri? ImageUri = null, string? CategoryIcon = null)
 {
@@ -14,6 +19,10 @@ public sealed record ProductTile(MenuProductDto Product, IReadOnlyList<OfferChoi
     /// failure - the card falls back to the category's icon rather than to an empty frame. The Uri
     /// itself is turned into an image by the view; a model has no business holding a bitmap.</summary>
     public bool HasImage => ImageUri is not null;
+
+    /// <summary>The tile's accessible name. A GridView item with no explicit name is named by its data
+    /// item's ToString(); the compiler-generated record dump was being read out instead.</summary>
+    public override string ToString() => $"{Product.Name}، {StartingPriceDisplay}";
 
     /// <summary>What the card shows in the photo's place. The category's own icon says something
     /// true about the item; a generic placeholder would say nothing.</summary>
@@ -42,6 +51,9 @@ public sealed partial class CategoryTile : ObservableObject
 {
     public MenuCategoryDto Category { get; }
     public CategoryTile(MenuCategoryDto category) => Category = category;
+
+    /// <summary>Accessible name of the category chip (was the type name).</summary>
+    public override string ToString() => Category.Name;
 
     [ObservableProperty] private bool _isSelected;
 }

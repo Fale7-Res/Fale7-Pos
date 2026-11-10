@@ -5,7 +5,10 @@ namespace Falah.Application.Orders;
 /// cancelPendingElectronicPayment in lib/store.tsx. No separate idempotency-request-id: like
 /// ConfirmElectronicPaymentRequest, the order's own Status/ElectronicPaymentStatus IS the
 /// idempotency marker (cancelling an already-cancelled order is a harmless no-op).</summary>
-public sealed record CancelPendingElectronicPaymentRequest(string OrderId, string Reason, string CashierId);
+/// <param name="StockDisposition">Whether the order's food was prepared ("prepared" - its ingredients
+/// are recorded as waste) or not ("not_prepared" - they go back into stock). Required: checkout took
+/// them out of stock, and only the operator knows which of the two happened.</param>
+public sealed record CancelPendingElectronicPaymentRequest(string OrderId, string Reason, string CashierId, string? StockDisposition = null);
 
 public sealed record CancelPendingElectronicPaymentResult(
-    string OrderId, string Status, string ElectronicPaymentStatus, bool WasReplayed);
+    string OrderId, string Status, string ElectronicPaymentStatus, bool WasReplayed, long CashToHandBackPiastres = 0);

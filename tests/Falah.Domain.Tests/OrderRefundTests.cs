@@ -74,6 +74,37 @@ public class OrderRefundTests
         Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
     }
 
+    [Theory]
+    [InlineData(PaymentMethod.InstaPay)]
+    [InlineData(PaymentMethod.Wallet)]
+    public void An_unconfirmed_transfer_cannot_be_refunded(PaymentMethod method)
+    {
+        var order = MakeOrder(200m, method);
+        Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
+        Assert.Empty(order.Refunds);
+        Assert.Equal(Money.Zero, order.RefundAmount);
+    }
+
+    [Fact]
+    public void Cash_with_a_driver_cannot_be_refunded_before_settlement()
+    {
+        var items = new[] { Item(200m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Cash, items,
+            Money.Zero, null, Money.Zero, Money.Zero, Money.Zero, null, null);
+        var order = Order.Create(plan, "cod", "#1", 1, "cashier", "shift", items, "req", "day", Now);
+        Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
+        Assert.Empty(order.Refunds);
+    }
+
+    [Fact]
+    public void A_confirmed_transfer_can_be_refunded()
+    {
+        var order = MakeOrder(200m, PaymentMethod.InstaPay);
+        order.ConfirmElectronicPayment();
+        order.ApplyRefund(MakeRefund(Money.FromEgp(50m)));
+        Assert.Equal(Money.FromEgp(50m), order.RefundAmount);
+    }
+
     [Fact]
     public void ClampRefundAmount_never_returns_more_than_what_remains()
     {
@@ -116,4 +147,16 @@ public class OrderRefundTests
     {
         Assert.Throws<DomainException>(() => RefundRules.AssertOrderCanBeCancelled(Money.FromEgp(10m)));
     }
+
+    [Fact]
+    public void Settled_cash_delivery_can_be_refunded()
+    {
+        var items = new[] { Item(200m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Cash, items,
+            Money.Zero, null, Money.Zero, Money.Zero, Money.Zero, null, null);
+        var order = Order.Create(plan, "cod", "#1", 1, "cashier", "shift", items, "req", "day", Now);
+        order.ApplyRefund(MakeRefund(Money.FromEgp(50m)), cashOnDeliverySettled: true);
+        Assert.Equal(Money.FromEgp(50m), order.RefundAmount);
+    }
+
 }

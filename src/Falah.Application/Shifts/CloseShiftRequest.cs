@@ -7,6 +7,10 @@ public sealed record PrepareShiftCloseRequest(string ShiftId, long ActualCashCou
 public sealed record PrepareShiftCloseResult(
     string ShiftId, long ExpectedCashPiastres, long ActualCashPiastres, long DifferencePiastres, bool RequiresManagerApproval);
 
+/// <summary>One cash count typed for a shift's close, in the order they were typed. More than one
+/// means the count was changed after the expected cash was shown.</summary>
+public sealed record ShiftCashDeclarationDto(int Sequence, long CountedPiastres, string DeclaredBy, DateTimeOffset DeclaredAtUtc);
+
 /// <summary>Step 2: commits the close. CloseRequestId is minted once per "confirm close" button
 /// press and must be reused unchanged by a retry - same idempotency contract as
 /// CheckoutOrderRequest.CheckoutRequestId. ManagerApprovalId/ManagerApproverUserId are only

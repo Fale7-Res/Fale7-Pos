@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Reports;
@@ -41,6 +41,8 @@ public partial class OwnerDashboardViewModel : ObservableObject
         new PeriodOption("last7", "آخر ٧ أيام"),
         new PeriodOption("last30", "آخر ٣٠ يومًا"),
         new PeriodOption("month", "هذا الشهر"),
+        new PeriodOption("last_month", "الشهر الماضي"),
+        new PeriodOption("year", "من أول السنة"),
     };
 
     /// <summary>One headline figure with its direction. Kept as a view model rather than a pile of
@@ -60,12 +62,27 @@ public partial class OwnerDashboardViewModel : ObservableObject
     {
         public bool CanOpen => NavKey is not null;
         public string OpenLabel => NavKey is null ? "" : "افتح ←";
+
+        /// <summary>The severity said in a word instead of only as a colour - a colour alone is not
+        /// a category a person can scan, and it is invisible to anyone who does not distinguish
+        /// these two particular reds.</summary>
+        public string SeverityLabel => Severity switch
+        {
+            "bad" => "حرج",
+            "warn" => "تحذير",
+            _ => "معلومة",
+        };
     }
 
     public sealed record SplitRow(string Label, long Piastres, double Fraction, string PercentDisplay);
 
     public ObservableCollection<MetricCard> Metrics { get; } = new();
+
+    /// <summary>Every attention item, in severity order. The screen binds VisibleAttention instead,
+    /// which is this list capped - a restaurant with fifteen open problems used to push every KPI
+    /// below the fold, so the one screen meant to summarise the day showed nothing but its backlog.</summary>
     public ObservableCollection<AttentionItem> Attention { get; } = new();
+    public ObservableCollection<AttentionItem> VisibleAttention { get; } = new();
     public ObservableCollection<SplitRow> Split { get; } = new();
     public ObservableCollection<LowStockItemDto> LowStockItems { get; } = new();
     public ObservableCollection<PrintRouteHealthDto> PrintRoutes { get; } = new();
@@ -95,6 +112,8 @@ public partial class OwnerDashboardViewModel : ObservableObject
             "last7" => new BusinessDateRange(today.AddDays(-6), today),
             "last30" => new BusinessDateRange(today.AddDays(-29), today),
             "month" => new BusinessDateRange(new DateOnly(today.Year, today.Month, 1), today),
+            "last_month" => new BusinessDateRange(new DateOnly(today.Year, today.Month, 1).AddMonths(-1), new DateOnly(today.Year, today.Month, 1).AddDays(-1)),
+            "year" => new BusinessDateRange(new DateOnly(today.Year, 1, 1), today),
             _ => BusinessDateRange.SingleDay(today),
         };
     }
@@ -135,6 +154,32 @@ public partial class OwnerDashboardViewModel : ObservableObject
         if (item?.NavKey is { } key) _navigate?.Invoke(key);
     }
 
+    /// <summary>How many attention rows the card shows before it asks to be expanded. Small on
+    /// purpose: the point of the card is "here is what needs you", not the whole backlog.</summary>
+    private const int CollapsedAttentionCount = 3;
+
+    [ObservableProperty] private bool _isAttentionExpanded;
+
+    partial void OnIsAttentionExpandedChanged(bool value) => RebuildVisibleAttention();
+
+    public bool CanExpandAttention => Attention.Count > CollapsedAttentionCount;
+
+    public string AttentionToggleLabel => IsAttentionExpanded
+        ? "عرض أقل"
+        : $"عرض الكل ({Attention.Count})";
+
+    private void RebuildVisibleAttention()
+    {
+        VisibleAttention.Clear();
+        var rows = IsAttentionExpanded ? Attention : Attention.Take(CollapsedAttentionCount);
+        foreach (var row in rows) VisibleAttention.Add(row);
+        OnPropertyChanged(nameof(CanExpandAttention));
+        OnPropertyChanged(nameof(AttentionToggleLabel));
+    }
+
+    [RelayCommand]
+    private void ToggleAttention() => IsAttentionExpanded = !IsAttentionExpanded;
+
     partial void OnDataChanged(OwnerDashboardDto? value)
     {
         RebuildMetrics(value);
@@ -149,12 +194,18 @@ public partial class OwnerDashboardViewModel : ObservableObject
             foreach (var route in value.Health.PrintRoutes) PrintRoutes.Add(route);
         }
 
+        // A fresh load collapses the card again: an expanded backlog from the previous period must
+        // not decide how much room the next one's KPIs get.
+        IsAttentionExpanded = false;
+        RebuildVisibleAttention();
+
         foreach (var name in new[]
         {
             nameof(HasData), nameof(PeriodLabel), nameof(ComparisonLabel), nameof(HasUnknownFoodCost),
             nameof(UnknownCostLabel), nameof(HasAttention), nameof(AttentionCount), nameof(HasLowStock),
             nameof(BackupLabel), nameof(BackupIsMissing), nameof(SeriesTitle), nameof(SeriesPoints),
             nameof(HasDriverSettlementNote), nameof(DriverSettlementNote),
+            nameof(CanExpandAttention), nameof(AttentionToggleLabel),
         }) OnPropertyChanged(name);
     }
 
@@ -167,8 +218,10 @@ public partial class OwnerDashboardViewModel : ObservableObject
 
         var series = d.Trend.Series.Select(p => p.NetSalesPiastres).ToList();
 
-        Metrics.Add(Card("إجمالي المبيعات", Money(d.Cash.NetSalesPiastres), d.Trend.NetSales,
-            $"{d.Cash.OrderCount} طلب · متوسط {Money(d.Cash.AverageOrderValuePiastres)}", series));
+        // Net of the period's refunds, VAT included (METRIC_DEFINITIONS: NetSales) - labelled "إجمالي"
+        // (gross) before, which is the figure before refunds.
+        Metrics.Add(Card("صافي المبيعات", Money(d.Cash.NetSalesPiastres), d.Trend.NetSales,
+            $"{d.Cash.OrderCount} طلب · بعد المرتجعات · متوسط {Money(d.Cash.AverageOrderValuePiastres)}", series));
 
         Metrics.Add(Card("المحصّل فعليًا", Money(d.Cash.CollectedSalesPiastres), d.Trend.Collected,
             "ما دخل خزينة المطعم بالفعل", series));
@@ -233,9 +286,18 @@ public partial class OwnerDashboardViewModel : ObservableObject
             Attention.Add(new AttentionItem("warn",
                 $"عهدة سائقين غير مسواة: {a.UnsettledCustodyCount} بقيمة {Money(a.UnsettledCustodyPiastres)}", "delivery"));
 
+        // A claim, not money: how much, and how long the oldest has waited, so it is chased in order.
         if (a.PendingElectronicOrderCount > 0)
             Attention.Add(new AttentionItem("warn",
-                $"مدفوعات إلكترونية لم تُؤكَّد: {a.PendingElectronicOrderCount} طلب", "orders"));
+                $"مدفوعات إلكترونية لم تُؤكَّد: {a.PendingElectronicOrderCount} طلب بقيمة {Money(a.PendingElectronicPiastres)}"
+                + (a.OldestPendingElectronicMinutes is { } oldest ? $" · أقدمها منذ {FinancialControlViewModel.Age(oldest)}" : ""),
+                "financial_control"));
+
+        // FIN-0042: the customer paid and never got the order - money owed back until refunded.
+        if (a.PaidUndeliveredOrderCount > 0)
+            Attention.Add(new AttentionItem("bad",
+                $"طلبات توصيل مدفوعة لم تصل للعميل: {a.PaidUndeliveredOrderCount} طلب بقيمة {Money(a.PaidUndeliveredOwedPiastres)} تحتاج استرجاعًا",
+                "orders"));
 
         if (d.Stock.LowStockCount > 0)
             Attention.Add(new AttentionItem("warn",
@@ -339,7 +401,7 @@ public partial class OwnerDashboardViewModel : ObservableObject
         var c = d.Cash;
         var rows = new (string Label, long Value)[]
         {
-            ("صالة", c.DineInPiastres),
+            ("استلام من المطعم", c.PickupPiastres),
             ("تيك أواي", c.TakeawayPiastres),
             ("توصيل", c.DeliveryPiastres),
         };
@@ -399,8 +461,15 @@ public partial class OwnerDashboardViewModel : ObservableObject
             var age = d.Health.LastBackupAgeHours ?? 0;
             var when = at.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
             var ageText = age < 48 ? $"منذ {age:0.#} ساعة" : $"منذ {age / 24:0.#} يومًا";
-            var verified = d.Health.LastBackupVerificationStatus is { Length: > 0 } v
-                ? $" • التحقق: {v}" : " • لم يتم التحقق منها";
+            // "Valid"/"Invalid" are the raw values VerifyBackupHandler writes - said in Arabic here
+            // rather than shown to the owner as an English word in the middle of an Arabic sentence.
+            var verified = d.Health.LastBackupVerificationStatus?.ToLowerInvariant() switch
+            {
+                "valid" => " • التحقق: سليمة",
+                "invalid" => " • التحقق: تالفة",
+                { Length: > 0 } other => $" • التحقق: {other}",
+                _ => " • لم يتم التحقق منها",
+            };
             return $"{when} ({ageText}){verified}";
         }
     }

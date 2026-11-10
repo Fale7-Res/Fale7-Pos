@@ -1,4 +1,4 @@
-namespace Falah.Application.Orders;
+﻿namespace Falah.Application.Orders;
 
 /// <summary>
 /// A client sends WHAT was selected, never what it costs - no price, name, or "send to grill" flag
@@ -63,7 +63,12 @@ public sealed record CheckoutOrderRequest(
     /// <summary>Which customer-facing ticket this station prints - "Receipt" for a till, "CallCenter"
     /// for a phoned-in confirmation copy. Null means Receipt. The station is the only thing that
     /// knows which of the two it is, so it is the only thing that can say.</summary>
-    string? CustomerPrintRoute = null);
+    string? CustomerPrintRoute = null,
+    /// <summary>Optional, and only meaningful for a pickup order: when the customer said they would
+    /// come and collect it. UTC, like every other instant this system stores - the Cairo clock the
+    /// cashier typed into is presentation. Added at the END of the optional tail on purpose: every
+    /// caller that does not book a time keeps compiling unchanged, which is most of them.</summary>
+    DateTimeOffset? RequestedPickupAtUtc = null);
 
 public sealed record CheckoutOrderResult(
     string OrderId,

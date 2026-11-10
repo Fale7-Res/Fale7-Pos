@@ -20,7 +20,18 @@ public sealed record RecipeLine(string InventoryItemId, long QuantityMilliUnits,
 
 public sealed record PrepRecipe(string Id, string OutputInventoryItemId, long OutputQuantityMilliUnits, bool Active);
 
-public enum StockMovementType { PurchaseReceipt, ManualReceipt, Usage, Waste, Spoilage, Breakage, CountAdjustment }
+/// <summary>UsageReversal (always In) gives back the usage a checkout posted for an order that then
+/// did not happen - a cancelled unconfirmed electronic sale, an undelivered cash-on-delivery order.
+/// It is a separate type, not a Usage row with Direction In, because every usage total in this system
+/// sums Usage quantities as consumption; netting reversals out is done explicitly where usage is
+/// totalled.</summary>
+public enum StockMovementType { PurchaseReceipt, ManualReceipt, Usage, Waste, Spoilage, Breakage, CountAdjustment, UsageReversal }
+
+/// <summary>What happened to the food of an order that was voided after its checkout took the
+/// ingredients out of stock. Only the operator knows, so it is always their explicit choice (owner's
+/// decision): Prepared - cooked and thrown away, recorded as waste at cost; NotPrepared - never made,
+/// the ingredients go back into stock.</summary>
+public enum StockDisposition { Prepared, NotPrepared }
 
 public enum StockDirection { In, Out }
 

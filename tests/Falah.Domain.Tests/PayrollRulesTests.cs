@@ -70,13 +70,24 @@ public class PayrollRulesTests
     [InlineData(PayrollRunStatus.Draft, PayrollRunStatus.Reviewed, false)]
     [InlineData(PayrollRunStatus.Calculated, PayrollRunStatus.Reviewed, true)]
     [InlineData(PayrollRunStatus.Reviewed, PayrollRunStatus.Approved, true)]
-    [InlineData(PayrollRunStatus.Approved, PayrollRunStatus.Paid, true)]
+    [InlineData(PayrollRunStatus.Approved, PayrollRunStatus.Paid, false)]
+    [InlineData(PayrollRunStatus.Approved, PayrollRunStatus.Cancelled, true)]
     [InlineData(PayrollRunStatus.Paid, PayrollRunStatus.Draft, false)]
     [InlineData(PayrollRunStatus.Cancelled, PayrollRunStatus.Draft, false)]
     public void AssertTransition_enforces_the_payroll_lifecycle(PayrollRunStatus from, PayrollRunStatus to, bool allowed)
     {
         if (allowed) PayrollRules.AssertTransition(from, to);
         else Assert.Throws<DomainException>(() => PayrollRules.AssertTransition(from, to));
+    }
+
+    /// <summary>Paid means the money left the treasury and every line was settled. A status change
+    /// does neither, so it must not be able to claim it: the run showed Paid, nobody was paid, and
+    /// paying it afterwards was refused because it was no longer Approved.</summary>
+    [Fact]
+    public void Paid_is_never_reachable_by_a_status_transition()
+    {
+        foreach (var from in Enum.GetValues<PayrollRunStatus>())
+            Assert.Throws<DomainException>(() => PayrollRules.AssertTransition(from, PayrollRunStatus.Paid));
     }
 
     // ---- Outstanding advance ----
@@ -172,4 +183,43 @@ public class PayrollRulesTests
         var line = Assert.Single(PayrollRules.CalculatePayrollLines(new[] { DailyEmployee("emp-6", true, entries) }));
         Assert.Equal(0, line.NetPayable.Piastres);
     }
+
+    [Fact]
+    public void Attendance_adjustment_credits_reverse_the_deduction_in_net_pay()
+    {
+        var input = new PayrollRules.PayrollLineInput("employee", true, false, null,
+            new[] { ("DailyWage", Money.FromPiastres(20000), Money.Zero), ("Deduction", Money.Zero, Money.FromPiastres(2500)),
+                ("Adjustment", Money.FromPiastres(2500), Money.Zero) }, Money.Zero, Money.Zero);
+        var line = Assert.Single(PayrollRules.CalculatePayrollLines(new[] { input }));
+        Assert.Equal(20000, line.NetPayable.Piastres);
+        Assert.Equal(0, line.Deductions.Piastres);
+    }
+
+
+    [Theory]
+    [InlineData("Advance", "PayrollSettlement")]
+    [InlineData("advance", "payrollsettlement")]
+    [InlineData("ADVANCE", "PAYROLLSETTLEMENT")]
+    [InlineData("advance", "payroll_settlement")]
+    public void OutstandingAdvance_understands_server_types_and_the_legacy_alias(string advance, string settlement)
+    {
+        var entries = new[] { (advance, Money.FromPiastres(10000), Money.Zero),
+            (settlement, Money.Zero, Money.FromPiastres(3000)) };
+        Assert.Equal(7000, PayrollRules.OutstandingAdvance(entries).Piastres);
+    }
+    [Fact]
+    public void OutstandingAdvance_ignores_other_ledger_types()
+    {
+        var entries = new[] { ("advance", Money.FromPiastres(10000), Money.Zero),
+            ("Bonus", Money.FromPiastres(9000), Money.FromPiastres(9000)) };
+        Assert.Equal(10000, PayrollRules.OutstandingAdvance(entries).Piastres);
+    }
+    [Fact]
+    public void OutstandingAdvance_keeps_zero_floor_when_deductions_exceed_advances()
+    {
+        var entries = new[] { ("advance", Money.FromPiastres(1000), Money.Zero),
+            ("payroll_settlement", Money.Zero, Money.FromPiastres(3000)) };
+        Assert.Equal(Money.Zero, PayrollRules.OutstandingAdvance(entries));
+    }
+
 }

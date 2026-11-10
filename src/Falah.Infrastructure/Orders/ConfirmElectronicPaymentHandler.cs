@@ -52,6 +52,7 @@ public sealed class ConfirmElectronicPaymentHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
             var orderEntity = await _db.Orders
                 .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
                 .Include(o => o.Items).Include(o => o.Refunds)
@@ -64,6 +65,11 @@ public sealed class ConfirmElectronicPaymentHandler
                 return await BuildReplayResultAsync(orderEntity, ct);
             }
 
+            var collectionDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(_db, ct);
+            var collectionShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == "Open", ct)
+                ?? throw new DomainException("يجب فتح وردية قبل تأكيد التحصيل.");
+            if (collectionShift.BusinessDayId is not null && collectionShift.BusinessDayId != collectionDayId)
+                throw new DomainException("الوردية المفتوحة لا تتبع يوم العمل الحالي.");
             var order = OrderMapper.ToDomain(orderEntity);
             order.ConfirmElectronicPayment(); // throws DomainException if there is no pending leg
             var leg = order.ElectronicPayment!;
@@ -72,14 +78,16 @@ public sealed class ConfirmElectronicPaymentHandler
             orderEntity.IsPaid = order.IsPaid;
             orderEntity.Version++;
 
-            var saleKey = $"sale-{orderEntity.CheckoutRequestId}";
+            var confirmationRequestId = orderEntity.PaymentMethod == "multi"
+                ? $"{orderEntity.CheckoutRequestId}-electronic" : orderEntity.CheckoutRequestId;
+            var saleKey = $"sale-{confirmationRequestId}";
             var journal = new EfFinancialJournal(_db);
             if (!journal.TryStart(saleKey, "sale"))
                 throw new ConfirmConflictException("مفتاح العملية المالية لهذا الطلب مستخدم بالفعل رغم أن الدفع لم يكن مؤكدًا - يحتاج مراجعة يدوية.");
 
             var movement = TreasuryMovementFactory.BuildSaleMovement(
-                $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", orderEntity.CheckoutRequestId, orderEntity.Id,
-                leg.Method, leg.Amount, orderEntity.BusinessDayId, orderEntity.ShiftId, cashierUser.Name, DateTimeOffset.UtcNow);
+                $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", confirmationRequestId, orderEntity.Id,
+                leg.Method, leg.Amount, collectionDayId, collectionShift.Id, cashierUser.Name, DateTimeOffset.UtcNow);
             _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
             journal.Complete(saleKey);
 
@@ -99,7 +107,8 @@ public sealed class ConfirmElectronicPaymentHandler
     private async Task<ConfirmElectronicPaymentResult> BuildReplayResultAsync(OrderEntity order, CancellationToken ct)
     {
         var movementId = await _db.TreasuryMovements.AsNoTracking()
-            .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection")
+            .Where(m => m.ReferenceId == order.Id && m.Type == "sale_collection"
+                && m.DestinationAccountId == TreasuryMovementFactory.PaymentAccountFor(OrderEnumMapping.ParsePaymentMethod(order.ElectronicPaymentMethod!)))
             .Select(m => m.Id).FirstOrDefaultAsync(ct);
         return new ConfirmElectronicPaymentResult(order.Id, order.ElectronicPaymentStatus!, order.IsPaid, movementId, WasReplayed: true);
     }

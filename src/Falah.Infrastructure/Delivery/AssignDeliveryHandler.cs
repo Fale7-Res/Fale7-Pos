@@ -5,6 +5,7 @@ using Falah.Domain.Audit;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Delivery;
+using Falah.Domain.Printing;
 using Falah.Infrastructure.Orders;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -112,9 +113,23 @@ public sealed class AssignDeliveryHandler
                 AmountPiastres = facts.AmountToCollect.Piastres, CreatedAtUtc = now,
             });
 
+            // The driver dispatch ticket (final pre-go-live pass) - one per assignment, keyed on
+            // this same RequestId so it shares the handler's own idempotency: a retried/duplicate
+            // assignment request never prints a second dispatch ticket. Printing never touches the
+            // order/payment/inventory it describes, matching CreatePrintJobsHandler's own invariant.
+            _db.PrintJobs.Add(new PrintJobEntity
+            {
+                Id = $"printjob-{request.RequestId}-{PrintRoute.DriverDispatch}", CreateRequestId = request.RequestId,
+                OrderId = order.Id, OrderNumber = order.OrderNumber, Route = nameof(PrintRoute.DriverDispatch),
+                Status = nameof(PrintJobStatus.Pending), AttemptCount = 0, IsReprint = false,
+                CreatedBy = actorUser.Name, CreatedAtUtc = now,
+            });
+
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "تعيين سائق لطلب دليفري", "order", $"تعيين {driver.Name} لطلب {delivery.OrderId}",
+                // The order NUMBER, not its internal id: this line is read by an owner in the audit
+                // screen, and "ord-b111c8..." names nothing they can look up.
+                "تعيين سائق لطلب دليفري", "order", $"تعيين {driver.Name} لطلب {order.OrderNumber}",
                 "normal", now, AuthorizedBy: approval?.ApproverName, ReferenceId: delivery.Id));
 
             await _db.SaveChangesAsync(ct);

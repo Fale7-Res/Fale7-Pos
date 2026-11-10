@@ -61,6 +61,10 @@ public sealed class SettleDriverCustodyHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await _db.DriverSettlements.AsNoTracking().FirstOrDefaultAsync(s => s.IdempotencyKey == idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             // Two concurrent settlement requests for the SAME driver (different RequestIds, so the
             // idempotency-key check above cannot catch this) must not both read the same unsettled
             // custodies/deliveries and both post a movement. UPDLOCK on the full row-set - not just
@@ -102,7 +106,6 @@ public sealed class SettleDriverCustodyHandler
                 AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_settlement_approve", baseApproval, requireApproval: true);
             }
 
-            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
             var journal = new EfFinancialJournal(_db);
             string? movementId = null;

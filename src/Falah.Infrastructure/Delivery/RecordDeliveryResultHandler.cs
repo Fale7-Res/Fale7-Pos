@@ -124,6 +124,42 @@ public sealed class RecordDeliveryResultHandler
                 delivery.ReturnReason = request.Reason;
             }
 
+            // A cash-on-delivery order that never reached the customer never took any money, so it is
+            // not a sale (owner's decision): the order is voided, the driver's custody for it closes at
+            // zero - there is nothing for them to bring back - and the food is accounted for the way
+            // the operator says it went. Before this it stayed in sales, its cash "with the driver"
+            // forever and its open custody blocking the business-day close. An order that was already
+            // paid (card, confirmed transfer) is untouched here: its money goes back through a refund.
+            if (targetStatus is DeliveryStatus.Failed or DeliveryStatus.Returned
+                && Falah.Domain.Orders.CheckoutRules.IsCashOnDelivery(
+                    OrderEnumMapping.ParseOrderType(order.OrderType), OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod),
+                    Falah.Domain.Common.Money.FromPiastres(order.TotalPiastres))
+                && !order.IsPaid)
+            {
+                var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+                var orderEntity = await _db.Orders.Include(o => o.Items).Include(o => o.Refunds).FirstAsync(o => o.Id == order.Id, ct);
+                var domainOrder = OrderMapper.ToDomain(orderEntity);
+                domainOrder.VoidUndeliveredCashOnDelivery(request.Reason!, actorUser.Name, now);
+                orderEntity.Status = domainOrder.Status.ToWireString();
+                orderEntity.CancelledAtUtc = domainOrder.CancelledAtUtc;
+                orderEntity.CancelReason = domainOrder.CancelReason;
+                orderEntity.CancelledBy = domainOrder.CancelledBy;
+                orderEntity.Version++;
+
+                var custody = await _db.DriverCustodies.FirstOrDefaultAsync(c => c.DeliveryId == delivery.Id, ct);
+                if (custody is not null && custody.Status != nameof(CustodyStatus.Settled))
+                {
+                    custody.ExpectedPiastres = 0;
+                    custody.CollectedPiastres = 0;
+                    custody.DifferencePiastres = 0;
+                    custody.Status = nameof(CustodyStatus.Settled);
+                    custody.SettledAtUtc = now;
+                }
+
+                await Falah.Infrastructure.Orders.OrderStockDisposition.ApplyAsync(
+                    _db, order.Id, disposition, request.Reason!, actorUser.Name, now, ct);
+            }
+
             delivery.Status = targetStatus.ToString();
             delivery.Version++;
 
@@ -136,7 +172,10 @@ public sealed class RecordDeliveryResultHandler
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                $"تسجيل نتيجة توصيل: {targetStatus}", "order", $"طلب {delivery.OrderId} - {request.Reason}",
+                // Both the outcome and the order are said in the reader's own terms: the status as an
+                // Arabic word rather than the bare enum name, and the order by its NUMBER rather
+                // than its internal id.
+                $"تسجيل نتيجة توصيل: {DescribeOutcome(targetStatus)}", "order", $"طلب {order.OrderNumber} - {request.Reason}",
                 targetStatus == DeliveryStatus.Delivered ? "normal" : "warning", now,
                 Reason: request.Reason, AuthorizedBy: approval?.ApproverName, ReferenceId: delivery.Id));
 
@@ -157,4 +196,15 @@ public sealed class RecordDeliveryResultHandler
             throw new DeliveryConflictException("تعذر تسجيل نتيجة التوصيل بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
     }
+
+    /// <summary>The outcome in Arabic for the audit trail. The enum name itself is unchanged and
+    /// still what is stored on the delivery row and the event - this only governs the sentence a
+    /// person reads.</summary>
+    private static string DescribeOutcome(DeliveryStatus status) => status switch
+    {
+        DeliveryStatus.Delivered => "تم التسليم",
+        DeliveryStatus.Failed => "فشل التسليم",
+        DeliveryStatus.Returned => "مرتجع",
+        _ => status.ToString(),
+    };
 }

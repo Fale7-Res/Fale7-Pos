@@ -195,4 +195,19 @@ public class CostingRulesTests
         Assert.Equal(0, result.CompletenessPercent);
         Assert.Contains("طحينة", result.Missing);
     }
-}
+
+    // INV-0003: three portions per kg is 333.33 g each. Rounding each portion BEFORE multiplying
+    // deducted 999 g for three portions; a sold quantity must be converted as a whole.
+    [Theory]
+    [InlineData(1000, 3, 3, 1000)]
+    [InlineData(1000, 3, 7, 2333)]
+    [InlineData(1000, 6, 12, 2000)]
+    public void A_yield_line_is_converted_for_the_whole_quantity_sold_not_rounded_per_portion(long portionsMilli, long ratio, int quantity, long expectedMilli)
+    {
+        var line = new RecipeLine("item", portionsMilli, RecipeLineKind.Yield, ratio);
+        Assert.Equal(expectedMilli, CostingRules.BaseQuantityMilliUnits(line, quantity));
+    }
+
+    [Fact]
+    public void A_weighed_line_still_multiplies_exactly()
+        => Assert.Equal(750, CostingRules.BaseQuantityMilliUnits(new RecipeLine("item", 250, RecipeLineKind.Direct), 3));}

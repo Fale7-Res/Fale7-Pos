@@ -75,6 +75,11 @@ public class ShiftEntity
     public string? DifferenceAuthorizedBy { get; set; }
     public string Status { get; set; } = default!;
     public DateOnly BusinessDate { get; set; }
+    /// <summary>The business day the shift was opened under. Not the same thing as BusinessDate,
+    /// which is the Cairo calendar date of the opening: a shift opened after midnight in a business
+    /// day that began the evening before has today's date and yesterday's business day. Null only for
+    /// shifts opened before it was recorded - see BusinessDayShifts for how those are matched.</summary>
+    public string? BusinessDayId { get; set; }
     public DateTimeOffset OpenedAtUtc { get; set; }
     public DateTimeOffset? ClosedAtUtc { get; set; }
     public string OpenRequestId { get; set; } = default!;

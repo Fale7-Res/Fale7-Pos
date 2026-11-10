@@ -12,20 +12,27 @@ param(
     [string]$AgentDirectory = "$PSScriptRoot\..\src\Falah.PrintAgent\bin\Release\net8.0"
 )
 
+. "$PSScriptRoot/PrinterVerificationSafety.ps1"
+$ErrorActionPreference = 'Stop'
 $printer = Get-Printer -Name $PrinterName -ErrorAction Stop
+Assert-FalahVerificationQueueEmpty -Jobs @(Get-PrintJob -PrinterName $PrinterName -ErrorAction Stop)
 $wasPaused = $printer.PrinterStatus -eq 'Paused'
-Write-Output "printer: $($printer.Name)  status: $($printer.PrinterStatus)  port: $($printer.PortName)"
-
-if (-not $wasPaused) {
-    $wmi = Get-CimInstance Win32_Printer -Filter "Name='$PrinterName'"
-    Invoke-CimMethod -InputObject $wmi -MethodName Pause | Out-Null
-    Write-Output "queue paused for the duration of this check"
-}
-
+$pausedByUs = $false
+$submittedJobId = 0
+$documentName = 'Falah verification ' + [guid]::NewGuid().ToString('N')
+$submissionStarted = $false
+$cleanupComplete = $true
+$wmi = @(Get-CimInstance Win32_Printer | Where-Object { $_.Name -ceq $PrinterName })
+if ($wmi.Count -ne 1) { throw 'Could not uniquely identify the printer.' }
 try {
-    # Windows PowerShell 5.1 runs on .NET Framework and cannot load the agent's .NET 8 assemblies,
-    # so the ticket is produced by the agent itself in its own process.
-    $cfgDir = Join-Path $env:TEMP ("falah-printer-check-" + [guid]::NewGuid().ToString('N'))
+    if (-not $wasPaused) {
+        $pause = Invoke-CimMethod -InputObject $wmi[0] -MethodName Pause
+        if ($pause.ReturnValue -ne 0) { throw 'Could not pause the queue.' }
+        $pausedByUs = $true
+    }
+    # Recheck after pausing: tickets may have arrived between the first read and Pause.
+    Assert-FalahVerificationQueueEmpty -Jobs @(Get-PrintJob -PrinterName $PrinterName -ErrorAction Stop)
+    $cfgDir = Join-Path $env:TEMP ('falah-printer-check-' + [guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $cfgDir -Force | Out-Null
     $cfg = Join-Path $cfgDir 'appsettings.json'
     @{
@@ -37,32 +44,40 @@ try {
         TextEncoding = 'utf-8'
         PollSeconds = 3
         TransportTimeoutSeconds = 15
+        Pin = 'not-used-by-test-print'
+        RenderAsImage = $true
+        ImageWidthDots = 576
+        ImageMarginDots = 24
+        DataDirectory = $cfgDir
     } | ConvertTo-Json | Set-Content -Path $cfg -Encoding utf8
-
-    $before = @(Get-PrintJob -PrinterName $PrinterName -ErrorAction SilentlyContinue).Count
     $exe = Join-Path $AgentDirectory 'Falah.PrintAgent.exe'
-    $out = & $exe $cfg --test-print
-    $out | ForEach-Object { Write-Output "  agent: $_" }
-    Write-Output "agent exit code: $LASTEXITCODE"
-
-    Start-Sleep -Milliseconds 1200
-    $jobs = @(Get-PrintJob -PrinterName $PrinterName -ErrorAction SilentlyContinue)
-    Write-Output "jobs before: $before   after: $($jobs.Count)"
-    foreach ($j in $jobs) {
-        Write-Output ("  job {0}: name='{1}' status={2} size={3} bytes" -f $j.Id, $j.DocumentName, $j.JobStatus, $j.Size)
-    }
-    $mine = $jobs | Where-Object { $_.DocumentName -eq 'Falah ticket' }
-    if ($mine) {
-        Write-Output "RESULT: the spooler accepted the RAW job"
-        $mine | Remove-PrintJob
-        Write-Output "test job removed - no paper was produced"
-    }
-    else { Write-Output "RESULT: no job appeared for this submission" }
+    if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) { throw 'Build the agent before verifying the transport.' }
+    $submissionStarted = $true
+    $cleanupComplete = $false
+    $out = @(& $exe $cfg --test-print "--test-document=$documentName")
+    $agentExit = $LASTEXITCODE
+    $out | ForEach-Object { Write-Output "agent: $_" }
+    $identity = @($out | Where-Object { $_ -match '^FALAH_TEST_JOB_ID=[1-9][0-9]*$' })
+    if ($identity.Count -ne 1) { throw 'The agent did not return one submitted job id. No jobs will be removed.' }
+    $submittedJobId = [int]($identity[0] -replace '^FALAH_TEST_JOB_ID=', '')
+    $jobs = @(Get-PrintJob -PrinterName $PrinterName -ErrorAction Stop)
+    $mine = Select-FalahVerificationJob -Jobs $jobs -SubmittedJobId $submittedJobId -DocumentName $documentName
+    if ($mine.Size -le 0 -or $agentExit -ne 0) { throw 'The agent did not successfully submit a non-empty RAW job.' }
+    Write-Output "RESULT: spooler accepted test job $submittedJobId ($($mine.Size) bytes)"
 }
 finally {
-    if (-not $wasPaused) {
-        $wmi = Get-CimInstance Win32_Printer -Filter "Name='$PrinterName'"
-        Invoke-CimMethod -InputObject $wmi -MethodName Resume | Out-Null
-        Write-Output "queue resumed"
+    if ($submittedJobId -gt 0) {
+        # Both the OS-assigned id and this invocation's random document name must still match.
+        $mine = Select-FalahVerificationJob -Jobs @(Get-PrintJob -PrinterName $PrinterName -ErrorAction Stop) -SubmittedJobId $submittedJobId -DocumentName $documentName
+        Remove-PrintJob -PrinterName $PrinterName -ID $mine.Id -ErrorAction Stop
+        $cleanupComplete = $true
+        Write-Output "Only test job $submittedJobId removed."
+    }
+    if ($pausedByUs -and $cleanupComplete) {
+        $resume = Invoke-CimMethod -InputObject $wmi[0] -MethodName Resume
+        if ($resume.ReturnValue -ne 0) { throw 'Could not restore the print queue state.' }
+    }
+    elseif ($pausedByUs -and $submissionStarted) {
+        Write-Warning "Queue left paused: inspect the test job named '$documentName' before resuming. No unrelated jobs were removed."
     }
 }

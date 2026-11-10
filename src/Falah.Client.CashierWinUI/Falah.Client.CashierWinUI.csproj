@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="../Falah.Client.Shared/WindowsUserDataProtection.cs" Link="Security/WindowsUserDataProtection.cs" />
     <ProjectReference Include="..\Falah.Application\Falah.Application.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(FooterLayoutProbe)' == 'true'">
@@ -50,5 +51,6 @@
   <ItemGroup Condition="'$(ScreenLayoutProbe)' == 'true'">
     <Compile Include="../../tests/Falah.Client.Tests/NativeScreenLayoutProbe.cs" Link="Verification/NativeScreenLayoutProbe.cs" />
     <Compile Include="../../tests/Falah.Client.Tests/NativeManagementLayoutProbe.cs" Link="Verification/NativeManagementLayoutProbe.cs" />
+    <Compile Include="../../tools/NativeShiftLayoutProbe.cs" Link="Verification/NativeShiftLayoutProbe.cs" />
   </ItemGroup>
 </Project>

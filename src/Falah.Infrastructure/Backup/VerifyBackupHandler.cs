@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Backup;
+﻿namespace Falah.Infrastructure.Backup;
 
 using Falah.Application.Backup;
 using Falah.Domain.Audit;
@@ -32,7 +32,16 @@ public sealed class VerifyBackupHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "backup_manage");
 
-        var entity = await _db.BackupRecords.FirstOrDefaultAsync(b => b.Id == request.BackupRecordId, ct)
+        return await RunAsync(new BackupActor(actorUser.Id, actorUser.Name, actorUser.Role), request.BackupRecordId, ct);
+    }
+
+    /// <summary>The verification itself, with no permission check in front of it - see
+    /// CreateBackupHandler.RunAsync for why the check sits in the operator path above rather than
+    /// here. A scheduled backup verifies itself immediately: a .bak nobody has ever read back is a
+    /// promise, not a backup.</summary>
+    public async Task<BackupRecordDto> RunAsync(BackupActor actor, string backupRecordId, CancellationToken ct = default)
+    {
+        var entity = await _db.BackupRecords.FirstOrDefaultAsync(b => b.Id == backupRecordId, ct)
             ?? throw new InvalidOperationException("سجل النسخة الاحتياطية غير موجود.");
         if (!File.Exists(entity.FilePath))
             throw new Falah.Domain.Common.DomainException("ملف النسخة الاحتياطية غير موجود على القرص.");
@@ -43,14 +52,14 @@ public sealed class VerifyBackupHandler
             await _db.Database.ExecuteSqlRawAsync("RESTORE VERIFYONLY FROM DISK = {0}", new object[] { entity.FilePath }, ct);
             entity.VerificationStatus = "Valid";
             _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "التحقق من نسخة احتياطية", "backup", $"النسخة صالحة: {entity.FilePath}", "normal", now, ReferenceId: entity.Id));
         }
         catch (Exception ex)
         {
             entity.VerificationStatus = "Invalid";
             _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "فشل التحقق من نسخة احتياطية", "backup", $"{entity.FilePath} - الخطأ: {ex.Message}", "critical", now, ReferenceId: entity.Id));
         }
         entity.VerifiedAtUtc = now;

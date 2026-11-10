@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryDirectoryView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryDirectoryView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,9 +6,9 @@
              FlowDirection="RightToLeft">
     <!-- Drivers and delivery services. Retiring is always Active=false, never a delete: an order
          that was already sold keeps the service name and fee it was actually charged. -->
-    <Grid Background="#66313D35"
+    <Grid Background="{ThemeResource OverlayBrush}"
           Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" Padding="24" MaxWidth="980" MaxHeight="860"
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" MaxWidth="980" MaxHeight="860"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
             <Grid RowSpacing="14">
                 <Grid.RowDefinitions>
@@ -27,11 +27,11 @@
                     </Grid.ColumnDefinitions>
                     <Button Content="السائقون" Style="{StaticResource SegmentButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SetTabCommand}" CommandParameter="drivers"
-                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|BrandPrimaryBrush|TextMutedBrush}"/>
                     <Button Grid.Column="1" Content="خدمات التوصيل" Style="{StaticResource SegmentButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SetTabCommand}" CommandParameter="services"
-                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|BrandPrimaryBrush|TextMutedBrush}"/>
                 </Grid>
 
@@ -106,7 +106,7 @@
                                 <ItemsControl ItemsSource="{Binding Services}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                                     MinHeight="60" Margin="16,0,16,8" Padding="12,8"
                                                     Style="{StaticResource SecondaryButtonStyle}"
                                                     IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
@@ -181,14 +181,14 @@
                                  IsEnabled="{Binding CanAct}"
                                  Visibility="{Binding NeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
                                  Password="{Binding ManagerPin, Mode=TwoWay}"/>
-                    <Border Background="{StaticResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionError}" Foreground="{StaticResource DangerBrush}"
+                        <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
-                    <Border Background="{StaticResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{StaticResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessTextBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <StackPanel Spacing="10" HorizontalAlignment="Center"

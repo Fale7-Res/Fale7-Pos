@@ -146,6 +146,119 @@ public sealed class DeliveryQueryService
             LastSettlementAtUtc: driverSettlements.Count == 0 ? null : driverSettlements[0].CreatedAtUtc);
     }
 
+    /// <summary>One driver's figures for "today / last 7 days / month / custom period" - reuses the
+    /// exact same Deliveries/DriverCustodies/DriverSettlements rows GetDriverAccountAsync and
+    /// GetDeliveryOutcomesReportAsync already read, scoped to one driver and a date range instead of
+    /// everyone/all-time. See DriverStatisticsDto's own doc comment for which fields stay all-time
+    /// on purpose (current custody, last settlement).</summary>
+    public async Task<DriverStatisticsDto> GetDriverStatisticsAsync(
+        string driverId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
+    {
+        var driver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct)
+            ?? throw new InvalidOperationException("السائق غير موجود.");
+
+        bool InRange(DateTimeOffset? t) => t is { } value && (from is null || value >= from) && (to is null || value < to);
+
+        var deliveries = await _db.Deliveries.AsNoTracking().Where(d => d.DriverId == driverId).ToListAsync(ct);
+        var assigned = deliveries.Where(d => InRange(d.AssignedAtUtc)).ToList();
+        var delivered = deliveries.Where(d => InRange(d.DeliveredAtUtc)).ToList();
+        var failed = deliveries.Count(d => InRange(d.FailedAtUtc));
+        var returned = deliveries.Count(d => InRange(d.ReturnedAtUtc));
+
+        var deliveredOrderIds = delivered.Select(d => d.OrderId).ToList();
+        var orderValue = deliveredOrderIds.Count == 0 ? 0
+            : await _db.Orders.AsNoTracking().Where(o => deliveredOrderIds.Contains(o.Id)).SumAsync(o => (long?)o.TotalPiastres, ct) ?? 0;
+        var cashCollected = delivered.Sum(d => d.CollectedAmountPiastres ?? 0);
+
+        var custody = await _db.DriverCustodies.AsNoTracking()
+            .Where(c => c.DriverId == driverId && c.Status != nameof(CustodyStatus.Settled))
+            .SumAsync(c => (long?)c.CollectedPiastres, ct) ?? 0;
+
+        var settlements = await _db.DriverSettlements.AsNoTracking().Where(s => s.DriverId == driverId).ToListAsync(ct);
+        var settlementsInRange = settlements.Where(s => InRange(s.CreatedAtUtc)).ToList();
+
+        var durations = delivered
+            .Where(d => d.OutForDeliveryAtUtc is not null && d.DeliveredAtUtc is not null)
+            .Select(d => (d.DeliveredAtUtc!.Value - d.OutForDeliveryAtUtc!.Value).TotalMinutes)
+            .Where(m => m >= 0).ToList();
+        long? averageMinutes = durations.Count == 0 ? null : (long)Math.Round(durations.Average());
+
+        var lastOrderAtUtc = deliveries.Where(d => d.AssignedAtUtc is not null)
+            .Select(d => d.AssignedAtUtc!.Value).DefaultIfEmpty().Max();
+
+        return new DriverStatisticsDto(
+            driverId, driver.Name, assigned.Count, delivered.Count, failed, returned,
+            orderValue, cashCollected, custody,
+            settlementsInRange.Count,
+            settlementsInRange.Sum(s => Math.Max(0, -s.DifferencePiastres)),
+            settlementsInRange.Sum(s => Math.Max(0, s.DifferencePiastres)),
+            averageMinutes,
+            lastOrderAtUtc == default ? null : lastOrderAtUtc,
+            settlements.Count == 0 ? null : settlements.Max(s => s.CreatedAtUtc));
+    }
+
+    /// <summary>
+    /// UI-REQ-001: one driver's statement for one business day (see DriverStatementOrder for which
+    /// orders and what every figure means). Attribution is by the order's own business day, never by a
+    /// delivery timestamp, so orders around midnight land where their sale was made; and by the driver
+    /// currently holding the delivery. The same result feeds the screen and both prints.
+    /// </summary>
+    public async Task<Falah.Application.Delivery.DriverDailyStatementDto> GetDriverDailyStatementAsync(
+        string driverId, DateOnly businessDate, string? paymentFilter, CancellationToken ct = default)
+    {
+        var driver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct)
+            ?? throw new InvalidOperationException("السائق غير موجود.");
+        var filter = string.IsNullOrWhiteSpace(paymentFilter) ? "all" : paymentFilter.Trim().ToLowerInvariant();
+        if (!DriverStatementRules.PaymentFilters.Contains(filter)) throw new ArgumentException("طريقة الدفع غير معروفة.");
+
+        var dayIds = await _db.BusinessDays.AsNoTracking().Where(d => d.BusinessDate == businessDate).Select(d => d.Id).ToListAsync(ct);
+        var pairs = await (from d in _db.Deliveries.AsNoTracking()
+                           join o in _db.Orders.AsNoTracking() on d.OrderId equals o.Id
+                           where d.DriverId == driverId && o.BusinessDayId != null && dayIds.Contains(o.BusinessDayId)
+                           select new { Delivery = d, Order = o }).ToListAsync(ct);
+
+        var deliveryIds = pairs.Select(p => p.Delivery.Id).ToList();
+        var custodies = await _db.DriverCustodies.AsNoTracking().Where(c => deliveryIds.Contains(c.DeliveryId)).ToListAsync(ct);
+        var reassignments = await _db.DeliveryReassignments.AsNoTracking()
+            .Where(r => deliveryIds.Contains(r.DeliveryId) && r.NewDriverId == driverId).ToListAsync(ct);
+
+        var rows = new List<DriverStatementOrder>();
+        foreach (var p in pairs.OrderBy(p => p.Order.CreatedAtUtc))
+        {
+            var o = p.Order;
+            var d = p.Delivery;
+            if (!DriverStatementRules.MatchesPaymentFilter(o.PaymentMethod, filter)) continue;
+            var facts = DeliveryFactsComposer.Compose(d, o);
+            var cancelled = o.Status == "cancelled" || d.Status == nameof(DeliveryStatus.Cancelled);
+            // A voided order owes the driver nothing to collect and nobody prepaid it; it is listed, not counted.
+            var cashToCollect = cancelled ? 0
+                : DeliveryRules.DeliveryCashResponsibility(facts.PaymentMethod, facts.PaymentAlreadySettled, facts.AmountToCollect).Piastres;
+            var custody = custodies.Where(c => c.DeliveryId == d.Id).OrderByDescending(c => c.CreatedAtUtc).FirstOrDefault();
+            var from = reassignments.Where(r => r.DeliveryId == d.Id).OrderByDescending(r => r.ChangedAtUtc).FirstOrDefault();
+            var address = !string.IsNullOrWhiteSpace(o.DeliveryAddress) ? o.DeliveryAddress
+                : DeliveryRules.ComposeDeliveryAddress(o.DeliveryArea, o.DeliveryStreet, o.DeliveryBuilding, o.DeliveryFloor, o.DeliveryApartment, o.DeliveryLandmark);
+            rows.Add(new DriverStatementOrder(
+                // Settlement moves a delivery to "Settled"; the outcome it settled is kept from its own timestamps,
+                // so a failed or returned delivery still says so after the driver is settled.
+                o.Id, o.OrderNumber, o.CreatedAtUtc, o.CustomerName, o.CustomerPhone, address, o.PaymentMethod,
+                d.FailedAtUtc is not null ? nameof(DeliveryStatus.Failed) : d.ReturnedAtUtc is not null ? nameof(DeliveryStatus.Returned)
+                    : d.DeliveredAtUtc is not null ? nameof(DeliveryStatus.Delivered) : d.Status,
+                FoodSalesPiastres: o.TotalPiastres - o.DeliveryFeePiastres,
+                DeliveryFeePiastres: o.DeliveryFeePiastres,
+                OrderTotalPiastres: o.TotalPiastres,
+                RefundedPiastres: o.RefundAmountPiastres,
+                PrepaidPiastres: cancelled ? 0 : Math.Max(0, o.TotalPiastres - o.RefundAmountPiastres - cashToCollect),
+                CashToCollectPiastres: cashToCollect,
+                CollectedPiastres: d.CollectedAmountPiastres ?? 0,
+                CustodySettled: custody?.Status == nameof(CustodyStatus.Settled) || d.SettledAtUtc is not null,
+                ReassignedFromName: from?.OldDriverName,
+                Cancelled: cancelled));
+        }
+
+        return new Falah.Application.Delivery.DriverDailyStatementDto(
+            driver.Id, driver.Name, businessDate, filter, rows, DriverStatementRules.Totals(rows), DateTimeOffset.UtcNow);
+    }
+
     /// <summary>The status in words. DriverOperationalStatus serialises as a bare integer, so a
     /// screen binding straight to it showed "0" to a supervisor. Written once here rather than
     /// re-derived in every client that displays a driver.</summary>

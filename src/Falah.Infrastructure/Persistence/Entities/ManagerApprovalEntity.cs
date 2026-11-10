@@ -12,4 +12,7 @@ public class ManagerApprovalEntity
     public string? Reason { get; set; }
     public DateTimeOffset ApprovedAtUtc { get; set; }
     public bool Consumed { get; set; }
+    /// <summary>The user whose session asked for the approval; only they can spend it. Null on rows
+    /// written before this column existed.</summary>
+    public string? RequestedByUserId { get; set; }
 }

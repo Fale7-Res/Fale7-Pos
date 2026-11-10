@@ -27,7 +27,7 @@ public sealed class ApiClient
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
-        _http = new HttpClient { BaseAddress = new Uri(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -63,10 +63,12 @@ public sealed class ApiClient
         }
 
         string? message = null;
+        bool? retryable = null;
         try
         {
             var body = await response.Content.ReadFromJsonAsync<ErrorBody>(cancellationToken: ct);
             message = body?.error;
+            retryable = body?.retryable;
         }
         catch
         {
@@ -78,7 +80,7 @@ public sealed class ApiClient
             System.Net.HttpStatusCode.NotFound => "العنصر المطلوب غير موجود.",
             _ => $"حدث خطأ غير متوقع من السيرفر ({(int)response.StatusCode}).",
         };
-        return new ApiResult<T>(false, default, message, (int)response.StatusCode >= 500, (int)response.StatusCode);
+        return new ApiResult<T>(false, default, message, (int)response.StatusCode >= 500 && retryable != false, (int)response.StatusCode);
     }
 
     private static async Task<ApiResult<T>> SendAsync<T>(Func<Task<HttpResponseMessage>> send, CancellationToken ct)
@@ -105,7 +107,7 @@ public sealed class ApiClient
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
-    private sealed record ErrorBody(string? error);
+    private sealed record ErrorBody(string? error, bool? retryable = null);
 
     /// <summary>The session token this client presents on every later request. Set once at login
     /// and cleared at logout; without it the server refuses everything, which is the point - the

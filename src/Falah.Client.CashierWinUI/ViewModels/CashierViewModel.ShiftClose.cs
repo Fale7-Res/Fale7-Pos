@@ -92,12 +92,15 @@ public partial class CashierViewModel
     private async Task ConfirmCloseShiftAsync()
     {
         if (IsClosingShift) return;
-        if (CloseShiftPreview is null) return;
+        // A close recovered after a restart is retried exactly as it was sent; its preview did not
+        // survive the restart and is not needed. Only a NEW close needs the count's preview.
+        if (CloseShiftPreview is null && _pendingCloseShift is null) return;
         IsClosingShift = true;
         CloseShiftError = null;
         try
         {
             if (_pendingCloseShift is not null) { await CompleteCloseShiftAsync(_pendingCloseShift); return; }
+            if (CloseShiftPreview is null) return;
 
             string? approvalId = null;
             string? approverUserId = null;
@@ -144,9 +147,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingCloseShift is not null;
         _pendingCloseShift = closeRequest;
+        Remember(ShiftCloseOperation, closeRequest);
         RefreshOperationState();
         var result = await _session.Api.CloseShiftAsync(closeRequest);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCloseShift = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingCloseShift = null; Remember(ShiftCloseOperation, null); }
+        NoteRetryOutcome(ShiftCloseOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         if (result.Success) _CloseShiftRequestId = Guid.NewGuid().ToString("N");
         RefreshOperationState();
         if (!result.Success || result.Value is null)
@@ -160,6 +165,11 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(IsShiftOpen));
         _header.Refresh();
         IsCloseShiftOpen = false;
+        // UI-REQ-002: what was handed over, and whether its paper printed.
+        await ShiftStatement.ShowAsync(result.Value.ShiftId);
     }
+
+    private ShiftStatementViewModel? _shiftStatement;
+    public ShiftStatementViewModel ShiftStatement => _shiftStatement ??= new ShiftStatementViewModel(_session);
 
 }

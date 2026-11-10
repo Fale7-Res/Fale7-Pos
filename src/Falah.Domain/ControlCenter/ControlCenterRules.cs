@@ -42,7 +42,7 @@ public static class ControlCenterRules
 
         foreach (var shift in input.ClosedShiftsWithDifference.Where(s => s.CashDifferencePiastres != 0))
         {
-            var severity = Math.Abs(shift.CashDifferencePiastres) >= input.ShiftDiscrepancyThresholdPiastres ? "critical" : "warning";
+            var severity = Math.Abs((decimal)shift.CashDifferencePiastres) >= input.ShiftDiscrepancyThresholdPiastres ? "critical" : "warning";
             var message = shift.CashDifferencePiastres < 0 ? "عجز في الوردية" : "زيادة في الوردية";
             result.Add(new ControlException($"shift-{shift.Id}", "financial", severity, message, "shift", shift.Id));
         }

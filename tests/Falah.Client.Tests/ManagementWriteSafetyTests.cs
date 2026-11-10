@@ -73,7 +73,7 @@ public class ManagementWriteSafetyTests
         if (kind == "employee")
         {
             var vm = new EmployeesViewModel(session);
-            vm.OpenCashOutCommand.Execute(new EmployeesViewModel.EmployeeRow {
+            vm.OpenAdvanceCommand.Execute(new EmployeesViewModel.EmployeeRow {
                 Employee = Dto<EmployeeDto>("""{"id":"employee","name":"موظف","active":true}""") });
             vm.CashOutAmountText = "10"; vm.CashOutReason = "اختبار";
             return new(() => vm.SubmitCashOutCommand.ExecuteAsync(null),
@@ -197,4 +197,43 @@ public class ManagementWriteSafetyTests
         Assert.False(session.HasUnresolvedOperation);
         Assert.Null(vm.ActionError);
     }
+
+    [Theory]
+    [InlineData("employee")]
+    [InlineData("count")]
+    [InlineData("waste")]
+    [InlineData("supplier")]
+    [InlineData("receive")]
+    [InlineData("pay")]
+    [InlineData("assign")]
+    [InlineData("outcome")]
+    [InlineData("settlement")]
+    [InlineData("payroll-create")]
+    [InlineData("payroll-pay")]
+    public async Task A_reviewed_server_record_allows_local_recovery_without_another_write(string kind)
+    {
+        var writes = 0;
+        var http = new HttpClient(new Handler(r => {
+            if (r.Method == HttpMethod.Get) return Task.FromResult(Json(r.RequestUri!.AbsolutePath.EndsWith("/account")
+                ? "{\"driverId\":\"driver\",\"cashCustodyPiastres\":1000}" : "[]"));
+            writes++;
+            if (writes == 1) throw new HttpRequestException("lost response");
+            return Task.FromResult(Json("{\"error\":\"definitive rejection\"}", HttpStatusCode.UnprocessableEntity));
+        })) { BaseAddress = new Uri("http://fixture.invalid") };
+        var session = new AppSession(new ApiClient(http)) { CurrentUser = new("actor", "اختبار", "manager", new[] { "all" }), ShiftId = "shift" };
+        var flow = await CreateFlowAsync(kind, session);
+        await flow.Submit(); await flow.Submit();
+        var item = Assert.Single(session.Recovery.Items);
+        Assert.False(item.CanDiscard);
+        item.DiscardCommand.Execute(null);
+        Assert.True(session.HasUnresolvedOperation);
+        item.ServerRecordReviewed = true;
+        Assert.True(item.CanDiscard);
+        item.DiscardCommand.Execute(null);
+        Assert.False(session.HasUnresolvedOperation);
+        Assert.Empty(session.Recovery.Items);
+        Assert.True(flow.CanEdit());
+        Assert.Equal(2, writes);
+    }
+
 }

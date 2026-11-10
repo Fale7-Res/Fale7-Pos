@@ -32,12 +32,32 @@ public static class BusinessClock
     /// BusinessDate. Lets a query filter timestamped rows (Orders.CreatedAtUtc, etc.) by business
     /// date directly in SQL (a plain range comparison, translatable by EF) instead of loading every
     /// row into memory just to re-derive its business date client-side.</summary>
-    public static (DateTimeOffset Start, DateTimeOffset End) UtcRangeForBusinessDate(DateOnly date)
+    public static (DateTimeOffset Start, DateTimeOffset End) UtcRangeForBusinessDate(DateOnly date) =>
+        (StartOfBusinessDateUtc(date), StartOfBusinessDateUtc(date.AddDays(1)));
+
+    /// <summary>The first instant of a Cairo calendar day. Egypt's daylight saving (restored 2023)
+    /// jumps the clock from 00:00 to 01:00 on the last Friday of April, so that local midnight never
+    /// happens and converting it throws; the day then starts at the jump itself. Windows records some
+    /// years' jump as 23:59:59.999 rather than 24:00, so the jump is found by searching the skipped
+    /// span rather than assumed to be at midnight - that keeps every range exactly consistent with
+    /// <see cref="BusinessDate"/>. The autumn change (24:00 back to 23:00 on the last Thursday of
+    /// October) leaves midnight valid and unambiguous - that Thursday is simply 25 hours long - so it
+    /// needs no handling (FIN-0028).</summary>
+    private static DateTimeOffset StartOfBusinessDateUtc(DateOnly date)
     {
-        var localMidnight = date.ToDateTime(TimeOnly.MinValue);
-        var start = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight, DateTimeKind.Unspecified), CairoTimeZone);
-        var end = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(localMidnight.AddDays(1), DateTimeKind.Unspecified), CairoTimeZone);
-        return (new DateTimeOffset(start, TimeSpan.Zero), new DateTimeOffset(end, TimeSpan.Zero));
+        var localMidnight = DateTime.SpecifyKind(date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+        if (!CairoTimeZone.IsInvalidTime(localMidnight))
+            return new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(localMidnight, CairoTimeZone), TimeSpan.Zero);
+
+        // The skipped span is at most an hour; three hours before midnight is valid. Find its first tick.
+        var valid = localMidnight.AddHours(-3);
+        var invalid = localMidnight;
+        while (invalid.Ticks - valid.Ticks > 1)
+        {
+            var mid = new DateTime(valid.Ticks + (invalid.Ticks - valid.Ticks) / 2, DateTimeKind.Unspecified);
+            if (CairoTimeZone.IsInvalidTime(mid)) invalid = mid; else valid = mid;
+        }
+        return new DateTimeOffset(invalid, CairoTimeZone.GetUtcOffset(valid)).ToUniversalTime();
     }
 
     /// <summary>The same range across several consecutive business dates, so a report can cover a

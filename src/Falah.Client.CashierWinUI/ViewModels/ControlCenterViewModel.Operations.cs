@@ -19,7 +19,7 @@ public partial class ControlCenterViewModel
     }
     private Func<Task<(bool Success, bool Unknown, string? Error)>>? _pendingOperation;
     private bool _outcomeUnknown;
-    public bool HasPendingOperation => _pendingOperation is not null;
+    public bool HasPendingOperation => _pendingOperation is not null || _safeDropRequest.HasPending;
     public bool CanEditAction => !IsBusy && !HasPendingOperation;
     public bool IsActiveDay => BusinessDay?.Status.ToLowerInvariant() is "open" or "reopened" or "closing";
     public bool CanOpenDay => _hasLoaded && CanEditAction && !IsLoading && LoadError is null && _session.HasPermission("business_day_open") &&
@@ -38,7 +38,8 @@ public partial class ControlCenterViewModel
     {
         foreach (var name in new[] { nameof(HasBusinessDay), nameof(HasNoBusinessDay), nameof(CanClose),
             nameof(CanEditAction), nameof(HasPendingOperation), nameof(CanOpenDay), nameof(CanReopenDay),
-            nameof(CanReviewExceptions), nameof(CanChangeChecklist), nameof(IsActiveDay) }) OnPropertyChanged(name);
+            nameof(CanReviewExceptions), nameof(CanChangeChecklist), nameof(IsActiveDay),
+            nameof(CanOpenSafeDrop) }) OnPropertyChanged(name);
     }
 
     [RelayCommand]

@@ -19,17 +19,9 @@ using Microsoft.EntityFrameworkCore;
 /// any financial operation is mid-flight (a pending FinancialJournalEntries row - the same "started,
 /// not committed" signal every money-moving command in this codebase already relies on).
 ///
-/// PHYSICAL VERIFICATION NOTE (documented per direct instruction): the actual RESTORE DATABASE
-/// sequence below - ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE, then RESTORE
-/// DATABASE, then SET MULTI_USER - is architecturally correct SQL Server usage, but has NOT been
-/// exercised end-to-end against a live instance in this automated pass. Doing so in the integration
-/// test suite would force the SAME shared SQL Server instance every other concurrently-running test
-/// depends on into single-user mode, killing their connections mid-test - a genuinely destructive
-/// action this pass will not take just to exercise a code path. Every gate ABOVE the actual restore
-/// call (permission/approval, confirmation phrase, reason, active-operations block) IS exercised by
-/// real integration tests against real SQL Server, since none of them touch the database's own
-/// connectivity. The restore statement sequence itself needs a dedicated, isolated SQL Server
-/// instance to verify physically before this path is ever used against a real production database.
+/// Physical restore acceptance must use a disposable FalahTest database, never production.
+/// Failure ordering is covered by RestoreExecutionTests; actual SQL restore and request-draining
+/// tests still require an execution account able to connect to the test SQL instance.
 /// </summary>
 public sealed class RestoreBackupHandler
 {
@@ -37,17 +29,20 @@ public sealed class RestoreBackupHandler
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly IAuditLog _auditLog;
     private readonly CreateBackupHandler _createBackup;
+    private readonly DatabaseActivityScope _activity;
 
-    public RestoreBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog, CreateBackupHandler createBackup)
+    public RestoreBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog, CreateBackupHandler createBackup, DatabaseActivityScope activity)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
         _auditLog = auditLog;
         _createBackup = createBackup;
+        _activity = activity;
     }
 
     public async Task<BackupRecordDto> HandleAsync(RestoreBackupRequest request, CancellationToken ct = default)
     {
+        await _activity.EnterRestoreAsync(ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
@@ -138,8 +133,7 @@ public sealed class RestoreBackupHandler
         var databaseName = _db.Database.GetDbConnection().Database;
         BackupRules.AssertSafeDatabaseIdentifier(databaseName);
         var connectionString = _db.Database.GetConnectionString()!;
-        var databaseWasReplaced = false;
-        try
+        var outcome = await RestoreExecution.RunAsync(async replaced =>
         {
             // RESTORE requires exclusive access - a connection scoped to 'master', never to the
             // database being restored itself (you cannot restore a database you are connected to).
@@ -157,6 +151,7 @@ public sealed class RestoreBackupHandler
                 restore.CommandText = $"RESTORE DATABASE [{databaseName}] FROM DISK = @path WITH REPLACE";
                 restore.Parameters.AddWithValue("@path", backup.FilePath);
                 await restore.ExecuteNonQueryAsync(ct);
+                replaced(); // irreversible data replacement happened, even if MULTI_USER fails next.
             }
             await using (var multiUser = connection.CreateCommand())
             {
@@ -164,33 +159,20 @@ public sealed class RestoreBackupHandler
                 await multiUser.ExecuteNonQueryAsync(ct);
             }
 
-            databaseWasReplaced = true;
-            restoreRecord.Status = nameof(BackupRecordStatus.Succeeded);
-            restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
-            _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "استعادة نسخة احتياطية", "backup",
-                $"تمت الاستعادة من {backup.FilePath} - نسخة الأمان للحالة السابقة: {safetyBackupPath}", "critical",
-                restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, AuthorizedBy: restoreRecord.ApprovedBy, ReferenceId: restoreRecord.Id));
-        }
-        catch (Exception ex)
-        {
-            // A restore that fails partway can leave the database in SINGLE_USER - which locks the
-            // whole restaurant out of a database that was never replaced. Best effort, and its own
-            // failure must not bury the real error above.
-            await TryReleaseSingleUserAsync(connectionString, databaseName);
+        }, () => TryReleaseSingleUserAsync(connectionString, databaseName));
+        var databaseWasReplaced = outcome.DatabaseWasReplaced;
+        restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
+        restoreRecord.Status = databaseWasReplaced ? nameof(BackupRecordStatus.Succeeded) : nameof(BackupRecordStatus.Failed);
+        restoreRecord.ErrorMessage = outcome.Error is null ? null
+            : databaseWasReplaced ? "تمت استعادة البيانات، لكن تعذر إكمال إعادة فتح الاتصال: " + outcome.Error : outcome.Error;
+        _auditLog.Append(new AuditEvent(
+            $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+            databaseWasReplaced ? "استعادة نسخة احتياطية" : "فشل استعادة نسخة احتياطية", "backup",
+            $"{backup.FilePath} - نسخة الأمان للحالة السابقة: {safetyBackupPath}" + (outcome.Error is null ? "" : " - " + restoreRecord.ErrorMessage),
+            "critical", restoreRecord.CompletedAtUtc.Value, Reason: request.Reason,
+            AuthorizedBy: restoreRecord.ApprovedBy, ReferenceId: restoreRecord.Id));
 
-            restoreRecord.Status = nameof(BackupRecordStatus.Failed);
-            restoreRecord.ErrorMessage = ex.Message;
-            restoreRecord.CompletedAtUtc = DateTimeOffset.UtcNow;
-            _auditLog.Append(new AuditEvent(
-                $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "فشل استعادة نسخة احتياطية", "backup",
-                $"{backup.FilePath} - الخطأ: {ex.Message} - نسخة الأمان للحالة السابقة: {safetyBackupPath}", "critical",
-                restoreRecord.CompletedAtUtc.Value, Reason: request.Reason, ReferenceId: restoreRecord.Id));
-        }
-
-        await RecordOutcomeAsync(restoreRecord, databaseWasReplaced, connectionString, ct);
+        await RecordOutcomeAsync(restoreRecord, databaseWasReplaced, connectionString, CancellationToken.None);
         return BackupQueryService.ToDto(restoreRecord);
     }
 

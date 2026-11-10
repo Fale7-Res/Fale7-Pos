@@ -1,6 +1,10 @@
 namespace Falah.Infrastructure.Persistence.Entities;
 
-public enum CashDrawerCommandStatus { Requested, Succeeded, Failed }
+/// <summary>Requested -> Dispatched (handed to the print station) -> Succeeded (the printer accepted
+/// the pulse - not proof the drawer opened: no ESC/POS printer reports that) or Failed. A request not
+/// dispatched within CashDrawer:KickMaxAgeSeconds becomes Expired and is never sent, so a drawer never
+/// springs open minutes after anyone asked.</summary>
+public enum CashDrawerCommandStatus { Requested, Succeeded, Failed, Dispatched, Expired }
 
 /// <summary>Ported from addCashMovement's 'drawer_open' case in the reference app's lib/store.tsx -
 /// the ONE case of that command that posts NO treasury movement at all (only cash_in/cash_out do;

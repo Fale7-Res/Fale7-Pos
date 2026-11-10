@@ -184,7 +184,8 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
         if (kind == "withdrawal")
             (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
                 new RecordManualLedgerEntryRequest(employee.Id, "DailyWage", 50000, true, "رصيد مستحق", _hrUserId, null, null))).EnsureSuccessStatusCode();
-        var issued = await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at the cashier's till, which spends it: an approval is spent only by the session that asked.
+        var issued = await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
             new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "employees_ledger", "اعتماد صرف"));
         issued.EnsureSuccessStatusCode();
         var approval = await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
@@ -241,4 +242,72 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
     }
 
     private sealed record BalanceResponse(string employeeId, long balancePiastres);
+
+    [Theory]
+    [InlineData("monthly", "Monthly")]
+    [InlineData("daily", "Daily")]
+    public async Task Compensation_names_are_canonical_on_create_and_update(string input, string expected)
+    {
+        var request = new CreateEmployeeRequest($"case-{Guid.NewGuid():N}", "عامل", "CASE", "عمل", "01000000000", new DateOnly(2024, 1, 1), input, 20000, 15000, 800000, false, "cashier", null, null, null, null, null, null, null, null, _hrUserId);
+        var response = await _client.PostAsJsonAsync("/api/employees", request);
+        response.EnsureSuccessStatusCode();
+        var emp = (await response.Content.ReadFromJsonAsync<EmployeeDto>())!;
+        Assert.Equal(expected, emp.CompensationType);
+        var update = new UpdateEmployeeRequest(emp.Id, emp.Name, emp.EmployeeNumber, emp.JobTitle, emp.Phone, emp.HireDate,
+            input, emp.DailyWagePiastres, emp.ShiftValuePiastres, emp.MonthlySalaryPiastres, false, emp.Role, true, null, null, null, null, null, null, null, null, _hrUserId);
+        var changed = await _client.PutAsJsonAsync($"/api/employees/{emp.Id}", update);
+        changed.EnsureSuccessStatusCode();
+        Assert.Equal(expected, (await changed.Content.ReadFromJsonAsync<EmployeeDto>())!.CompensationType);
+    }
+
+    [Fact]
+    public async Task Undefined_numeric_compensation_type_is_refused()
+    {
+        var request = new CreateEmployeeRequest($"case-{Guid.NewGuid():N}", "عامل", "CASE", "عمل", "01000000000", new DateOnly(2024, 1, 1), "999", 20000, 15000, null, false, "cashier", null, null, null, null, null, null, null, null, _hrUserId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await _client.PostAsJsonAsync("/api/employees", request)).StatusCode);
+    }
+
+
+    [Fact]
+    public async Task Undefined_numeric_ledger_type_is_refused()
+    {
+        var emp = await CreateEmployeeAsync();
+        var response = await _client.PostAsJsonAsync($"/api/employees/{emp.Id}/ledger-entries", new RecordManualLedgerEntryRequest(emp.Id, "42", 5000, true, "اختبار", _hrUserId, null, null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.EmployeeLedgerEntries.CountAsync(e => e.EmployeeId == emp.Id)));
+    }
+
+
+    [Fact]
+    public async Task Manual_ledger_post_waits_for_employee_lock_and_uses_the_committed_balance()
+    {
+        var employee = await CreateEmployeeAsync();
+        using var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services);
+        var db = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(scope.ServiceProvider);
+        await using var tx = await db.Database.BeginTransactionAsync();
+        await db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", employee.Id).Select(e=>e.Id).SingleAsync();
+        var post = _client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
+            new RecordManualLedgerEntryRequest(employee.Id, "Bonus", 1000, true, "بعد الحركة المتزامنة", _hrUserId, null, null));
+        await Task.WhenAny(post, Task.Delay(800));
+        var waited = !post.IsCompleted;
+        db.EmployeeLedgerEntries.Add(new Falah.Infrastructure.Persistence.Entities.EmployeeLedgerEntryEntity {
+            Id = "held-credit", EmployeeId = employee.Id, Type = "Bonus", Description = "حركة تحت القفل",
+            CreditPiastres = 3000, BalanceAfterPiastres = 3000, RecordedBy = "fixture", CreatedAtUtc = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync(); await tx.CommitAsync();
+        var response = await post; response.EnsureSuccessStatusCode();
+        Assert.True(waited, "Manual ledger writer bypassed the employee serialization lock.");
+        Assert.Equal(4000, (await response.Content.ReadFromJsonAsync<EmployeeLedgerEntryDto>())!.BalanceAfterPiastres);
+    }
+
+    [Fact]
+    public async Task Concurrent_manual_ledger_credits_have_every_running_balance_once()
+    {
+        var employee = await CreateEmployeeAsync();
+        var responses = await Task.WhenAll(Enumerable.Range(0,8).Select(i=>_client.PostAsJsonAsync($"/api/employees/{employee.Id}/ledger-entries",
+            new RecordManualLedgerEntryRequest(employee.Id, "Bonus", 1000, true, $"مكافأة {i}", _hrUserId, null, null))));
+        var entries = new List<EmployeeLedgerEntryDto>();
+        foreach(var response in responses) { response.EnsureSuccessStatusCode(); entries.Add((await response.Content.ReadFromJsonAsync<EmployeeLedgerEntryDto>())!); }
+        Assert.Equal(Enumerable.Range(1,8).Select(i=>(long)i*1000), entries.Select(e=>e.BalanceAfterPiastres).OrderBy(x=>x));
+    }
+
 }

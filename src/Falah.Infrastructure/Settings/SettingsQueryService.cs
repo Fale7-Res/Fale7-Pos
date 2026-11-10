@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Settings;
+﻿namespace Falah.Infrastructure.Settings;
 
 using Falah.Application.Settings;
 using Falah.Infrastructure.Persistence;
@@ -25,7 +25,9 @@ public sealed class SettingsQueryService
         LatePenaltyMultiplier: 2.0, OvertimeMultiplier: 1.5,
         // What this system has always done. Changing the default would change how every restaurant
         // running it behaves, without anyone asking for it.
-        HoldPreparationUntilPaymentConfirmed: false);
+        HoldPreparationUntilPaymentConfirmed: false,
+        // 1000 ج - what the restaurant actually puts in the drawer to start a shift.
+        DefaultOpeningCashPiastres: 100_000);
 
     public async Task<SettingsDto> GetAsync(CancellationToken ct = default)
     {
@@ -38,5 +40,6 @@ public sealed class SettingsQueryService
         e.OvertimeHourlyRatePiastres, e.DeliveryFeePiastres, e.Currency, e.CashDiscrepancyThresholdPiastres,
         e.AutoLockMinutes, e.ActiveShiftName, e.PrinterWidth, e.AutoPrintReceipt, e.AutoPrintPreparationTicket,
         e.NumberOfReceiptCopies, e.GrillScreenSoundAlert, e.StandardWorkdayHours, e.LateGraceMinutes,
-        e.MaxLatePenaltyHours, e.LatePenaltyMultiplier, e.OvertimeMultiplier, e.HoldPreparationUntilPaymentConfirmed);
+        e.MaxLatePenaltyHours, e.LatePenaltyMultiplier, e.OvertimeMultiplier, e.HoldPreparationUntilPaymentConfirmed,
+        e.DefaultOpeningCashPiastres, e.MenuUrl);
 }

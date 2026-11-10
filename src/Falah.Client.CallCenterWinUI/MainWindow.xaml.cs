@@ -13,10 +13,19 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Before the tree is populated: RequestedTheme on the root is inherited by everything below
+        // it, and every {ThemeResource} re-resolves on its own when it changes.
+        RootGrid.RequestedTheme = Services.ThemeService.ToElementTheme(Services.ThemeService.Instance.Current);
+        Services.ThemeService.Instance.Changed += OnThemeChanged;
         _viewModel = new MainViewModel();
         CloseNotice.DataContext = _viewModel;
         AppWindow.Closing += (_, args) => args.Cancel = !_viewModel.TryClose();
-        Closed += (_, _) => { _viewModel.PropertyChanged -= OnViewModelPropertyChanged; _viewModel.Stop(); };
+        Closed += (_, _) =>
+        {
+            Services.ThemeService.Instance.Changed -= OnThemeChanged;
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.Stop();
+        };
 
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
@@ -36,6 +45,9 @@ public partial class MainWindow : Window
         if (AppWindow.Presenter is OverlappedPresenter presenter)
             presenter.Maximize();
     }
+
+    private void OnThemeChanged(Services.AppTheme theme) =>
+        DispatcherQueue.TryEnqueue(() => RootGrid.RequestedTheme = Services.ThemeService.ToElementTheme(theme));
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

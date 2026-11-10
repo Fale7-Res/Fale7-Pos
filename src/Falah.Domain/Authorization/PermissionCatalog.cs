@@ -52,6 +52,9 @@ public static class PermissionCatalog
         new("payroll_approve", "employees"),
         new("payroll_pay", "employees"),
         new("backup_manage", "backup"),
+        // What a print agent station logs in with, and all it needs: claim its route's jobs and
+        // report what happened to them (and to a cash-drawer kick). Nothing else in the system.
+        new("print_agent", "printing"),
     };
 
     public static readonly IReadOnlySet<string> Keys = All.Select(p => p.Key).ToHashSet();

@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Reports;
+﻿namespace Falah.Infrastructure.Reports;
 
 using Falah.Application.Reports;
 using Falah.Domain.Common;
@@ -9,6 +9,7 @@ using Falah.Domain.Inventory;
 using Falah.Domain.Orders;
 using Falah.Domain.Printing;
 using Falah.Domain.Reports;
+using Falah.Infrastructure.Employees;
 using Falah.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +39,7 @@ public sealed class OwnerDashboardQueryService
     public async Task<OwnerDashboardDto> GetAsync(BusinessDateRange range, CancellationToken ct = default)
     {
         var sales = await _reports.GetSalesReportAsync(range, null, ct);
+        var tax = await _reports.GetTaxReportAsync(range, null, ct);
         var expenses = await _reports.GetExpenseReportAsync(range, null, ct);
         var refunds = await _reports.GetRefundActivityAsync(range, null, ct);
         var foodCost = await _reports.GetFoodCostReportAsync(range.From, range.To, ct);
@@ -50,13 +52,13 @@ public sealed class OwnerDashboardQueryService
             sales.CollectedSalesPiastres, sales.PendingElectronicSalesPiastres, sales.CashWithDriversPiastres,
             sales.AverageOrderValuePiastres, sales.CashPiastres, sales.CardPiastres,
             sales.InstaPayPiastres, sales.WalletPiastres,
-            sales.DineInPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
+            sales.PickupPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
             await CurrentTreasuryAsync(ct),
             await LoadSettledFromDriversAsync(start, end, ct));
 
         var leakage = await LoadLeakageAsync(range, sales, expenses.TotalPiastres, refunds.Count, start, end, ct);
-        var wages = await LoadWagesPostedAsync(start, end, ct);
-        var profitability = BuildProfitability(sales, foodCost, expenses.TotalPiastres, wages.Total, wages.Count);
+        var wages = await LoadWagesPostedAsync(range, ct);
+        var profitability = BuildProfitability(sales, tax, foodCost, expenses.TotalPiastres, wages.Total, wages.Count);
 
         return new OwnerDashboardDto(
             range.From.ToString("yyyy-MM-dd"), range.To.ToString("yyyy-MM-dd"), range.DayCount,
@@ -106,19 +108,17 @@ public sealed class OwnerDashboardQueryService
             series);
     }
 
-    /// <summary>Net per order is total less refunds - the same subtraction SalesRules makes for the
-    /// period total, so the points on the curve add up to the headline figure above it.</summary>
+    /// <summary>Each point is the sales made in it less the refunds made in it - the same basis
+    /// SalesRules uses for the period total, so the points on the curve add up to the headline
+    /// figure above it, and a refund shows on the day (or hour) it was paid, not the day of the sale.</summary>
     private async Task<List<TrendPointDto>> LoadDailySeriesAsync(BusinessDateRange range, CancellationToken ct)
     {
         var (start, end) = range.ToUtcRange();
-        var rows = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
-            .Select(o => new { o.CreatedAtUtc, o.TotalPiastres, o.RefundAmountPiastres })
-            .ToListAsync(ct);
+        var rows = await LoadNetSalesEventsAsync(start, end, ct);
 
         var byDate = rows
-            .GroupBy(r => BusinessClock.BusinessDate(r.CreatedAtUtc))
-            .ToDictionary(g => g.Key, g => (Net: g.Sum(r => r.TotalPiastres - r.RefundAmountPiastres), Orders: g.Count()));
+            .GroupBy(r => BusinessClock.BusinessDate(r.AtUtc))
+            .ToDictionary(g => g.Key, g => (Net: g.Sum(r => r.NetPiastres), Orders: g.Count(r => r.IsSale)));
 
         // Every day in the span gets a point, including the ones with no trade at all - a gap in a
         // curve reads as missing data, while a zero reads as a closed day, which is the truth.
@@ -134,15 +134,12 @@ public sealed class OwnerDashboardQueryService
     private async Task<List<TrendPointDto>> LoadHourlySeriesAsync(BusinessDateRange range, CancellationToken ct)
     {
         var (start, end) = range.ToUtcRange();
-        var rows = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
-            .Select(o => new { o.CreatedAtUtc, o.TotalPiastres, o.RefundAmountPiastres })
-            .ToListAsync(ct);
+        var rows = await LoadNetSalesEventsAsync(start, end, ct);
 
         // Bucketed by the hour a Cairo clock on the wall would show, not by UTC.
         var byHour = rows
-            .GroupBy(r => TimeZoneInfo.ConvertTime(r.CreatedAtUtc, BusinessClock.CairoTimeZone).Hour)
-            .ToDictionary(g => g.Key, g => (Net: g.Sum(r => r.TotalPiastres - r.RefundAmountPiastres), Orders: g.Count()));
+            .GroupBy(r => TimeZoneInfo.ConvertTime(r.AtUtc, BusinessClock.CairoTimeZone).Hour)
+            .ToDictionary(g => g.Key, g => (Net: g.Sum(r => r.NetPiastres), Orders: g.Count(r => r.IsSale)));
 
         return Enumerable.Range(0, 24)
             .Select(hour =>
@@ -150,6 +147,25 @@ public sealed class OwnerDashboardQueryService
                 var found = byHour.TryGetValue(hour, out var v) ? v : (Net: 0L, Orders: 0);
                 return new TrendPointDto($"{hour:00}", found.Net, found.Orders);
             })
+            .ToList();
+    }
+
+    /// <summary>Every sale (at its full value) and every refund (negative) made in the span, each at
+    /// the instant it happened. Cancelled orders are not sales, matching SalesRules' selection.</summary>
+    private async Task<List<(DateTimeOffset AtUtc, long NetPiastres, bool IsSale)>> LoadNetSalesEventsAsync(
+        DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
+    {
+        var sales = await _db.Orders.AsNoTracking()
+            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
+            .Select(o => new { o.CreatedAtUtc, o.TotalPiastres })
+            .ToListAsync(ct);
+        var refunds = await _db.OrderRefunds.AsNoTracking()
+            .Where(r => r.CreatedAtUtc >= start && r.CreatedAtUtc < end)
+            .Select(r => new { r.CreatedAtUtc, r.AmountPiastres })
+            .ToListAsync(ct);
+
+        return sales.Select(s => (s.CreatedAtUtc, s.TotalPiastres, true))
+            .Concat(refunds.Select(r => (r.CreatedAtUtc, -r.AmountPiastres, false)))
             .ToList();
     }
 
@@ -188,24 +204,35 @@ public sealed class OwnerDashboardQueryService
     /// employee had already earned, so counting them as wage cost would double-count it.</summary>
     /// <summary>The total AND how many entries produced it. The count is what lets the wage ratio
     /// say "unknown" instead of "0%" for a period where nobody posted any labour at all.</summary>
-    private async Task<(long Total, int Count)> LoadWagesPostedAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
+    /// <summary>Salary accruals count on the day they were earned for (EmployeeLedgerPeriods), so a
+    /// month of single days adds up to the month.</summary>
+    private async Task<(long Total, int Count)> LoadWagesPostedAsync(BusinessDateRange range, CancellationToken ct)
     {
+        // Deductions are part of the same cost: a late penalty or a docked day reduces what the
+        // restaurant owes for that labour, exactly as PayrollRules nets them out of a payroll line.
+        // Each entry contributes credit minus debit, so a deduction (a debit) lowers the total and an
+        // earning reversed by a debit on its own type does too.
         var wageTypes = new[]
         {
             nameof(LedgerEntryType.DailyWage), nameof(LedgerEntryType.Salary),
             nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift),
             nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning),
+            nameof(LedgerEntryType.Deduction),
         };
         var rows = await _db.EmployeeLedgerEntries.AsNoTracking()
-            .Where(e => wageTypes.Contains(e.Type) && e.CreatedAtUtc >= start && e.CreatedAtUtc < end)
-            .Select(e => e.CreditPiastres).ToListAsync(ct);
+            .ForDays(range.From, range.To)
+            .Where(e => wageTypes.Contains(e.Type))
+            .Select(e => e.CreditPiastres - e.DebitPiastres).ToListAsync(ct);
         return (rows.Sum(), rows.Count);
     }
 
+    /// <summary>Profit is measured on what the restaurant keeps: net sales less the VAT collected on
+    /// them (net of the VAT handed back with refunds), which is owed to the tax authority and was
+    /// never the restaurant's revenue. With no tax rule enabled the two are the same figure.</summary>
     private static ProfitabilityDto BuildProfitability(
-        SalesReportDto sales, FoodCostReportDto foodCost, long expenses, long wages, int wagePostingCount)
+        SalesReportDto sales, TaxReportDto tax, FoodCostReportDto foodCost, long expenses, long wages, int wagePostingCount)
     {
-        var netSales = Money.FromPiastres(sales.NetSalesPiastres);
+        var netSales = Money.FromPiastres(sales.NetSalesPiastres - tax.NetTaxPiastres);
         var knownFoodCost = Money.FromPiastres(foodCost.TotalFoodCostPiastres);
 
         var gross = ProfitabilityRules.ComputeGrossProfit(
@@ -229,7 +256,8 @@ public sealed class OwnerDashboardQueryService
     /// through any sale's payment leg, so it appears in neither cash nor card nor instapay.</summary>
     private async Task<long> LoadSettledFromDriversAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct) =>
         await _db.TreasuryMovements.AsNoTracking()
-            .Where(m => m.Type == "driver_settlement" && m.CreatedAtUtc >= start && m.CreatedAtUtc < end)
+            .Where(m => m.Type == "driver_settlement" && m.Status == nameof(MovementStatus.Posted)
+                && m.CreatedAtUtc >= start && m.CreatedAtUtc < end)
             .SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
 
     private async Task<AttentionDto> LoadAttentionAsync(BusinessDateRange range, CancellationToken ct)
@@ -259,8 +287,20 @@ public sealed class OwnerDashboardQueryService
             .Where(c => c.Status != nameof(CustodyStatus.Settled))
             .Select(c => c.ExpectedPiastres).ToListAsync(ct);
 
-        var pendingElectronic = await _db.Orders.AsNoTracking()
-            .CountAsync(o => o.ElectronicPaymentStatus == "Pending", ct);
+        // The same list the pending-electronic report shows, so the count, the amount and the age
+        // here are the figures behind it (and the status is compared in its stored lower-case form,
+        // not left to the database collation's case-insensitivity).
+        var pendingElectronic = await _reports.GetPendingElectronicAsync(ct);
+
+        // FIN-0042: paid delivery orders that never reached the customer and are not fully refunded.
+        // A cash-on-delivery order is voided by its failed result and never counts (it is not IsPaid).
+        var cancelledWire = Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(OrderStatus.Cancelled);
+        var failedStatuses = new[] { nameof(DeliveryStatus.Failed), nameof(DeliveryStatus.Returned) };
+        var paidUndelivered = await (from d in _db.Deliveries.AsNoTracking()
+                                     join o in _db.Orders.AsNoTracking() on d.OrderId equals o.Id
+                                     where failedStatuses.Contains(d.Status) && o.IsPaid && o.Status != cancelledWire
+                                         && o.RefundAmountPiastres < o.TotalPiastres
+                                     select o.TotalPiastres - o.RefundAmountPiastres).ToListAsync(ct);
 
         var openExceptions = await _db.ControlExceptionStates.AsNoTracking()
             .CountAsync(e => e.Status == "Open", ct);
@@ -286,12 +326,16 @@ public sealed class OwnerDashboardQueryService
                 && (s.CashDifferencePiastres > threshold || s.CashDifferencePiastres < -threshold)),
             UnsettledCustodyCount: custodies.Count,
             UnsettledCustodyPiastres: custodies.Sum(),
-            PendingElectronicOrderCount: pendingElectronic,
+            PendingElectronicOrderCount: pendingElectronic.Count,
             OpenExceptionCount: openExceptions,
             CloseBlockerCount: blockerCount,
             HasOpenBusinessDay: day is not null,
             OpenBusinessDayAgeDays: openDayAge,
-            UnusualCostChangeCount: unusualCostChanges);
+            UnusualCostChangeCount: unusualCostChanges,
+            PendingElectronicPiastres: pendingElectronic.TotalPiastres,
+            OldestPendingElectronicMinutes: pendingElectronic.OldestAgeMinutes,
+            PaidUndeliveredOrderCount: paidUndelivered.Count,
+            PaidUndeliveredOwedPiastres: paidUndelivered.Sum());
     }
 
     private async Task<StockPositionDto> LoadStockAsync(CancellationToken ct)
@@ -300,7 +344,9 @@ public sealed class OwnerDashboardQueryService
             .Select(i => new { i.Id, i.Name, i.Unit, i.MinimumMilliUnits }).ToListAsync(ct);
         var balances = await _db.StockMovements.AsNoTracking()
             .GroupBy(m => m.InventoryItemId)
-            .Select(g => new { InventoryItemId = g.Key, Balance = g.Sum(m => m.QuantityMilliUnits) })
+            // Quantities are stored unsigned; the direction says which way they moved. Summing them
+            // bare made every usage and every waste RAISE the balance tested against the minimum.
+            .Select(g => new { InventoryItemId = g.Key, Balance = g.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits) })
             .ToDictionaryAsync(x => x.InventoryItemId, x => x.Balance, ct);
 
         var low = items

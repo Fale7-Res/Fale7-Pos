@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -328,7 +328,8 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
             $"req-{Guid.NewGuid():N}", null, "عرض", new[] { product!.ProductId }, 8000, null, null, null, true, noPermissionUser, null, null));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutApproval.StatusCode);
 
-        var approvalId = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at that user's own session, which spends it.
+        var approvalId = (await (await _factory.PostAsSessionOfAsync(_client, noPermissionUser, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_ownerId), "offers_manage", "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
         var withApproval = await _client.PostAsJsonAsync("/api/price-rules", new SavePriceRuleRequest(
             $"req-{Guid.NewGuid():N}", null, "عرض", new[] { product.ProductId }, 8000, null, null, null, true, noPermissionUser, approvalId, _ownerId));
@@ -371,4 +372,57 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
         Assert.Contains(events!, e => e.Action.Contains("ضريبة"));
         Assert.Contains(events!, e => e.Action.Contains("عرض تسعير"));
     }
+    // ---- Menu order ----
+
+    /// <summary>The till shows products in SortOrder and each product's sizes cheapest first. The
+    /// variant order used to be whatever the database join produced, and the menu query now reads
+    /// products without a full-row SQL sort (see MenuQueryService) - so the order is pinned here,
+    /// on both the POS menu and the management list.</summary>
+    [Fact]
+    public async Task The_menu_lists_products_by_sort_order_and_variants_cheapest_first()
+    {
+        var categoryId = await SeedCategoryIdAsync();
+        Task<HttpResponseMessage> Create(string name, int sortOrder, params ProductVariantInput[] variants) =>
+            _client.PostAsJsonAsync("/api/products", new CreateProductRequest(
+                $"req-{Guid.NewGuid():N}", categoryId, name, 5000, false, null, sortOrder, null, variants, _menuManagerId));
+
+        (await Create("ثالث", 3)).EnsureSuccessStatusCode();
+        (await Create("أول", 1,
+            new ProductVariantInput(null, "كبير", 9000, null),
+            new ProductVariantInput(null, "صغير", 5000, null),
+            new ProductVariantInput(null, "وسط", 7000, null))).EnsureSuccessStatusCode();
+        (await Create("ثاني", 2)).EnsureSuccessStatusCode();
+
+        var menu = await (await _client.GetAsync("/api/menu")).Content.ReadFromJsonAsync<MenuResponse>();
+        var products = menu!.Categories.Single(c => c.Id == categoryId).Products;
+        Assert.Equal(new[] { "أول", "ثاني", "ثالث" }, products.Select(p => p.Name));
+        Assert.Equal(new[] { "صغير", "وسط", "كبير" }, products[0].Variants.Select(v => v.Name));
+
+        var managed = (await (await _client.GetAsync("/api/products/all")).Content.ReadFromJsonAsync<List<ProductDetailsDto>>())!
+            .Where(p => p.CategoryId == categoryId).ToList();
+        Assert.Equal(new[] { "أول", "ثاني", "ثالث" }, managed.Select(p => p.Name));
+        Assert.Equal(new[] { "صغير", "وسط", "كبير" }, managed[0].Variants.Select(v => v.Name));
+    }
+
+    [Theory]
+    [InlineData("inclusive", "Inclusive")]
+    [InlineData("0", "Inclusive")]
+    [InlineData("exclusive", "Exclusive")]
+    public async Task Tax_modes_are_canonical_on_create_and_update(string input, string expected)
+    {
+        var response = await _client.PostAsJsonAsync("/api/tax-rules", new CreateTaxRuleRequest($"case-{Guid.NewGuid():N}", "ضريبة", 1000, input, true, _menuManagerId));
+        response.EnsureSuccessStatusCode();
+        var created = (await response.Content.ReadFromJsonAsync<CreateTaxRuleResult>())!;
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.TaxRules.Where(t => t.Id == created.TaxRuleId).Select(t => t.Mode).SingleAsync()));
+        var update = await _client.PutAsJsonAsync($"/api/tax-rules/{created.TaxRuleId}", new UpdateTaxRuleRequest(created.TaxRuleId, "ضريبة", 1000, input, true, _menuManagerId));
+        update.EnsureSuccessStatusCode();
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.TaxRules.Where(t => t.Id == created.TaxRuleId).Select(t => t.Mode).SingleAsync()));
+    }
+
+    [Fact]
+    public async Task Undefined_numeric_tax_mode_is_refused()
+    {
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await _client.PostAsJsonAsync("/api/tax-rules", new CreateTaxRuleRequest($"case-{Guid.NewGuid():N}", "ضريبة", 1000, "999", true, _menuManagerId))).StatusCode);
+    }
+
 }

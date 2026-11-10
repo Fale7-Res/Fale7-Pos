@@ -14,6 +14,12 @@ public interface IApprovalRegistry
     ManagerApproval? Find(string approvalId);
     bool IsConsumed(string approvalId);
     void MarkConsumed(string approvalId);
+
+    /// <summary>How long an issued approval may still be spent; null = until spent.</summary>
+    TimeSpan? ApprovalLifetime => null;
+
+    /// <summary>The moment an approval's age is judged at.</summary>
+    DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
 }
 
 public sealed class InMemoryApprovalRegistry : IApprovalRegistry
@@ -25,6 +31,10 @@ public sealed class InMemoryApprovalRegistry : IApprovalRegistry
     public ManagerApproval? Find(string approvalId) => _issued.GetValueOrDefault(approvalId);
     public bool IsConsumed(string approvalId) => _consumed.Contains(approvalId);
     public void MarkConsumed(string approvalId) => _consumed.Add(approvalId);
+
+    public TimeSpan? ApprovalLifetime { get; init; }
+    public Func<DateTimeOffset> Clock { get; init; } = () => DateTimeOffset.UtcNow;
+    public DateTimeOffset UtcNow => Clock();
 }
 
 /// <summary>
@@ -38,18 +48,15 @@ public static class AuthorizationPolicy
         actor is { Active: true } && (actor.Permissions.Contains("all") || actor.Permissions.Contains(permission));
 
     public static ManagerApproval IssueManagerApproval(
-        IApprovalRegistry registry, Actor approver, string action, string? reason, DateTimeOffset nowUtc)
+        IApprovalRegistry registry, Actor approver, string action, string? reason, DateTimeOffset nowUtc, string? requestedByUserId = null)
     {
         // An approval with no action approves nothing. Before this check the empty value travelled
         // all the way to the database and failed there on a NOT NULL constraint, which surfaced to
         // the till as an unexplained failure on the one path that authorises comps, refunds and
         // permission overrides.
-        if (string.IsNullOrWhiteSpace(action))
-            throw new DomainException("يجب تحديد العملية المطلوب اعتمادها.");
+        EnsureApprovalAction(action);
 
-        var allowedRole = approver.Role is "owner" or "manager"
-            || (approver.Role == "supervisor" && HasPermission(approver, action));
-        if (!allowedRole || !approver.Active)
+        if (!CanIssueApproval(approver, action))
             throw new DomainException("هذا المستخدم غير مخول لاعتماد العملية.");
 
         var approval = new ManagerApproval(
@@ -59,10 +66,25 @@ public static class AuthorizationPolicy
             ApproverRole: approver.Role,
             ApprovedAtUtc: nowUtc,
             Action: action,
-            Reason: reason);
+            Reason: reason,
+            RequestedByUserId: requestedByUserId);
         registry.Register(approval);
         return approval;
     }
+
+    public static void EnsureApprovalAction(string? action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+            throw new DomainException("يجب تحديد العملية المطلوب اعتمادها.");
+    }
+
+    /// <summary>Owners and managers approve anything; a supervisor only what they hold the permission
+    /// for. Answerable without the approver's PIN, so the approval endpoint can check a typed PIN
+    /// against these people alone and never confirm that a cashier's PIN is real.</summary>
+    public static bool CanIssueApproval(Actor approver, string action) =>
+        approver.Active
+        && ((UserManagementRules.IsRole(approver.Role, "owner") || UserManagementRules.IsRole(approver.Role, "manager"))
+            || (UserManagementRules.IsRole(approver.Role, "supervisor") && HasPermission(approver, action)));
 
     public readonly record struct AuthorizationResult(Actor Actor, ManagerApproval? Approver);
 
@@ -74,12 +96,39 @@ public static class AuthorizationPolicy
         if (!requireApproval || approval is null)
             throw new DomainException("ليس لديك صلاحية تنفيذ هذه العملية.");
 
-        var issued = registry.Find(approval.ApprovalId);
-        if (issued is null || issued.Action != permission || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))
-            throw new DomainException("اعتماد المدير غير صالح أو لا يطابق العملية.");
+        return new AuthorizationResult(actor, ValidateApproval(registry, permission, approval, actor.Id, consumeApproval));
+    }
 
-        if (consumeApproval) registry.MarkConsumed(approval.ApprovalId);
-        return new AuthorizationResult(actor, issued);
+    public const string ApprovalInvalidMessage = "اعتماد المدير غير صالح أو لا يطابق العملية.";
+    public const string ApprovalExpiredMessage = "انتهت صلاحية اعتماد المدير - اطلب من المدير الاعتماد مرة أخرى.";
+
+    /// <summary>
+    /// For an operation that ALWAYS needs a manager's approval, whoever performs it: the presented
+    /// approval must have been issued, for this action, by the named approver, and not spent yet -
+    /// and it is spent here. Unlike AuthorizeCommand, the actor's own permissions do not bypass it.
+    ///
+    /// That difference is the point. A comp records its approver on the order and in the audit
+    /// trail; if holding orders_comp skipped the check, a cashier could name any manager as the
+    /// approver of a comp that manager never saw.
+    ///
+    /// It must also be spent by the user it was issued to (<paramref name="consumerUserId"/> against
+    /// <see cref="ManagerApproval.RequestedByUserId"/>), so an approval id that reaches another
+    /// session - read off a screen, a log, a shared till - authorises nothing there; and within the
+    /// registry's lifetime, so one granted for a moment at the till is not a standing permission kept
+    /// for later. Someone else's approval gets the same answer as a made-up one.
+    /// </summary>
+    public static ManagerApproval ValidateApproval(IApprovalRegistry registry, string action, ManagerApproval approval, string consumerUserId, bool consume = true)
+    {
+        var issued = registry.Find(approval.ApprovalId);
+        if (issued is null || issued.Action != action || issued.ApproverUserId != approval.ApproverUserId || registry.IsConsumed(approval.ApprovalId))
+            throw new DomainException(ApprovalInvalidMessage);
+        if (issued.RequestedByUserId is not null && issued.RequestedByUserId != consumerUserId)
+            throw new DomainException(ApprovalInvalidMessage);
+        if (registry.ApprovalLifetime is { } lifetime && registry.UtcNow - issued.ApprovedAtUtc > lifetime)
+            throw new DomainException(ApprovalExpiredMessage);
+
+        if (consume) registry.MarkConsumed(approval.ApprovalId);
+        return issued;
     }
 
     /// <summary>

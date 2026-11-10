@@ -59,6 +59,8 @@ public class ProductImageEntity
 
 public class ProductVariantEntity
 {
+    /// <summary>Retired sizes keep their identity for historical order lines.</summary>
+    public bool Active { get; set; } = true;
     public string Id { get; set; } = default!;
     public string ProductId { get; set; } = default!;
     public string Name { get; set; } = default!;

@@ -1,7 +1,8 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
+using Falah.Domain.Authorization;
 using Falah.Application.BusinessDay;
 using Falah.Application.Users;
 using Microsoft.EntityFrameworkCore;
@@ -81,11 +82,43 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
         Assert.True(entity.PinIterations > 0);
     }
 
+    /// <summary>The shared fixture already seeds an owner, so this is the SECOND one - still
+    /// refused. Exactly one owner, ever.</summary>
     [Fact]
-    public async Task Creating_a_user_with_role_owner_is_rejected()
+    public async Task Creating_a_second_owner_is_rejected()
     {
         var response = await CreateUserAsync("مالك آخر", "owner", "5813", new[] { "all" }, _managerId);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    /// <summary>An installation with no owner has no protected emergency account at all - the owner
+    /// is the one account that can never be deactivated or stripped. It used to be uncreatable
+    /// through any command in the system, which left such a till permanently without one. The FIRST
+    /// owner may now be created; the test above proves a second still cannot.</summary>
+    [Fact]
+    public async Task The_first_owner_can_be_created_when_the_installation_has_none()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "all");
+
+        var created = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "المالك", "owner", "7351", new[] { "all" }, admin));
+        created.EnsureSuccessStatusCode();
+
+        var again = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "مالك ثانٍ", "owner", "7362", new[] { "all" }, admin));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, again.StatusCode);
+    }
+
+    /// <summary>And once it exists it is untouchable: neither deactivated nor stripped, by anyone.</summary>
+    [Fact]
+    public async Task The_owner_can_be_neither_deactivated_nor_stripped()
+    {
+        var deactivate = await SetActiveAsync(_ownerId, false, _managerId, "اختبار");
+        Assert.False(deactivate.IsSuccessStatusCode);
+
+        var strip = await UpdatePermissionsAsync(_ownerId, Array.Empty<string>(), new[] { "all" }, _managerId);
+        Assert.False(strip.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -176,7 +209,7 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     {
         var created = await (await CreateUserAsync("كاشير جديد", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>();
         (await SetActiveAsync(created!.UserId, false, _managerId)).EnsureSuccessStatusCode();
-        (await SetActiveAsync(created.UserId, true, _managerId)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/users/{created.UserId}/change-pin", new ChangePinRequest(created.UserId, null, "4715", _managerId, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
 
         var login = await LoginAsync("4715");
         login.EnsureSuccessStatusCode();
@@ -355,7 +388,7 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     {
         var created = await (await CreateUserAsync("كاشير جديد", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>();
         (await SetActiveAsync(created!.UserId, false, _managerId, "استقالة")).EnsureSuccessStatusCode();
-        (await SetActiveAsync(created.UserId, true, _managerId)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/users/{created.UserId}/change-pin", new ChangePinRequest(created.UserId, null, "4715", _managerId, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
         (await ChangePinAsync(created.UserId, currentPin: null, "8264", _managerId)).EnsureSuccessStatusCode();
         (await UpdatePermissionsAsync(created.UserId, new[] { "orders_refund" }, Array.Empty<string>(), _managerId)).EnsureSuccessStatusCode();
 
@@ -403,4 +436,242 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
         var limited = await rateLimitClient.PostAsJsonAsync("/api/auth/login-by-pin", new LoginByPinRequest("9999"));
         Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
     }
+
+    // ---- Administrative lockout ----
+
+    /// <summary>These run on their own factory with NO owner account, because the shared fixture
+    /// seeds one and an owner makes this lockout structurally impossible: the owner always holds
+    /// "all" and can never be deactivated or stripped, so administration always survives through
+    /// them. That is worth stating plainly - an owner account IS the break-glass. The guard below
+    /// exists for the installation that has no owner, which is what a real till looks like when the
+    /// staff accounts were created without one.</summary>
+    private sealed class NoOwnerSetup : IDisposable
+    {
+        public FalahApiFactory Factory { get; } = new();
+        public HttpClient Client { get; }
+        public NoOwnerSetup() { Client = Factory.CreateAuthenticatedClient(); }
+        public void Dispose() => Factory.Dispose();
+    }
+
+    /// <summary>The way a restaurant locks itself out of its own till: one manager tidying
+    /// permissions revokes users_manage from the only account that had it. Nothing in the product
+    /// could undo that - there is no break-glass path without an owner, so the database would have
+    /// to be edited by hand. Revocation is deliberately exempt from the privilege-escalation check
+    /// (taking a permission away is never an escalation), which is why it needs its own guard.</summary>
+    /// <summary>Stands down every other active account that can administer users, so the named one
+    /// really is the last. A fresh database is never empty of administrators - the demo seed writes
+    /// a manager holding "all" - and the guard is only reachable once they are out of the way.</summary>
+    private static async Task LeaveOnlyOneAdministratorAsync(HttpClient client, string keepUserId)
+    {
+        var everyone = await client.GetFromJsonAsync<List<UserDetailsDto>>($"/api/users/all?actorUserId={keepUserId}");
+        foreach (var other in everyone!.Where(u => u.Id != keepUserId && u.Active
+                                                   && UserManagementRules.CanManageUsers(u.Permissions.ToHashSet())))
+        {
+            (await client.PostAsJsonAsync($"/api/users/{other.Id}/active",
+                new SetUserActiveRequest(other.Id, false, "إخلاء الساحة للاختبار", keepUserId)))
+                .EnsureSuccessStatusCode();
+        }
+    }
+
+    [Fact]
+    public async Task The_last_administrator_cannot_revoke_their_own_user_management()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "users_manage", "pos");
+        await LeaveOnlyOneAdministratorAsync(setup.Client, admin);
+
+        var response = await setup.Client.PostAsJsonAsync(
+            $"/api/users/{admin}/permissions",
+            new UpdateUserPermissionsRequest(admin, Array.Empty<string>(), new[] { "users_manage" }, admin));
+
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Contains("إدارة المستخدمين", await response.Content.ReadAsStringAsync());
+
+        // And the door is still open afterwards.
+        var stillWorks = await setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "كاشير بعد المحاولة", "cashier", "4726", new[] { "pos" }, admin));
+        stillWorks.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task Concurrent_self_revocations_leave_an_active_administrator()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+        // This scenario needs EXACTLY two administrators. Development fixtures also seed a demo
+        // manager; leaving that third administrator active makes both revocations valid.
+        await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Id != first && u.Id != second)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.Active, false)));
+        var initial = await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Active).Select(u => u.Permissions).ToListAsync());
+        Assert.Equal(2, initial.Count(p => UserManagementRules.CanManageUsers(p.Split(','))));
+        var responses = await Task.WhenAll(new[] { first, second }.Select(id =>
+            setup.Client.PostAsJsonAsync($"/api/users/{id}/permissions",
+                new UpdateUserPermissionsRequest(id, Array.Empty<string>(), new[] { "users_manage" }, id))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        var permissions = await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Active).Select(u => u.Permissions).ToListAsync());
+        Assert.Contains(permissions, p => UserManagementRules.CanManageUsers(p.Split(',')));
+    }
+
+    /// <summary>Revoking it from one of two administrators is ordinary housekeeping and must keep
+    /// working - the guard refuses the last one, not any one.</summary>
+    [Fact]
+    public async Task Revoking_user_management_from_one_of_two_administrators_is_allowed()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+
+        var response = await setup.Client.PostAsJsonAsync(
+            $"/api/users/{second}/permissions",
+            new UpdateUserPermissionsRequest(second, Array.Empty<string>(), new[] { "users_manage" }, first));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>Same door, the other handle: deactivating the last administrator instead of
+    /// stripping their permission.</summary>
+    [Fact]
+    public async Task Deactivating_the_last_administrator_is_refused()
+    {
+        using var setup = new NoOwnerSetup();
+        var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
+        var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+        await LeaveOnlyOneAdministratorAsync(setup.Client, first);
+
+        // Two administrators again, deliberately: standing one of them down is ordinary and allowed.
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/change-pin",
+            new ChangePinRequest(second, null, "7351", first, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, false, "اختبار", first))).EnsureSuccessStatusCode();
+
+        // "first" is now the last administrator. Self-deactivation was already refused before this
+        // guard existed, so the case that needed covering is a colleague doing it - here the
+        // stood-down administrator is brought back solely to aim at the last one.
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/change-pin",
+            new ChangePinRequest(second, null, "7351", first, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{first}/active",
+            new SetUserActiveRequest(first, false, "اختبار", second))).EnsureSuccessStatusCode();
+
+        var response = await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
+            new SetUserActiveRequest(second, false, "اختبار", second));
+
+        Assert.False(response.IsSuccessStatusCode);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task A_pin_change_retry_replays_without_spending_another_choice(bool selfService)
+    {
+        var target = await _factory.SeedUserAsync("موظف", "cashier", "pos");
+        var actor = selfService ? target : _managerId;
+        var request = new ChangePinRequest(target, selfService ? _factory.PinFor(target) : null, "4715", actor, Guid.NewGuid().ToString("N"));
+        var path = $"/api/users/{target}/change-pin";
+        (await _client.PostAsJsonAsync(path, request)).EnsureSuccessStatusCode();
+        var choices = await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_choice"));
+        var repeated = await _client.PostAsJsonAsync(path, request);
+        Assert.True(repeated.IsSuccessStatusCode, await repeated.Content.ReadAsStringAsync());
+        Assert.Equal(choices, await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_choice")));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_changed" && e.EntityId == target)));
+        (await LoginAsync("4715")).EnsureSuccessStatusCode();
+    }
+
+
+    [Fact]
+    public async Task A_pin_change_request_key_cannot_be_reused_for_another_target()
+    {
+        var first = await _factory.SeedUserAsync("موظف أ", "cashier", "pos");
+        var second = await _factory.SeedUserAsync("موظف ب", "cashier", "pos");
+        var request = new ChangePinRequest(first, null, "4715", _managerId, Guid.NewGuid().ToString("N"));
+        (await _client.PostAsJsonAsync($"/api/users/{first}/change-pin", request)).EnsureSuccessStatusCode();
+        var response = await _client.PostAsJsonAsync($"/api/users/{second}/change-pin", request with { UserId = second, NewPin = "5826" });
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        (await LoginAsync(_factory.PinFor(second))).EnsureSuccessStatusCode();
+    }
+
+
+    [Theory]
+    [InlineData("Owner")]
+    [InlineData(" OWNER ")]
+    public async Task Role_casing_cannot_create_a_second_owner(string role)
+    {
+        var r = await CreateUserAsync("آخر", role, "5813", new[] { "all" }, _managerId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("CaShIeR", "cashier")]
+    [InlineData(" SUPERVISOR ", "supervisor")]
+    public async Task User_roles_are_stored_canonically(string input, string expected)
+    {
+        var r = await CreateUserAsync("جديد", input, "5813", new[] { "pos" }, _managerId);
+        r.EnsureSuccessStatusCode();
+        var created = (await r.Content.ReadFromJsonAsync<CreateUserResult>())!;
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.Users.Where(u => u.Id == created.UserId).Select(u => u.Role).SingleAsync()));
+    }
+
+    [Fact]
+    public async Task Unknown_roles_are_refused_without_creating_a_user()
+    {
+        var r = await CreateUserAsync("آخر", "not-a-role", "5813", new[] { "pos" }, _managerId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_limited_user_administrator_cannot_create_a_role_that_can_approve_every_action()
+    {
+        var r = await CreateUserAsync("آخر", "manager", "5813", Array.Empty<string>(), _limitedAdminId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_legacy_mixed_case_owner_remains_protected()
+    {
+        var id = await _factory.SeedUserAsync("مالك قديم", "Owner", "all");
+        var r = await SetActiveAsync(id, false, _managerId, "اختبار");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+
+    [Fact]
+    public async Task Concurrent_first_owner_requests_leave_exactly_one_owner()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "all");
+        var tasks = new[] { "7351", "7362", "7463" }.Select(pin => setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "المالك", " OWNER ", pin, new[] { "all" }, admin)));
+        var responses = await Task.WhenAll(tasks);
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.All(responses.Where(r => !r.IsSuccessStatusCode), r => Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode));
+        Assert.Equal(1, await setup.Factory.QueryAsync(db => db.Users.CountAsync(u => u.Role == "owner")));
+    }
+
+
+    [Fact]
+    public async Task Reactivation_cannot_reintroduce_a_pin_used_while_the_account_was_inactive()
+    {
+        var a = (await (await CreateUserAsync("أول", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        (await SetActiveAsync(a.UserId, false, _managerId)).EnsureSuccessStatusCode();
+        (await CreateUserAsync("ثان", "cashier", "4715", new[] { "pos" }, _managerId)).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await SetActiveAsync(a.UserId, true, _managerId)).StatusCode);
+        var collide = await _client.PostAsJsonAsync($"/api/users/{a.UserId}/change-pin", new ChangePinRequest(a.UserId, null, "4715", _managerId, "reactivate-collision", Reactivate: true));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, collide.StatusCode);
+        Assert.False(await _factory.QueryAsync(db => db.Users.Where(u => u.Id == a.UserId).Select(u => u.Active).SingleAsync()));
+        (await _client.PostAsJsonAsync($"/api/users/{a.UserId}/change-pin", new ChangePinRequest(a.UserId, null, "6284", _managerId, "reactivate-unique", Reactivate: true))).EnsureSuccessStatusCode();
+        Assert.True(await _factory.QueryAsync(db => db.Users.Where(u => u.Id == a.UserId).Select(u => u.Active).SingleAsync()));
+        (await LoginAsync("6284")).EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task Concurrent_pin_changes_cannot_assign_one_pin_to_two_active_people()
+    {
+        var a = (await (await CreateUserAsync("أول", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        var b = (await (await CreateUserAsync("ثان", "cashier", "6284", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        var responses = await Task.WhenAll(new[] { a.UserId, b.UserId }.Select(id => _client.PostAsJsonAsync($"/api/users/{id}/change-pin", new ChangePinRequest(id, null, "7351", _managerId, $"pin-race-{id}"))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.Single(responses.Where(r => r.StatusCode == HttpStatusCode.UnprocessableEntity));
+        (await LoginAsync("7351")).EnsureSuccessStatusCode();
+    }
+
 }

@@ -1,4 +1,4 @@
-namespace Falah.Application.Printing;
+﻿namespace Falah.Application.Printing;
 
 /// <summary>Ported from the four-printer topology directly (Cashier/Call Center receipt printers,
 /// Charcoal/Grill kitchen printers) - there is no legacy precedent for this exact split (the
@@ -14,11 +14,24 @@ namespace Falah.Application.Printing;
 /// caller that wants the ordinary behaviour leaves it alone.</param>
 public sealed record CreatePrintJobsRequest(
     string RequestId, string OrderId, string? CustomerRoute, bool IsReprint, string ActorUserId,
-    bool IncludeKitchenRoutes = true);
+    bool IncludeKitchenRoutes = true,
+    /// <summary>Why this was reprinted, in the cashier's words. Recorded in the audit trail; the
+    /// paper itself says only that it is a reprint, by whom and when. Trailing optional so every
+    /// existing caller keeps compiling.</summary>
+    string? Reason = null);
+
+/// <summary>Reprints a slip that belongs to no order - a shift opening or handover slip, or an
+/// expense voucher. The original is queued by the handler that wrote the document; this is the
+/// "print it again" path, and its paper is marked as a reprint.</summary>
+public sealed record ReprintDocumentRequest(
+    string RequestId, string DocumentKind, string DocumentId, string ActorUserId, string? Reason = null);
 
 public sealed record PrintJobDto(
     string Id, string OrderId, string OrderNumber, string Route, string Status, int AttemptCount,
-    DateTimeOffset? LastAttemptAtUtc, string? LastError, bool IsReprint, DateTimeOffset CreatedAtUtc);
+    DateTimeOffset? LastAttemptAtUtc, string? LastError, bool IsReprint, DateTimeOffset CreatedAtUtc)
+{
+    public string? ClaimId { get; init; }
+}
 
 /// <summary>Every print route's queue at a glance, and the jobs that need a person.
 ///
@@ -43,7 +56,13 @@ public sealed record CreatePrintJobsResult(IReadOnlyList<PrintJobDto> Jobs, bool
 /// once per physical attempt, success or failure, and the job's own AttemptCount/LastError/Status
 /// update from it. Never creates another order/payment/inventory movement - it only describes what
 /// happened when a printer was asked to print.</summary>
-public sealed record ReportPrintJobResultRequest(string RequestId, string PrintJobId, bool Succeeded, string? Error, string ReportedByUserId);
+public sealed record ReportPrintJobResultRequest(string RequestId, string PrintJobId, bool Succeeded, string? Error, string ReportedByUserId, string? ClaimId = null);
+
+/// <summary>An agent asking for the pending jobs of its route that it will print. AgentId identifies
+/// the agent (machine and route) so a job is handed to one agent at a time.</summary>
+public sealed record ClaimPrintJobsRequest(string Route, string AgentId);
+public sealed record StartPrintJobRequest(string PrintJobId, string ClaimId);
+public sealed record StartPrintJobResult(bool Started);
 
 public sealed record PrintJobAttemptDto(DateTimeOffset AttemptedAtUtc, bool Succeeded, string? Error, string ReportedBy);
 

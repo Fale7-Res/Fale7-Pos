@@ -30,7 +30,7 @@ public sealed class CreateEmployeeHandler
         if (existing is not null) return EmployeeQueryService.ToDto(existing);
 
         EmployeeRules.AssertEmployeeInput(request.Name, request.EmployeeNumber, request.JobTitle, request.Phone);
-        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out _))
+        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
             throw new DomainException("نوع الأجر غير صالح.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -40,7 +40,7 @@ public sealed class CreateEmployeeHandler
         var entity = new EmployeeEntity
         {
             Id = id, Name = request.Name.Trim(), EmployeeNumber = request.EmployeeNumber.Trim(), JobTitle = request.JobTitle.Trim(),
-            Phone = request.Phone.Trim(), HireDate = request.HireDate, CompensationType = request.CompensationType,
+            Phone = request.Phone.Trim(), HireDate = request.HireDate, CompensationType = compensationType.ToString(),
             DailyWagePiastres = request.DailyWagePiastres, ShiftValuePiastres = request.ShiftValuePiastres,
             MonthlySalaryPiastres = request.MonthlySalaryPiastres, UserId = null, CanDeliver = request.CanDeliver,
             Role = request.Role, IsActive = true, Notes = request.Notes, Address = request.Address,
@@ -79,7 +79,7 @@ public sealed class UpdateEmployeeHandler
     public async Task<EmployeeDto> HandleAsync(UpdateEmployeeRequest request, CancellationToken ct = default)
     {
         EmployeeRules.AssertEmployeeInput(request.Name, request.EmployeeNumber, request.JobTitle, request.Phone);
-        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out _))
+        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
             throw new DomainException("نوع الأجر غير صالح.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -94,7 +94,7 @@ public sealed class UpdateEmployeeHandler
         entity.JobTitle = request.JobTitle.Trim();
         entity.Phone = request.Phone.Trim();
         entity.HireDate = request.HireDate;
-        entity.CompensationType = request.CompensationType;
+        entity.CompensationType = compensationType.ToString();
         entity.DailyWagePiastres = request.DailyWagePiastres;
         entity.ShiftValuePiastres = request.ShiftValuePiastres;
         entity.MonthlySalaryPiastres = request.MonthlySalaryPiastres;

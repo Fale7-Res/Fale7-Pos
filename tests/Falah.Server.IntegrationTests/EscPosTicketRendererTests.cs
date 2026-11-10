@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using Falah.Domain.Printing;
 using Xunit;
@@ -11,13 +11,13 @@ using Xunit;
 /// </summary>
 public class EscPosTicketRendererTests
 {
-    private static ComposedTicket SimpleTicket(params TicketLine[] lines) =>
+    private static ComposedTicket SimpleTicket(params TicketElement[] lines) =>
         new(PrintRoute.Receipt, "ord-1", "#0001", lines);
 
     [Fact]
     public void Every_rendered_ticket_starts_with_the_initialize_command()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("test")));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("test")));
         Assert.Equal(0x1B, bytes[0]);
         Assert.Equal(0x40, bytes[1]);
     }
@@ -25,7 +25,7 @@ public class EscPosTicketRendererTests
     [Fact]
     public void Every_rendered_ticket_ends_with_a_full_cut_command()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("test")));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("test")));
         Assert.Equal(0x1D, bytes[^3]);
         Assert.Equal(0x56, bytes[^2]);
         Assert.Equal(0x00, bytes[^1]);
@@ -34,7 +34,7 @@ public class EscPosTicketRendererTests
     [Fact]
     public void A_bold_line_is_preceded_by_the_bold_on_command()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("bold", Bold: true)));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("bold", Bold: true)));
         // ESC E 1 (bold on) must appear somewhere before the text bytes.
         var text = System.Text.Encoding.UTF8.GetBytes("bold");
         var boldOnIndex = IndexOf(bytes, new byte[] { 0x1B, 0x45, 0x01 });
@@ -45,7 +45,7 @@ public class EscPosTicketRendererTests
     [Fact]
     public void A_centered_line_is_preceded_by_the_center_justify_command()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("centered", Centered: true)));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("centered", Align: TicketAlign.Center)));
         var centerIndex = IndexOf(bytes, new byte[] { 0x1B, 0x61, 0x01 });
         Assert.True(centerIndex >= 0);
     }
@@ -53,7 +53,7 @@ public class EscPosTicketRendererTests
     [Fact]
     public void A_large_font_line_is_preceded_by_the_double_size_command()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("big", LargeFont: true)));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("big", Size: TicketTextSize.Large)));
         var sizeIndex = IndexOf(bytes, new byte[] { 0x1D, 0x21, 0x11 });
         Assert.True(sizeIndex >= 0);
     }
@@ -61,7 +61,7 @@ public class EscPosTicketRendererTests
     [Fact]
     public void Formatting_is_reset_before_the_final_cut_so_it_never_leaks_into_the_next_ticket()
     {
-        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("bold and big", Bold: true, LargeFont: true, Centered: true)));
+        var bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("bold and big", Bold: true, Size: TicketTextSize.Large, Align: TicketAlign.Center)));
         var cutIndex = IndexOf(bytes, new byte[] { 0x1D, 0x56, 0x00 });
         var resetBoldIndex = LastIndexOf(bytes, new byte[] { 0x1B, 0x45, 0x00 }, cutIndex);
         var resetSizeIndex = LastIndexOf(bytes, new byte[] { 0x1D, 0x21, 0x00 }, cutIndex);
@@ -72,8 +72,8 @@ public class EscPosTicketRendererTests
     [Fact]
     public void Text_is_encoded_with_the_provided_encoding_not_hardcoded()
     {
-        var latin1Bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("abc")), System.Text.Encoding.Latin1);
-        var utf8Bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketLine("abc")), System.Text.Encoding.UTF8);
+        var latin1Bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("abc")), System.Text.Encoding.Latin1);
+        var utf8Bytes = EscPosTicketRenderer.Render(SimpleTicket(new TicketText("abc")), System.Text.Encoding.UTF8);
         // For pure ASCII "abc" both encodings agree - this just proves the parameter is actually used,
         // not ignored in favor of a hardcoded encoding.
         Assert.Equal(latin1Bytes, utf8Bytes);

@@ -5,6 +5,9 @@ using Falah.Application.Orders;
 using Falah.Domain.Audit;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
+using Falah.Domain.Financial;
+using Falah.Infrastructure.BusinessDay;
+using Falah.Infrastructure.Treasury;
 using Falah.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,8 +17,9 @@ using Microsoft.EntityFrameworkCore;
 /// legacy-parity audit: a cashier had no way to void a bad InstaPay/wallet claim). Ported from
 /// cancelPendingElectronicPayment in lib/store.tsx: 'pos' or 'cash_drawer_sale' permission, reason
 /// required, idempotent no-op if already cancelled, blocked if already confirmed (use a refund
-/// instead). No inventory reversal - matches legacy exactly, which never restores stock here either
-/// (checkout's own deduction is unconditional and never undone by this path).
+/// instead). Unlike legacy, the ingredients checkout took out of stock are accounted for: the
+/// operator says whether the food was prepared (recorded as waste) or not (restored to stock) - the
+/// owner's decision, applied by OrderStockDisposition.
 /// </summary>
 public sealed class CancelPendingElectronicPaymentHandler
 {
@@ -38,13 +42,24 @@ public sealed class CancelPendingElectronicPaymentHandler
 
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
 
+        await FinancialAdmission.AcquireAsync(_db, ct);
+
         var orderEntity = await _db.Orders
             .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
             .Include(o => o.Items).Include(o => o.Refunds)
             .FirstOrDefaultAsync(ct)
             ?? throw new InvalidOperationException("الطلب غير موجود.");
 
-        var wasAlreadyCancelled = orderEntity.Status == "cancelled";
+        if (orderEntity.Status == "cancelled")
+        {
+            var returnedCash = await _db.TreasuryMovements.AsNoTracking()
+                .Where(m => m.ReferenceId == orderEntity.Id && m.Type == "void_return" && m.SourceAccountId == TreasuryAccounts.Drawer)
+                .SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
+            await transaction.CommitAsync(ct);
+            return new CancelPendingElectronicPaymentResult(orderEntity.Id, orderEntity.Status, orderEntity.ElectronicPaymentStatus ?? "cancelled", true, returnedCash);
+        }
+        var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+        var wasAlreadyCancelled = false;
         var order = OrderMapper.ToDomain(orderEntity);
         var now = DateTimeOffset.UtcNow;
         order.CancelElectronicPayment(request.Reason, cashierUser.Name, now); // throws if confirmed/no leg/empty reason
@@ -57,8 +72,36 @@ public sealed class CancelPendingElectronicPaymentHandler
         orderEntity.CancelledBy = order.CancelledBy;
         orderEntity.Version++;
 
+        long cashToHandBack = 0;
         if (!wasAlreadyCancelled)
         {
+            // Reverse only money that actually posted, never the unconfirmed electronic claim.
+            var collected = await _db.TreasuryMovements.AsNoTracking()
+                .Where(m => m.ReferenceId == orderEntity.Id && m.Type == "sale_collection" && m.Status == nameof(MovementStatus.Posted))
+                .OrderBy(m => m.DestinationAccountId).ThenBy(m => m.Id).ToListAsync(ct);
+            if (collected.Count > 0)
+            {
+                var dayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+                var activeShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == "Open", ct);
+                if (collected.Any(m => m.DestinationAccountId == TreasuryAccounts.Drawer) && activeShift is null)
+                    throw new DomainException("يجب فتح وردية قبل رد الجزء النقدي من الطلب الملغي.");
+                foreach (var paid in collected)
+                {
+                    var source = paid.DestinationAccountId ?? throw new DomainException("حساب التحصيل الأصلي غير موجود.");
+                    var amount = Money.FromPiastres(paid.AmountPiastres);
+                    var balance = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, source, ct);
+                    FinancialRules.AssertProtectedSourceBalance(balance, source, amount);
+                    var reversal = TreasuryMovementFactory.BuildCashLifecycleMovement(
+                        $"tm-{Guid.NewGuid():N}", $"void-return-{paid.Id}", $"op-{Guid.NewGuid():N}", "void_return",
+                        source, null, amount, "order_void", orderEntity.Id, dayId, activeShift?.Id,
+                        request.Reason.Trim(), cashierUser.Name, null, now);
+                    _db.TreasuryMovements.Add(OrderMapper.ToEntity(reversal));
+                    // Make each debit visible to the next balance check in this same transaction.
+                    await _db.SaveChangesAsync(ct);
+                    if (source == TreasuryAccounts.Drawer) cashToHandBack += paid.AmountPiastres;
+                }
+            }
+            await OrderStockDisposition.ApplyAsync(_db, orderEntity.Id, disposition, request.Reason.Trim(), cashierUser.Name, now, ct);
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 $"إلغاء محاولة دفع إلكتروني {orderEntity.OrderNumber}", "cash",
@@ -69,6 +112,6 @@ public sealed class CancelPendingElectronicPaymentHandler
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
         return new CancelPendingElectronicPaymentResult(
-            orderEntity.Id, orderEntity.Status, orderEntity.ElectronicPaymentStatus!, WasReplayed: wasAlreadyCancelled);
+            orderEntity.Id, orderEntity.Status, orderEntity.ElectronicPaymentStatus!, WasReplayed: wasAlreadyCancelled, CashToHandBackPiastres: cashToHandBack);
     }
 }

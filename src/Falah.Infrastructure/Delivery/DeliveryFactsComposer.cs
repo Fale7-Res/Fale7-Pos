@@ -14,6 +14,11 @@ internal static class DeliveryFactsComposer
     {
         var total = Money.FromPiastres(order.TotalPiastres);
         var refunded = Money.FromPiastres(order.RefundAmountPiastres);
+        // Cash/card split legs already posted at checkout. Only the pending electronic leg
+        // remains to be collected; assigning the whole order charges that money a second time.
+        var outstanding = order.PaymentMethod == "multi" && !order.IsPaid
+            && order.ElectronicPaymentAmountPiastres is { } pending
+            ? Money.FromPiastres(pending) : total - refunded;
         return new DeliveryFacts(
             Id: delivery.Id,
             OrderId: order.Id,
@@ -27,7 +32,7 @@ internal static class DeliveryFactsComposer
             // collects it. Reusing it here (rather than re-deriving from ElectronicPaymentStatus)
             // keeps this in lockstep with Order's own tested definition of "paid".
             PaymentAlreadySettled: order.IsPaid,
-            AmountToCollect: total - refunded,
+            AmountToCollect: outstanding,
             OrderTotal: total,
             ShiftId: delivery.ShiftId,
             TripId: delivery.TripId,

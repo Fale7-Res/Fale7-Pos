@@ -20,7 +20,7 @@ public partial class UsersViewModel : ObservableObject
 {
     private readonly AppSession _session;
 
-    public UsersViewModel(AppSession session) => _session = session;
+    public UsersViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     /// <summary>A catalog permission paired with whether the selected user currently holds it.</summary>
     public sealed partial class PermissionToggle : ObservableObject
@@ -77,7 +77,7 @@ public partial class UsersViewModel : ObservableObject
     /// <summary>The owner account is unconditionally immune to deactivation, PIN reset and
     /// permission changes from the outside - enforced server-side by
     /// UserManagementRules.AssertTargetIsNotOwner.</summary>
-    public bool IsOwnerSelected => SelectedUser?.Role == "owner";
+    public bool IsOwnerSelected => Falah.Domain.Authorization.UserManagementRules.IsRole(SelectedUser?.Role, "owner");
     public bool CanEditSelected => CanEditAction && !IsUserDialogOpen && SelectedUser is not null && !IsOwnerSelected && !IsLoading && LoadError is null && _session.HasPermission("users_manage");
     partial void OnIsBusyChanged(bool value) { RefreshActions(); _session.SetManagementOperationPending(this, !CanEditAction); }
     partial void OnIsLoadingChanged(bool value) => RefreshActions();
@@ -185,6 +185,14 @@ public partial class UsersViewModel : ObservableObject
     private async Task ToggleActiveAsync()
     {
         if (IsBusy || (!_pendingActive.HasPending && !CanEditSelected)) return;
+        if (!_pendingActive.HasPending && SelectedUser is { Active: false })
+        {
+            _reactivating = true;
+            CurrentPin = NewPin = ConfirmPin = "";
+            ActionError = ActionNote = null;
+            PinTarget = SelectedUser;
+            return;
+        }
         var request = _pendingActive.Value ?? new SetUserActiveRequest(SelectedUser!.Id, !SelectedUser.Active, null, _session.CurrentUser!.Id);
         IsBusy = true;
         ActionError = null;

@@ -210,4 +210,59 @@ public class RetainedRequestDurabilityTests : IDisposable
         File.Delete(_directory);
         Directory.CreateDirectory(_directory);
     }
+
+    [Fact]
+    public async Task Reviewed_recovery_clears_the_durable_question_but_never_drops_an_in_flight_send()
+    {
+        var request = new SampleRequest("reviewed", 100, "اختبار");
+        var store = Store();
+        var retained = new RetainedRequest<SampleRequest>("review.owner", store);
+        var completion = new TaskCompletionSource<ApiClient.ApiResult<bool>>();
+        var sending = retained.SendAsync(request, _ => completion.Task);
+        Assert.Throws<InvalidOperationException>(() => retained.DiscardAfterReview(true));
+        completion.SetResult(Unknown()); await sending;
+        Assert.Throws<InvalidOperationException>(() => retained.DiscardAfterReview(false));
+        retained.DiscardAfterReview(true);
+        Assert.False(retained.HasPending);
+        Assert.Empty(store.List());
+        Assert.False(new RetainedRequest<SampleRequest>("review.owner", store).HasPending);
+    }
+
+
+    [Fact]
+    public void A_pending_request_is_not_readable_on_disk()
+    {
+        var store = Store(); var request = new SampleRequest("private", 100, "customer-01012345678");
+        store.Save("private.owner", request);
+        Assert.DoesNotContain(request.Reason, File.ReadAllText(Path.Combine(_directory, "private.owner.json")));
+        Assert.Equal(request, Assert.IsType<SampleRequest>(store.Load("private.owner")));
+    }
+    [Fact]
+    public void A_pending_file_written_before_protection_is_recovered_and_then_protected()
+    {
+        var request = new SampleRequest("legacy", 200, "legacy-01098765432");
+        var path = Path.Combine(_directory, "legacy.owner.json");
+        File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(new { Type = typeof(SampleRequest).AssemblyQualifiedName, SavedAtUtc = DateTimeOffset.UtcNow, Payload = request }));
+        var store = Store();
+        Assert.Equal(request, Assert.IsType<SampleRequest>(store.Load("legacy.owner")));
+        Assert.DoesNotContain(request.Reason, File.ReadAllText(path));
+    }
+
+
+    private sealed class WrongWindowsProfile : Falah.Client.Security.ILocalDataProtector
+    {
+        public byte[] Protect(byte[] value) => Falah.Client.Security.WindowsUserDataProtection.Instance.Protect(value);
+        public byte[] Unprotect(byte[] value) => throw new Falah.Client.Security.PendingDataProtectionException("wrong profile");
+    }
+    [Fact]
+    public void A_protected_file_that_cannot_be_decrypted_is_preserved_and_reported()
+    {
+        var store = Store(); store.Save("locked.owner", new SampleRequest("locked", 100, "sensitive"));
+        var path = Path.Combine(_directory, "locked.owner.json"); var before = File.ReadAllText(path);
+        var wrongProfile = new FileRetainedRequestStore(_directory, protector: new WrongWindowsProfile());
+        Assert.Null(wrongProfile.Load("locked.owner"));
+        Assert.NotNull(wrongProfile.RecoveryError);
+        Assert.Equal(before, File.ReadAllText(path));
+    }
+
 }

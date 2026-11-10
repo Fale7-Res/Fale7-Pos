@@ -22,8 +22,12 @@ public partial class App : global::Microsoft.UI.Xaml.Application
         // Configured before any view model is constructed: a retained request restores itself in its
         // own field initializer, so the store has to exist by then. Left unset in tests, where the
         // class behaves exactly as it did before persistence existed.
+#if SCREEN_LAYOUT_PROBE || FOOTER_LAYOUT_PROBE
+        Services.RetainedRequestStorage.Current = null; // Native fixtures must never read the live station queue.
+#else
         Services.RetainedRequestStorage.Current =
             new Services.FileRetainedRequestStore(Services.FileRetainedRequestStore.DirectoryFor("cashier"));
+#endif
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -33,10 +37,12 @@ public partial class App : global::Microsoft.UI.Xaml.Application
         Verification.NativeFooterLayoutProbe.Start(_window);
 #elif SCREEN_LAYOUT_PROBE
         _window = new Window { Title = "Falah — native XAML verification" };
+        MainAppWindow = _window;
         global::Falah.Verification.NativeScreenLayoutProbe.Start(_window);
 #else
         _window = new MainWindow();
         MainAppWindow = _window;
+        if (_window.Content is FrameworkElement themeRoot) Services.ThemeResources.ObserveThemeRoot(themeRoot);
         _window.Activate();
 #endif
     }

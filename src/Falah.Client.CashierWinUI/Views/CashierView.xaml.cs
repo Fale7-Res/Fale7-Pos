@@ -25,7 +25,7 @@ public sealed partial class CashierView : UserControl
     /// in-flight operation sitting on top of the workspace, where a key that reached past it and
     /// changed the order underneath would be worse than a key that does nothing.</summary>
     private bool IsWorkspaceInteractive =>
-        ViewModel is { CanEditOperation: true, HasCheckoutResult: false, IsVariantPickerOpen: false, IsCheckoutOpen: false };
+        ViewModel?.CanUseWorkspaceShortcuts == true;
 
     private void OnSearchAccelerator(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {

@@ -21,20 +21,27 @@ namespace Falah.PrintAgent;
 public sealed class WindowsSpoolerTicketTransport : ITicketTransport
 {
     private readonly string _printerName;
+    private readonly string _documentName;
+    private readonly Action<int>? _submitted;
 
-    public WindowsSpoolerTicketTransport(string printerName) => _printerName = printerName;
+    public WindowsSpoolerTicketTransport(string printerName, string documentName = "Falah ticket", Action<int>? submitted = null)
+    {
+        _printerName = printerName;
+        _documentName = documentName;
+        _submitted = submitted;
+    }
 
     public string Description => $"windows printer \"{_printerName}\" (RAW)";
 
     public Task SendAsync(byte[] payload, CancellationToken ct)
     {
-        Send(_printerName, payload);
+        Send(_printerName, payload, _documentName, _submitted);
         return Task.CompletedTask;
     }
 
     /// <summary>Synchronous on purpose: the spooler API is blocking, and wrapping it in a task would
     /// only move the blocking somewhere less obvious. A ticket is a few hundred bytes.</summary>
-    internal static void Send(string printerName, byte[] payload)
+    internal static void Send(string printerName, byte[] payload, string documentName = "Falah ticket", Action<int>? submitted = null)
     {
         if (!OpenPrinter(printerName, out var printer, IntPtr.Zero))
             throw new InvalidOperationException(
@@ -44,18 +51,20 @@ public sealed class WindowsSpoolerTicketTransport : ITicketTransport
         {
             var info = new DocInfo
             {
-                DocName = "Falah ticket",
+                DocName = documentName,
                 OutputFile = null,
                 // Without RAW the driver renders the bytes as a document and the ESC/POS commands
                 // print as garbage characters instead of controlling the printer.
                 DataType = "RAW",
             };
 
-            if (StartDocPrinter(printer, 1, info) == 0)
+            var submittedJobId = StartDocPrinter(printer, 1, info);
+            if (submittedJobId == 0)
                 throw new InvalidOperationException($"The printer rejected the job: {LastErrorMessage()}");
 
             try
             {
+                submitted?.Invoke(submittedJobId);
                 if (!StartPagePrinter(printer))
                     throw new InvalidOperationException($"The printer rejected the page: {LastErrorMessage()}");
 

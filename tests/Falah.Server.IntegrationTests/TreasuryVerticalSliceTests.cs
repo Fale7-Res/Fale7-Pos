@@ -345,7 +345,8 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
             new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 10000, "tre-main", "محاولة", null, unprivileged, null, null));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, denied.StatusCode);
 
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at that employee's own session: an approval is spent only by the session that asked.
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, unprivileged, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "treasury_manage", "اعتماد إيداع"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var allowed = await _client.PostAsJsonAsync("/api/treasury/deposit",
             new DepositRequest($"dep-{Guid.NewGuid():N}", "owner_deposit", 10000, "tre-main", "محاولة بموافقة", null, unprivileged, approval!.ApprovalId, _managerId));

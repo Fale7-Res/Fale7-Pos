@@ -119,8 +119,10 @@ public class CashDrawerVerticalSliceTests : IAsyncLifetime
         var created = await (await _client.PostAsJsonAsync("/api/cash-drawer/open",
             new OpenCashDrawerRequest($"req-{Guid.NewGuid():N}", _shiftId, "فحص الدرج", _cashierId, null, null))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
 
+        // Reported by the print station that drives the drawer, never by a till (SEC5).
+        var agentId = await _factory.SeedUserAsync("محطة الطباعة", "print_agent", "print_agent");
         var reported = await (await _client.PostAsJsonAsync("/api/cash-drawer/report-result",
-            new ReportCashDrawerResultRequest(created!.Id, true, null, _cashierId))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
+            new ReportCashDrawerResultRequest(created!.Id, true, null, agentId))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
         Assert.Equal("Succeeded", reported!.Status);
     }
 
@@ -131,8 +133,9 @@ public class CashDrawerVerticalSliceTests : IAsyncLifetime
             new OpenCashDrawerRequest($"req-{Guid.NewGuid():N}", _shiftId, "فحص الدرج", _cashierId, null, null))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
         var before = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
 
+        var agentId = await _factory.SeedUserAsync("محطة الطباعة", "print_agent", "print_agent");
         var reported = await (await _client.PostAsJsonAsync("/api/cash-drawer/report-result",
-            new ReportCashDrawerResultRequest(created!.Id, false, "لا يستجيب", _cashierId))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
+            new ReportCashDrawerResultRequest(created!.Id, false, "لا يستجيب", agentId))).Content.ReadFromJsonAsync<CashDrawerOpenDto>();
         Assert.Equal("Failed", reported!.Status);
         Assert.Equal("لا يستجيب", reported.LastError);
 

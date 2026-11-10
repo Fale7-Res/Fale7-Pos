@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Menu;
@@ -31,6 +31,7 @@ public partial class CashierViewModel : ObservableObject
         _session = session;
         _header = header;
         Cart.CollectionChanged += (_, _) => { RecomputeCartTotals(); NotifyCheckoutAvailability(); };
+        RecoverUnresolvedOperations();
     }
 
     public string CurrentUserName => _session.CurrentUser?.Name ?? "";
@@ -280,7 +281,10 @@ public partial class CashierViewModel : ObservableObject
     public void AppendNoteText(CartLine line, string note)
     {
         if (!CanEditOperation) return;
-        line.Notes = string.IsNullOrWhiteSpace(line.Notes) ? note : $"{line.Notes}، {note}";
+        if (string.IsNullOrWhiteSpace(line.Notes)) { line.Notes = note; return; }
+        // A chip adds its note once: a double tap on the touch till must not print "حار، حار" for the kitchen.
+        if (line.Notes.Split('،').Any(part => part.Trim() == note)) return;
+        line.Notes = $"{line.Notes.TrimEnd()}، {note}";
     }
 
     [RelayCommand]
@@ -297,7 +301,6 @@ public partial class CashierViewModel : ObservableObject
     // ---------------- Order type ----------------
 
     [ObservableProperty] private string _orderType = "takeaway";
-    [ObservableProperty] private string _tableNumber = string.Empty;
 
     [RelayCommand]
     private void SetOrderType(string orderType) { if (CanEditOperation) OrderType = orderType; }

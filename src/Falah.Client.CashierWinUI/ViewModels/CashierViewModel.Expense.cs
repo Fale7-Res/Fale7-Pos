@@ -17,7 +17,7 @@ namespace Falah.Client.CashierWinUI.ViewModels;
 public partial class CashierViewModel
 {
     [ObservableProperty] private bool _isAddExpenseOpen;
-    [ObservableProperty] private string _expenseCategory = "مستلزمات مطبخ وخضار";
+    [ObservableProperty] private string _expenseCategory = "مستلزمات تشغيل";
     [ObservableProperty] private string _expenseAmountText = "0";
     [ObservableProperty] private string _expenseDescription = "";
     [ObservableProperty] private string _expenseManagerPin = "";
@@ -30,7 +30,7 @@ public partial class CashierViewModel
     private void OpenAddExpense()
     {
         if (!CanEditOperation) return;
-        ExpenseCategory = "مستلزمات مطبخ وخضار";
+        ExpenseCategory = "مستلزمات تشغيل";
         ExpenseAmountText = "0";
         ExpenseDescription = "";
         ExpenseManagerPin = "";
@@ -107,9 +107,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingExpense is not null;
         _pendingExpense = request;
+        Remember(ExpenseOperation, request);
         RefreshOperationState();
         var result = await _session.Api.AddExpenseAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingExpense = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingExpense = null; Remember(ExpenseOperation, null); }
+        NoteRetryOutcome(ExpenseOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         if (result.Success) _ExpenseRequestId = Guid.NewGuid().ToString("N");
         RefreshOperationState();
         if (!result.Success || result.Value is null)

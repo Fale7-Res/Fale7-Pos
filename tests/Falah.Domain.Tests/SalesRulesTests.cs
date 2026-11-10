@@ -1,4 +1,4 @@
-using Falah.Domain.Common;
+﻿using Falah.Domain.Common;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Falah.Domain.Reports;
@@ -98,11 +98,11 @@ public class SalesRulesTests
     [Fact]
     public void Order_type_totals_are_net_of_that_orders_own_refund()
     {
-        var order = MakeOrder("1", OrderType.DineIn, PaymentMethod.Cash, new[] { Item(200m, 200m) });
+        var order = MakeOrder("1", OrderType.Pickup, PaymentMethod.Cash, new[] { Item(200m, 200m) });
         order.ApplyRefund(new OrderRefund("r1", "op1", "k1", Money.FromEgp(50m), PaymentMethod.Cash, "tm1", Now, "c1", "m1", "reason", "shift-1", "shift-1"));
 
         var report = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside);
-        Assert.Equal(Money.FromEgp(150m), report.DineIn);
+        Assert.Equal(Money.FromEgp(150m), report.Pickup);
         Assert.Equal(Money.Zero, report.Takeaway);
         Assert.Equal(Money.Zero, report.Delivery);
     }
@@ -132,6 +132,76 @@ public class SalesRulesTests
         var report = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside);
         Assert.Equal(Money.FromEgp(100m), report.Card);
         Assert.Equal(Money.Zero, report.Cash);
+    }
+
+    /// <summary>Only the electronic leg of a split payment is an unverified claim. The cash leg is in
+    /// the drawer the moment the order is rung up, so treating the whole order as pending understated
+    /// collected sales by exactly the money the restaurant was already holding.</summary>
+    [Fact]
+    public void A_split_payment_withholds_only_its_pending_electronic_leg_from_collected_sales()
+    {
+        var order = MakeOrder("1", OrderType.Takeaway, PaymentMethod.Multi, new[] { Item(150m, 150m) },
+            splits: new[] { new PaymentSplit(PaymentMethod.Cash, Money.FromEgp(100m)), new PaymentSplit(PaymentMethod.InstaPay, Money.FromEgp(50m)) });
+
+        var report = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside);
+
+        Assert.Equal(Money.FromEgp(150m), report.NetSales);
+        Assert.Equal(Money.FromEgp(50m), report.PendingElectronicSales);
+        Assert.Equal(Money.FromEgp(100m), report.CollectedSales);
+        Assert.Equal(Money.FromEgp(100m), report.Cash);
+
+        order.ConfirmElectronicPayment();
+        var afterConfirm = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside);
+        Assert.Equal(Money.Zero, afterConfirm.PendingElectronicSales);
+        Assert.Equal(Money.FromEgp(150m), afterConfirm.CollectedSales);
+    }
+
+    // ---- Refunds are events of the period they are made in ----
+
+    /// <summary>A refund made today of a sale from last week: today has no sale of that order, but
+    /// it paid the refund, through the channel and for the order type of the sale it reverses.</summary>
+    [Fact]
+    public void A_refund_counts_in_the_period_it_was_made_even_when_its_sale_is_from_another()
+    {
+        var refundOfOldSale = new SalesRules.RefundEvent("old-order", Money.FromEgp(40m), PaymentMethod.Cash, OrderType.Takeaway,
+            OrderTotal: Money.FromEgp(100m), OrderTaxAmount: Money.Zero);
+
+        var report = SalesRules.ComputeSalesReport(Array.Empty<Order>(), NoCashOutside, new[] { refundOfOldSale });
+
+        Assert.Equal(Money.Zero, report.GrossSales);
+        Assert.Equal(Money.FromEgp(40m), report.Refunds);
+        Assert.Equal(Money.FromEgp(-40m), report.NetSales);
+        Assert.Equal(Money.FromEgp(-40m), report.Cash);
+        Assert.Equal(Money.FromEgp(-40m), report.Takeaway);
+        Assert.Equal(Money.FromEgp(-40m), report.CollectedSales);
+    }
+
+    /// <summary>The period of the sale is reported as sold: the refund made later is not its event.</summary>
+    [Fact]
+    public void A_sale_refunded_in_a_later_period_reports_at_its_full_value_in_its_own_period()
+    {
+        var order = MakeOrder("1", OrderType.Takeaway, PaymentMethod.Cash, new[] { Item(100m, 100m) });
+        order.ApplyRefund(new OrderRefund("r1", "op1", "k1", Money.FromEgp(30m), PaymentMethod.Cash, "tm1", Now, "c1", "m1", "reason", "shift-1", "shift-2"));
+
+        var salePeriod = SalesRules.ComputeSalesReport(new[] { order }, NoCashOutside, Array.Empty<SalesRules.RefundEvent>());
+
+        Assert.Equal(Money.FromEgp(100m), salePeriod.NetSales);
+        Assert.Equal(Money.Zero, salePeriod.Refunds);
+        Assert.Equal(Money.FromEgp(100m), salePeriod.Cash);
+    }
+
+    [Fact]
+    public void Tax_given_back_by_a_refund_is_counted_in_the_period_of_the_refund()
+    {
+        // Half of a 114 ج order that carried 14 ج tax is refunded: 7 ج of tax goes back with it.
+        var refund = new SalesRules.RefundEvent("old-order", Money.FromEgp(57m), PaymentMethod.Cash, OrderType.Takeaway,
+            OrderTotal: Money.FromEgp(114m), OrderTaxAmount: Money.FromEgp(14m));
+
+        var report = SalesRules.ComputeTaxReport(Array.Empty<Order>(), new[] { refund });
+
+        Assert.Equal(Money.Zero, report.Tax);
+        Assert.Equal(Money.FromEgp(7m), report.RefundTaxImpact);
+        Assert.Equal(Money.FromEgp(-7m), report.NetTax);
     }
 
     // ---- Cash basis: cash-on-delivery is not the restaurant's money until settlement ----

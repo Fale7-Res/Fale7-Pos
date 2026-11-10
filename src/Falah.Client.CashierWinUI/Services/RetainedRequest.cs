@@ -8,7 +8,7 @@ namespace Falah.Client.CashierWinUI.Services;
 /// start instead of losing the question entirely. Recovery is deliberately passive: the request comes
 /// back so the screen's own retry can re-send the exact same bytes, and nothing is re-sent on its
 /// own.</summary>
-public sealed class RetainedRequest<TRequest> where TRequest : class
+public sealed class RetainedRequest<TRequest> : IPendingRequest where TRequest : class
 {
     private readonly string? _ownerKey;
     private readonly IRetainedRequestStore? _store;
@@ -22,6 +22,20 @@ public sealed class RetainedRequest<TRequest> where TRequest : class
         _store = ownerKey is null ? null : store ?? RetainedRequestStorage.Current;
         if (_ownerKey is not null) Value = _store?.Load(_ownerKey) as TRequest;
         WasRecovered = Value is not null;
+    }
+
+    public string? OwnerKey => _ownerKey;
+    public bool IsSending { get; private set; }
+    public string? LastError { get; private set; }
+    public void DiscardAfterReview(bool serverRecordReviewed)
+    {
+        if (!serverRecordReviewed || IsSending) throw new InvalidOperationException("راجع سجل السيرفر وانتظر انتهاء الاتصال أولًا.");
+        if (_ownerKey is not null)
+        {
+            _store?.Clear(_ownerKey);
+            if (_store?.Load(_ownerKey) is not null) throw new IOException("تعذر إزالة المحاولة المحفوظة. راجع صلاحية التخزين وأعد المحاولة.");
+        }
+        Value = null; WasRecovered = false; LastError = null;
     }
 
     public TRequest? Value { get; private set; }
@@ -40,7 +54,11 @@ public sealed class RetainedRequest<TRequest> where TRequest : class
         // request has left but its outcome has not come back.
         if (_ownerKey is not null && !wasUnresolved) _store?.Save(_ownerKey, Value);
 
-        var result = await send(Value);
+        ApiClient.ApiResult<TResult> result;
+        IsSending = true;
+        try { result = await send(Value); }
+        finally { IsSending = false; }
+        LastError = result.Success ? null : result.Error;
         if (result.Success && result.Value is not null || !wasUnresolved && !result.OutcomeUnknown)
         {
             Value = null;

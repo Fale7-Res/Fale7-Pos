@@ -72,12 +72,14 @@ public sealed class ControlCenterQueryService
         var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == businessDayId, ct)
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
-        var dayShifts = await _db.Shifts.AsNoTracking()
-            .Where(s => s.BusinessDate == day.BusinessDate && s.Status == "Closed" && s.CashDifferencePiastres != null)
+        var dayShifts = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(_db.Shifts.AsNoTracking(), day)
+            .Where(s => s.Status == "Closed" && s.CashDifferencePiastres != null)
             .Select(s => new { s.Id, Diff = s.CashDifferencePiastres!.Value }).ToListAsync(ct);
-        var dayOrders = await _db.Orders.AsNoTracking()
-            .Where(o => o.BusinessDayId == day.Id && o.RefundAmountPiastres > 0)
-            .Select(o => new { o.Id, o.RefundAmountPiastres }).ToListAsync(ct);
+        // Same refund basis as CloseBusinessDayHandler.BuildDayExceptionsAsync: refunds made in this
+        // day, per order.
+        var dayOrders = (await Falah.Infrastructure.Reports.RefundEventQueries.LoadAsync(_db, null, null, day.Id, ct))
+            .GroupBy(r => r.OrderId)
+            .Select(g => new { Id = g.Key, RefundAmountPiastres = g.Sum(r => r.Amount.Piastres) }).ToList();
         var dayExpenses = await _db.Expenses.AsNoTracking()
             .Where(e => e.BusinessDayId == day.Id).Select(e => new { e.Id, e.AmountPiastres }).ToListAsync(ct);
         var unsettledCustodyIds = await _db.DriverCustodies.AsNoTracking()
@@ -113,11 +115,23 @@ public sealed class ControlCenterQueryService
         }).ToList();
     }
 
-    public async Task<IReadOnlyList<ControlAuditEventDto>> ListAuditEventsAsync(int limit = 100, CancellationToken ct = default) =>
-        (await _db.ControlAuditEvents.AsNoTracking().OrderByDescending(e => e.CreatedAtUtc).Take(limit).ToListAsync(ct))
+    /// <summary>from/to are optional and additive - the one existing caller (Control Center's own
+    /// audit panel) passes neither and keeps reading the most recent N events unchanged. The daily
+    /// statement is the first caller to pass a range, so it can fold permission/user-management and
+    /// business-day open/close/reopen events (which post ONLY here, never to the general AuditEvent
+    /// table - see AuditQueryService's own doc comment) into one day's view without a second,
+    /// separately-maintained log ever being merged or migrated into the first.</summary>
+    public async Task<IReadOnlyList<ControlAuditEventDto>> ListAuditEventsAsync(
+        int limit = 100, DateTimeOffset? from = null, DateTimeOffset? to = null, CancellationToken ct = default)
+    {
+        var query = _db.ControlAuditEvents.AsNoTracking().AsQueryable();
+        if (from is not null) query = query.Where(e => e.CreatedAtUtc >= from);
+        if (to is not null) query = query.Where(e => e.CreatedAtUtc < to);
+        return (await query.OrderByDescending(e => e.CreatedAtUtc).Take(limit).ToListAsync(ct))
             .Select(e => new ControlAuditEventDto(e.Id, e.Action, e.Actor, e.EntityId, e.AmountPiastres, e.OperationId,
                 e.ApprovedBy, e.Reason, e.BlockerCodesJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<List<string>>(e.BlockerCodesJson), e.CreatedAtUtc))
             .ToList();
+    }
 
     public async Task<IReadOnlyList<CashDenominationCountDto>> ListCashCountsAsync(string businessDayId, CancellationToken ct = default) =>
         (await _db.CashDenominationCounts.AsNoTracking().Where(c => c.BusinessDayId == businessDayId)

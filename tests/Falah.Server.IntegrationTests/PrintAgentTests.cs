@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Text;
 using Falah.Application.Printing;
@@ -13,6 +13,43 @@ using Xunit;
 /// </summary>
 public class PrintAgentTests
 {
+    [Theory]
+    [InlineData("Receipt")]
+    [InlineData("receipt")]
+    [InlineData("RECEIPT")]
+    [InlineData("0")]
+    public void Route_aliases_use_one_lock_and_queue_identity(string route)
+    {
+        var options = new AgentOptions { Route = route, Pin = "test", ReportedByUserId = "test" };
+        Assert.Empty(options.Validate());
+        Assert.Equal("Receipt", options.Route);
+    }
+
+    [Fact]
+    public async Task Cancellation_during_send_leaves_a_durable_uncertain_attempt_and_does_not_reprint()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"falah-interrupted-{Guid.NewGuid():N}.json");
+        using var cancelled = new CancellationTokenSource();
+        cancelled.Cancel();
+        var server = new FakeServer();
+        var transport = new FakeTransport { Failure = new OperationCanceledException(cancelled.Token) };
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            Processor(server, transport, new UnreportedAttemptStore(path)).ProcessAsync(Job("interrupted"), cancelled.Token));
+        Assert.NotNull(new UnreportedAttemptStore(path).Find("interrupted"));
+        transport.Failure = null;
+        await Processor(server, transport, new UnreportedAttemptStore(path)).ProcessAsync(Job("interrupted"), CancellationToken.None);
+        Assert.Empty(transport.Sent);
+        Assert.False(Assert.Single(server.Reports).Succeeded);
+    }
+
+    [Fact]
+    public void Corrupt_attempt_journal_fails_closed()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"falah-corrupt-{Guid.NewGuid():N}.json");
+        File.WriteAllText(path, "{broken");
+        Assert.Throws<InvalidOperationException>(() => new UnreportedAttemptStore(path));
+    }
+
     private sealed class FakeServer : IPrintServerClient
     {
         public List<PrintJobDto> Pending { get; } = new();
@@ -20,12 +57,14 @@ public class PrintAgentTests
         public Func<string, ComposedTicketDto>? TicketFactory { get; set; }
         public Exception? ReportFailure { get; set; }
 
+        public Task AuthenticateAsync(string pin, CancellationToken ct) => Task.CompletedTask;
+
         public Task<IReadOnlyList<PrintJobDto>> GetPendingAsync(string route, CancellationToken ct) =>
             Task.FromResult<IReadOnlyList<PrintJobDto>>(Pending.Where(j => j.Route == route).ToList());
 
         public Task<ComposedTicketDto> GetTicketAsync(string jobId, CancellationToken ct) =>
             Task.FromResult(TicketFactory?.Invoke(jobId)
-                ?? new ComposedTicketDto("Receipt", "ord-1", "A-1", new[] { new TicketLineDto("line", false, false, false) }));
+                ?? new ComposedTicketDto("Receipt", "ord-1", "A-1", new[] { new TicketElementDto("text", "line") }));
 
         public Task ReportResultAsync(ReportPrintJobResultRequest request, CancellationToken ct)
         {
@@ -204,8 +243,8 @@ public class PrintAgentTests
     {
         var dto = new ComposedTicketDto("Grill", "ord-9", "B-9", new[]
         {
-            new TicketLineDto("عنوان", Bold: true, Centered: true, LargeFont: true),
-            new TicketLineDto("سطر عادي", Bold: false, Centered: false, LargeFont: false),
+            new TicketElementDto("text", "عنوان", Bold: true, Align: "center", Size: "large"),
+            new TicketElementDto("text", "سطر عادي"),
         });
 
         var ticket = PrintJobProcessor.ToDomain(dto);
@@ -215,18 +254,92 @@ public class PrintAgentTests
         Assert.Collection(ticket.Lines,
             first =>
             {
-                Assert.Equal("عنوان", first.Text);
-                Assert.True(first.Bold);
-                Assert.True(first.Centered);
-                Assert.True(first.LargeFont);
+                var text = Assert.IsType<Falah.Domain.Printing.TicketText>(first);
+                Assert.Equal("عنوان", text.Text);
+                Assert.True(text.Bold);
+                Assert.Equal(Falah.Domain.Printing.TicketAlign.Center, text.Align);
+                Assert.Equal(Falah.Domain.Printing.TicketTextSize.Large, text.Size);
             },
             second =>
             {
-                Assert.Equal("سطر عادي", second.Text);
-                Assert.False(second.Bold);
-                Assert.False(second.Centered);
-                Assert.False(second.LargeFont);
+                var text = Assert.IsType<Falah.Domain.Printing.TicketText>(second);
+                Assert.Equal("سطر عادي", text.Text);
+                Assert.False(text.Bold);
+                Assert.Equal(Falah.Domain.Printing.TicketAlign.Start, text.Align);
+                Assert.Equal(Falah.Domain.Printing.TicketTextSize.Normal, text.Size);
             });
+    }
+
+    /// <summary>The wire contract in BOTH directions, for every element kind. The server composes
+    /// and the agent renders in separate processes, so a mapping that is lossy or asymmetric in
+    /// either direction shows up as a wrong ticket on paper rather than as a failing build.</summary>
+    [Fact]
+    public void Every_element_kind_survives_a_round_trip_through_the_wire_contract()
+    {
+        var original = new Falah.Domain.Printing.TicketElement[]
+        {
+            new Falah.Domain.Printing.TicketText("عنوان", Bold: true,
+                Align: Falah.Domain.Printing.TicketAlign.Center, Size: Falah.Domain.Printing.TicketTextSize.Display,
+                Inverted: true),
+            new Falah.Domain.Printing.TicketRow(new[]
+            {
+                new Falah.Domain.Printing.TicketCell("شاورما", 50),
+                new Falah.Domain.Printing.TicketCell("2", 20, Falah.Domain.Printing.TicketAlign.Center),
+                new Falah.Domain.Printing.TicketCell("85 ج", 30, Falah.Domain.Printing.TicketAlign.End, Bold: true),
+            }),
+            new Falah.Domain.Printing.TicketRule(Falah.Domain.Printing.TicketRuleStyle.Dashed),
+            new Falah.Domain.Printing.TicketCut(),
+            new Falah.Domain.Printing.TicketRow(new[] { new Falah.Domain.Printing.TicketCell("ملاحظة", 100) },
+                Falah.Domain.Printing.TicketTextSize.Title, Inverted: false, Boxed: true, Continuation: true),
+        };
+
+        var roundTripped = original
+            .Select(Falah.Application.Printing.TicketElementMapping.ToDto)
+            .Select(Falah.Application.Printing.TicketElementMapping.ToDomain)
+            .ToList();
+
+        Assert.Equal(original.Length, roundTripped.Count);
+        Assert.Equal(original[0], roundTripped[0]);
+        Assert.Equal(original[2], roundTripped[2]);
+        Assert.IsType<Falah.Domain.Printing.TicketCut>(roundTripped[3]);
+
+        var continuation = Assert.IsType<Falah.Domain.Printing.TicketRow>(roundTripped[4]);
+        Assert.True(continuation.Boxed);
+        Assert.True(continuation.Continuation);
+        Assert.False(continuation.Inverted);
+        Assert.Equal(Falah.Domain.Printing.TicketTextSize.Title, continuation.Size);
+
+        var row = Assert.IsType<Falah.Domain.Printing.TicketRow>(roundTripped[1]);
+        Assert.Collection(row.Cells,
+            c => { Assert.Equal("شاورما", c.Text); Assert.Equal(50, c.WidthPercent); Assert.False(c.Bold); },
+            c => { Assert.Equal("2", c.Text); Assert.Equal(Falah.Domain.Printing.TicketAlign.Center, c.Align); },
+            c => { Assert.Equal("85 ج", c.Text); Assert.Equal(Falah.Domain.Printing.TicketAlign.End, c.Align); Assert.True(c.Bold); });
+    }
+
+    /// <summary>A cut is a real boundary: one job must be able to produce more than one physical
+    /// ticket, which is how the cashier flow prints a customer order-number ticket and a detailed
+    /// ticket under a single idempotency key.</summary>
+    [Fact]
+    public void A_cut_element_makes_the_renderer_emit_a_second_cut_command()
+    {
+        Falah.Domain.Printing.ComposedTicket Build(params Falah.Domain.Printing.TicketElement[] elements) =>
+            new(Falah.Domain.Printing.PrintRoute.Receipt, "ord-1", "#0001", elements);
+
+        var withoutCut = Falah.Domain.Printing.EscPosTicketRenderer.Render(
+            Build(new Falah.Domain.Printing.TicketText("أ"), new Falah.Domain.Printing.TicketText("ب")));
+        var withCut = Falah.Domain.Printing.EscPosTicketRenderer.Render(
+            Build(new Falah.Domain.Printing.TicketText("أ"), new Falah.Domain.Printing.TicketCut(), new Falah.Domain.Printing.TicketText("ب")));
+
+        Assert.Equal(1, CountCuts(withoutCut));
+        Assert.Equal(2, CountCuts(withCut));
+    }
+
+    private static int CountCuts(byte[] bytes)
+    {
+        var count = 0;
+        for (var i = 0; i + 2 < bytes.Length; i++)
+            if (bytes[i] == 0x1D && bytes[i + 1] == 0x56 && bytes[i + 2] == 0x00) count++;
+        return count;
     }
 
     [Fact]
@@ -242,7 +355,8 @@ public class PrintAgentTests
         }.Validate();
 
         Assert.Contains(problems, p => p.Contains("Route"));
-        Assert.Contains(problems, p => p.Contains("ReportedByUserId"));
+        // Who the agent is comes from the PIN it logs in with (SEC5), so the PIN is what must be there.
+        Assert.Contains(problems, p => p.Contains("PIN") && p.Contains("FALAH_PRINT_AGENT_PIN"));
         Assert.Contains(problems, p => p.Contains("PrinterHost"));
     }
 
@@ -254,10 +368,109 @@ public class PrintAgentTests
             ServerBaseAddress = "http://localhost:5151",
             Route = "Charcoal",
             ReportedByUserId = "usr-1",
+            Pin = "1234",
             Transport = "network",
             PrinterHost = "192.168.1.50",
         }.Validate();
 
         Assert.Empty(problems);
     }
+
+    [Fact]
+    public async Task An_unwritable_attempt_journal_reports_failure_without_printing_or_stalling_the_queue()
+    {
+        var blocker = Path.Combine(Path.GetTempPath(), "falah-journal-blocker-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(blocker, "not a directory");
+        try
+        {
+            var server = new FakeServer(); var transport = new FakeTransport();
+            server.Pending.Add(Job("blocked-1")); server.Pending.Add(Job("blocked-2"));
+            var store = new UnreportedAttemptStore(Path.Combine(blocker, "attempts.json"));
+            Assert.Equal(2, await Processor(server, transport, store).DrainAsync("Receipt", CancellationToken.None));
+            Assert.Empty(transport.Sent);
+            Assert.Equal(2, server.Reports.Count);
+            Assert.All(server.Reports, report => {
+                Assert.False(report.Succeeded);
+                Assert.Contains("journal", report.Error!, StringComparison.OrdinalIgnoreCase);
+            });
+        }
+        finally { File.Delete(blocker); }
+    }
+
+    [Fact]
+    public void A_route_with_an_unwritable_journal_directory_fails_before_processing_jobs()
+    {
+        var blocker = Path.Combine(Path.GetTempPath(), "falah-journal-blocker-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(blocker, "not a directory");
+        try { Assert.Throws<InvalidOperationException>(() => UnreportedAttemptStore.ForRoute(blocker, "Receipt")); }
+        finally { File.Delete(blocker); }
+    }
+
+
+    [Fact]
+    public void Moving_the_journal_preserves_old_attempts_and_keeps_newer_destination_entries()
+    {
+        var parent = Path.Combine(Path.GetTempPath(), "falah-journal-migrate-" + Guid.NewGuid().ToString("N"));
+        var legacy = Path.Combine(parent, "old"); var current = Path.Combine(parent, "new");
+        try
+        {
+            var old = UnreportedAttemptStore.ForRoute(legacy, "Receipt");
+            var original = new UnreportedAttemptStore.StoredAttempt("old-attempt", false, "inspect paper", DateTimeOffset.UtcNow);
+            old.Remember("legacy", original); old.Remember("shared", original);
+            var newer = original with { AttemptRequestId = "new-attempt", Succeeded = true };
+            UnreportedAttemptStore.ForRoute(current, "Receipt").Remember("shared", newer);
+            var merged = UnreportedAttemptStore.ForRoute(current, "receipt", legacy);
+            Assert.Equal(original, merged.Find("legacy")); Assert.Equal(newer, merged.Find("shared"));
+            Assert.True(File.Exists(Path.Combine(legacy, "unreported-print-attempts-Receipt.json")));
+        }
+        finally { if (Directory.Exists(parent)) Directory.Delete(parent, true); }
+    }
+
+
+    private sealed class PriorityProbeTransport(Func<int> priorityRuns) : ITicketTransport
+    {
+        public TaskCompletionSource Entered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public int Sent { get; private set; }
+        public string Description => "slow priority probe";
+        public async Task SendAsync(byte[] data, CancellationToken ct)
+        {
+            Assert.True(priorityRuns() > Sent, "Drawer work must run before each ticket.");
+            if (Sent == 0) { Entered.TrySetResult(); await Release.Task.WaitAsync(ct); }
+            Sent++;
+        }
+    }
+    [Fact]
+    public async Task Drawer_work_runs_before_a_slow_receipt_and_between_every_ticket_in_a_backlog()
+    {
+        var server = new FakeServer();
+        server.Pending.AddRange(new[] { Job("priority-1"), Job("priority-2"), Job("priority-3") });
+        var priorityRuns = 0;
+        var transport = new PriorityProbeTransport(() => priorityRuns);
+        var processor = new PrintJobProcessor(server, transport, Encoding.UTF8, "usr-1", _ => { }, NewStore());
+        var draining = processor.DrainAsync("Receipt", default, _ => { priorityRuns++; return Task.CompletedTask; });
+        await transport.Entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(1, priorityRuns);
+        transport.Release.TrySetResult();
+        Assert.Equal(3, await draining);
+        Assert.Equal(4, priorityRuns);
+        Assert.Equal(3, transport.Sent);
+    }
+
+
+    [Fact]
+    public async Task A_restarted_agent_reports_a_fenced_attempt_even_when_it_is_no_longer_pending()
+    {
+        var store = NewStore();
+        store.Remember("sending-before-restart", new UnreportedAttemptStore.StoredAttempt("attempt-before-restart", true, null, DateTimeOffset.UtcNow, "opaque-claim"));
+        var server = new FakeServer(); var transport = new FakeTransport();
+        Assert.Equal(0, await Processor(server, transport, store).DrainAsync("Receipt", default));
+        var report = Assert.Single(server.Reports);
+        Assert.Equal("attempt-before-restart", report.RequestId);
+        Assert.Equal("opaque-claim", report.ClaimId);
+        Assert.True(report.Succeeded);
+        Assert.Empty(transport.Sent);
+        Assert.Equal(0, store.Count);
+    }
+
 }

@@ -38,4 +38,13 @@ public static class EmployeeRules
     {
         if (amount > currentBalance) throw new DomainException("لا يمكن سحب مبلغ أكبر من رصيد الموظف الحالي.");
     }
+
+    /// <summary>Same comparison as AssertWithdrawalWithinBalance, worded for the standalone "دفع
+    /// للموظف" flow rather than a drawer withdrawal - a payment against what is owed can never
+    /// exceed the current running balance either, by the same final business rule's own example
+    /// (Balance 5300, pay 2000, remaining 3300 - never negative).</summary>
+    public static void AssertPaymentWithinBalance(Money amount, Money currentBalance)
+    {
+        if (amount > currentBalance) throw new DomainException("لا يمكن دفع مبلغ أكبر من رصيد الموظف الحالي المستحق.");
+    }
 }

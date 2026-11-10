@@ -1,4 +1,4 @@
-namespace Falah.Infrastructure.Shifts;
+﻿namespace Falah.Infrastructure.Shifts;
 
 using System.Data;
 using Falah.Application.Shifts;
@@ -7,6 +7,7 @@ using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Delivery;
 using Falah.Domain.Financial;
+using Falah.Domain.Printing;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.Delivery;
 using Falah.Infrastructure.Orders;
@@ -34,9 +35,12 @@ public sealed class CloseShiftHandler
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
     private readonly IAuditLog _auditLog;
+    private readonly Falah.Infrastructure.Reports.ReportingQueryService _reporting;
 
-    public CloseShiftHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, Microsoft.Extensions.Configuration.IConfiguration configuration, IAuditLog auditLog)
+    public CloseShiftHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, Microsoft.Extensions.Configuration.IConfiguration configuration, IAuditLog auditLog,
+        Falah.Infrastructure.Reports.ReportingQueryService reporting)
     {
+        _reporting = reporting;
         _db = db;
         _approvalRegistry = approvalRegistry;
         _configuration = configuration;
@@ -55,6 +59,8 @@ public sealed class CloseShiftHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct, closing: true);
+            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(_db, ct);
             // Same UPDLOCK/ROWLOCK/HOLDLOCK pattern as RefundOrderHandler - a second concurrent
             // close attempt against the SAME shift blocks here instead of both computing the same
             // stale expected cash and racing to post two handovers.
@@ -77,18 +83,10 @@ public sealed class CloseShiftHandler
             }
             if (entity.Status != nameof(ShiftStatus.Open)) throw new DomainException("الوردية ليست مفتوحة.");
 
-            var shiftDeliveries = await _db.Deliveries.AsNoTracking().Where(d => d.ShiftId == entity.Id).ToListAsync(ct);
-            if (shiftDeliveries.Count > 0)
-            {
-                var deliveryIds = shiftDeliveries.Select(d => d.Id).ToList();
-                var deliveryOrderIds = shiftDeliveries.Select(d => d.OrderId).ToList();
-                var deliveryOrdersById = (await _db.Orders.AsNoTracking().Where(o => deliveryOrderIds.Contains(o.Id)).ToListAsync(ct))
-                    .ToDictionary(o => o.Id);
-                var deliveryFacts = shiftDeliveries.Select(d => DeliveryFactsComposer.Compose(d, deliveryOrdersById[d.OrderId])).ToList();
-                var custodies = (await _db.DriverCustodies.AsNoTracking().Where(c => deliveryIds.Contains(c.DeliveryId)).ToListAsync(ct))
-                    .Select(DeliveryFactsComposer.ToDriverCustody).ToList();
-                DeliveryRules.AssertShiftHasNoUnsettledCustody(custodies, deliveryFacts, entity.Id);
-            }
+            // Deliberately no driver-custody check here: a driver settles per business day, or when he
+            // comes in - not because a cashier wants to hand over the till. See DeliveryRules
+            // .UnsettledCustodyForShift. The obligation still blocks the BUSINESS DAY close, shows on
+            // the dashboard, and prints as a warning on this shift's own handover slip.
 
             ManagerApproval? approval = null;
             if (!string.IsNullOrEmpty(request.ManagerApprovalId))
@@ -114,6 +112,11 @@ public sealed class CloseShiftHandler
             var now = DateTimeOffset.UtcNow;
             var difference = blindResult.Difference;
 
+            // Both movements below belong to the business day the close happens in, like every other
+            // movement the shift posted. Without it a closed day's reconciliation showed its drawer
+            // still holding every sale and main treasury never receiving the handover. Not required:
+            // a shift opened before every shift needed a business day must still be closable.
+
             string? reconciliationMovementId = null;
             if (!difference.IsZero)
             {
@@ -122,7 +125,7 @@ public sealed class CloseShiftHandler
                     difference.IsNegative ? "cash_shortage" : "cash_overage",
                     sourceAccountId: difference.IsNegative ? TreasuryAccounts.Drawer : null,
                     destinationAccountId: difference.IsPositive ? TreasuryAccounts.Drawer : null,
-                    difference.Abs(), "shift_reconciliation", entity.Id, businessDayId: null, entity.Id,
+                    difference.Abs(), "shift_reconciliation", entity.Id, businessDayId, entity.Id,
                     string.IsNullOrWhiteSpace(request.Reason) ? "فرق نقدية ضمن الحد المسموح" : request.Reason,
                     cashierUser.Name, authorizedByName, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(reconciliation));
@@ -135,7 +138,7 @@ public sealed class CloseShiftHandler
                 var handover = TreasuryMovementFactory.BuildCashLifecycleMovement(
                     $"tm-{Guid.NewGuid():N}", $"shift-close-handover-{entity.Id}", $"op-{Guid.NewGuid():N}",
                     "shift_handover", TreasuryAccounts.Drawer, TreasuryAccounts.Main,
-                    actual, "shift_handover", entity.Id, businessDayId: null, entity.Id,
+                    actual, "shift_handover", entity.Id, businessDayId, entity.Id,
                     $"تسليم إغلاق {entity.ShiftName}", cashierUser.Name, authorizedByName, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(handover));
                 handoverMovementId = handover.Id;
@@ -156,11 +159,24 @@ public sealed class CloseShiftHandler
             entity.HandoverTreasuryMovementId = handoverMovementId;
             entity.Version++;
 
+            // UI-REQ-002: the closing statement, frozen with the close in the same transaction. Screen,
+            // printed statement and every later reprint read this copy, never today's data.
+            var openerName = entity.OpenedByUserId == cashierUser.Id ? cashierUser.Name
+                : (await _db.Users.AsNoTracking().Where(u => u.Id == entity.OpenedByUserId).Select(u => u.Name).FirstOrDefaultAsync(ct)) ?? entity.OpenedByUserId;
+            var statement = await ShiftCloseStatements.BuildAsync(_db, _reporting, entity, openerName, cashierUser.Name, authorizedByName,
+                now, entity.ExpectedCashPiastres!.Value, entity.ActualCashPiastres!.Value, entity.CashDifferencePiastres!.Value, entity.DifferenceReason, ct);
+
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 "إغلاق وردية", "shift", $"إغلاق {entity.ShiftName} - المتوقع {expected.Piastres} والفعلي {actual.Piastres}",
                 blindResult.RequiresManagerApproval ? "critical" : "normal", now,
-                ShiftId: entity.Id, Reason: request.Reason, AuthorizedBy: authorizedByName));
+                ShiftId: entity.Id, Reason: request.Reason, AuthorizedBy: authorizedByName,
+                NewValue: ShiftCloseStatements.Serialize(statement)));
+
+            // The handover paper. Same transaction as the close, keyed on the shift, so it is
+            // queued exactly once and only for a close that actually committed.
+            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                PrintDocumentKind.ShiftClose, entity.Id, PrintRules.ShiftCloseLabel, cashierUser.Name, now));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

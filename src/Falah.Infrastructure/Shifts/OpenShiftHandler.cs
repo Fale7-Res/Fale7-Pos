@@ -1,9 +1,10 @@
-namespace Falah.Infrastructure.Shifts;
+﻿namespace Falah.Infrastructure.Shifts;
 
 using Falah.Application.Shifts;
 using Falah.Domain.Authorization;
 using Falah.Domain.Common;
 using Falah.Domain.Financial;
+using Falah.Domain.Printing;
 using Falah.Domain.Shifts;
 using Falah.Infrastructure.BusinessDay;
 using Falah.Infrastructure.Orders;
@@ -19,8 +20,8 @@ using Microsoft.EntityFrameworkCore;
 /// the actual race-safety net for two concurrent open attempts. A nonzero opening float DOES now
 /// post a real Treasury movement - ported from openNewShift in
 /// lib/store.tsx: type 'shift_opening_float', tre-main -> tre-drawer, only when openingCash > 0
-/// (matching the reference app's own `openingCash > 0 ?` guard exactly, including that a zero-float
-/// shift never touches Treasury or requires a business day at all). This closes a real gap found
+/// (matching the reference app's own `openingCash > 0 ?` guard; unlike the reference app, every
+/// shift requires an open business day - see HandleAsync). This closes a real gap found
 /// while building Treasury: without it, tre-drawer's movement-derived balance never reflected a
 /// shift's own float, so a legitimate mid-shift safe drop would be wrongly rejected as
 /// insufficient-balance even for a cashier holding real counted cash.</summary>
@@ -38,36 +39,48 @@ public sealed class OpenShiftHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeShiftOpen(OrderMapper.ToActor(openedByUserForAuth));
 
-        if (await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == nameof(ShiftStatus.Open), ct))
-            throw new ShiftAlreadyOpenException("توجد وردية مفتوحة بالفعل. أغلقها قبل فتح وردية جديدة.");
 
         var now = DateTimeOffset.UtcNow;
         var openingCash = Money.FromPiastres(request.OpeningCashPiastres);
         var shift = Shift.Open($"shift-{Guid.NewGuid():N}", request.ShiftName, request.OpenedByUserId, openingCash, now);
 
-        string? businessDayId = null;
-        if (openingCash.IsPositive)
-        {
-            businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
-            var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);
-            FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
-        }
-
-        var entity = new ShiftEntity
-        {
-            Id = shift.Id,
-            ShiftName = shift.ShiftName,
-            OpenedByUserId = shift.OpenedByUserId,
-            OpeningCashPiastres = shift.OpeningCash.Piastres,
-            Status = nameof(ShiftStatus.Open),
-            BusinessDate = shift.BusinessDate,
-            OpenedAtUtc = shift.OpenedAtUtc,
-            OpenRequestId = request.RequestId,
-        };
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.OpenRequestId == request.RequestId, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            if (await _db.Shifts.AsNoTracking().AnyAsync(s => s.Status == nameof(ShiftStatus.Open), ct))
+                throw new ShiftAlreadyOpenException("توجد وردية مفتوحة بالفعل. أغلقها قبل فتح وردية جديدة.");
+            // Every shift needs an open business day, whatever it opens with - a departure from the
+            // reference app, where a zero-float shift needed none. Sales stamp the open business day
+            // (CheckoutOrderHandler) but do not require one, so a zero-float shift was a way to ring up
+            // sales no business-day reconciliation or close snapshot ever counted. Requiring the day
+            // here is enough to close that: a business day cannot close while any shift is open
+            // (BusinessDayRules' OPEN_SHIFT blocker), so an open shift now always has an open day.
+            // Owner-approved handover (2026-11-09): an authorized cashier no longer needs a manager to open
+            // the day first. The active day is reused, or one is created in THIS transaction, so the day,
+            // float, shift and slip commit or roll back together. See BusinessDayGate.ResolveForShiftOpenAsync.
+            var businessDayId = await BusinessDayGate.ResolveForShiftOpenAsync(_db, request.OpenedByUserId, $"{request.RequestId}:day", now, ct);
+            if (openingCash.IsPositive)
+            {
+                var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);
+                FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
+            }
+
+            var entity = new ShiftEntity
+            {
+                Id = shift.Id,
+                ShiftName = shift.ShiftName,
+                OpenedByUserId = shift.OpenedByUserId,
+                OpeningCashPiastres = shift.OpeningCash.Piastres,
+                Status = nameof(ShiftStatus.Open),
+                BusinessDate = shift.BusinessDate,
+                BusinessDayId = businessDayId,
+                OpenedAtUtc = shift.OpenedAtUtc,
+                OpenRequestId = request.RequestId,
+            };
+
             _db.Shifts.Add(entity);
 
             if (openingCash.IsPositive)
@@ -81,6 +94,14 @@ public sealed class OpenShiftHandler
                     $"عهدة افتتاح {shift.ShiftName}", openedByUser.Name, approvedBy: null, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
             }
+
+            // The cashier's own receipt for the float they were handed. Queued here so it exists if
+            // and only if the shift does; its id is derived from the shift, so a replay of this
+            // request cannot queue a second slip.
+            var openedBy = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.OpenedByUserId, ct);
+            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                PrintDocumentKind.ShiftOpen, shift.Id, PrintRules.ShiftOpenLabel,
+                openedBy?.Name ?? request.OpenedByUserId, now));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

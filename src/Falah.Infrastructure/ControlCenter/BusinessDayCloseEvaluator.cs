@@ -29,7 +29,7 @@ public static class BusinessDayCloseEvaluator
         var driverCustodies = await db.DriverCustodies.AsNoTracking().Select(c => new { c.Id, c.Status }).ToListAsync(ct);
         var journalEntries = await db.FinancialJournalEntries.AsNoTracking().Select(j => new { j.IdempotencyKey, j.Status }).ToListAsync(ct);
         var pendingElectronicOrderIds = await db.Orders.AsNoTracking()
-            .Where(o => o.ElectronicPaymentStatus == "Pending").Select(o => o.Id).ToListAsync(ct);
+            .Where(o => o.ElectronicPaymentStatus == "pending").Select(o => o.Id).ToListAsync(ct);   // stored lower-case (OrderEnumMapping.ToWireString)
 
         var closingItems = await db.ChecklistItems.AsNoTracking()
             .Where(i => i.Phase == "Closing" && i.Active && i.Required).ToListAsync(ct);
@@ -77,8 +77,8 @@ public static class BusinessDayCloseEvaluator
         }
 
         var threshold = await Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(db, ct);
-        var unauthorizedDrawerMismatch = await db.Shifts.AsNoTracking()
-            .Where(s => s.BusinessDate == day.BusinessDate && s.CashDifferencePiastres != null && s.DifferenceAuthorizedBy == null)
+        var unauthorizedDrawerMismatch = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(db.Shifts.AsNoTracking(), day)
+            .Where(s => s.CashDifferencePiastres != null && s.DifferenceAuthorizedBy == null)
             .AnyAsync(s => s.CashDifferencePiastres! > threshold || s.CashDifferencePiastres! < -threshold, ct);
         checks.Add(("DRAWER_RECONCILIATION", unauthorizedDrawerMismatch));
 

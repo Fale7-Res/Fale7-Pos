@@ -30,17 +30,19 @@ public class RefundVerticalSliceTests : IAsyncLifetime
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
-    private async Task<CheckoutOrderResult> CheckoutAsync(long totalPiastres, string paymentMethod = "cash", IReadOnlyList<CheckoutSplitRequest>? splits = null)
+    private async Task<CheckoutOrderResult> CheckoutAsync(long totalPiastres, string paymentMethod = "cash", IReadOnlyList<CheckoutSplitRequest>? splits = null, string orderType = "takeaway")
     {
         var productId = await _factory.SeedProductAsync(totalPiastres);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
-            OrderType: "takeaway", PaymentMethod: paymentMethod,
+            OrderType: orderType, PaymentMethod: paymentMethod,
             Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: totalPiastres, SplitPayments: splits, WalletProvider: null,
-            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            DeliveryStreet: orderType == "delivery" ? "شارع" : null, DeliveryServiceId: orderType == "delivery" ? "svc-1" : null,
+            DeliveryServiceName: orderType == "delivery" ? "توصيل" : null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
@@ -257,4 +259,75 @@ public class RefundVerticalSliceTests : IAsyncLifetime
         var refundCount = await _factory.QueryAsync(db => db.OrderRefunds.CountAsync(r => r.OrderId == order.OrderId));
         Assert.Equal(0, refundCount);
     }
+
+    [Theory]
+    [InlineData(20000, false)]
+    [InlineData(20000, true)]
+    [InlineData(8000, true)]
+    public async Task Queued_identical_refunds_replay_after_the_first_commits(long amount, bool viaApproval)
+    {
+        var order = await CheckoutAsync(20000);
+        string? approvalId = null, approverId = null;
+        if (viaApproval)
+        {
+            approverId = await _factory.SeedUserAsync("مدير المرتجع", "manager", "orders_refund");
+            _cashierId = await _factory.SeedUserAsync("كاشير المرتجع", "cashier", "pos");
+            var issued = await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
+                new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(approverId), "orders_refund", "اختبار"));
+            issued.EnsureSuccessStatusCode();
+            approvalId = (await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!.ApprovalId;
+        }
+        var request = RefundRequest(order.OrderId, amount, Guid.NewGuid().ToString("N"), approvalId, approverId);
+        Task<HttpResponseMessage>[] pending = Array.Empty<Task<HttpResponseMessage>>();
+        await _factory.QueryAsync(async db =>
+        {
+            await using var tx = await db.Database.BeginTransactionAsync();
+            await db.Database.ExecuteSqlRawAsync("SELECT Id FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", order.OrderId);
+            var connection = db.Database.GetDbConnection();
+            await using var command = connection.CreateCommand();
+            command.Transaction = Microsoft.EntityFrameworkCore.Storage.DbContextTransactionExtensions.GetDbTransaction(tx);
+            command.CommandText = "SELECT @@SPID";
+            var spid = Convert.ToInt32(await command.ExecuteScalarAsync());
+            pending = new[] { _client.PostAsJsonAsync("/api/orders/refund", request), _client.PostAsJsonAsync("/api/orders/refund", request) };
+            try
+            {
+                var deadline = DateTime.UtcNow.AddSeconds(20);
+                var blocked = 0;
+                command.CommandText = "SELECT COUNT(*) FROM sys.dm_exec_requests WHERE database_id = DB_ID() AND blocking_session_id <> 0";
+                while (DateTime.UtcNow < deadline && blocked < 2)
+                {
+                    blocked = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    if (blocked < 2) await Task.Delay(50);
+                }
+                Assert.True(blocked >= 2, "Both refunds must queue behind the held order lock.");
+            }
+            finally { await tx.RollbackAsync(); }
+            return true;
+        });
+        var responses = await Task.WhenAll(pending);
+        foreach (var response in responses) Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var results = await Task.WhenAll(responses.Select(r => r.Content.ReadFromJsonAsync<RefundOrderResult>()));
+        Assert.Single(results.Select(r => r!.RefundId).Distinct());
+        Assert.Single(results.Select(r => r!.TreasuryMovementId).Distinct());
+        Assert.Equal(1, results.Count(r => r!.WasReplayed));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.OrderRefunds.CountAsync(r => r.OrderId == order.OrderId)));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(r => r.ReferenceId == order.OrderId && r.Type == "refund")));
+    }
+
+
+    [Theory]
+    [InlineData("instapay", "takeaway")]
+    [InlineData("wallet", "takeaway")]
+    [InlineData("cash", "delivery")]
+    public async Task Uncollected_orders_cannot_create_refunds(string method, string type)
+    {
+        var order = await CheckoutAsync(20000, method, orderType: type);
+        var before = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", RefundRequest(order.OrderId, 5000, Guid.NewGuid().ToString("N")));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains(method == "cash" ? "عهدة السائق" : "تحويله الإلكتروني", await response.Content.ReadAsStringAsync());
+        Assert.Equal(0, await _factory.QueryAsync(db => db.OrderRefunds.CountAsync(r => r.OrderId == order.OrderId)));
+        Assert.Equal(before, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync()));
+    }
+
 }

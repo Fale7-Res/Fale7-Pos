@@ -25,7 +25,7 @@ public partial class CashCountViewModel : ObservableObject
     private string? _businessDayId;
     private string? _pendingId;
 
-    public CashCountViewModel(AppSession session) => _session = session;
+    public CashCountViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     public sealed partial class DenominationRow : ObservableObject
     {

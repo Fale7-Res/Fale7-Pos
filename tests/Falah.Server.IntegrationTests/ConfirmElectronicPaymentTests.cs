@@ -27,16 +27,16 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
-    private async Task<CheckoutOrderResult> InstaPayOrderAsync(long totalPiastres = 15000)
+    private async Task<CheckoutOrderResult> InstaPayOrderAsync(long totalPiastres = 15000, IReadOnlyList<CheckoutSplitRequest>? splits = null)
     {
         var productId = await _factory.SeedProductAsync(totalPiastres);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
-            OrderType: "takeaway", PaymentMethod: "instapay",
+            OrderType: "takeaway", PaymentMethod: splits is null ? "instapay" : "multi",
             Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
             DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
-            AmountPaidPiastres: totalPiastres, SplitPayments: null, WalletProvider: null,
+            AmountPaidPiastres: totalPiastres, SplitPayments: splits, WalletProvider: null,
             TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
@@ -149,7 +149,7 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
     {
         var order = await InstaPayOrderAsync();
         var response = await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "لم يصل التحويل", _cashierId));
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "لم يصل التحويل", _cashierId, StockDisposition: "not_prepared"));
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<CancelPendingElectronicPaymentResult>();
 
@@ -166,9 +166,9 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
     {
         var order = await InstaPayOrderAsync();
         var first = await (await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", _cashierId))).Content.ReadFromJsonAsync<CancelPendingElectronicPaymentResult>();
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", _cashierId, StockDisposition: "not_prepared"))).Content.ReadFromJsonAsync<CancelPendingElectronicPaymentResult>();
         var second = await (await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب آخر", _cashierId))).Content.ReadFromJsonAsync<CancelPendingElectronicPaymentResult>();
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب آخر", _cashierId, StockDisposition: "not_prepared"))).Content.ReadFromJsonAsync<CancelPendingElectronicPaymentResult>();
 
         Assert.False(first!.WasReplayed);
         Assert.True(second!.WasReplayed);
@@ -182,7 +182,7 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
             new ConfirmElectronicPaymentRequest(order.OrderId, _cashierId))).EnsureSuccessStatusCode();
 
         var response = await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", _cashierId));
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", _cashierId, StockDisposition: "not_prepared"));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
@@ -191,7 +191,7 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
     {
         var order = await InstaPayOrderAsync();
         var response = await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "", _cashierId));
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "", _cashierId, StockDisposition: "not_prepared"));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
@@ -201,7 +201,62 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
         var order = await InstaPayOrderAsync();
         var noPermissionUser = await _factory.SeedUserAsync("موظف بلا صلاحية", "cashier");
         var response = await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", noPermissionUser));
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "سبب", noPermissionUser, StockDisposition: "not_prepared"));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
+
+    [Fact]
+    public async Task A_split_electronic_leg_posts_once_and_replays_its_own_movement()
+    {
+        var order = await InstaPayOrderAsync(15000, new[] { new CheckoutSplitRequest("cash", 5000), new CheckoutSplitRequest("instapay", 10000) });
+        var request = new ConfirmElectronicPaymentRequest(order.OrderId, _cashierId);
+        var response = await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", request);
+        response.EnsureSuccessStatusCode();
+        var first = (await response.Content.ReadFromJsonAsync<ConfirmElectronicPaymentResult>())!;
+        var replay = (await (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", request)).Content.ReadFromJsonAsync<ConfirmElectronicPaymentResult>())!;
+        Assert.True(first.IsPaid);
+        Assert.True(replay.WasReplayed);
+        Assert.Equal(first.TreasuryMovementId, replay.TreasuryMovementId);
+        var movements = await _factory.QueryAsync(db => db.TreasuryMovements.Where(m => m.ReferenceId == order.OrderId).ToListAsync());
+        Assert.Equal(2, movements.Count);
+        Assert.Equal(10000, Assert.Single(movements.Where(m => m.Id == replay.TreasuryMovementId)).AmountPiastres);
+        Assert.Equal(15000, movements.Sum(m => m.AmountPiastres));
+    }
+
+    [Theory]
+    [InlineData("wallet")]
+    [InlineData("instapay")]
+    public async Task A_split_cannot_accept_two_electronic_claims(string secondMethod)
+    {
+        var productId = await _factory.SeedProductAsync(15000);
+        var request = new CheckoutOrderRequest($"req-{Guid.NewGuid():N}", _cashierId, _shiftId, "takeaway", "multi",
+            new[] { new CheckoutItemRequest(productId, null, 1, null, null) }, 0, 0, 0, null, null, null, 15000,
+            new[] { new CheckoutSplitRequest("instapay", 5000), new CheckoutSplitRequest(secondMethod, 10000) }, null, null, null, null, null, null, null);
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.False(await _factory.QueryAsync(db => db.Orders.AnyAsync(o => o.CheckoutRequestId == request.CheckoutRequestId)));
+    }
+
+
+    [Fact]
+    public async Task Delivery_custody_excludes_the_split_amount_already_collected_at_checkout()
+    {
+        var order = await InstaPayOrderAsync(15000, new[] { new CheckoutSplitRequest("cash", 5000), new CheckoutSplitRequest("instapay", 10000) });
+        // Reuse the actual checkout snapshot as a delivery order: the composer must not charge the cash twice.
+        await _factory.QueryAsync(async db => {
+            await db.Orders.Where(o => o.Id == order.OrderId).ExecuteUpdateAsync(s => s.SetProperty(o => o.OrderType, "delivery"));
+            db.Deliveries.Add(new Falah.Infrastructure.Persistence.Entities.DeliveryEntity { Id = $"del-{Guid.NewGuid():N}", OrderId = order.OrderId, ShiftId = _shiftId, Status = "Ready", CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync(); return true;
+        });
+        var dispatcher = await _factory.SeedUserAsync("التوصيل", "manager", "all");
+        var driverResponse = await _client.PostAsJsonAsync("/api/delivery/drivers", new Falah.Application.Delivery.CreateDriverRequest($"req-{Guid.NewGuid():N}", "سائق", dispatcher));
+        driverResponse.EnsureSuccessStatusCode();
+        var driver = (await driverResponse.Content.ReadFromJsonAsync<Falah.Application.Delivery.DriverDto>())!;
+        var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order.OrderId).Select(d => d.Id).FirstAsync());
+        var response = await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign", new Falah.Application.Delivery.AssignDeliveryRequest($"req-{Guid.NewGuid():N}", deliveryId, driver.Id, dispatcher, null, null));
+        response.EnsureSuccessStatusCode();
+        var custody = await _factory.QueryAsync(db => db.DriverCustodies.SingleAsync(c => c.DeliveryId == deliveryId));
+        Assert.Equal(10000, custody.ExpectedPiastres);
+    }
+
 }

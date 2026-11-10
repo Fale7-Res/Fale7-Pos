@@ -21,15 +21,20 @@ using Microsoft.EntityFrameworkCore;
 public sealed class BiometricCheckInHandler
 {
     private readonly FalahDbContext _db;
-    public BiometricCheckInHandler(FalahDbContext db) => _db = db;
+    private readonly TimeProvider _time;
+    public BiometricCheckInHandler(FalahDbContext db, TimeProvider? timeProvider = null) { _db = db; _time = timeProvider ?? TimeProvider.System; }
 
     public async Task<AttendanceRecordDto?> HandleAsync(BiometricCheckInRequest request, CancellationToken ct = default)
     {
-        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct);
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var employee = await _db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.EmployeeId).AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct);
         if (employee is null) return null;
 
-        var now = DateTimeOffset.UtcNow;
-        var date = BusinessClock.Today();
+        if (!string.IsNullOrWhiteSpace(request.BiometricEventId) &&
+            await _db.AttendanceRecords.AsNoTracking().FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.LastCheckInEventId == request.BiometricEventId, ct) is { } replay)
+            return EmployeeQueryService.ToAttendanceDto(replay);
+        var now = _time.GetUtcNow();
+        var date = BusinessClock.BusinessDate(now);
         var timeStr = now.ToString("HH:mm");
         var settings = await new SettingsQueryService(_db).GetAsync(ct);
 
@@ -48,30 +53,20 @@ public sealed class BiometricCheckInHandler
 
         var existing = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct);
         AttendanceRecordEntity entity;
-        if (existing is not null)
+        if (existing is not null && !string.IsNullOrEmpty(existing.CheckIn)) return EmployeeQueryService.ToAttendanceDto(existing);
+        entity = existing ?? new AttendanceRecordEntity
         {
-            existing.CheckIn = timeStr;
-            existing.Status = status.ToString();
-            existing.LateMinutes = lateMinutes;
-            existing.LastCheckInEventId = request.BiometricEventId;
-            existing.Source = "biometric";
-            entity = existing;
-        }
-        else
-        {
-            entity = new AttendanceRecordEntity
-            {
-                Id = $"att-{Guid.NewGuid():N}", EmployeeId = request.EmployeeId, EmployeeName = employee.Name, Date = date,
-                CheckIn = timeStr, ShiftName = activeShift?.ShiftName ?? "وردية صباحية", Status = status.ToString(),
-                LateMinutes = lateMinutes, WorkHours = 0, OvertimeHours = 0, TatbiqCount = 0, IsManualCorrection = false,
-                LastCheckInEventId = request.BiometricEventId, Source = "biometric", CreatedAtUtc = now,
-            };
-            _db.AttendanceRecords.Add(entity);
-        }
+            Id = $"att-{Guid.NewGuid():N}", EmployeeId = request.EmployeeId, EmployeeName = employee.Name, Date = date,
+            ShiftName = activeShift?.ShiftName ?? "وردية صباحية", WorkHours = 0, OvertimeHours = 0,
+            TatbiqCount = 0, IsManualCorrection = false, CreatedAtUtc = now,
+        };
+        entity.CheckIn = timeStr; entity.CheckInAtUtc = now; entity.Status = status.ToString();
+        entity.LateMinutes = lateMinutes; entity.LastCheckInEventId = request.BiometricEventId; entity.Source = "biometric";
+        if (existing is null) _db.AttendanceRecords.Add(entity);
 
         // Daily wage entitlement - created exactly once per employee/date/shift (see
         // RecordDailyWageHandler's own deterministic id scheme, reused here verbatim).
-        if (employee.CompensationType == nameof(CompensationType.Daily))
+        if (Enum.TryParse<CompensationType>(employee.CompensationType, true, out var savedType) && savedType == CompensationType.Daily)
         {
             var wage = Money.FromPiastres(employee.DailyWagePiastres);
             var wageId = $"led-daily-wage-{request.EmployeeId}-{date:yyyy-MM-dd}-{activeShift?.Id ?? "no-shift"}";
@@ -95,6 +90,7 @@ public sealed class BiometricCheckInHandler
         }
 
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToAttendanceDto(entity);
     }
 }
@@ -105,34 +101,39 @@ public sealed class BiometricCheckInHandler
 public sealed class BiometricCheckOutHandler
 {
     private readonly FalahDbContext _db;
-    public BiometricCheckOutHandler(FalahDbContext db) => _db = db;
+    private readonly TimeProvider _time;
+    public BiometricCheckOutHandler(FalahDbContext db, TimeProvider? timeProvider = null) { _db = db; _time = timeProvider ?? TimeProvider.System; }
 
     public async Task<AttendanceRecordDto> HandleAsync(BiometricCheckOutRequest request, CancellationToken ct = default)
     {
-        var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var employee = await _db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.EmployeeId).AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
             ?? throw new InvalidOperationException("الموظف غير موجود.");
 
-        var now = DateTimeOffset.UtcNow;
-        var date = BusinessClock.Today();
+        var now = _time.GetUtcNow();
+        var date = BusinessClock.BusinessDate(now);
         var timeStr = now.ToString("HH:mm");
         var settings = await new SettingsQueryService(_db).GetAsync(ct);
 
-        var record = await _db.AttendanceRecords.FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.Date == date, ct)
-            ?? throw new DomainException("لا يوجد تسجيل حضور لهذا الموظف اليوم - لا يمكن تسجيل انصراف بدون حضور.");
+        if (!string.IsNullOrWhiteSpace(request.BiometricEventId) &&
+            await _db.AttendanceRecords.AsNoTracking().FirstOrDefaultAsync(a => a.EmployeeId == request.EmployeeId && a.LastCheckOutEventId == request.BiometricEventId, ct) is { } replay)
+            return EmployeeQueryService.ToAttendanceDto(replay);
+        var yesterday = date.AddDays(-1);
+        var record = await _db.AttendanceRecords.Where(a => a.EmployeeId == request.EmployeeId && a.Date >= yesterday && a.Date <= date && a.CheckIn != null)
+            .OrderBy(a => a.CheckOut != null).ThenByDescending(a => a.Date).FirstOrDefaultAsync(ct)
+            ?? throw new DomainException("لا يوجد تسجيل حضور مفتوح لهذا الموظف اليوم أو أمس.");
+        if (!string.IsNullOrEmpty(record.CheckOut)) return EmployeeQueryService.ToAttendanceDto(record);
+        if (record.IsManualCorrection) throw new DomainException("سجل الحضور مصحح يدويًا؛ راجع المسؤول لتصحيح الانصراف.");
+        var checkInAt = AttendanceInstants.CheckIn(record)
+            ?? throw new DomainException("وقت الحضور غير مكتمل؛ يلزم تصحيح السجل يدويًا.");
+        if (now < checkInAt) throw new DomainException("وقت الانصراف يسبق وقت الحضور.");
         var activeShiftId = await _db.Shifts.AsNoTracking().Where(s => s.Status == nameof(ShiftStatus.Open)).Select(s => s.Id).FirstOrDefaultAsync(ct);
-
-        double workHours = 0, overtimeHours = 0;
-        if (!string.IsNullOrEmpty(record.CheckIn) && TimeOnly.TryParse(record.CheckIn, out var checkInTime))
-        {
-            var checkInAt = now.Date.Add(checkInTime.ToTimeSpan());
-            var workedMinutes = Math.Max(0, (now.UtcDateTime - checkInAt).TotalMinutes);
-            workHours = Math.Round(workedMinutes / 60.0, 2);
-            overtimeHours = Math.Max(0, Math.Round(workHours - settings.StandardWorkdayHours, 2));
-        }
-
-        record.CheckOut = timeStr;
-        record.WorkHours = workHours;
-        record.OvertimeHours = overtimeHours;
+        var workHours = Math.Round((now - checkInAt).TotalHours, 2);
+        var overtimeHours = Math.Max(0, Math.Round(workHours - settings.StandardWorkdayHours, 2));
+        date = record.Date;
+        record.CheckInAtUtc ??= checkInAt;
+        record.CheckOut = timeStr; record.CheckOutAtUtc = now;
+        record.WorkHours = workHours; record.OvertimeHours = overtimeHours;
         record.LastCheckOutEventId = request.BiometricEventId;
 
         if (overtimeHours > 0 && employee.DailyWagePiastres > 0)
@@ -149,6 +150,7 @@ public sealed class BiometricCheckOutHandler
         }
 
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToAttendanceDto(record);
     }
 }

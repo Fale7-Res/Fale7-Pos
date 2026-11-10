@@ -29,6 +29,7 @@ public partial class MainViewModel : ObservableObject
         ShowLogin();
 
         RecoveredOperationsNotice = DescribeRecoveredOperations();
+        _session.OperationStateChanged += RefreshRecoveredNotice;
 
         _healthTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         _healthTimer.Tick += async (_, _) => await CheckHealthNowAsync();
@@ -42,12 +43,33 @@ public partial class MainViewModel : ObservableObject
     /// actually happened.</summary>
     [ObservableProperty] private string? _recoveredOperationsNotice;
 
+    /// <summary>Where the operator finds the operation - the screen, never the storage key
+    /// ("treasury.action"), which said nothing to the person reading it.</summary>
+    private static string ScreenOf(string ownerKey) => ownerKey.Split('.')[0] switch
+    {
+        "cashier" => "نقطة البيع",
+        "treasury" => "الخزينة",
+        "delivery" => "التوصيل والسائقون",
+        "employees" => "الموظفون",
+        "payroll" => "الرواتب",
+        "purchasing" => "المشتريات",
+        "inventory" => "المخزون",
+        "attendance" => "الحضور والانصراف",
+        "backup" => "النسخ الاحتياطي",
+        "business-day" or "controlcenter" => "مركز التحكم بيوم العمل",
+        "menu" => "القائمة والتسعير",
+        "users" => "المستخدمون والصلاحيات",
+        "shifts" => "الشيفتات",
+        _ => "إحدى شاشات الإدارة",
+    };
+
     private static string? DescribeRecoveredOperations()
     {
+        if (RetainedRequestStorage.Current?.RecoveryError is { } protectionError) return protectionError;
         var records = RetainedRequestStorage.Current?.List();
         if (records is null || records.Count == 0) return null;
         var oldest = records.Min(r => r.SavedAtUtc).ToLocalTime();
-        var names = string.Join("، ", records.Select(r => r.OwnerKey).Distinct());
+        var names = string.Join("، ", records.Select(r => ScreenOf(r.OwnerKey)).Distinct());
         return records.Count == 1
             ? $"عملية واحدة لم تُحسم نتيجتها قبل إغلاق البرنامج ({names}، منذ {oldest:yyyy/MM/dd HH:mm}). افتح شاشتها واضغط زر التحقق لمعرفة ما إذا كانت قد نُفِّذت."
             : $"{records.Count} عمليات لم تُحسم نتيجتها قبل إغلاق البرنامج ({names}، أقدمها {oldest:yyyy/MM/dd HH:mm}). افتح شاشة كل منها واضغط زر التحقق لمعرفة ما إذا كانت قد نُفِّذت.";
@@ -55,6 +77,14 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void DismissRecoveredNotice() => RecoveredOperationsNotice = null;
+
+    /// <summary>The notice described the store at startup. Once a screen resolves a recovered operation
+    /// its record leaves the store, and a notice still claiming it is unresolved would send the operator
+    /// looking for nothing. Only ever narrows or clears the notice - a dismissed one stays dismissed.</summary>
+    private void RefreshRecoveredNotice()
+    {
+        if (RecoveredOperationsNotice is not null) RecoveredOperationsNotice = DescribeRecoveredOperations();
+    }
 
     private async Task CheckHealthNowAsync()
     {
@@ -71,6 +101,7 @@ public partial class MainViewModel : ObservableObject
     public void Stop()
     {
         _stopped = true;
+        _session.OperationStateChanged -= RefreshRecoveredNotice;
         _healthTimer.Stop();
         Header.Stop();
     }
@@ -97,11 +128,34 @@ public partial class MainViewModel : ObservableObject
     /// see the shell can always reach the same POS screen from inside it.</summary>
     private void ShowMain()
     {
+        if (RetainedRequestStorage.Current?.RecoveryError is { } recoveryError)
+        {
+            ShowLogin();
+            if (CurrentView is LoginViewModel login) login.ErrorMessage = recoveryError;
+            return;
+        }
         Header.Refresh();
         IsLoggedIn = true;
         CurrentView = HasAnyManagementPermission() || !_session.HasPermission("pos")
             ? new ShellViewModel(_session, Header)
             : CreateCashier();
+        _ = LoadCurrentShiftAsync();
+    }
+
+    /// <summary>The header's shift pill must be true on every screen, not only after the POS screen
+    /// has loaded: a manager landing on the dashboard was told "مغلق" while a shift was open. A
+    /// failed read leaves what the session already knew rather than claiming the shift is closed.</summary>
+    private async Task LoadCurrentShiftAsync()
+    {
+        try
+        {
+            var shift = await _session.Api.GetCurrentShiftAsync();
+            if (!shift.Success && shift.StatusCode != 404) return;
+            _session.ShiftId = shift.Value?.ShiftId;
+            _session.ShiftName = shift.Value?.ShiftName;
+            Header.Refresh();
+        }
+        catch { /* the POS screen and the next login read it again */ }
     }
 
     private bool HasAnyManagementPermission() =>
@@ -112,7 +166,11 @@ public partial class MainViewModel : ObservableObject
         "orders_view_all", "delivery_manage", "reports_view", "treasury_manage", "inventory_manage",
         "purchasing_manage", "suppliers_manage", "employees_manage", "attendance_manage",
         "employees_ledger", "payroll_approve", "payroll_pay", "menu_manage", "users_manage", "audit_view", "control_center",
-        "backup_manage", "settings_manage", "all",
+        "backup_manage", "settings_manage",
+        // Added for the new Shifts management screen: a supervisor holding ONLY shifts_manage (no
+        // other management permission) must still reach the shell to see it - without this they
+        // would have a nav entry gated on a permission the shell itself would never let them in for.
+        "shifts_manage", "all",
     };
 
     private CashierViewModel CreateCashier()

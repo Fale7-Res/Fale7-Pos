@@ -73,10 +73,13 @@ public sealed class CashierCashMovementHandler
         var sourceAccount = isCashIn ? TreasuryAccounts.Main : TreasuryAccounts.Drawer;
         var destinationAccount = isCashIn ? TreasuryAccounts.Drawer : TreasuryAccounts.Main;
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate

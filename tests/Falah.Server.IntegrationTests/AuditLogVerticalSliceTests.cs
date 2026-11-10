@@ -178,9 +178,9 @@ public class AuditLogVerticalSliceTests : IAsyncLifetime
     {
         await CheckoutCashAsync(300000); // fund the drawer well beyond both expense amounts
         (await _client.PostAsJsonAsync("/api/expenses", new Falah.Application.Expenses.AddExpenseRequest(
-            $"exp-{Guid.NewGuid():N}", _shiftId, "صيانة", 5000, "إصلاح بسيط", "tre-drawer", _cashierId, null, null))).EnsureSuccessStatusCode();
+            $"exp-{Guid.NewGuid():N}", _shiftId, "صيانة سريعة", 5000, "إصلاح بسيط", "tre-drawer", _cashierId, null, null))).EnsureSuccessStatusCode();
         (await _client.PostAsJsonAsync("/api/expenses", new Falah.Application.Expenses.AddExpenseRequest(
-            $"exp-{Guid.NewGuid():N}", _shiftId, "صيانة", 150000, "إصلاح كبير", "tre-drawer", _cashierId, null, null))).EnsureSuccessStatusCode();
+            $"exp-{Guid.NewGuid():N}", _shiftId, "صيانة سريعة", 150000, "إصلاح كبير", "tre-drawer", _cashierId, null, null))).EnsureSuccessStatusCode();
 
         var events = await ListEventsAsync(category: "cash");
         Assert.Contains(events, e => e.Action == "تسجيل مصروف" && e.Details.Contains("5000") && e.Severity == "normal");

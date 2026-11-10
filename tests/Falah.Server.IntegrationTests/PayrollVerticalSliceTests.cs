@@ -24,6 +24,8 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        // Read-only assertions use the owner session; mutation bodies still name their actual actor.
+        _factory.StationUserId = await _factory.SeedUserAsync("قارئ بيانات المالك للاختبار", "owner", "all");
         _hrUserId = await _factory.SeedUserAsync("مسؤول الموارد البشرية", "supervisor", "employees_manage", "employees_ledger");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _payerId = await _factory.SeedUserAsync("صاحب صلاحية الدفع", "supervisor", "employees_manage", "payroll_approve", "payroll_pay");
@@ -223,6 +225,36 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
+    /// <summary>The generic transition accepted Approved → Paid and only changed the status: no
+    /// treasury movement, no settlement, nobody paid. Paying it afterwards was then refused because
+    /// the run was no longer Approved, so it stayed "Paid" with nothing paid for good.</summary>
+    [Fact]
+    public async Task Marking_a_run_paid_by_a_status_change_is_refused_and_only_paying_it_settles_it()
+    {
+        var employee = await CreateEmployeeAsync(dailyWagePiastres: 20000);
+        var runId = await CreateApprovedRunWithEmployeeAsync(CurrentPeriod(), employee);
+
+        var transition = await _client.PostAsJsonAsync($"/api/payroll-runs/{runId}/transition", new TransitionPayrollRequest(runId, "Paid", _payerId, null, null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, transition.StatusCode);
+
+        var untouched = await _factory.QueryAsync(db => db.PayrollRuns.AsNoTracking().SingleAsync(r => r.Id == runId));
+        Assert.Equal("Approved", untouched.Status);
+        Assert.Null(untouched.PaidAtUtc);
+        Assert.Null(untouched.TreasuryMovementId);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.Type == "payroll_payment")));
+        Assert.Equal(0, await _factory.QueryAsync(db => db.EmployeeLedgerEntries.CountAsync(e => e.Type == "PayrollSettlement")));
+
+        var pay = await _client.PostAsJsonAsync($"/api/payroll-runs/{runId}/pay", new PayPayrollRequest(runId, "tre-main", _payerId, null, null));
+        pay.EnsureSuccessStatusCode();
+        var result = await pay.Content.ReadFromJsonAsync<PayPayrollResult>();
+        Assert.False(result!.WasReplayed);
+
+        var paid = await _factory.QueryAsync(db => db.PayrollRuns.AsNoTracking().SingleAsync(r => r.Id == runId));
+        Assert.Equal("Paid", paid.Status);
+        Assert.Equal(result.TreasuryMovementId, paid.TreasuryMovementId);
+        Assert.Equal(1, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.Type == "payroll_payment")));
+    }
+
     [Fact]
     public async Task Paying_a_run_that_is_not_approved_is_rejected()
     {
@@ -258,4 +290,33 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
     }
 
     private sealed record BalanceResponse(string employeeId, long balancePiastres);
+
+    [Fact]
+    public async Task Payroll_months_use_the_same_Cairo_dates_as_employee_reports()
+    {
+        var employee = await CreateEmployeeAsync();
+        var credited = await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/daily-wage", new RecordDailyWageRequest(employee.Id, null, null, _hrUserId, null, null));
+        credited.EnsureSuccessStatusCode();
+        await _factory.QueryAsync(db => db.EmployeeLedgerEntries.Where(e => e.EmployeeId == employee.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(e => e.CreatedAtUtc, DateTimeOffset.Parse("2026-10-31T22:30:00Z"))));
+        foreach (var period in new[] { "2026-10", "2026-11" })
+        {
+            var response = await _client.PostAsJsonAsync("/api/payroll-runs", new CreatePayrollRequest(Guid.NewGuid().ToString("N"), period, _hrUserId));
+            response.EnsureSuccessStatusCode();
+            var run = (await response.Content.ReadFromJsonAsync<PayrollRunDto>())!;
+            var line = await _factory.QueryAsync(db => db.PayrollLines.SingleAsync(l => l.PayrollRunId == run.Id && l.EmployeeId == employee.Id));
+            Assert.Equal(period == "2026-11" ? 20000 : 0, line.NetPayablePiastres);
+        }
+    }
+    [Theory]
+    [InlineData("2026-00")]
+    [InlineData("2026-13")]
+    [InlineData("0000-01")]
+    public async Task An_impossible_payroll_month_is_refused_before_a_run_is_saved(string period)
+    {
+        var response = await _client.PostAsJsonAsync("/api/payroll-runs", new CreatePayrollRequest(Guid.NewGuid().ToString("N"), period, _hrUserId));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.False(await _factory.QueryAsync(db => db.PayrollRuns.AnyAsync(r => r.Period == period)));
+    }
+
 }

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Falah.Application.Printing;
 using Falah.Domain.Printing;
 
@@ -30,6 +30,11 @@ public sealed class PrintJobProcessor
     private readonly IPrintServerClient _server;
     private readonly ITicketTransport _transport;
     private readonly Encoding _encoding;
+    private readonly byte? _codePageTableId;
+    private readonly bool _renderAsImage;
+    private readonly int _imageWidthDots;
+    private readonly bool _thickenStrokes;
+    private readonly int _imageMarginDots;
     private readonly string _reportedByUserId;
     private readonly Action<string> _log;
     private readonly UnreportedAttemptStore _unreported;
@@ -40,11 +45,17 @@ public sealed class PrintJobProcessor
 
     public PrintJobProcessor(
         IPrintServerClient server, ITicketTransport transport, Encoding encoding,
-        string reportedByUserId, Action<string> log, UnreportedAttemptStore? unreported = null)
+        string reportedByUserId, Action<string> log, UnreportedAttemptStore? unreported = null, byte? codePageTableId = null,
+        bool renderAsImage = false, int imageWidthDots = 576, bool thickenStrokes = true, int imageMarginDots = 24)
     {
         _server = server;
         _transport = transport;
         _encoding = encoding;
+        _codePageTableId = codePageTableId;
+        _renderAsImage = renderAsImage;
+        _imageWidthDots = imageWidthDots;
+        _thickenStrokes = thickenStrokes;
+        _imageMarginDots = imageMarginDots;
         _reportedByUserId = reportedByUserId;
         _log = log;
         _unreported = unreported ?? new UnreportedAttemptStore(
@@ -54,8 +65,14 @@ public sealed class PrintJobProcessor
     /// <summary>Drains the pending queue for one route. Jobs are processed oldest first, in order,
     /// one at a time: a physical printer has one paper path, and interleaving two tickets on it
     /// produces one unreadable ticket rather than two readable ones.</summary>
-    public async Task<int> DrainAsync(string route, CancellationToken ct)
+    public async Task<int> DrainAsync(string route, CancellationToken ct, Func<CancellationToken, Task>? priorityWork = null)
     {
+        if (priorityWork is not null) await priorityWork(ct);
+        // Sending jobs are deliberately not reclaimable. Recover their durable reports directly,
+        // including after a process restart, without waiting for a pending-queue response.
+        foreach (var entry in _unreported.Snapshot().Where(e => e.Value.ClaimId is not null))
+            await ReportAsync(new ReportPrintJobResultRequest(entry.Value.AttemptRequestId, entry.Key,
+                entry.Value.Succeeded, entry.Value.Error, _reportedByUserId, entry.Value.ClaimId), ct);
         var pending = await _server.GetPendingAsync(route, ct);
         var processed = 0;
         foreach (var job in pending)
@@ -63,6 +80,7 @@ public sealed class PrintJobProcessor
             ct.ThrowIfCancellationRequested();
             await ProcessAsync(job, ct);
             processed++;
+            if (priorityWork is not null) await priorityWork(ct);
         }
         return processed;
     }
@@ -75,7 +93,7 @@ public sealed class PrintJobProcessor
         {
             _log($"job {job.Id} already printed; re-reporting attempt {already.AttemptRequestId} instead of reprinting");
             await ReportAsync(new ReportPrintJobResultRequest(
-                already.AttemptRequestId, job.Id, already.Succeeded, already.Error, _reportedByUserId), ct);
+                already.AttemptRequestId, job.Id, already.Succeeded, already.Error, _reportedByUserId, already.ClaimId ?? job.ClaimId), ct);
             return;
         }
 
@@ -87,7 +105,22 @@ public sealed class PrintJobProcessor
         try
         {
             var ticket = await _server.GetTicketAsync(job.Id, ct);
-            var payload = EscPosTicketRenderer.Render(ToDomain(ticket), _encoding);
+            var payload = _renderAsImage && OperatingSystem.IsWindows()
+                ? BitmapTicketRenderer.Render(ToDomain(ticket), _imageWidthDots, _thickenStrokes, _imageMarginDots)
+                : EscPosTicketRenderer.Render(ToDomain(ticket), _encoding, _codePageTableId);
+            // Persist BEFORE the first byte can leave. After a crash or cancelled send, paper may
+            // already exist; report an uncertain failure for manual inspection, never auto-reprint.
+            try
+            {
+                _unreported.Remember(job.Id, new UnreportedAttemptStore.StoredAttempt(
+                    attemptRequestId, false, "Print interrupted; output may exist. Inspect paper before retrying.", DateTimeOffset.UtcNow, job.ClaimId));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                throw new IOException("Cannot save print-attempt journal before sending; nothing was printed.", ex);
+            }
+            if (!await _server.StartSendingAsync(job, ct))
+                throw new InvalidOperationException("Print claim was lost before transmission; nothing was printed.");
             await _transport.SendAsync(payload, ct);
             succeeded = true;
             error = null;
@@ -95,8 +128,7 @@ public sealed class PrintJobProcessor
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            // Shutting down before the attempt completed. The job stays Pending, which is the honest
-            // state: nothing was reported because nothing is known to have printed.
+            // The durable uncertain attempt remains for the next process to report.
             throw;
         }
         catch (Exception ex)
@@ -106,8 +138,10 @@ public sealed class PrintJobProcessor
             _log($"FAILED {job.Route} job {job.Id}: {error}");
         }
 
+        RememberSafely(job.Id, new UnreportedAttemptStore.StoredAttempt(
+            attemptRequestId, succeeded, error, DateTimeOffset.UtcNow, job.ClaimId));
         await ReportAsync(new ReportPrintJobResultRequest(
-            attemptRequestId, job.Id, succeeded, error, _reportedByUserId), ct);
+            attemptRequestId, job.Id, succeeded, error, _reportedByUserId, job.ClaimId), ct);
     }
 
     private async Task ReportAsync(ReportPrintJobResultRequest request, CancellationToken ct)
@@ -118,7 +152,9 @@ public sealed class PrintJobProcessor
             {
                 await _server.ReportResultAsync(request, ct);
                 // The server has it. Nothing left to remember, and nothing left to re-report.
-                _unreported.Forget(request.PrintJobId);
+                try { _unreported.Forget(request.PrintJobId); }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                { _log($"server accepted job {request.PrintJobId}, but its journal entry could not be cleared: {ex.Message}"); }
                 return;
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -134,11 +170,22 @@ public sealed class PrintJobProcessor
             {
                 // The paper is already out of the printer and the server does not know. Writing the
                 // attempt down is what stops the next poll from printing the same ticket again.
-                _unreported.Remember(request.PrintJobId, new UnreportedAttemptStore.StoredAttempt(
-                    request.RequestId, request.Succeeded, request.Error, DateTimeOffset.UtcNow));
+                var durable = RememberSafely(request.PrintJobId, new UnreportedAttemptStore.StoredAttempt(
+                    request.RequestId, request.Succeeded, request.Error, DateTimeOffset.UtcNow, request.ClaimId));
                 _log($"could not report the outcome of job {request.PrintJobId} to the server: {ex.Message} - " +
-                     "kept on disk; it will be re-reported, not reprinted");
+                     (durable ? "kept on disk; it will be re-reported, not reprinted"
+                         : "kept in memory only; restore journal storage before restarting"));
             }
+        }
+    }
+
+    private bool RememberSafely(string jobId, UnreportedAttemptStore.StoredAttempt attempt)
+    {
+        try { _unreported.Remember(jobId, attempt); return true; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _log($"print-attempt journal write failed for job {jobId}: {ex.Message}; reporting the outcome to the server");
+            return false;
         }
     }
 
@@ -148,5 +195,5 @@ public sealed class PrintJobProcessor
         Enum.Parse<PrintRoute>(dto.Route, ignoreCase: true),
         dto.OrderId,
         dto.OrderNumber,
-        dto.Lines.Select(l => new TicketLine(l.Text, l.Bold, l.Centered, l.LargeFont)).ToList());
+        dto.Lines.Select(Falah.Application.Printing.TicketElementMapping.ToDomain).ToList());
 }

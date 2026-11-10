@@ -32,6 +32,12 @@ public sealed class RecordDailyWageHandler
 
     public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordDailyWageRequest request, CancellationToken ct = default)
     {
+        var key = string.IsNullOrWhiteSpace(request.RequestId) ? null : $"daily-wage-{request.RequestId}";
+        if (key is not null && await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, null, key, ct) is { } completed) return completed;
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await LedgerCreditReplay.LockEmployeeAsync(_db, request.EmployeeId, ct);
+        if (key is not null && await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, null, key, ct) is { } committed) return committed;
+
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         ManagerApproval? approval = null;
@@ -48,6 +54,7 @@ public sealed class RecordDailyWageHandler
             ?? throw new InvalidOperationException("الموظف غير موجود.");
 
         var wage = Money.FromPiastres(request.CustomWagePiastres ?? employee.DailyWagePiastres);
+        if (wage.IsNegative) throw new DomainException("قيمة اليومية يجب ألا تكون سالبة.");
         var date = Falah.Domain.Common.BusinessClock.Today();
         var id = $"led-daily-wage-{request.EmployeeId}-{date:yyyy-MM-dd}-{request.ShiftId ?? "no-shift"}";
 
@@ -56,7 +63,9 @@ public sealed class RecordDailyWageHandler
             request.ShiftId, null, null, null, wage.Piastres, ct);
         if (entity is null)
             throw new DomainException("تم تسجيل اليومية العادية لهذا الموظف في نفس اليوم والوردية بالفعل. استخدم تطبيق لوردية إضافية.");
+        entity.IdempotencyKey = key;
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToLedgerDto(entity);
     }
 }
@@ -76,6 +85,12 @@ public sealed class RecordOvertimeHandler
 
     public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordOvertimeRequest request, CancellationToken ct = default)
     {
+        var id = $"led-overtime-{request.RequestId}";
+        if (await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, id, null, ct) is { } completed) return completed;
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await LedgerCreditReplay.LockEmployeeAsync(_db, request.EmployeeId, ct);
+        if (await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, id, null, ct) is { } committed) return committed;
+
         if (request.Hours <= 0) throw new DomainException("عدد الساعات الإضافية يجب أن يكون أكبر من صفر.");
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -91,9 +106,10 @@ public sealed class RecordOvertimeHandler
 
         var settings = await new Falah.Infrastructure.Settings.SettingsQueryService(_db).GetAsync(ct);
         var rate = Money.FromPiastres(request.CustomRatePiastres ?? settings.OvertimeHourlyRatePiastres);
+        if (rate.IsNegative) throw new DomainException("سعر ساعة الإضافي يجب ألا يكون سالبًا.");
         var totalAmount = Money.FromPiastres((long)Math.Round(rate.Piastres * request.Hours));
 
-        var id = $"led-overtime-{request.RequestId}";
+
         var entity = await EmployeeLedgerPoster.PostIfNewAsync(_db, id, request.EmployeeId, nameof(LedgerEntryType.Overtime),
             $"ساعات إضافية ({request.Hours} ساعة × {rate.Piastres} قرش/ساعة = {totalAmount.Piastres} قرش)" + (request.Notes is null ? "" : $" - {request.Notes}"),
             Money.Zero, totalAmount, actorUser.Name, authorization.Approver?.ApproverName, null, null, request.Hours, rate.Piastres, null, ct);
@@ -105,6 +121,7 @@ public sealed class RecordOvertimeHandler
             return EmployeeQueryService.ToLedgerDto(replay);
         }
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToLedgerDto(entity);
     }
 }
@@ -124,6 +141,12 @@ public sealed class RecordExtraShiftHandler
 
     public async Task<EmployeeLedgerEntryDto> HandleAsync(RecordExtraShiftRequest request, CancellationToken ct = default)
     {
+        var id = $"led-extra-shift-{request.RequestId}";
+        if (await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, id, null, ct) is { } completed) return completed;
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await LedgerCreditReplay.LockEmployeeAsync(_db, request.EmployeeId, ct);
+        if (await LedgerCreditReplay.FindAsync(_db, request.EmployeeId, id, null, ct) is { } committed) return committed;
+
         if (request.ShiftCount <= 0) throw new DomainException("عدد الشيفتات يجب أن يكون أكبر من صفر.");
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -142,7 +165,7 @@ public sealed class RecordExtraShiftHandler
         var shiftValue = Money.FromPiastres(employee.ShiftValuePiastres > 0 ? employee.ShiftValuePiastres : employee.DailyWagePiastres);
         var totalAmount = shiftValue * request.ShiftCount;
 
-        var id = $"led-extra-shift-{request.RequestId}";
+
         var entity = await EmployeeLedgerPoster.PostIfNewAsync(_db, id, request.EmployeeId, nameof(LedgerEntryType.ExtraShift),
             $"تطبيق وردية إضافية ({request.ShiftCount} شيفت × {shiftValue.Piastres} قرش = {totalAmount.Piastres} قرش)" + (request.Notes is null ? "" : $" - {request.Notes}"),
             Money.Zero, totalAmount, actorUser.Name, authorization.Approver?.ApproverName, null, null, null, null, shiftValue.Piastres, ct);
@@ -153,6 +176,24 @@ public sealed class RecordExtraShiftHandler
             return EmployeeQueryService.ToLedgerDto(replay);
         }
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToLedgerDto(entity);
     }
+}
+
+internal static class LedgerCreditReplay
+{
+    internal static async Task<EmployeeLedgerEntryDto?> FindAsync(FalahDbContext db, string employeeId, string? id, string? key, CancellationToken ct)
+    {
+        var query = db.EmployeeLedgerEntries.AsNoTracking();
+        var entry = key is not null
+            ? await query.FirstOrDefaultAsync(e => e.IdempotencyKey == key, ct)
+            : await query.FirstOrDefaultAsync(e => e.Id == id, ct);
+        if (entry is null) return null;
+        if (entry.EmployeeId != employeeId) throw new DomainException("مفتاح العملية مستخدم لعملية أخرى.");
+        return EmployeeQueryService.ToLedgerDto(entry);
+    }
+    internal static async Task LockEmployeeAsync(FalahDbContext db, string employeeId, CancellationToken ct) =>
+        _ = await db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", employeeId)
+            .Select(e => e.Id).SingleAsync(ct);
 }

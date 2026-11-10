@@ -35,6 +35,9 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
+        // The Control Center reads (checklist, blockers, snapshots, counts, exceptions) name nobody;
+        // they come from the manager's station, as on the restaurant's screens - a till may not read them.
+        _factory.StationUserId = _managerId;
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
         // Funds tre-main WITHOUT opening a business day - these tests open their own business day
         // through the real endpoint under test, but shifts/purchases/etc. still draw opening floats
@@ -79,8 +82,9 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         _client.PostAsJsonAsync($"/api/business-day/{businessDayId}/reopen",
             new ReopenBusinessDayRequest($"reopen-{Guid.NewGuid():N}", businessDayId, reason, actorId ?? _managerId, approvalId, approverId));
 
-    private async Task<string> IssueApprovalAsync(string action) =>
-        (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+    /// <summary>Asked for at <paramref name="tillUserId"/>'s session, the one that spends it.</summary>
+    private async Task<string> IssueApprovalAsync(string action, string tillUserId) =>
+        (await (await _factory.PostAsSessionOfAsync(_client, tillUserId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
 
     /// <summary>A day with all shifts closed and the required closing checklist complete - the
@@ -345,7 +349,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         var withoutApproval = await ReopenBusinessDayAsync(dayId, "مراجعة", noPermissionUser);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutApproval.StatusCode);
 
-        var approvalId = await IssueApprovalAsync("business_day_reopen");
+        var approvalId = await IssueApprovalAsync("business_day_reopen", noPermissionUser);
         var withApproval = await ReopenBusinessDayAsync(dayId, "مراجعة", noPermissionUser, approvalId, _managerId);
         withApproval.EnsureSuccessStatusCode();
     }
@@ -599,4 +603,14 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     }
 
     private sealed record BlockedResponse(string error, List<CloseBlockerDto> blockers);
+
+    [Fact]
+    public async Task Concurrent_distinct_open_requests_produce_only_one_active_day()
+    {
+        var responses = await Task.WhenAll(Enumerable.Range(0, 8).Select(i => _client.PostAsJsonAsync("/api/business-day/open", new OpenBusinessDayRequest($"concurrent-day-{i}", _managerId))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.All(responses.Where(r => !r.IsSuccessStatusCode), r => Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.BusinessDays.CountAsync(d => d.Status == "Open" || d.Status == "Reopened" || d.Status == "Closing")));
+    }
+
 }

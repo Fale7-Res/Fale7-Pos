@@ -32,11 +32,21 @@ public partial class CustomersViewModel : ObservableObject
     public bool HasCustomer => Customer is not null;
     public bool NotFound => HasSearched && !IsSearching && Customer is null && SearchError is null;
 
+    /// <summary>Nothing has been searched for yet. The screen opened on a blank page with a search
+    /// box and no statement of what it wanted, which reads as "empty" rather than as "ask me
+    /// something" - so this state now says what to type, instead of leaving the operator to infer it.</summary>
+    public bool AwaitingFirstSearch => !HasSearched && !IsSearching && Customer is null && SearchError is null;
+
     partial void OnCustomerChanged(CustomerDto? value)
     {
         OnPropertyChanged(nameof(HasCustomer));
         OnPropertyChanged(nameof(NotFound));
+        OnPropertyChanged(nameof(AwaitingFirstSearch));
     }
+
+    partial void OnHasSearchedChanged(bool value) => OnPropertyChanged(nameof(AwaitingFirstSearch));
+    partial void OnIsSearchingChanged(bool value) => OnPropertyChanged(nameof(AwaitingFirstSearch));
+    partial void OnSearchErrorChanged(string? value) => OnPropertyChanged(nameof(AwaitingFirstSearch));
 
     [RelayCommand]
     private async Task SearchAsync()

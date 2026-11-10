@@ -29,16 +29,20 @@ public partial class CallCenterViewModel
     public ObservableCollection<CustomerAddressDto> SavedAddresses { get; } = new();
 
     private string? _lastLookedUpPhone;
+    private long _customerLookupVersion;
 
     /// <summary>Egyptian mobile numbers are 11 digits - firing the lookup any earlier would just be
     /// wasted round trips against a phone prefix that matches nothing yet.</summary>
     partial void OnCustomerPhoneChanged(string value)
     {
+        ++_customerLookupVersion;
+        IsLookingUpCustomer = false;
+        ResetResolvedCustomer();
         NotifyDeliverySummary();
         if (value.Length >= 11 && value != _lastLookedUpPhone)
             _ = LookupCustomerAsync();
         else if (value.Length < 11)
-            ResetResolvedCustomer();
+            _lastLookedUpPhone = null;
     }
 
     partial void OnCustomerNameChanged(string value) => NotifyDeliverySummary();
@@ -51,12 +55,15 @@ public partial class CallCenterViewModel
     private async Task LookupCustomerCoreAsync()
     {
         if (string.IsNullOrWhiteSpace(CustomerPhone)) return;
-        _lastLookedUpPhone = CustomerPhone;
+        var requestedPhone = CustomerPhone;
+        var version = ++_customerLookupVersion;
+        _lastLookedUpPhone = requestedPhone;
         IsLookingUpCustomer = true;
         CustomerLookupNote = null;
         try
         {
-            var result = await _session.Api.LookupCustomerAsync(CustomerPhone);
+            var result = await _session.Api.LookupCustomerAsync(requestedPhone);
+            if (version != _customerLookupVersion || CustomerPhone != requestedPhone) return;
             if (!result.Success || result.Value is null)
             {
                 ResetResolvedCustomer();
@@ -75,7 +82,7 @@ public partial class CallCenterViewModel
         }
         finally
         {
-            IsLookingUpCustomer = false;
+            if (version == _customerLookupVersion) IsLookingUpCustomer = false;
         }
     }
 
@@ -83,6 +90,7 @@ public partial class CallCenterViewModel
     {
         CustomerId = null;
         SavedAddresses.Clear();
+        SelectedSavedAddress = null;
         CustomerLookupNote = null;
     }
 

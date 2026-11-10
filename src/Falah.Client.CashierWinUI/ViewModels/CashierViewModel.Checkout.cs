@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Orders;
 using Falah.Client.CashierWinUI.Services;
@@ -108,7 +108,34 @@ public partial class CashierViewModel
     [ObservableProperty] private bool _isConfirmingElectronicPayment;
     [ObservableProperty] private bool _isCancellingElectronicPayment;
     [ObservableProperty] private string _cancelPendingReason = "";
+
+    /// <summary>What became of the food of the order being cancelled - "prepared" (recorded as waste)
+    /// or "not_prepared" (its ingredients go back into stock). No default: the operator must say,
+    /// and the server refuses a cancel without it.</summary>
+    [ObservableProperty] private string? _cancelPendingStockDisposition;
+
+    public bool IsCancelFoodPrepared
+    {
+        get => CancelPendingStockDisposition == "prepared";
+        set { if (value) CancelPendingStockDisposition = "prepared"; }
+    }
+
+    public bool IsCancelFoodNotPrepared
+    {
+        get => CancelPendingStockDisposition == "not_prepared";
+        set { if (value) CancelPendingStockDisposition = "not_prepared"; }
+    }
+
+    partial void OnCancelPendingStockDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsCancelFoodPrepared));
+        OnPropertyChanged(nameof(IsCancelFoodNotPrepared));
+    }
     [ObservableProperty] private string? _pendingPaymentActionError;
+    [ObservableProperty] private long _voidCashToHandBackPiastres;
+    public string? VoidCashToHandBackText => VoidCashToHandBackPiastres > 0
+        ? $"أعد للعميل {CashInput.Format(VoidCashToHandBackPiastres)} ج من الدرج. تم تسجيل المبلغ على الوردية الحالية." : null;
+    partial void OnVoidCashToHandBackPiastresChanged(long value) => OnPropertyChanged(nameof(VoidCashToHandBackText));
 
     public bool IsElectronicPaymentPending => LastCheckoutResult?.ElectronicPaymentStatus == "pending";
     private readonly RetainedRequest<ConfirmElectronicPaymentRequest> _pendingElectronicConfirm = new("cashier.electronic-confirm");
@@ -153,19 +180,27 @@ public partial class CashierViewModel
             PendingPaymentActionError = "أدخل سبب الإلغاء.";
             return;
         }
+        if (!_pendingElectronicCancel.HasPending && CancelPendingStockDisposition is null)
+        {
+            PendingPaymentActionError = "حدد هل تم تحضير الطلب (يُسجَّل هالكًا) أم لم يُحضَّر (يعود للمخزون).";
+            return;
+        }
         IsCancellingElectronicPayment = true;
         PendingPaymentActionError = null;
         try
         {
-            var request = _pendingElectronicCancel.Value ?? new CancelPendingElectronicPaymentRequest(LastCheckoutResult.OrderId, CancelPendingReason, _session.CurrentUser!.Id);
+            var request = _pendingElectronicCancel.Value ?? new CancelPendingElectronicPaymentRequest(
+                LastCheckoutResult.OrderId, CancelPendingReason, _session.CurrentUser!.Id, CancelPendingStockDisposition);
             var result = await _pendingElectronicCancel.SendAsync(request, r => _session.Api.CancelPendingElectronicPaymentAsync(r));
             if (!result.Success || result.Value is null)
             {
                 PendingPaymentActionError = _pendingElectronicCancel.FailureMessage(result.Error);
                 return;
             }
-            LastCheckoutResult = null;
+            LastCheckoutResult = LastCheckoutResult with { Status = result.Value.Status, ElectronicPaymentStatus = result.Value.ElectronicPaymentStatus, IsPaid = false };
+            VoidCashToHandBackPiastres = result.Value.CashToHandBackPiastres;
             CancelPendingReason = "";
+            CancelPendingStockDisposition = null;
         }
         finally
         {
@@ -183,6 +218,7 @@ public partial class CashierViewModel
     public bool HasCheckoutResult => LastCheckoutResult is not null;
     partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
     {
+        if (value?.Status != "cancelled") VoidCashToHandBackPiastres = 0;
         OnPropertyChanged(nameof(HasCheckoutResult));
         OnPropertyChanged(nameof(CheckoutTitle));
         OnPropertyChanged(nameof(CheckoutSubtitle));
@@ -234,6 +270,11 @@ public partial class CashierViewModel
         if (IsDelivery && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone) ||
             string.IsNullOrWhiteSpace(DeliveryArea) || string.IsNullOrWhiteSpace(DeliveryStreet) || SelectedDeliveryService is null))
         { OpenDeliveryEditor(); return; }
+        // Same gate for pickup, on its own two fields: the counter has to be able to match the
+        // waiting customer to the waiting bag. The server refuses these too - this only saves the
+        // cashier a round trip.
+        if (IsPickup && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone)))
+        { OpenPickupEditor(); return; }
         CheckoutError = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
@@ -293,6 +334,7 @@ public partial class CashierViewModel
         try
         {
             if (_pendingCheckout is not null) { await CompleteCheckoutAsync(_pendingCheckout); return; }
+            if (IsPickup && HasInvalidPickupTime) { CheckoutError = InvalidPickupTimeMessage; return; }
 
             if (IsCompEnabled && string.IsNullOrWhiteSpace(CompReasonText))
             {
@@ -355,9 +397,10 @@ public partial class CashierViewModel
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: splitPayments,
                 WalletProvider: PaymentMethod == "wallet" || IsSplitPaymentEnabled && (SplitMethod1 == "wallet" || SplitMethod2 == "wallet") ? NullIfEmpty(WalletProvider) : null,
-                TableNumber: OrderType == "dine_in" ? NullIfEmpty(TableNumber) : null,
-                CustomerName: isDelivery && !string.IsNullOrWhiteSpace(CustomerName) ? CustomerName : null,
-                CustomerPhone: isDelivery && !string.IsNullOrWhiteSpace(CustomerPhone) ? CustomerPhone : null,
+                TableNumber: null,   // no order type has a table since dine-in was replaced by pickup
+                RequestedPickupAtUtc: IsPickup ? RequestedPickupAtUtc : null,
+                CustomerName: (isDelivery || IsPickup) ? NullIfEmpty(CustomerName) : null,
+                CustomerPhone: (isDelivery || IsPickup) ? NullIfEmpty(CustomerPhone) : null,
                 DeliveryAddress: null,
                 DeliveryArea: isDelivery ? NullIfEmpty(DeliveryArea) : null,
                 BusinessDayId: null,
@@ -397,9 +440,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingCheckout is not null;
         _pendingCheckout = request;
+        Remember(CheckoutOperation, request);   // before the send: that is the window a power cut hits
         RefreshOperationState();
         var result = await _session.Api.CheckoutAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCheckout = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingCheckout = null; Remember(CheckoutOperation, null); }
+        NoteRetryOutcome(CheckoutOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         RefreshOperationState();
         if (!result.Success || result.Value is null)
         {

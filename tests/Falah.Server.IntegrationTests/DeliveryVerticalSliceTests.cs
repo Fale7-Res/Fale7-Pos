@@ -1,4 +1,4 @@
-namespace Falah.Server.IntegrationTests;
+﻿namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -22,6 +22,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
 {
     private FalahApiFactory _factory = default!;
     private HttpClient _client = default!;
+    private HttpClient _ticketClient = default!;
     private string _cashierId = default!;
     private string _dispatcherId = default!;
     private string _managerId = default!;
@@ -30,9 +31,13 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        var ticketAgent = await _factory.SeedUserAsync("قارئ تذاكر الطباعة", "print_agent", "print_agent");
+        _ticketClient = _factory.CreateClient();
+        _ticketClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(ticketAgent));
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
+        _factory.StationUserId = _dispatcherId;
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
     }
 
@@ -83,16 +88,18 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/reassign",
             new ReassignDeliveryRequest($"req-{Guid.NewGuid():N}", deliveryId, newDriverId, reason, actorId, approvalId, approverId));
 
-    private Task<HttpResponseMessage> RecordResultAsync(string deliveryId, string result, long? collectedAmountPiastres = null, string? reason = null, string? notes = null, string? actorId = null) =>
+    private Task<HttpResponseMessage> RecordResultAsync(string deliveryId, string result, long? collectedAmountPiastres = null, string? reason = null, string? notes = null, string? actorId = null, string? stockDisposition = null) =>
         _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/result",
-            new RecordDeliveryResultRequest($"req-{Guid.NewGuid():N}", deliveryId, result, collectedAmountPiastres, reason, notes, actorId ?? _dispatcherId, null, null));
+            new RecordDeliveryResultRequest($"req-{Guid.NewGuid():N}", deliveryId, result, collectedAmountPiastres, reason, notes, actorId ?? _dispatcherId, null, null, stockDisposition));
 
     private Task<HttpResponseMessage> SettleAsync(string driverId, long actualCashPiastres, string? reason = null, string? actorId = null, string? approvalId = null, string? approverId = null) =>
         _client.PostAsJsonAsync($"/api/delivery/drivers/{driverId}/settle",
             new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driverId, actualCashPiastres, reason, actorId ?? _dispatcherId, approvalId, approverId));
 
+    // Asked for at the dispatcher's station, which is where every approval in this class is spent:
+    // an approval is spent only by the session that asked for it.
     private async Task<string> IssueApprovalAsync(string action) =>
-        (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        (await (await _factory.PostAsSessionOfAsync(_client, _dispatcherId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
 
     // ---- Lifecycle ----
@@ -303,7 +310,8 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         var badReason = await RecordResultAsync(deliveryId, "Failed", reason: "غير معروف");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, badReason.StatusCode);
 
-        var goodReason = await RecordResultAsync(deliveryId, "Failed", reason: "customer_unreachable");
+        // A failed cash-on-delivery order is voided, so the operator must also say what became of the food.
+        var goodReason = await RecordResultAsync(deliveryId, "Failed", reason: "customer_unreachable", stockDisposition: "not_prepared");
         goodReason.EnsureSuccessStatusCode();
 
         var delivery = await _factory.QueryAsync(db => db.Deliveries.FirstAsync(d => d.Id == deliveryId));
@@ -414,6 +422,296 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         var approvalId = await IssueApprovalAsync("delivery_override");
         var withOverride = await ReassignAsync(deliveryId, newDriverId, "تصحيح بعد التسليم", _dispatcherId, approvalId, _managerId);
         withOverride.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>The custody correction the permission-escalation test above never actually checked:
+    /// after Delivered/COD, custody exists and is unsettled - reassigning under delivery_override
+    /// must move the WHOLE outstanding amount to the new driver's account, atomically, not leave a
+    /// stale balance on the old driver or double-count it on both.</summary>
+    [Fact]
+    public async Task Reassigning_after_delivered_moves_the_full_unsettled_custody_from_the_old_driver_to_the_new_one()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var oldDriverId = await CreateDriverAsync("السائق الأول");
+        var newDriverId = await CreateDriverAsync("السائق الثاني");
+        await AssignAsync(deliveryId, oldDriverId);
+        await RecordResultAsync(deliveryId, "Delivered");
+
+        var oldBefore = await (await _client.GetAsync($"/api/delivery/drivers/{oldDriverId}/account")).Content.ReadFromJsonAsync<DriverAccountDto>();
+        Assert.Equal(15000, oldBefore!.CashCustodyPiastres);
+
+        var approvalId = await IssueApprovalAsync("delivery_override");
+        (await ReassignAsync(deliveryId, newDriverId, "تصحيح بيانات السائق", _dispatcherId, approvalId, _managerId)).EnsureSuccessStatusCode();
+
+        var oldAfter = await (await _client.GetAsync($"/api/delivery/drivers/{oldDriverId}/account")).Content.ReadFromJsonAsync<DriverAccountDto>();
+        var newAfter = await (await _client.GetAsync($"/api/delivery/drivers/{newDriverId}/account")).Content.ReadFromJsonAsync<DriverAccountDto>();
+        Assert.Equal(0, oldAfter!.CashCustodyPiastres); // nothing left behind on the driver who no longer holds this delivery
+        Assert.Equal(15000, newAfter!.CashCustodyPiastres); // the whole amount, not duplicated, not partial
+
+        var custody = await _factory.QueryAsync(db => db.DriverCustodies.SingleAsync(c => c.DeliveryId == deliveryId));
+        Assert.Equal(newDriverId, custody.DriverId);
+        Assert.Equal(15000, custody.CollectedPiastres); // the collected figure itself is never rewritten, only who holds it
+
+        // The old driver is cleanly detached: the delivery record itself moved with the custody, so
+        // there is nothing left on their book to settle, block a future settlement, or double-count -
+        // not "owes zero," genuinely "has nothing."
+        Assert.Equal(0, oldAfter.ActiveOrderCount);
+        Assert.Equal(0, oldAfter.CompletedUnsettledCount);
+        Assert.False(oldAfter.CanSettle);
+        Assert.Empty(oldAfter.BlockingOrders);
+    }
+
+    // ---- Delivery ORDER ticket (printed at order creation, before any driver exists) ----
+
+    [Fact]
+    public async Task Creating_a_delivery_order_creates_exactly_one_delivery_order_ticket_with_customer_items_and_amount_to_collect()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+
+        var jobs = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId && j.Route == "DeliveryOrder").ToListAsync());
+        var job = Assert.Single(jobs);
+        Assert.Equal(order.OrderNumber, job.OrderNumber);
+        Assert.Equal("Pending", job.Status);
+        Assert.False(job.IsReprint);
+
+        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
+        Assert.Contains("أوردر دليفري", text);
+        Assert.Contains(order.OrderNumber, text);
+        Assert.Contains("عميل اختبار", text);          // customer name
+        Assert.Contains("01000000000", text);           // phone
+        // The address printed is the one checkout COMPOSED from the structured street/area fields
+        // (DeliveryRules.ComposeDeliveryAddress), not the request's own free-text DeliveryAddress,
+        // which checkout deliberately ignores for delivery orders.
+        Assert.Contains("شارع 9", text);
+        Assert.Contains("المنطقة أ", text);             // area
+        Assert.Contains("المطلوب تحصيله", text);        // explicit COD collect line
+        Assert.Contains("150", text);                   // 15000 piastres = 150 EGP
+    }
+
+    [Fact]
+    public async Task A_prepaid_delivery_order_ticket_says_prepaid_instead_of_an_amount_to_collect()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card");
+
+        var job = await _factory.QueryAsync(db => db.PrintJobs.SingleAsync(j => j.OrderId == order.OrderId && j.Route == "DeliveryOrder"));
+        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
+        Assert.Contains("مدفوع مسبقًا", text);
+        Assert.DoesNotContain("المطلوب تحصيله", text);
+    }
+
+    [Fact]
+    public async Task Retrying_the_same_checkout_never_creates_a_second_delivery_order_ticket()
+    {
+        var shiftId = await OpenShiftAsync();
+        var productId = await _factory.SeedProductAsync(15000);
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "delivery", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: "عميل اختبار", CustomerPhone: "01000000000",
+            DeliveryAddress: "شارع الاختبار", DeliveryArea: "المنطقة أ", BusinessDayId: null,
+            DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل سريع");
+
+        var first = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var second = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        Assert.False(first!.WasReplayed);
+        Assert.True(second!.WasReplayed);
+        var jobCount = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == first.OrderId && j.Route == "DeliveryOrder"));
+        Assert.Equal(1, jobCount);
+    }
+
+    [Fact]
+    public async Task A_non_delivery_order_creates_no_delivery_order_ticket()
+    {
+        var shiftId = await OpenShiftAsync();
+        var productId = await _factory.SeedProductAsync(10000);
+        var order = await (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null,
+            BusinessDayId: null))).Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        var jobCount = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == order!.OrderId && j.Route == "DeliveryOrder"));
+        Assert.Equal(0, jobCount);
+    }
+
+    /// <summary>The order ticket and the dispatch ticket are two separate print events for the same
+    /// order, each created at its own moment, neither replacing the other.</summary>
+    [Fact]
+    public async Task The_order_ticket_and_the_dispatch_ticket_coexist_as_two_distinct_jobs()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        (await AssignAsync(deliveryId, await CreateDriverAsync("سائق"))).EnsureSuccessStatusCode();
+
+        var routes = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId)
+            .Select(j => j.Route).ToListAsync());
+        Assert.Contains("DeliveryOrder", routes);
+        Assert.Contains("DriverDispatch", routes);
+        Assert.Equal(1, routes.Count(r => r == "DeliveryOrder"));
+        Assert.Equal(1, routes.Count(r => r == "DriverDispatch"));
+    }
+
+    // ---- Driver dispatch ticket (final pre-go-live pass) ----
+
+    private Task<HttpResponseMessage> GetTicketContentAsync(string jobId) => _ticketClient.GetAsync($"/api/print-jobs/{jobId}/ticket");
+
+    [Fact]
+    public async Task Assigning_a_driver_creates_exactly_one_dispatch_ticket_with_the_right_fields()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync("سائق التذكرة");
+
+        var requestId = $"req-{Guid.NewGuid():N}";
+        (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign",
+            new AssignDeliveryRequest(requestId, deliveryId, driverId, _dispatcherId, null, null))).EnsureSuccessStatusCode();
+
+        var jobs = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId && j.Route == "DriverDispatch").ToListAsync());
+        var job = Assert.Single(jobs);
+        Assert.Equal(order.OrderNumber, job.OrderNumber);
+
+        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
+        Assert.Contains("سائق التذكرة", text);
+        Assert.Contains("عميل اختبار", text);
+        Assert.Contains("01000000000", text);
+        Assert.Contains("المطلوب تحصيله", text); // cash-on-delivery order
+        Assert.DoesNotContain("إعادة إسناد", text); // the first dispatch is never marked
+    }
+
+    [Fact]
+    public async Task Retrying_the_same_assignment_request_id_never_creates_a_second_dispatch_ticket()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync();
+        var requestId = $"req-{Guid.NewGuid():N}";
+
+        var request = new AssignDeliveryRequest(requestId, deliveryId, driverId, _dispatcherId, null, null);
+        (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign", request)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign", request)).EnsureSuccessStatusCode(); // same request id again
+
+        var jobCount = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == order.OrderId && j.Route == "DriverDispatch"));
+        Assert.Equal(1, jobCount);
+    }
+
+    [Fact]
+    public async Task Reassigning_a_driver_prints_a_second_ticket_clearly_marked_as_a_reassignment()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var firstDriverId = await CreateDriverAsync("السائق الأول");
+        var secondDriverId = await CreateDriverAsync("السائق الثاني");
+        (await AssignAsync(deliveryId, firstDriverId)).EnsureSuccessStatusCode();
+        (await ReassignAsync(deliveryId, secondDriverId, "السائق الأول غير متاح", _dispatcherId)).EnsureSuccessStatusCode();
+
+        var jobs = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId && j.Route == "DriverDispatch")
+            .OrderBy(j => j.CreatedAtUtc).ToListAsync());
+        Assert.Equal(2, jobs.Count);
+
+        var firstContent = await (await GetTicketContentAsync(jobs[0].Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var secondContent = await (await GetTicketContentAsync(jobs[1].Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        Assert.DoesNotContain("إعادة إسناد", string.Join("\n", firstContent!.Lines.SelectMany(TicketDtoText.Of)));
+        Assert.Contains("السائق الأول", string.Join("\n", firstContent.Lines.SelectMany(TicketDtoText.Of)));
+        Assert.DoesNotContain("السائق الثاني", string.Join("\n", firstContent.Lines.SelectMany(TicketDtoText.Of)));
+        Assert.Contains("إعادة إسناد", string.Join("\n", secondContent!.Lines.SelectMany(TicketDtoText.Of)));
+        Assert.Contains("السائق الثاني", string.Join("\n", secondContent.Lines.SelectMany(TicketDtoText.Of)));
+    }
+
+    [Fact]
+    public async Task A_prepaid_delivery_dispatch_ticket_shows_no_amount_to_collect()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card"); // prepaid, no COD
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync();
+        (await AssignAsync(deliveryId, driverId)).EnsureSuccessStatusCode();
+
+        var job = await _factory.QueryAsync(db => db.PrintJobs.SingleAsync(j => j.OrderId == order.OrderId && j.Route == "DriverDispatch"));
+        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
+        Assert.Contains("مدفوع مسبقًا", text);
+        Assert.DoesNotContain("المطلوب تحصيله", text);
+    }
+
+    // ---- Driver statistics ----
+
+    [Fact]
+    public async Task Driver_statistics_reflect_assigned_delivered_custody_and_settlement_figures_for_the_period()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync("سائق الإحصائيات");
+        await AssignAsync(deliveryId, driverId);
+        await RecordResultAsync(deliveryId, "Delivered");
+
+        var today = Falah.Domain.Common.BusinessClock.Today();
+        var (start, end) = Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(today);
+        var query = $"from={Uri.EscapeDataString(start.ToString("O"))}&to={Uri.EscapeDataString(end.ToString("O"))}";
+        var stats = await (await _client.GetAsync(
+            $"/api/delivery/drivers/{driverId}/statistics?{query}"))
+            .Content.ReadFromJsonAsync<DriverStatisticsDto>();
+
+        Assert.Equal(1, stats!.AssignedCount);
+        Assert.Equal(1, stats.DeliveredCount);
+        Assert.Equal(0, stats.FailedCount);
+        Assert.Equal(15000, stats.OrderValuePiastres);
+        Assert.Equal(15000, stats.CashCollectedPiastres);
+        Assert.Equal(15000, stats.CurrentCustodyPiastres); // unsettled, current - not range-scoped
+        Assert.Equal(0, stats.SettlementCount);
+
+        (await SettleAsync(driverId, 15000)).EnsureSuccessStatusCode();
+        var afterSettle = await (await _client.GetAsync(
+            $"/api/delivery/drivers/{driverId}/statistics?{query}"))
+            .Content.ReadFromJsonAsync<DriverStatisticsDto>();
+        Assert.Equal(0, afterSettle!.CurrentCustodyPiastres);
+        Assert.Equal(1, afterSettle.SettlementCount);
+        Assert.Equal(0, afterSettle.SettlementShortagesPiastres);
+        Assert.Equal(0, afterSettle.SettlementOveragesPiastres);
+        Assert.NotNull(afterSettle.LastSettlementAtUtc);
+    }
+
+    [Fact]
+    public async Task Driver_statistics_for_a_period_with_no_activity_are_all_zero_not_an_error()
+    {
+        var driverId = await CreateDriverAsync("سائق بلا نشاط");
+        var lastWeek = Falah.Domain.Common.BusinessClock.Today().AddDays(-7);
+        var (start, end) = Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(lastWeek);
+        var query = $"from={Uri.EscapeDataString(start.ToString("O"))}&to={Uri.EscapeDataString(end.ToString("O"))}";
+        var stats = await (await _client.GetAsync(
+            $"/api/delivery/drivers/{driverId}/statistics?{query}"))
+            .Content.ReadFromJsonAsync<DriverStatisticsDto>();
+        Assert.Equal(0, stats!.AssignedCount);
+        Assert.Equal(0, stats.DeliveredCount);
+        Assert.Null(stats.AverageDeliveryMinutes);
+        Assert.Null(stats.LastSettlementAtUtc);
     }
 
     // ---- Driver settlement ----
@@ -530,10 +828,18 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
-    // ---- Shift-close guard ----
+    // ---- Driver custody is a DAY obligation, not a shift one ----
 
+    /// <summary>
+    /// A driver is still out while the cashier hands over the till, so his cash must not hold the
+    /// shift open: the shift closes, and the custody stays outstanding until he settles - per
+    /// business day, or whenever he comes in.
+    ///
+    /// The obligation is not lost by closing: it still blocks the BUSINESS DAY close, shows on the
+    /// dashboard, and prints on the shift's own handover slip as a warning.
+    /// </summary>
     [Fact]
-    public async Task Closing_a_shift_with_an_unsettled_driver_custody_for_that_shift_is_blocked()
+    public async Task A_shift_closes_with_an_unsettled_driver_custody_which_stays_outstanding()
     {
         var shiftId = await OpenShiftAsync();
         var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
@@ -545,10 +851,20 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
 
         var response = await _client.PostAsJsonAsync("/api/shifts/close",
             new CloseShiftRequest($"creq-{Guid.NewGuid():N}", shiftId, _cashierId, 50000, null, null, null));
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        response.EnsureSuccessStatusCode();
 
         var shift = await _factory.QueryAsync(db => db.Shifts.FirstAsync(s => s.Id == shiftId));
-        Assert.Equal("Open", shift.Status);
+        Assert.Equal("Closed", shift.Status);
+
+        // The driver still owes it, and the handover slip says so.
+        var custody = await _factory.QueryAsync(db => db.DriverCustodies.FirstAsync(c => c.DeliveryId == deliveryId));
+        Assert.Equal("Open", custody.Status);
+
+        var slip = await _factory.QueryAsync(db => db.PrintJobs.AsNoTracking()
+            .FirstAsync(j => j.OrderId == shiftId && j.DocumentKind == "ShiftClose"));
+        var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{slip.Id}/ticket"))
+            .Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        Assert.Contains(ticket!.Lines.SelectMany(TicketDtoText.Of), t => t is not null && t.Contains("عهدة سائقين غير مسواة"));
     }
 
     [Fact]
@@ -881,4 +1197,78 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         var afterDelivered = await (await _client.GetAsync("/api/delivery/board")).Content.ReadFromJsonAsync<List<DeliveryDto>>();
         Assert.Empty(afterDelivered!);
     }
-}
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Delivered_cash_is_refundable_only_after_driver_settlement(bool settled)
+    {
+        var shift = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shift, 10000);
+        var delivery = await GetDeliveryIdForOrderAsync(order.OrderId);
+        var driver = await CreateDriverAsync();
+        (await MarkReadyAsync(delivery)).EnsureSuccessStatusCode();
+        (await AssignAsync(delivery, driver)).EnsureSuccessStatusCode();
+        (await RecordResultAsync(delivery, "delivered")).EnsureSuccessStatusCode();
+        if (settled) (await SettleAsync(driver, 10000)).EnsureSuccessStatusCode();
+        var details = await _client.GetFromJsonAsync<OrderDetailsDto>($"/api/orders/{order.OrderId}");
+        Assert.Equal(settled, details!.CustomerFundsCollected);
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest(
+            Guid.NewGuid().ToString("N"), order.OrderId, 10000, "اختبار التحصيل", _managerId, null, null));
+        Assert.Equal(settled ? HttpStatusCode.OK : HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(settled ? 1 : 0, await _factory.QueryAsync(db => db.OrderRefunds.CountAsync(r => r.OrderId == order.OrderId)));
+    }
+
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(5000)]
+    public async Task A_settled_flag_without_full_customer_cash_cannot_authorize_a_refund(long collected)
+    {
+        var shift = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shift, 10000);
+        var delivery = await GetDeliveryIdForOrderAsync(order.OrderId); var driver = await CreateDriverAsync();
+        (await MarkReadyAsync(delivery)).EnsureSuccessStatusCode(); (await AssignAsync(delivery, driver)).EnsureSuccessStatusCode();
+        (await RecordResultAsync(delivery, "delivered")).EnsureSuccessStatusCode();
+        await _factory.QueryAsync(db => db.DriverCustodies.Where(c => c.OrderId == order.OrderId)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.Status, "Settled").SetProperty(c => c.CollectedPiastres, collected)));
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest(Guid.NewGuid().ToString("N"), order.OrderId, 10000, "اختبار", _managerId, null, null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.False(await _factory.QueryAsync(db => db.OrderRefunds.AnyAsync(r => r.OrderId == order.OrderId)));
+    }
+
+
+    // FIN-0042: a card-paid delivery that never reached the customer leaves money the customer is
+    // owed; it must be visible on the owner's dashboard until it is refunded.
+    [Fact]
+    public async Task A_paid_delivery_that_failed_is_shown_as_owed_until_it_is_refunded()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "card");
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync();
+        (await AssignAsync(deliveryId, driverId)).EnsureSuccessStatusCode();
+        (await RecordResultAsync(deliveryId, "Failed", reason: "customer_unreachable", stockDisposition: "not_prepared")).EnsureSuccessStatusCode();
+
+        async Task<Falah.Application.Reports.AttentionDto> AttentionAsync()
+        {
+            var manager = _factory.CreateClient();
+            manager.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(_managerId));
+            var dashboard = await (await manager.GetAsync($"/api/reports/owner-dashboard?actorUserId={_managerId}"))
+                .EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Falah.Application.Reports.OwnerDashboardDto>();
+            return dashboard!.Attention;
+        }
+
+        var before = await AttentionAsync();
+        Assert.Equal(1, before.PaidUndeliveredOrderCount);
+        Assert.Equal(15000, before.PaidUndeliveredOwedPiastres);
+
+        var refund = await _client.PostAsJsonAsync("/api/orders/refund",
+            new RefundOrderRequest($"rf-{Guid.NewGuid():N}", order.OrderId, 15000, "لم يصل للعميل", _managerId, null, null));
+        refund.EnsureSuccessStatusCode();
+
+        var after = await AttentionAsync();
+        Assert.Equal(0, after.PaidUndeliveredOrderCount);
+        Assert.Equal(0, after.PaidUndeliveredOwedPiastres);
+    }}

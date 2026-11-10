@@ -32,7 +32,7 @@ public sealed record CorrectAttendanceRequest(
 /// safe no-op, never a duplicate wage. Gated on `employees_ledger` for direct/manual invocation -
 /// see BiometricCheckInHandler's own doc comment for why the AUTOMATIC posting from a check-in does
 /// not go through this same authorized command.</summary>
-public sealed record RecordDailyWageRequest(string EmployeeId, long? CustomWagePiastres, string? ShiftId, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);
+public sealed record RecordDailyWageRequest(string EmployeeId, long? CustomWagePiastres, string? ShiftId, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId, string? RequestId = null);
 
 /// <summary>RequestId is minted once per submit and reused unchanged by a retry. A real idempotency
 /// gap found during re-verification: legacy's own recordOvertime never gives

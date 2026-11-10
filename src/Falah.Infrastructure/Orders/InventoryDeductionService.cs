@@ -22,6 +22,7 @@ public sealed class InventoryDeductionService
         string orderId, string orderType, IReadOnlyList<MenuPricingService.ResolvedItem> items,
         string createdBy, DateTimeOffset nowUtc, CancellationToken ct)
     {
+        await Falah.Infrastructure.Inventory.InventoryWriteLock.AcquireAsync(_db, ct);
         await DeductOrderPackagingAsync(orderId, orderType, createdBy, nowUtc, ct);
 
         var recipeIds = items.Where(i => i.RecipeId is not null).Select(i => i.RecipeId!).Distinct().ToList();
@@ -42,7 +43,7 @@ public sealed class InventoryDeductionService
                 var recipeLine = new RecipeLine(line.InventoryItemId, line.QuantityMilliUnits, kind, line.YieldUnitsPerBaseUnit);
                 // A 'Yield' line missing its conversion ratio is skipped rather than posting a
                 // nonsense quantity - the same rule computeRecipeCost applies for costing.
-                var baseQuantity = CostingRules.BaseQuantityMilliUnits(recipeLine);
+                var baseQuantity = CostingRules.BaseQuantityMilliUnits(recipeLine, resolved.Item.Quantity);
                 if (baseQuantity is null) continue;
 
                 _db.StockMovements.Add(new StockMovementEntity
@@ -55,7 +56,7 @@ public sealed class InventoryDeductionService
                     InventoryItemId = line.InventoryItemId,
                     Type = nameof(StockMovementType.Usage),
                     Direction = nameof(StockDirection.Out),
-                    QuantityMilliUnits = baseQuantity.Value * resolved.Item.Quantity,
+                    QuantityMilliUnits = baseQuantity.Value,
                     ReferenceType = "order",
                     ReferenceId = orderId,
                     Reason = $"طلب {resolved.Item.ProductName}",

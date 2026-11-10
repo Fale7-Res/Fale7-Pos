@@ -26,6 +26,13 @@ public sealed class FinancialJournalEntry
         Status = JournalStatus.Pending;
     }
 
+    /// <summary>Detached read model restored by a persistent journal; it does not alter stored state.</summary>
+    public static FinancialJournalEntry Restore(string idempotencyKey, string kind, JournalStatus status, DateTimeOffset createdAtUtc)
+    {
+        if (!Enum.IsDefined(status)) throw new DomainException("حالة القيد المالي المحفوظ غير صالحة.");
+        return new FinancialJournalEntry(idempotencyKey, kind, createdAtUtc) { Status = status };
+    }
+
     internal void MarkComplete() => Status = JournalStatus.Complete;
 }
 

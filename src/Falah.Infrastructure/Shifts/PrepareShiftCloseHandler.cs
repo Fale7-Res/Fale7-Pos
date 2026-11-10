@@ -8,9 +8,10 @@ using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Step 1 of the blind-close workflow: read-only, commits nothing. Lets the WinUI show
-/// the cashier what the system expected only AFTER they've entered what they counted, and gives
-/// them a chance to back out before anything is written.</summary>
+/// <summary>Step 1 of the blind-close workflow: closes nothing. Lets the WinUI show the cashier what
+/// the system expected only AFTER they've entered what they counted, and gives them a chance to back
+/// out before the close is written. The one thing it does write is the count itself, as a
+/// declaration (<see cref="DeclarationAuditAction"/>), so every figure typed is on record.</summary>
 public sealed class PrepareShiftCloseHandler
 {
     // 50 EGP - the historical default from the current app's settings (lib/mock-data.ts
@@ -29,11 +30,30 @@ public sealed class PrepareShiftCloseHandler
         _configuration = configuration;
     }
 
-    public async Task<PrepareShiftCloseResult> HandleAsync(PrepareShiftCloseRequest request, CancellationToken ct = default)
+    public const string DeclarationAuditAction = "shift_cash_declared";
+
+    /// <param name="declaredBy">Who typed the count (the session's user). Every count is written down
+    /// before the expected cash is computed: the preview shows the difference, and a cashier can go back
+    /// and count again - which miscounts need - so what keeps a re-count honest is that the manager sees
+    /// every figure that was declared, in order, not only the last.</param>
+    public async Task<PrepareShiftCloseResult> HandleAsync(PrepareShiftCloseRequest request, (string Id, string Name)? declaredBy = null, CancellationToken ct = default)
     {
         var entity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
             ?? throw new InvalidOperationException("الوردية غير موجودة.");
         if (entity.Status != nameof(ShiftStatus.Open)) throw new DomainException("الوردية ليست مفتوحة.");
+
+        if (declaredBy is { } who)
+        {
+            var earlier = await _db.ControlAuditEvents.AsNoTracking()
+                .CountAsync(e => e.Action == DeclarationAuditAction && e.EntityId == entity.Id, ct);
+            _db.ControlAuditEvents.Add(new ControlAuditEventEntity
+            {
+                Id = $"audit-{Guid.NewGuid():N}", Action = DeclarationAuditAction, Actor = who.Name, EntityId = entity.Id,
+                AmountPiastres = request.ActualCashCountedPiastres, Reason = $"عدّ رقم {earlier + 1} ({who.Id})",
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+            });
+            await _db.SaveChangesAsync(ct);
+        }
 
         var openingCash = Money.FromPiastres(entity.OpeningCashPiastres);
         var expected = await ShiftReconciliation.ComputeExpectedCashAsync(_db, entity.Id, openingCash, ct);

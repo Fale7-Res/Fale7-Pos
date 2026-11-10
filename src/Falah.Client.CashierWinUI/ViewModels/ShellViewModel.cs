@@ -31,6 +31,7 @@ public partial class ShellViewModel : ObservableObject
     /// identity, clock, shift status) so the pane's own branding block shows the identical, real
     /// identity rather than a second hardcoded copy.</summary>
     public HeaderViewModel Header => _header;
+    public ManagementRecovery Recovery => _session.Recovery;
 
     public ShellViewModel(AppSession session, HeaderViewModel header)
     {
@@ -40,7 +41,9 @@ public partial class ShellViewModel : ObservableObject
         foreach (var candidate in AllCandidates())
         {
             if (candidate.Permission is null || _session.HasPermission(candidate.Permission) ||
-                candidate.Key == "payroll" && (_session.HasPermission("payroll_approve") || _session.HasPermission("payroll_pay")))
+                candidate.Key == "payroll" && (_session.HasPermission("payroll_approve") || _session.HasPermission("payroll_pay")) ||
+                candidate.Key == "shifts" && _session.HasPermission("reports_view") ||
+                candidate.Key == "treasury" && _session.HasPermission("treasury_manage"))
                 NavItems.Add(candidate);
         }
 
@@ -61,9 +64,9 @@ public partial class ShellViewModel : ObservableObject
         ("menu",       "القائمة والتسعير",  new[] { "menu", "recipes" }),
         ("stock",      "المخزون",           new[] { "inventory", "waste" }),
         ("buying",     "المشتريات",         new[] { "purchasing", "suppliers" }),
-        ("money",      "الخزينة",           new[] { "treasury" }),
+        ("money",      "الخزينة",           new[] { "treasury", "shifts", "financial_control" }),
         ("people",     "الموظفون",          new[] { "employees", "attendance", "payroll" }),
-        ("insight",    "التقارير",          new[] { "reports", "audit" }),
+        ("insight",    "التقارير",          new[] { "reports", "daily_statement", "daily_summary", "audit" }),
         ("more",       "المزيد",            new[] { "controlcenter", "printing", "users", "backup", "settings" }),
     };
 
@@ -101,11 +104,30 @@ public partial class ShellViewModel : ObservableObject
     {
         new("dashboard", "لوحة المتابعة", "reports_view"),
         new("cashier", "الكاشير", "pos"),
+        // Filtered by an extra OR clause above (same pattern as "shifts"/"payroll"): reports_view
+        // covers an owner reading balances/movements, treasury_manage covers a manager who can post
+        // deposits/withdrawals/transfers but may not hold reports_view. This entry used to be
+        // missing from AllCandidates entirely - the group plan and Navigate() both referenced
+        // "treasury", but nothing ever added it to NavItems, so no role could ever open the screen.
+        new("treasury", "الخزينة", "reports_view"),
+        // Cash flow per account, unconfirmed electronic payments, voids, refunds with their sale's
+        // date - the reports the owner checks money against. Same gate as every report.
+        new("financial_control", "الرقابة المالية", "reports_view"),
         new("orders", "الطلبات", "orders_view_all"),
         new("delivery", "التوصيل والسائقون", "delivery_manage"),
         new("customers", "العملاء", "delivery_manage"),
         new("reports", "التقارير", "reports_view"),
-        new("treasury", "الخزينة", "treasury_manage"),
+        // The fuller owner statement - keeps daily_summary's own compact sheet unchanged and
+        // reachable at its existing nav key (Section 13's option B: a new page alongside it, not a
+        // rewrite of it - safer given daily_summary's fields are already relied on elsewhere).
+        new("daily_statement", "كشف اليوم", "reports_view"),
+        new("daily_summary", "ملخص اليوم", "reports_view"),
+        // Filtered by an extra OR clause below (same pattern "payroll" already uses): shifts_manage
+        // covers a supervisor who can open/close/approve any shift but holds no other management
+        // permission, reports_view covers an owner/manager reading the history table's sales
+        // figures. Matches the reference's own two separate sub-gates (canOpenShift/canSeeShiftTotals)
+        // collapsed into one nav-level OR - a viewer with neither could see nothing useful here.
+        new("shifts", "الشيفتات", "shifts_manage"),
         new("inventory", "المخزون", "inventory_manage"),
         new("recipes", "الوصفات والتكلفة", "menu_manage"),
         new("waste", "الهدر والفاقد", "inventory_manage"),
@@ -134,8 +156,12 @@ public partial class ShellViewModel : ObservableObject
             "cashier" => CreateCashier(),
             "delivery" => CreateDelivery(),
             "reports" => CreateReports(),
+            "daily_statement" => CreateDailyStatement(),
+            "daily_summary" => CreateDailySummary(),
+            "financial_control" => CreateFinancialControl(),
             "inventory" => CreateInventory(),
             "treasury" => CreateTreasury(),
+            "shifts" => CreateShifts(),
             "purchasing" or "suppliers" => CreatePurchasing(),
             "recipes" => CreateRecipes(),
             "waste" => CreateWaste(),
@@ -163,6 +189,9 @@ public partial class ShellViewModel : ObservableObject
     }
 
     private CustomersViewModel CreateCustomers() => new(_session);
+
+    // The constructor's period selection already starts the first load.
+    private FinancialControlViewModel CreateFinancialControl() => new(_session);
 
     private MenuViewModel CreateMenu()
     {
@@ -262,6 +291,13 @@ public partial class ShellViewModel : ObservableObject
         return vm;
     }
 
+    private ShiftsViewModel CreateShifts()
+    {
+        var vm = new ShiftsViewModel(_session, _header);
+        _ = vm.LoadAsync();
+        return vm;
+    }
+
     private InventoryViewModel CreateInventory()
     {
         var vm = new InventoryViewModel(_session);
@@ -287,6 +323,20 @@ public partial class ShellViewModel : ObservableObject
     private ReportsViewModel CreateReports()
     {
         var vm = new ReportsViewModel(_session);
+        _ = vm.LoadAsync();
+        return vm;
+    }
+
+    private DailySummaryViewModel CreateDailySummary()
+    {
+        var vm = new DailySummaryViewModel(_session);
+        _ = vm.LoadAsync();
+        return vm;
+    }
+
+    private DailyStatementViewModel CreateDailyStatement()
+    {
+        var vm = new DailyStatementViewModel(_session);
         _ = vm.LoadAsync();
         return vm;
     }

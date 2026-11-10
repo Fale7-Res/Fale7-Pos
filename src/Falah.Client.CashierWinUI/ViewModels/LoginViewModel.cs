@@ -60,7 +60,7 @@ public partial class LoginViewModel : ObservableObject
             var result = await _session.Api.LoginByPinAsync(Pin);
             if (!result.Success || result.Value is null)
             {
-                ErrorMessage = "رمز PIN غير صحيح.";
+                ErrorMessage = FailureMessage(result.OutcomeUnknown, result.StatusCode, result.Error);
                 Pin = string.Empty;
                 return;
             }
@@ -78,4 +78,11 @@ public partial class LoginViewModel : ObservableObject
             IsBusy = false;
         }
     }
+    /// <summary>The login failure in words that name its cause. Only a refusal from the server means the PIN was wrong;
+    /// an unreachable server used to be reported as "رمز PIN غير صحيح." too.</summary>
+    internal static string FailureMessage(bool outcomeUnknown, int statusCode, string? serverError) =>
+        outcomeUnknown || statusCode == 0 ? "تعذر الاتصال بالسيرفر - تحقق من تشغيل Falah.Server ثم أعد المحاولة. لم يُرفض رمزك."
+        : statusCode == 429 ? serverError ?? "محاولات كثيرة. انتظر قليلًا ثم أعد المحاولة."
+        : statusCode >= 500 ? "تعذر تسجيل الدخول بسبب خطأ في السيرفر. أعد المحاولة أو راجع سجل السيرفر."
+        : "رمز PIN غير صحيح.";
 }

@@ -54,7 +54,22 @@ public sealed partial class ProductCatalogueView : UserControl
     private void OnOfferTapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
         e.Handled = true;
-        if (sender is FrameworkElement { DataContext: OfferChoice choice } && ViewModel is { } vm)
-            vm.SelectOfferCommand.Execute(choice);
+        ApplyOffer(sender);
+    }
+
+    /// <summary>Click is what keyboard (Enter/Space) and UI Automation raise; a Tapped-only pill could
+    /// not be used without a mouse or a finger (UI-0036). A pointer press can raise both events, so the
+    /// same pill is applied once within a short window, whichever arrives first.</summary>
+    private void OnOfferClicked(object sender, RoutedEventArgs e) => ApplyOffer(sender);
+
+    private (OfferChoice? Choice, DateTime At) _lastOffer;
+
+    private void ApplyOffer(object sender)
+    {
+        if (sender is not FrameworkElement { DataContext: OfferChoice choice } || ViewModel is not { } vm) return;
+        var now = DateTime.UtcNow;
+        if (ReferenceEquals(_lastOffer.Choice, choice) && now - _lastOffer.At < TimeSpan.FromMilliseconds(600)) return;
+        _lastOffer = (choice, now);
+        vm.SelectOfferCommand.Execute(choice);
     }
 }

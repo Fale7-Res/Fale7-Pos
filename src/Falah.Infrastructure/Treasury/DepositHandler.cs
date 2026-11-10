@@ -55,11 +55,14 @@ public sealed class DepositHandler
         }
         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "treasury_manage", approval, requireApproval: true);
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             var journal = new EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, request.Type))
                 throw new TreasuryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");

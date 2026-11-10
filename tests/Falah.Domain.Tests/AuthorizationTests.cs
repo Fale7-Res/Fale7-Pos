@@ -162,4 +162,29 @@ public class AuthorizationTests
             Assert.Contains("العملية", ex.Message);
         }
     }
+
+    /// <summary>The approval endpoint checks a typed PIN only against people who could approve the
+    /// action at all - matching a cashier's PIN and then refusing it would tell the guesser the PIN
+    /// is real. So "who may approve" has to be answerable before any PIN is looked at.</summary>
+    [Theory]
+    [InlineData("owner", true, "pos", true)]
+    [InlineData("manager", true, "pos", true)]
+    [InlineData("supervisor", true, "orders_comp", true)]
+    [InlineData("supervisor", true, "pos", false)]
+    [InlineData("cashier", true, "all", false)]
+    [InlineData("manager", false, "all", false)]
+    public void Who_may_approve_an_action_is_decided_by_role_and_permission(string role, bool active, string permission, bool expected)
+    {
+        Assert.Equal(expected, AuthorizationPolicy.CanIssueApproval(MakeActor(role, active, permission), "orders_comp"));
+    }
+
+    [Fact]
+    public void Nobody_may_approve_an_empty_action()
+    {
+        var manager = MakeActor("manager", true, "all");
+        foreach (var action in new[] { null, "", "   " })
+            Assert.Throws<DomainException>(() => AuthorizationPolicy.EnsureApprovalAction(action));
+        AuthorizationPolicy.EnsureApprovalAction("orders_comp");
+        Assert.True(AuthorizationPolicy.CanIssueApproval(manager, "orders_comp"));
+    }
 }

@@ -126,6 +126,7 @@ public class FalahDbContext : DbContext
             // any number of Closed shifts coexist freely; only "Open" is constrained to at most one.
             b.HasIndex(s => s.Status).IsUnique().HasFilter("[Status] = 'Open'");
             b.Property(s => s.Version).IsConcurrencyToken();
+            b.HasIndex(s => s.BusinessDayId);
         });
 
         modelBuilder.Entity<TreasuryMovementEntity>(b =>
@@ -175,7 +176,13 @@ public class FalahDbContext : DbContext
             // Employee.pin and User.pin are two separate columns there).
         });
 
-        modelBuilder.Entity<ManagerApprovalEntity>(b => b.HasKey(a => a.ApprovalId));
+        modelBuilder.Entity<ManagerApprovalEntity>(b =>
+        {
+            b.HasKey(a => a.ApprovalId);
+            // Two requests may validate the same unused approval before either saves.
+            // Only the first false -> true update may commit with its financial operation.
+            b.Property(a => a.Consumed).IsConcurrencyToken();
+        });
 
         modelBuilder.Entity<UserSessionEntity>(b =>
         {
@@ -197,7 +204,11 @@ public class FalahDbContext : DbContext
             // because Recipe.ProductId already points the other way (one product -> one active
             // recipe is the real relation); this column only feeds resolution at checkout time.
         });
-        modelBuilder.Entity<ProductVariantEntity>(b => b.HasKey(v => v.Id));
+        modelBuilder.Entity<ProductVariantEntity>(b =>
+        {
+            b.HasKey(v => v.Id);
+            b.Property(v => v.Active).HasDefaultValue(true);
+        });
 
         modelBuilder.Entity<ProductImageEntity>(b =>
         {
@@ -362,6 +373,7 @@ public class FalahDbContext : DbContext
             // A station's own print agent polls "pending jobs for my route" - this is the exact
             // shape of that query.
             b.HasIndex(j => new { j.Route, j.Status });
+            b.Property(j => j.ClaimedBy).HasMaxLength(200);
             b.HasIndex(j => j.OrderId);
             b.HasIndex(j => j.CreateRequestId);
             b.HasMany(j => j.Attempts).WithOne().HasForeignKey(a => a.PrintJobId).OnDelete(DeleteBehavior.Cascade);
@@ -395,6 +407,7 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(s => s.Id);
             b.HasIndex(s => s.BusinessDayId);
+            b.HasIndex(s => new { s.BusinessDayId, s.CloseRevision }).IsUnique();
             b.HasOne<BusinessDayEntity>().WithMany().HasForeignKey(s => s.BusinessDayId).OnDelete(DeleteBehavior.Restrict);
         });
 

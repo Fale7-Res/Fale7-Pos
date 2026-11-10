@@ -8,15 +8,34 @@ using Microsoft.EntityFrameworkCore;
 /// Minimal sample menu/users so a fresh install has something to sell immediately - a real
 /// restaurant will replace this via a future Menu Management screen, not by editing this file.
 /// Only runs once, when Products is empty, so it never overwrites real data on a second run.
+///
+/// The two demo users log in with PINs everyone who has seen this code knows (1234, and 4321 for a
+/// manager holding "all"), so they are created only when the caller asks for them - development and
+/// test hosts, or an installation that sets Seed:DemoUsers on purpose. A production install gets
+/// its first account from <see cref="InitialOwner"/> instead.
 /// </summary>
 public static class DemoDataSeeder
 {
-    public static async Task SeedIfEmptyAsync(FalahDbContext db, CancellationToken ct = default)
+    public const string DemoCashierId = "user-demo-cashier";
+    public const string DemoManagerId = "user-demo-manager";
+
+    /// <summary>The PINs the demo users are seeded with - also what <see cref="DefaultCredentials"/>
+    /// looks for on live accounts.</summary>
+    public static readonly IReadOnlyList<string> DemoPins = new[] { "1234", "4321" };
+
+    public static async Task SeedIfEmptyAsync(FalahDbContext db, bool includeDemoUsers, CancellationToken ct = default)
     {
         if (await db.Products.AnyAsync(ct)) return;
 
-        var cashierId = "user-demo-cashier";
-        var managerId = "user-demo-manager";
+        if (includeDemoUsers) AddDemoUsers(db);
+        AddDemoMenu(db);
+        await db.SaveChangesAsync(ct);
+    }
+
+    private static void AddDemoUsers(FalahDbContext db)
+    {
+        var cashierId = DemoCashierId;
+        var managerId = DemoManagerId;
         // PINs match the login/lock-screen pattern of the reference Falah app exactly: the screen
         // asks for a PIN alone, never a username - these are simply memorable demo values, hashed
         // exactly like a real user's PIN would be (PinHasher.AssertValidPin also rejects an
@@ -36,7 +55,10 @@ public static class DemoDataSeeder
                 Id = managerId, Name = "مدير المحل", Role = "manager", Active = true, Permissions = "all",
                 PinHash = managerPin.HashBase64, PinSalt = managerPin.SaltBase64, PinIterations = managerPin.Iterations,
             });
+    }
 
+    private static void AddDemoMenu(FalahDbContext db)
+    {
         var sandwichCategoryId = "cat-demo-sandwiches";
         var drinksCategoryId = "cat-demo-drinks";
 
@@ -209,7 +231,52 @@ public static class DemoDataSeeder
             Id = koftaOfferId, Name = "عرض الكفتة", FixedPricePiastres = 8000, Active = true,
             Products = { new PriceRuleProductEntity { PriceRuleId = koftaOfferId, ProductId = "prod-demo-kofta-charcoal-sw" } },
         });
+    }
+}
 
+/// <summary>
+/// The first account of a production install. With demo users no longer seeded outside development,
+/// an empty user table would leave nobody able to log in, so the first start may create the owner
+/// from <c>Bootstrap:OwnerPin</c> (environment variable <c>Bootstrap__OwnerPin</c> on the service),
+/// set once by whoever installs the system and removed afterwards. Only ever when there is no user at
+/// all: on any later start the setting is ignored, so it can never reset or add an account.
+/// </summary>
+public static class InitialOwner
+{
+    public const string OwnerId = "user-owner";
+
+    /// <summary>Creates the owner and returns true, or returns false with nothing changed.</summary>
+    public static async Task<bool> EnsureAsync(FalahDbContext db, string? configuredPin, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(configuredPin) || await db.Users.AnyAsync(ct)) return false;
+
+        var pin = PinHasher.Hash(configuredPin.Trim()); // the normal strength rule applies
+        db.Users.Add(new UserEntity
+        {
+            Id = OwnerId, Name = "المالك", Role = UserManagementRules.OwnerRole, Active = true, Permissions = "all",
+            PinHash = pin.HashBase64, PinSalt = pin.SaltBase64, PinIterations = pin.Iterations,
+        });
+        db.ControlAuditEvents.Add(new ControlAuditEventEntity
+        {
+            Id = $"audit-{Guid.NewGuid():N}", Action = "initial_owner_created", Actor = "النظام", EntityId = OwnerId,
+            Reason = "أول حساب للتثبيت - من إعداد Bootstrap:OwnerPin", CreatedAtUtc = DateTimeOffset.UtcNow,
+        });
         await db.SaveChangesAsync(ct);
+        return true;
+    }
+}
+
+/// <summary>Active accounts that still log in with a PIN published in this code (the demo PINs).
+/// Never deactivates or changes anything - the owner decides; this only says so.</summary>
+public static class DefaultCredentials
+{
+    public static async Task<IReadOnlyList<string>> ActiveUsersWithDemoPinsAsync(FalahDbContext db, CancellationToken ct = default)
+    {
+        var users = await db.Users.AsNoTracking().Where(u => u.Active)
+            .Select(u => new { u.Name, u.PinHash, u.PinSalt, u.PinIterations }).ToListAsync(ct);
+        return users
+            .Where(u => DemoDataSeeder.DemoPins.Any(pin => PinHasher.Verify(pin, u.PinHash, u.PinSalt, u.PinIterations)))
+            .Select(u => u.Name)
+            .ToList();
     }
 }

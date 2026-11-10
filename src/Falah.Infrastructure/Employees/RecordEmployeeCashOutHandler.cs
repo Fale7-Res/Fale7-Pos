@@ -59,6 +59,10 @@ public sealed class RecordEmployeeCashOutHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await _db.EmployeeLedgerEntries.AsNoTracking().FirstOrDefaultAsync(e => e.IdempotencyKey == idempotencyKey, ct);
+            if (admissionReplay is not null) return new EmployeeCashOutResult(admissionReplay.Id, admissionReplay.BalanceAfterPiastres, admissionReplay.TreasuryMovementId, WasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             // An empty ledger has no stable row to serialize on. Concurrent first
             // advances can deadlock while converting its index-range locks. Lock the
             // existing employee row first, then inspect the ledger and replay receipt.
@@ -85,7 +89,6 @@ public sealed class RecordEmployeeCashOutHandler
             }
             var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_ledger", approval, requireApproval: true);
 
-            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
             FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, amount);
 
