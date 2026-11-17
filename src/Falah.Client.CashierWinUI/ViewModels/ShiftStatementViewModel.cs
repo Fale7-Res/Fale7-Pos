@@ -20,6 +20,10 @@ public sealed record PaperLine(string Kind, string Text, string Label, string Va
     {
         var kind = e.Kind.ToLowerInvariant();
         if (kind == "rule") return new("rule", "", "", "", false, false);
+        // A section title prints as a one-cell black band (paper redesign 2026-11-17); on screen it
+        // stays the centred bold heading it always was.
+        if (kind == "row" && e.Inverted && e.Cells is [var band])
+            return new("text", band.Text, "", "", true, true);
         if (kind == "row" && e.Cells is { Count: > 0 } cells)
         {
             var label = cells[0].Text;

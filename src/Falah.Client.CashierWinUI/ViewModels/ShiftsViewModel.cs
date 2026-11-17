@@ -86,9 +86,7 @@ public partial class ShiftsViewModel : ObservableObject
     [ObservableProperty] private string? _reprintMessage;
     [ObservableProperty] private bool _isReprinting;
 
-    [RelayCommand]
-    private Task ReprintShiftOpenAsync(ShiftRow? row) =>
-        ReprintAsync(row, "ShiftOpen", "إعادة طباعة إيصال افتتاح الوردية");
+    // No reprint of the opening slip: the slip is retired (paper redesign 2026-11-17).
 
     [RelayCommand]
     private Task ReprintShiftCloseAsync(ShiftRow? row) =>

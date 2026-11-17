@@ -25,7 +25,7 @@ public sealed record PrepRecipe(string Id, string OutputInventoryItemId, long Ou
 /// It is a separate type, not a Usage row with Direction In, because every usage total in this system
 /// sums Usage quantities as consumption; netting reversals out is done explicitly where usage is
 /// totalled.</summary>
-public enum StockMovementType { PurchaseReceipt, ManualReceipt, Usage, Waste, Spoilage, Breakage, CountAdjustment, UsageReversal }
+public enum StockMovementType { PurchaseReceipt, ManualReceipt, Usage, Waste, Spoilage, Breakage, CountAdjustment, UsageReversal, SupplierReturn }
 
 /// <summary>What happened to the food of an order that was voided after its checkout took the
 /// ingredients out of stock. Only the operator knows, so it is always their explicit choice (owner's

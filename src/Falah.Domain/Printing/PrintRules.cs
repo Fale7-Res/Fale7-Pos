@@ -43,115 +43,129 @@ public static class PrintRules
         var stationItems = items.Where(i => i.PreparationStation == route.ToString()).ToList();
         var stationName = route == PrintRoute.Charcoal ? "الفحم" : "الجريل";
 
-        var lines = new List<TicketElement>
-        {
-            TicketLayout.Brand(restaurantName),
-            new TicketText(stationName, Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Large),
-        };
-        lines.AddRange(TicketLayout.LargeOrderNumber(orderNumber));
-        lines.AddRange(new[]
-        {
-            TicketLayout.Rule(),
-            TicketLayout.Field("نوع الطلب", DescribeOrderType(orderType)),
-            TicketLayout.Field("الوقت", FormatCairo(createdAtUtc)),
-        });
+        var lines = TicketLayout.InternalHeader(restaurantName, stationName, orderNumber).ToList();
+        // Type and time share one line (paper redesign 2026-11-17): the larger typeface must not make
+        // the ticket a station reads at a glance any longer than it was.
+        lines.Add(TicketLayout.SlipLine(DescribeOrderType(orderType), FormatCairo(createdAtUtc), bold: true));
 
         // The one thing a prep station needs that the order type alone does not tell it: an order
         // booked for later must not be cooked now. Bold because it changes what the station does.
         if (DescribeRequestedPickup(requestedPickupAtUtc) is { } wanted)
             lines.Add(new TicketText(wanted, Bold: true));
 
-        lines.Add(TicketLayout.Rule());
+        // A ruled grid with each note inside its item (Amendment 1); the grid draws its own lines.
         lines.Add(TicketLayout.ItemTableHeader(withPrice: false));
-        lines.Add(TicketLayout.Rule());
         foreach (var item in stationItems)
         {
             lines.Add(TicketLayout.ItemRow(item, withPrice: false));
             lines.AddRange(TicketLayout.ItemAnnotations(item, withPriceRule: false));
-            lines.Add(TicketLayout.Rule());
         }
 
-        lines.Add(TicketLayout.Caption("يُسلَّم هذا البون للمسؤول عن المحطة"));
+        lines.AddRange(TicketLayout.Footer("يُسلَّم هذا البون للمسؤول عن المحطة", afterGrid: true));
         return new ComposedTicket(route, orderId, orderNumber, lines);
     }
 
     /// <summary>
-    /// The cashier's output and the call center's copy.
-    ///
-    /// Receipt prints TWO physically separate tickets from this one job: a compact ticket carrying
-    /// only the order number, for the customer to hold, then a cut, then the detailed preparation
-    /// ticket the counter works from. Both are submitted in one transport write; a physical
-    /// interruption can still leave a partial pair, so uncertain attempts require inspection.
-    ///
-    /// CallCenter gets the detailed copy only. The compact ticket exists to be handed to a customer
-    /// standing at the counter; there is nobody to hand it to on the phone.
+    /// The two papers printed at checkout for the customer routes (paper redesign 2026-11-17, with
+    /// Amendment 2): the takeaway receipt - one piece, led by the logo, no QR - and the call center's
+    /// copy, which goes into the restaurant as a preparation paper without money.
     /// </summary>
     public static ComposedTicket ComposeReceiptTicket(PrintRoute route, ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals)
     {
         if (!CustomerRoutes.Contains(route)) throw new DomainException($"{route} ليس مسار إيصال عميل.");
 
-        var lines = new List<TicketElement>();
-        if (route == PrintRoute.Receipt)
-        {
-            lines.AddRange(ComposeCustomerNumberSection(header));
-            lines.Add(new TicketCut());
-            lines.AddRange(ComposeCashierDetailSection(header, items, totals));
-        }
-        else
-        {
-            // CallCenter keeps the layout it already had. The cashier redesign is deliberately
-            // scoped to the till's own two tickets; converging the two is a separate decision once
-            // the cashier output has been accepted on paper.
-            lines.AddRange(ComposeDetailedOrderSection(header, items, totals));
-        }
+        // Paper redesign 2026-11-17 (owner): the takeaway receipt is one piece; the customer collects
+        // with the large order number on it. The call center's copy is printed when an order is taken
+        // and goes INTO the restaurant (Amendment 2), so it is a preparation paper without money; the
+        // paper that travels to the delivery customer is the driver's (ComposeDriverDispatchTicket).
+        if (route == PrintRoute.CallCenter) return ComposeCallCenterPrepTicket(header, items);
+        var lines = ComposeCashierDetailSection(header, items, totals).ToList();
         return new ComposedTicket(route, header.OrderId, header.OrderNumber, lines);
     }
 
-    /// <summary>
-    /// The ticket the customer walks away with - the first half of the till's single print job.
-    ///
-    /// Identity only: who we are, which order this is, when, and who took it. No items, no prices,
-    /// nothing to read out or dispute - just the number that will be called, printed as large as
-    /// the paper allows. Kept compact: it is a token to hold, not a document to read.
-    /// </summary>
-    private static IEnumerable<TicketElement> ComposeCustomerNumberSection(ReceiptHeader header)
+    /// <summary>Amendment 2 (owner): what the restaurant prepares from when an order is taken by phone.
+    /// The number, who and where, the items and their notes - no logo, no prices, no totals, no QR.
+    /// The unconfirmed-transfer warning stays: it tells the staff something, it is not a figure.</summary>
+    private static ComposedTicket ComposeCallCenterPrepTicket(ReceiptHeader header, IReadOnlyList<TicketItem> items)
     {
-        foreach (var element in ComposeBrandHeader(header)) yield return element;
-
-        yield return TicketLayout.CenteredLine(DescribeOrderType(header.OrderType), bold: true);
-        yield return TicketLayout.CenteredLine("رقم الطلب");
-        yield return TicketLayout.CenteredLine(header.OrderNumber, bold: true, size: TicketTextSize.Display);
-        yield return TicketLayout.Space();
-
-        yield return TicketLayout.DateTimeRow(FormatCairoDate(header.CreatedAtUtc), FormatCairoTime(header.CreatedAtUtc));
+        var lines = TicketLayout.InternalHeader(header.RestaurantName, "تحضير طلب", header.OrderNumber).ToList();
+        if (header.ElectronicPaymentPending)
+        {
+            // Owner, 2026-11-17: the prep paper prints at once even when preparation is held for an
+            // unconfirmed transfer, so it says plainly, on a black band, not to start yet.
+            lines.Add(TicketLayout.SectionBand("لا يُحضَّر قبل تأكيد التحويل"));
+            lines.Add(new TicketText("غير مدفوع - في انتظار تأكيد التحويل", Bold: true, Align: TicketAlign.Center));
+        }
+        lines.Add(TicketLayout.SlipLine(DescribeOrderType(header.OrderType), FormatCairo(header.CreatedAtUtc), bold: true));
         if (DescribeRequestedPickup(header.RequestedPickupAtUtc) is { } wanted)
-            yield return TicketLayout.CenteredLine(wanted, bold: true);
-        // Once, here. A name printed twice on a ticket this small reads as a mistake.
-        if (!string.IsNullOrWhiteSpace(header.CashierName))
-            yield return TicketLayout.CenteredLine($"الكاشير: {header.CashierName}");
-        yield return TicketLayout.ThinRule();
-        yield return TicketLayout.CenteredLine("احتفظ بهذا التيكت حتى استلام الطلب", bold: true);
+            lines.Add(new TicketText(wanted, Bold: true));
+        if (!string.IsNullOrWhiteSpace(header.CustomerName)) lines.Add(TicketLayout.Field("العميل", header.CustomerName!));
+        if (header.OrderType == OrderType.Delivery)
+        {
+            if (!string.IsNullOrWhiteSpace(header.DeliveryArea)) lines.Add(TicketLayout.Field("المنطقة", header.DeliveryArea!));
+            if (!string.IsNullOrWhiteSpace(header.DeliveryAddress)) lines.Add(TicketLayout.Field("العنوان", header.DeliveryAddress!));
+        }
+        lines.Add(TicketLayout.SectionBand("الأصناف"));
+        lines.Add(TicketLayout.ItemTableHeader(withPrice: false));
+        foreach (var item in items)
+        {
+            lines.Add(TicketLayout.ItemRow(item, withPrice: false));
+            lines.AddRange(TicketLayout.ItemAnnotations(item, withPriceRule: false));
+        }
+        lines.AddRange(TicketLayout.Footer("بون تحضير - يُسلَّم للمطعم", afterGrid: true));
+        return new ComposedTicket(PrintRoute.CallCenter, header.OrderId, header.OrderNumber, lines);
     }
 
     /// <summary>
-    /// The cashier's detailed receipt - the second half of the till's single print job.
+    /// Amendment 2 (owner): the driver's paper is the delivery customer's receipt. Printed when the
+    /// order is handed to a driver, it travels with him: the logo, the order and who it is for, the
+    /// driver, the priced items, the totals, exactly what to collect, the delivery notes, and the
+    /// menu QR. A reassignment says so at the top, so a second copy can never pass for the first.
+    /// </summary>
+    public static ComposedTicket ComposeDriverDispatchTicket(
+        ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals, DeliveryOrderTicketInfo delivery,
+        string driverName, DateTimeOffset assignedAtUtc, bool isReassignment)
+    {
+        var lines = TicketLayout.CustomerHeader(header).ToList();
+        if (isReassignment)
+            lines.Add(new TicketText("إعادة إسناد", Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Large));
+        lines.AddRange(TicketLayout.LargeOrderNumber(header.OrderNumber));
+        lines.Add(TicketLayout.SlipLine("السائق", driverName, bold: true));
+        lines.Add(TicketLayout.SlipLine("وقت الإسناد", FormatCairo(assignedAtUtc)));
+        if (!string.IsNullOrWhiteSpace(header.CustomerName)) lines.Add(TicketLayout.Field("العميل", header.CustomerName!));
+        if (!string.IsNullOrWhiteSpace(delivery.CustomerPhone)) lines.Add(TicketLayout.Field("الهاتف", TicketFormat.Code(delivery.CustomerPhone!)));
+        if (!string.IsNullOrWhiteSpace(header.DeliveryArea)) lines.Add(TicketLayout.Field("المنطقة", header.DeliveryArea!));
+        if (!string.IsNullOrWhiteSpace(header.DeliveryAddress)) lines.Add(TicketLayout.Field("العنوان", header.DeliveryAddress!));
+
+        lines.AddRange(ComposeCustomerItems(items));
+        lines.Add(TicketLayout.SectionBand("الحساب"));
+        lines.AddRange(ComposeCashierTotals(header, totals));
+        lines.AddRange(ComposeCollectionInstruction(delivery.IsCashOnDelivery, header.ElectronicPaymentPending, delivery.AmountToCollect));
+        if (!string.IsNullOrWhiteSpace(delivery.DeliveryNotes))
+        {
+            lines.Add(new TicketText("ملاحظات التوصيل:", Bold: true));
+            lines.Add(new TicketText(delivery.DeliveryNotes!));
+        }
+        lines.AddRange(ComposeBrandFooter(header, withMenuQr: true));
+        // The settings footer the call center's copy used to carry travels with the customer's paper.
+        lines.Add(TicketLayout.Caption(string.IsNullOrWhiteSpace(header.Footer) ? "شكرًا لزيارتكم" : header.Footer!));
+        return new ComposedTicket(PrintRoute.DriverDispatch, header.OrderId, header.OrderNumber, lines);
+    }
+
+
+    /// <summary>
+    /// The takeaway receipt.
     ///
-    /// Five blocks, separated by whitespace and thin rules only: the brand, the order's identity,
-    /// the items, the money, and the payment. Then the menu QR (only when a real menu link is
-    /// configured) and the brand once more as the sign-off. No boxes, no filled bands, no vertical
-    /// grid lines, no slogans.
-    ///
-    /// Separate from ComposeDetailedOrderSection, which CallCenter still uses, so that redesigning
-    /// the till's output cannot silently change what the call center prints.
+    /// The logo and brand, the order's identity, the items on a black band and in a ruled grid, then
+    /// the money and the payment on their own band, and the brand once more as the sign-off. The menu
+    /// QR is not here: it travels to the delivery customer on the driver's paper (Amendment 2).
     /// </summary>
     private static IEnumerable<TicketElement> ComposeCashierDetailSection(
         ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals)
     {
-        // Brand, then the order's identity, then an open three-column list. Weight and whitespace
-        // carry the hierarchy: no grid, no rules between items, no filled bars.
-        yield return TicketLayout.BrandTitle(header.RestaurantName);
-        if (!string.IsNullOrWhiteSpace(header.SubName)) yield return TicketLayout.Tagline(header.SubName.Trim());
-        yield return TicketLayout.ThinRule();
+        // Logo and brand, then the order's identity, then an open three-column list. Weight and
+        // whitespace carry the hierarchy: no grid, no rules between items, no filled bars.
+        foreach (var element in TicketLayout.CustomerHeader(header)) yield return element;
 
         // 2. Order identity: the number alone and largest, then the facts about it in two pairs.
         yield return TicketLayout.CenteredLine("رقم الطلب", size: TicketTextSize.Normal);
@@ -171,12 +185,24 @@ public static class PrintRules
             }
         }
 
-        // 3. Items.
-        yield return TicketLayout.ThinRule();
+        // 3. Items: a black section band, then a ruled grid with each note inside its item (Amendment 1).
+        foreach (var element in ComposeCustomerItems(items)) yield return element;
+
+        // 4 and 5. Totals, then payment, under their own band.
+        yield return TicketLayout.SectionBand("الحساب");
+        foreach (var element in ComposeCashierTotals(header, totals)) yield return element;
+
+        // Menu QR, then the brand as the sign-off.
+        foreach (var element in ComposeBrandFooter(header, withMenuQr: false)) yield return element;
+    }
+
+    /// <summary>The priced item grid of a customer paper (the takeaway receipt and the driver's paper).</summary>
+    private static IEnumerable<TicketElement> ComposeCustomerItems(IReadOnlyList<TicketItem> items)
+    {
+        yield return TicketLayout.SectionBand("الأصناف");
         yield return TicketLayout.CashierItemHeader();
-        for (var i = 0; i < items.Count; i++)
+        foreach (var item in items)
         {
-            var item = items[i];
             yield return TicketLayout.CashierItemRow(item);
             if (!string.IsNullOrWhiteSpace(item.Notes))
                 yield return TicketLayout.CashierItemNote($"ملاحظات: {item.Notes}");
@@ -184,30 +210,10 @@ public static class PrintRules
             // edited or disabled still shows the offer that was actually applied at sale time.
             if (!string.IsNullOrWhiteSpace(item.PriceRuleName))
                 yield return TicketLayout.CashierItemNote($"عرض: {item.PriceRuleName}"
-                    + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {list.Egp} ج)" : ""));
-            // A gap only where one is earned: after an item that carried a note or an offer, so the
-            // next product cannot be read as another line of that note.
-            var annotated = !string.IsNullOrWhiteSpace(item.Notes) || !string.IsNullOrWhiteSpace(item.PriceRuleName);
-            if (annotated && i < items.Count - 1) yield return TicketLayout.Space();
+                    + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {TicketFormat.Amount(list)})" : ""));
         }
-        yield return TicketLayout.ThinRule();
-
-        // 4 and 5. Totals, then payment.
-        foreach (var element in ComposeCashierTotals(header, totals)) yield return element;
-
-        // Menu QR, then the brand as the sign-off.
-        foreach (var element in ComposeBrandFooter(header)) yield return element;
     }
 
-    /// <summary>The top of both cashier tickets: the name, the owner's tagline, and the short
-    /// signature rule beneath them. Typography and whitespace only.</summary>
-    private static IEnumerable<TicketElement> ComposeBrandHeader(ReceiptHeader header)
-    {
-        yield return TicketLayout.BrandTitle(header.RestaurantName);
-        if (!string.IsNullOrWhiteSpace(header.SubName)) yield return TicketLayout.Tagline(header.SubName.Trim());
-        yield return TicketLayout.AccentRule();
-        yield return TicketLayout.Space();
-    }
 
     /// <summary>
     /// The end of the detailed receipt: the menu QR with its one-line invitation, then the name and
@@ -216,10 +222,10 @@ public static class PrintRules
     /// The QR appears only when Settings holds a real menu link. There is no placeholder or guessed
     /// address: a code that opens the wrong page is worse than no code at all.
     /// </summary>
-    private static IEnumerable<TicketElement> ComposeBrandFooter(ReceiptHeader header)
+    private static IEnumerable<TicketElement> ComposeBrandFooter(ReceiptHeader header, bool withMenuQr)
     {
         yield return TicketLayout.ThinRule();
-        if (!string.IsNullOrWhiteSpace(header.MenuUrl))
+        if (withMenuQr && !string.IsNullOrWhiteSpace(header.MenuUrl))
         {
             yield return TicketLayout.CenteredLine("امسح الكود لعرض المنيو");
             yield return new TicketQr(header.MenuUrl.Trim());
@@ -239,15 +245,15 @@ public static class PrintRules
         // Arabic currency word is bidi-neutral - it detaches from the digits and prints "15-".
         // Always stated, even when nothing was adjusted: the customer should be able to see what the
         // items came to before reading what they paid.
-        yield return TicketLayout.SlipLine("إجمالي الأصناف", $"{totals.Subtotal.Egp} ج");
-        if (totals.Discount.IsPositive) yield return TicketLayout.MoneyLine("الخصم", $"{totals.Discount.Egp} ج", size: TicketTextSize.Large);
-        if (totals.CompAmount.IsPositive) yield return TicketLayout.MoneyLine("ضيافة", $"{totals.CompAmount.Egp} ج", size: TicketTextSize.Large);
-        if (totals.DeliveryFee.IsPositive) yield return TicketLayout.MoneyLine("رسوم التوصيل", $"{totals.DeliveryFee.Egp} ج", size: TicketTextSize.Large);
-        if (totals.TaxAmount.IsPositive) yield return TicketLayout.MoneyLine(totals.TaxRuleName ?? "الضريبة", $"{totals.TaxAmount.Egp} ج", size: TicketTextSize.Large);
+        yield return TicketLayout.SlipLine("إجمالي الأصناف", TicketFormat.Amount(totals.Subtotal));
+        if (totals.Discount.IsPositive) yield return TicketLayout.MoneyLine("الخصم", TicketFormat.Amount(totals.Discount), size: TicketTextSize.Large);
+        if (totals.CompAmount.IsPositive) yield return TicketLayout.MoneyLine("ضيافة", TicketFormat.Amount(totals.CompAmount), size: TicketTextSize.Large);
+        if (totals.DeliveryFee.IsPositive) yield return TicketLayout.MoneyLine("رسوم التوصيل", TicketFormat.Amount(totals.DeliveryFee), size: TicketTextSize.Large);
+        if (totals.TaxAmount.IsPositive) yield return TicketLayout.MoneyLine(totals.TaxRuleName ?? "الضريبة", TicketFormat.Amount(totals.TaxAmount), size: TicketTextSize.Large);
 
         // A thin rule, then the grand total bold and a size up - the strongest line on the ticket,
         // with no filled bar behind it.
-        yield return TicketLayout.MoneyLine("الإجمالي الكلي", $"{totals.Total.Egp} ج", bold: true, size: TicketTextSize.Title);
+        yield return TicketLayout.MoneyLine("الإجمالي الكلي", TicketFormat.Amount(totals.Total), bold: true, size: TicketTextSize.Title);
 
         // Read from the order's own frozen electronic-payment flag, never inferred from the amounts.
         var isPaid = header.IsPaid ?? (!header.ElectronicPaymentPending && totals.AmountPaid >= totals.Total);
@@ -255,41 +261,10 @@ public static class PrintRules
             : isPaid ? "مدفوع"
             : CheckoutRules.IsCashOnDelivery(header.OrderType, totals.PaymentMethod, totals.Total) ? "عند الاستلام" : "غير مدفوع";
         yield return TicketLayout.MoneyLine($"طريقة الدفع: {DescribePaymentMethod(totals.PaymentMethod)}", paymentState, size: TicketTextSize.Large);
-        if (totals.AmountPaid.IsPositive) yield return TicketLayout.MoneyLine("المدفوع", $"{totals.AmountPaid.Egp} ج", size: TicketTextSize.Large);
-        if (totals.ChangeDue.IsPositive) yield return TicketLayout.MoneyLine("الباقي", $"{totals.ChangeDue.Egp} ج", bold: true, size: TicketTextSize.Large);
+        if (totals.AmountPaid.IsPositive) yield return TicketLayout.MoneyLine("المدفوع", TicketFormat.Amount(totals.AmountPaid), size: TicketTextSize.Large);
+        if (totals.ChangeDue.IsPositive) yield return TicketLayout.MoneyLine("الباقي", TicketFormat.Amount(totals.ChangeDue), bold: true, size: TicketTextSize.Large);
     }
 
-    /// <summary>The full order: who took it, what is in it, what each line cost and what is owed.
-    /// Shared verbatim by the cashier's second ticket and the call center's single copy - the
-    /// content is identical, only the printer differs.</summary>
-    private static IEnumerable<TicketElement> ComposeDetailedOrderSection(
-        ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals)
-    {
-        yield return TicketLayout.Brand(header.RestaurantName);
-        yield return TicketLayout.Caption("تذكرة تحضير الطلب");
-        foreach (var element in TicketLayout.LargeOrderNumber(header.OrderNumber)) yield return element;
-        yield return TicketLayout.Rule();
-
-        yield return TicketLayout.Field("نوع الطلب", DescribeOrderType(header.OrderType));
-        yield return TicketLayout.Field("التاريخ", FormatCairo(header.CreatedAtUtc));
-        yield return TicketLayout.Field("الكاشير", header.CashierName);
-        if (DescribeRequestedPickup(header.RequestedPickupAtUtc) is { } wanted)
-            yield return new TicketText(wanted, Bold: true);
-        if (header.ElectronicPaymentPending)
-            yield return new TicketText("غير مدفوع - في انتظار تأكيد التحويل", Bold: true, Align: TicketAlign.Center);
-
-        if (header.OrderType == OrderType.Delivery)
-        {
-            if (!string.IsNullOrWhiteSpace(header.CustomerName)) yield return TicketLayout.Field("العميل", header.CustomerName!);
-            if (!string.IsNullOrWhiteSpace(header.DeliveryArea)) yield return TicketLayout.Field("المنطقة", header.DeliveryArea!);
-            if (!string.IsNullOrWhiteSpace(header.DeliveryAddress)) yield return TicketLayout.Field("العنوان", header.DeliveryAddress!);
-        }
-
-        foreach (var element in ComposeItemTable(items, withPrice: true)) yield return element;
-        foreach (var element in ComposeTotals(totals)) yield return element;
-
-        yield return TicketLayout.Caption(string.IsNullOrWhiteSpace(header.Footer) ? "شكرًا لزيارتكم" : header.Footer!);
-    }
 
     /// <summary>The delivery ORDER ticket - printed once when a delivery order is created at
     /// checkout, before any driver exists. Distinct from the driver dispatch ticket (printed later,
@@ -299,13 +274,7 @@ public static class PrintRules
     public static ComposedTicket ComposeDeliveryOrderTicket(
         ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals, DeliveryOrderTicketInfo delivery)
     {
-        var lines = new List<TicketElement>
-        {
-            TicketLayout.Brand(header.RestaurantName),
-            new TicketText("أوردر دليفري", Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Large),
-        };
-        lines.AddRange(TicketLayout.LargeOrderNumber(header.OrderNumber));
-        lines.Add(TicketLayout.Rule());
+        var lines = TicketLayout.InternalHeader(header.RestaurantName, "أوردر دليفري", header.OrderNumber).ToList();
         lines.Add(TicketLayout.Field("وقت الطلب", FormatCairo(header.CreatedAtUtc)));
 
         if (!string.IsNullOrWhiteSpace(header.CustomerName)) lines.Add(new TicketText($"العميل: {header.CustomerName}", Bold: true));
@@ -324,80 +293,39 @@ public static class PrintRules
             lines.Add(new TicketText(delivery.DeliveryNotes!));
         }
 
-        lines.Add(TicketLayout.Caption("بون تشغيل - ليس إيصال العميل"));
+        lines.AddRange(TicketLayout.Footer("بون تشغيل - ليس إيصال العميل"));
         return new ComposedTicket(PrintRoute.DeliveryOrder, header.OrderId, header.OrderNumber, lines);
     }
 
-    /// <summary>The driver dispatch ticket - printed when a delivery is assigned or reassigned,
-    /// never touching the customer-facing ticket or any financial field of the order. isReassignment
-    /// adds a prominent marker so a driver holding a second copy for the same order can never
-    /// mistake it for the original dispatch. Whether there is cash to collect is decided by the
-    /// caller from CheckoutRules.IsCashOnDelivery - the same rule checkout itself used, and the
-    /// same one the delivery order ticket above is given, so the two can never contradict.</summary>
-    public static ComposedTicket ComposeDriverDispatchTicket(
-        string restaurantName, string orderId, string orderNumber, string driverName,
-        string? customerName, string? customerPhone, string? deliveryAddress, string? deliveryArea,
-        Money amountToCollect, bool isCashOnDelivery, bool electronicPaymentPending,
-        string? deliveryNotes, DateTimeOffset assignedAtUtc, bool isReassignment)
-    {
-        var lines = new List<TicketElement> { TicketLayout.Brand(restaurantName) };
-        if (isReassignment)
-            lines.Add(new TicketText("إعادة إسناد", Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Large));
-        lines.Add(TicketLayout.Caption("تيكت إسناد للسائق"));
-        lines.AddRange(TicketLayout.LargeOrderNumber(orderNumber));
-        lines.Add(TicketLayout.Rule());
-
-        lines.Add(new TicketText($"السائق: {driverName}", Bold: true, Size: TicketTextSize.Large));
-        lines.Add(TicketLayout.Field("وقت الإسناد", FormatCairo(assignedAtUtc)));
-        lines.Add(TicketLayout.Rule());
-
-        if (!string.IsNullOrWhiteSpace(customerName)) lines.Add(new TicketText($"العميل: {customerName}", Bold: true));
-        if (!string.IsNullOrWhiteSpace(customerPhone)) lines.Add(new TicketText($"الهاتف: {customerPhone}", Bold: true));
-        if (!string.IsNullOrWhiteSpace(deliveryArea)) lines.Add(TicketLayout.Field("المنطقة", deliveryArea!));
-        if (!string.IsNullOrWhiteSpace(deliveryAddress)) lines.Add(TicketLayout.Field("العنوان", deliveryAddress!));
-
-        lines.AddRange(ComposeCollectionInstruction(isCashOnDelivery, electronicPaymentPending, amountToCollect));
-
-        if (!string.IsNullOrWhiteSpace(deliveryNotes))
-        {
-            lines.Add(TicketLayout.Rule());
-            lines.Add(new TicketText("ملاحظات التوصيل:", Bold: true));
-            lines.Add(new TicketText(deliveryNotes!));
-        }
-
-        lines.Add(TicketLayout.Caption("يُسلَّم هذا البون للسائق"));
-        return new ComposedTicket(PrintRoute.DriverDispatch, orderId, orderNumber, lines);
-    }
 
     private static IEnumerable<TicketElement> ComposeItemTable(IReadOnlyList<TicketItem> items, bool withPrice)
     {
-        yield return TicketLayout.Rule();
+        yield return TicketLayout.SectionBand("الأصناف");
         yield return TicketLayout.ItemTableHeader(withPrice);
-        yield return TicketLayout.Rule();
         foreach (var item in items)
         {
             yield return TicketLayout.ItemRow(item, withPrice);
             // Printed from the order's own frozen snapshot, so a ticket reprinted after an offer is
             // edited or disabled still shows the offer that was actually applied at sale time.
             foreach (var annotation in TicketLayout.ItemAnnotations(item, withPriceRule: withPrice)) yield return annotation;
-            yield return TicketLayout.Rule();
         }
     }
 
     private static IEnumerable<TicketElement> ComposeTotals(ReceiptTotals totals)
     {
-        yield return TicketLayout.MoneyLine("المجموع الفرعي", $"{totals.Subtotal.Egp} ج");
-        if (totals.Discount.IsPositive) yield return TicketLayout.MoneyLine("الخصم", $"-{totals.Discount.Egp} ج");
-        if (totals.CompAmount.IsPositive) yield return TicketLayout.MoneyLine("ضيافة", $"-{totals.CompAmount.Egp} ج");
-        if (totals.TaxAmount.IsPositive) yield return TicketLayout.MoneyLine(totals.TaxRuleName ?? "الضريبة", $"{totals.TaxAmount.Egp} ج");
-        if (totals.DeliveryFee.IsPositive) yield return TicketLayout.MoneyLine("خدمة التوصيل", $"+{totals.DeliveryFee.Egp} ج");
+        yield return TicketLayout.SectionBand("الحساب");
+        yield return TicketLayout.MoneyLine("المجموع الفرعي", TicketFormat.Amount(totals.Subtotal));
+        if (totals.Discount.IsPositive) yield return TicketLayout.MoneyLine("الخصم", "-" + TicketFormat.Amount(totals.Discount));
+        if (totals.CompAmount.IsPositive) yield return TicketLayout.MoneyLine("ضيافة", "-" + TicketFormat.Amount(totals.CompAmount));
+        if (totals.TaxAmount.IsPositive) yield return TicketLayout.MoneyLine(totals.TaxRuleName ?? "الضريبة", TicketFormat.Amount(totals.TaxAmount));
+        if (totals.DeliveryFee.IsPositive) yield return TicketLayout.MoneyLine("خدمة التوصيل", "+" + TicketFormat.Amount(totals.DeliveryFee));
         yield return TicketLayout.Rule();
-        yield return TicketLayout.MoneyLine("الإجمالي", $"{totals.Total.Egp} ج", bold: true, size: TicketTextSize.Large);
+        yield return TicketLayout.MoneyLine("الإجمالي", TicketFormat.Amount(totals.Total), bold: true, size: TicketTextSize.Large);
         yield return TicketLayout.Rule();
         yield return TicketLayout.Field("طريقة الدفع", DescribePaymentMethod(totals.PaymentMethod));
         // The amount actually tendered is its own line, distinct from the change line below it.
-        if (totals.AmountPaid.IsPositive) yield return TicketLayout.MoneyLine("المدفوع", $"{totals.AmountPaid.Egp} ج");
-        if (totals.ChangeDue.IsPositive) yield return TicketLayout.MoneyLine("الباقي", $"{totals.ChangeDue.Egp} ج");
+        if (totals.AmountPaid.IsPositive) yield return TicketLayout.MoneyLine("المدفوع", TicketFormat.Amount(totals.AmountPaid));
+        if (totals.ChangeDue.IsPositive) yield return TicketLayout.MoneyLine("الباقي", TicketFormat.Amount(totals.ChangeDue));
     }
 
     /// <summary>The one instruction the dispatch desk and the driver both act on, shaped identically
@@ -409,7 +337,7 @@ public static class PrintRules
         yield return TicketLayout.Rule();
         if (isCashOnDelivery)
         {
-            yield return TicketLayout.MoneyLine("المطلوب تحصيله", $"{amountToCollect.Egp} ج",
+            yield return TicketLayout.MoneyLine("المطلوب تحصيله", TicketFormat.Amount(amountToCollect),
                 bold: true, size: TicketTextSize.Large);
         }
         else if (electronicPaymentPending)
@@ -430,8 +358,9 @@ public static class PrintRules
     private static string? DescribeRequestedPickup(DateTimeOffset? requestedAtUtc) =>
         requestedAtUtc is not { } at ? null : $"موعد الاستلام: {FormatCairo(at)}";
 
-    private static string FormatCairo(DateTimeOffset utc) =>
-        TimeZoneInfo.ConvertTime(utc, BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm");
+    // Paper redesign 2026-11-17: one date/time format on every paper (TicketFormat). These wrappers
+    // keep the call sites unchanged.
+    private static string FormatCairo(DateTimeOffset utc) => TicketFormat.DateTime(utc);
 
     /// <summary>The date as dd-MM-yyyy, led by an invisible left-to-right mark (U+200E).
     ///
@@ -440,18 +369,13 @@ public static class PrintRules
     /// and a hyphen does not bind Arabic-number segments together, so the three parts are laid out
     /// right to left. The mark is a strong left-to-right character, so the digits after it stay
     /// ordinary numbers and the whole date stays one left-to-right run. It prints nothing.</summary>
-    private static string FormatCairoDate(DateTimeOffset utc) =>
-        "\u200E" + TimeZoneInfo.ConvertTime(utc, BusinessClock.CairoTimeZone).ToString("dd-MM-yyyy");
+    private static string FormatCairoDate(DateTimeOffset utc) => TicketFormat.Date(utc);
 
     /// <summary>A 12-hour Cairo wall clock with an Arabic meridiem, which is how the counter and the
     /// customer both read the time. The ص/م marker is written explicitly rather than taken from a
     /// culture's own designator, so the ticket prints the same regardless of the locale the till
     /// happens to be running under.</summary>
-    private static string FormatCairoTime(DateTimeOffset utc)
-    {
-        var local = TimeZoneInfo.ConvertTime(utc, BusinessClock.CairoTimeZone);
-        return $"{local:hh:mm} {(local.Hour < 12 ? "ص" : "م")}";
-    }
+    private static string FormatCairoTime(DateTimeOffset utc) => TicketFormat.Time(utc);
 
     private static string DescribeOrderType(OrderType orderType) => orderType switch
     {
@@ -523,7 +447,7 @@ public static class PrintRules
         lines.Add(TicketLayout.SlipLine("التاريخ", FormatCairoDate(shift.OpenedAtUtc)));
         lines.Add(TicketLayout.SlipLine("وقت الافتتاح", FormatCairoTime(shift.OpenedAtUtc)));
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.MoneyLine("رصيد افتتاحي", $"{openingCash.Egp} ج", bold: true, size: TicketTextSize.Title));
+        lines.Add(TicketLayout.MoneyLine("رصيد افتتاحي", TicketFormat.Amount(openingCash), bold: true, size: TicketTextSize.Title));
         lines.Add(TicketLayout.Space());
         lines.Add(TicketLayout.CenteredLine("توقيع الكاشير: ..............................", size: TicketTextSize.Normal));
         return new ComposedTicket(PrintRoute.Receipt, shift.ShiftReference, ShiftOpenLabel, lines);
@@ -553,20 +477,20 @@ public static class PrintRules
             lines.Add(TicketLayout.SlipLine("تاريخ الإغلاق", FormatCairoDate(closedAtUtc)));
 
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.MoneyLine("رصيد الافتتاح", $"{cash.OpeningCash.Egp} ج", size: TicketTextSize.Large));
-        lines.Add(TicketLayout.MoneyLine("مبيعات الكاش", $"{cash.CashSales.Egp} ج", size: TicketTextSize.Large));
-        if (cash.CashIn.IsPositive) lines.Add(TicketLayout.MoneyLine("إيداعات / إضافات", $"{cash.CashIn.Egp} ج", size: TicketTextSize.Large));
-        if (cash.Expenses.IsPositive) lines.Add(TicketLayout.MoneyLine("المصاريف", $"{cash.Expenses.Egp} ج", size: TicketTextSize.Large));
-        if (cash.Refunds.IsPositive) lines.Add(TicketLayout.MoneyLine("المرتجعات", $"{cash.Refunds.Egp} ج", size: TicketTextSize.Large));
-        if (cash.Withdrawals.IsPositive) lines.Add(TicketLayout.MoneyLine("المسحوبات", $"{cash.Withdrawals.Egp} ج", size: TicketTextSize.Large));
-        if (cash.SafeDrops.IsPositive) lines.Add(TicketLayout.MoneyLine("توريد للخزنة", $"{cash.SafeDrops.Egp} ج", size: TicketTextSize.Large));
+        lines.Add(TicketLayout.MoneyLine("رصيد الافتتاح", TicketFormat.Amount(cash.OpeningCash), size: TicketTextSize.Large));
+        lines.Add(TicketLayout.MoneyLine("مبيعات الكاش", TicketFormat.Amount(cash.CashSales), size: TicketTextSize.Large));
+        if (cash.CashIn.IsPositive) lines.Add(TicketLayout.MoneyLine("إيداعات / إضافات", TicketFormat.Amount(cash.CashIn), size: TicketTextSize.Large));
+        if (cash.Expenses.IsPositive) lines.Add(TicketLayout.MoneyLine("المصاريف", TicketFormat.Amount(cash.Expenses), size: TicketTextSize.Large));
+        if (cash.Refunds.IsPositive) lines.Add(TicketLayout.MoneyLine("المرتجعات", TicketFormat.Amount(cash.Refunds), size: TicketTextSize.Large));
+        if (cash.Withdrawals.IsPositive) lines.Add(TicketLayout.MoneyLine("المسحوبات", TicketFormat.Amount(cash.Withdrawals), size: TicketTextSize.Large));
+        if (cash.SafeDrops.IsPositive) lines.Add(TicketLayout.MoneyLine("توريد للخزنة", TicketFormat.Amount(cash.SafeDrops), size: TicketTextSize.Large));
 
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.MoneyLine("النقدية المتوقعة", $"{cash.ExpectedCash.Egp} ج", bold: true, size: TicketTextSize.Title));
-        lines.Add(TicketLayout.MoneyLine("النقدية الفعلية", $"{cash.ActualCash.Egp} ج", bold: true, size: TicketTextSize.Large));
+        lines.Add(TicketLayout.MoneyLine("النقدية المتوقعة", TicketFormat.Amount(cash.ExpectedCash), bold: true, size: TicketTextSize.Title));
+        lines.Add(TicketLayout.MoneyLine("النقدية الفعلية", TicketFormat.Amount(cash.ActualCash), bold: true, size: TicketTextSize.Large));
         // No sign character: a bare "-" beside an Arabic currency word detaches from its digits and
         // prints on the wrong side. The word says which way it went.
-        lines.Add(TicketLayout.MoneyLine(DescribeDifference(cash.Difference), $"{cash.Difference.Abs().Egp} ج",
+        lines.Add(TicketLayout.MoneyLine(DescribeDifference(cash.Difference), TicketFormat.Amount(cash.Difference.Abs()),
             bold: true, size: TicketTextSize.Large));
 
         if (expenses.Count > 0)
@@ -574,8 +498,8 @@ public static class PrintRules
             lines.Add(TicketLayout.ThinRule());
             lines.Add(TicketLayout.CenteredLine("تفصيل المصاريف", bold: true, size: TicketTextSize.Normal));
             foreach (var line in expenses)
-                lines.Add(TicketLayout.MoneyLine(line.Category, $"{line.Amount.Egp} ج", size: TicketTextSize.Large));
-            lines.Add(TicketLayout.MoneyLine("إجمالي المصاريف", $"{cash.Expenses.Egp} ج", bold: true, size: TicketTextSize.Large));
+                lines.Add(TicketLayout.MoneyLine(line.Category, TicketFormat.Amount(line.Amount), size: TicketTextSize.Large));
+            lines.Add(TicketLayout.MoneyLine("إجمالي المصاريف", TicketFormat.Amount(cash.Expenses), bold: true, size: TicketTextSize.Large));
         }
 
         if (!string.IsNullOrWhiteSpace(note))
@@ -587,7 +511,7 @@ public static class PrintRules
         if (warnings.Count > 0)
         {
             lines.Add(TicketLayout.ThinRule());
-            lines.Add(TicketLayout.CenteredLine("تنبيهات قبل التسليم", bold: true));
+            lines.Add(TicketLayout.SectionBand("تنبيهات قبل التسليم"));
             foreach (var warning in warnings)
                 lines.Add(new TicketText($"- {warning}", Size: TicketTextSize.Large));
         }
@@ -607,7 +531,7 @@ public static class PrintRules
     /// </summary>
     public static ComposedTicket ComposeShiftCloseStatement(ShiftCloseStatement s, bool recomputed = false)
     {
-        static string Egp(long piastres) => $"{Money.FromPiastres(piastres).Egp} ج";
+        static string Egp(long piastres) => TicketFormat.Amount(Money.FromPiastres(piastres));
         var lines = new List<TicketElement>();
         lines.AddRange(SlipHeading(s.RestaurantName, s.SubName, "إغلاق وتسليم وردية"));
         if (recomputed)
@@ -619,12 +543,12 @@ public static class PrintRules
         lines.Add(TicketLayout.SlipLine("يوم العمل", "\u200E" + s.BusinessDate.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture)));
         lines.Add(TicketLayout.SlipLine("الكاشير", s.CashierName));
         if (s.ClosedByName != s.CashierName) lines.Add(TicketLayout.SlipLine("أغلقها", s.ClosedByName));
-        lines.Add(TicketLayout.SlipLine("الفتح", $"{FormatCairoDate(s.OpenedAtUtc)} {FormatCairoTime(s.OpenedAtUtc)}"));
-        lines.Add(TicketLayout.SlipLine("الإغلاق", $"{FormatCairoDate(s.ClosedAtUtc)} {FormatCairoTime(s.ClosedAtUtc)}"));
+        lines.Add(TicketLayout.SlipLine("الفتح", FormatCairo(s.OpenedAtUtc)));
+        lines.Add(TicketLayout.SlipLine("الإغلاق", FormatCairo(s.ClosedAtUtc)));
 
         var sales = s.Sales;
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.CenteredLine("المبيعات", bold: true));
+        lines.Add(TicketLayout.SectionBand("المبيعات"));
         lines.Add(TicketLayout.MoneyLine("عدد الطلبات", sales.OrderCount.ToString(System.Globalization.CultureInfo.InvariantCulture), size: TicketTextSize.Large));
         if (sales.CancelledOrderCount > 0)
             lines.Add(TicketLayout.MoneyLine("طلبات ملغاة (خارج المبيعات)", sales.CancelledOrderCount.ToString(System.Globalization.CultureInfo.InvariantCulture), size: TicketTextSize.Large));
@@ -637,7 +561,7 @@ public static class PrintRules
         lines.Add(TicketLayout.MoneyLine("صافي المبيعات", Egp(sales.NetSalesPiastres), bold: true, size: TicketTextSize.Large));
 
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.CenteredLine("طرق الدفع", bold: true));
+        lines.Add(TicketLayout.SectionBand("طرق الدفع"));
         lines.Add(TicketLayout.MoneyLine("نقدًا", Egp(sales.CashPiastres), size: TicketTextSize.Large));
         lines.Add(TicketLayout.MoneyLine("بطاقة", Egp(sales.CardPiastres), size: TicketTextSize.Large));
         lines.Add(TicketLayout.MoneyLine("إنستاباي (مؤكد)", Egp(sales.InstaPayPiastres), size: TicketTextSize.Large));
@@ -651,7 +575,7 @@ public static class PrintRules
         if (s.Expenses.Count > 0)
         {
             lines.Add(TicketLayout.ThinRule());
-            lines.Add(TicketLayout.CenteredLine("المصروفات", bold: true));
+            lines.Add(TicketLayout.SectionBand("المصروفات"));
             foreach (var e in s.Expenses)
             {
                 lines.Add(TicketLayout.MoneyLine(e.Category, Egp(e.AmountPiastres), size: TicketTextSize.Large));
@@ -665,10 +589,19 @@ public static class PrintRules
 
         var cash = s.Cash;
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.CenteredLine("نقدية الدرج", bold: true));
+        lines.Add(TicketLayout.SectionBand("نقدية الدرج"));
+        if (cash.InheritedFloatPiastres is { } inherited)
+        {
+            lines.Add(TicketLayout.MoneyLine("عهدة متروكة من الوردية السابقة", Egp(inherited), size: TicketTextSize.Large));
+            if (inherited != cash.OpeningPiastres)
+                lines.Add(TicketLayout.MoneyLine(cash.OpeningPiastres < inherited ? "عجز عند الاستلام (مسجل منفصلًا)" : "زيادة عند الاستلام (مسجلة منفصلًا)",
+                    Egp(Math.Abs(cash.OpeningPiastres - inherited)), size: TicketTextSize.Large));
+        }
         lines.Add(TicketLayout.MoneyLine("رصيد الافتتاح", Egp(cash.OpeningPiastres), size: TicketTextSize.Large));
         lines.Add(TicketLayout.MoneyLine("مبيعات الكاش", Egp(cash.CashSalesPiastres), size: TicketTextSize.Large));
-        if (cash.CashInPiastres > 0) lines.Add(TicketLayout.MoneyLine("إيداعات / إضافات", Egp(cash.CashInPiastres), size: TicketTextSize.Large));
+        if (cash.CashInPiastres > 0) lines.Add(TicketLayout.MoneyLine("إيداعات / إضافات من الخزنة", Egp(cash.CashInPiastres), size: TicketTextSize.Large));
+        if (cash.DriverCashPiastres > 0) lines.Add(TicketLayout.MoneyLine("توريدات السائقين", Egp(cash.DriverCashPiastres), size: TicketTextSize.Large));
+        if (cash.DriverPayoutsPiastres > 0) lines.Add(TicketLayout.MoneyLine("صرف أجر توصيل للسائقين", Egp(cash.DriverPayoutsPiastres), size: TicketTextSize.Large));
         if (cash.RefundsPiastres > 0) lines.Add(TicketLayout.MoneyLine("مرتجعات نقدية من الدرج", Egp(cash.RefundsPiastres), size: TicketTextSize.Large));
         if (cash.DrawerExpensesPiastres > 0) lines.Add(TicketLayout.MoneyLine("مصروفات من الدرج", Egp(cash.DrawerExpensesPiastres), size: TicketTextSize.Large));
         if (cash.WithdrawalsPiastres > 0) lines.Add(TicketLayout.MoneyLine("المسحوبات", Egp(cash.WithdrawalsPiastres), size: TicketTextSize.Large));
@@ -683,11 +616,14 @@ public static class PrintRules
             lines.Add(TicketLayout.SlipLine("اعتمد الفرق", s.ApprovedByName!));
 
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.CenteredLine("التسليم", bold: true));
+        lines.Add(TicketLayout.SectionBand("التسليم"));
         lines.Add(TicketLayout.MoneyLine($"سُلِّم إلى {cash.HandoverDestinationName}", Egp(cash.HandedOverPiastres), bold: true, size: TicketTextSize.Large));
+        if (!string.IsNullOrWhiteSpace(cash.HandoverReceiverName)) lines.Add(TicketLayout.SlipLine("المستلم", cash.HandoverReceiverName!));
+        if (cash.RetainedFloatPiastres > 0)
+            lines.Add(TicketLayout.MoneyLine("عهدة متروكة في الدرج للوردية التالية", Egp(cash.RetainedFloatPiastres), bold: true, size: TicketTextSize.Large));
 
         lines.Add(TicketLayout.ThinRule());
-        lines.Add(TicketLayout.CenteredLine("بنود مفتوحة عند التسليم", bold: true));
+        lines.Add(TicketLayout.SectionBand("بنود مفتوحة عند التسليم"));
         if (s.Outstanding.Count == 0)
             lines.Add(TicketLayout.CenteredLine("لا يوجد", size: TicketTextSize.Normal));
         foreach (var item in s.Outstanding)
@@ -712,21 +648,22 @@ public static class PrintRules
     /// UI-REQ-001: one driver's daily statement on paper - the header (driver, business day, payment
     /// filter, who printed it and when), the summary, and with <paramref name="detailed"/> one block per
     /// order. Built from the same rows and totals the screen shows (DriverStatementRules.Totals).
-    /// Delivery charges are printed as what the customer paid for delivery, never as the driver's pay.
+    /// Delivery charges are what the customer paid for delivery; on a delivered order that full charge is the
+    /// driver's earning (owner rule 2026-11-08), and the paper shows it and the net after it.
     /// </summary>
     public static ComposedTicket ComposeDriverStatement(
         string restaurantName, string? subName, string driverName, DateOnly businessDate, string? paymentFilter,
         IReadOnlyList<Falah.Domain.Delivery.DriverStatementOrder> orders, Falah.Domain.Delivery.DriverStatementTotals totals,
         bool detailed, string printedBy, DateTimeOffset printedAtUtc)
     {
-        static string Egp(long piastres) => $"{Money.FromPiastres(piastres).Egp} ج";
+        static string Egp(long piastres) => TicketFormat.Amount(Money.FromPiastres(piastres));
         var lines = new List<TicketElement>();
         lines.AddRange(SlipHeading(restaurantName, subName, detailed ? "كشف يومية سائق - تفصيلي" : "كشف يومية سائق - ملخص"));
         lines.Add(TicketLayout.SlipLine("السائق", driverName));
         lines.Add(TicketLayout.SlipLine("يوم العمل", "‎" + businessDate.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture)));
         lines.Add(TicketLayout.SlipLine("طريقة الدفع", DriverStatementFilterLabel(paymentFilter)));
         lines.Add(TicketLayout.SlipLine("طُبع بواسطة", printedBy));
-        lines.Add(TicketLayout.SlipLine("وقت الطباعة", $"{FormatCairoDate(printedAtUtc)} {FormatCairoTime(printedAtUtc)}"));
+        lines.Add(TicketLayout.SlipLine("وقت الطباعة", FormatCairo(printedAtUtc)));
 
         lines.Add(TicketLayout.ThinRule());
         lines.Add(TicketLayout.MoneyLine("عدد الفواتير", totals.InvoiceCount.ToString(System.Globalization.CultureInfo.InvariantCulture), bold: true, size: TicketTextSize.Large));
@@ -740,6 +677,9 @@ public static class PrintRules
         lines.Add(TicketLayout.MoneyLine("حصّله السائق", Egp(totals.CollectedPiastres), size: TicketTextSize.Large));
         lines.Add(TicketLayout.MoneyLine("منه تمت تسويته", Egp(totals.CollectedSettledPiastres), size: TicketTextSize.Large));
         lines.Add(TicketLayout.MoneyLine("منه لم يُسوَّ بعد", Egp(totals.CollectedUnsettledPiastres), bold: true, size: TicketTextSize.Large));
+        lines.Add(TicketLayout.MoneyLine("أجر التوصيل المستحق للسائق", Egp(totals.DriverFeesEarnedPiastres), size: TicketTextSize.Large));
+        lines.Add(TicketLayout.MoneyLine(totals.NetAfterFeesPiastres >= 0 ? "صافي على السائق بعد أجره" : "صافي مستحق للسائق",
+            Egp(Math.Abs(totals.NetAfterFeesPiastres)), bold: true, size: TicketTextSize.Large));
         if (totals.FailedOrReturnedCount > 0)
             lines.Add(TicketLayout.MoneyLine("توصيل فشل / مرتجع", totals.FailedOrReturnedCount.ToString(System.Globalization.CultureInfo.InvariantCulture), size: TicketTextSize.Large));
         if (totals.CancelledCount > 0)
@@ -780,7 +720,7 @@ public static class PrintRules
     {
         var lines = new List<TicketElement>();
         lines.AddRange(SlipHeading(expense.RestaurantName, expense.SubName, "مصروف"));
-        lines.Add(TicketLayout.MoneyLine("المبلغ", $"{expense.Amount.Egp} ج", bold: true, size: TicketTextSize.Title));
+        lines.Add(TicketLayout.MoneyLine("المبلغ", TicketFormat.Amount(expense.Amount), bold: true, size: TicketTextSize.Title));
         lines.Add(TicketLayout.ThinRule());
         lines.Add(TicketLayout.SlipLine("التاريخ", FormatCairoDate(expense.CreatedAtUtc)));
         lines.Add(TicketLayout.SlipLine("الوقت", FormatCairoTime(expense.CreatedAtUtc)));
@@ -802,13 +742,10 @@ public static class PrintRules
     public const string ShiftCloseLabel = "إغلاق وردية";
     public const string ExpenseLabel = "مصروف";
 
-    private static IEnumerable<TicketElement> SlipHeading(string restaurantName, string? subName, string title)
-    {
-        yield return TicketLayout.BrandTitle(restaurantName);
-        if (!string.IsNullOrWhiteSpace(subName)) yield return TicketLayout.Tagline(subName!.Trim());
-        yield return TicketLayout.SlipTitle(title);
-        yield return TicketLayout.ThinRule();
-    }
+    /// <summary>Every slip opens with the shared internal header (paper redesign 2026-11-17). The
+    /// sub-name is the customer header's line; internal papers carry the name and their own title.</summary>
+    private static IEnumerable<TicketElement> SlipHeading(string restaurantName, string? subName, string title) =>
+        TicketLayout.InternalHeader(restaurantName, title);
 
     private static string DescribeDifference(Money difference) =>
         difference.IsZero ? "الفرق - مطابق" : difference.IsNegative ? "الفرق - عجز" : "الفرق - زيادة";

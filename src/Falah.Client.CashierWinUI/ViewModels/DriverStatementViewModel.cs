@@ -75,13 +75,16 @@ public partial class DriverStatementViewModel : ObservableObject
     public string Collected => Totals is null ? "—" : Egp(Totals.CollectedPiastres);
     public string Unsettled => Totals is null ? "—" : Egp(Totals.CollectedUnsettledPiastres);
     public string Refunded => Totals is null ? "—" : Egp(Totals.RefundedPiastres);
+    public string DriverFees => Totals is null ? "—" : Egp(Totals.DriverFeesEarnedPiastres);
+    public string NetAfterFeesLabel => Totals is { NetAfterFeesPiastres: < 0 } ? "صافي مستحق للسائق" : "صافي على السائق بعد أجره";
+    public string NetAfterFees => Totals is null ? "—" : Egp(Math.Abs(Totals.NetAfterFeesPiastres));
     public string Footnote => Totals is null ? "" :
-        $"ملغاة خارج المجاميع: {Totals.CancelledCount} • توصيل فشل/مرتجع: {Totals.FailedOrReturnedCount} • خدمة التوصيل هي ما دفعه العملاء للتوصيل وليست أجر السائق.";
+        $"ملغاة خارج المجاميع: {Totals.CancelledCount} • توصيل فشل/مرتجع: {Totals.FailedOrReturnedCount} • خدمة التوصيل كاملة على كل طلب تم توصيله هي أجر السائق، وتُخصم من النقدية التي يسلّمها. التوصيل الفاشل أو المرتجع بلا أجر.";
 
     partial void OnTotalsChanged(DriverStatementTotals? value)
     {
         foreach (var p in new[] { nameof(InvoiceCount), nameof(FoodSales), nameof(DeliveryFees), nameof(OrderTotal), nameof(Prepaid),
-                     nameof(ToCollect), nameof(Collected), nameof(Unsettled), nameof(Refunded), nameof(Footnote), nameof(IsEmpty), nameof(HasRows) })
+                     nameof(ToCollect), nameof(Collected), nameof(Unsettled), nameof(Refunded), nameof(DriverFees), nameof(NetAfterFeesLabel), nameof(NetAfterFees), nameof(Footnote), nameof(IsEmpty), nameof(HasRows) })
             OnPropertyChanged(p);
     }
 

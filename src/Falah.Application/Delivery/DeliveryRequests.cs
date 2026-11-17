@@ -55,13 +55,28 @@ public sealed record RecordDeliveryResultResult(string DeliveryId, string Status
 /// unsettled/resolved deliveries in one pass. Refuses (all-or-nothing) if any of the driver's orders
 /// is still out_for_delivery. A nonzero difference needs a reason AND delivery_settlement_approve on
 /// top of delivery_manage - a second, stacked authorization gate.</summary>
+/// <summary>
+/// A driver settlement with the cashier who receives the money (owner, 2026-11-08).
+///
+/// - ActualCashPiastres is the cash RECEIVED from the driver into the open shift's drawer.
+/// - PaidToDriverPiastres is cash paid FROM that drawer to the driver, when the restaurant owes him (for example,
+///   fees on prepaid deliveries).
+/// - KeepRemainderOpen carries anything still owed either way to his next settlement, instead of recording it as a
+///   shortage or overage.
+/// </summary>
 public sealed record SettleDriverCustodyRequest(
     string RequestId, string DriverId, long ActualCashPiastres, string? Reason, string ActorUserId,
-    string? ManagerApprovalId, string? ManagerApproverUserId);
+    string? ManagerApprovalId, string? ManagerApproverUserId,
+    long PaidToDriverPiastres = 0, bool KeepRemainderOpen = false);
 
+/// <summary>ExpectedPiastres is the net amount due (carried in + cash collected - fees earned): positive = owed by
+/// the driver, negative = owed to him. DifferencePiastres is the recorded shortage (-) / overage (+) of a final
+/// settlement; CarriedOutPiastres is what a partial settlement leaves owed.</summary>
 public sealed record SettleDriverCustodyResult(
     string SettlementId, string DriverId, long ExpectedPiastres, long ActualPiastres, long DifferencePiastres,
-    int OrderCount, string? TreasuryMovementId, bool WasReplayed);
+    int OrderCount, string? TreasuryMovementId, bool WasReplayed,
+    long CarriedInPiastres = 0, long CashCollectedPiastres = 0, long FeeEntitlementPiastres = 0,
+    long PaidToDriverPiastres = 0, long CarriedOutPiastres = 0, string? ShiftId = null, string? PayoutTreasuryMovementId = null);
 
 /// <summary>One row of the dispatch board.
 ///
@@ -119,9 +134,34 @@ public sealed record DriverAccountDto(
     int ActiveOrderCount, int CompletedUnsettledCount, int FailedOrReturnedUnsettledCount,
     long GrossWorkValuePiastres, long PrepaidCompletedPiastres, long CashCustodyPiastres, bool CanSettle,
     IReadOnlyList<BlockingOrderDto> BlockingOrders,
-    int AllTimeSettledOrderCount, long AllTimeSettledCashPiastres, DateTimeOffset? LastSettlementAtUtc);
+    int AllTimeSettledOrderCount, long AllTimeSettledCashPiastres, DateTimeOffset? LastSettlementAtUtc,
+    /// <summary>The settlement preview, computed exactly as SettleDriverCustodyHandler will (DriverSettlementRules):
+    /// balance carried from the last partial settlement (+ owed by the driver, - owed to him), the full delivery fee
+    /// recorded on each completed, unsettled delivery (the driver's earnings), and the net: carried + cash collected
+    /// - fees. A negative net is what the restaurant owes the driver.</summary>
+    long CarriedBalancePiastres = 0, long PendingFeesPiastres = 0, long NetDuePiastres = 0);
 
 public sealed class DeliveryConflictException : Exception
 {
     public DeliveryConflictException(string message) : base(message) { }
 }
+
+/// <summary>AUD-03 classification of one delivered order's collection shortfall (CollectionShortfallRules):
+/// Classification is customer_receivable, approved_discount, write_off or driver_liability; Evidence says who agreed,
+/// why, and which document backs it. The amount is read on the server from the custody. One per delivery.</summary>
+public sealed record ClassifyCollectionShortfallRequest(
+    string RequestId, string DeliveryId, string Classification, string Evidence, string ActorUserId,
+    string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
+
+/// <summary>One delivered order whose customer paid less than was due. Status is "unresolved" until classified.</summary>
+public sealed record CollectionShortfallDto(
+    string DeliveryId, string OrderId, string? OrderNumber, string? DriverId, string? DriverName,
+    long ExpectedPiastres, long CollectedPiastres, long ShortfallPiastres, DateTimeOffset? DeliveredAtUtc,
+    string Status, string? Classification, string? Evidence, string? ClassifiedBy, string? ApprovedBy, DateTimeOffset? ClassifiedAtUtc,
+    bool WasReplayed = false);
+
+/// <summary>Every collection shortfall, now (not a period): an unresolved one from last week is the one to chase.
+/// Receivable = still owed by a customer or a driver; RealisedReduction = given up by an approved discount/write-off.</summary>
+public sealed record CollectionShortfallListDto(
+    long UnresolvedPiastres, int UnresolvedCount, long ReceivablePiastres, long RealisedReductionPiastres,
+    IReadOnlyList<CollectionShortfallDto> Items);

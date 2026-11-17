@@ -81,12 +81,34 @@ internal static class ShiftReconciliation
             .Where(m => m.ShiftId == shiftId && m.Status == nameof(MovementStatus.Posted)
                 && (m.Type == "cash_in" || m.Type == "safe_drop" || (DrawerWithdrawalTypes.Contains(m.Type) && m.SourceAccountId == TreasuryAccounts.Drawer)))
             .ToListAsync(ct);
-        var cashIn = Money.FromPiastres(movements.Where(m => m.Type == "cash_in").Sum(m => m.AmountPiastres));
-        var withdrawals = Money.FromPiastres(movements.Where(m => DrawerWithdrawalTypes.Contains(m.Type)).Sum(m => m.AmountPiastres));
+        // A treasury entry of this shift recorded by mistake (a safe drop, a cash in/out) is corrected by its linked
+        // opposite against the same shift (CorrectTreasuryMovementHandler): money the drawer never gave or never got.
+        // Read by direction, so a corrected safe drop brings expected cash back up and a corrected cash in takes it down.
+        var corrections = await db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.ShiftId == shiftId && m.Status == nameof(MovementStatus.Posted) && m.Type == TreasuryCorrectionRules.MovementType
+                && (m.SourceAccountId == TreasuryAccounts.Drawer || m.DestinationAccountId == TreasuryAccounts.Drawer))
+            .Select(m => new { m.SourceAccountId, m.AmountPiastres })
+            .ToListAsync(ct);
+        var correctionsIn = Money.FromPiastres(corrections.Where(m => m.SourceAccountId != TreasuryAccounts.Drawer).Sum(m => m.AmountPiastres));
+        var correctionsOut = Money.FromPiastres(corrections.Where(m => m.SourceAccountId == TreasuryAccounts.Drawer).Sum(m => m.AmountPiastres));
+
+        var cashIn = Money.FromPiastres(movements.Where(m => m.Type == "cash_in").Sum(m => m.AmountPiastres)) + correctionsIn;
+        var withdrawals = Money.FromPiastres(movements.Where(m => DrawerWithdrawalTypes.Contains(m.Type)).Sum(m => m.AmountPiastres)) + correctionsOut;
         var safeDrops = Money.FromPiastres(movements.Where(m => m.Type == "safe_drop").Sum(m => m.AmountPiastres));
 
+        // A driver settles with the cashier who receives his money: his net cash came INTO this drawer, and a fee
+        // the restaurant owed him on prepaid deliveries went OUT of it. Neither is a sale; the orders were.
+        var driverMovements = await db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.ShiftId == shiftId && m.Status == nameof(MovementStatus.Posted)
+                && ((m.Type == "driver_settlement" && m.DestinationAccountId == TreasuryAccounts.Drawer)
+                    || (m.Type == "driver_fee_payout" && m.SourceAccountId == TreasuryAccounts.Drawer)))
+            .Select(m => new { m.Type, m.AmountPiastres })
+            .ToListAsync(ct);
+        var driverCash = Money.FromPiastres(driverMovements.Where(m => m.Type == "driver_settlement").Sum(m => m.AmountPiastres));
+        var driverPayouts = Money.FromPiastres(driverMovements.Where(m => m.Type == "driver_fee_payout").Sum(m => m.AmountPiastres));
+
         var expected = FinancialRules.CalculateExpectedDrawerCash(
-            openingCash, netCashSales, drawerExpenses, cashIn, withdrawals + safeDrops);
+            openingCash, netCashSales, drawerExpenses, cashIn + driverCash, withdrawals + safeDrops + driverPayouts);
 
         return new ShiftCashBreakdown(
             OpeningCash: openingCash,
@@ -98,6 +120,8 @@ internal static class ShiftReconciliation
             SafeDrops: safeDrops,
             ExpectedCash: expected,
             ActualCash: Money.Zero,
-            Difference: Money.Zero);
+            Difference: Money.Zero,
+            DriverCash: driverCash,
+            DriverPayouts: driverPayouts);
     }
 }

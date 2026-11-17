@@ -218,8 +218,11 @@ public partial class CallCenterViewModel
             return;
         }
         DeliveryServicesError = null;
+        // Keep the operator's choice, but bound to the freshly loaded copy: the old object carries the old fee.
+        var selectedId = SelectedDeliveryService?.Id;
         DeliveryServices.Clear();
         foreach (var s in result.Value) DeliveryServices.Add(s);
+        SelectedDeliveryService = selectedId is null ? null : DeliveryServices.FirstOrDefault(s => s.Id == selectedId);
     }
 
     private void ResetCustomerAndDelivery()

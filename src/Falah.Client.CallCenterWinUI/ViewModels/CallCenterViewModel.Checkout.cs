@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Customers;
 using Falah.Application.Orders;
@@ -200,6 +200,9 @@ public partial class CallCenterViewModel
             OnPropertyChanged(nameof(HasPendingCheckout));
             RefreshOperationState();
             CheckoutError = result.Error ?? "تعذر تسجيل الطلب.";
+            // The server charges the zone's current fee and refuses a stale one (AUD-01). Reloading the zones puts
+            // the fee it will accept on screen, so the operator can read the new total to the customer and resend.
+            await LoadDeliveryServicesAsync();
             return;
         }
 

@@ -762,22 +762,23 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
     /// it as a QR only while one is configured. Nothing invents an address: with no link there is no
     /// code, and a malformed link is refused rather than printed as a code that goes nowhere.</summary>
     [Fact]
-    public async Task The_configured_menu_link_becomes_the_receipt_qr_and_nothing_else_does()
+    public async Task The_configured_menu_link_is_validated_and_never_reaches_the_takeaway_or_order_taking_paper()
     {
+        // Paper redesign Amendment 2 (owner, 2026-11-17): the QR prints on the driver's paper only
+        // (DeliveryVerticalSliceTests.The_menu_link_becomes_the_qr_on_the_drivers_paper). Here: the link
+        // is still validated and stored trimmed, and the papers printed at the till and at the call
+        // center never carry it.
         var settingsAdmin = await _factory.SeedUserAsync("مسؤول المنيو", "manager", "settings_manage");
         var product = await CreateProductAsync("مياه", 1_000, null);
 
-        async Task<List<TicketElementDto>> ReceiptLinesAsync()
+        async Task<List<TicketElementDto>> ReceiptLinesAsync(string route)
         {
             var order = await CheckoutAsync((product, 1));
-            var jobs = await CreatePrintJobsAsync(order.OrderId, "Receipt");
-            var receipt = jobs!.Jobs.Single(j => j.Route == "Receipt");
+            var jobs = await CreatePrintJobsAsync(order.OrderId, route);
+            var receipt = jobs!.Jobs.Single(j => j.Route == route);
             var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{receipt.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
             return ticket!.Lines.ToList();
         }
-
-        // Nothing configured: no code.
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
 
         // Refused, and nothing stored.
         foreach (var bad in new[] { "menu.falah", "ftp://menu.example/x", "javascript:alert(1)" })
@@ -786,25 +787,25 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
                 new Falah.Application.Settings.UpdateSettingsRequest(settingsAdmin, MenuUrl: bad));
             Assert.False(refused.IsSuccessStatusCode, $"'{bad}' should have been refused");
         }
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.True(string.IsNullOrEmpty((await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl));
 
-        // Configured: exactly one code, carrying the link as stored (trimmed).
+        // Configured and stored trimmed - yet neither paper carries a code.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, MenuUrl: "  https://menu.example/falah  "))).EnsureSuccessStatusCode();
         var settings = await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings");
         Assert.Equal("https://menu.example/falah", settings!.MenuUrl);
-        var qr = Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
-        Assert.Equal("https://menu.example/falah", qr.Text);
+        Assert.DoesNotContain(await ReceiptLinesAsync("Receipt"), l => l.Kind == "qr");
+        Assert.DoesNotContain(await ReceiptLinesAsync("CallCenter"), l => l.Kind == "qr");
 
         // Another settings change that does not mention the link leaves it alone.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, RestaurantName: "فالح أبو العنبه"))).EnsureSuccessStatusCode();
-        Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.Equal("https://menu.example/falah", (await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl);
 
-        // Cleared with an empty value: the code goes away again.
+        // Cleared with an empty value.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, MenuUrl: ""))).EnsureSuccessStatusCode();
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.True(string.IsNullOrEmpty((await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl));
     }
 
     [Fact]

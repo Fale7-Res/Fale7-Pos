@@ -345,3 +345,105 @@ None block these features. If the owner wants a different rule, the choices that
 - which driver gets a reassigned order.
 
 Each is a one-place change in `DeliveryQueryService.GetDriverDailyStatementAsync` or `DriverStatementRules`.
+
+## Driver fee settlement and physical shift handover — Claude, 2026-11-12
+
+Implements the owner's accounting rules recorded as "Missing" in `All Issues/REMEDIATION/CHECKPOINT.md` (2026-11-11).
+Source fingerprint `4329469C4AD05E58`.
+
+### What the system now does
+
+- **Driver earnings.** The full delivery fee recorded on each successfully delivered order is the driver's
+  (`DriverSettlementRules.FeeEntitlement`, `DeliveryRules.FinalOutcome == Delivered`). Failed and returned deliveries
+  earn nothing. Fees are recognised once, in the settlement that settles those deliveries.
+- **Settlement figures.** Due = carried-in balance + cash collected − fees. Received cash goes into the drawer of the
+  shift open at that moment, attributed to it (`driver_settlement`, destination `tre-drawer`, `ShiftId`). It is
+  counted at that shift's blind close; it is not a sale.
+- **Partial settlement.** «تسوية جزئية» carries the remainder forward (owed by the driver, or owed to him). A carried
+  balance blocks the business-day close (`UNSETTLED_DRIVER_BALANCE`) and is listed on the close statement.
+- **Prepaid deliveries.** They are never collected again. When fees exceed the cash a driver brings, the restaurant's
+  debt to him is paid out of the drawer explicitly (`driver_fee_payout`, checked against the drawer balance) or carried.
+  It is never clamped to zero.
+- **Unchanged controls.** A final settlement that differs from the due amount needs a reason and
+  `delivery_settlement_approve`, as before. Duplicate and concurrent requests post once: the idempotency key, the
+  row locks, and a new per-driver app lock for balance-only settlements.
+- **Close split.** After the blind count, the cashier states the float left in the drawer (offered as the configured
+  default float, never more than counted) and names the manager who received the rest. Counted = retained + handed
+  over. Only the handed-over cash moves drawer → main. A shortage or overage stays with the shift that had it.
+- **Next opening.** A shift opens on what the last close left (`InheritedFloatPiastres`). No second float is issued
+  from the treasury. The opening figure is what the cashier actually counted. A gap against what was left is recorded
+  separately (`opening_float_shortfall` / `_overage`, no shift, referencing the previous shift), and the new cashier
+  is answerable only for what was really there. Topping up to 1,000 is the existing «إضافة نقدية» (`cash_in` from main).
+- **Statements.** The close statement (schema 2) adds driver cash, driver payouts, the inherited float and any gap,
+  top-ups from the treasury, the float left, and the receiver. Older statements still read as "all counted cash handed
+  over". The driver statement and its paper now say the fee is the driver's earning, and show his fees and the net.
+  The owner dashboard reconciles collected = channels + driver cash handed in + fees drivers kept.
+
+### Evidence
+
+- Domain 485/485, Client 381/381.
+- New integration class `DriverFeeSettlementAndHandoverTests` (10). It covers:
+  - two shifts, different area fees, cash and prepaid, partial then final settlement;
+  - concurrent settlements, and a lost response replayed after a server restart;
+  - 990 plus a 10 top-up, retained float and handover, shortage and overage, the next opening;
+  - midnight;
+  - print failure after commit, then a reprint.
+- Updated tests that encoded the old rule:
+  - DeliveryVerticalSlice ×2: cash now goes into the receiving drawer;
+  - DriverDailyStatement: settles net of fees;
+  - Reporting delivery outcomes: settles net of fees;
+  - client close fixtures: now name the receiver.
+- Native demo on both apps: `artifacts/claude-20261112/demo/SUMMARY.md`.
+- Upgrade and backup/restore rehearsal: `artifacts/claude-20261112/upgrade-rehearsal/`.
+
+### Decisions still the owner's (recorded in docs/ASSESSMENT.md)
+
+DRV-FEE-01 refunds after delivery; DRV-FEE-02 waived or reduced fees; DRV-FEE-03 reassignment; DRV-FEE-04 accounting
+presentation of driver fees; DRV-AUTH-01 whether cashiers get `delivery_manage`; HND-01 who bears a gap found at opening.
+
+## Paper redesign and Charcoal printer — Claude, 2026-11-17
+
+The owner asked for a professional, consistent design for every printed paper, and for the new
+Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
+`docs/superpowers/specs/2026-11-17-paper-design-design.md`. Plan:
+`docs/superpowers/plans/2026-11-17-paper-design.md`. Design and evidence summary:
+`docs/PRINT_AGENT.md` § "Paper design".
+
+### What the owner decided, on paper
+
+- One visual system:
+  - the **Dubai** typeface, slightly larger, with a lighter bold;
+  - the logo (black-and-white "variant C") on customer papers only;
+  - section titles on black bands, and item tables as ruled grids;
+  - amounts as `12,500 ج`, and times as `hh:mm ص/م`.
+- The **takeaway receipt is one paper**, with no QR.
+- **Delivery has two papers.**
+  - At order-taking, «تحضير طلب» goes into the restaurant: no money, no logo, no QR.
+  - At driver pickup, the driver's paper is the customer's full receipt, with the **menu QR**.
+- The **shift-opening slip is retired**. Jobs queued before deployment still print.
+- The sub-name on paper should read «ألذ سندوتش». It is a Settings value: the owner changes it in
+  Settings; no code holds it.
+
+### Evidence
+
+- **Charcoal printer** (serial `1C80CF9C0000`), on a temporary queue `XP-D200N-Charcoal` on the
+  development laptop. The real workflow was run against an isolated server on a throwaway database:
+  - 12 physical tests passed with the owner looking at the paper: Arabic, mixed text, long names,
+    notes, quantities, a 32 cm ticket, the cutter, a reprint, a duplicate request, an agent
+    restart, and USB unplug and replug.
+  - USB unplug showed PRT-0004 in practice: the job was reported Succeeded while the spooler held
+    it, and it printed once when the USB came back.
+- **Paper design:** every paper was printed and approved by the owner after each round (initial
+  design, Amendment 1, Amendment 2).
+- **Automated tests:** Domain, Client and the printing/affected integration classes are green.
+  Counts are in `.superpowers/sdd/2026-11-17-paper-design/progress.md` and the closeout run.
+
+### Still the owner's or on site
+
+- Set up each restaurant station PC for its printer:
+  - a Windows queue on that PC's USB port;
+  - the agent service with a dedicated `print_agent` user;
+  - check that Dubai is installed (the agent logs a WARNING when it is not).
+- Deploy the server and the print agents together: new element kinds `logo` and `fitStart`.
+- Kitchen tickets are about 15 mm longer than before (larger type, chosen by the owner). A smaller
+  order number would save about 5 mm.

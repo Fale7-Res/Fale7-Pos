@@ -70,4 +70,62 @@ public class ShiftCloseStatementCompositionTests
         Assert.Contains("اعتمد الفرق", text);
         Assert.Contains(text, t => t.Contains("محسوبة من السجلات الحالية"));
     }
+
+    /// <summary>Schema 2 (2026-11-11): driver cash, payouts, an inherited float with a gap at opening, the float
+    /// left for the next shift and the named receiver. A version-1 statement prints none of these lines.</summary>
+    [Fact]
+    public void The_handover_paper_states_driver_cash_the_inherited_and_retained_float_and_the_receiver()
+    {
+        var v1 = Statement(DateTimeOffset.UtcNow.AddHours(-8), DateTimeOffset.UtcNow);
+        var v1Text = Text(PrintRules.ComposeShiftCloseStatement(v1));
+        foreach (var absent in new[] { "توريدات السائقين", "عهدة متروكة", "المستلم", "عجز عند الاستلام" })
+            Assert.DoesNotContain(v1Text, t => t.Contains(absent));
+
+        var v2 = v1 with
+        {
+            SchemaVersion = ShiftCloseStatement.CurrentSchemaVersion,
+            Cash = v1.Cash with
+            {
+                OpeningPiastres = 99_000, InheritedFloatPiastres = 100_000, CashInPiastres = 1_000,
+                DriverCashPiastres = 27_500, DriverPayoutsPiastres = 2_500,
+                RetainedFloatPiastres = 100_000, HandedOverPiastres = 25_000, HandoverReceiverName = "المدير",
+            },
+        };
+        var text = Text(PrintRules.ComposeShiftCloseStatement(v2));
+        Assert.Contains("عهدة متروكة من الوردية السابقة", text);
+        Assert.Contains("عجز عند الاستلام (مسجل منفصلًا)", text);
+        Assert.Contains("إيداعات / إضافات من الخزنة", text);
+        Assert.Contains("توريدات السائقين", text);
+        Assert.Contains("275 ج", text);
+        Assert.Contains("صرف أجر توصيل للسائقين", text);
+        Assert.Contains("عهدة متروكة في الدرج للوردية التالية", text);
+        Assert.Contains("1,000 ج", text);   // paper redesign spec 2026-11-17, "Money on paper": thousands separators
+        Assert.Contains("المستلم", text);
+        Assert.Contains("المدير", text);
+    }
+
+    [Fact]
+    public void A_drivers_daily_totals_count_his_fee_only_on_delivered_orders_and_state_the_net()
+    {
+        static Falah.Domain.Delivery.DriverStatementOrder Row(string status, long fee, long collected, bool cancelled = false) => new(
+            $"o-{Guid.NewGuid():N}", "#1", DateTimeOffset.UtcNow, null, null, null, "cash", status,
+            10_000, fee, 10_000 + fee, 0, 0, cancelled ? 0 : 10_000 + fee, collected, false, null, cancelled);
+
+        var totals = Falah.Domain.Delivery.DriverStatementRules.Totals(new[]
+        {
+            Row("Delivered", 2_000, 12_000),
+            Row("Delivered", 3_000, 13_000),
+            Row("Failed", 1_500, 0, cancelled: true),
+            Row("Returned", 2_500, 0),
+        });
+        Assert.Equal(5_000, totals.DriverFeesEarnedPiastres);
+        Assert.Equal(25_000 - 5_000, totals.NetAfterFeesPiastres);
+
+        var paper = Text(PrintRules.ComposeDriverStatement("فالح", null, "سائق", new DateOnly(2026, 11, 12), null,
+            Array.Empty<Falah.Domain.Delivery.DriverStatementOrder>(), totals, detailed: false, "المدير", DateTimeOffset.UtcNow));
+        Assert.Contains("أجر التوصيل المستحق للسائق", paper);
+        Assert.Contains("50 ج", paper);
+        Assert.Contains("صافي على السائق بعد أجره", paper);
+        Assert.Contains("200 ج", paper);
+    }
 }

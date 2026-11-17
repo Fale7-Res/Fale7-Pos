@@ -266,11 +266,6 @@
                                                         <TextBlock Text="نشطة" Foreground="{ThemeResource SuccessTextBrush}" FontWeight="Bold"
                                                                    HorizontalAlignment="Center"
                                                                    Visibility="{Binding IsClosed, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
-                                                        <Button Content="طباعة الافتتاح" MinHeight="40" FontSize="12" HorizontalAlignment="Stretch"
-                                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                                AutomationProperties.AutomationId="Shifts_ReprintOpen"
-                                                                AutomationProperties.Name="إعادة طباعة إيصال الافتتاح"
-                                                                Command="{Binding ElementName=Root, Path=DataContext.ReprintShiftOpenCommand}" CommandParameter="{Binding}"/>
                                                         <Button Content="طباعة التسليم" MinHeight="40" FontSize="12" HorizontalAlignment="Stretch"
                                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                                 AutomationProperties.AutomationId="Shifts_ReprintClose"
@@ -357,6 +352,22 @@
                                              AutomationProperties.AutomationId="Shifts_DifferenceReason"
                                              PlaceholderText="اكتب تفاصيل سبب العجز أو الزيادة" TextWrapping="Wrap" MinHeight="60"/>
                                 </StackPanel>
+                                <!-- Physical handover: counted = left in the drawer + handed to the receiver. -->
+                                <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="التسليم" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                        <TextBox Header="عهدة تُترك في الدرج للوردية التالية (ج)" MinHeight="44" InputScope="Number"
+                                                 AutomationProperties.Name="عهدة تُترك في الدرج للوردية التالية" AutomationProperties.AutomationId="Shifts_Retained"
+                                                 Text="{Binding CloseShiftRetainedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="يُسلَّم للمسؤول:" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding CloseShiftHandedOverText}" FontWeight="Black" AutomationProperties.AutomationId="Shifts_HandedOver"/>
+                                        </Grid>
+                                        <ComboBox Header="المستلم" PlaceholderText="اختر المسؤول الذي استلم النقدية" HorizontalAlignment="Stretch" MinHeight="44"
+                                                  AutomationProperties.AutomationId="Shifts_Receiver"
+                                                  ItemsSource="{Binding HandoverReceivers}" SelectedItem="{Binding SelectedHandoverReceiver, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                    </StackPanel>
+                                </Border>
                                 <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="14" Padding="12"
                                         Visibility="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
                                     <StackPanel Spacing="10">
@@ -418,6 +429,11 @@
                             <TextBox Header="رصيد العهدة النقدية الافتتاحية (الفكة بالدرج):" MinHeight="52" InputScope="Number"
                                      AutomationProperties.AutomationId="Shifts_OpeningCash"
                                      Text="{Binding OpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12"
+                                    Visibility="{Binding OpeningInheritedNote, Converter={StaticResource NullToCollapsedConverter}}">
+                                <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"
+                                           AutomationProperties.AutomationId="Shifts_InheritedNote" Text="{Binding OpeningInheritedNote}"/>
+                            </Border>
                             <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12"
                                     Visibility="{Binding CanSeeMainTreasuryBalance, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock TextWrapping="Wrap" FontSize="12">

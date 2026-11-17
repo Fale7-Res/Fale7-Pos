@@ -204,6 +204,7 @@ public class DailyStatementVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Delivery_and_cod_custody_figures_match_the_dedicated_delivery_outcomes_report()
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 1000, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(15000, "برجر توصيل");
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,

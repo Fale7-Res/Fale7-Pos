@@ -56,13 +56,15 @@
                     </Grid>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                            <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2"><TextBlock Text="مدفوع مسبقًا" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Prepaid}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
                         <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="على السائق تحصيله" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding ToCollect}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
                         <StackPanel Grid.Column="2" Spacing="2"><TextBlock Text="حصّله السائق" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Collected}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
                         <StackPanel Grid.Column="3" Spacing="2"><TextBlock Text="لم يُسوَّ بعد" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Unsettled}" FontWeight="SemiBold" Foreground="{ThemeResource WarningTextBrush}"/></StackPanel>
                         <StackPanel Grid.Column="4" Spacing="2"><TextBlock Text="مرتجعات على الطلبات" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Refunded}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="5" Spacing="2"><TextBlock Text="أجر التوصيل للسائق" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding DriverFees}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}" AutomationProperties.AutomationId="DriverStatement_DriverFees"/></StackPanel>
+                        <StackPanel Grid.Column="6" Spacing="2"><TextBlock Text="{Binding NetAfterFeesLabel}" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding NetAfterFees}" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}" AutomationProperties.AutomationId="DriverStatement_Net"/></StackPanel>
                     </Grid>
                     <TextBlock Text="{Binding Footnote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding Error}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"

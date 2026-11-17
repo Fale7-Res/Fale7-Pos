@@ -54,11 +54,14 @@ public sealed class OwnerDashboardQueryService
             sales.InstaPayPiastres, sales.WalletPiastres,
             sales.PickupPiastres, sales.TakeawayPiastres, sales.DeliveryPiastres,
             await CurrentTreasuryAsync(ct),
-            await LoadSettledFromDriversAsync(start, end, ct));
+            await LoadSettledFromDriversAsync(start, end, ct),
+            await LoadDriverFeesRetainedAsync(start, end, ct));
 
-        var leakage = await LoadLeakageAsync(range, sales, expenses.TotalPiastres, refunds.Count, start, end, ct);
+        var shortfall = await LoadCollectionShortfallAsync(range, ct);
+        var leakage = await LoadLeakageAsync(range, sales, expenses.TotalPiastres, refunds.Count, start, end, shortfall, ct);
         var wages = await LoadWagesPostedAsync(range, ct);
-        var profitability = BuildProfitability(sales, tax, foodCost, expenses.TotalPiastres, wages.Total, wages.Count);
+        var driverPay = await LoadDriverCompensationAsync(range, ct);
+        var profitability = BuildProfitability(sales, tax, foodCost, expenses.TotalPiastres, wages.Total, wages.Count, driverPay, shortfall);
 
         return new OwnerDashboardDto(
             range.From.ToString("yyyy-MM-dd"), range.To.ToString("yyyy-MM-dd"), range.DayCount,
@@ -186,7 +189,7 @@ public sealed class OwnerDashboardQueryService
 
     private async Task<LeakageDto> LoadLeakageAsync(
         BusinessDateRange range, SalesReportDto sales, long expensesTotal, int refundCount,
-        DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
+        DateTimeOffset start, DateTimeOffset end, CollectionShortfall shortfall, CancellationToken ct)
     {
         var lossTypes = new[] { nameof(StockMovementType.Waste), nameof(StockMovementType.Spoilage), nameof(StockMovementType.Breakage) };
         var losses = await _db.StockMovements.AsNoTracking()
@@ -196,7 +199,40 @@ public sealed class OwnerDashboardQueryService
         return new LeakageDto(
             sales.OffersValuePiastres, sales.CompsValuePiastres, sales.ManualDiscountsPiastres,
             sales.RefundsPiastres, refundCount,
-            losses.Sum(v => v ?? 0), losses.Count, expensesTotal);
+            losses.Sum(v => v ?? 0), losses.Count, expensesTotal,
+            shortfall.Piastres, shortfall.Count,
+            losses.Count(v => v is null),
+            shortfall.UnresolvedPiastres, shortfall.UnresolvedCount);
+    }
+
+    /// <summary>All of the period's shortfalls, and how much of them is unresolved, still owed, or given up.</summary>
+    private readonly record struct CollectionShortfall(long Piastres, int Count, long UnresolvedPiastres, int UnresolvedCount, long ReceivablePiastres, long RealisedPiastres);
+
+    /// <summary>
+    /// AUD-03: what customers of the period's delivered orders paid below the amount due (approved at the delivery
+    /// result). Same selection as the sales report - the period's non-cancelled orders by the instant they were sold -
+    /// because the shortfall is a part of those sales that was never received.
+    ///
+    /// Classified by CollectionShortfallRules: only an approved discount or write-off is a realised reduction; a
+    /// receivable is still owed; one nobody classified is unresolved. Neither of the last two is a loss.
+    /// </summary>
+    private async Task<CollectionShortfall> LoadCollectionShortfallAsync(BusinessDateRange range, CancellationToken ct)
+    {
+        var (start, end) = range.ToUtcRange();
+        var cancelledWire = Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(OrderStatus.Cancelled);
+        var gaps = await (from o in _db.Orders.AsNoTracking()
+                          join d in _db.Deliveries.AsNoTracking() on o.Id equals d.OrderId
+                          join c in _db.DriverCustodies.AsNoTracking() on d.Id equals c.DeliveryId
+                          join r in _db.CollectionShortfallResolutions.AsNoTracking() on d.Id equals r.DeliveryId into rs
+                          from r in rs.DefaultIfEmpty()
+                          where o.Status != cancelledWire && o.CreatedAtUtc >= start && o.CreatedAtUtc < end
+                              && d.DeliveredAtUtc != null && c.CollectedPiastres < c.ExpectedPiastres
+                          select new { Gap = c.ExpectedPiastres - c.CollectedPiastres, Classification = r == null ? null : r.Classification })
+            .ToListAsync(ct);
+        var unresolved = gaps.Where(g => g.Classification is null).ToList();
+        return new CollectionShortfall(gaps.Sum(g => g.Gap), gaps.Count, unresolved.Sum(g => g.Gap), unresolved.Count,
+            gaps.Where(g => g.Classification is { } k && CollectionShortfallRules.IsReceivable(k)).Sum(g => g.Gap),
+            gaps.Where(g => g.Classification is { } k && CollectionShortfallRules.IsRealisedReduction(k)).Sum(g => g.Gap));
     }
 
     /// <summary>Wages actually posted to employee ledgers in the period - daily wages, salaries,
@@ -230,7 +266,8 @@ public sealed class OwnerDashboardQueryService
     /// them (net of the VAT handed back with refunds), which is owed to the tax authority and was
     /// never the restaurant's revenue. With no tax rule enabled the two are the same figure.</summary>
     private static ProfitabilityDto BuildProfitability(
-        SalesReportDto sales, TaxReportDto tax, FoodCostReportDto foodCost, long expenses, long wages, int wagePostingCount)
+        SalesReportDto sales, TaxReportDto tax, FoodCostReportDto foodCost, long expenses, long wages, int wagePostingCount,
+        DriverCompensation driverPay, CollectionShortfall shortfall)
     {
         var netSales = Money.FromPiastres(sales.NetSalesPiastres - tax.NetTaxPiastres);
         var knownFoodCost = Money.FromPiastres(foodCost.TotalFoodCostPiastres);
@@ -239,7 +276,8 @@ public sealed class OwnerDashboardQueryService
             netSales, knownFoodCost, foodCost.SoldLineCount, foodCost.KnownLineCount);
         var operating = ProfitabilityRules.ComputeOperatingMargin(
             netSales, knownFoodCost, Money.FromPiastres(expenses), Money.FromPiastres(wages),
-            foodCost.SoldLineCount, foodCost.KnownLineCount, wagePostingCount);
+            foodCost.SoldLineCount, foodCost.KnownLineCount, wagePostingCount, Money.FromPiastres(driverPay.EarnedPiastres),
+            Money.FromPiastres(shortfall.RealisedPiastres));
 
         return new ProfitabilityDto(
             gross.NetSales.Piastres, gross.KnownFoodCost?.Piastres, gross.GrossProfit?.Piastres,
@@ -247,7 +285,35 @@ public sealed class OwnerDashboardQueryService
             wages, operating.WagePercent,
             operating.OperatingResult?.Piastres, operating.OperatingPercent,
             gross.SoldLineCount, gross.KnownLineCount, gross.IsComplete,
-            foodCost.Missing);
+            foodCost.Missing,
+            driverPay.EarnedPiastres, driverPay.PendingPiastres, driverPay.PendingCount, shortfall.RealisedPiastres,
+            shortfall.UnresolvedPiastres, shortfall.ReceivablePiastres);
+    }
+
+    private readonly record struct DriverCompensation(long EarnedPiastres, long PendingPiastres, int PendingCount);
+
+    /// <summary>
+    /// AUD-02: the drivers' pay that the period's sales carry. Same selection as the sales report - the period's
+    /// non-cancelled orders by the instant they were sold - so the cost sits in the same period as the fee revenue it
+    /// offsets, however late the driver settles. A delivery earns its fee once its final outcome is Delivered (a
+    /// return after delivery earns nothing), exactly DriverSettlementRules.FeeEntitlement. One not resolved yet is
+    /// reported as pending: it is owed only if it is delivered.
+    /// </summary>
+    private async Task<DriverCompensation> LoadDriverCompensationAsync(BusinessDateRange range, CancellationToken ct)
+    {
+        var (start, end) = range.ToUtcRange();
+        var cancelledWire = Falah.Infrastructure.Orders.OrderEnumMapping.ToWireString(OrderStatus.Cancelled);
+        var cancelledDelivery = nameof(DeliveryStatus.Cancelled);
+        var rows = await (from o in _db.Orders.AsNoTracking()
+                          join d in _db.Deliveries.AsNoTracking() on o.Id equals d.OrderId
+                          where o.Status != cancelledWire && o.CreatedAtUtc >= start && o.CreatedAtUtc < end
+                              && o.DeliveryFeePiastres > 0 && d.Status != cancelledDelivery
+                          select new { o.DeliveryFeePiastres, d.DeliveredAtUtc, d.FailedAtUtc, d.ReturnedAtUtc })
+            .ToListAsync(ct);
+
+        var earned = rows.Where(r => r.ReturnedAtUtc == null && r.DeliveredAtUtc != null).ToList();
+        var pending = rows.Where(r => r.ReturnedAtUtc == null && r.DeliveredAtUtc == null && r.FailedAtUtc == null).ToList();
+        return new DriverCompensation(earned.Sum(r => r.DeliveryFeePiastres), pending.Sum(r => r.DeliveryFeePiastres), pending.Count);
     }
 
     /// <summary>Driver custody that reached the restaurant's own treasury during the period. It is
@@ -259,6 +325,13 @@ public sealed class OwnerDashboardQueryService
             .Where(m => m.Type == "driver_settlement" && m.Status == nameof(MovementStatus.Posted)
                 && m.CreatedAtUtc >= start && m.CreatedAtUtc < end)
             .SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
+
+    /// <summary>Delivery fees the drivers kept out of collected cash in the period, less fees the drawer paid out to
+    /// them (DriverSettlementRules): with LoadSettledFromDriversAsync, what the settled delivery orders brought in.</summary>
+    private async Task<long> LoadDriverFeesRetainedAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct) =>
+        await _db.DriverSettlements.AsNoTracking()
+            .Where(s => s.CreatedAtUtc >= start && s.CreatedAtUtc < end)
+            .SumAsync(s => (long?)(s.FeeEntitlementPiastres - s.PaidToDriverPiastres), ct) ?? 0;
 
     private async Task<AttentionDto> LoadAttentionAsync(BusinessDateRange range, CancellationToken ct)
     {

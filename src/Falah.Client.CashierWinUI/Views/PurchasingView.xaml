@@ -186,6 +186,7 @@
                                                 <ColumnDefinition Width="110"/>
                                                 <ColumnDefinition Width="150"/>
                                                 <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding InvoiceNumber}" Style="{StaticResource TableCellText}"
                                                        VerticalAlignment="Center" TextWrapping="Wrap"/>
@@ -207,6 +208,11 @@
                                                     Style="{StaticResource SecondaryButtonStyle}"
                                                     Visibility="{Binding RemainingAmountPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}"
                                                     Command="{Binding ElementName=Root, Path=DataContext.OpenPayCommand}" CommandParameter="{Binding}"/>
+                                            <Button Grid.Column="6" Content="تصحيح" MinHeight="44" FontSize="12"
+                                                    Style="{StaticResource GhostButtonStyle}"
+                                                    AutomationProperties.Name="تصحيح الفاتورة أو مرتجع للمورد"
+                                                    Visibility="{Binding RemainingAmountPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenCreditCommand}" CommandParameter="{Binding}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

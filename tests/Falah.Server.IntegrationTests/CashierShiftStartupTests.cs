@@ -80,7 +80,8 @@ public class CashierShiftStartupTests : IAsyncLifetime
         var opening = await Q(db => db.TreasuryMovements.AsNoTracking().SingleAsync(m => m.Type == "shift_opening_float"));
         Assert.Equal(99_000, opening.AmountPiastres);
         Assert.Equal(day.Id, opening.BusinessDayId);
-        Assert.Equal(1, await Q(db => db.PrintJobs.CountAsync(j => j.DocumentKind == "ShiftOpen" && j.OrderId == shift.Id)));
+        // Paper redesign spec 2026-11-17, Goal 5: the shift-opening slip is retired.
+        Assert.Equal(0, await Q(db => db.PrintJobs.CountAsync(j => j.DocumentKind == "ShiftOpen" && j.OrderId == shift.Id)));
 
         // The cashier still has no standalone day management.
         var dayOpen = await _client.PostAsJsonAsync("/api/business-day/open", new OpenBusinessDayRequest($"day-{Guid.NewGuid():N}", _ahmed));
@@ -154,7 +155,7 @@ public class CashierShiftStartupTests : IAsyncLifetime
         var replay = (await retry.Content.ReadFromJsonAsync<OpenShiftResult>())!;
         Assert.True(replay.WasReplayed);
         Assert.Equal((await first.Content.ReadFromJsonAsync<OpenShiftResult>())!.ShiftId, replay.ShiftId);
-        Assert.Equal((1, 1, 1, 1), await Counts());
+        Assert.Equal((1, 1, 1, 0), await Counts());   // no opening slip: spec 2026-11-17 Goal 5
     }
 
     [Fact]
@@ -166,7 +167,7 @@ public class CashierShiftStartupTests : IAsyncLifetime
 
         Assert.Equal(1, results.Count(r => r.IsSuccessStatusCode));
         Assert.All(results.Where(r => !r.IsSuccessStatusCode), r => Assert.Equal(HttpStatusCode.Conflict, r.StatusCode));
-        Assert.Equal((1, 1, 1, 1), await Counts());
+        Assert.Equal((1, 1, 1, 0), await Counts());   // no opening slip: spec 2026-11-17 Goal 5
     }
 
     [Fact]

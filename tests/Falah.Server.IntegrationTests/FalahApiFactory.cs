@@ -5,6 +5,7 @@ using Falah.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -272,6 +273,30 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         });
         await db.SaveChangesAsync();
         return productId;
+    }
+
+    /// <summary>Creates the delivery service (zone) a delivery checkout names, or re-prices an existing one - the
+    /// fee the server charges is the service's own, so a test that sends a fee must first configure that fee here
+    /// (AUD-01). Calling it again with another fee is how a test re-prices a zone between orders.</summary>
+    public async Task SeedDeliveryServiceAsync(string id = "svc-1", long? feePiastres = 0, string name = "توصيل سريع", bool active = true)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
+        var existing = await db.DeliveryServices.FirstOrDefaultAsync(s => s.Id == id);
+        if (existing is null)
+        {
+            db.DeliveryServices.Add(new DeliveryServiceEntity
+            {
+                Id = id, Name = name, FeePiastres = feePiastres, Active = active, CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow,
+            });
+        }
+        else
+        {
+            existing.Name = name;
+            existing.FeePiastres = feePiastres;
+            existing.Active = active;
+        }
+        await db.SaveChangesAsync();
     }
 
     public async Task<string> SeedVariantAsync(string productId, long pricePiastres, string name = "حجم كبير", string? recipeId = null)

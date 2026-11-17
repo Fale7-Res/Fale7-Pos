@@ -68,6 +68,16 @@ internal static class TicketLayout
     private const int CashQty = 16;
     private const int CashPrice = 22;
 
+    /// <summary>The top of every customer paper (paper redesign 2026-11-17): the logo, the name, the
+    /// owner's own sub-name from Settings, and a thin rule.</summary>
+    internal static IEnumerable<TicketElement> CustomerHeader(ReceiptHeader header)
+    {
+        yield return new TicketLogo();
+        yield return Brand(header.RestaurantName);
+        if (!string.IsNullOrWhiteSpace(header.SubName)) yield return Tagline(header.SubName.Trim());
+        yield return ThinRule();
+    }
+
     internal static TicketElement BrandTitle(string restaurantName) =>
         new TicketText(restaurantName, Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Title);
 
@@ -91,15 +101,24 @@ internal static class TicketLayout
             new TicketCell(end, 50, TicketAlign.End),
         }, TicketTextSize.Large);
 
+    /// <summary>A section's title in white on a full-width black band (owner, Amendment 1, 2026-11-17:
+    /// "lines, separators and clarity"). Every section of every paper opens this way.</summary>
+    internal static TicketElement SectionBand(string title) =>
+        new TicketRow(new[] { new TicketCell(title, 100, TicketAlign.Center, Bold: true) }, TicketTextSize.Large, Inverted: true);
+
+    /// <summary>A note or offer inside the item grid, joined to the item row above it.</summary>
+    internal static TicketElement GridNote(string text, bool bold = false, TicketTextSize size = TicketTextSize.Normal) =>
+        new TicketRow(new[] { new TicketCell(text, 100, TicketAlign.Start, bold) }, size, Boxed: true, Continuation: true);
+
     /// <summary>Column captions a size down from the rows beneath them - they label the table, they
-    /// are not part of it.</summary>
+    /// are not part of it. The table is a ruled grid (Amendment 1).</summary>
     internal static TicketElement CashierItemHeader() =>
         new TicketRow(new[]
         {
             new TicketCell("الصنف", CashItem, Bold: true),
             new TicketCell("الكمية", CashQty, TicketAlign.Center, Bold: true),
             new TicketCell("السعر", CashPrice, TicketAlign.End, Bold: true),
-        });
+        }, Boxed: true);
 
     /// <summary>Quantity bold and centred, price at the far edge: two numbers on one row, placed and
     /// weighted so they can never be read as each other.</summary>
@@ -109,13 +128,11 @@ internal static class TicketLayout
             new TicketCell(string.IsNullOrWhiteSpace(item.VariantName)
                 ? item.ProductName : $"{item.ProductName} - {item.VariantName}", CashItem, Bold: true),
             new TicketCell(item.Quantity.ToString(), CashQty, TicketAlign.Center, Bold: true),
-            new TicketCell($"{item.TotalPrice.Egp} ج", CashPrice, TicketAlign.End),
-        }, TicketTextSize.Large);
+            new TicketCell(TicketFormat.Amount(item.TotalPrice), CashPrice, TicketAlign.End),
+        }, TicketTextSize.Large, Boxed: true);
 
-    /// <summary>A note or offer qualifying the item directly above it, printed immediately after
-    /// that item's row and before the separator that ends it.</summary>
-    internal static TicketElement CashierItemNote(string text) =>
-        new TicketText(text, Size: TicketTextSize.Large);
+    /// <summary>A note or offer qualifying the item directly above it, inside the grid under its item.</summary>
+    internal static TicketElement CashierItemNote(string text) => GridNote(text, size: TicketTextSize.Large);
 
     internal static TicketElement Rule() => new TicketRule();
 
@@ -132,7 +149,28 @@ internal static class TicketLayout
     internal static IEnumerable<TicketElement> LargeOrderNumber(string orderNumber)
     {
         yield return new TicketText("رقم الطلب", Align: TicketAlign.Center);
-        yield return new TicketText(orderNumber, Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Large);
+        yield return new TicketText(orderNumber, Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Huge);
+    }
+
+    /// <summary>The top of every paper that is not the customer's (paper redesign 2026-11-17): the
+    /// restaurant's name small, what this paper is large, the order number when it is about one
+    /// order, and a heavy rule closing the header.</summary>
+    internal static IEnumerable<TicketElement> InternalHeader(string restaurantName, string title, string? orderNumber = null)
+    {
+        yield return new TicketText(restaurantName, Bold: true, Align: TicketAlign.Center);
+        yield return new TicketText(title, Bold: true, Align: TicketAlign.Center, Size: TicketTextSize.Title);
+        if (orderNumber is not null)
+            foreach (var element in LargeOrderNumber(orderNumber)) yield return element;
+        yield return new TicketRule(TicketRuleStyle.Heavy);
+    }
+
+    /// <summary>The close of every paper that is not the customer's: a thin rule and the paper's own
+    /// one-line caption.</summary>
+    internal static IEnumerable<TicketElement> Footer(string caption, bool afterGrid = false)
+    {
+        // A ruled grid closes itself; a thin rule right under its bottom edge read as a doubled line.
+        if (!afterGrid) yield return ThinRule();
+        yield return Caption(caption);
     }
 
     internal static TicketElement Field(string label, string value) => new TicketText($"{label}: {value}");
@@ -150,7 +188,7 @@ internal static class TicketLayout
         {
             new TicketCell(label, 52, TicketAlign.Start, bold),
             new TicketCell(value, 48, TicketAlign.End, bold),
-        }, size);
+        }, size, FitStart: true);
 
     /// <summary>A label and an amount on one line, pinned to opposite edges. Two real columns, not
     /// padding: under a proportional RTL font a padded string does not line up, and every total on
@@ -161,7 +199,7 @@ internal static class TicketLayout
         {
             new TicketCell(label, 60, TicketAlign.Start, bold),
             new TicketCell(amount, 40, TicketAlign.End, bold),
-        }, size);
+        }, size, FitStart: true);
 
     internal static TicketElement ItemTableHeader(bool withPrice) => withPrice
         ? new TicketRow(new[]
@@ -170,13 +208,13 @@ internal static class TicketLayout
             new TicketCell("الحجم", ColVariant, Bold: true),
             new TicketCell("الكمية", ColQty, TicketAlign.Center, Bold: true),
             new TicketCell("السعر", ColPrice, TicketAlign.End, Bold: true),
-        })
+        }, Boxed: true)
         : new TicketRow(new[]
         {
             new TicketCell("الصنف", StationItem, Bold: true),
             new TicketCell("الحجم", StationVariant, Bold: true),
             new TicketCell("الكمية", StationQty, TicketAlign.Center, Bold: true),
-        });
+        }, Boxed: true);
 
     /// <summary>Quantity is bold and centred while the price is plain and edge-aligned, so the two
     /// numbers on a row can never be read as each other.</summary>
@@ -186,14 +224,14 @@ internal static class TicketLayout
             new TicketCell(item.ProductName, ColItem),
             new TicketCell(VariantOf(item), ColVariant),
             new TicketCell(item.Quantity.ToString(), ColQty, TicketAlign.Center, Bold: true),
-            new TicketCell($"{item.TotalPrice.Egp} ج", ColPrice, TicketAlign.End),
-        })
+            new TicketCell(TicketFormat.Amount(item.TotalPrice), ColPrice, TicketAlign.End),
+        }, Boxed: true)
         : new TicketRow(new[]
         {
             new TicketCell(item.ProductName, StationItem),
             new TicketCell(VariantOf(item), StationVariant),
             new TicketCell(item.Quantity.ToString(), StationQty, TicketAlign.Center, Bold: true),
-        });
+        }, Boxed: true);
 
     internal static string VariantOf(TicketItem item) =>
         string.IsNullOrWhiteSpace(item.VariantName) ? NoValue : item.VariantName!;
@@ -204,9 +242,9 @@ internal static class TicketLayout
     internal static IEnumerable<TicketElement> ItemAnnotations(TicketItem item, bool withPriceRule)
     {
         if (!string.IsNullOrWhiteSpace(item.Notes))
-            yield return new TicketText($"ملاحظات: {item.Notes}", Bold: true);
+            yield return GridNote($"ملاحظات: {item.Notes}", bold: true);
         if (withPriceRule && !string.IsNullOrWhiteSpace(item.PriceRuleName))
-            yield return new TicketText($"عرض: {item.PriceRuleName}"
-                + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {list.Egp} ج)" : ""));
+            yield return GridNote($"عرض: {item.PriceRuleName}"
+                + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {TicketFormat.Amount(list)})" : ""));
     }
 }

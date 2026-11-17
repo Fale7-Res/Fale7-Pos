@@ -52,6 +52,7 @@ public class FalahDbContext : DbContext
     public DbSet<DeliveryReassignmentEntity> DeliveryReassignments => Set<DeliveryReassignmentEntity>();
     public DbSet<DeliveryEventEntity> DeliveryEvents => Set<DeliveryEventEntity>();
     public DbSet<DriverSettlementEntity> DriverSettlements => Set<DriverSettlementEntity>();
+    public DbSet<CollectionShortfallResolutionEntity> CollectionShortfallResolutions => Set<CollectionShortfallResolutionEntity>();
 
     public DbSet<PrintJobEntity> PrintJobs => Set<PrintJobEntity>();
     public DbSet<PrintJobAttemptEntity> PrintJobAttempts => Set<PrintJobAttemptEntity>();
@@ -365,6 +366,18 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(s => s.Id);
             b.HasIndex(s => s.IdempotencyKey).IsUnique();
+        });
+
+        // One classification per delivery's shortfall, one row per request id: the database, not only the handler,
+        // is what makes a classification single and a retried request a replay.
+        modelBuilder.Entity<CollectionShortfallResolutionEntity>(b =>
+        {
+            b.HasKey(r => r.Id);
+            b.HasIndex(r => r.DeliveryId).IsUnique();
+            b.HasIndex(r => r.RequestId).IsUnique();
+            b.Property(r => r.DeliveryId).HasMaxLength(200);
+            b.Property(r => r.RequestId).HasMaxLength(200);
+            b.Property(r => r.Classification).HasMaxLength(50);
         });
 
         modelBuilder.Entity<PrintJobEntity>(b =>

@@ -410,6 +410,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Delivery_outcomes_report_counts_delivered_orders_and_unsettled_custody()
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 1000, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(15000);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
@@ -436,13 +437,16 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         // Ported from deliveryReport's settledCashPiastres/shortages/overages/trips (here:
         // SettlementCount, since this per-order model has no separate "trip" concept) - a real gap
         // found during the legacy-parity audit.
-        await _client.PostAsJsonAsync($"/api/delivery/drivers/{driver!.Id}/settle",
-            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driver.Id, 16000, null, _managerId, null, null));
+        // Owner rule (2026-11-08): the driver keeps the delivery fee recorded on the order, so of the 16000 he
+        // collected he hands over 15000 - exactly, with no difference.
+        var settle = await _client.PostAsJsonAsync($"/api/delivery/drivers/{driver!.Id}/settle",
+            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driver.Id, 15000, null, _managerId, null, null));
+        Assert.True(settle.IsSuccessStatusCode, await settle.Content.ReadAsStringAsync());
 
         var afterSettle = await (await _client.GetAsync($"/api/reports/delivery-outcomes?actorUserId={_managerId}")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();
         Assert.Equal(0, afterSettle!.UnsettledCustodyCount);
         Assert.Equal(1, afterSettle.SettlementCount);
-        Assert.Equal(16000, afterSettle.SettledCashPiastres);
+        Assert.Equal(15000, afterSettle.SettledCashPiastres);
         Assert.Equal(0, afterSettle.ShortagesPiastres);
         Assert.Equal(0, afterSettle.OveragesPiastres);
     }

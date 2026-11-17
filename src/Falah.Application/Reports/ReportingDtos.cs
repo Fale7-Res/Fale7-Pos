@@ -103,4 +103,8 @@ public sealed record ShiftSummaryDto(
 public sealed record DeliveryOutcomesReportDto(
     int DeliveredCount, int FailedCount, int ReturnedCount, long DeliveryFeesPiastres,
     int UnsettledCustodyCount, long UnsettledCustodyExpectedPiastres,
-    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount);
+    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount,
+    /// <summary>AUD-03: deliveries completed in the period (by delivery time) whose customer paid less than was due -
+    /// approved, but money the order's sale includes and the driver never collected. Separate from ShortagesPiastres,
+    /// which is what a driver failed to hand over at settlement.</summary>
+    long CollectionShortfallPiastres = 0, int CollectionShortfallCount = 0);

@@ -83,8 +83,8 @@ the same agent - only the composition differs, chosen by the job's `DocumentKind
 
 | DocumentKind | Paper | Queued by |
 | --- | --- | --- |
-| `Order` (or empty, for every job written before slips existed) | Customer receipt, kitchen ticket, delivery/dispatch ticket | Checkout, or an explicit print/reprint |
-| `ShiftOpen` | Shift opening slip: cashier, shift, date, time, opening float | Opening a shift, in the same transaction |
+| `Order` (or empty, for every job written before slips existed) | Customer receipt (one piece, with the logo), kitchen ticket, delivery/dispatch ticket | Checkout, or an explicit print/reprint |
+| `ShiftOpen` | **Retired 2026-11-17 (owner).** No new opening slip is queued and it cannot be reprinted (`reprint-document` answers 422). A job queued before that still composes and prints | — |
 | `ShiftClose` | Handover slip: the whole cash story, the count, the difference, warnings | Closing a shift, in the same transaction |
 | `Expense` | Expense voucher: amount, category, description, employee, account | Recording an expense, in the same transaction |
 
@@ -108,6 +108,60 @@ are proven on this firmware: `ESC @`, `GS v 0`, line feed, `GS V 0`. **Do not ad
 
 Character mode (`RenderAsImage: false`) is kept for other printers, but prints unreadable Arabic on
 this one.
+
+## Paper design (redesign approved 2026-11-17)
+
+Spec: `docs/superpowers/specs/2026-11-17-paper-design-design.md`; plan:
+`docs/superpowers/plans/2026-11-17-paper-design.md`.
+
+- **Typeface: Dubai** (Medium for normal text, Bold for bold) at 23/30/40/64/88 px, chosen by the owner
+  on paper over Segoe UI and Tahoma. Lines sit on a fixed 1.5 em advance (Dubai's own line height is
+  42 dots at 23 px for 32 dots of ink). Dubai ships with Windows 10/11. **A station without it prints
+  in the pre-redesign Segoe UI faces and sizes, and the agent logs a WARNING at start.** Check the log
+  on each station.
+- **Logo** on the customer receipt and the call-center copy only: `src/Falah.PrintAgent/Assets/receipt-logo.png`
+  (256 × 256 dots, ~32 mm), embedded in the agent and never stroke-thickened. It is generated from
+  `docs/assets/fale7-logo-original.png` by `tools/ReceiptLogo`. The owner chose "variant C": green
+  and the rim print as ink, red and yellow print as paper, except the red «ale7».
+- **One visual system:**
+  - customer header: logo, name, the Settings sub-name;
+  - internal header: name, the paper's title, the order number at 64 px, a heavy rule;
+  - label/value lines whose label never wraps (`TicketRow.FitStart`);
+  - amounts as `12,500 ج`;
+  - dates `dd-MM-yyyy` and times `hh:mm ص/م`, Cairo;
+  - order numbers isolated so `(#0281)` never flips.
+- **The cashier receipt is one piece.** The separate customer-number ticket is gone; the customer
+  collects with the large number on the receipt.
+- **Amendment 1 (owner, same day, approved on paper):**
+  - every section opens on a black band with its title in white (`TicketLayout.SectionBand`);
+  - item tables are ruled grids, with each item's notes and offer inside the grid under it;
+  - the takeaway receipt no longer carries the menu QR (Amendment 2 below says where it went);
+  - the Cashier app's on-screen shift-close preview shows bands as centred headings and ignores
+    the logo.
+- **Amendment 2 (owner, same day, approved on paper): the two delivery papers swap roles.**
+  - The **call-center copy**, printed when the order is taken, goes into the restaurant. It is now a
+    small preparation paper, «تحضير طلب»: number, customer, area and address, items and notes.
+    No logo, prices, totals or QR. It keeps the unconfirmed-transfer warning.
+  - The **driver dispatch paper**, printed when a driver takes the order, goes to the customer. It is
+    now the customer's full receipt: logo, number, driver, customer and phone, the priced item grid,
+    totals, what to collect, delivery notes, the **menu QR**, and the settings footer. It keeps the
+    «إعادة إسناد» marker. The server builds its header and totals with the same code as the takeaway
+    receipt (`PrintJobQueryService.ReceiptPartsAsync`).
+- **Wire compatibility:** new element kind `logo` and row flag `fitStart`. An agent older than the
+  server prints a blank line for the logo and wraps labels as before. Deploy server and agents together.
+- **Kitchen tickets are longer** than before the redesign: about 70 mm instead of 55 mm for the review
+  sample, because of the larger owner-chosen type and the 64 px order number. `TicketTypographyTests`
+  pins today's length so it cannot creep.
+- **Previews:** `dotnet run --project tools/ReceiptPreview -- <dir>` renders all ten papers with the
+  production code and decodes the menu QR.
+
+**Physical acceptance (2026-11-17, XP-D200N on the development laptop, queue `XP-D200N-Charcoal`).**
+The owner printed and approved, on paper, each of the ten redesigned papers: cashier receipt,
+call-center copy, Charcoal and Grill kitchen tickets, delivery order, driver dispatch, driver statement
+summary and detail, shift close statement, and expense voucher. He confirmed that the Arabic was
+readable, nothing was clipped, the logo was clear, and every paper was cut. Logo variants and
+typefaces were also chosen on that printer. Not yet done: the same check on each restaurant station
+PC (Dubai present, agent log has no WARNING).
 
 ## Verification performed
 

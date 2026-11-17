@@ -65,6 +65,19 @@ public class ProfitabilityRulesTests
     }
 
     [Fact]
+    public void Operating_margin_also_subtracts_the_drivers_pay_for_completed_deliveries()
+    {
+        // AUD-02: 30 delivered orders at a 20 EGP zone fee - 600 EGP inside net sales that the drivers kept.
+        var result = ProfitabilityRules.ComputeOperatingMargin(
+            netSales: P(200_000), knownFoodCost: P(60_000), expenses: P(25_000), wages: P(40_000),
+            soldLineCount: 20, knownLineCount: 20, wagePostingCount: 4, driverCompensation: P(60_000));
+
+        Assert.Equal(15_000, result.OperatingResult!.Value.Piastres);
+        Assert.Equal(60_000, result.DriverCompensation.Piastres);
+        Assert.Equal(7.5d, result.OperatingPercent);
+    }
+
+    [Fact]
     public void Operating_margin_subtracts_food_expenses_and_wages()
     {
         var result = ProfitabilityRules.ComputeOperatingMargin(

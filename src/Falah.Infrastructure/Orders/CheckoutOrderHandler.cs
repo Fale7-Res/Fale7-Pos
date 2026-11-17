@@ -97,6 +97,20 @@ public sealed class CheckoutOrderHandler
             if (missing is not null) throw new DomainException(missing);
         }
 
+        // AUD-01: the fee (and the service name frozen with it) is the configured zone's, never the client's.
+        DeliveryRules.DeliveryServiceTerms? serviceTerms = null;
+        string? deliveryServiceName = null;
+        if (orderType == OrderType.Delivery)
+        {
+            var service = await _db.DeliveryServices.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.DeliveryServiceId, ct);
+            if (service is not null)
+            {
+                serviceTerms = new DeliveryRules.DeliveryServiceTerms(service.Active, Money.FromPiastres(service.FeePiastres ?? 0));
+                deliveryServiceName = service.Name;
+            }
+        }
+        deliveryFee = DeliveryRules.ResolveDeliveryFee(orderType, deliveryFee, serviceTerms);
+
         CheckoutRules.AssertRequestedPickupTime(orderType, request.RequestedPickupAtUtc, DateTimeOffset.UtcNow);
 
         // Ported from checkout() in lib/store.tsx: 'pos' is the base gate on EVERY checkout,
@@ -188,7 +202,7 @@ public sealed class CheckoutOrderHandler
             orderEntity.DeliveryLandmark = request.DeliveryLandmark;
             orderEntity.DeliveryNotes = request.DeliveryNotes;
             orderEntity.DeliveryServiceId = request.DeliveryServiceId;
-            orderEntity.DeliveryServiceName = request.DeliveryServiceName;
+            orderEntity.DeliveryServiceName = orderType == OrderType.Delivery ? deliveryServiceName : request.DeliveryServiceName;
 
             // No order type has a table any more - DineIn was the only one, and it is gone. The
             // column and the request field stay so the orders written before the change still read

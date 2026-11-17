@@ -91,8 +91,9 @@ public static class BitmapTicketRenderer
         {
             var inverted = new List<Rectangle>();
             var codes = new List<QrPlacement>();
-            using var bmp = RenderSegment(segment, paperWidthDots, marginDots, inverted, codes);
-            WriteRaster(stream, bmp, thickenStrokes, inverted, codes);
+            var logos = new List<LogoPlacement>();
+            using var bmp = RenderSegment(segment, paperWidthDots, marginDots, inverted, codes, logos);
+            WriteRaster(stream, bmp, thickenStrokes, inverted, codes, logos);
             stream.Write(FeedBeforeCut);
             stream.Write(new byte[] { 0x1D, 0x56, 0x00 }); // GS V 0 - full cut
         }
@@ -122,50 +123,70 @@ public static class BitmapTicketRenderer
         return segments;
     }
 
+    /// <summary>Paper redesign 2026-11-17: Dubai at a slightly larger scale than the Segoe UI it
+    /// replaces (owner's choice on paper). On a station without Dubai the old faces keep their old,
+    /// physically proven sizes rather than inheriting a scale chosen for a different face.</summary>
     private static float PixelSize(TicketTextSize size) => size switch
     {
         TicketTextSize.Display => 88f,
         TicketTextSize.Huge => 64f,
         TicketTextSize.Title => 40f,
-        TicketTextSize.Large => 26f,
-        _ => 18f,
+        TicketTextSize.Large => Faces.IsFallback ? 26f : 30f,
+        _ => Faces.IsFallback ? 18f : 23f,
     };
 
-    /// <summary>Resolved once. "Segoe UI Semibold" is a separate FAMILY on Windows, not a style of
-    /// Segoe UI, and asking GDI+ for a family that is not installed does not throw - it silently
-    /// substitutes some default face, which on an Arabic ticket means losing the contextual shaping
-    /// that is the entire reason this renderer draws text as pixels. So it is looked up, and falls
-    /// back to plain Segoe UI (rendered Bold) if it is ever absent.</summary>
-    private static readonly string? SemiBoldFamily = ResolveSemiBoldFamily();
+    /// <summary>
+    /// Which installed families print this ticket. Asking GDI+ for a family that is not installed
+    /// does not throw - it silently substitutes some default face, which on an Arabic ticket means
+    /// losing the contextual shaping that is the entire reason this renderer draws text as pixels.
+    /// So the families are looked up by name, and when Dubai (Windows 10/11 ship it) is missing the
+    /// renderer returns to the faces it used before the redesign.
+    ///
+    /// "Not bold" is never a Regular weight: on the real printer regular-weight text was faint and
+    /// patchy even with stroke thickening. Dubai Medium and Segoe UI Semibold are the normal weights.
+    /// </summary>
+    public static (string Normal, string Bold, bool IsFallback) ResolveFaces(IEnumerable<string> installedFamilies)
+    {
+        var installed = installedFamilies.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (installed.Contains("Dubai") && installed.Contains("Dubai Medium")) return ("Dubai Medium", "Dubai", false);
+        return (installed.Contains("Segoe UI Semibold") ? "Segoe UI Semibold" : "Segoe UI", "Segoe UI", true);
+    }
 
-    private static string? ResolveSemiBoldFamily()
+    private static readonly (string Normal, string Bold, bool IsFallback) Faces = ResolveInstalledFaces();
+
+    /// <summary>True on a station without Dubai; the agent says so once at start.</summary>
+    public static bool UsesFallbackFaces => Faces.IsFallback;
+
+    private static (string, string, bool) ResolveInstalledFaces()
     {
         try
         {
             using var installed = new InstalledFontCollection();
-            return installed.Families.Any(f => f.Name == "Segoe UI Semibold") ? "Segoe UI Semibold" : null;
+            return ResolveFaces(installed.Families.Select(f => f.Name));
         }
         catch
         {
-            return null;
+            return ResolveFaces(Array.Empty<string>());
         }
     }
 
-    /// <summary>
-    /// The font for one piece of ticket text.
-    ///
-    /// Text that is not bold is rendered in Semibold rather than Regular. On the real printer
-    /// regular-weight text was faint and patchy even with stroke thickening, while bold text beside
-    /// it printed solid - so "not bold" here means Semibold, never Regular, at every size.
-    /// </summary>
+    /// <summary>The font for one piece of ticket text.</summary>
     private static Font CreateFont(TicketTextSize size, bool bold)
     {
         var px = PixelSize(size);
-        if (bold) return new Font("Segoe UI", px, FontStyle.Bold, GraphicsUnit.Pixel);
-        return SemiBoldFamily is { } semiBold
-            ? new Font(semiBold, px, FontStyle.Regular, GraphicsUnit.Pixel)
-            : new Font("Segoe UI", px, FontStyle.Bold, GraphicsUnit.Pixel);
+        if (bold || Faces.Normal == Faces.Bold) return new Font(Faces.Bold, px, FontStyle.Bold, GraphicsUnit.Pixel);
+        return new Font(Faces.Normal, px, FontStyle.Regular, GraphicsUnit.Pixel);
     }
+
+    /// <summary>
+    /// Dubai's own line height is loose: at 23px GDI+ gives each line 42 dots while its ink, Arabic
+    /// marks above and below included, spans 32 (measured 2026-11-17). Under Dubai each line is
+    /// therefore placed on a fixed advance of 1.5 em, drawn 0.15 em higher so its ink sits inside
+    /// that advance. The fallback faces keep GDI+'s own layout, exactly as before the redesign.
+    /// </summary>
+    private static bool Tight => !Faces.IsFallback;
+    private static float Advance(Font font) => (float)Math.Ceiling(font.Size * 1.5f);
+    private static float Trim(Font font) => (float)Math.Round(font.Size * 0.15f);
 
     private static StringAlignment ToAlignment(TicketAlign align) => align switch
     {
@@ -175,7 +196,109 @@ public static class BitmapTicketRenderer
     };
 
     private sealed record Measured(TicketElement Element, float Height, Font? Font, List<Font>? CellFonts, float ContentWidth,
-        QrSymbol? Qr = null);
+        QrSymbol? Qr = null, List<string>? Lines = null, List<List<string>>? CellLines = null, int[]? CellWidths = null);
+
+    /// <summary>The restaurant logo (paper redesign 2026-11-17), embedded in this assembly as a 1-bit
+    /// PNG made by tools/ReceiptLogo from the owner's artwork. Stamped into the raster after stroke
+    /// thickening, like a QR: it is artwork, already drawn at its final weight.</summary>
+    private const int LogoDots = 256;
+    private static readonly bool[,]? LogoBits = LoadLogo();
+
+    /// <summary>False when the embedded logo could not be read; receipts then print without it and
+    /// the agent says so once at start.</summary>
+    public static bool LogoAvailable => LogoBits is not null;
+
+    private static bool[,]? LoadLogo()
+    {
+        try
+        {
+            using var stream = typeof(BitmapTicketRenderer).Assembly.GetManifestResourceStream("Falah.PrintAgent.Assets.receipt-logo.png");
+            if (stream is null) return null;
+            using var bmp = new Bitmap(stream);
+            if (bmp.Width != LogoDots || bmp.Height != LogoDots) return null;
+            var bits = new bool[LogoDots, LogoDots];
+            for (var y = 0; y < LogoDots; y++)
+                for (var x = 0; x < LogoDots; x++)
+                    bits[x, y] = bmp.GetPixel(x, y).GetBrightness() < 0.5f;
+            return bits;
+        }
+        catch
+        {
+            return null; // a ticket without its logo still prints; a ticket that throws does not
+        }
+    }
+
+    private sealed record LogoPlacement(int Left, int Top);
+
+    /// <summary>Breaks text into the lines it will print on, by words, measuring each candidate line
+    /// unwrapped. Used only under Dubai, where every line is placed on its own fixed advance.</summary>
+    private static List<string> WrapLines(Graphics g, string text, Font font, float width)
+    {
+        var lines = new List<string>();
+        using var noWrap = new StringFormat(StringFormatFlags.DirectionRightToLeft | StringFormatFlags.NoWrap);
+        foreach (var paragraph in EmptyToSpace(text).Replace("\r", "").Split('\n'))
+        {
+            var current = "";
+            foreach (var word in paragraph.Split(' '))
+            {
+                var candidate = current.Length == 0 ? word : current + " " + word;
+                if (g.MeasureString(candidate, font, PointF.Empty, noWrap).Width <= width)
+                {
+                    current = candidate;
+                    continue;
+                }
+                if (current.Length > 0) lines.Add(current);
+                // A single word wider than the cell is broken at character boundaries, as GDI+'s own
+                // layout did: a no-wrap line is otherwise trimmed at the cell edge and the rest of the
+                // word never reaches the paper (final review, 2026-11-17).
+                current = "";
+                foreach (var piece in BreakWord(g, word, font, width, noWrap))
+                {
+                    if (current.Length > 0) lines.Add(current);
+                    current = piece;
+                }
+            }
+            lines.Add(current.Length == 0 ? " " : current);
+        }
+        return lines;
+    }
+
+    /// <summary>A word split into the longest runs of whole text elements (never half a surrogate
+    /// pair or a base letter without its mark) that each fit the width.</summary>
+    private static IEnumerable<string> BreakWord(Graphics g, string word, Font font, float width, StringFormat noWrap)
+    {
+        var elements = System.Globalization.StringInfo.GetTextElementEnumerator(word);
+        var piece = "";
+        while (elements.MoveNext())
+        {
+            var next = piece + elements.GetTextElement();
+            if (piece.Length > 0 && g.MeasureString(next, font, PointF.Empty, noWrap).Width > width)
+            {
+                yield return piece;
+                piece = elements.GetTextElement();
+            }
+            else piece = next;
+        }
+        if (piece.Length > 0) yield return piece;
+    }
+
+    /// <summary>Each cell's width in dots. A FitStart row gives its first cell the label's unwrapped
+    /// width (never more than 70% of the line) and shares the rest among the other cells by their
+    /// percentages, so a label never breaks across lines.</summary>
+    private static int[] CellWidths(Graphics g, TicketRow row, List<Font> fonts, int contentWidth)
+    {
+        var widths = row.Cells.Select(c => CellWidth(c, contentWidth)).ToArray();
+        if (!row.FitStart || row.Cells.Count < 2) return widths;
+
+        using var noWrap = new StringFormat(StringFormatFlags.DirectionRightToLeft | StringFormatFlags.NoWrap);
+        var label = (int)Math.Ceiling(g.MeasureString(EmptyToSpace(row.Cells[0].Text), fonts[0], PointF.Empty, noWrap).Width) + CellInset(row) + 2;
+        widths[0] = Math.Min(label, (int)(contentWidth * 0.7));
+        var rest = contentWidth - widths[0];
+        var restPercent = row.Cells.Skip(1).Sum(c => Math.Max(1, c.WidthPercent));
+        for (var i = 1; i < widths.Length; i++)
+            widths[i] = Math.Max(1, rest * Math.Max(1, row.Cells[i].WidthPercent) / restPercent);
+        return widths;
+    }
 
     /// <summary>A QR's module matrix (dark = true, WITHOUT quiet zone) and the whole-dot size of one
     /// module.</summary>
@@ -242,7 +365,7 @@ public static class BitmapTicketRenderer
     /// <param name="inverted">Receives every white-on-black region drawn, so the raster pass can
     /// treat those areas differently when thickening - see Thicken.</param>
     private static Bitmap RenderSegment(IReadOnlyList<TicketElement> elements, int paperWidthDots, int marginDots,
-        List<Rectangle> inverted, List<QrPlacement> codes)
+        List<Rectangle> inverted, List<QrPlacement> codes, List<LogoPlacement> logos)
     {
         var left = marginDots;
         var contentWidth = Math.Max(1, paperWidthDots - 2 * marginDots);
@@ -275,12 +398,28 @@ public static class BitmapTicketRenderer
                     totalHeight += qr.TotalDots + LineGap;
                     break;
 
+                case TicketLogo when LogoBits is not null:
+                    measured.Add(new Measured(element, LogoDots, null, null, 0));
+                    totalHeight += LogoDots + LineGap;
+                    break;
+
+                case TicketLogo:
+                    break; // no embedded logo: print the ticket without it
+
                 case TicketText text:
                 {
                     // White text on black is always bold: heat from the surrounding black dots
                     // bleeds into thin white strokes and closes them up.
                     var font = CreateFont(text.Size, text.Bold || text.Inverted);
                     var available = text.Inverted ? contentWidth - 2 * PillPadX : contentWidth;
+                    if (Tight && !text.Inverted)
+                    {
+                        var lines = WrapLines(measureG, text.Text, font, available);
+                        var tightHeight = lines.Count * Advance(font);
+                        measured.Add(new Measured(element, tightHeight, font, null, available, Lines: lines));
+                        totalHeight += tightHeight + LineGap;
+                        break;
+                    }
                     var size = measureG.MeasureString(EmptyToSpace(text.Text), font, available);
                     var height = size.Height + (text.Inverted ? 2 * PillPadY : 0);
                     measured.Add(new Measured(element, height, font, null, size.Width));
@@ -289,20 +428,25 @@ public static class BitmapTicketRenderer
                 }
                 case TicketRow row:
                 {
-                    var fonts = new List<Font>();
+                    var fonts = row.Cells.Select(cell => CreateFont(row.Size, cell.Bold || row.Inverted)).ToList();
+                    var widths = CellWidths(measureG, row, fonts, contentWidth);
+                    var cellLines = Tight ? new List<List<string>>() : null;
                     var textHeight = 0f;
-                    foreach (var cell in row.Cells)
+                    for (var i = 0; i < row.Cells.Count; i++)
                     {
-                        var font = CreateFont(row.Size, cell.Bold || row.Inverted);
-                        fonts.Add(font);
-                        var width = Math.Max(1, CellWidth(cell, contentWidth) - CellInset(row));
-                        var size = measureG.MeasureString(EmptyToSpace(cell.Text), font, width);
+                        var width = Math.Max(1, widths[i] - CellInset(row));
                         // The tallest cell sets the row height, so a long wrapped item name cannot
                         // overlap the row beneath it.
-                        textHeight = Math.Max(textHeight, size.Height);
+                        if (cellLines is not null)
+                        {
+                            var lines = WrapLines(measureG, row.Cells[i].Text, fonts[i], width);
+                            cellLines.Add(lines);
+                            textHeight = Math.Max(textHeight, lines.Count * Advance(fonts[i]));
+                        }
+                        else textHeight = Math.Max(textHeight, measureG.MeasureString(EmptyToSpace(row.Cells[i].Text), fonts[i], width).Height);
                     }
                     var height = textHeight + 2 * RowPadY(row);
-                    measured.Add(new Measured(element, height, null, fonts, 0));
+                    measured.Add(new Measured(element, height, null, fonts, 0, CellLines: cellLines, CellWidths: widths));
                     totalHeight += height + LineGap;
                     break;
                 }
@@ -333,6 +477,10 @@ public static class BitmapTicketRenderer
                         DrawPill(g, text, item, y, left, contentWidth, inverted);
                         break;
 
+                    case TicketText text when item.Lines is { } lines:
+                        DrawLines(g, lines, item.Font!, Brushes.Black, left, y, contentWidth, ToAlignment(text.Align));
+                        break;
+
                     case TicketText text:
                     {
                         // RTL is the paragraph direction these tickets use throughout; centered lines
@@ -345,6 +493,11 @@ public static class BitmapTicketRenderer
                             new RectangleF(left, y, contentWidth, item.Height), format);
                         break;
                     }
+
+                    // Reserved only; WriteRaster stamps the exact bits after thickening.
+                    case TicketLogo:
+                        logos.Add(new LogoPlacement(left + (contentWidth - LogoDots) / 2, (int)Math.Round(y)));
+                        break;
 
                     case TicketRow row:
                     {
@@ -445,18 +598,28 @@ public static class BitmapTicketRenderer
         for (var i = 0; i < row.Cells.Count; i++)
         {
             var cell = row.Cells[i];
-            var width = CellWidth(cell, contentWidth);
+            var width = item.CellWidths?[i] ?? CellWidth(cell, contentWidth);
             x -= width;
             var rect = row.Boxed
                 ? new RectangleF(x + BoxPadX, y + padY, width - 2 * BoxPadX, item.Height - 2 * padY)
                 : new RectangleF(x, y + padY, width - CellGap, item.Height - 2 * padY);
-            using var format = new StringFormat(StringFormatFlags.DirectionRightToLeft)
+            if (item.CellLines is { } cellLines)
             {
-                Alignment = ToAlignment(cell.Align),
+                var font = item.CellFonts![i];
                 // Only framed rows centre vertically; plain rows keep top alignment.
-                LineAlignment = framed ? StringAlignment.Center : StringAlignment.Near,
-            };
-            g.DrawString(cell.Text, item.CellFonts![i], ink, rect, format);
+                var top = framed ? rect.Y + (rect.Height - cellLines[i].Count * Advance(font)) / 2 : rect.Y;
+                DrawLines(g, cellLines[i], font, ink, rect.X, top, rect.Width, ToAlignment(cell.Align));
+            }
+            else
+            {
+                using var format = new StringFormat(StringFormatFlags.DirectionRightToLeft)
+                {
+                    Alignment = ToAlignment(cell.Align),
+                    // Only framed rows centre vertically; plain rows keep top alignment.
+                    LineAlignment = framed ? StringAlignment.Center : StringAlignment.Near,
+                };
+                g.DrawString(cell.Text, item.CellFonts![i], ink, rect, format);
+            }
             if (i < row.Cells.Count - 1) dividers.Add(x);
         }
 
@@ -476,6 +639,20 @@ public static class BitmapTicketRenderer
         // into the note row, which has none of its own.
         var dividerBottom = next is { Boxed: true, Continuation: false } ? bottom : y + item.Height;
         foreach (var d in dividers) g.DrawLine(divider, d, y, d, dividerBottom);
+    }
+
+    /// <summary>Pre-wrapped lines, each on its own fixed advance (see Tight). NoClip because each line
+    /// is drawn 0.15 em above its slot, which is where Dubai's own top padding would otherwise sit.</summary>
+    private static void DrawLines(Graphics g, List<string> lines, Font font, Brush ink, float x, float top, float width,
+        StringAlignment alignment)
+    {
+        using var format = new StringFormat(StringFormatFlags.DirectionRightToLeft | StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
+        {
+            Alignment = alignment,
+        };
+        var advance = Advance(font);
+        for (var i = 0; i < lines.Count; i++)
+            g.DrawString(lines[i], font, ink, new RectangleF(x, top + i * advance - Trim(font), width, advance + Trim(font)), format);
     }
 
     private static GraphicsPath RoundedRectangle(RectangleF r, float radius)
@@ -498,7 +675,7 @@ public static class BitmapTicketRenderer
     /// <summary>Packs the bitmap into ESC/POS's GS v 0 raster format (1 bit per pixel, MSB first,
     /// rows padded to a whole byte).</summary>
     private static void WriteRaster(Stream stream, Bitmap bmp, bool thickenStrokes, IReadOnlyList<Rectangle> inverted,
-        IReadOnlyList<QrPlacement> codes)
+        IReadOnlyList<QrPlacement> codes, IReadOnlyList<LogoPlacement> logos)
     {
         var width = bmp.Width;
         var height = bmp.Height;
@@ -518,6 +695,7 @@ public static class BitmapTicketRenderer
         // whose meaning is the exact ratio of dark to light. Stamping the whole square, quiet zone
         // included, also wipes any thickened text that crept into the zone from a neighbouring line.
         foreach (var code in codes) StampQr(ink, width, height, code);
+        foreach (var logo in logos) StampLogo(ink, width, height, logo);
 
         var widthBytes = (width + 7) / 8;
         var imageBytes = new byte[widthBytes * height];
@@ -546,6 +724,17 @@ public static class BitmapTicketRenderer
                 int mx = (dx - quiet) / symbol.ModuleDots, my = (dy - quiet) / symbol.ModuleDots;
                 var inSymbol = dx >= quiet && dy >= quiet && mx < symbol.Size && my < symbol.Size;
                 ink[x, y] = inSymbol && symbol.Modules[mx, my];
+            }
+    }
+
+    private static void StampLogo(bool[,] ink, int width, int height, LogoPlacement logo)
+    {
+        for (var dy = 0; dy < LogoDots; dy++)
+            for (var dx = 0; dx < LogoDots; dx++)
+            {
+                int x = logo.Left + dx, y = logo.Top + dy;
+                if (x < 0 || x >= width || y < 0 || y >= height) continue;
+                ink[x, y] = LogoBits![dx, dy];
             }
     }
 

@@ -90,12 +90,26 @@ public sealed class RecordDeliveryResultHandler
             var facts = DeliveryFactsComposer.Compose(delivery, order);
             var now = DateTimeOffset.UtcNow;
             long? collectedForEvent = null;
+            string? shortfallApprover = null;
+            var shortfall = Money.Zero;
 
             if (targetStatus == DeliveryStatus.Delivered)
             {
                 var expected = DeliveryRules.DeliveryCashResponsibility(facts.PaymentMethod, facts.PaymentAlreadySettled, facts.AmountToCollect);
                 var collected = request.CollectedAmountPiastres.HasValue ? Money.FromPiastres(request.CollectedAmountPiastres.Value) : expected;
                 DeliveryRules.AssertCollectionAmount(expected, collected, request.Reason);
+
+                // AUD-03: less than was due takes money out of the sale the restaurant has already counted, and the
+                // settlement that follows is computed on what was collected, so it would show no difference at all.
+                // It therefore needs the authority that approves a settlement difference - the permission itself or
+                // a manager's approval issued for it - exactly like the settlement shortage it would otherwise be.
+                if (collected < expected)
+                {
+                    var shortfallAuthorization = AuthorizationPolicy.AuthorizeCommand(
+                        _approvalRegistry, actor, "delivery_settlement_approve", approval, requireApproval: true);
+                    shortfallApprover = shortfallAuthorization.Approver?.ApproverName ?? actorUser.Name;
+                    shortfall = expected - collected;
+                }
 
                 delivery.DeliveredAtUtc = now;
                 delivery.CollectedAmountPiastres = collected.Piastres;
@@ -167,8 +181,17 @@ public sealed class RecordDeliveryResultHandler
             {
                 Id = eventId, DeliveryId = delivery.Id, OrderId = delivery.OrderId, DriverId = delivery.DriverId,
                 TripId = delivery.TripId, Type = targetStatus.ToString().ToLowerInvariant(), Reason = request.Reason,
-                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = approval?.ApproverName, CreatedAtUtc = now,
+                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = shortfallApprover ?? approval?.ApproverName, CreatedAtUtc = now,
             });
+
+            if (shortfall.IsPositive)
+            {
+                _auditLog.Append(new AuditEvent(
+                    $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                    "تحصيل أقل من المستحق عند التسليم", "cash",
+                    $"طلب {order.OrderNumber} - المستحق {(shortfall + Money.FromPiastres(collectedForEvent ?? 0)).Piastres} والمحصّل {collectedForEvent} - العجز {shortfall.Piastres} قرش - {request.Reason}",
+                    "critical", now, Reason: request.Reason, AuthorizedBy: shortfallApprover, ReferenceId: delivery.Id));
+            }
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,

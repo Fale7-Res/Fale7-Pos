@@ -146,6 +146,36 @@
                 </Grid>
 
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                    <!-- P3: a hand-typed entry that did not physically happen is corrected by its linked opposite. -->
+                    <Border Visibility="{Binding IsCorrectionOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                            Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12" Margin="16,8">
+                        <StackPanel Spacing="8">
+                            <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                <Run Text="تصحيح: "/><Run Text="{Binding CorrectionTarget.TypeLabel}"/><Run Text=" — "/><Run Text="{Binding CorrectionTarget.AmountDisplay}"/>
+                            </TextBlock>
+                            <TextBlock Text="تُسجَّل حركة عكسية مرتبطة بالأصلية وتبقى الأصلية كما هي. للحركات التي لم تحدث فعلًا فقط."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <CheckBox MinHeight="44" Content="أؤكد أن هذا المال لم يتحرك فعلًا (خطأ في التسجيل)"
+                                      AutomationProperties.AutomationId="Treasury_CorrectionConfirm"
+                                      IsChecked="{Binding CorrectionConfirmedNotMoved, Mode=TwoWay}"/>
+                            <TextBox Header="مبلغ التصحيح (اتركه فارغًا لتصحيح الحركة كلها)" MinHeight="44" InputScope="Number"
+                                     Text="{Binding CorrectionAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Header="سبب التصحيح (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                     AutomationProperties.AutomationId="Treasury_CorrectionReason"
+                                     Text="{Binding CorrectionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" AutomationProperties.Name="رمز المدير لاعتماد التصحيح"
+                                         Visibility="{Binding CorrectionNeedsManagerPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Password="{Binding CorrectionManagerPin, Mode=TwoWay}"/>
+                            <TextBlock Text="{Binding CorrectionMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                       Visibility="{Binding CorrectionMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="تأكيد التصحيح" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                        AutomationProperties.AutomationId="Treasury_ConfirmCorrection" Command="{Binding ConfirmCorrectionCommand}"/>
+                                <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelCorrectionCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                     <ItemsControl ItemsSource="{Binding Movements}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -183,12 +213,18 @@
                                                        TextWrapping="Wrap">
                                                 <Run Text="{Binding ActorDisplay}"/><Run Text=" · "/><Run Text="{Binding ReferenceDisplay}"/>
                                             </TextBlock>
+                                            <Button Content="تصحيح خطأ تسجيل" MinHeight="36" FontSize="12" HorizontalAlignment="Left"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Visibility="{Binding IsCorrectable, Converter={StaticResource BoolToVisibleConverter}}"
+                                                    AutomationProperties.Name="تصحيح حركة مسجلة بالخطأ"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenCorrectionCommand}" CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"

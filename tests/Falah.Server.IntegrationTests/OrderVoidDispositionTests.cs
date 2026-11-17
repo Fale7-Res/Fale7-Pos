@@ -202,6 +202,7 @@ public class OrderVoidDispositionTests : IAsyncLifetime
 
     private async Task<(string OrderId, string InventoryItemId)> SellAsync(string paymentMethod, string orderType)
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var (productId, _, itemId) = await _factory.SeedProductWithRecipeAsync(10000, QuantityPerItem);
         var isDelivery = orderType == "delivery";
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(

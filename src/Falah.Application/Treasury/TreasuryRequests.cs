@@ -76,3 +76,15 @@ public sealed class TreasuryConflictException : Exception
 {
     public TreasuryConflictException(string message) : base(message) { }
 }
+
+/// <summary>A manual treasury entry recorded by mistake is corrected by its linked opposite, never edited or deleted
+/// (TreasuryCorrectionRules). ConfirmNotPhysicallyMoved must be true: the correction says the money did NOT move;
+/// money that really moved and came back is a new ordinary entry. ReversedAmountPiastres corrects part of it (the
+/// wrong-amount case); null = all of it. Once per entry; RequestId replays.</summary>
+public sealed record CorrectTreasuryMovementRequest(
+    string RequestId, string MovementId, string Reason, string ActorUserId, bool ConfirmNotPhysicallyMoved,
+    long? ReversedAmountPiastres = null, string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
+
+public sealed record CorrectTreasuryMovementResult(
+    string CorrectionMovementId, string OriginalMovementId, string OriginalType, long AmountPiastres,
+    string? SourceAccountId, string? DestinationAccountId, string? ApprovedBy, bool WasReplayed);

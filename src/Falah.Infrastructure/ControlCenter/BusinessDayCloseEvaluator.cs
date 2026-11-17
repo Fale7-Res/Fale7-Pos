@@ -49,7 +49,9 @@ public static class BusinessDayCloseEvaluator
             PersistenceHealthy: true,
             WriterOwned: true,
             RequiredChecklist: requiredChecklist,
-            ReconciliationChecks: reconciliationChecks);
+            ReconciliationChecks: reconciliationChecks,
+            DriverBalances: (await Falah.Infrastructure.Delivery.DriverBalances.OpenAsync(db, ct))
+                .Select(b => (b.DriverId, b.CarriedPiastres)).ToList());
 
         return BusinessDayRules.EvaluateCloseBlockers(inputs);
     }

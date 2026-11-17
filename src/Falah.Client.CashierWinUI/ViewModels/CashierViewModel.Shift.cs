@@ -10,6 +10,23 @@ public partial class CashierViewModel
     [ObservableProperty] private string _openingCashText = "0";
     [ObservableProperty] private string? _openShiftError;
     [ObservableProperty] private bool _isOpeningShift;
+    /// <summary>Set when the previous close left a float in the drawer: this shift opens on that cash (no second
+    /// float from the treasury), and the cashier types what they actually found.</summary>
+    [ObservableProperty] private string? _openingInheritedNote;
+
+    /// <summary>Offers the inherited float as the opening figure, or the configured float on an empty drawer.</summary>
+    internal async Task OfferOpeningCashAsync(long configuredFloatPiastres)
+    {
+        var left = await _session.Api.GetDrawerFloatAsync();
+        if (left.Success && left.Value?.InheritedFloatPiastres is { } inherited)
+        {
+            OpeningCashText = CashInput.Format(inherited);
+            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Format(inherited)} ج. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل عليك. لإكمال العهدة استخدم «إضافة نقدية» من الخزنة بعد الفتح.";
+            return;
+        }
+        OpeningInheritedNote = null;
+        OpeningCashText = CashInput.Format(configuredFloatPiastres);
+    }
 
     [RelayCommand]
     private async Task OpenShiftAsync()

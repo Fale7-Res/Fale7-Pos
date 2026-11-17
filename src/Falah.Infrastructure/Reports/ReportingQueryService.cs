@@ -696,6 +696,13 @@ public sealed class ReportingQueryService
             .Where(s => start == null || s.CreatedAtUtc >= start).Where(s => end == null || s.CreatedAtUtc < end)
             .Select(s => new { s.ActualPiastres, s.DifferencePiastres }).ToListAsync(ct);
 
+        // AUD-03: same delivered-in-the-period basis as DeliveredCount above.
+        var collectionGaps = await (from d in _db.Deliveries.AsNoTracking()
+                                    join c in _db.DriverCustodies.AsNoTracking() on d.Id equals c.DeliveryId
+                                    where d.DeliveredAtUtc != null && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end)
+                                        && c.CollectedPiastres < c.ExpectedPiastres
+                                    select c.ExpectedPiastres - c.CollectedPiastres).ToListAsync(ct);
+
         return new DeliveryOutcomesReportDto(
             deliveredIds.Count, failedCount, returnedCount, deliveryFees,
             unsettled.Count, unsettled.Sum(c => c.CollectedPiastres),
@@ -703,6 +710,7 @@ public sealed class ReportingQueryService
             settlements.Sum(s => s.ActualPiastres),
             settlements.Sum(s => Math.Max(0, -s.DifferencePiastres)),
             settlements.Sum(s => Math.Max(0, s.DifferencePiastres)),
-            settlements.Count);
+            settlements.Count,
+            collectionGaps.Sum(), collectionGaps.Count);
     }
 }

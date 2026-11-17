@@ -83,3 +83,16 @@ public sealed class PurchasingConflictException : Exception
 {
     public PurchasingConflictException(string message) : base(message) { }
 }
+
+/// <summary>A returned line: how much of an invoice's item went back to the supplier (milli-units).</summary>
+public sealed record SupplierReturnLineRequest(string InventoryItemId, long QuantityMilliUnits);
+
+/// <summary>A credit against one supplier invoice (SupplierCreditRules): Kind is invoice_error, supplier_credit or
+/// goods_returned. For goods_returned the amount is computed from the returned lines at the invoice's unit costs and
+/// AmountPiastres must be left null (or equal it); otherwise AmountPiastres is required. RequestId replays.</summary>
+public sealed record RecordSupplierCreditRequest(
+    string RequestId, string PurchaseId, string Kind, long? AmountPiastres, string Reason, string ActorUserId,
+    IReadOnlyList<SupplierReturnLineRequest>? Lines = null, string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
+
+public sealed record SupplierCreditResult(
+    string LedgerEntryId, string PurchaseId, string Kind, long AmountPiastres, long RemainingAmountPiastres, bool WasReplayed);

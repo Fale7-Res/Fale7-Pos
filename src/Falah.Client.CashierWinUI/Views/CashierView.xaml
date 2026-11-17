@@ -30,6 +30,9 @@
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                     <TextBox AutomationProperties.Name="الرصيد الافتتاحي بالجنيه" IsEnabled="{Binding CanEditOperation}" Text="{Binding OpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center" HorizontalAlignment="Stretch"/>
+                    <TextBlock Text="{Binding OpeningInheritedNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" TextAlignment="Center"
+                               AutomationProperties.AutomationId="OpenShift_InheritedNote"
+                               Visibility="{Binding OpeningInheritedNote, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <TextBlock Text="{Binding OpenShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Visibility="{Binding OpenShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
@@ -271,6 +274,25 @@
 
                         <TextBox IsEnabled="{Binding CanEditOperation}" PlaceholderText="سبب الفارق (اختياري إن كان ضمن الحد المسموح)"
                                  Text="{Binding CloseShiftReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Physical handover: counted = left in the drawer + handed to the receiver. -->
+                        <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="التسليم" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <TextBox Header="عهدة تُترك في الدرج للوردية التالية (ج)" IsEnabled="{Binding CanEditOperation}"
+                                         AutomationProperties.Name="عهدة تُترك في الدرج للوردية التالية" AutomationProperties.AutomationId="CloseShift_Retained"
+                                         Text="{Binding CloseShiftRetainedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="يُسلَّم للمسؤول:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" FontWeight="Bold" AutomationProperties.AutomationId="CloseShift_HandedOver"
+                                               Text="{Binding CloseShiftHandedOverText}"/>
+                                </Grid>
+                                <ComboBox Header="المستلم" PlaceholderText="اختر المسؤول الذي استلم النقدية" HorizontalAlignment="Stretch"
+                                          IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CloseShift_Receiver"
+                                          ItemsSource="{Binding HandoverReceivers}" SelectedItem="{Binding SelectedHandoverReceiver, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                            </StackPanel>
+                        </Border>
 
                         <StackPanel Spacing="8" Visibility="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
                             <TextBlock Text="الفارق يتجاوز الحد المسموح - السبب أعلاه إلزامي، وأدخل رمز المدير المخوّل باعتماد الإغلاق."

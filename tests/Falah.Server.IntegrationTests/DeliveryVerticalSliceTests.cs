@@ -50,6 +50,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
 
     private async Task<CheckoutOrderResult> CheckoutDeliveryOrderAsync(string shiftId, long totalPiastres, string paymentMethod = "cash")
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(totalPiastres);
         var amountPaid = paymentMethod == "cash" ? 0 : totalPiastres; // cash-on-delivery defers all money
         var request = new CheckoutOrderRequest(
@@ -293,8 +294,33 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         var withoutReason = await RecordResultAsync(deliveryId, "Delivered", collectedAmountPiastres: 14000);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutReason.StatusCode);
 
-        var withReason = await RecordResultAsync(deliveryId, "Delivered", collectedAmountPiastres: 14000, reason: "خصم توصيل");
-        withReason.EnsureSuccessStatusCode();
+        // AUD-03: collecting LESS than is due takes money out of the restaurant's figures, so a reason alone is no
+        // longer enough - it needs the same authority that approves a settlement difference.
+        var reasonOnly = await RecordResultAsync(deliveryId, "Delivered", collectedAmountPiastres: 14000, reason: "خصم توصيل");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, reasonOnly.StatusCode);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.DriverCustodies.Where(c => c.DeliveryId == deliveryId).Select(c => c.CollectedPiastres).FirstAsync()));
+
+        var approval = (await (await _factory.PostAsSessionOfAsync(_client, _dispatcherId, "/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "delivery_settlement_approve", "خصم توصيل")))
+            .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!;
+        var approved = await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/result",
+            new RecordDeliveryResultRequest($"req-{Guid.NewGuid():N}", deliveryId, "Delivered", 14000, "خصم توصيل", null, _dispatcherId,
+                approval.ApprovalId, approval.ApproverUserId, null));
+        approved.EnsureSuccessStatusCode();
+        Assert.Equal(14000, await _factory.QueryAsync(db => db.DriverCustodies.Where(c => c.DeliveryId == deliveryId).Select(c => c.CollectedPiastres).FirstAsync()));
+    }
+
+    [Fact]
+    public async Task Collecting_more_than_is_due_still_needs_only_a_reason()
+    {
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        await AssignAsync(deliveryId, await CreateDriverAsync());
+
+        var response = await RecordResultAsync(deliveryId, "Delivered", collectedAmountPiastres: 15500, reason: "العميل لم ينتظر الباقي");
+        response.EnsureSuccessStatusCode();
     }
 
     [Fact]
@@ -510,6 +536,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task Retrying_the_same_checkout_never_creates_a_second_delivery_order_ticket()
     {
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(15000);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -597,6 +624,33 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         Assert.Contains("01000000000", text);
         Assert.Contains("المطلوب تحصيله", text); // cash-on-delivery order
         Assert.DoesNotContain("إعادة إسناد", text); // the first dispatch is never marked
+    }
+
+    /// <summary>Paper redesign Amendment 2 (owner, 2026-11-17): the driver's paper is the delivery
+    /// customer's receipt - logo, priced items, totals, what to collect - and the only paper that
+    /// carries the configured menu QR.</summary>
+    [Fact]
+    public async Task The_menu_link_becomes_the_qr_on_the_drivers_paper()
+    {
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            _managerId, MenuUrl: "https://menu.example/falah"))).EnsureSuccessStatusCode();
+        var shiftId = await OpenShiftAsync();
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
+        await MarkReadyAsync(deliveryId);
+        var driverId = await CreateDriverAsync("سائق المنيو");
+        (await AssignAsync(deliveryId, driverId)).EnsureSuccessStatusCode();
+
+        var job = await _factory.QueryAsync(db => db.PrintJobs.SingleAsync(j => j.OrderId == order.OrderId && j.Route == "DriverDispatch"));
+        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
+        var lines = content!.Lines;
+        Assert.Equal("logo", lines[0].Kind);
+        Assert.Equal("https://menu.example/falah", Assert.Single(lines, l => l.Kind == "qr").Text);
+        var text = string.Join("\n", lines.SelectMany(TicketDtoText.Of));
+        Assert.Contains("الحساب", text);
+        Assert.Contains("الإجمالي الكلي", text);
+        Assert.Contains("المطلوب تحصيله", text);
+        Assert.Contains("سائق المنيو", text);
     }
 
     [Fact]
@@ -717,7 +771,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     // ---- Driver settlement ----
 
     [Fact]
-    public async Task Settling_a_driver_posts_a_movement_to_main_treasury_and_marks_custody_and_delivery_settled()
+    public async Task Settling_a_driver_posts_a_movement_into_the_receiving_shifts_drawer_and_marks_custody_and_delivery_settled()
     {
         var shiftId = await OpenShiftAsync();
         var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
@@ -737,7 +791,10 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
 
         var movement = await _factory.QueryAsync(db => db.TreasuryMovements.FirstAsync(m => m.Id == result.TreasuryMovementId));
         Assert.Equal("driver_settlement", movement.Type);
-        Assert.Equal("tre-main", movement.DestinationAccountId);
+        // Owner rule (2026-11-08): the driver settles with the cashier who receives his money - into the open
+        // shift's drawer, counted at that shift's close - not straight into the main treasury.
+        Assert.Equal("tre-drawer", movement.DestinationAccountId);
+        Assert.Equal(shiftId, movement.ShiftId);
         Assert.Equal(15000, movement.AmountPiastres);
 
         var custody = await _factory.QueryAsync(db => db.DriverCustodies.FirstAsync(c => c.DeliveryId == deliveryId));
@@ -877,10 +934,11 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         var driverId = await CreateDriverAsync();
         await AssignAsync(deliveryId, driverId);
         await RecordResultAsync(deliveryId, "Delivered");
-        await SettleAsync(driverId, 15000);
+        (await SettleAsync(driverId, 15000)).EnsureSuccessStatusCode();
 
+        // The driver's 150 is now in this shift's drawer: 500 opening + 150.
         var response = await _client.PostAsJsonAsync("/api/shifts/close",
-            new CloseShiftRequest($"creq-{Guid.NewGuid():N}", shiftId, _cashierId, 50000, null, null, null));
+            new CloseShiftRequest($"creq-{Guid.NewGuid():N}", shiftId, _cashierId, 65000, null, null, null));
         response.EnsureSuccessStatusCode();
 
         var shift = await _factory.QueryAsync(db => db.Shifts.FirstAsync(s => s.Id == shiftId));

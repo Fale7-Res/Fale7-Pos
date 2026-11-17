@@ -165,22 +165,19 @@ public class PrintRulesTests
     /// <summary>The customer's half is an identification stub. Anything priced or itemised on it is
     /// a defect: it exists to be handed over and called out, not read.</summary>
     [Fact]
-    public void The_customer_ticket_carries_identity_only_and_never_products_or_prices()
+    public void The_one_piece_receipt_carries_the_identity_the_collection_number_and_the_items()
     {
+        // Paper redesign spec 2026-11-17, Goal 5: the separate customer-number ticket is gone; the
+        // single receipt carries the identity and the number the customer collects with.
         var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeader(), CashierItems(), CashierTotals());
-        var (customer, _) = SplitCashier(ticket);
-        var text = TextOf(customer);
+        var text = TextOf(ticket.Lines);
 
-        Assert.Contains(customer.OfType<TicketText>(), t => t.Text == "#0276" && t.Size == TicketTextSize.Display);
+        Assert.Contains(ticket.Lines.OfType<TicketText>(), t => t.Text == "#0276" && t.Size == TicketTextSize.Huge);
         Assert.Contains("فالح أبو العنبه", text);
         Assert.Contains("ألذ طعم", text);
         Assert.Contains(text, l => l.Contains("مدير المحل"));
-        Assert.Contains(text, l => l.Contains("احتفظ بهذا التيكت"));
-
-        Assert.DoesNotContain(text, l => l.Contains("شاورما"));
-        Assert.DoesNotContain(text, l => l.Contains("بيبسي"));
-        Assert.DoesNotContain(text, l => l.Contains("ج"));
-        Assert.Empty(customer.OfType<TicketRow>().Where(r => r.Cells.Count > 2));
+        Assert.Contains(text, l => l.Contains("شاورما"));
+        Assert.DoesNotContain(text, l => l.Contains("احتفظ بهذا التيكت"));
     }
 
     /// <summary>The till's detailed half: every item fully described, and the cashier named exactly
@@ -216,11 +213,11 @@ public class PrintRulesTests
         var (_, detail) = SplitCashier(ticket);
 
         var shawarmaRow = detail.FindIndex(e => e is TicketRow r && r.Cells.Any(c => c.Text == "شاورما فراخ - جامبو"));
-        var noteRow = detail.FindIndex(e => e is TicketText t && t.Text.Contains("بدون بصل"));
+        var noteRow = detail.FindIndex(e => e is TicketRow r && r.Cells.Any(c => c.Text.Contains("بدون بصل")));
         Assert.True(shawarmaRow >= 0 && noteRow == shawarmaRow + 1,
             "the note must be the very next element after its own item row");
-        // No separator between an item and its note - the separator comes after the note.
-        Assert.IsType<TicketText>(detail[noteRow]);
+        // Amendment 1 (owner): the note sits inside the ruled grid, joined to its item.
+        Assert.True(Assert.IsType<TicketRow>(detail[noteRow]).Continuation);
     }
 
     /// <summary>The retired slogans must not come back through any path - neither hardcoded in a
@@ -241,16 +238,20 @@ public class PrintRulesTests
     /// or band and no boxed grid anywhere. Measured on the real 80mm paper, those read as heavy and
     /// cramped rather than as emphasis.</summary>
     [Fact]
-    public void Cashier_tickets_use_no_inverted_or_boxed_elements()
+    public void Cashier_receipt_inverts_only_its_section_bands_and_rules_only_its_item_grid()
     {
+        // Amendment 1 (owner, 2026-11-17) replaced "no bands, no boxes": black section bands and a
+        // ruled item grid. Nothing else is inverted or boxed - no pills, no boxed totals.
         var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeader(), CashierItems(), CashierTotals());
 
         Assert.DoesNotContain(ticket.Lines.OfType<TicketText>(), t => t.Inverted);
-        Assert.DoesNotContain(ticket.Lines.OfType<TicketRow>(), r => r.Inverted || r.Boxed || r.Continuation);
+        Assert.All(ticket.Lines.OfType<TicketRow>().Where(r => r.Inverted), r => Assert.Single(r.Cells));
+        Assert.All(ticket.Lines.OfType<TicketRow>().Where(r => r.Boxed),
+            r => Assert.True(r.Cells.Count == 3 || r.Continuation, "only item rows and their notes are boxed"));
 
-        var (customer, detail) = SplitCashier(ticket);
-        Assert.Contains(customer.OfType<TicketText>(), t => t.Text == "رقم الطلب");
-        Assert.Contains(detail.OfType<TicketText>(), t => t.Text == "#0276" && t.Size == TicketTextSize.Huge);
+        // Paper redesign spec 2026-11-17, Goal 5: one piece, so both lines live on the same paper.
+        Assert.Contains(ticket.Lines.OfType<TicketText>(), t => t.Text == "رقم الطلب");
+        Assert.Contains(ticket.Lines.OfType<TicketText>(), t => t.Text == "#0276" && t.Size == TicketTextSize.Huge);
     }
 
     // ---- Falah print identity ----
@@ -262,20 +263,19 @@ public class PrintRulesTests
     /// <summary>Both cashier tickets open the same way: the name, the tagline, and the short
     /// signature rule - the one ornament the tickets carry.</summary>
     [Fact]
-    public void Both_cashier_tickets_open_with_the_brand_and_the_signature_rule()
+    public void The_receipt_opens_with_the_logo_the_brand_the_tagline_and_a_rule()
     {
+        // Paper redesign spec 2026-11-17, "Customer header": logo -> name (Large, bold) -> sub-name -> thin rule.
         var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(), CashierItems(), CashierTotals());
-        var (customer, detail) = SplitCashier(ticket);
+        var part = ticket.Lines;
 
-        foreach (var part in new[] { customer, detail })
-        {
-            var name = Assert.IsType<TicketText>(part[0]);
-            Assert.Equal("فالح أبو العنبه", name.Text);
-            Assert.True(name.Bold);
-            Assert.Equal(TicketTextSize.Title, name.Size);
-            Assert.Equal("ألذ طعم", Assert.IsType<TicketText>(part[1]).Text);
-            Assert.Equal(part == customer ? TicketRuleStyle.Accent : TicketRuleStyle.Thin, Assert.IsType<TicketRule>(part[2]).Style);
-        }
+        Assert.IsType<TicketLogo>(part[0]);
+        var name = Assert.IsType<TicketText>(part[1]);
+        Assert.Equal("فالح أبو العنبه", name.Text);
+        Assert.True(name.Bold);
+        Assert.Equal(TicketTextSize.Large, name.Size);
+        Assert.Equal("ألذ طعم", Assert.IsType<TicketText>(part[2]).Text);
+        Assert.Equal(TicketRuleStyle.Thin, Assert.IsType<TicketRule>(part[3]).Style);
     }
 
     /// <summary>The detail ticket's identity block leads with the number, then the facts about the
@@ -309,24 +309,29 @@ public class PrintRulesTests
     /// <summary>With a menu link configured, the detailed receipt ends: thin rule, the invitation,
     /// the QR, then the name and tagline - and nothing after them.</summary>
     [Fact]
-    public void The_detail_ticket_ends_with_the_menu_qr_and_the_brand()
+    public void The_driver_paper_ends_with_the_menu_qr_the_brand_and_the_footer()
     {
-        var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(), CashierItems(), CashierTotals());
-        var (_, detail) = SplitCashier(ticket);
+        // Amendment 2 (owner, 2026-11-17): the QR travels to the delivery customer on the driver's
+        // paper (was: the call-center copy; before that, the cashier's detail ticket).
+        var ticket = DriverPaper(CashierHeaderWithMenu());
+        var detail = ticket.Lines.ToList();
 
         var qrIndex = detail.FindIndex(e => e is TicketQr);
         Assert.Equal(MenuLink, Assert.IsType<TicketQr>(detail[qrIndex]).Payload);
         Assert.Equal("امسح الكود لعرض المنيو", Assert.IsType<TicketText>(detail[qrIndex - 1]).Text);
         Assert.Equal(TicketRuleStyle.Thin, Assert.IsType<TicketRule>(detail[qrIndex - 2]).Style);
 
-        // After the QR: only blank space, the name, and the tagline.
+        // After the QR: only blank space, the name, the tagline, and the copy's own footer line.
         var after = detail.Skip(qrIndex + 1).Where(e => e is not TicketRule { Style: TicketRuleStyle.Blank }).ToList();
-        Assert.Equal(new[] { "فالح أبو العنبه", "ألذ طعم" }, after.Select(e => Assert.IsType<TicketText>(e).Text));
+        Assert.Equal(new[] { "فالح أبو العنبه", "ألذ طعم", CashierHeaderWithMenu().Footer }, after.Select(e => Assert.IsType<TicketText>(e).Text));
         Assert.True(((TicketText)after[0]).Bold);
 
-        // Exactly one code, on the detail ticket only.
         Assert.Single(ticket.Lines.OfType<TicketQr>());
     }
+
+    private static ComposedTicket DriverPaper(ReceiptHeader header) =>
+        PrintRules.ComposeDriverDispatchTicket(header, CashierItems(), CashierTotals(),
+            new DeliveryOrderTicketInfo("01000000000", null, Money.FromEgp(175m), true), "محمود", Now, isReassignment: false);
 
     /// <summary>The customer's token never carries the QR - it is identity only.</summary>
     [Fact]
@@ -347,22 +352,23 @@ public class PrintRulesTests
     [InlineData("   ")]
     public void Without_a_menu_link_no_qr_is_printed(string? menuUrl)
     {
-        var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(menuUrl), CashierItems(), CashierTotals());
-        var (_, detail) = SplitCashier(ticket);
+        // On the driver's paper, the only paper that carries the QR (Amendment 2).
+        var ticket = DriverPaper(CashierHeaderWithMenu(menuUrl));
 
         Assert.Empty(ticket.Lines.OfType<TicketQr>());
-        Assert.DoesNotContain(TextOf(detail), l => l.Contains("امسح الكود"));
-        var tail = detail.OfType<TicketText>().TakeLast(2).Select(t => t.Text);
-        Assert.Equal(new[] { "فالح أبو العنبه", "ألذ طعم" }, tail);
+        Assert.DoesNotContain(TextOf(ticket.Lines), l => l.Contains("امسح الكود"));
+        var tail = ticket.Lines.OfType<TicketText>().TakeLast(3).Select(t => t.Text);
+        Assert.Equal(new[] { "فالح أبو العنبه", "ألذ طعم", CashierHeaderWithMenu(menuUrl).Footer }, tail);
     }
 
-    /// <summary>The call center's copy is out of this redesign's scope and must not pick up the QR
-    /// by side effect.</summary>
+    /// <summary>Amendment 1 (owner, 2026-11-17): the takeaway receipt no longer carries the menu QR,
+    /// even when a menu link is configured.</summary>
     [Fact]
-    public void The_call_center_copy_is_untouched_by_the_menu_qr()
+    public void The_cashier_receipt_carries_no_menu_qr()
     {
-        var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.CallCenter, CashierHeaderWithMenu(), CashierItems(), CashierTotals());
+        var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(), CashierItems(), CashierTotals());
         Assert.Empty(ticket.Lines.OfType<TicketQr>());
+        Assert.DoesNotContain(TextOf(ticket.Lines), l => l.Contains("امسح الكود"));
     }
 
     /// <summary>The item table is plain rows: captions, then one row per item with the name,
@@ -423,8 +429,9 @@ public class PrintRulesTests
     /// carrying only the order number for the customer to hold, then the detailed one. The call
     /// center gets the detailed copy alone - there is nobody at the counter to hand a stub to.</summary>
     [Fact]
-    public void The_cashier_receipt_is_two_tickets_and_the_call_center_copy_is_one()
+    public void The_cashier_receipt_and_the_call_center_copy_are_one_piece_each()
     {
+        // Paper redesign spec 2026-11-17, Goal 5 (was: the cashier receipt is two tickets).
         var header = new ReceiptHeader("ord-1", "فالح", "مطاعم", "القاهرة", "#0001", Now, "أحمد", OrderType.Takeaway, null, null, null, null);
         var totals = new ReceiptTotals(Money.FromEgp(100m), Money.Zero, Money.Zero, null, Money.Zero, Money.Zero, Money.FromEgp(100m), Money.FromEgp(100m), Money.Zero, PaymentMethod.Cash);
         var items = new[] { Item("برجر", null) };
@@ -432,15 +439,10 @@ public class PrintRulesTests
         var cashier = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, header, items, totals);
         var callCenter = PrintRules.ComposeReceiptTicket(PrintRoute.CallCenter, header, items, totals);
 
-        Assert.Equal(1, cashier.Lines.Count(e => e is TicketCut));
+        Assert.Empty(cashier.Lines.OfType<TicketCut>());
         Assert.Empty(callCenter.Lines.OfType<TicketCut>());
-
-        // The customer's half carries identity only - no prices, no item lines.
-        var customerHalf = cashier.Lines.TakeWhile(e => e is not TicketCut).ToList();
-        Assert.Contains(customerHalf.OfType<TicketText>(), t => t.Size == TicketTextSize.Display && t.Text == "#0001");
-        // A two-cell date/time row is expected here; an ITEM row (four cells) never is.
-        Assert.Empty(customerHalf.OfType<TicketRow>().Where(r => r.Cells.Count > 2));
-        Assert.DoesNotContain(customerHalf.OfType<TicketText>(), t => t.Text.Contains("برجر"));
+        Assert.Contains(cashier.Lines.OfType<TicketText>(), t => t.Size == TicketTextSize.Huge && t.Text == "#0001");
+        Assert.Contains(TextOf(cashier.Lines), l => l.Contains("برجر"));
     }
 
     [Fact]

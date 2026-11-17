@@ -46,6 +46,7 @@ public class DriverDailyStatementTests : IAsyncLifetime
 
     private async Task<CheckoutOrderResult> SellAsync(string shiftId, long price, long fee, string method)
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", fee, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(price);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -136,6 +137,9 @@ public class DriverDailyStatementTests : IAsyncLifetime
         Assert.Equal(before.Totals.CollectedPiastres, before.Totals.CollectedUnsettledPiastres);
         Assert.Equal(1, before.Totals.FailedOrReturnedCount);
         Assert.Equal(before.Orders.Where(r => !r.Cancelled).Sum(r => r.OrderTotalPiastres), before.Totals.OrderTotalPiastres); // totals are the live rows' sums
+        // Owner rule (2026-11-08): the full fee on each delivered order is the driver's earning (o1, o2, o3); the failed o5 earns nothing.
+        Assert.Equal(4_500, before.Totals.DriverFeesEarnedPiastres);
+        Assert.Equal(before.Totals.CollectedPiastres - 4_500, before.Totals.NetAfterFeesPiastres);
 
         var other = await StatementAsync(b, date);
         Assert.Equal(new[] { o4.OrderNumber }, other.Orders.Select(r => r.OrderNumber).ToArray()); // the reassigned order left B
@@ -146,9 +150,9 @@ public class DriverDailyStatementTests : IAsyncLifetime
 
         Assert.Empty((await StatementAsync(a, date.AddDays(1))).Orders);                          // a different business day is a different statement
 
-        // Settle A's custody, then refund part of o1: settled moves, refunds are shown, nothing else changes.
+        // Settle A's custody (he keeps his fees), then refund part of o1: settled moves, refunds are shown, nothing else changes.
         await Ok(_client.PostAsJsonAsync($"/api/delivery/drivers/{a}/settle",
-            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", a, o1.TotalPiastres + o3.TotalPiastres, null, _dispatcherId, null, null)));
+            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", a, o1.TotalPiastres + o3.TotalPiastres - 4_500, null, _dispatcherId, null, null)));
         await Ok(_client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest($"rf-{Guid.NewGuid():N}", o1.OrderId, 2_000, "صنف ناقص",
             await _factory.QueryAsync(db => db.Users.Where(u => u.Role == "manager").Select(u => u.Id).FirstAsync()), null, null)));
         var after = await StatementAsync(a, date);
@@ -172,6 +176,8 @@ public class DriverDailyStatementTests : IAsyncLifetime
         Assert.Contains($"{after.Totals.OrderTotalPiastres / 100} ج", text);
         Assert.Contains($"{after.Totals.DeliveryFeesPiastres / 100} ج", text);
         Assert.Contains("خدمة التوصيل (من العملاء)", text);
+        Assert.Contains("أجر التوصيل المستحق للسائق", text);
+        Assert.Contains("صافي على السائق بعد أجره", text);
         foreach (var row in after.Orders) Assert.Contains(row.OrderNumber, text);
         Assert.Contains("أُعيد إسناده من السائق ب", text);
         Assert.DoesNotContain(o4.OrderNumber, text);

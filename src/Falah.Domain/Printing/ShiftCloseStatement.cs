@@ -33,7 +33,10 @@ public sealed record ShiftCloseStatement(
     IReadOnlyList<string> Outstanding)
 {
     public const string KindName = "shift-close-statement";
-    public const int CurrentSchemaVersion = 1;
+    /// <summary>2 (2026-11-11) adds driver cash, driver payouts, the retained float, the handover receiver and the
+    /// float inherited at opening. A version-1 statement reads them as zero / null, which is what its close did:
+    /// no driver cash entered a drawer and all counted cash was handed over.</summary>
+    public const int CurrentSchemaVersion = 2;
 
     /// <summary>Drawer-paid expenses reduce the cash the cashier hands over; expenses paid from
     /// another account are listed for completeness and do not enter the reconciliation.</summary>
@@ -84,4 +87,12 @@ public sealed record ShiftStatementCash(
     long CountedPiastres,
     long DifferencePiastres,
     long HandedOverPiastres,
-    string HandoverDestinationName);
+    string HandoverDestinationName,
+    long DriverCashPiastres = 0,
+    long DriverPayoutsPiastres = 0,
+    /// <summary>Counted cash left in the drawer for the next cashier. Counted = retained + handed over.</summary>
+    long RetainedFloatPiastres = 0,
+    string? HandoverReceiverName = null,
+    /// <summary>What the previous close left in the drawer, when this shift opened on it; null when it opened on an
+    /// empty drawer. Differs from OpeningPiastres only when the cash received at opening did not match.</summary>
+    long? InheritedFloatPiastres = null);

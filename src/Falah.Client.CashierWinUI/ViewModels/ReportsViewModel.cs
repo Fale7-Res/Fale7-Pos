@@ -238,6 +238,7 @@ public partial class ReportsViewModel : ObservableObject
     public async Task LoadAsync()
     {
         if (IsLoading) { _reloadRequested = true; return; }
+        EnsureExportCatalog();   // which reports this user may export (ReportsViewModel.Export) - no request
         IsLoading = true;
         LoadError = null;
         OnPropertyChanged(nameof(HasData));

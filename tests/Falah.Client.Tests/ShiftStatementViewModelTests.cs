@@ -103,6 +103,8 @@ public sealed class ShiftStatementViewModelTests : IDisposable
         vm.OpenCloseShiftModalCommand.Execute(null);
         vm.CloseShiftActualCashText = "680";
         await vm.PrepareCloseShiftCommand.ExecuteAsync(null);
+        // Cash leaves the drawer at the close, so the manager who takes it is named (owner, 2026-11-08).
+        vm.SelectedHandoverReceiver = new Falah.Application.Shifts.HandoverReceiverDto("mgr", "المدير");
         await vm.ConfirmCloseShiftCommand.ExecuteAsync(null);
 
         Assert.True(statementRequested);

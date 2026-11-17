@@ -24,12 +24,39 @@ public partial class CashierViewModel
     [ObservableProperty] private string? _closeShiftError;
     [ObservableProperty] private bool _isClosingShift;
 
+    // Physical handover (owner, 2026-11-08): of the counted cash, a float stays in the drawer for the next cashier
+    // (offered as the target float, never more than was counted) and the rest is handed to a named manager.
+    [ObservableProperty] private string _closeShiftRetainedText = "0";
+    [ObservableProperty] private HandoverReceiverDto? _selectedHandoverReceiver;
+    public System.Collections.ObjectModel.ObservableCollection<HandoverReceiverDto> HandoverReceivers { get; } = new();
+    /// <summary>The target drawer float (settings: default opening cash), read at start-up.</summary>
+    internal long TargetFloatPiastres { get; set; }
+
     public bool CloseShiftNeedsApproval => CloseShiftPreview?.RequiresManagerApproval ?? false;
     public bool IsCloseShiftCounting => CloseShiftPreview is null;
     partial void OnCloseShiftPreviewChanged(PrepareShiftCloseResult? value)
     {
         OnPropertyChanged(nameof(CloseShiftNeedsApproval));
         OnPropertyChanged(nameof(IsCloseShiftCounting));
+        if (value is not null)
+            CloseShiftRetainedText = CashInput.Format(Math.Min(value.ActualCashPiastres, Math.Max(0, TargetFloatPiastres)));
+        OnPropertyChanged(nameof(CloseShiftHandedOverText));
+    }
+    partial void OnCloseShiftRetainedTextChanged(string value) => OnPropertyChanged(nameof(CloseShiftHandedOverText));
+
+    /// <summary>Counted minus retained: what physically goes to the receiver.</summary>
+    public string CloseShiftHandedOverText =>
+        CloseShiftPreview is null || !CashInput.TryParse(CloseShiftRetainedText, out var retained) || retained < 0 || retained > CloseShiftPreview.ActualCashPiastres
+            ? "—" : CashInput.Format(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
+
+    private async Task LoadHandoverReceiversAsync()
+    {
+        var receivers = await _session.Api.GetHandoverReceiversAsync();
+        if (!receivers.Success || receivers.Value is null) return;
+        HandoverReceivers.Clear();
+        foreach (var r in receivers.Value) HandoverReceivers.Add(r);
+        // Never preselected: the cashier names the person who actually takes the cash.
+        SelectedHandoverReceiver = null;
     }
 
     [RelayCommand]
@@ -43,8 +70,12 @@ public partial class CashierViewModel
         CloseShiftManagerPin = "";
         CloseShiftPreview = null;
         CloseShiftError = null;
+        CloseShiftRetainedText = "0";
+        SelectedHandoverReceiver = null;
         IsCloseShiftOpen = true;
+        _handoverReceivers = LoadHandoverReceiversAsync();
     }
+    private Task _handoverReceivers = Task.CompletedTask;
 
     [RelayCommand]
     private void CancelCloseShift() { if (IsOperationBusy) return; if (_pendingCloseShift is not null) { CloseShiftError = "لم تُحسم نتيجة العملية؛ أعد المحاولة للتحقق قبل الإغلاق."; return; } IsCloseShiftOpen = false; }
@@ -73,6 +104,7 @@ public partial class CashierViewModel
                 CloseShiftError = result.Error ?? "تعذر حساب الرصيد المتوقع.";
                 return;
             }
+            try { await _handoverReceivers; } catch (Exception) { /* the cashier can still pick a receiver once it loads */ }
             CloseShiftPreview = result.Value;
         }
         finally
@@ -101,6 +133,13 @@ public partial class CashierViewModel
         {
             if (_pendingCloseShift is not null) { await CompleteCloseShiftAsync(_pendingCloseShift); return; }
             if (CloseShiftPreview is null) return;
+
+            if (!CashInput.TryParse(CloseShiftRetainedText, out var retained) || retained < 0)
+            { CloseShiftError = "أدخل العهدة المتروكة في الدرج بشكل صحيح."; return; }
+            if (retained > CloseShiftPreview.ActualCashPiastres)
+            { CloseShiftError = "العهدة المتروكة لا يمكن أن تكون أكبر من المعدود."; return; }
+            if (retained < CloseShiftPreview.ActualCashPiastres && SelectedHandoverReceiver is null)
+            { CloseShiftError = "اختر المسؤول الذي استلم النقدية."; return; }
 
             string? approvalId = null;
             string? approverUserId = null;
@@ -133,7 +172,8 @@ public partial class CashierViewModel
             var closeRequest = new CloseShiftRequest(
                 CloseRequestId: _CloseShiftRequestId, ShiftId: _session.ShiftId!,
                 ClosedByUserId: _session.CurrentUser!.Id, ActualCashCountedPiastres: CloseShiftPreview.ActualCashPiastres,
-                Reason: CloseShiftReason, ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId);
+                Reason: CloseShiftReason, ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId,
+                RetainedFloatPiastres: retained, HandoverReceiverUserId: SelectedHandoverReceiver?.UserId);
             await CompleteCloseShiftAsync(closeRequest);
         }
         finally

@@ -181,7 +181,7 @@ public sealed class PrintJobQueryService
                     orderType, ticketItems, order.CreatedAtUtc, order.RequestedPickupAtUtc),
             PrintRoute.Receipt or PrintRoute.CallCenter => await ComposeReceiptAsync(route, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             PrintRoute.DeliveryOrder => await ComposeDeliveryOrderAsync(order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
-            PrintRoute.DriverDispatch => await ComposeDriverDispatchAsync(job, order, ct),
+            PrintRoute.DriverDispatch => await ComposeDriverDispatchAsync(job, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             _ => throw new InvalidOperationException($"مسار طباعة غير معروف: {route}"),
         };
 
@@ -236,6 +236,8 @@ public sealed class PrintJobQueryService
     internal static string ShiftReference(string shiftId) =>
         shiftId.Length <= 6 ? shiftId.ToUpperInvariant() : shiftId[^6..].ToUpperInvariant();
 
+    /// <summary>No new opening slips are queued since the paper redesign (2026-11-17); this stays so a
+    /// job queued before that deployment still prints instead of failing.</summary>
     private async Task<ComposedTicket> ComposeShiftOpenSlipAsync(PrintJobEntity job, CancellationToken ct)
     {
         var (shift, identity) = await LoadShiftIdentityAsync(job.OrderId, ct);
@@ -314,6 +316,15 @@ public sealed class PrintJobQueryService
         PrintRoute route, OrderEntity order, OrderType orderType, string cashierName,
         IReadOnlyList<TicketItem> ticketItems, CancellationToken ct)
     {
+        var (header, totals) = await ReceiptPartsAsync(order, orderType, cashierName, ct);
+        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals);
+    }
+
+    /// <summary>The customer-receipt header and frozen totals of an order - shared by the takeaway
+    /// receipt, the call center's copy and the driver's paper, so they can never disagree.</summary>
+    private async Task<(ReceiptHeader Header, ReceiptTotals Totals)> ReceiptPartsAsync(
+        OrderEntity order, OrderType orderType, string cashierName, CancellationToken ct)
+    {
         var settings = await _settings.GetAsync(ct);
         var header = new ReceiptHeader(
             order.Id, settings.RestaurantName, settings.SubName, settings.Address, order.OrderNumber, order.CreatedAtUtc,
@@ -330,7 +341,7 @@ public sealed class PrintJobQueryService
             Money.FromPiastres(order.CompAmountPiastres), Money.FromPiastres(order.TotalPiastres),
             Money.FromPiastres(order.AmountPaidPiastres), Money.FromPiastres(order.ChangeDuePiastres),
             OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod));
-        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals);
+        return (header, totals);
     }
 
     /// <summary>The delivery ORDER ticket, composed from the same frozen order snapshot the receipt
@@ -366,7 +377,8 @@ public sealed class PrintJobQueryService
     /// <summary>Loads the delivery/driver facts the customer-facing receipt never needed and never
     /// carried. isReassignment is detected, not stored: true whenever an EARLIER DriverDispatch job
     /// already exists for this order - the first dispatch is never marked, every one after it is.</summary>
-    private async Task<ComposedTicket> ComposeDriverDispatchAsync(PrintJobEntity job, OrderEntity order, CancellationToken ct)
+    private async Task<ComposedTicket> ComposeDriverDispatchAsync(PrintJobEntity job, OrderEntity order, OrderType orderType,
+        string cashierName, IReadOnlyList<TicketItem> ticketItems, CancellationToken ct)
     {
         var delivery = await _db.Deliveries.AsNoTracking().FirstOrDefaultAsync(d => d.OrderId == order.Id, ct)
             ?? throw new InvalidOperationException("طلب الدليفري المرتبط بهذا الطلب غير موجود.");
@@ -388,15 +400,13 @@ public sealed class PrintJobQueryService
         // The SAME rule checkout used and the same one the delivery order ticket is given. Derived
         // here rather than re-expressed, so the two delivery tickets for one order can never
         // disagree about whether the driver is collecting money.
-        var settings = await _settings.GetAsync(ct);
-        var orderType = OrderEnumMapping.ParseOrderType(order.OrderType);
-        var paymentMethod = OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod);
+        // Amendment 2 (owner): this paper is the delivery customer's receipt, so it carries exactly
+        // what the takeaway receipt does - the same header, the same frozen totals - plus the driver.
+        var (header, totals) = await ReceiptPartsAsync(order, orderType, cashierName, ct);
+        var paymentMethod = totals.PaymentMethod;
         var isCashOnDelivery = CheckoutRules.IsCashOnDelivery(orderType, paymentMethod, Money.FromPiastres(order.TotalPiastres));
         var amountToCollect = Money.FromPiastres(Math.Max(0, order.TotalPiastres - order.AmountPaidPiastres));
-        return PrintRules.ComposeDriverDispatchTicket(
-            settings.RestaurantName, order.Id, order.OrderNumber, driverName, order.CustomerName, order.CustomerPhone,
-            order.DeliveryAddress, order.DeliveryArea, amountToCollect, isCashOnDelivery,
-            electronicPaymentPending: order.ElectronicPaymentStatus == "pending",
-            order.DeliveryNotes, job.CreatedAtUtc, earlierJobExists);
+        var info = new DeliveryOrderTicketInfo(order.CustomerPhone, order.DeliveryNotes, amountToCollect, isCashOnDelivery);
+        return PrintRules.ComposeDriverDispatchTicket(header, ticketItems, totals, info, driverName, job.CreatedAtUtc, earlierJobExists);
     }
 }

@@ -10,7 +10,9 @@ namespace Falah.Domain.Delivery;
 ///
 /// The figures are kept apart on purpose and never added together:
 /// - food sales: what the order charged for food (order total minus its delivery charge);
-/// - delivery charge: what the customer paid for delivery - NOT the driver's wage or commission;
+/// - delivery charge: what the customer paid for delivery. Owner rule (2026-11-08): the full charge recorded
+///   on a successfully delivered order is the driver's earning, kept back from the cash he hands over
+///   (DriverSettlementRules). A failed or returned delivery earns nothing;
 /// - order total; refunds made on these orders;
 /// - prepaid: the part already paid before the driver left (card, confirmed transfer);
 /// - cash to collect: what the driver is responsible for collecting, by the same rule the custody
@@ -49,7 +51,13 @@ public sealed record DriverStatementTotals(
     long CollectedSettledPiastres,
     long CollectedUnsettledPiastres,
     int FailedOrReturnedCount,
-    int CancelledCount);
+    int CancelledCount,
+    /// <summary>The delivery charge of every delivered, live order: what the driver earned that day.</summary>
+    long DriverFeesEarnedPiastres = 0)
+{
+    /// <summary>Cash the driver collected less what he earned: positive is his to hand over, negative is owed to him.</summary>
+    public long NetAfterFeesPiastres => CollectedPiastres - DriverFeesEarnedPiastres;
+}
 
 public static class DriverStatementRules
 {
@@ -79,6 +87,7 @@ public static class DriverStatementRules
             CollectedUnsettledPiastres: live.Where(r => !r.CustodySettled).Sum(r => r.CollectedPiastres),
             // Counted over every row: a failed cash order is voided by the result itself, and the failure must still show.
             FailedOrReturnedCount: all.Count(r => r.DeliveryStatus is "Failed" or "Returned"),
-            CancelledCount: all.Count - live.Count);
+            CancelledCount: all.Count - live.Count,
+            DriverFeesEarnedPiastres: live.Where(r => r.DeliveryStatus == nameof(DeliveryStatus.Delivered)).Sum(r => r.DeliveryFeePiastres));
     }
 }

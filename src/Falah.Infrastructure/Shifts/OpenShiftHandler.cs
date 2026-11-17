@@ -60,9 +60,19 @@ public sealed class OpenShiftHandler
             // (BusinessDayRules' OPEN_SHIFT blocker), so an open shift now always has an open day.
             // Owner-approved handover (2026-11-09): an authorized cashier no longer needs a manager to open
             // the day first. The active day is reused, or one is created in THIS transaction, so the day,
-            // float, shift and slip commit or roll back together. See BusinessDayGate.ResolveForShiftOpenAsync.
+            // float and shift commit or roll back together (no opening slip since 2026-11-17).
+            // See BusinessDayGate.ResolveForShiftOpenAsync.
             var businessDayId = await BusinessDayGate.ResolveForShiftOpenAsync(_db, request.OpenedByUserId, $"{request.RequestId}:day", now, ct);
-            if (openingCash.IsPositive)
+
+            // Physical handover (owner, 2026-11-08). When the previous close left a float in the drawer, this shift
+            // opens ON that cash: no main -> drawer float is issued for it (that would count it twice). The opening
+            // figure is what this cashier actually found and counted; if it differs from what the close says it
+            // left, the gap is recorded on its own as an opening discrepancy against the previous shift. It is not
+            // charged to this cashier (this shift's expected cash starts from what was really there) and not hidden.
+            var previous = await DrawerFloat.LastRetainedAsync(_db, ct);
+            Money? inherited = previous is null ? null : Money.FromPiastres(previous.RetainedPiastres);
+
+            if (inherited is null && openingCash.IsPositive)
             {
                 var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);
                 FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
@@ -79,11 +89,12 @@ public sealed class OpenShiftHandler
                 BusinessDayId = businessDayId,
                 OpenedAtUtc = shift.OpenedAtUtc,
                 OpenRequestId = request.RequestId,
+                InheritedFloatPiastres = inherited?.Piastres,
             };
 
             _db.Shifts.Add(entity);
 
-            if (openingCash.IsPositive)
+            if (inherited is null && openingCash.IsPositive)
             {
                 var openedByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.OpenedByUserId, ct)
                     ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -94,14 +105,24 @@ public sealed class OpenShiftHandler
                     $"عهدة افتتاح {shift.ShiftName}", openedByUser.Name, approvedBy: null, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
             }
+            else if (inherited is { } left && openingCash != left)
+            {
+                var openedByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.OpenedByUserId, ct)
+                    ?? throw new InvalidOperationException("المستخدم غير موجود.");
+                var gap = openingCash - left;
+                var movement = TreasuryMovementFactory.BuildCashLifecycleMovement(
+                    $"tm-{Guid.NewGuid():N}", $"shift-open-gap-{shift.Id}", $"op-{Guid.NewGuid():N}",
+                    gap.IsNegative ? "opening_float_shortfall" : "opening_float_overage",
+                    sourceAccountId: gap.IsNegative ? TreasuryAccounts.Drawer : null,
+                    destinationAccountId: gap.IsPositive ? TreasuryAccounts.Drawer : null,
+                    gap.Abs(), "shift_opening", previous!.ShiftId, businessDayId, shiftId: null,
+                    $"فرق استلام عهدة {previous.ShiftName}: المتروك {left.Egp} ج والمستلم فعلًا {openingCash.Egp} ج",
+                    openedByUser.Name, approvedBy: null, now);
+                _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
+            }
 
-            // The cashier's own receipt for the float they were handed. Queued here so it exists if
-            // and only if the shift does; its id is derived from the shift, so a replay of this
-            // request cannot queue a second slip.
-            var openedBy = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.OpenedByUserId, ct);
-            _db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
-                PrintDocumentKind.ShiftOpen, shift.Id, PrintRules.ShiftOpenLabel,
-                openedBy?.Name ?? request.OpenedByUserId, now));
+            // No opening slip: retired by the owner (paper redesign 2026-11-17). The float is recorded
+            // above exactly as before; only the paper is gone.
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
@@ -122,5 +143,5 @@ public sealed class OpenShiftHandler
     }
 
     private static OpenShiftResult ToResult(ShiftEntity entity, bool wasReplayed) =>
-        new(entity.Id, entity.ShiftName, entity.Status, entity.OpeningCashPiastres, wasReplayed);
+        new(entity.Id, entity.ShiftName, entity.Status, entity.OpeningCashPiastres, wasReplayed, entity.InheritedFloatPiastres);
 }

@@ -77,7 +77,11 @@ public static class ShiftCloseStatements
                 breakdown.OpeningCash.Piastres, breakdown.CashSales.Piastres, breakdown.Refunds.Piastres, breakdown.CashIn.Piastres,
                 breakdown.Expenses.Piastres, breakdown.Withdrawals.Piastres, breakdown.SafeDrops.Piastres,
                 expected, counted, difference,
-                HandedOverPiastres: Math.Max(0, counted), HandoverDestinationName: AccountName(TreasuryAccounts.Main)),
+                // A close stores what it handed over and retained; a shift closed before the split handed over all of it.
+                HandedOverPiastres: shift.HandedOverPiastres ?? Math.Max(0, counted), HandoverDestinationName: AccountName(TreasuryAccounts.Main),
+                DriverCashPiastres: breakdown.DriverCash.Piastres, DriverPayoutsPiastres: breakdown.DriverPayouts.Piastres,
+                RetainedFloatPiastres: shift.RetainedFloatPiastres ?? 0, HandoverReceiverName: shift.HandoverReceiverName,
+                InheritedFloatPiastres: shift.InheritedFloatPiastres),
             differenceReason,
             await LoadOutstandingAsync(db, shift.Id, ct));
     }
@@ -92,7 +96,7 @@ public static class ShiftCloseStatements
             .Where(o => o.ShiftId == shiftId && o.ElectronicPaymentStatus == "pending")
             .Select(o => new { o.OrderNumber }).ToListAsync(ct);
         if (pending.Count > 0)
-            items.Add($"تحويلات إلكترونية بانتظار التأكيد: {pending.Count} ({string.Join("، ", pending.Select(p => p.OrderNumber))})");
+            items.Add($"تحويلات إلكترونية بانتظار التأكيد: {pending.Count} ({string.Join("، ", pending.Select(p => Falah.Domain.Printing.TicketFormat.Code(p.OrderNumber)))})");
 
         var unpaid = await db.Orders.AsNoTracking()
             .CountAsync(o => o.ShiftId == shiftId && !o.IsPaid && o.Status != "cancelled" && o.ElectronicPaymentStatus == null, ct);
@@ -100,7 +104,11 @@ public static class ShiftCloseStatements
 
         var custody = await db.DriverCustodies.AsNoTracking().Where(c => c.Status == "Open").Select(c => c.ExpectedPiastres).ToListAsync(ct);
         if (custody.Count > 0)
-            items.Add($"عهدة سائقين غير مسواة (على مستوى المطعم): {custody.Count} بقيمة {Money.FromPiastres(custody.Sum()).Egp} ج");
+            items.Add($"عهدة سائقين غير مسواة (على مستوى المطعم): {custody.Count} بقيمة {Falah.Domain.Printing.TicketFormat.Amount(custody.Sum())}");
+        foreach (var balance in await Falah.Infrastructure.Delivery.DriverBalances.OpenAsync(db, ct))
+            items.Add(balance.CarriedPiastres > 0
+                ? $"رصيد مرحّل على السائق {balance.DriverName}: {Falah.Domain.Printing.TicketFormat.Amount(balance.CarriedPiastres)}"
+                : $"مستحق للسائق {balance.DriverName} لم يُصرف: {Falah.Domain.Printing.TicketFormat.Amount(-balance.CarriedPiastres)}");
         return items;
     }
 

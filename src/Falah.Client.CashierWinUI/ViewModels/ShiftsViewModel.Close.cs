@@ -28,10 +28,35 @@ public partial class ShiftsViewModel
     public bool CloseShiftNeedsApproval => CloseShiftPreview?.RequiresManagerApproval ?? false;
     public bool IsCloseShiftCounting => CloseShiftPreview is null;
 
+    // Physical handover (owner, 2026-11-08) - same split as the POS close: counted = retained + handed over.
+    [ObservableProperty] private string _closeShiftRetainedText = "0";
+    [ObservableProperty] private HandoverReceiverDto? _selectedHandoverReceiver;
+    public System.Collections.ObjectModel.ObservableCollection<HandoverReceiverDto> HandoverReceivers { get; } = new();
+    private long _targetFloatPiastres;
+
     partial void OnCloseShiftPreviewChanged(PrepareShiftCloseResult? value)
     {
         OnPropertyChanged(nameof(CloseShiftNeedsApproval));
         OnPropertyChanged(nameof(IsCloseShiftCounting));
+        if (value is not null)
+            CloseShiftRetainedText = CashInput.Format(Math.Min(value.ActualCashPiastres, Math.Max(0, _targetFloatPiastres)));
+        OnPropertyChanged(nameof(CloseShiftHandedOverText));
+    }
+    partial void OnCloseShiftRetainedTextChanged(string value) => OnPropertyChanged(nameof(CloseShiftHandedOverText));
+
+    public string CloseShiftHandedOverText =>
+        CloseShiftPreview is null || !CashInput.TryParse(CloseShiftRetainedText, out var retained) || retained < 0 || retained > CloseShiftPreview.ActualCashPiastres
+            ? "—" : CashInput.Format(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
+
+    private async Task LoadHandoverChoicesAsync()
+    {
+        var settings = await _session.Api.GetSettingsAsync();
+        if (settings.Success && settings.Value is not null) _targetFloatPiastres = Math.Max(0, settings.Value.DefaultOpeningCashPiastres);
+        var receivers = await _session.Api.GetHandoverReceiversAsync();
+        if (!receivers.Success || receivers.Value is null) return;
+        HandoverReceivers.Clear();
+        foreach (var r in receivers.Value) HandoverReceivers.Add(r);
+        SelectedHandoverReceiver = null;
     }
 
     [RelayCommand]
@@ -43,8 +68,13 @@ public partial class ShiftsViewModel
         CloseShiftManagerPin = "";
         CloseShiftPreview = null;
         CloseShiftError = null;
+        CloseShiftRetainedText = "0";
+        SelectedHandoverReceiver = null;
         IsCloseShiftModalOpen = true;
+        _handoverChoices = LoadHandoverChoicesAsync();
     }
+    // Awaited before the preview is shown, so the retained float is offered from the real target, never from 0.
+    private Task _handoverChoices = Task.CompletedTask;
 
     [RelayCommand]
     private void CancelCloseShiftModal() { if (!IsClosingShift) IsCloseShiftModalOpen = false; }
@@ -76,6 +106,7 @@ public partial class ShiftsViewModel
                 CloseShiftError = result.Error ?? "تعذر حساب الرصيد المتوقع.";
                 return;
             }
+            try { await _handoverChoices; } catch (Exception) { /* the cashier can still type the float and pick a receiver */ }
             CloseShiftPreview = result.Value;
         }
         finally
@@ -95,6 +126,17 @@ public partial class ShiftsViewModel
         CloseShiftError = null;
         try
         {
+            long retained = 0;
+            if (!_closeWrite.HasPending)
+            {
+                if (!CashInput.TryParse(CloseShiftRetainedText, out retained) || retained < 0)
+                { CloseShiftError = "أدخل العهدة المتروكة في الدرج بشكل صحيح."; return; }
+                if (retained > CloseShiftPreview.ActualCashPiastres)
+                { CloseShiftError = "العهدة المتروكة لا يمكن أن تكون أكبر من المعدود."; return; }
+                if (retained < CloseShiftPreview.ActualCashPiastres && SelectedHandoverReceiver is null)
+                { CloseShiftError = "اختر المسؤول الذي استلم النقدية."; return; }
+            }
+
             string? approvalId = null;
             string? approverUserId = null;
 
@@ -128,7 +170,8 @@ public partial class ShiftsViewModel
             var closeResult = await SendCloseAsync(_closeWrite.Value ?? new CloseShiftRequest(
                 CloseRequestId: $"shift-close-{Guid.NewGuid():N}", ShiftId: ActiveShift.ShiftId,
                 ClosedByUserId: _session.CurrentUser!.Id, ActualCashCountedPiastres: CloseShiftPreview.ActualCashPiastres,
-                Reason: CloseShiftReason, ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId));
+                Reason: CloseShiftReason, ManagerApprovalId: approvalId, ManagerApproverUserId: approverUserId,
+                RetainedFloatPiastres: retained, HandoverReceiverUserId: SelectedHandoverReceiver?.UserId));
 
             if (!closeResult.Success || closeResult.Value is null)
             {

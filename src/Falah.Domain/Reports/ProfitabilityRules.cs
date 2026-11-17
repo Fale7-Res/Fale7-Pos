@@ -71,7 +71,8 @@ public static class ProfitabilityRules
         double? WagePercent,
         double? ExpensePercent,
         double? OperatingPercent,
-        bool IsComplete);
+        bool IsComplete,
+        Money DriverCompensation = default);
 
     /// <summary>Net sales less the three costs this system actually records: food, recorded
     /// expenses, and wages posted for the period. It is deliberately NOT called net profit - rent,
@@ -81,9 +82,14 @@ public static class ProfitabilityRules
     /// Zero means nobody recorded any labour, which is not the same statement as "labour cost
     /// nothing" - and a dashboard that answers 0% to "what is our labour ratio" is making the
     /// second claim while only the first is true. Same rule the food cost above already follows.</param>
+    /// <param name="driverCompensation">AUD-02: the drivers' pay for the period's completed deliveries. The delivery
+    /// fee the customer paid is inside net sales and the driver keeps all of it, so leaving his pay out counted every
+    /// completed delivery's fee as the restaurant's own margin.</param>
+    /// <param name="uncollected">AUD-03: approved delivery collection shortfalls of the period's sales.</param>
     public static OperatingMarginResult ComputeOperatingMargin(
         Money netSales, Money knownFoodCost, Money expenses, Money wages,
-        int soldLineCount, int knownLineCount, int wagePostingCount)
+        int soldLineCount, int knownLineCount, int wagePostingCount, Money driverCompensation = default,
+        Money uncollected = default)
     {
         var isComplete = soldLineCount == 0 || knownLineCount >= soldLineCount;
 
@@ -98,10 +104,12 @@ public static class ProfitabilityRules
         // because those ARE known and the owner should still see them.
         if (soldLineCount > 0 && knownLineCount == 0)
             return new OperatingMarginResult(netSales, null, expenses, wages, null,
-                null, WagePercent(), Percent(expenses), null, false);
+                null, WagePercent(), Percent(expenses), null, false, driverCompensation);
 
-        var result = netSales - knownFoodCost - expenses - wages;
+        // AUD-03: part of a sale the customer never paid (an approved collection shortfall) is in net sales at its
+        // full price, so it is taken back out here rather than counted as money the restaurant kept.
+        var result = netSales - knownFoodCost - expenses - wages - driverCompensation - uncollected;
         return new OperatingMarginResult(netSales, knownFoodCost, expenses, wages, result,
-            Percent(knownFoodCost), WagePercent(), Percent(expenses), Percent(result), isComplete);
+            Percent(knownFoodCost), WagePercent(), Percent(expenses), Percent(result), isComplete, driverCompensation);
     }
 }

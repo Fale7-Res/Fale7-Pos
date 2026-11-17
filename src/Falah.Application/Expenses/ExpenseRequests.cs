@@ -17,6 +17,21 @@ public sealed record ExpenseDto(
     string ExpenseId, string Category, long AmountPiastres, string Description, string ShiftId,
     bool PaidFromDrawer, string PaymentAccountId, string CreatedByUserId, string BusinessDate, DateTimeOffset CreatedAtUtc);
 
+/// <summary>AUD-04: cancel an expense recorded by mistake, while its shift is still open. Nothing is deleted: a linked
+/// reversal (negative) is recorded and the account it was charged to is credited back.
+///
+/// CashDisposition says what happened to the money, and is required, because it is what makes crediting the drawer
+/// true: "not_paid" (a posting error - the money never left) or "cash_returned" (it left and has physically come
+/// back). Money that left and stays gone is not reversible: the expense is true. ReversedAmountPiastres reverses part
+/// of it (5000 typed, 500 paid: 4500); null = all of it.</summary>
+public sealed record ReverseExpenseRequest(
+    string RequestId, string ExpenseId, string Reason, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId,
+    string? CashDisposition = null, long? ReversedAmountPiastres = null);
+
+public sealed record ReverseExpenseResult(
+    string ReversalExpenseId, string OriginalExpenseId, long AmountPiastres, string PaymentAccountId,
+    string? TreasuryMovementId, string? ApprovedBy, bool WasReplayed, string? CashDisposition = null);
+
 public sealed class ExpenseConflictException : Exception
 {
     public ExpenseConflictException(string message) : base(message) { }

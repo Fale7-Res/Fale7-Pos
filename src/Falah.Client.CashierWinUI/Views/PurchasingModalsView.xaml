@@ -231,6 +231,45 @@
             </Border>
         </Grid>
 
+        <!-- ================= CORRECT AN INVOICE / SUPPLIER CREDIT / GOODS RETURNED (P3) ================= -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCreditOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460" MaxHeight="660"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+                        <controls:ModalHeaderView Title="تصحيح فاتورة مورد" CloseCommand="{Binding CloseCreditCommand}"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="المتبقي على الفاتورة: "/>
+                            <Run Text="{Binding CreditTarget.RemainingAmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                        </TextBlock>
+                        <TextBlock Text="يُسجَّل رصيد دائن للمورد مرتبط بالفاتورة؛ الفاتورة كما استُلمت لا تتغير ولا تتحرك أي نقدية." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <ComboBox Header="نوع التصحيح" MinHeight="44" HorizontalAlignment="Stretch" ItemsSource="{Binding CreditKinds}" DisplayMemberPath="Label"
+                                  AutomationProperties.AutomationId="Purchasing_CreditKind" SelectedItem="{Binding SelectedCreditKind, Mode=TwoWay}"/>
+                        <TextBox Header="المبلغ بالجنيه" InputScope="Number" MinHeight="44"
+                                 Visibility="{Binding IsAmountCredit, Converter={StaticResource BoolToVisibleConverter}}"
+                                 Text="{Binding CreditAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <StackPanel Spacing="8" Visibility="{Binding IsGoodsReturn, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ComboBox Header="الصنف المرتجع" MinHeight="44" HorizontalAlignment="Stretch" ItemsSource="{Binding CreditReturnOptions}"
+                                      DisplayMemberPath="Label" SelectedItem="{Binding CreditReturnLine, Mode=TwoWay}"/>
+                            <TextBox Header="الكمية المرتجعة" InputScope="Number" MinHeight="44"
+                                     Text="{Binding CreditReturnQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="قيمة المرتجع تُحسب بسعر الفاتورة نفسها وتخرج الكمية من المخزون." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <TextBox Header="السبب (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 Text="{Binding CreditReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <PasswordBox PlaceholderText="رمز المدير" MinHeight="44"
+                                     Visibility="{Binding PayNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
+                                     Password="{Binding CreditManagerPin, Mode=TwoWay}"/>
+                        <TextBlock Text="{Binding CreditError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   Visibility="{Binding CreditError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <Button Content="تسجيل التصحيح" MinHeight="52" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="Purchasing_SubmitCredit"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitCreditCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
         <!-- ================= DUE DATE ON AN INVOICE ALREADY RECEIVED ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsDueDateOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="420"

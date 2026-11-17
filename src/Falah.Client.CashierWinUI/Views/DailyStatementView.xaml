@@ -175,6 +175,47 @@
                 <Expander Header="٤. المصروفات (التفصيل الكامل)" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                     <StackPanel Spacing="8" Padding="4,10,4,4">
                         <TextBlock FontSize="13"><Run Text="إجمالي المصروفات: "/><Run Text="{Binding Statement.Expenses.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></TextBlock>
+                        <!-- AUD-04: cancelling a mistaken expense records a linked reversal (a negative line below); nothing
+                             is deleted. Only while the expense's shift is open - the server says so otherwise. -->
+                        <Border Visibility="{Binding IsReversalOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                                Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                    <Run Text="إلغاء المصروف: "/><Run Text="{Binding ReversalTarget.Description}"/><Run Text=" — "/>
+                                    <Run Text="{Binding ReversalTarget.AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                </TextBlock>
+                                <TextBlock Text="يُسجَّل قيد إلغاء مرتبط بالمصروف الأصلي ويعود المبلغ لحسابه. لا يُحذف أي سجل. إذا خرج المبلغ فعلًا ولن يعود فالمصروف صحيح ولا يُلغى." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                <TextBlock Text="ماذا حدث للمبلغ؟ (إلزامي)" FontWeight="SemiBold"/>
+                                <RadioButton GroupName="ReversalDisposition" MinHeight="44"
+                                             Content="خطأ تسجيل: المبلغ لم يخرج من الحساب أصلًا"
+                                             AutomationProperties.AutomationId="DailyStatement_ReversalNotPaid"
+                                             IsChecked="{Binding IsReversalNotPaid, Mode=TwoWay}"/>
+                                <RadioButton GroupName="ReversalDisposition" MinHeight="44"
+                                             Content="صُرف المبلغ ثم عاد نقدًا الآن (استرداد من المحل أو المورد)"
+                                             AutomationProperties.AutomationId="DailyStatement_ReversalCashReturned"
+                                             IsChecked="{Binding IsReversalCashReturned, Mode=TwoWay}"/>
+                                <TextBox Header="المبلغ المُلغى (اتركه فارغًا لإلغاء المصروف كله)" MinHeight="44" InputScope="Number"
+                                         PlaceholderText="مثال: 4500 إذا كُتب 5000 وصُرف 500"
+                                         AutomationProperties.AutomationId="DailyStatement_ReversalAmount"
+                                         Text="{Binding ReversalAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Header="سبب الإلغاء (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                         AutomationProperties.AutomationId="DailyStatement_ReversalReason"
+                                         Text="{Binding ReversalReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <PasswordBox PlaceholderText="رمز المدير" MinHeight="44"
+                                             AutomationProperties.Name="رمز المدير لاعتماد إلغاء المصروف"
+                                             Visibility="{Binding ReversalNeedsManagerPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Password="{Binding ReversalManagerPin, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding ReversalMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding ReversalMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="تأكيد الإلغاء" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                            AutomationProperties.AutomationId="DailyStatement_ConfirmReversal"
+                                            Command="{Binding ConfirmReversalCommand}"/>
+                                    <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding CancelReversalCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
                         <ItemsControl ItemsSource="{Binding ExpenseLines}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -182,7 +223,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/>
                                             <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding CreatedAtUtc}" FontSize="11" Style="{StaticResource MutedText}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding Category}" FontSize="12" FontWeight="Bold"/>
@@ -196,6 +237,12 @@
                                                 AutomationProperties.AutomationId="DailyStatement_ReprintExpense"
                                                 AutomationProperties.Name="إعادة طباعة إيصال المصروف"
                                                 Command="{Binding ElementName=Root, Path=DataContext.ReprintExpenseCommand}" CommandParameter="{Binding}"/>
+                                        <Button Grid.Column="7" Content="إلغاء" MinHeight="44" FontSize="12"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                AutomationProperties.AutomationId="DailyStatement_ReverseExpense"
+                                                Visibility="{Binding AmountPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}"
+                                                AutomationProperties.Name="إلغاء المصروف بقيد مرتبط"
+                                                Command="{Binding ElementName=Root, Path=DataContext.OpenReversalCommand}" CommandParameter="{Binding}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

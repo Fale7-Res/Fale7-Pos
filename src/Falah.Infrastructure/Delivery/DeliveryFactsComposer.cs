@@ -39,7 +39,8 @@ internal static class DeliveryFactsComposer
             CompAmount: Money.FromPiastres(order.CompAmountPiastres),
             DeliveredAtUtc: delivery.DeliveredAtUtc,
             FailedAtUtc: delivery.FailedAtUtc,
-            ReturnedAtUtc: delivery.ReturnedAtUtc);
+            ReturnedAtUtc: delivery.ReturnedAtUtc,
+            DeliveryFee: Money.FromPiastres(order.DeliveryFeePiastres));
     }
 
     public static DriverCustody ToDriverCustody(DriverCustodyEntity e) => new(

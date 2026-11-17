@@ -92,6 +92,10 @@ public partial class TreasuryViewModel : ObservableObject
             "sale" or "sale_collection" => "مبيعات",
             "refund" => "مرتجع",
             "expense" or "expense_payment" => "مصروف",
+            "expense_reversal" => "إلغاء مصروف",
+            "expense_correction" => "تصحيح مصروف مسجل بالخطأ",
+            "expense_refund" => "مبلغ مصروف عاد نقدًا",
+            "movement_correction" => "تصحيح حركة مسجلة بالخطأ",
             "owner_deposit" => "إيداع من المالك",
             "capital_injection" => "ضخ رأس مال",
             "other_external_inflow" => "تدفق خارجي",
@@ -153,6 +157,11 @@ public partial class TreasuryViewModel : ObservableObject
                                 && Movement.ReferenceId is { Length: > 0 } id
             ? Movement.Reason.Replace(id, number, StringComparison.Ordinal)
             : Movement.Reason;
+        /// <summary>A hand-typed entry (TreasuryCorrectionRules) - the only kind corrected from this screen; the server
+        /// re-checks it, and refuses a second correction of the same entry.</summary>
+        public bool AlreadyCorrected { get; init; }
+        public bool IsCorrectable => !AlreadyCorrected && Falah.Domain.Financial.TreasuryCorrectionRules.CorrectableTypes.Contains(Movement.Type);
+
         public string? SourceAccountId => Movement.SourceAccountId;
         public string? DestinationAccountId => Movement.DestinationAccountId;
     }
@@ -268,7 +277,10 @@ public partial class TreasuryViewModel : ObservableObject
             var movements = await _session.Api.GetTreasuryMovementsAsync(actor, limit: 200);
             if (!movements.Success || movements.Value is null) { LoadError = movements.Error ?? "تعذر تحميل حركة الخزينة."; return; }
             _allMovements.Clear();
-            foreach (var m in movements.Value) _allMovements.Add(new MovementRow { Movement = m });
+            // An entry already corrected offers no second correction (the server would refuse it anyway).
+            var corrected = movements.Value.Where(m => m.Type == Falah.Domain.Financial.TreasuryCorrectionRules.MovementType)
+                .Select(m => m.ReferenceId).ToHashSet();
+            foreach (var m in movements.Value) _allMovements.Add(new MovementRow { Movement = m, AlreadyCorrected = corrected.Contains(m.Id) });
             ApplyMovementFilter();
         }
         finally

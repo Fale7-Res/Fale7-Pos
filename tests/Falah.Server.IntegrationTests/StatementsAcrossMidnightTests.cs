@@ -75,6 +75,7 @@ public class StatementsAcrossMidnightTests : IAsyncLifetime
     public async Task A_drivers_after_midnight_orders_belong_to_the_business_day_they_were_sold_in()
     {
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 1_500, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10_000);
         var sold = (await (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _managerId, ShiftId: shiftId,

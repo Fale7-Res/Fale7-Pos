@@ -34,7 +34,9 @@ public static class ControlCenterRules
         IReadOnlyList<string> UnsettledCustodyIds,
         IReadOnlyList<string> IncompleteJournalIds,
         IReadOnlyList<(string Id, string? OrderNumber, string Status, bool HasDriver, DateTimeOffset? OutForDeliveryAtUtc)>? Deliveries = null,
-        DateTimeOffset? NowUtc = null);
+        DateTimeOffset? NowUtc = null,
+        IReadOnlyList<(string ShiftId, string ShiftName, string Status)>? UnconfirmedHandovers = null,
+        IReadOnlyList<(string DeliveryId, string? OrderNumber, long AmountPiastres)>? UnresolvedShortfalls = null);
 
     public static IReadOnlyList<ControlException> BuildExceptions(BuildExceptionsInputs input)
     {
@@ -65,6 +67,10 @@ public static class ControlCenterRules
             foreach (var d in input.Deliveries)
             {
                 var label = d.OrderNumber ?? d.Id;
+                // AUD-13: never made ready - nobody has dealt with this order's food or money. A warning, not a close
+                // blocker: until FIN-0051 is decided such an order cannot be cancelled, so a blocker could hold the day.
+                if (d.Status == "New")
+                    result.Add(new ControlException($"delivery-new-{d.Id}", "delivery", "warning", $"طلب {label} لم يُجهَّز للتوصيل بعد", "delivery", d.Id));
                 if (d.Status == "Ready" && !d.HasDriver)
                     result.Add(new ControlException($"delivery-ready-{d.Id}", "delivery", "warning", $"طلب {label} جاهز دون سائق", "delivery", d.Id));
                 if (d.Status is "Failed" or "Returned")
@@ -74,6 +80,18 @@ public static class ControlCenterRules
                     result.Add(new ControlException($"delivery-out-too-long-{d.Id}", "delivery", "warning", $"طلب {label} خارج للتوصيل منذ وقت طويل", "delivery", d.Id));
             }
         }
+
+        // P4: choosing a receiver at the close is not a receipt. Until the receiver confirms, the handed-over cash is
+        // unconfirmed; a receiver who counted a different amount is a dispute. Neither blocks the close (owner decision
+        // HANDOVER-BLOCK), both stay on the day's review list until dealt with.
+        foreach (var h in input.UnconfirmedHandovers ?? [])
+            result.Add(h.Status == "disputed"
+                ? new ControlException($"handover-disputed-{h.ShiftId}", "financial", "critical", $"المستلم عدّ مبلغًا مختلفًا عن تسليم {h.ShiftName}", "shift", h.ShiftId)
+                : new ControlException($"handover-pending-{h.ShiftId}", "financial", "warning", $"تسليم نقدية {h.ShiftName} لم يؤكد المستلم استلامه", "shift", h.ShiftId));
+
+        // AUD-03: a shortfall nobody has classified is neither a loss nor money owed yet - it needs a decision.
+        foreach (var s in input.UnresolvedShortfalls ?? [])
+            result.Add(new ControlException($"shortfall-{s.DeliveryId}", "delivery", "warning", $"فرق تحصيل غير مصنّف على طلب {s.OrderNumber ?? s.DeliveryId}", "delivery", s.DeliveryId));
 
         // Note: legacy's own 'cash_unsettled' (unsettled custody with money actually collected) is
         // NOT re-added here as a separate exception - the UnsettledCustodyIds loop above already

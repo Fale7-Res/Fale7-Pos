@@ -106,9 +106,10 @@ public partial class CashierViewModel
             if (settings.Success && settings.Value is not null)
             {
                 _header.SetIdentity(settings.Value.RestaurantName);
+                TargetFloatPiastres = Math.Max(0, settings.Value.DefaultOpeningCashPiastres);
                 // Offered, not imposed: the cashier can type over it before opening the shift.
                 if (_session.ShiftId is null)
-                    OpeningCashText = CashInput.Format(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));
+                    await OfferOpeningCashAsync(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));
             }
             if (IsShiftOpen) await LoadMenuAsync();
         }

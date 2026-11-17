@@ -76,7 +76,14 @@
                         <StackPanel Spacing="8" Visibility="{Binding IsDeliveredOutcome, Converter={StaticResource BoolToVisibleConverter}}">
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المحصّل بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
                                      Text="{Binding OutcomeCollectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Text="أي فرق عن المبلغ المتوقع يستوجب كتابة سبب." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <TextBlock Text="أي فرق عن المبلغ المتوقع يستوجب كتابة سبب. التحصيل الأقل من المستحق يحتاج اعتماد مدير أيضًا." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <!-- AUD-03: less than was due needs the authority that approves a settlement difference. -->
+                            <StackPanel Spacing="6" Visibility="{Binding OutcomeShortfallNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                                <TextBlock Text="{Binding OutcomeShortfallLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningTextBrush}"/>
+                                <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                             Password="{Binding OutcomeManagerPin, Mode=TwoWay}"/>
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- Failed: a fixed reason code, not free text - the server rejects anything
@@ -233,8 +240,33 @@
                                 </ItemsControl>
                             </StackPanel>
 
+                            <!-- The settlement figures, exactly as the server computes them: collected cash, the driver's
+                                 delivery fees (his earnings), any balance carried from a partial settlement, and the net. -->
+                            <Border Style="{StaticResource CardBorderStyle}" Padding="12">
+                                <Grid ColumnSpacing="12" RowSpacing="6">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                    <StackPanel Spacing="2"><TextBlock Text="نقدية حصّلها السائق" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleCollectedText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Collected"/></StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="أجر التوصيل (للسائق)" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleFeesText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Fees"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Spacing="2"><TextBlock Text="رصيد مرحّل من تسوية سابقة" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleCarriedText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Carried"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="2"><TextBlock Text="{Binding SettleNetLabel}" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleNetText}" FontSize="18" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}" AutomationProperties.AutomationId="Settle_Net"/></StackPanel>
+                                </Grid>
+                            </Border>
+
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المسلَّم فعليًا بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     AutomationProperties.AutomationId="Settle_Received"
                                      Text="{Binding SettleActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox IsEnabled="{Binding CanEditAction}" Header="يُصرف للسائق من الدرج بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     AutomationProperties.AutomationId="Settle_PaidToDriver"
+                                     Visibility="{Binding RestaurantOwesDriver, Converter={StaticResource BoolToVisibleConverter}}"
+                                     Text="{Binding SettlePaidToDriverText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <CheckBox IsEnabled="{Binding CanEditAction}" Content="تسوية جزئية - يُرحَّل الباقي للتسوية القادمة"
+                                      AutomationProperties.AutomationId="Settle_KeepOpen"
+                                      IsChecked="{Binding SettleKeepRemainderOpen, Mode=TwoWay}"/>
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="سبب الفارق (إلزامي عند وجود فرق)" MinHeight="44" TextWrapping="Wrap"
                                      Text="{Binding SettleReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 

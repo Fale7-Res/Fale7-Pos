@@ -32,6 +32,7 @@ public class RefundVerticalSliceTests : IAsyncLifetime
 
     private async Task<CheckoutOrderResult> CheckoutAsync(long totalPiastres, string paymentMethod = "cash", IReadOnlyList<CheckoutSplitRequest>? splits = null, string orderType = "takeaway")
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(totalPiastres);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,

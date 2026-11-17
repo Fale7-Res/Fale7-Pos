@@ -64,7 +64,10 @@ public static class BusinessDayRules
         bool PersistenceHealthy,
         bool WriterOwned,
         IReadOnlyList<(string Id, string Label, bool Completed)> RequiredChecklist,
-        IReadOnlyList<(string Code, bool Critical)> ReconciliationChecks);
+        IReadOnlyList<(string Code, bool Critical)> ReconciliationChecks,
+        // A partial driver settlement carries a balance forward (owed by or to the driver). It is restaurant money
+        // outside the drawer exactly like open custody, so it gates the close the same way.
+        IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null);
 
     /// <summary>Every one of these gates a close - there is no "close with warnings" path. An
     /// unconfirmed InstaPay/wallet transfer in particular is real customer money that has neither
@@ -82,6 +85,10 @@ public static class BusinessDayRules
 
         foreach (var custody in input.DriverCustodies.Where(c => !c.Settled))
             blockers.Add(new CloseBlocker("UNSETTLED_DRIVER_CUSTODY", "driver_custody", custody.Id, "توجد عهدة سائق غير مسواة."));
+
+        foreach (var balance in (input.DriverBalances ?? Array.Empty<(string, long)>()).Where(b => b.CarriedPiastres != 0))
+            blockers.Add(new CloseBlocker("UNSETTLED_DRIVER_BALANCE", "driver", balance.DriverId,
+                balance.CarriedPiastres > 0 ? "يوجد رصيد مرحّل على سائق من تسوية جزئية." : "يوجد مستحق لسائق لم يُصرف من تسوية جزئية."));
 
         foreach (var journal in input.JournalEntries.Where(j => !j.Complete))
             blockers.Add(new CloseBlocker("JOURNAL_INCOMPLETE", "journal", journal.OperationId, "توجد عملية مالية غير مكتملة في سجل الاسترداد."));

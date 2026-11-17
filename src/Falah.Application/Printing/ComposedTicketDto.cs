@@ -29,6 +29,7 @@ public sealed record TicketElementDto(
     // prints the element plainly, which is a readable degradation rather than a failure.
     bool Inverted = false,
     bool Boxed = false,
-    bool Continuation = false);
+    bool Continuation = false,
+    bool FitStart = false);
 
 public sealed record ComposedTicketDto(string Route, string OrderId, string OrderNumber, IReadOnlyList<TicketElementDto> Lines);

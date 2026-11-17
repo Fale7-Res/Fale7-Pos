@@ -30,6 +30,7 @@ public partial class ShiftsViewModel
     [ObservableProperty] private long? _mainTreasuryBalancePiastres;
     [ObservableProperty] private string? _openShiftError;
     [ObservableProperty] private bool _isOpeningShift;
+    [ObservableProperty] private string? _openingInheritedNote;
 
     public bool MainTreasuryIsEmpty => CanSeeMainTreasuryBalance && MainTreasuryBalancePiastres is <= 0;
 
@@ -60,6 +61,15 @@ public partial class ShiftsViewModel
                 // server refuses that anyway, and offering it would only produce a failed open.
                 suggested = Math.Max(0, Math.Min(suggested, balance.Value.BalancePiastres));
             }
+        }
+
+        // The previous close left a float in the drawer: the shift opens on that cash, not on a new float.
+        OpeningInheritedNote = null;
+        var left = await _session.Api.GetDrawerFloatAsync();
+        if (left.Success && left.Value?.InheritedFloatPiastres is { } inherited)
+        {
+            suggested = inherited;
+            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Format(inherited)} ج - لن تُصرف عهدة جديدة من الخزنة. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل على الكاشير. لإكمال العهدة استخدم «إضافة نقدية» بعد الفتح.";
         }
 
         OpeningCashText = Services.CashInput.Format(suggested);

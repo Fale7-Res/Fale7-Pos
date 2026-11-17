@@ -55,26 +55,45 @@ public class SlipPrintingAndReprintTests : IAsyncLifetime
     // ---- Shift slips ----
 
     [Fact]
-    public async Task Opening_a_shift_queues_exactly_one_opening_slip_and_a_replay_queues_none()
+    public async Task Opening_a_shift_queues_no_slip_and_a_replay_queues_none()
     {
+        // Paper redesign spec 2026-11-17, Goal 5: the shift-opening slip is retired.
         var requestId = $"open-{Guid.NewGuid():N}";
         var shiftId = await OpenShiftAsync(requestId);
+        Assert.Empty(await JobsAsync(shiftId));
 
-        var job = Assert.Single(await JobsAsync(shiftId));
-        Assert.Equal("Receipt", job.Route);
-        Assert.Equal("Pending", job.Status);
-        Assert.False(job.IsReprint);
-
-        var text = await TicketTextAsync(job.Id);
-        Assert.Contains("افتتاح وردية", text);
-        Assert.Contains("رصيد افتتاحي", text);
-        Assert.Contains("500 ج", text);           // the float, in pounds
-        Assert.Contains("كاشير", text.First(t => t.Contains("كاشير")));
-
-        // The same open request again is the same shift - and must not queue a second slip.
         (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest(requestId, "صباحية", _cashierId, 50_000))).EnsureSuccessStatusCode();
-        Assert.Single(await JobsAsync(shiftId));
+        Assert.Empty(await JobsAsync(shiftId));
+    }
+
+    [Fact]
+    public async Task Reprinting_an_opening_slip_is_refused()
+    {
+        var shiftId = await OpenShiftAsync($"open-{Guid.NewGuid():N}");
+        var response = await _client.PostAsJsonAsync("/api/print-jobs/reprint-document",
+            new ReprintDocumentRequest($"rp-{Guid.NewGuid():N}", "ShiftOpen", shiftId, _managerId, null));
+        Assert.Equal(System.Net.HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("لم يعد يُطبع", await response.Content.ReadAsStringAsync());
+        Assert.Empty(await JobsAsync(shiftId));
+    }
+
+    /// <summary>A slip queued by the version before the redesign still prints after it is deployed.</summary>
+    [Fact]
+    public async Task An_opening_slip_queued_before_the_redesign_still_prints()
+    {
+        var shiftId = await OpenShiftAsync($"open-{Guid.NewGuid():N}");
+        await _factory.QueryAsync(async db =>
+        {
+            db.PrintJobs.Add(Falah.Infrastructure.Printing.DocumentPrintJobs.Build(
+                Falah.Domain.Printing.PrintDocumentKind.ShiftOpen, shiftId, Falah.Domain.Printing.PrintRules.ShiftOpenLabel, "كاشير", DateTimeOffset.UtcNow));
+            return await db.SaveChangesAsync();
+        });
+
+        var job = Assert.Single(await JobsAsync(shiftId));
+        var text = await TicketTextAsync(job.Id);
+        Assert.Contains("رصيد افتتاحي", text);
+        Assert.Contains("500 ج", text);
     }
 
     [Fact]
@@ -155,26 +174,31 @@ public class SlipPrintingAndReprintTests : IAsyncLifetime
     [Fact]
     public async Task A_slip_reprint_is_marked_audited_and_posts_nothing()
     {
+        // Was the opening slip; that slip is retired (spec 2026-11-17, Goal 5), so the same promises
+        // are now pinned on the expense voucher, a slip that still prints.
         var shiftId = await OpenShiftAsync($"open-{Guid.NewGuid():N}");
+        var documentId = (await (await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest(
+            $"exp-{Guid.NewGuid():N}", shiftId, "مستلزمات تشغيل", 16_000, "شراء أدوات", "tre-drawer", _cashierId, null, null)))
+            .Content.ReadFromJsonAsync<AddExpenseResult>())!.ExpenseId;
         var before = await FinancialFootprintAsync();
 
         var requestId = $"rp-{Guid.NewGuid():N}";
         var reprint = await _client.PostAsJsonAsync("/api/print-jobs/reprint-document",
-            new ReprintDocumentRequest(requestId, "ShiftOpen", shiftId, _managerId, "العميل فقد الورقة"));
+            new ReprintDocumentRequest(requestId, "Expense", documentId, _managerId, "العميل فقد الورقة"));
         reprint.EnsureSuccessStatusCode();
 
-        var jobs = await JobsAsync(shiftId);
+        var jobs = await JobsAsync(documentId);
         var reprinted = Assert.Single(jobs, j => j.IsReprint);
         Assert.Contains("إعادة طباعة", await TicketTextAsync(reprinted.Id));
 
         // Replaying the same press returns the same job rather than queuing a second one.
         (await _client.PostAsJsonAsync("/api/print-jobs/reprint-document",
-            new ReprintDocumentRequest(requestId, "ShiftOpen", shiftId, _managerId, null))).EnsureSuccessStatusCode();
-        Assert.Equal(jobs.Count, (await JobsAsync(shiftId)).Count);
+            new ReprintDocumentRequest(requestId, "Expense", documentId, _managerId, null))).EnsureSuccessStatusCode();
+        Assert.Equal(jobs.Count, (await JobsAsync(documentId)).Count);
 
         Assert.Equal(before, await FinancialFootprintAsync());
         var audit = await _factory.QueryAsync(db => db.AuditEvents.AsNoTracking()
-            .Where(a => a.ReferenceId == shiftId && a.Action.Contains("إعادة طباعة")).ToListAsync());
+            .Where(a => a.ReferenceId == documentId && a.Action.Contains("إعادة طباعة")).ToListAsync());
         Assert.Single(audit);
         Assert.Contains("العميل فقد الورقة", audit[0].Details + audit[0].Reason);
     }

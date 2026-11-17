@@ -135,15 +135,20 @@ public sealed class DeliveryQueryService
         var driverSettlements = await _db.DriverSettlements.AsNoTracking()
             .Where(s => s.DriverId == driverId).OrderByDescending(s => s.CreatedAtUtc).ToListAsync(ct);
 
+        var carried = await DriverBalances.CarriedForDriverAsync(_db, driverId, ct);
+        var pendingFees = DriverSettlementRules.FeeEntitlement(scope.ResolvedDeliveries).Piastres;
+
         return new DriverAccountDto(
             driverId, operationalStatus, DescribeOperationalStatus(operationalStatus),
             scope.ActiveDeliveries.Count, scope.ResolvedDeliveries.Count, failedOrReturnedUnsettled,
             scope.GrossOrderValue.Piastres, scope.PrepaidValue.Piastres, cashCustodyPiastres,
-            CanSettle: scope.ActiveDeliveries.Count == 0 && scope.ResolvedDeliveries.Count > 0,
+            CanSettle: scope.ActiveDeliveries.Count == 0 && (scope.ResolvedDeliveries.Count > 0 || carried != 0),
             BlockingOrders: scope.ActiveDeliveries.Select(d => new BlockingOrderDto(d.Id, d.OrderId, d.OrderNumber ?? d.OrderId, d.Status.ToString())).ToList(),
             AllTimeSettledOrderCount: driverSettlements.Sum(s => s.OrderCount),
             AllTimeSettledCashPiastres: driverSettlements.Sum(s => s.ActualPiastres),
-            LastSettlementAtUtc: driverSettlements.Count == 0 ? null : driverSettlements[0].CreatedAtUtc);
+            LastSettlementAtUtc: driverSettlements.Count == 0 ? null : driverSettlements[0].CreatedAtUtc,
+            CarriedBalancePiastres: carried, PendingFeesPiastres: pendingFees,
+            NetDuePiastres: carried + cashCustodyPiastres - pendingFees);
     }
 
     /// <summary>One driver's figures for "today / last 7 days / month / custom period" - reuses the

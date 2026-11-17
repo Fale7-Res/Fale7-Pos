@@ -14,6 +14,9 @@
     <!-- BackgroundService, for the nightly backup. Abstractions only: this project defines the
          worker, the Server project is what hosts it. -->
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    <!-- Report export (PDF pages and the PNG summary): Windows' own text layout through GDI+ is what shapes Arabic
+         correctly - the same route the print agent's receipts already prove on paper. Windows-only, like the server. -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

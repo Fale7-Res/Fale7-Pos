@@ -152,3 +152,94 @@ same transaction (`BusinessDayGate.ResolveForShiftOpenAsync`):
   server was unreachable. Now `LoginFailureMessageTests` 3/3 and Client 374/374.
 - Pass B (till daily paths) stopped without results and must be re-run.
 - Pass C (print retry) is written but not yet run.
+
+## Verification resume (2026-11-11)
+
+**Source.** The main tree fingerprint is `D72061804B380A62` (1,231 files: src, tests and solution build files,
+tracked and untracked alike). It is unchanged since the 2026-11-10 full run started.
+- The scratch copy differed afterwards only by `src/Falah.Server/falah.db-wal`. That is an empty, git-ignored
+  SQLite journal from 2026-09, not source.
+
+**Full run 1 on `D72061804B380A62`: 932 passed, 2 failed, 0 skipped of 934 (3 h 19 m, ended 2026-11-10 23:46).**
+- Evidence: `scratchpad/full-final/integration-D7206180-run1.log` and `.trx`.
+- Both failures are in `OrderVoidDispositionTests`:
+  - `An_undelivered_cash_order_is_voided_its_custody_closed_and_its_food_restored("Failed","customer_unreachable")`,
+    which ran for 3 h and timed out in a query;
+  - `Cancelling_without_saying_whether_the_food_was_prepared_is_refused`, which timed out while migrating its
+    database during setup.
+- The Windows System log shows sleep or hibernate from 2026-11-10 00:17 to 22:24, then lid sleeps at 22:38 and
+  22:51, all inside the run.
+- Re-run on isolated databases: `OrderVoidDispositionTests` passed 9/9 twice (1 m 5 s and 1 m 17 s;
+  `artifacts/claude-20261111/OrderVoidDispositionTests*.trx`). Conclusion: an environmental interruption, not
+  reproduced. No assertion, timeout or production code was changed.
+
+**Current results.** Domain 475/475 and Client 374/374 (`artifacts/claude-20261111/Domain.trx`, `Client.trx`).
+Full run 2 on the same snapshot is in progress; its result is recorded below.
+
+**Owner accounting requirements (static inspection of current source; nothing implemented in this task)**
+
+| Requirement | Classification | Evidence |
+|---|---|---|
+| Driver settlement deducts the driver's full area-based delivery fee exactly once | **Missing** | `DeliveryRules.CalculateTripSettlement` sets expected = Σ custody collected and deducts no fee. The driver statement (UI-REQ-001) shows fees separately but still prints "…وليست أجر السائق", which contradicts the owner's later confirmation that the driver keeps the full charge. That line must change together with the settlement rule. |
+| Driver's net cash received into the actual cashier drawer and receiving shift | **Missing** | `SettleDriverCustodyHandler` posts `driver_settlement` with destination `TreasuryAccounts.Main` and `shiftId: null`. |
+| Shift close distinguishes counted cash, the retained 1,000 EGP float and the amount physically handed to the manager | **Missing** (counted, expected and difference are implemented) | `CloseShiftHandler` posts the whole counted amount Drawer → Main as `shift_handover`. The frozen statement's handed-over amount equals the count. The next shift draws its float Main → Drawer again. There is no retained-float or manager-receipt split. |
+
+**UI acceptance**
+- Done:
+  - the consistency pass (frozen);
+  - pass A, fault states, where the login message defect was fixed;
+  - Call Center Light/Dark;
+  - Cashier Dark sweep of all 26 screens.
+- Pending:
+  - pass B (till daily paths): stalled at start, then ended with exit 1 and no results; re-run it;
+  - pass C (print failure and retry): written, not run;
+  - Cashier Light re-sweep;
+  - real 150% scaling, which needs the owner's display setting changed;
+  - Narrator.
+
+**Full run 2 on `D72061804B380A62`: 934 passed, 0 failed, 0 skipped, 0 aborted (1 h 47 m, 2026-11-11
+20:05–21:53).**
+- Evidence: `artifacts/claude-20261111/integration/full-D7206180-run2.log`, `.trx` and `-times.txt`. Run 1's log
+  and TRX are kept beside them.
+- The main-tree fingerprint was `D72061804B380A62` before and after the run.
+- The scratch copy again lost only the empty, git-ignored `src/Falah.Server/falah.db-wal`. No source or test file
+  changed.
+- The keep-awake request at the start failed (a PowerShell cast error), so it was not in effect. The run simply
+  was not interrupted.
+
+## Driver fee settlement and physical handover (2026-11-12)
+
+The three "Missing" owner accounting requirements above are implemented. Details are in
+`docs/UI_OWNER_REQUESTS.md` (section "Driver fee settlement and physical shift handover").
+
+**Final run on `4329469C4AD05E58`** (1,239 files), isolated copy, fingerprint identical before and after, keep-awake
+set and released by the run's own process (`artifacts/claude-20261112/final-2/`, logs and TRX):
+- Domain 485/485.
+- Client 381/381.
+- Integration **944/944**, 0 failed, 0 skipped, 1 h 46 m.
+
+The run before it, on `BA4E0B6CF8AFD64F`, was 942/944 (`artifacts/claude-20261112/final/`). Two guard tests caught
+real gaps in the new code:
+- the two new read endpoints had no permission gate. They are now gated (`shifts_open_own`/`shifts_manage` and
+  `shifts_blind_close`/`shifts_manage`).
+- `CloseShiftRequest.HandoverReceiverUserId` was not classified. It is now listed as the user the action is about; the
+  server accepts only an active `shifts_manage` holder.
+
+Neither test was weakened. The two classes plus their neighbours passed 39/39 before the second full run.
+
+**Other evidence**
+- The native demo on both apps (19 checks): `artifacts/claude-20261112/demo/SUMMARY.md`.
+- The upgrade, backup/restore and rollback rehearsal, plus the production script path:
+  `artifacts/claude-20261112/upgrade-rehearsal/`.
+- The release candidate (not deployed): `artifacts/release-candidate/4329469C4AD05E58/`.
+  - Manifest SHA-256: `656B83B7…`.
+  - Migration script SHA-256: `771ACDBD…`.
+
+**Defects found and fixed in this pass:**
+- the driver dialog's statistics went stale after a settlement;
+- the dashboard's reconciling note ignored the fees drivers keep;
+- the two ungated endpoints above.
+
+`docs/DEPLOYMENT.md` §0 also wrongly said production migrates at startup; it does not (`MigrateOnStartup=false`).
+
+**Owner decisions recorded** (docs/ASSESSMENT.md, state.json): DRV-FEE-01..04, DRV-AUTH-01, HND-01.

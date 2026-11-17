@@ -4,7 +4,16 @@ namespace Falah.Application.Shifts;
 /// a retry - same idempotency contract as CheckoutOrderRequest.CheckoutRequestId.</summary>
 public sealed record OpenShiftRequest(string RequestId, string ShiftName, string OpenedByUserId, long OpeningCashPiastres);
 
-public sealed record OpenShiftResult(string ShiftId, string ShiftName, string Status, long OpeningCashPiastres, bool WasReplayed);
+/// <summary>InheritedFloatPiastres is what the previous close left in the drawer when this shift opened on it
+/// (null on an empty drawer); OpeningCashPiastres is what this cashier actually counted.</summary>
+public sealed record OpenShiftResult(string ShiftId, string ShiftName, string Status, long OpeningCashPiastres, bool WasReplayed,
+    long? InheritedFloatPiastres = null);
+
+/// <summary>What the opening cashier should find in the drawer: the float the last close retained, if any.</summary>
+public sealed record DrawerFloatDto(long? InheritedFloatPiastres, string? FromShiftId, string? FromShiftName, string? RetainedByName);
+
+/// <summary>A user who may physically receive a close's handed-over cash (holds shifts_manage).</summary>
+public sealed record HandoverReceiverDto(string UserId, string Name);
 
 /// <summary>The one currently open shift, if any - a station with no shift-open UI of its own (Call
 /// Center) reads this to discover which shift id to attach its checkout requests to, matching the

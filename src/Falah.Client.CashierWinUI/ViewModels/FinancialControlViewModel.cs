@@ -167,6 +167,9 @@ public partial class FinancialControlViewModel : ObservableObject
 
                 PeriodDisplay = range.From == range.To ? Day(range.From) : $"من {Day(range.From)} إلى {Day(range.To)}";
                 Fill(cashFlow.Value!, pending.Value!, voids.Value!, refunds.Value!, range.From);
+                // P1/P2/P4/P5: the owner's financial report and its follow-ups. A failure there is shown in its own
+                // section and does not hide the cash flow above.
+                await LoadOwnerControlsAsync(range.From, range.To);
                 _loaded = true;
             }
             while (_reloadRequested);

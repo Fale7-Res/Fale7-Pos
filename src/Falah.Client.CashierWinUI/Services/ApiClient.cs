@@ -23,11 +23,17 @@ namespace Falah.Client.CashierWinUI.Services;
 public sealed partial class ApiClient
 {
     private readonly HttpClient _http;
-    public ApiClient(HttpClient http) => _http = http;
+
+    /// <summary>Report exports only: a month's PDF can take longer than the 10 s every till request is held to. Same
+    /// server address, and each request carries the session token explicitly (ApiClient.Controls.Export).</summary>
+    private readonly HttpClient _exportHttp;
+
+    public ApiClient(HttpClient http) { _http = http; _exportHttp = http; }
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
         _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _exportHttp = new HttpClient { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -140,6 +146,12 @@ public sealed partial class ApiClient
 
     public Task<ApiResult<CurrentShiftDto>> GetCurrentShiftAsync(CancellationToken ct = default) =>
         ReadAsync<CurrentShiftDto>(() => _http.GetAsync("/api/shifts/current", ct), ct);
+    /// <summary>The float the last close left in the drawer (null amount on an empty drawer).</summary>
+    public Task<ApiResult<DrawerFloatDto>> GetDrawerFloatAsync(CancellationToken ct = default) =>
+        ReadAsync<DrawerFloatDto>(() => _http.GetAsync("/api/shifts/drawer-float", ct), ct);
+    /// <summary>Who may receive a close's handed-over cash.</summary>
+    public Task<ApiResult<IReadOnlyList<HandoverReceiverDto>>> GetHandoverReceiversAsync(CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<HandoverReceiverDto>>(() => _http.GetAsync("/api/shifts/handover-receivers", ct), ct);
     public Task<ApiResult<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>> GetTaxRulesAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>(() => _http.GetAsync("/api/tax-rules", ct), ct);
     public Task<ApiResult<Falah.Application.Settings.SettingsDto>> GetSettingsAsync(CancellationToken ct = default) =>
@@ -706,6 +718,12 @@ public sealed partial class ApiClient
     public async Task<ApiResult<AddExpenseResult>> AddExpenseAsync(AddExpenseRequest request, CancellationToken ct = default)
     {
         return await SendAsync<AddExpenseResult>(() => _http.PostAsJsonAsync("/api/expenses", request, ct), ct);
+    }
+
+    /// <summary>AUD-04: cancels a mistaken expense by a linked reversal while its shift is open.</summary>
+    public async Task<ApiResult<ReverseExpenseResult>> ReverseExpenseAsync(ReverseExpenseRequest request, CancellationToken ct = default)
+    {
+        return await SendAsync<ReverseExpenseResult>(() => _http.PostAsJsonAsync($"/api/expenses/{Uri.EscapeDataString(request.ExpenseId)}/reverse", request, ct), ct);
     }
 
     // ---------------- Cashier Operations (Safe Drop / Cash In-Out / Cash Drawer / Cash Count / Reprint) ----------------

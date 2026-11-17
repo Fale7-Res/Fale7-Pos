@@ -253,7 +253,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="الإيراد بدون ضريبة القيمة المضافة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold"
@@ -270,11 +270,18 @@
                                     <Run Text="{Binding Data.Profitability.WagesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                     <Run Text=" · "/><Run Text="{Binding Data.Profitability.WagePercent, Converter={StaticResource PercentOrUnknownConverter}}"/>
                                 </TextBlock>
-                                <TextBlock Grid.Row="4" Text="النتيجة التشغيلية التقديرية (بعد التكلفة والمصروفات والأجور)" Style="{StaticResource TableCellText}"
+                                <!-- AUD-02: the delivery fee is inside revenue and the driver keeps it, so his pay is a cost. -->
+                                <TextBlock Grid.Row="4" Text="أجر التوصيل للسائقين (رسوم التوصيلات المكتملة)" Style="{StaticResource TableCellText}"
+                                           Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Data.Profitability.DriverCompensationPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="5" Text="النتيجة التشغيلية التقديرية (بعد التكلفة والمصروفات والأجور وأجر التوصيل وعجز تحصيل التوصيل)" Style="{StaticResource TableCellText}"
                                            TextWrapping="Wrap" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="Bold" VerticalAlignment="Bottom"
+                                <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="Bold" VerticalAlignment="Bottom"
                                            Text="{Binding Data.Profitability.OperatingResultPiastres, Converter={StaticResource MoneyOrUnknownConverter}}"/>
                             </Grid>
+                            <TextBlock Text="{Binding DriverPayPendingLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                       Visibility="{Binding HasDriverPayPending, Converter={StaticResource BoolToVisibleConverter}}"/>
                             <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
                                     Visibility="{Binding HasUnknownFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock Text="{Binding UnknownCostLabel}" TextWrapping="Wrap"
@@ -295,7 +302,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="العروض" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold"
@@ -312,7 +319,15 @@
                                 <TextBlock Grid.Row="4" Text="الهالك" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Data.Leakage.WasteValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <!-- AUD-03: part of a delivered sale the customer did not pay (approved). -->
+                                <TextBlock Grid.Row="5" Text="عجز تحصيل التوصيل (معتمد)" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Data.Leakage.DeliveryCollectionShortfallPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
+                            <!-- AUD-14: a loss with no known cost is not a loss of zero. -->
+                            <TextBlock Text="{Binding WasteUnknownLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource WarningTextBrush}"
+                                       Visibility="{Binding HasWasteUnknownValue, Converter={StaticResource BoolToVisibleConverter}}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

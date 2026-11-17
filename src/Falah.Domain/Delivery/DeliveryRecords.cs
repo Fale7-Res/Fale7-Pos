@@ -36,7 +36,10 @@ public sealed record DeliveryFacts(
     string Id, string OrderId, string? OrderNumber, string DriverId, DeliveryStatus Status,
     PaymentMethod PaymentMethod, bool PaymentAlreadySettled, Money AmountToCollect, Money OrderTotal,
     string? ShiftId, string? TripId, Money CompAmount,
-    DateTimeOffset? DeliveredAtUtc = null, DateTimeOffset? FailedAtUtc = null, DateTimeOffset? ReturnedAtUtc = null);
+    DateTimeOffset? DeliveredAtUtc = null, DateTimeOffset? FailedAtUtc = null, DateTimeOffset? ReturnedAtUtc = null,
+    // The delivery charge RECORDED ON THE ORDER at checkout (its area's price then). It is the driver's earning
+    // for a completed delivery (owner, 2026-11-08); a later change to the area's price never reprices it.
+    Money DeliveryFee = default);
 
 public sealed record Employee(string Id, bool IsActive, bool CanDeliver);
 public sealed record Driver(string Id, string Name, bool Active, string? EmployeeId);

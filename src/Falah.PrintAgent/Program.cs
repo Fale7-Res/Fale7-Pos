@@ -23,6 +23,10 @@ if (problems.Count > 0)
 var agentLog = new AgentLog(Path.Combine(options.ResolveDataDirectory(), "logs"), options.Route);
 void Log(string message) => agentLog.Write(message);
 if (options.AllowInsecureRemoteHttp) Log("WARNING: AllowInsecureRemoteHttp is enabled; configure HTTPS and remove this override.");
+if (options.RenderAsImage && OperatingSystem.IsWindows() && BitmapTicketRenderer.UsesFallbackFaces)
+    Log("WARNING: the Dubai font is not installed on this station; tickets print in Segoe UI. Install the Dubai font (it ships with Windows 10/11) for the approved paper design.");
+if (options.RenderAsImage && OperatingSystem.IsWindows() && !BitmapTicketRenderer.LogoAvailable)
+    Log("WARNING: the receipt logo could not be loaded from the agent; customer receipts print without it. Reinstall the agent build.");
 
 if (testDrawer)
 {

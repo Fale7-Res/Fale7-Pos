@@ -260,7 +260,12 @@ public class ActorIdentityValidationTests : IAsyncLifetime
 
         // A second person, proven by their own PIN through an approval - or the user an action is
         // about rather than the one performing it.
-        var notTheActor = new[] { "ManagerApproverUserId", "CompApproverUserId", "UserId" };
+        // HandoverReceiverUserId is the manager a close hands its cash to: the person the action is about. The
+        // close handler accepts only an active user holding shifts_manage, and the paper carries his signature line.
+        // ReceiverApproverUserId (handover receipt) is the receiver proven by their own PIN at the till: the handler accepts
+        // it only through ValidateApproval - issued by exactly that user, spent by the session that asked for it - the same
+        // shape as ManagerApproverUserId (ShiftHandoverReceiptTests covers a forged one).
+        var notTheActor = new[] { "ManagerApproverUserId", "CompApproverUserId", "UserId", "HandoverReceiverUserId", "ReceiverApproverUserId" };
 
         var unverified = typeof(CloseShiftRequest).Assembly.GetTypes()
             .Where(t => t.Name.EndsWith("Request", StringComparison.Ordinal))

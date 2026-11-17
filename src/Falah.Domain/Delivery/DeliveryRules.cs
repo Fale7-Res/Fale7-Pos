@@ -6,6 +6,36 @@ using Falah.Domain.Financial;
 /// <summary>Pure delivery/custody/settlement rules ported 1:1 from lib/delivery-domain.mjs.</summary>
 public static class DeliveryRules
 {
+    /// <summary>What the server knows about the delivery service (zone) an order names.</summary>
+    public readonly record struct DeliveryServiceTerms(bool Active, Money Fee);
+
+    /// <summary>
+    /// AUD-01: the delivery charge is the selected zone's configured fee, decided here and never taken from the
+    /// client. The fee is also the driver's pay for the delivery (DriverSettlementRules), so a fee a station made up
+    /// or kept from before the zone was re-priced would move both the customer's total and the driver's pay.
+    ///
+    /// A fee that differs from the zone's is refused rather than replaced: the customer was quoted the total the
+    /// screen showed, and silently charging another amount would put a different figure on the paper than the one
+    /// they agreed to. A zone with no fee configured charges nothing. Only delivery orders carry a fee.
+    /// </summary>
+    public static Money ResolveDeliveryFee(Orders.OrderType orderType, Money requestedFee, DeliveryServiceTerms? service)
+    {
+        if (orderType != Orders.OrderType.Delivery)
+        {
+            if (!requestedFee.IsZero) throw new DomainException("رسوم التوصيل تُسجَّل على طلبات التوصيل فقط.");
+            return Money.Zero;
+        }
+
+        if (service is not { } terms)
+            throw new DomainException("خدمة التوصيل المختارة غير موجودة. حدّث قائمة خدمات التوصيل وأعد المحاولة.");
+        if (!terms.Active)
+            throw new DomainException("خدمة التوصيل المختارة متوقفة حاليًا. اختر خدمة أخرى.");
+        if (requestedFee != terms.Fee)
+            throw new DomainException(
+                $"رسوم التوصيل لهذه المنطقة {terms.Fee.Egp:0.##} ج وليست {requestedFee.Egp:0.##} ج. ربما تغيّرت الرسوم - حدّث قائمة خدمات التوصيل وأعد المحاولة.");
+        return terms.Fee;
+    }
+
     /// <summary>Cash payment method: the driver is responsible for the whole amount. Any other
     /// method: responsible only if it has not already settled electronically.</summary>
     public static Money DeliveryCashResponsibility(PaymentMethod paymentMethod, bool paymentAlreadySettled, Money amount) =>

@@ -106,6 +106,14 @@ builder.Services.AddScoped<WithdrawalHandler>();
 builder.Services.AddScoped<TransferHandler>();
 builder.Services.AddScoped<SafeDropHandler>();
 builder.Services.AddScoped<AddExpenseHandler>();
+builder.Services.AddScoped<ReverseExpenseHandler>();
+builder.Services.AddScoped<CorrectTreasuryMovementHandler>();
+builder.Services.AddScoped<RecordSupplierCreditHandler>();
+builder.Services.AddScoped<ClassifyCollectionShortfallHandler>();
+builder.Services.AddScoped<AcknowledgeShiftHandoverHandler>();
+builder.Services.AddScoped<OwnerFinancialReportQueryService>();
+builder.Services.AddScoped<Falah.Infrastructure.Reports.Export.ReportSnapshotBuilder>();
+builder.Services.AddScoped<Falah.Infrastructure.Reports.Export.ReportExportService>();
 builder.Services.AddScoped<CreateEmployeeHandler>();
 builder.Services.AddScoped<UpdateEmployeeHandler>();
 builder.Services.AddScoped<EmployeeQueryService>();
@@ -458,6 +466,16 @@ app.MapPost("/api/shifts/prepare-close", async (Falah.Application.Shifts.Prepare
 
 // Every cash count declared for a shift, in order (FIN5). Management information: a re-count after
 // seeing the expected cash is legitimate after a miscount, and visible here either way.
+// The float the last close left in the drawer, for the open dialog: read by whoever may open a shift.
+app.MapGet("/api/shifts/drawer-float", async (FalahDbContext db, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, "ليس لديك صلاحية فتح وردية.", "shifts_open_own", "shifts_manage")
+    ?? Results.Ok(await Falah.Infrastructure.Shifts.DrawerFloat.LoadAsync(db, ct)));
+
+// Who may receive a close's handed-over cash - names only, for the close dialog's picker: read by whoever may close.
+app.MapGet("/api/shifts/handover-receivers", async (FalahDbContext db, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, "ليس لديك صلاحية إغلاق وردية.", "shifts_blind_close", "shifts_manage")
+    ?? Results.Ok(await Falah.Infrastructure.Shifts.DrawerFloat.ReceiversAsync(db, ct)));
+
 app.MapGet("/api/shifts/{id}/cash-declarations", async (string id, FalahDbContext db, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية عرض عدّ الورديات.", "shifts_manage", "reports_view") is { } refused) return refused;
@@ -805,6 +823,28 @@ app.MapPost("/api/expenses", async (Falah.Application.Expenses.AddExpenseRequest
     {
         var result = await handler.HandleAsync(request, ct);
         return Results.Ok(result);
+    }
+    catch (Falah.Application.Expenses.ExpenseConflictException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+    catch (Falah.Domain.Common.DomainException ex)
+    {
+        return Results.UnprocessableEntity(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.NotFound(new { error = ex.Message });
+    }
+});
+
+// AUD-04: a mistaken expense is cancelled by a linked reversal while its shift is open - see ReverseExpenseHandler.
+app.MapPost("/api/expenses/{id}/reverse", async (string id, Falah.Application.Expenses.ReverseExpenseRequest request, ReverseExpenseHandler handler, CancellationToken ct) =>
+{
+    if (request.ExpenseId != id) return Results.BadRequest(new { error = "رقم المصروف في الرابط لا يطابق الطلب." });
+    try
+    {
+        return Results.Ok(await handler.HandleAsync(request, ct));
     }
     catch (Falah.Application.Expenses.ExpenseConflictException ex)
     {
@@ -2635,6 +2675,100 @@ app.MapPost("/api/purchases/{id}/payments", async (string id, Falah.Application.
     }
 });
 
+// ---- Financial corrections, shortfall classification, handover receipt, owner financial report ----
+// Every one reads the actor from the session (the body's actorUserId is already checked against it by the
+// middleware, and replaced here so nothing downstream can trust the body).
+
+app.MapPost("/api/treasury/movements/{id}/correct", async (string id, Falah.Application.Treasury.CorrectTreasuryMovementRequest request, HttpContext http, CorrectTreasuryMovementHandler handler, CancellationToken ct) =>
+{
+    if (request.MovementId != id) return Results.BadRequest(new { error = "رقم الحركة في الرابط لا يطابق الطلب." });
+    try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
+    catch (Falah.Application.Treasury.TreasuryConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+app.MapPost("/api/purchases/{id}/credits", async (string id, Falah.Application.Purchasing.RecordSupplierCreditRequest request, HttpContext http, RecordSupplierCreditHandler handler, CancellationToken ct) =>
+{
+    if (request.PurchaseId != id) return Results.BadRequest(new { error = "رقم الفاتورة في الرابط لا يطابق الطلب." });
+    try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
+    catch (Falah.Application.Purchasing.PurchasingConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+app.MapGet("/api/delivery/collection-shortfalls", async (string actorUserId, FalahDbContext db, ClassifyCollectionShortfallHandler handler, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await handler.ListAsync(ct));
+});
+
+app.MapPost("/api/delivery/{deliveryId}/collection-shortfall/classify", async (string deliveryId, Falah.Application.Delivery.ClassifyCollectionShortfallRequest request, HttpContext http, ClassifyCollectionShortfallHandler handler, CancellationToken ct) =>
+{
+    if (request.DeliveryId != deliveryId) return Results.BadRequest(new { error = "رقم التوصيل في الرابط لا يطابق الطلب." });
+    try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+app.MapGet("/api/shifts/handovers/pending", async (string actorUserId, FalahDbContext db, AcknowledgeShiftHandoverHandler handler, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    return Results.Ok(await handler.ListUnconfirmedAsync(ct));
+});
+
+app.MapPost("/api/shifts/{id}/handover/acknowledge", async (string id, Falah.Application.Shifts.AcknowledgeShiftHandoverRequest request, HttpContext http, AcknowledgeShiftHandoverHandler handler, CancellationToken ct) =>
+{
+    if (request.ShiftId != id) return Results.BadRequest(new { error = "رقم الوردية في الرابط لا يطابق الطلب." });
+    try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// The owner's daily financial report: every KPI with its definition, basis and source records; missing data is
+// reported as unavailable, never as zero. Calendar days (Cairo), one date by default.
+app.MapGet("/api/reports/owner-financial", async (string actorUserId, DateOnly? businessDate, DateOnly? from, DateOnly? to, FalahDbContext db, OwnerFinancialReportQueryService report, CancellationToken ct) =>
+{
+    var denied = await RequireReportsAccessAsync(db, actorUserId, ct);
+    if (denied is not null) return denied;
+    var range = Falah.Domain.Common.BusinessDateRange.Resolve(from, to, businessDate)
+        ?? Falah.Domain.Common.BusinessDateRange.SingleDay(Falah.Domain.Common.BusinessClock.Today());
+    return Results.Ok(await report.GetAsync(range, ct));
+});
+
+// ---- Report export (Excel / PDF / Word / PNG) ----
+// One snapshot per request, built from the same report services as the screens; every format is rendered from it.
+// Authorisation is the screen's own rule for that report (ReportExportCatalog), checked here against the session's
+// user - an export never shows more than the screen it comes from. The file name is generated, never taken from input.
+
+app.MapGet("/api/reports/export/catalog", (HttpContext http) =>
+    Results.Ok(Falah.Application.Reports.Export.ReportExportCatalog.Reports
+        .Where(r => CanExportReport(http, r.Key))
+        .Select(r => new Falah.Application.Reports.Export.ReportExportCatalogEntry(r.Key, r.Title, r.Description, Falah.Application.Reports.Export.ReportExportCatalog.AllFormats))
+        .ToList()));
+
+app.MapGet("/api/reports/export/snapshot", async (string report, DateOnly from, DateOnly to, HttpContext http,
+    Falah.Infrastructure.Reports.Export.ReportExportService exports, CancellationToken ct) =>
+{
+    if (Falah.Infrastructure.Reports.Export.ReportExportService.Validate(report, null, from, to) is { } invalid) return Results.BadRequest(new { error = invalid });
+    if (!CanExportReport(http, report)) return Results.UnprocessableEntity(new { error = "ليس لديك صلاحية هذا التقرير." });
+    return Results.Ok(await exports.SnapshotAsync(report, from, to, Falah.Server.HttpContextActorExtensions.Actor(http).Name, ct));
+});
+
+app.MapGet("/api/reports/export", async (string report, string format, DateOnly from, DateOnly to, HttpContext http,
+    Falah.Infrastructure.Reports.Export.ReportExportService exports, CancellationToken ct) =>
+{
+    if (Falah.Infrastructure.Reports.Export.ReportExportService.Validate(report, format, from, to) is { } invalid) return Results.BadRequest(new { error = invalid });
+    if (!CanExportReport(http, report)) return Results.UnprocessableEntity(new { error = "ليس لديك صلاحية هذا التقرير." });
+    var actor = Falah.Server.HttpContextActorExtensions.Actor(http);
+    var file = await exports.ExportAsync(report, format, from, to, (actor.Id, actor.Name, actor.Role), ct);
+    http.Response.Headers["X-Falah-Snapshot"] = file.Fingerprint;
+    http.Response.Headers.CacheControl = "no-store";
+    return Results.File(file.Content, file.ContentType, file.FileName);
+});
+
 // A liveness/connectivity probe the client polls to show Online/Offline - deliberately checks the
 // database too, since a server process that is "up" but cannot reach its own database is not
 // actually usable.
@@ -2652,6 +2786,16 @@ static Falah.Application.Users.UserSummaryDto ToUserSummary(UserEntity user) => 
 // an unprinted ticket printed. Only print_agent (or "all", which existing agents logged in as a
 // manager hold) may. Read from the session, like every other identity check.
 static IResult? RequireOwner(HttpContext http) => RequireAnyPermission(http, "هذه البيانات متاحة للمالك فقط.");
+
+// The same permission rule as the report's own screen (ReportExportCatalog.Reports.AnyOf; "all" always qualifies).
+static bool CanExportReport(HttpContext http, string reportKey)
+{
+    var entry = Falah.Application.Reports.Export.ReportExportCatalog.Reports.FirstOrDefault(r => r.Key == reportKey);
+    if (entry.Key is null) return false;
+    var permissions = Falah.Server.HttpContextActorExtensions.Actor(http).Permissions
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    return permissions.Contains("all") || entry.AnyOf.Any(permissions.Contains);
+}
 static bool CanReadCosts(HttpContext http) => RequireOwner(http) is null;
 static Falah.Application.Settings.SettingsDto SettingsForReader(Falah.Application.Settings.SettingsDto settings, HttpContext http) =>
     RequireAnyPermission(http, "", "settings_manage") is null ? settings : settings with { CashDiscrepancyThresholdPiastres = 0 };

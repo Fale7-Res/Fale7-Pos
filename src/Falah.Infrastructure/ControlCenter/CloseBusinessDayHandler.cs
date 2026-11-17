@@ -160,7 +160,9 @@ public sealed class CloseBusinessDayHandler
             RefundedOrders: dayOrders.Select(o => (o.Id, o.RefundAmountPiastres)).ToList(),
             Expenses: dayExpenses.Select(e => (e.Id, e.AmountPiastres)).ToList(),
             UnsettledCustodyIds: unsettledCustodyIds,
-            IncompleteJournalIds: incompleteJournalIds);
+            IncompleteJournalIds: incompleteJournalIds,
+            UnconfirmedHandovers: await FinancialFollowUps.UnconfirmedHandoversAsync(_db, day, ct),
+            UnresolvedShortfalls: await FinancialFollowUps.UnresolvedShortfallsAsync(_db, ct));
         return ControlCenterRules.BuildExceptions(input);
     }
 

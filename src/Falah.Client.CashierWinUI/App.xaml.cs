@@ -27,6 +27,7 @@ public partial class App : global::Microsoft.UI.Xaml.Application
 #else
         Services.RetainedRequestStorage.Current =
             new Services.FileRetainedRequestStore(Services.FileRetainedRequestStore.DirectoryFor("cashier"));
+        Services.ReportFiles.Current = new Platform.ReportFileService();   // the report export's save/print (Windows dialogs)
 #endif
     }
 

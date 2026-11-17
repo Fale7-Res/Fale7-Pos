@@ -155,6 +155,8 @@ public sealed class CashierDurabilityTests : IDisposable
             : LostInTransit(request)), new HeaderViewModel());
         lost.CloseShiftActualCashText = "500";
         await lost.PrepareCloseShiftCommand.ExecuteAsync(null);
+        // Cash leaves the drawer at the close, so the manager who takes it is named (owner, 2026-11-08).
+        lost.SelectedHandoverReceiver = new HandoverReceiverDto("mgr", "المدير");
         await lost.ConfirmCloseShiftCommand.ExecuteAsync(null);
 
         var saved = Assert.IsType<CloseShiftRequest>(_store.Load("cashier.shift-close.actor"));

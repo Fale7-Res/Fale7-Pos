@@ -74,7 +74,11 @@ public sealed record CashPositionDto(
     /// that WAS collected, but arrived through a settlement rather than through a sale's own payment
     /// leg. Without this line an owner comparing the two totals would reasonably conclude that one
     /// of them was wrong.</summary>
-    long SettledFromDriversPiastres = 0);
+    long SettledFromDriversPiastres = 0,
+    /// <summary>Owner rule (2026-11-08): a driver keeps the delivery fee of each completed delivery out of the cash he
+    /// collected, so the cash he hands in is less than the collected orders by those fees (less any fees the drawer
+    /// paid out to him). This is the rest of the reconciling line: collected through drivers = settled + retained.</summary>
+    long DriverFeesRetainedPiastres = 0);
 
 /// <summary>The money that left without being stolen - discounts, hospitality, refunds, waste. Each
 /// is legitimate on its own and dangerous in aggregate, which is why they are shown together.</summary>
@@ -86,7 +90,18 @@ public sealed record LeakageDto(
     int RefundCount,
     long WasteValuePiastres,
     int WasteMovementCount,
-    long ExpensesPiastres);
+    long ExpensesPiastres,
+    /// <summary>AUD-03: cash the customer did not pay on the period's delivered orders (collected below the amount due,
+    /// approved). The sale stays at its price, so this is money the sales figures include and the restaurant never got.</summary>
+    long DeliveryCollectionShortfallPiastres = 0,
+    int DeliveryCollectionShortfallCount = 0,
+    /// <summary>AUD-14: loss movements with no known cost. They are in WasteMovementCount but add nothing to
+    /// WasteValuePiastres, so that value is a floor, not the waste - unknown is never shown as zero.</summary>
+    int WasteUnknownValueCount = 0,
+    /// <summary>Of DeliveryCollectionShortfallPiastres, the part no manager has classified yet: neither a loss nor money
+    /// owed until someone decides (CollectionShortfallRules).</summary>
+    long DeliveryShortfallUnresolvedPiastres = 0,
+    int DeliveryShortfallUnresolvedCount = 0);
 
 /// <param name="IsFoodCostComplete">False when some sold line had no known ingredient cost. Food
 /// cost is then understated and profit overstated - the figures stay visible, labelled.</param>
@@ -105,7 +120,23 @@ public sealed record ProfitabilityDto(
     int SoldLineCount,
     int KnownCostLineCount,
     bool IsFoodCostComplete,
-    IReadOnlyList<string> ItemsWithUnknownCost);
+    IReadOnlyList<string> ItemsWithUnknownCost,
+    /// <summary>AUD-02: the driver's pay for the period's completed deliveries - the full delivery fee of each
+    /// delivered (not returned) order among the period's sales (owner rule: the driver keeps the whole fee). The fee is
+    /// inside net sales, so this is the cost that offsets it; it is deducted in OperatingResultPiastres.</summary>
+    long DriverCompensationPiastres = 0,
+    /// <summary>Fees of the period's delivery orders not resolved yet (still with the driver or not dispatched). Owed to
+    /// a driver only if delivered, so not deducted - but the operating result is not final while this is above zero.</summary>
+    long DriverCompensationPendingPiastres = 0,
+    int DriverCompensationPendingCount = 0,
+    /// <summary>AUD-03: the part of the period's delivery collection shortfalls a manager classified as given up (an
+    /// approved discount or a write-off), deducted in OperatingResultPiastres - the sale is in revenue at its full price
+    /// while this part of it will never be received. Unresolved and still-owed shortfalls are NOT deducted.</summary>
+    long DeliveryCollectionShortfallPiastres = 0,
+    /// <summary>Shortfalls nobody has classified: shown beside the result, never inside it - not a verified loss.</summary>
+    long DeliveryShortfallUnresolvedPiastres = 0,
+    /// <summary>Shortfalls classified as still owed (by the customer or the driver): a receivable, not a loss.</summary>
+    long DeliveryShortfallReceivablePiastres = 0);
 
 /// <summary>What is unfinished right now. Every entry here is something a person has to resolve, not
 /// a number to read.</summary>

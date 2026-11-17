@@ -44,7 +44,7 @@ public class ManagementWriteSafetyTests
                     () => vm.CloseOutcomeCommand.Execute(null), () => vm.IsOutcomeOpen, () => vm.CanEditAction);
             }
             vm.AccountDriver = driver;
-            vm.DriverAccount = Dto<DriverAccountDto>("""{"driverId":"driver","cashCustodyPiastres":1000}""");
+            vm.DriverAccount = Dto<DriverAccountDto>("""{"driverId":"driver","cashCustodyPiastres":1000,"netDuePiastres":1000}""");
             // The real account read mints the settlement key before the first submission.
             await vm.OpenDriverAccountCommand.ExecuteAsync(driver);
             vm.SettleActualCashText = "10";
@@ -132,7 +132,7 @@ public class ManagementWriteSafetyTests
         var http = new HttpClient(new Handler(async r => {
             if (r.Method == HttpMethod.Get)
                 return Json(r.RequestUri!.AbsolutePath.EndsWith("/account")
-                    ? "{\"driverId\":\"driver\",\"cashCustodyPiastres\":1000}" : "[]");
+                    ? "{\"driverId\":\"driver\",\"cashCustodyPiastres\":1000,\"netDuePiastres\":1000}" : "[]");
             requests.Add((r.RequestUri!.AbsolutePath, await r.Content!.ReadAsStringAsync()));
             if (requests.Count == 1) throw new HttpRequestException("response lost after commit");
             if (requests.Count == 2) return Json("{\"error\":\"rejected\"}", HttpStatusCode.UnprocessableEntity);
@@ -215,7 +215,7 @@ public class ManagementWriteSafetyTests
         var writes = 0;
         var http = new HttpClient(new Handler(r => {
             if (r.Method == HttpMethod.Get) return Task.FromResult(Json(r.RequestUri!.AbsolutePath.EndsWith("/account")
-                ? "{\"driverId\":\"driver\",\"cashCustodyPiastres\":1000}" : "[]"));
+                ? "{\"driverId\":\"driver\",\"cashCustodyPiastres\":1000,\"netDuePiastres\":1000}" : "[]"));
             writes++;
             if (writes == 1) throw new HttpRequestException("lost response");
             return Task.FromResult(Json("{\"error\":\"definitive rejection\"}", HttpStatusCode.UnprocessableEntity));

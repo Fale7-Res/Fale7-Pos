@@ -86,12 +86,129 @@ accountant.
 | Section | Figures | Source and calculation |
 |---|---|---|
 | Cash position | as the sales report, plus `TreasuryNow` and `SettledFromDrivers` | sales report for the range; balances are **current** (all posted movements ever), not the range's; settled-from-drivers = posted `driver_settlement` movements in the range |
-| Leakage | offers, comps, manual discounts, refunds (amount and count), waste (value and count), expenses | sales report buckets; refunds amount and count both from the period's refund events; waste = loss-type stock movements' `LossValuePiastres`; expenses by `BusinessDate` |
-| Profitability | net sales ex VAT, known food cost, gross profit and %, wages and %, operating result and % | **revenue** = `NetSales − NetTax` (assumes the restaurant is VAT-registered; unchanged with no tax rule). **Food cost** = sold lines × today's recipe × each ingredient's last purchase price, plus order packaging — an *estimate*; withheld entirely when no sold line has a known cost; `IsFoodCostComplete = false` when any line is unknown (then profit is an upper bound). **Wages** = Σ (credit − debit) of DailyWage, Salary (incl. daily monthly-salary accruals), Overtime, ExtraShift, Bonus, OtherEarning, Deduction recorded in the range; % withheld when nothing was recorded. **Operating result** = revenue − food cost − expenses − wages; deliberately not called net profit (rent, depreciation etc. are not recorded). |
+| Leakage | offers, comps, manual discounts, refunds (amount and count), waste (value and count, and how many have no known cost), expenses, delivery collection shortfall (amount and count) | sales report buckets; refunds amount and count both from the period's refund events; waste = loss-type stock movements' `LossValuePiastres` — a movement with no known cost adds nothing to the value and is counted in `WasteUnknownValueCount` (AUD-14), so the value is a floor; expenses by `BusinessDate` (a reversal is a negative line, so a reversed expense nets to zero); **delivery collection shortfall** = Σ (custody expected − collected) over the period's non-cancelled orders (by sale time) delivered for less than was due — approved, see below (AUD-03) |
+| Profitability | net sales ex VAT, known food cost, gross profit and %, wages and %, operating result and % | **revenue** = `NetSales − NetTax` (assumes the restaurant is VAT-registered; unchanged with no tax rule). **Food cost** = sold lines × today's recipe × each ingredient's last purchase price, plus order packaging — an *estimate*; withheld entirely when no sold line has a known cost; `IsFoodCostComplete = false` when any line is unknown (then profit is an upper bound). **Wages** = Σ (credit − debit) of DailyWage, Salary (incl. daily monthly-salary accruals), Overtime, ExtraShift, Bonus, OtherEarning, Deduction recorded in the range; % withheld when nothing was recorded. **Driver pay** (`DriverCompensationPiastres`, AUD-02) = Σ `DeliveryFee` of the period's non-cancelled orders (by sale time, the same selection as net sales) whose delivery's final outcome is Delivered (a return after delivery earns nothing — `DriverSettlementRules.FeeEntitlement`); the fee is inside net sales and the driver keeps all of it (owner rule 2026-11-08), so it is a cost. Deliveries not resolved yet are reported as `DriverCompensationPendingPiastres` / `Count` and not deducted. **Operating result** = revenue − food cost − expenses − wages − driver pay − delivery collection shortfalls classified as approved discount or write-off (unresolved and still-owed shortfalls are shown beside it, never inside it — AUD-03); deliberately not called net profit (rent, depreciation etc. are not recorded). Before 2026-11-13 driver pay and shortfalls were not deducted, which overstated the result by every completed delivery's fee. |
 | Attention | open shifts, shift differences, unauthorised differences, unsettled custody, pending electronic count / **amount** / oldest age, open exceptions, close blockers, open-day age, unusual cost changes | shifts by calendar `BusinessDate` in range; pending electronic = the pending-electronic report (current) |
 | Stock | tracked items, low-stock items | balance = direction-signed sum of all stock movements (In +, Out −); low = balance ≤ minimum (minimum > 0) |
 | Obligations | supplier outstanding, purchases in range, employees owed, overdue / unscheduled invoices | supplier ledger (debit − credit); employee ledger (credit − debit > 0); invoice aging as of today |
 | Trend | net sales, collected, cash with drivers, expenses, orders vs the same span one week earlier; hourly (one day) or daily series | the same reports for the comparable span; series points = sales at full value minus refunds, bucketed by the instant each happened (Cairo hour / date), so they add up to the headline net sales |
+
+### What "collected" on the dashboard is — and is not (AUD-05 / AUD-07)
+
+`CollectedSales` is sales-based: net sales less pending electronic and less cash-on-delivery money not yet
+settled. A settled delivery counts at its full total, although the driver kept his fee out of it and an
+approved collection shortfall was never paid. It is therefore **not** the cash that reached the treasury; the
+screen labels it "المبيعات المحصّلة" and shows `SettledFromDriversPiastres`, `DriverFeesRetainedPiastres` and the
+shortfall on their own lines. For the cash that actually moved, read the cash-flow report below.
+
+## Delivery fee (checkout, AUD-01)
+
+The delivery charge on an order is the named delivery service's (zone's) configured `FeePiastres` (none
+configured = 0), decided by the server. A request whose fee differs is refused with the zone's fee in the
+message (the customer was quoted the screen's total, so it is not silently replaced); an unknown or retired
+service is refused; only delivery orders carry a fee. The service name frozen on the order is the server's.
+The fee stays fixed on the order afterwards: re-pricing a zone never changes a past order or its driver pay.
+
+## Delivery collection shortfall (AUD-03)
+
+Recording a delivery as delivered with less collected than the driver had to collect needs a reason **and** the
+authority that approves a settlement difference (`delivery_settlement_approve`, or a manager's approval issued
+for it). The custody then expects what was collected, so the settlement shows no difference and the gap is
+counted exactly once. Collecting more than was due still needs only a reason.
+
+**A shortfall is not a loss by itself (2026-11-13).** Until a manager classifies it
+(`POST /api/delivery/{deliveryId}/collection-shortfall/classify`, `delivery_settlement_approve` or a manager's
+approval, evidence required, once per delivery, stored in `CollectionShortfallResolutions`) it is **unresolved**:
+
+| Classification | Meaning | In the operating result | Shown as |
+|---|---|---|---|
+| (none) | unresolved | **not deducted** | `DeliveryShortfallUnresolvedPiastres`, owner report "فروق تحصيل غير محسومة" (status partial), control-center warning `shortfall-{id}` |
+| `customer_receivable` | the customer still owes it | not deducted | receivable "مديونية على العملاء" |
+| `driver_liability` | the driver answers for it | not deducted; **not** added to his settlement (owner decision DRV-LIAB) | receivable "مديونية على السائقين" |
+| `approved_discount`, `write_off` | given up by an authorised decision | **deducted** (`ProfitabilityDto.DeliveryCollectionShortfallPiastres`) | realised reduction |
+
+Leakage `DeliveryCollectionShortfallPiastres` is all shortfalls of the period's sales (by sale time); the delivery
+outcomes report's `CollectionShortfallPiastres` is all shortfalls by delivery time. The accounting effect of each
+classification is provisional until the accountant confirms it (AUD-03-CLS in docs/ASSESSMENT.md).
+
+## Expense reversal (AUD-04, revised 2026-11-13)
+
+A mistaken expense is cancelled by `POST /api/expenses/{id}/reverse`, never deleted: a linked expense row
+`exp-rev-{id}` of the same category, shift, account and date with a negative amount, and a movement crediting the
+account it was charged to. Every expense total nets the pair. **What happened to the money is required**
+(`CashDisposition`), because only money that is physically there may be credited back:
+
+| Disposition | Meaning | Movement | Category (MoneyFlowRules) |
+|---|---|---|---|
+| `not_paid` | posting error — the money never left | `expense_correction` | ExpenseCorrection — not income |
+| `cash_returned` | it left and has come back in hand | `expense_refund` | ExpenseReimbursement — real cash in, not a sale |
+
+Money that left and stays gone is not reversible (the expense is true). `ReversedAmountPiastres` reverses part
+(5000 typed, 500 paid: reverse 4500 — the drawer is never credited for the 500 that left). Allowed only while
+the original's shift is open; a drawer expense needs `shifts_manage` or a manager's approval, a main-treasury/bank
+expense needs `expenses_main_treasury`. One reversal per expense; a retry replays it. The drawer's expected cash
+reads the expense rows, so after a posting-error correction the physical count matches with no difference
+(`ExpenseReversalTests`).
+
+## Treasury entry correction (P3)
+
+`POST /api/treasury/movements/{id}/correct` posts the linked opposite (`movement_correction`, id `tm-corr-{id}`,
+`ReferenceType = treasury_movement`) of a hand-typed entry (`transfer`, `safe_drop`, `cash_in`, `cash_out`,
+`owner_withdrawal`, deposits) that **did not physically happen** — the operator must confirm it; money that moved
+and came back is a new ordinary entry. Part of the amount may be corrected. Once per entry; `treasury_manage` or a
+manager's approval; the source of the correction must hold the money; a shift-tagged entry only while that shift is
+open, and `ShiftReconciliation` counts the correction by direction (into the drawer = cash in, out = withdrawal).
+Sales, refunds, settlements, payroll, supplier payments and close postings are corrected in their own workflow.
+
+## Supplier credit / purchase correction (P3)
+
+`POST /api/purchases/{id}/credits` records a credit on the supplier ledger linked to the invoice:
+`invoice_error` → `purchase_correction`, `supplier_credit` → `supplier_credit`, `goods_returned` →
+`supplier_return` (the returned quantities leave stock as `SupplierReturn` Out at the invoice's own unit cost, and
+the credit is their value — never more than received minus earlier returns). The invoice as received (total,
+lines, payments) is kept; `RemainingAmount` and supplier outstanding (debit − credit) fall by the credit. No money
+moves. Never more than is still owed: a credit on a paid invoice means the supplier owes cash back — owner decision
+SUP-REFUND. Food cost keeps using the received unit cost (AUD-06).
+
+## Cash handover receipt (P4)
+
+The close still moves the counted cash drawer → main (retries and recovery unchanged), but naming a receiver is
+not a receipt. `Shifts.HandoverReceiptStatus`: `pending` until the receiver confirms
+(`POST /api/shifts/{id}/handover/acknowledge`) from their own session or with their PIN typed at the till (an
+approval for `shifts_manage` whose approver must be the named receiver); never the cashier who handed it over.
+`acknowledged` when the counted amount equals the handover; `disputed` (note required, critical audit) when not —
+no money is posted for the difference (owner decision HANDOVER-DIFF). A closer who names themself as receiver is
+acknowledged at the close. `null` with a handover = closed before receipts existed ("not_recorded"). Pending and
+disputed handovers are control-center exceptions (not close blockers — HANDOVER-BLOCK) and owner-report lines.
+
+## Money flow classification (`MoneyFlowRules`, P1)
+
+Every posted movement type is one category: CustomerCollection (`sale_collection`), DriverRemittance
+(`driver_settlement`), CustomerRefund (`refund`, `void_return`), Expense, ExpenseCorrection, ExpenseReimbursement,
+SupplierPayment, Payroll, DriverPay (`driver_fee_payout`), OwnerDrawing, ExternalFunding (`owner_deposit`,
+`capital_injection`, `other_external_inflow`), InternalTransfer (`transfer`, `safe_drop`, `shift_handover`,
+`shift_opening_float`, `cash_in`, `cash_out`), CashCountDifference, EntryCorrection, or **Unclassified** (a new type
+nobody classified — counted and shown, never folded into collections). **Customer receipts** = CustomerCollection +
+DriverRemittance only; cash = into drawer/main, electronic = into bank/instapay/wallet (confirmed only).
+
+## Owner financial report (`/api/reports/owner-financial`, calendar basis, P5)
+
+Sections: sales, actual collections, balances now, drivers, receivables, liabilities, expenses, cash
+discrepancies, open financial exceptions, estimated profitability. Each KPI carries `Definition`, `Basis` (sale /
+movement / now / shift / business_date), `Sources` and `Status`: `actual`, `estimate` (profit), `partial` (inputs
+missing; a floor, with a note), `unavailable` (**amount null — never 0**, e.g. profit when food cost is incomplete).
+Figures shared with the dashboard are read from it, so the two cannot disagree.
+
+**Sales bridge** — the period's non-cancelled orders at full value:
+`Gross = ReceivedThroughTreasury (sale_collection posted for them, any time) + CodSettled + CodHeldByDrivers +
+CodNotYetCollected + PendingElectronic + ShortfallUnresolved + ShortfallReceivable + ShortfallRealised + Residual`;
+Residual must be 0 (`OwnerFinancialReportTests`). COD lines use the custody (collected, capped at due; above due is
+reported separately and is not a sale). Net sales = gross − refunds made in the period.
+
+**Money flow** — the period's posted movements, from the restaurant as a whole: inflow = no source, outflow = no
+destination, both = moved internally. `Closing = Opening + In − Out`; Residual = Closing − Σ account balances at the
+period's end = 0. Timing notes state collections in the period for earlier sales and this period's sales received
+after it.
 
 ## Cash flow (`/api/reports/cash-flow`, calendar basis)
 
@@ -162,3 +279,67 @@ Failed and returned deliveries are counted over all rows.
 
 The payment filter matches the order's own payment method. The screen and both papers use the same server
 rows.
+
+## Exported reports (`/api/reports/export`, Excel / PDF / Word / PNG)
+
+The exported files compute no figures of their own.
+
+**How a file is produced**
+
+1. `ReportSnapshotBuilder` builds one immutable `ReportDocument` (`Falah.Application.Reports.Export`).
+2. It reads the same query services that the report screens read:
+   - `ReportingQueryService`
+   - `OwnerFinancialReportQueryService`
+   - `PurchasingQueryService`
+   - the collection-shortfall and handover queries
+3. Every writer (`XlsxReportWriter`, `PdfReportWriter`, `DocxReportWriter`, `PngSummaryWriter`) only lays that
+   document out. No writer adds, subtracts or rounds.
+4. Money is carried in piastres and formatted by integer arithmetic (`ReportText.Money`). Excel cells hold
+   pounds as numbers with an `ج.م` number format.
+
+**Snapshot fingerprint**
+
+The fingerprint is SHA-256 of the document without its generation time and user. It is stamped in each file:
+
+- Excel and Word: core properties, keyword `falah-snapshot:`.
+- PDF: Info `/Keywords`.
+- PNG: a `tEXt` chunk.
+- The HTTP header `X-Falah-Snapshot`.
+
+The same report and period give the same fingerprint in every format. A closed period gives the same
+fingerprint later, because a later price change does not move a past sale.
+
+**Bases per report**
+
+Every table names its basis.
+
+| Report key | Summary basis | Tables |
+|---|---|---|
+| owner | the owner financial report (calendar days) | bridge, money flow, definitions |
+| sales | calendar days, by time of sale | channels, order types, shifts (per business date), business days (`BusinessDayId`) |
+| cash | posted treasury movements by calendar day | per-account cash flow (opening + in − out = closing) |
+| expenses | calendar days | expense lines, reversals |
+| refunds | refund time | refunds, voids |
+| delivery | business days of the period | driver statements, collection shortfalls |
+| products | calendar days | product performance |
+| exceptions | current state plus the period | pending electronic payments, unconfirmed handovers, shortfalls, and similar |
+| suppliers | current balances | supplier balances, purchases and payments in the period |
+
+**Limits**
+
+- The period may be at most 366 days and may not end after today (Cairo). The server refuses anything else.
+- A table is cut at 5,000 rows. The file then carries a warning that it is incomplete.
+- Figures that are estimates (for example profit while the food-cost data is incomplete) keep the status
+  `تقديري`.
+- Figures the system cannot compute keep the status `غير متاح`. They are never shown as zero.
+
+**Permissions**
+
+- Exports are checked on the server by `ReportExportCatalog`: `reports_view` or `all`.
+- The suppliers report is for the owner (`all`) only.
+- Every export writes an audit event. The event holds the report, format and period, and no figures.
+
+**Not exported yet**
+
+Payroll, inventory, waste and promotions reports. They have no report service to snapshot. They are
+listed in `docs/ASSESSMENT.md`.

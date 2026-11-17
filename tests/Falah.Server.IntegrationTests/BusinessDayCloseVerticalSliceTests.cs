@@ -167,6 +167,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         // the (expected, unavoidable) OPEN_SHIFT blocker for that same still-open shift.
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -462,11 +463,40 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     // during the legacy-parity audit: selectDeliveryExceptions' per-delivery types need no "trip"
     // concept at all, unlike the trip-scoped types this system genuinely cannot port) ----
 
+    // AUD-13: an order never even made ready is on the manager's review list too (a warning, never a blocker).
+    [Fact]
+    public async Task A_delivery_never_made_ready_is_a_control_exception_but_does_not_block_the_close()
+    {
+        var dayId = await OpenBusinessDayAsync();
+        var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل");
+        var productId = await _factory.SeedProductAsync(10000);
+        var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "delivery", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
+        checkout.EnsureSuccessStatusCode();
+        var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order!.OrderId).Select(d => d.Id).FirstAsync());
+
+        var exceptions = await (await _client.GetAsync($"/api/business-day/{dayId}/exceptions")).Content.ReadFromJsonAsync<List<ControlExceptionDto>>();
+        Assert.Contains(exceptions!, e => e.EntityId == deliveryId && e.Category == "delivery" && e.Severity == "warning");
+
+        var blockers = await (await _client.GetAsync($"/api/business-day/{dayId}/close-blockers")).Content.ReadAsStringAsync();
+        Assert.DoesNotContain(deliveryId, blockers);
+    }
+
     [Fact]
     public async Task A_ready_delivery_with_no_driver_is_a_control_exception()
     {
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -491,6 +521,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     {
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
