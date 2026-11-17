@@ -169,11 +169,17 @@ public sealed class ReceivePurchaseHandler
             }
 
             await Falah.Infrastructure.Inventory.InventoryWriteLock.AcquireAsync(_db, ct);
+            // An invoice may list one ingredient on several lines (two cartons at two prices). The
+            // first keeps the established key; each repeat gets its line number, so the keys stay
+            // unique without changing any receipt already on record.
+            var seenItems = new Dictionary<string, int>();
             foreach (var line in lines)
             {
+                var repeat = seenItems[line.InventoryItemId] = seenItems.GetValueOrDefault(line.InventoryItemId) + 1;
+                var stockKey = $"purchase-stock-{purchaseId}-{line.InventoryItemId}" + (repeat > 1 ? $"-{repeat}" : "");
                 _db.StockMovements.Add(new Falah.Infrastructure.Persistence.Entities.StockMovementEntity
                 {
-                    IdempotencyKey = $"purchase-stock-{purchaseId}-{line.InventoryItemId}", InventoryItemId = line.InventoryItemId,
+                    IdempotencyKey = stockKey, InventoryItemId = line.InventoryItemId,
                     Type = nameof(StockMovementType.PurchaseReceipt), Direction = nameof(StockDirection.In),
                     QuantityMilliUnits = line.QuantityMilliUnits, UnitCostPiastres = line.UnitCostPiastres,
                     ReferenceType = "purchase", ReferenceId = purchaseId, SupplierId = supplier.Id,

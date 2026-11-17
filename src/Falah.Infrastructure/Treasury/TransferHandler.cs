@@ -35,6 +35,11 @@ public sealed class TransferHandler
         if (request.SourceAccountId == request.DestinationAccountId) throw new DomainException("يجب أن يختلف حساب المصدر عن حساب الوجهة.");
         if (!TreasuryAccountValidation.IsKnownAccount(request.SourceAccountId) || !TreasuryAccountValidation.IsKnownAccount(request.DestinationAccountId))
             throw new DomainException("حساب الخزينة المحدد غير صالح.");
+        // A transfer belongs to no shift, so the shift's expected cash would never see it: drawer cash
+        // taken this way turned into the cashier's shortage at close. The drawer moves only through
+        // the shift's own commands (safe drop, cash in/out), which post to the shift.
+        if (request.SourceAccountId == TreasuryAccounts.Drawer || request.DestinationAccountId == TreasuryAccounts.Drawer)
+            throw new DomainException("لا يُحوَّل من درج الكاشير أو إليه من شاشة الخزينة؛ استخدم الإيداع الآمن أو إضافة/سحب نقدية من شاشة الكاشير حتى تُحسب على الوردية.");
         if (request.AmountPiastres <= 0) throw new DomainException("المبلغ يجب أن يكون أكبر من صفر.");
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب التحويل مطلوب.");
 

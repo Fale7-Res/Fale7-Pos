@@ -93,6 +93,23 @@ public partial class CallCenterViewModel
 
     public bool HasPendingCheckout => _pendingCheckout is not null;
 
+    /// <summary>The kept checkout was retried and the server definitively refused it.</summary>
+    [ObservableProperty] private bool _hasRefusedCheckoutRetry;
+
+    /// <summary>Lets go of a kept checkout the server refused on retry, after the operator checked
+    /// the orders list. A checkout whose outcome is still unknown is never dropped here.</summary>
+    [RelayCommand]
+    private void DiscardRefusedCheckout()
+    {
+        if (!HasRefusedCheckoutRetry || IsOperationBusy || _pendingCheckout is null) return;
+        _pendingCheckout = null;
+        PersistPending(CheckoutOwnerKey, null);
+        HasRefusedCheckoutRetry = false;
+        CheckoutError = null;
+        OnPropertyChanged(nameof(HasPendingCheckout));
+        RefreshOperationState();
+    }
+
     private bool CanSubmitOrder() => !IsOperationBusy && !HasCheckoutResult && _pendingPrint is null;
 
     [RelayCommand(CanExecute = nameof(CanSubmitOrder))]
@@ -187,9 +204,14 @@ public partial class CallCenterViewModel
                 // Do NOT clear the cart or the form: we genuinely do not know whether this order
                 // exists on the server. Retrying the identical request is what resolves it.
                 _pendingCheckout = request;
+                // A definite refusal of a RETRY usually means the order was never recorded, but it
+                // can follow a lost success, so it is kept - and the operator may let it go after checking.
+                HasRefusedCheckoutRetry = !result.OutcomeUnknown;
                 OnPropertyChanged(nameof(HasPendingCheckout));
                 RefreshOperationState();
-                CheckoutError = "لم يصل تأكيد من السيرفر. اضغط \"إعادة المحاولة\" بنفس البيانات للتحقق من الطلب.";
+                CheckoutError = HasRefusedCheckoutRetry
+                    ? $"الخادم رفض إعادة محاولة الطلب السابق: {result.Error ?? "رفضها الخادم."} الرفض يعني غالبًا أن الطلب لم يُسجَّل. تأكد من قائمة الطلبات ثم اضغط \"تأكدت - تجاهل الطلب السابق\"."
+                    : "لم يصل تأكيد من السيرفر. اضغط \"إعادة المحاولة\" بنفس البيانات للتحقق من الطلب.";
                 return;
             }
 
@@ -208,6 +230,7 @@ public partial class CallCenterViewModel
 
         _pendingCheckout = null;
         PersistPending(CheckoutOwnerKey, null);
+        HasRefusedCheckoutRetry = false;
         OnPropertyChanged(nameof(HasPendingCheckout));
         RefreshOperationState();
         LastCheckoutResult = result.Value;

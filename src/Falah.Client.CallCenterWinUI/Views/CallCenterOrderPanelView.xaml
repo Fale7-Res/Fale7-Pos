@@ -200,6 +200,12 @@
                                TextAlignment="Center" TextWrapping="Wrap"
                                Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
+                    <Button Content="تأكدت - تجاهل الطلب السابق" HorizontalAlignment="Stretch" MinHeight="44"
+                            Command="{Binding DiscardRefusedCheckoutCommand}"
+                            Visibility="{Binding HasRefusedCheckoutRetry, Converter={StaticResource BoolToVisibleConverter}}"
+                            AutomationProperties.Name="تجاهل الطلب السابق المرفوض"
+                            AutomationProperties.AutomationId="DiscardRefusedCheckoutButton"/>
+
                     <Button AutomationProperties.Name="تسجيل الطلب" AutomationProperties.AutomationId="SubmitCallCenterOrderButton" Style="{StaticResource CtaButtonStyle}"
                             HorizontalAlignment="Stretch" MinHeight="52" Command="{Binding SubmitOrderCommand}"
                             IsEnabled="{Binding IsShiftOpen}">

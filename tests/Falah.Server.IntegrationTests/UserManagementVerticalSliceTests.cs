@@ -578,6 +578,21 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     }
 
 
+    /// <summary>Whole-project review 2026-11-17: resetting someone's PIN lets the resetter log in as
+    /// them, so it is a grant of every permission that account holds. A users_manage holder who could
+    /// not grant those permissions directly must not be able to take them this way.</summary>
+    [Fact]
+    public async Task A_limited_admin_cannot_reset_the_pin_of_an_account_holding_more_than_they_do()
+    {
+        var response = await ChangePinAsync(_managerId, null, "4715", _limitedAdminId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await LoginAsync("4715")).StatusCode);
+        (await LoginAsync(_factory.PinFor(_managerId))).EnsureSuccessStatusCode();
+
+        var menuEditor = await _factory.SeedUserAsync("محرر قوائم", "supervisor", "menu_manage");
+        (await ChangePinAsync(menuEditor, null, "6284", _limitedAdminId)).EnsureSuccessStatusCode();
+    }
+
     [Fact]
     public async Task A_pin_change_request_key_cannot_be_reused_for_another_target()
     {

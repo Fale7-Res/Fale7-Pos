@@ -51,8 +51,9 @@ public partial class TreasuryViewModel : ObservableObject
             _pendingCommit = () => SendDurableAsync(recovered);
             _outcomeUnknown = true;
             ActionError = "حركة خزينة سابقة لم تُحسم نتيجتها قبل إغلاق البرنامج. أعد المحاولة بنفس الطلب للتحقق.";
-            RefreshOperationState();
         }
+        // Also surfaces a correction kept from before the restart in the recovery list.
+        RefreshOperationState();
     }
 
     private readonly RetainedRequest<object> _write = new("treasury.action");
@@ -240,7 +241,7 @@ public partial class TreasuryViewModel : ObservableObject
     private void RefreshOperationState()
     {
         OnPropertyChanged(nameof(CanEditAction));
-        _session.SetManagementOperationPending(this, IsBusy || _pendingCommit is not null);
+        _session.SetManagementOperationPending(this, IsBusy || _pendingCommit is not null || _correction.HasPending);
     }
 
     public bool CanManage => _session.HasPermission("treasury_manage");
@@ -249,7 +250,9 @@ public partial class TreasuryViewModel : ObservableObject
     /// wallet, matching the server's own rule rather than discovering it via a rejection.</summary>
     public IReadOnlyList<string> FundingAccounts { get; } = new[] { "tre-main", "tre-bank", "tre-instapay" };
 
-    public IReadOnlyList<string> AllAccounts { get; } = new[] { "tre-main", "tre-drawer", "tre-bank", "tre-instapay", "tre-wallet" };
+    /// <summary>Transfer pickers. The drawer is left out, matching the server: drawer cash moves only
+    /// through the cashier screen's shift commands, so it counts in the shift's expected cash.</summary>
+    public IReadOnlyList<string> AllAccounts { get; } = new[] { "tre-main", "tre-bank", "tre-instapay", "tre-wallet" };
 
     [RelayCommand]
     public async Task LoadAsync()

@@ -335,6 +335,23 @@ public class TreasuryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
+    /// <summary>Whole-project review 2026-11-17: a transfer carries no shift, so the shift's expected
+    /// cash never saw it - money taken out of the drawer this way showed up at close as the cashier's
+    /// shortage (and was debited a second time). Drawer cash moves through the shift's own commands
+    /// (safe drop, cash in/out), which post to the shift.</summary>
+    [Theory]
+    [InlineData("tre-drawer", "tre-main")]
+    [InlineData("tre-main", "tre-drawer")]
+    public async Task A_treasury_transfer_cannot_touch_the_cashier_drawer(string source, string destination)
+    {
+        await OpenBusinessDayAsync();
+        var response = await _client.PostAsJsonAsync("/api/treasury/transfer",
+            new TransferRequest($"tr-{Guid.NewGuid():N}", source, destination, 1000, "تحويل درج", _managerId, null, null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("درج الكاشير", await response.Content.ReadAsStringAsync());
+        Assert.Equal(0, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.Type == "transfer")));
+    }
+
     [Fact]
     public async Task Treasury_operations_require_treasury_manage_permission_or_a_matching_approval()
     {

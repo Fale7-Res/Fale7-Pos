@@ -424,7 +424,7 @@
                 Visibility="{Binding HasRefusedRetry, Converter={StaticResource BoolToVisibleConverter}}"
                 AutomationProperties.AutomationId="Cashier.RefusedRetryBanner">
             <StackPanel Spacing="8">
-                <TextBlock Text="الخادم رفض إعادة محاولة عملية سابقة لم يصل تأكيدها" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/>
+                <TextBlock Text="عملية سابقة لم يصل تأكيدها تحتاج مراجعتك" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/>
                 <TextBlock Text="{Binding RefusedRetryMessage}" TextWrapping="Wrap"/>
                 <TextBlock Text="الرفض يعني غالبًا أن العملية لم تُسجَّل. راجع قائمة الطلبات أو الدرج للتأكد، ثم تجاهلها لتكمل العمل - ولو كانت لازمة نفّذها من جديد."
                            Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>

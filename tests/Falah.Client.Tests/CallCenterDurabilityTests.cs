@@ -228,6 +228,35 @@ public class CallCenterDurabilityTests : IDisposable
     }
 
 
+    /// <summary>Whole-project review 2026-11-17: a kept checkout whose retry the server definitively
+    /// refused (stale zone fee, shift closed) stayed kept forever, so the desk could not edit, clear
+    /// or take another call. It stays kept - a refused retry can, rarely, follow a lost success - but
+    /// the operator, having checked, can now let it go, exactly as the till already allows.</summary>
+    [Fact]
+    public async Task A_kept_checkout_refused_on_retry_can_be_discarded_after_review()
+    {
+        _store.Save("callcenter.checkout.operator", Checkout("req-recovered"));
+        var session = new CallCenterServices.AppSession(new CallCenterServices.ApiClient(new System.Net.Http.HttpClient(new RefusedPrintHandler()) { BaseAddress = new Uri("http://fixture.invalid") }))
+            { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos" }) };
+        var vm = new Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel(session, new());
+        Assert.True(vm.HasPendingCheckout);
+        Assert.False(vm.HasRefusedCheckoutRetry);
+
+        await vm.SubmitOrderCommand.ExecuteAsync(null);
+
+        Assert.True(vm.HasPendingCheckout, "a refused retry is not proof the first attempt failed");
+        Assert.True(vm.HasRefusedCheckoutRetry);
+        Assert.Contains("refused", vm.CheckoutError);
+        Assert.NotNull(_store.Load("callcenter.checkout.operator"));
+
+        vm.DiscardRefusedCheckoutCommand.Execute(null);
+
+        Assert.False(vm.HasPendingCheckout);
+        Assert.False(vm.HasRefusedCheckoutRetry);
+        Assert.True(vm.CanEditOperation);
+        Assert.Null(_store.Load("callcenter.checkout.operator"));
+    }
+
     [Theory]
     [InlineData("cash", "نقدي")]
     [InlineData("instapay", "إنستاباي")]

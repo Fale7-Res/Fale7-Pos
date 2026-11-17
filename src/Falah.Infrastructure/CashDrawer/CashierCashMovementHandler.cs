@@ -80,6 +80,12 @@ public sealed class CashierCashMovementHandler
             var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
             if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
             var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            // Re-read once admitted (as SafeDropHandler does): the check above ran before the
+            // admission lock, so a close committed in between would otherwise get this movement
+            // posted to a shift whose statement and expected cash are already frozen.
+            var admittedShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+            if (admittedShift?.Status != nameof(ShiftStatus.Open))
+                throw new DomainException("يجب فتح وردية قبل تسجيل حركة خزنة.");
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate

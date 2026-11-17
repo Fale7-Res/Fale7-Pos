@@ -75,6 +75,7 @@ public sealed class ChangePinHandler
                 ?? throw new InvalidOperationException("المستخدم غير موجود.");
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "users_manage");
             UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ");
+            AssertResetIsNoEscalation(actorUser, target);
             await _pinChoices.ClaimAsync(_db, actorUser, $"إعادة تعيين الرمز السري لـ {target.Name}", ct);
         }
         var actorName = actorUser.Name;
@@ -96,7 +97,11 @@ public sealed class ChangePinHandler
             if (string.IsNullOrEmpty(request.CurrentPin) || !PinHasher.Verify(request.CurrentPin, target.PinHash, target.PinSalt, target.PinIterations))
                 throw new DomainException("رمز PIN الحالي غير صحيح.");
         }
-        else UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ");
+        else
+        {
+            UserManagementRules.AssertTargetIsNotOwner(target.Role, "تغيير رمز PIN لـ");
+            AssertResetIsNoEscalation(actorUser, target);
+        }
         if (request.Reactivate && target.Active) throw new DomainException("الحساب نشط بالفعل؛ حدّث قائمة المستخدمين.");
 
         try
@@ -131,5 +136,21 @@ public sealed class ChangePinHandler
         });
         await _db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
+    }
+
+    /// <summary>Whoever sets a PIN can log in with it, so resetting another account's PIN hands the
+    /// resetter everything that account may do. It is refused unless the resetter could have granted
+    /// those permissions directly (the same guard CreateUser and UpdateUserPermissions apply).</summary>
+    private static void AssertResetIsNoEscalation(UserEntity actorUser, UserEntity target)
+    {
+        try
+        {
+            UserManagementRules.AssertNoPrivilegeEscalation(OrderMapper.ToActor(actorUser).Permissions,
+                target.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        }
+        catch (DomainException)
+        {
+            throw new DomainException($"لا يمكنك إعادة تعيين رمز {target.Name}: هذا الحساب يملك صلاحيات لا تملكها أنت.");
+        }
     }
 }

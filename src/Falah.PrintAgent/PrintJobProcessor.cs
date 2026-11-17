@@ -67,7 +67,18 @@ public sealed class PrintJobProcessor
     /// produces one unreadable ticket rather than two readable ones.</summary>
     public async Task<int> DrainAsync(string route, CancellationToken ct, Func<CancellationToken, Task>? priorityWork = null)
     {
-        if (priorityWork is not null) await priorityWork(ct);
+        // The drawer goes first so a waiting cashier is not held behind a long ticket - but a drawer
+        // step that keeps failing must not stop this station's tickets from printing.
+        async Task RunPriorityWorkAsync()
+        {
+            if (priorityWork is null) return;
+            try { await priorityWork(ct); }
+            catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
+            {
+                _log($"cash drawer step failed, tickets continue: {ex.Message}");
+            }
+        }
+        await RunPriorityWorkAsync();
         // Sending jobs are deliberately not reclaimable. Recover their durable reports directly,
         // including after a process restart, without waiting for a pending-queue response.
         foreach (var entry in _unreported.Snapshot().Where(e => e.Value.ClaimId is not null))
@@ -80,7 +91,7 @@ public sealed class PrintJobProcessor
             ct.ThrowIfCancellationRequested();
             await ProcessAsync(job, ct);
             processed++;
-            if (priorityWork is not null) await priorityWork(ct);
+            await RunPriorityWorkAsync();
         }
         return processed;
     }

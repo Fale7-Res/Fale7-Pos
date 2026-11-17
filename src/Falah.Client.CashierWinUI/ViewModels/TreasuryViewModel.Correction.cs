@@ -94,6 +94,7 @@ public partial class TreasuryViewModel
         {
             IsCorrecting = false;
             CorrectionManagerPin = "";
+            RefreshOperationState();
         }
         await LoadAsync();
     }

@@ -41,6 +41,7 @@ public class EndpointReadGateCoverageTests
         ["/api/orders/{id}/print-jobs"] = "Print queue status, not ticket contents",
         ["/api/print-jobs/overview"] = "Print queue status, not ticket contents",
         ["/api/print-jobs/{id}"] = "Print queue status, not ticket contents",
+        ["/api/reports/export/catalog"] = "Lists only the reports this session may export; empty without a report permission",
     };
     [Fact]
     public async Task Every_api_read_refuses_a_permissionless_session_unless_explicitly_listed()
@@ -59,7 +60,7 @@ public class EndpointReadGateCoverageTests
         foreach (var route in routes)
         {
             var url = Regex.Replace(route, "\\{[^}]+\\}", "probe-id")
-                + "?actorUserId=" + id + "&phone=01000000000&orderNumber=%239999&route=Receipt&accountId=tre-drawer&businessDate=2026-11-06&limit=1&from=2026-11-05&to=2026-11-06";
+                + "?actorUserId=" + id + "&phone=01000000000&orderNumber=%239999&route=Receipt&accountId=tre-drawer&businessDate=2026-11-06&limit=1&from=2026-11-05&to=2026-11-06&report=owner&format=pdf";
             var response = await client.GetAsync(url);
             if (response.StatusCode is HttpStatusCode.UnprocessableEntity or HttpStatusCode.Forbidden)
             {

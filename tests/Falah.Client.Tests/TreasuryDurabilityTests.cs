@@ -96,4 +96,46 @@ public sealed class TreasuryDurabilityTests : IDisposable
         Assert.True(after.CanEditAction);
         Assert.Empty(session.Recovery.Items);
         Assert.Empty(Directory.GetFiles(_dir));
-    }}
+    }
+
+    private AppSession QuietSession() => new(new ApiClient(new HttpClient(new Handler(r => Task.FromResult(Json("[]"))))
+        { BaseAddress = new Uri("http://fixture.invalid") }))
+    { CurrentUser = new("owner", "المالك", "owner", new[] { "all" }) };
+
+    /// <summary>Whole-project review 2026-11-17: a treasury correction and a supplier credit that were
+    /// in flight when the app died came back from disk but were listed nowhere - their dialogs were
+    /// closed, so they could be neither retried nor reviewed, and they silently blocked the next one.
+    /// Like every other kept money command, they now appear in the recovery list.</summary>
+    [Fact]
+    public void A_correction_left_in_flight_is_listed_for_review_and_can_be_let_go()
+    {
+        new FileRetainedRequestStore(_dir).Save("treasury.correction",
+            new Falah.Application.Treasury.CorrectTreasuryMovementRequest("corr-1", "tm-1", "قيد بالخطأ", "owner", true));
+        var session = QuietSession();
+        _ = new TreasuryViewModel(session);
+
+        var item = Assert.Single(session.Recovery.Items);
+        item.ServerRecordReviewed = true;
+        item.DiscardCommand.Execute(null);
+
+        Assert.Empty(session.Recovery.Items);
+        Assert.Empty(Directory.GetFiles(_dir));
+    }
+
+    [Fact]
+    public void A_supplier_credit_left_in_flight_is_listed_and_blocks_new_purchasing_work_until_reviewed()
+    {
+        new FileRetainedRequestStore(_dir).Save("purchasing.credit",
+            new Falah.Application.Purchasing.RecordSupplierCreditRequest("cred-1", "pur-1", "correction", 5_000, "تصحيح فاتورة", "owner"));
+        var session = QuietSession();
+        var purchasing = new PurchasingViewModel(session);
+
+        Assert.False(purchasing.CanEditAction);
+        var item = Assert.Single(session.Recovery.Items);
+        item.ServerRecordReviewed = true;
+        item.DiscardCommand.Execute(null);
+
+        Assert.True(purchasing.CanEditAction);
+        Assert.Empty(Directory.GetFiles(_dir));
+    }
+}

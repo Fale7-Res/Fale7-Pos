@@ -38,7 +38,7 @@ public partial class CashCountViewModel : ObservableObject
             ? $"{DenominationPiastres / 100} ج"
             : $"{DenominationPiastres} قرش";
 
-        public long Quantity => long.TryParse(QuantityText, out var q) && q > 0 ? q : 0;
+        public long Quantity => CashInput.TryParseCount(QuantityText, out var q) && q > 0 ? q : 0;
         public string LineTotalDisplay => CashInput.Format(Quantity * DenominationPiastres) + " ج";
 
         partial void OnQuantityTextChanged(string value)

@@ -49,6 +49,23 @@ public class AuthenticationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    /// <summary>Whole-project review 2026-11-17: the tills load menu photos with a plain image control,
+    /// which cannot send the session token, so every photo was refused and never shown. A menu photo
+    /// is the public menu (the same pictures are on the restaurant's menu site); it alone is readable
+    /// without logging in, and only by GET. Everything else about products still needs a session.</summary>
+    [Fact]
+    public async Task A_menu_photo_is_readable_by_an_image_control_but_nothing_else_about_products_is()
+    {
+        var photo = await _raw.GetAsync("/api/products/no-such-product/image?v=1");
+        Assert.NotEqual(HttpStatusCode.Unauthorized, photo.StatusCode);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _raw.GetAsync("/api/products/no-such-product")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _raw.GetAsync("/api/products/all")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _raw.GetAsync("/api/products/no-such-product/image/extra")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized,
+            (await _raw.PostAsync("/api/products/no-such-product/image", new ByteArrayContent(new byte[] { 1 }))).StatusCode);
+    }
+
     [Fact]
     public async Task Naming_a_manager_without_holding_their_session_gets_nowhere()
     {

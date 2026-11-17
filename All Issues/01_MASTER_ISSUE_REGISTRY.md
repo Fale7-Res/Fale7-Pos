@@ -273,6 +273,32 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | UI-0046 | Control Center checklist rows did not expose done / not done to assistive technology | UI / accessibility | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/UI-0046.md](ISSUES/UI-0046.md) |
 | UI-0047 | Menu screen availability buttons all had the same accessible name | UI / accessibility | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/UI-0047.md](ISSUES/UI-0047.md) |
 
+## 9. Whole-project review 2026-11-17
+
+Findings from the whole-project code review. The evidence, the rejected findings and about thirty
+minor items recorded for later (SEC-0038…0040, FIN-0055…0060, PAYR-0022…0024, INV-0015/0016,
+RPT-0001…0005, UI-0053…0062, OPS-0008/0009) are in
+[REVIEW_20261117_WHOLE_PROJECT.md](REVIEW_20261117_WHOLE_PROJECT.md). These rows are not yet counted
+in the totals below.
+
+| ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
+|---|---|---|---|---|---|---|---|---|
+| SEC-0036 | A users_manage holder could reset a more privileged account's PIN and log in as it | Security / users | High | P1 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| FIN-0053 | Treasury transfer through the drawer bypassed the shift's expected cash (false shortage, double debit) | Financial / treasury | High | P1 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| FIN-0052 | Cash in/out could post to a shift closing at the same moment | Financial / concurrency | Medium | P2 | FIXED | STATIC_CODE_REVIEW | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| FIN-0054 | Fully comped InstaPay/wallet order waited for a 0 ج transfer | Financial / payments | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| INV-0014 | Invoice with one ingredient on two lines could not be received | Purchasing | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| OPS-0007 | Settings accepted negative fees/rates, zero copies and zero workday hours | Settings / validation | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| PRT-0019 | A failing cash-drawer step stopped every receipt on the station | Printing / agent | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| UI-0048 | Call center froze on a kept checkout the server refused on retry | UI / durability | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| UI-0049 | Recovered treasury correction / supplier credit were invisible and blocking | UI / durability | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| UI-0050 | Recovered transfer confirm/cancel froze the till with no control | UI / durability | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| UI-0051 | Cash count read Arabic digits as 0 | UI / input | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| UI-0052 | Menu photos never showed (image control sends no token); photo GET made public - owner may reverse | UI / menu | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| TEST-0003 | Read-gate coverage test did not know the report-export routes | Testing | Low | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| SEC-0037 | Attendance check-in/out needs no permission and has an optional request id (owner question) | Security / payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| PAYR-0021 | Dashboard wage cost excludes attendance-correction adjustments that payroll counts (accountant question) | Payroll / reports | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+
 ## Totals
 
 Canonical issues: **230**

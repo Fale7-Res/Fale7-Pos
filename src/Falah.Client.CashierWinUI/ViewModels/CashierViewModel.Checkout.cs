@@ -155,7 +155,9 @@ public partial class CashierViewModel
         try
         {
             var request = _pendingElectronicConfirm.Value ?? new ConfirmElectronicPaymentRequest(LastCheckoutResult.OrderId, _session.CurrentUser!.Id);
+            var wasUnresolved = _pendingElectronicConfirm.HasPending;
             var result = await _pendingElectronicConfirm.SendAsync(request, r => _session.Api.ConfirmElectronicPaymentAsync(r));
+            NoteRetryOutcome(ElectronicConfirmOperation, wasUnresolved, result.Success && result.Value is not null, result.OutcomeUnknown, result.Error);
             if (!result.Success || result.Value is null)
             {
                 PendingPaymentActionError = _pendingElectronicConfirm.FailureMessage(result.Error);
@@ -191,7 +193,9 @@ public partial class CashierViewModel
         {
             var request = _pendingElectronicCancel.Value ?? new CancelPendingElectronicPaymentRequest(
                 LastCheckoutResult.OrderId, CancelPendingReason, _session.CurrentUser!.Id, CancelPendingStockDisposition);
+            var wasUnresolved = _pendingElectronicCancel.HasPending;
             var result = await _pendingElectronicCancel.SendAsync(request, r => _session.Api.CancelPendingElectronicPaymentAsync(r));
+            NoteRetryOutcome(ElectronicCancelOperation, wasUnresolved, result.Success && result.Value is not null, result.OutcomeUnknown, result.Error);
             if (!result.Success || result.Value is null)
             {
                 PendingPaymentActionError = _pendingElectronicCancel.FailureMessage(result.Error);

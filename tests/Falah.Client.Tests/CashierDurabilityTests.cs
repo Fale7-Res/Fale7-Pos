@@ -239,6 +239,31 @@ public sealed class CashierDurabilityTests : IDisposable
         Assert.True(restarted.CanEditOperation);
     }
 
+    /// <summary>Whole-project review 2026-11-17: a transfer confirm or cancel whose answer was lost
+    /// came back from disk after a restart, blocked every till operation, and offered no control at
+    /// all - the confirm/cancel buttons need the checkout result the restart had wiped. It is now
+    /// surfaced for the operator to check and let go, like every other kept till request.</summary>
+    [Theory]
+    [InlineData("confirm")]
+    [InlineData("cancel")]
+    public void A_recovered_transfer_confirm_or_cancel_no_longer_freezes_the_till(string which)
+    {
+        if (which == "confirm")
+            _store.Save("cashier.electronic-confirm", new ConfirmElectronicPaymentRequest("order-77", "actor"));
+        else
+            _store.Save("cashier.electronic-cancel", new CancelPendingElectronicPaymentRequest("order-77", "لم يصل التحويل", "actor", "not_prepared"));
+
+        var restarted = new CashierViewModel(Session(LostInTransit), new HeaderViewModel());
+
+        Assert.False(restarted.CanEditOperation);
+        Assert.True(restarted.HasRefusedRetry, "the kept request is shown, with a way to let it go");
+        restarted.DiscardRefusedRetriesCommand.Execute(null);
+
+        Assert.True(restarted.CanEditOperation);
+        Assert.Null(_store.Load("cashier.electronic-confirm"));
+        Assert.Null(_store.Load("cashier.electronic-cancel"));
+    }
+
     // ---------- Helpers ----------
 
     // ---------- REC3: a kept request the server refuses on retry ----------

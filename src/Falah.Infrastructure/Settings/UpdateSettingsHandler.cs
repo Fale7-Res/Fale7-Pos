@@ -42,6 +42,24 @@ public sealed class UpdateSettingsHandler
         return trimmed;
     }
 
+    /// <summary>Refuses numbers no restaurant can mean, before anything is written: a negative fee
+    /// lowers order totals, zero receipt copies prints nothing, zero workday hours divides payroll by
+    /// zero. Zero stays allowed wherever it is a real answer (no auto-lock, no grace, no threshold).</summary>
+    internal static void AssertPlausibleNumbers(UpdateSettingsRequest r)
+    {
+        static void Check(bool bad, string message) { if (bad) throw new DomainException(message); }
+        Check(r.OvertimeHourlyRatePiastres < 0, "سعر ساعة الإضافي لا يمكن أن يكون بالسالب.");
+        Check(r.DeliveryFeePiastres < 0, "رسوم التوصيل لا يمكن أن تكون بالسالب.");
+        Check(r.CashDiscrepancyThresholdPiastres < 0, "حد فرق النقدية لا يمكن أن يكون بالسالب.");
+        Check(r.AutoLockMinutes < 0, "مدة القفل التلقائي لا يمكن أن تكون بالسالب.");
+        Check(r.NumberOfReceiptCopies < 1, "عدد نسخ الإيصال يجب أن يكون نسخة واحدة على الأقل.");
+        Check(r.StandardWorkdayHours < 1 || r.StandardWorkdayHours > 24, "ساعات يوم العمل يجب أن تكون بين 1 و 24.");
+        Check(r.LateGraceMinutes < 0, "مهلة التأخير لا يمكن أن تكون بالسالب.");
+        Check(r.MaxLatePenaltyHours < 0, "الحد الأقصى لساعات خصم التأخير لا يمكن أن يكون بالسالب.");
+        Check(r.LatePenaltyMultiplier is { } late && (late < 0 || !double.IsFinite(late)), "معامل خصم التأخير لا يمكن أن يكون بالسالب.");
+        Check(r.OvertimeMultiplier is { } over && (over < 0 || !double.IsFinite(over)), "معامل الإضافي لا يمكن أن يكون بالسالب.");
+    }
+
     public async Task<SettingsDto> HandleAsync(UpdateSettingsRequest request, CancellationToken ct = default)
     {
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -59,6 +77,7 @@ public sealed class UpdateSettingsHandler
             && request.DefaultOpeningCashPiastres is null;
         if (!onlyGrillSound)
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
+        AssertPlausibleNumbers(request);
 
         var entity = await _db.Settings.FirstOrDefaultAsync(s => s.Id == SettingsEntity.SingletonId, ct);
         if (entity is null)

@@ -85,7 +85,7 @@ public partial class PurchasingViewModel : IManagementRequestOwner
 {
     public string RecoveryLabel => "الموردون والمشتريات";
     public bool IsRecoveryBusy => IsBusy;
-    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _supplierRequest, _receiveRequest, _payRequest };
+    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _supplierRequest, _receiveRequest, _payRequest, _creditRequest };
     public void RefreshRecoveryState() { OnIsBusyChanged(IsBusy); }
 }
 
@@ -114,7 +114,8 @@ public partial class TreasuryViewModel : IManagementRequestOwner
     public string RecoveryLabel => "حركة الخزينة";
     public bool IsRecoveryBusy => IsBusy;
     // UI-0001: the pending movement is the durable one (survives a restart, keeps its request id).
-    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _write };
+    // A correction kept from a lost answer is listed too, or it would block every later correction unseen.
+    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _write, _correction };
     public void RefreshRecoveryState()
     {
         // Discarded from the recovery list after the owner reviewed the server record.

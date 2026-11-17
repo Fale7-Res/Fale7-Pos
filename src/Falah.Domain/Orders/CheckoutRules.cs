@@ -50,6 +50,9 @@ public static class CheckoutRules
     public static ElectronicPayment? SelectElectronicLeg(
         PaymentMethod paymentMethod, Money payableTotal, IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)
     {
+        // A fully comped order collects nothing: there is no transfer to wait for, and a 0 ج pending
+        // claim would hold the kitchen ticket and the day close for a payment that cannot arrive.
+        if (paymentMethod is PaymentMethod.InstaPay or PaymentMethod.Wallet && !payableTotal.IsPositive) return null;
         if (paymentMethod is PaymentMethod.InstaPay or PaymentMethod.Wallet)
             return new ElectronicPayment(paymentMethod, paymentMethod == PaymentMethod.Wallet ? walletProvider : null, payableTotal, ElectronicPaymentStatus.Pending);
 

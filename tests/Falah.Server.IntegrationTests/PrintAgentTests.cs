@@ -458,6 +458,26 @@ public class PrintAgentTests
     }
 
 
+    /// <summary>Whole-project review 2026-11-17: the drawer step ran first and unguarded, so a drawer
+    /// endpoint that kept failing (say, a missing grant) stopped every receipt on that station from
+    /// printing, with only "poll failed" in the log. The drawer failure is logged; tickets still print.</summary>
+    [Fact]
+    public async Task A_failing_drawer_step_does_not_stop_the_tickets_from_printing()
+    {
+        var server = new FakeServer();
+        server.Pending.AddRange(new[] { Job("after-drawer-1"), Job("after-drawer-2") });
+        var transport = new FakeTransport();
+        var log = new List<string>();
+        var processor = new PrintJobProcessor(server, transport, Encoding.UTF8, "usr-1", log.Add, NewStore());
+
+        var printed = await processor.DrainAsync("Receipt", default,
+            _ => throw new HttpRequestException("drawer claim refused (403)"));
+
+        Assert.Equal(2, printed);
+        Assert.Equal(2, transport.Sent.Count);
+        Assert.Contains(log, line => line.Contains("drawer claim refused"));
+    }
+
     [Fact]
     public async Task A_restarted_agent_reports_a_fenced_attempt_even_when_it_is_no_longer_pending()
     {

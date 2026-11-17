@@ -49,6 +49,24 @@ public class CheckoutRulesTests
         Assert.True(plan.DefersAllMoney, "a fully comped order posts no Treasury movement at all");
     }
 
+    /// <summary>Whole-project review 2026-11-17: a fully comped order collects nothing, so there is no
+    /// transfer to wait for. It used to open a 0 ج "pending" InstaPay leg that held the kitchen ticket
+    /// and blocked the day close until someone confirmed a payment that could never arrive.</summary>
+    [Theory]
+    [InlineData(PaymentMethod.InstaPay)]
+    [InlineData(PaymentMethod.Wallet)]
+    public void A_fully_comped_electronic_order_has_no_pending_transfer_and_is_paid(PaymentMethod method)
+    {
+        var items = new[] { Item(100m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Takeaway, method, items,
+            Money.Zero, taxRule: null, Money.Zero, Money.FromEgp(100m), Money.Zero, null, "vodafone");
+
+        Assert.Equal(Money.Zero, plan.PayableTotal);
+        Assert.Null(plan.ElectronicLeg);
+        Assert.True(plan.IsPaid);
+        Assert.True(plan.DefersAllMoney, "nothing changed hands, so nothing posts");
+    }
+
     [Fact]
     public void InstaPay_payment_is_pending_and_defers_money_until_confirmed()
     {

@@ -27,6 +27,9 @@ public partial class CashierViewModel
     private const string SafeDropOperation = "safe-drop";
     private const string CashMovementOperation = "cash-movement";
     private const string CashDrawerOperation = "cash-drawer";
+    // Kept by their own RetainedRequest (not Remember), listed here so a lost answer can be let go.
+    private const string ElectronicConfirmOperation = "electronic-confirm";
+    private const string ElectronicCancelOperation = "electronic-cancel";
 
     private string DurableKey(string operation) => $"cashier.{operation}.{_session.CurrentUser?.Id}";
 
@@ -52,6 +55,8 @@ public partial class CashierViewModel
         SafeDropOperation => "إيداع بالخزنة",
         CashMovementOperation => "حركة نقدية",
         CashDrawerOperation => "فتح الدرج",
+        ElectronicConfirmOperation => "تأكيد تحويل إلكتروني",
+        ElectronicCancelOperation => "إلغاء طلب بانتظار التحويل",
         _ => operation,
     };
 
@@ -81,6 +86,8 @@ public partial class CashierViewModel
                 case SafeDropOperation: _pendingSafeDrop = null; SafeDropError = null; break;
                 case CashMovementOperation: _pendingCashMovement = null; CashMovementError = null; break;
                 case CashDrawerOperation: _pendingCashDrawer = null; CashDrawerError = null; break;
+                case ElectronicConfirmOperation: _pendingElectronicConfirm.DiscardAfterReview(true); PendingPaymentActionError = null; continue;
+                case ElectronicCancelOperation: _pendingElectronicCancel.DiscardAfterReview(true); PendingPaymentActionError = null; continue;
             }
             Remember(operation, null);
         }
@@ -159,6 +166,16 @@ public partial class CashierViewModel
             CashDrawerError = unresolved;
             IsCashDrawerOpen = true;
         }
+
+        // A transfer confirm/cancel kept from before the restart: its buttons need the checkout
+        // result the restart wiped, so it is surfaced here to be checked and let go, never resent alone.
+        const string checkTransfer = "لم يصل ردها قبل إغلاق البرنامج. راجع حالة التحويل للطلب من شاشة الطلبات بعد تجاهلها، ونفّذها من جديد لو لزم.";
+        if (_pendingElectronicConfirm.HasPending)
+            _refusedRetries[ElectronicConfirmOperation] = $"{OperationLabel(ElectronicConfirmOperation)}: {checkTransfer}";
+        if (_pendingElectronicCancel.HasPending)
+            _refusedRetries[ElectronicCancelOperation] = $"{OperationLabel(ElectronicCancelOperation)}: {checkTransfer}";
+        OnPropertyChanged(nameof(HasRefusedRetry));
+        OnPropertyChanged(nameof(RefusedRetryMessage));
 
         RefreshOperationState();
     }
