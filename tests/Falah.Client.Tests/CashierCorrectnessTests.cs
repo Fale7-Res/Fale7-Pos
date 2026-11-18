@@ -217,6 +217,33 @@ public class CashierCorrectnessTests
         Assert.False(vm.RefundNeedsApproval);
     }
 
+    // Owner, 2026-11-19: a sale that went through needs no "تم تسجيل الطلب / طلب جديد" card - the
+    // till goes straight back to an empty order. The card stays only when the cashier still has
+    // something to do or know: an unconfirmed transfer, or tickets the server could not queue.
+    [Theory]
+    [InlineData("null", true, false)]        // paid, printed: no card
+    [InlineData("\"pending\"", true, true)]  // transfer awaiting confirmation: card with its actions
+    [InlineData("null", false, true)]        // tickets not queued: card with the reprint warning
+    public async Task After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do(
+        string electronicStatus, bool printJobsQueued, bool cardShown)
+    {
+        var (vm, _) = Create(r => Task.FromResult(r.RequestUri!.AbsolutePath == "/api/orders/checkout"
+            ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
+                $$"""{"orderId":"o1","orderNumber":"#0128","sequenceNumber":128,"totalPiastres":8500,"amountPaidPiastres":10000,"changeDuePiastres":1500,"status":"completed","isPaid":true,"electronicPaymentStatus":{{electronicStatus}},"wasReplayed":false,"printJobsQueued":{{(printJobsQueued ? "true" : "false")}}}""",
+                System.Text.Encoding.UTF8, "application/json") }
+            : new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 8500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        vm.AmountPaidText = "100";
+
+        await vm.SubmitPaymentCommand.ExecuteAsync(null);
+
+        Assert.Equal(cardShown, vm.HasCheckoutResult);
+        Assert.Empty(vm.Cart);
+        Assert.False(vm.IsCheckoutOpen);
+        if (!cardShown) Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
+    }
+
     private static (CashierViewModel, AppSession) Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)
     {
         var session = new AppSession(new ApiClient(new HttpClient(new Handler(send)) { BaseAddress = new Uri("http://test") })) {

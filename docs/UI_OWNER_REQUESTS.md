@@ -447,3 +447,15 @@ Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
 - Deploy the server and the print agents together: new element kinds `logo` and `fitStart`.
 - Kitchen tickets are about 15 mm longer than before (larger type, chosen by the owner). A smaller
   order number would save about 5 mm.
+
+## Till: no confirmation card after a sale — Claude, 2026-11-19
+
+- **Request (owner, trying the till on the trial server):** remove the "تم تسجيل الطلب" card and its
+  "طلب جديد" button that appeared after every payment.
+- **Done:** a sale that went through returns the till straight to an empty order
+  (`CashierViewModel.CompleteCheckoutAsync`). The card still appears when the cashier has
+  something left to do or know: an InstaPay/wallet transfer to confirm or cancel, a cancelled
+  order with cash to hand back, or tickets the server could not queue (reprint warning).
+- **Evidence:** `CashierCorrectnessTests.After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do`
+  (red first, then green); Client 441/441; Cashier x64 builds; relaunched on the trial server for the owner.
+- **Not changed:** the Call Center desk's own post-order card.

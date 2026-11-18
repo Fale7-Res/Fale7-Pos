@@ -126,7 +126,7 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
-| UI-0006 | Recovered electronic confirm/cancel may have no reachable retry context at the till | UI / recovery | High | P1 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/UI-0006.md](ISSUES/UI-0006.md) |
+| UI-0006 | Recovered electronic confirm/cancel may have no reachable retry context at the till | UI / recovery | High | P1 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/UI-0006.md](ISSUES/UI-0006.md) |
 | DB-0010 | Deadlock behaviour of concurrent tills is unknown | Database / concurrency | Medium | P2 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/DB-0010.md](ISSUES/DB-0010.md) |
 | FIN-0045 | Financial approval provenance may retain an unvalidated presenter or drop a verified approver | Financial / audit | Medium | P2 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/FIN-0045.md](ISSUES/FIN-0045.md) |
 | FIN-0046 | Unknown packaging cost does not mark profit as incomplete | Reporting / costing | Medium | P3 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/FIN-0046.md](ISSUES/FIN-0046.md) |

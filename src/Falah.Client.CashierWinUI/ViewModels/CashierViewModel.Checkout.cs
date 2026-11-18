@@ -484,6 +484,15 @@ public partial class CashierViewModel
         IsDiscountEnabled = false;
         IsCompEnabled = false;
         IsSplitPaymentEnabled = false;
+        // Owner, 2026-11-19: a sale that went through goes straight back to an empty order, with no
+        // "تم تسجيل الطلب / طلب جديد" card in between. The card stays when the cashier still has
+        // something to do or know: a transfer to confirm or cancel, or tickets that were not queued.
+        // (Not DismissCheckoutResult: that refuses while this payment is still marked in progress.)
+        if (!IsElectronicPaymentPending && !HasPrintWarning)
+        {
+            LastCheckoutResult = null;
+            ResetDelivery();
+        }
     }
 
 }

@@ -752,5 +752,15 @@
       "A refund from the large-refund threshold (500 EGP) up needs a manager's PIN even from an orders_refund holder."
     ],
     "record": "All Issues/REVIEW_20261117_WHOLE_PROJECT.md section 'Audit 2026-11-18'"
+  },
+  "go_live_certification_20261119": {
+    "verdict": "NO_GO_FOR_PRODUCTION_UNTIL_ONSITE_GATES_AND_PRE_GO_LIVE_DECISIONS; software GO (conditional) - no known release-blocking code defect",
+    "source": "commit 2eb06a3 + 3 uncommitted files (post-payment card removal: CashierViewModel.Checkout.cs, CashierCorrectnessTests.cs, UI_OWNER_REQUESTS.md); all-cs fingerprint 68BA663DBB1D7804DB845B97E9C8C8B4D29C9D29176FC463E29CE891A942D51F (781 files)",
+    "tests": "Domain 564/564; Client 441/441; Integration critical classes 140/140 on this source; last full integration run 1051/1053 (2 non-code failures: stale test DLL, laptop sleep) then 49/49; all builds 0 errors",
+    "release_candidate": "artifacts/release-candidate/68BA663DBB1D7804 (not installed); migrations-idempotent.sql (43 migrations) sha256 1F5B1213F2E9FB8C3265AE978759C16B6AFD19C2FCDF67781CDBA3A8A0BE0CEC; MANIFEST 731 files",
+    "rehearsal": "empty db x2 = 43; previous script (42) then new (43) then again; copy of trial db with data: orders/shifts/movements/users identical; published server in Production: health 200, bootstrap owner login 200, demo PINs 1234/4321 = 401; all rehearsal dbs dropped",
+    "registry_corrections": ["UI-0006 fixed in code: a kept transfer confirm/cancel is surfaced after restart and discarded after review (CashierViewModel.Durability.cs RecoverUnresolvedOperations; CashierDurabilityTests)", "PAYR-0004 confirmed present: payroll does not net standalone Pay Employee settlements - interim rule: one payout path per employee per month until the owner decides"],
+    "accepted_risks": ["OPS-0001 .NET 8 end of support 2026-11-10 (LAN only; upgrade to .NET 10 after go-live)", "OPS-0002 backups on the same machine until Backup:CopyToDirectory is set", "DB-0005 restore with the system stopped", "FIN-0005 split-paid orders not refundable in the app", "PRT-0013 failed print jobs re-sent by hand"],
+    "acceptance_doc": "docs/GO_LIVE_ACCEPTANCE_20261114.md section 6"
   }
 }
