@@ -69,10 +69,11 @@ internal static class TicketLayout
     private const int CashPrice = 22;
 
     /// <summary>The top of every customer paper (paper redesign 2026-11-17): the logo, the name, the
-    /// owner's own sub-name from Settings, and a thin rule.</summary>
-    internal static IEnumerable<TicketElement> CustomerHeader(ReceiptHeader header)
+    /// owner's own sub-name from Settings, and a thin rule. The cashier receipt leaves the logo out
+    /// (owner, 2026-11-18); the driver's paper keeps it.</summary>
+    internal static IEnumerable<TicketElement> CustomerHeader(ReceiptHeader header, bool withLogo = true)
     {
-        yield return new TicketLogo();
+        if (withLogo) yield return new TicketLogo();
         yield return Brand(header.RestaurantName);
         if (!string.IsNullOrWhiteSpace(header.SubName)) yield return Tagline(header.SubName.Trim());
         yield return ThinRule();

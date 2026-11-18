@@ -79,6 +79,10 @@ public static class PrintRules
         // and goes INTO the restaurant (Amendment 2), so it is a preparation paper without money; the
         // paper that travels to the delivery customer is the driver's (ComposeDriverDispatchTicket).
         if (route == PrintRoute.CallCenter) return ComposeCallCenterPrepTicket(header, items);
+        // Owner, 2026-11-18: a delivery taken at the till gets the same prep paper, on the till's own
+        // printer - the delivery customer's receipt is the driver's paper, so a priced one here was a
+        // second customer receipt.
+        if (header.OrderType == OrderType.Delivery) return ComposeCallCenterPrepTicket(header, items) with { Route = route };
         var lines = ComposeCashierDetailSection(header, items, totals).ToList();
         return new ComposedTicket(route, header.OrderId, header.OrderNumber, lines);
     }
@@ -163,9 +167,9 @@ public static class PrintRules
     private static IEnumerable<TicketElement> ComposeCashierDetailSection(
         ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals)
     {
-        // Logo and brand, then the order's identity, then an open three-column list. Weight and
-        // whitespace carry the hierarchy: no grid, no rules between items, no filled bars.
-        foreach (var element in TicketLayout.CustomerHeader(header)) yield return element;
+        // The brand, then the order's identity. Owner 2026-11-18: no logo on this paper (the driver's
+        // paper keeps it) and no brand sign-off at the end - the name and sub-name print once, on top.
+        foreach (var element in TicketLayout.CustomerHeader(header, withLogo: false)) yield return element;
 
         // 2. Order identity: the number alone and largest, then the facts about it in two pairs.
         yield return TicketLayout.CenteredLine("رقم الطلب", size: TicketTextSize.Normal);
@@ -191,9 +195,6 @@ public static class PrintRules
         // 4 and 5. Totals, then payment, under their own band.
         yield return TicketLayout.SectionBand("الحساب");
         foreach (var element in ComposeCashierTotals(header, totals)) yield return element;
-
-        // Menu QR, then the brand as the sign-off.
-        foreach (var element in ComposeBrandFooter(header, withMenuQr: false)) yield return element;
     }
 
     /// <summary>The priced item grid of a customer paper (the takeaway receipt and the driver's paper).</summary>

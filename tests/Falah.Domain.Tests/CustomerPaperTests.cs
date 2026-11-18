@@ -34,16 +34,31 @@ public class CustomerPaperTests
             _ => Array.Empty<string>(),
         }).ToList();
 
+    /// <summary>Owner, 2026-11-18 (trial on paper): the cashier receipt drops the logo and the brand
+    /// sign-off at its end. «فالح أبو العنبه» and the sub-name stay at the top, once. The driver's paper
+    /// (the delivery customer's receipt) keeps its logo.</summary>
     [Fact]
-    public void Cashier_receipt_is_one_piece_led_by_the_logo()
+    public void Cashier_receipt_is_one_piece_led_by_the_name_with_no_logo_and_no_sign_off()
     {
         var t = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, Header(), Items, Totals);
+        var text = Texts(t.Lines);
         Assert.Empty(t.Lines.OfType<TicketCut>());
-        Assert.IsType<TicketLogo>(t.Lines[0]);
-        Assert.Single(t.Lines.OfType<TicketLogo>());
+        Assert.Empty(t.Lines.OfType<TicketLogo>());
+        Assert.Equal("فالح أبو العنبه", text[0]);
+        Assert.Equal(1, text.Count(s => s == "فالح أبو العنبه"));
+        Assert.Equal(1, text.Count(s => s == "ألذ سندوتش"));
         // The big number the customer now collects with.
         Assert.Contains(t.Lines.OfType<TicketText>(), x => x.Text == "#0286" && x.Size >= TicketTextSize.Huge);
-        Assert.Contains("ألذ سندوتش", Texts(t.Lines));
+        // It now ends with the money, not with the brand repeated.
+        Assert.NotEqual("ألذ سندوتش", text.Last());
+    }
+
+    [Fact]
+    public void The_driver_paper_still_carries_the_logo()
+    {
+        var driver = PrintRules.ComposeDriverDispatchTicket(Header(OrderType.Delivery), Items, Totals,
+            new DeliveryOrderTicketInfo("01000000000", null, Money.FromEgp(285), true), "محمود", Now, isReassignment: false);
+        Assert.IsType<TicketLogo>(driver.Lines[0]);
     }
 
     [Fact]
@@ -74,7 +89,10 @@ public class CustomerPaperTests
     [Fact]
     public void Reprint_banner_precedes_the_logo()
     {
-        var reprint = PrintRules.MarkAsReprint(PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, Header(), Items, Totals), Now.AddMinutes(5), "مدير المحل");
+        // The driver's paper is the customer paper that still carries the logo (owner, 2026-11-18).
+        var driver = PrintRules.ComposeDriverDispatchTicket(Header(OrderType.Delivery), Items, Totals,
+            new DeliveryOrderTicketInfo("01000000000", null, Money.FromEgp(285), true), "محمود", Now, isReassignment: false);
+        var reprint = PrintRules.MarkAsReprint(driver, Now.AddMinutes(5), "مدير المحل");
         var logoAt = reprint.Lines.ToList().FindIndex(e => e is TicketLogo);
         var bannerAt = reprint.Lines.ToList().FindIndex(e => e is TicketText { Text: "إعادة طباعة" });
         Assert.Equal(0, bannerAt);

@@ -58,6 +58,27 @@ public class DeliveryPapersTests
         Assert.Contains(t.Lines.OfType<TicketText>(), x => x.Text == "#0287" && x.Size == TicketTextSize.Huge);
     }
 
+    /// <summary>Owner, 2026-11-18: a delivery order taken at the till printed the till's priced customer
+    /// receipt at order time, as well as the driver's paper later - two customer receipts. It now prints
+    /// the same «تحضير طلب» as the call center, on the till's own printer. Takeaway and pickup receipts
+    /// are unchanged.</summary>
+    [Fact]
+    public void A_delivery_order_rung_up_at_the_till_prints_the_prep_paper_on_the_till_printer()
+    {
+        var t = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, Header(), Items, Totals);
+        var text = Texts(t);
+
+        Assert.Equal(PrintRoute.Receipt, t.Route);
+        Assert.Contains(text, s => s == "تحضير طلب");
+        Assert.DoesNotContain(text, s => Regex.IsMatch(s, @"\d+(,\d{3})*(\.\d+)? ج"));
+        Assert.Empty(t.Lines.OfType<TicketLogo>());
+        Assert.Contains(text, s => s.Contains("15 شارع 9"));
+
+        var takeaway = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, Header() with { OrderType = OrderType.Takeaway }, Items, Totals);
+        Assert.Contains(Texts(takeaway), s => s == "الحساب");
+        Assert.DoesNotContain(Texts(takeaway), s => s == "تحضير طلب");
+    }
+
     [Fact]
     public void The_order_taking_copy_keeps_the_unconfirmed_transfer_warning() =>
         Assert.Contains("غير مدفوع - في انتظار تأكيد التحويل",

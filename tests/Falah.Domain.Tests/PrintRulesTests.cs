@@ -14,7 +14,9 @@ public class PrintRulesTests
         var header = CashierHeader() with { OrderType = OrderType.Delivery, IsPaid = false };
         var totals = CashierTotals() with { AmountPaid = Money.Zero, ChangeDue = Money.Zero };
         var text = TextOf(PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, header, CashierItems(), totals));
-        Assert.Contains("عند الاستلام", text);
+        // Owner 2026-11-18: the till's paper for a delivery is the prep slip, with no money on it at all;
+        // what the driver collects is on the driver's paper (DeliveryPapersTests). It still never says paid.
+        Assert.Contains("تحضير طلب", text);
         Assert.DoesNotContain("مدفوع", text);
     }
 
@@ -263,19 +265,19 @@ public class PrintRulesTests
     /// <summary>Both cashier tickets open the same way: the name, the tagline, and the short
     /// signature rule - the one ornament the tickets carry.</summary>
     [Fact]
-    public void The_receipt_opens_with_the_logo_the_brand_the_tagline_and_a_rule()
+    public void The_receipt_opens_with_the_brand_the_tagline_and_a_rule()
     {
-        // Paper redesign spec 2026-11-17, "Customer header": logo -> name (Large, bold) -> sub-name -> thin rule.
+        // Paper redesign spec 2026-11-17, "Customer header": name (Large, bold) -> sub-name -> thin rule.
+        // Owner 2026-11-18: the cashier receipt no longer opens with the logo (the driver's paper does).
         var ticket = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, CashierHeaderWithMenu(), CashierItems(), CashierTotals());
         var part = ticket.Lines;
 
-        Assert.IsType<TicketLogo>(part[0]);
-        var name = Assert.IsType<TicketText>(part[1]);
+        var name = Assert.IsType<TicketText>(part[0]);
         Assert.Equal("فالح أبو العنبه", name.Text);
         Assert.True(name.Bold);
         Assert.Equal(TicketTextSize.Large, name.Size);
-        Assert.Equal("ألذ طعم", Assert.IsType<TicketText>(part[2]).Text);
-        Assert.Equal(TicketRuleStyle.Thin, Assert.IsType<TicketRule>(part[3]).Style);
+        Assert.Equal("ألذ طعم", Assert.IsType<TicketText>(part[1]).Text);
+        Assert.Equal(TicketRuleStyle.Thin, Assert.IsType<TicketRule>(part[2]).Style);
     }
 
     /// <summary>The detail ticket's identity block leads with the number, then the facts about the
