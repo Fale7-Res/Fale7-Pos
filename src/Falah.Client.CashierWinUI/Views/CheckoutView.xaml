@@ -63,6 +63,10 @@
         <StackPanel Spacing="8" Visibility="{Binding CanDiscount, Converter={StaticResource BoolToVisibleConverter}}">
          <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="خصم يدوي" IsOn="{Binding IsDiscountEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
          <TextBox IsEnabled="{Binding CanEditOperation}" Header="الخصم بالجنيه" Text="{Binding DiscountAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsDiscountEnabled, Converter={StaticResource BoolToVisibleConverter}}"/>
+         <!-- Owner, 2026-11-18: a discount above the Settings limit (10% of the items) needs a manager's PIN. -->
+         <PasswordBox IsEnabled="{Binding CanEditOperation}" Header="خصم أكبر من الحد المسموح - رمز المدير" Password="{Binding DiscountManagerPin, Mode=TwoWay}"
+          AutomationProperties.Name="رمز المدير لاعتماد الخصم" AutomationProperties.AutomationId="Checkout_DiscountManagerPin"
+          Visibility="{Binding DiscountNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
         </StackPanel>
         <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="ضيافة" IsOn="{Binding IsCompEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
         <StackPanel Spacing="8" Visibility="{Binding IsCompEnabled, Converter={StaticResource BoolToVisibleConverter}}">

@@ -45,9 +45,7 @@ public class ExpenseReversalTests : IAsyncLifetime
         _factory.PostAsSessionOfAsync(_client, actorId, $"/api/expenses/{expenseId}/reverse",
             new ReverseExpenseRequest(requestId, expenseId, "كُتب 500 بدل 50", actorId, approvalId, approverId, disposition, amount));
 
-    private async Task<long> ExpectedDrawerAsync() =>
-        (await (await _client.PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(_shiftId, 0)))
-            .Content.ReadFromJsonAsync<PrepareShiftCloseResult>())!.ExpectedCashPiastres;
+    private Task<long> ExpectedDrawerAsync() => _factory.ExpectedDrawerCashAsync(_shiftId);
 
     [Fact]
     public async Task A_reversal_puts_the_money_back_nets_every_total_to_zero_and_keeps_both_records()

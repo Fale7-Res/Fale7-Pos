@@ -78,7 +78,9 @@ public sealed class Shift
         new(id, shiftName, openedByUserId, openingCash, businessDate, openedAtUtc, status, closedByUserId,
             actualCash, expectedCash, cashDifference, differenceReason, differenceAuthorizedBy, closedAtUtc);
 
-    public readonly record struct BlindCloseResult(Money Expected, Money Actual, Money Difference, bool RequiresManagerApproval)
+    public const string RecountNeedsManagerMessage = "المبلغ يختلف عن أول عدّ مسجل لهذه الوردية؛ إعادة العدّ تتطلب اعتماد مدير وسببًا.";
+
+    public readonly record struct BlindCloseResult(Money Expected, Money Actual, Money Difference, bool RequiresManagerApproval, bool IsRecount = false)
     {
         public bool IsBalanced => Difference.IsZero;
     }
@@ -87,15 +89,21 @@ public sealed class Shift
     /// Step 1 of closing: compare what was counted against what was expected, and decide whether
     /// a manager approval is required. Does not mutate the shift, so the UI can show this result
     /// and let the cashier back out before anything is committed.
+    ///
+    /// <paramref name="firstDeclared"/> is the first count declared for this shift, if any. The preview
+    /// shows the expected cash, so a later count that differs from the first is a re-count made after
+    /// seeing it, and it needs a manager however small the difference left (owner, 2026-11-18). Without
+    /// this, a cashier who counted 510 ج against 500 ج expected could close at 500 and keep the 10 ج.
     /// </summary>
-    public BlindCloseResult PrepareBlindClose(Money actualCashCounted, Money expectedCash, Money discrepancyThreshold)
+    public BlindCloseResult PrepareBlindClose(Money actualCashCounted, Money expectedCash, Money discrepancyThreshold, Money? firstDeclared = null)
     {
         if (Status != ShiftStatus.Open) throw new DomainException("الوردية ليست مفتوحة.");
         if (actualCashCounted.IsNegative) throw new DomainException("لا يمكن أن يكون العد الفعلي سالبًا.");
 
         var difference = actualCashCounted - expectedCash;
-        var requiresApproval = FinancialRules.DiscrepancyNeedsApproval(difference, discrepancyThreshold);
-        return new BlindCloseResult(expectedCash, actualCashCounted, difference, requiresApproval);
+        var isRecount = firstDeclared is { } first && first.Piastres != actualCashCounted.Piastres;
+        var requiresApproval = isRecount || FinancialRules.DiscrepancyNeedsApproval(difference, discrepancyThreshold);
+        return new BlindCloseResult(expectedCash, actualCashCounted, difference, requiresApproval, isRecount);
     }
 
     /// <summary>Step 2: commit the close. Rejects a discrepancy above the threshold with no
@@ -104,7 +112,7 @@ public sealed class Shift
     {
         if (Status != ShiftStatus.Open) throw new DomainException("الوردية ليست مفتوحة.");
         if (result.RequiresManagerApproval && (string.IsNullOrWhiteSpace(authorizedBy) || string.IsNullOrWhiteSpace(reason)))
-            throw new DomainException("الفارق يتجاوز الحد المسموح ويتطلب اعتماد مدير وسببًا واضحًا.");
+            throw new DomainException(result.IsRecount ? RecountNeedsManagerMessage : "الفارق يتجاوز الحد المسموح ويتطلب اعتماد مدير وسببًا واضحًا.");
 
         ClosedByUserId = closedByUserId;
         ActualCash = result.Actual;

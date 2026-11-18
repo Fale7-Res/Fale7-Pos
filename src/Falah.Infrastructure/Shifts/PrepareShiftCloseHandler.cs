@@ -32,6 +32,27 @@ public sealed class PrepareShiftCloseHandler
 
     public const string DeclarationAuditAction = "shift_cash_declared";
 
+    /// <summary>The first count declared for a shift, or null when none has been. A later count that
+    /// differs from it is a re-count made after the preview showed the expected cash
+    /// (Shift.PrepareBlindClose).</summary>
+    internal static async Task<Money?> FirstDeclaredAsync(FalahDbContext db, string shiftId, CancellationToken ct)
+    {
+        var first = await db.ControlAuditEvents.AsNoTracking()
+            .Where(e => e.Action == DeclarationAuditAction && e.EntityId == shiftId)
+            .OrderBy(e => e.CreatedAtUtc).ThenBy(e => e.Id)
+            .Select(e => e.AmountPiastres)
+            .FirstOrDefaultAsync(ct);
+        return first is { } piastres ? Money.FromPiastres(piastres) : null;
+    }
+
+    /// <summary>The last count declared for a shift, or null when none has been.</summary>
+    internal static Task<long?> LastDeclaredPiastresAsync(FalahDbContext db, string shiftId, CancellationToken ct) =>
+        db.ControlAuditEvents.AsNoTracking()
+            .Where(e => e.Action == DeclarationAuditAction && e.EntityId == shiftId)
+            .OrderByDescending(e => e.CreatedAtUtc).ThenByDescending(e => e.Id)
+            .Select(e => e.AmountPiastres)
+            .FirstOrDefaultAsync(ct);
+
     /// <param name="declaredBy">Who typed the count (the session's user). Every count is written down
     /// before the expected cash is computed: the preview shows the difference, and a cashier can go back
     /// and count again - which miscounts need - so what keeps a re-count honest is that the manager sees
@@ -41,6 +62,9 @@ public sealed class PrepareShiftCloseHandler
         var entity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct)
             ?? throw new InvalidOperationException("الوردية غير موجودة.");
         if (entity.Status != nameof(ShiftStatus.Open)) throw new DomainException("الوردية ليست مفتوحة.");
+
+        // Read before this count is recorded: the first count of a shift is never a re-count.
+        var firstDeclared = await FirstDeclaredAsync(_db, entity.Id, ct);
 
         if (declaredBy is { } who)
         {
@@ -63,7 +87,7 @@ public sealed class PrepareShiftCloseHandler
 
         var shift = Shift.Reconstitute(entity.Id, entity.ShiftName, entity.OpenedByUserId, openingCash,
             entity.BusinessDate, entity.OpenedAtUtc, ShiftStatus.Open, null, null, null, null, null, null, null);
-        var result = shift.PrepareBlindClose(actual, expected, threshold);
+        var result = shift.PrepareBlindClose(actual, expected, threshold, firstDeclared);
 
         return new PrepareShiftCloseResult(
             entity.Id, result.Expected.Piastres, result.Actual.Piastres, result.Difference.Piastres, result.RequiresManagerApproval);

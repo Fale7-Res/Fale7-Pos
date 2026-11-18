@@ -82,8 +82,7 @@ public class FinancialCorrectionWorkflowTests : IAsyncLifetime
 
         await Ok(CorrectAsync(drop.MovementId, _managerId, amount: 45_000));
 
-        var expected = (await (await Ok(_client.PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(shiftId, 0))))
-            .Content.ReadFromJsonAsync<PrepareShiftCloseResult>())!.ExpectedCashPiastres;
+        var expected = await _factory.ExpectedDrawerCashAsync(shiftId);
         Assert.Equal(95_000, expected);
         var close = (await (await Ok(_client.PostAsJsonAsync("/api/shifts/close",
             new CloseShiftRequest($"close-{Guid.NewGuid():N}", shiftId, _cashierId, 95_000, null, null, null)))).Content.ReadFromJsonAsync<CloseShiftResult>())!;

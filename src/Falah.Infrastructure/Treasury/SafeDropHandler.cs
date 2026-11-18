@@ -67,8 +67,8 @@ public sealed class SafeDropHandler
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var drawerMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Drawer, ct);
             FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, Money.FromPiastres(request.AmountPiastres));
 
             var journal = new EfFinancialJournal(_db);

@@ -95,7 +95,7 @@ public sealed class CorrectTreasuryMovementHandler
 
             if (source is not null)
             {
-                var sourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, source, ct);
+                var sourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, source, ct);
                 FinancialRules.AssertProtectedSourceBalance(sourceMovements, source, amount);
             }
 

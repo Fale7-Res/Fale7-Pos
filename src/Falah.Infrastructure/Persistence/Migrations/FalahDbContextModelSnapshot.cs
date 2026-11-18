@@ -1674,6 +1674,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("CheckoutRequestId")
                         .IsUnique();
 
+                    b.HasIndex("CreatedAtUtc");
+
                     b.HasIndex("SequenceNumber")
                         .IsUnique();
 
@@ -2106,6 +2108,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AttemptedAtUtc");
 
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
@@ -2551,6 +2555,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<double>("LatePenaltyMultiplier")
                         .HasColumnType("float");
 
+                    b.Property<int?>("MaxDiscountWithoutApprovalBasisPoints")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaxLatePenaltyHours")
                         .HasColumnType("int");
 
@@ -2967,6 +2974,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();

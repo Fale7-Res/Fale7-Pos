@@ -37,4 +37,14 @@ public sealed class AppSession
 
     public bool HasPermission(string permission) =>
         CurrentUser is not null && (CurrentUser.Permissions.Contains("all") || CurrentUser.Permissions.Contains(permission));
+
+    /// <summary>Whether the user at the till is someone who could issue a manager approval for
+    /// <paramref name="action"/> themselves - the same rule as the server's
+    /// <c>AuthorizationPolicy.CanIssueApproval</c>, which lets them authorise their own large discount
+    /// or refund. The server decides; this only saves asking a manager for a manager's PIN.</summary>
+    public bool CanApproveOwn(string action) =>
+        CurrentUser is not null
+        && (Falah.Domain.Authorization.UserManagementRules.IsRole(CurrentUser.Role, "owner")
+            || Falah.Domain.Authorization.UserManagementRules.IsRole(CurrentUser.Role, "manager")
+            || (Falah.Domain.Authorization.UserManagementRules.IsRole(CurrentUser.Role, "supervisor") && HasPermission(action)));
 }

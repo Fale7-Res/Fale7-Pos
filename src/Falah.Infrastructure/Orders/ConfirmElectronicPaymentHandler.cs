@@ -19,7 +19,13 @@ using Microsoft.EntityFrameworkCore;
 public sealed class ConfirmElectronicPaymentHandler
 {
     private readonly FalahDbContext _db;
-    public ConfirmElectronicPaymentHandler(FalahDbContext db) => _db = db;
+    private readonly Falah.Domain.Audit.IAuditLog _auditLog;
+
+    public ConfirmElectronicPaymentHandler(FalahDbContext db, Falah.Domain.Audit.IAuditLog auditLog)
+    {
+        _db = db;
+        _auditLog = auditLog;
+    }
 
     public async Task<ConfirmElectronicPaymentResult> HandleAsync(ConfirmElectronicPaymentRequest request, CancellationToken ct = default)
     {
@@ -90,6 +96,15 @@ public sealed class ConfirmElectronicPaymentHandler
                 leg.Method, leg.Amount, collectionDayId, collectionShift.Id, cashierUser.Name, DateTimeOffset.UtcNow);
             _db.TreasuryMovements.Add(OrderMapper.ToEntity(movement));
             journal.Complete(saleKey);
+
+            // Audit 2026-11-18: this posts money on the confirmer's word alone, and it was the one money
+            // command with no audit line. Keyed on the order, so it can only ever be written once.
+            _auditLog.Append(new Falah.Domain.Audit.AuditEvent(
+                $"audit-electronic-confirm-{orderEntity.Id}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
+                "تأكيد تحصيل إلكتروني", "order",
+                $"تأكيد وصول {leg.Method} بمبلغ {leg.Amount.Piastres} قرش لطلب {orderEntity.OrderNumber}",
+                "warning", movement.CreatedAtUtc, ShiftId: collectionShift.Id,
+                OperationId: movement.OperationId, ReferenceId: orderEntity.Id));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

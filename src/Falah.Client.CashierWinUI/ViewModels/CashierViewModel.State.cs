@@ -81,6 +81,7 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(GrandTotalPiastres)); OnPropertyChanged(nameof(GrandTotalDisplay));
         OnPropertyChanged(nameof(DeliveryFeeDisplay)); OnPropertyChanged(nameof(DiscountDisplay));
         OnPropertyChanged(nameof(CompDisplay)); OnPropertyChanged(nameof(ChangeDuePiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(HasTax)); OnPropertyChanged(nameof(TaxLabel)); OnPropertyChanged(nameof(TaxDisplay));
         NotifyPaymentPresentation();
         NotifyCheckoutAvailability();
@@ -107,6 +108,8 @@ public partial class CashierViewModel
             {
                 _header.SetIdentity(settings.Value.RestaurantName);
                 TargetFloatPiastres = Math.Max(0, settings.Value.DefaultOpeningCashPiastres);
+                _maxDiscountWithoutApprovalBasisPoints = settings.Value.MaxDiscountWithoutApprovalBasisPoints;
+                OnPropertyChanged(nameof(DiscountNeedsApproval));
                 // Offered, not imposed: the cashier can type over it before opening the shift.
                 if (_session.ShiftId is null)
                     await OfferOpeningCashAsync(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));

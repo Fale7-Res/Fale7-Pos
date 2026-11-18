@@ -414,6 +414,17 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         return await query(db);
     }
 
+    /// <summary>The open shift's expected drawer cash, read the way the close computes it but without
+    /// declaring a count. prepare-close records every figure it is given as the cashier's count
+    /// (audit 2026-11-18), so a test that only wants the expected figure must not use it as a probe:
+    /// closing at a different figure afterwards is a re-count, which needs a manager.</summary>
+    public Task<long> ExpectedDrawerCashAsync(string shiftId) => QueryAsync(async db =>
+    {
+        var shift = await db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId);
+        return (await Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(
+            db, shiftId, Falah.Domain.Common.Money.FromPiastres(shift.OpeningCashPiastres), default)).Piastres;
+    });
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

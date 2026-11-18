@@ -68,7 +68,12 @@ public sealed record CheckoutOrderRequest(
     /// come and collect it. UTC, like every other instant this system stores - the Cairo clock the
     /// cashier typed into is presentation. Added at the END of the optional tail on purpose: every
     /// caller that does not book a time keeps compiling unchanged, which is most of them.</summary>
-    DateTimeOffset? RequestedPickupAtUtc = null);
+    DateTimeOffset? RequestedPickupAtUtc = null,
+    /// <summary>A manager's approval for a manual discount above the limit in Settings
+    /// (MaxDiscountWithoutApprovalBasisPoints, 10% unless the owner changed it). Spent on the order,
+    /// the same way a comp's approval is; ignored for a discount within the limit.</summary>
+    string? DiscountApprovalId = null,
+    string? DiscountApproverUserId = null);
 
 public sealed record CheckoutOrderResult(
     string OrderId,

@@ -86,10 +86,20 @@ public partial class MainViewModel : ObservableObject
         if (RecoveredOperationsNotice is not null) RecoveredOperationsNotice = DescribeRecoveredOperations();
     }
 
+    /// <summary>One check at a time (audit 2026-11-18): the timer fires every 5 s and a ping can wait the
+    /// full 10 s request timeout, so with the server unreachable the checks used to pile up.</summary>
+    private bool _checkingHealth;
+
     private async Task CheckHealthNowAsync()
     {
-        var online = await _session.Api.PingHealthAsync();
-        if (!_stopped) IsOnline = online;
+        if (_checkingHealth) return;
+        _checkingHealth = true;
+        try
+        {
+            var online = await _session.Api.PingHealthAsync();
+            if (!_stopped) IsOnline = online;
+        }
+        finally { _checkingHealth = false; }
     }
 
     public bool TryClose()

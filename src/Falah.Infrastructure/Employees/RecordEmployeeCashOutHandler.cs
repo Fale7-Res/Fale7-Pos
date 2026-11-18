@@ -89,7 +89,7 @@ public sealed class RecordEmployeeCashOutHandler
             }
             var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_ledger", approval, requireApproval: true);
 
-            var drawerMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
+            var drawerMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Drawer, ct);
             FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, amount);
 
             // Two concurrent cash-outs for the SAME employee (different RequestIds, so the

@@ -68,6 +68,61 @@ public class RefundVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
+    // Owner decision 2026-11-18: from 500 ج up a refund needs a manager even from an orders_refund holder.
+    [Fact]
+    public async Task A_refund_of_500_or_more_by_a_permission_holder_without_a_manager_is_refused()
+    {
+        var order = await CheckoutAsync(60000);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", RefundRequest(order.OrderId, 50000, $"rreq-{Guid.NewGuid():N}"));
+
+        Assert.Equal(System.Net.HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.Type == "refund" && m.ReferenceId == order.OrderId)));
+    }
+
+    [Fact]
+    public async Task A_refund_of_500_or_more_with_a_manager_approval_is_recorded_with_the_manager()
+    {
+        var order = await CheckoutAsync(60000);
+        var managerId = await _factory.SeedUserAsync("مدير المرتجع", "manager", "all");
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(managerId), "orders_refund", "مرتجع كبير")))
+            .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
+
+        var response = await _client.PostAsJsonAsync("/api/orders/refund",
+            RefundRequest(order.OrderId, 60000, $"rreq-{Guid.NewGuid():N}", approval!.ApprovalId, managerId));
+
+        response.EnsureSuccessStatusCode();
+        var movement = await _factory.QueryAsync(db => db.TreasuryMovements.AsNoTracking().FirstAsync(m => m.Type == "refund" && m.ReferenceId == order.OrderId));
+        Assert.Equal("مدير المرتجع", movement.ApprovedBy);
+    }
+
+    // The manager is the person the rule asks for: one refunding a large amount themselves does not
+    // fetch a second manager, and is recorded as its authoriser.
+    [Fact]
+    public async Task A_manager_refunding_500_or_more_themselves_needs_no_second_manager()
+    {
+        var order = await CheckoutAsync(60000);
+        var managerId = await _factory.SeedUserAsync("مدير يرد بنفسه", "manager", "all");
+
+        var response = await _client.PostAsJsonAsync("/api/orders/refund",
+            new RefundOrderRequest($"rreq-{Guid.NewGuid():N}", order.OrderId, 60000, "طلب العميل", managerId, null, null));
+
+        response.EnsureSuccessStatusCode();
+        var movement = await _factory.QueryAsync(db => db.TreasuryMovements.AsNoTracking().FirstAsync(m => m.Type == "refund" && m.ReferenceId == order.OrderId));
+        Assert.Equal("مدير يرد بنفسه", movement.ApprovedBy);
+    }
+
+    [Fact]
+    public async Task A_refund_just_under_500_by_a_permission_holder_needs_no_manager()
+    {
+        var order = await CheckoutAsync(60000);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/refund", RefundRequest(order.OrderId, 49999, $"rreq-{Guid.NewGuid():N}"));
+
+        response.EnsureSuccessStatusCode();
+    }
+
     [Fact]
     public async Task A_partial_refund_keeps_the_order_completed_and_tracks_what_remains()
     {

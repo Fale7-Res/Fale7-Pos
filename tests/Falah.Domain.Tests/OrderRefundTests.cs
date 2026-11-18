@@ -159,4 +159,14 @@ public class OrderRefundTests
         Assert.Equal(Money.FromEgp(50m), order.RefundAmount);
     }
 
+    // Owner decision 2026-11-18: from the large-refund threshold (500 ج) up, a refund needs a
+    // manager's approval even from someone who holds orders_refund.
+    [Theory]
+    [InlineData(49_999, false)]
+    [InlineData(50_000, true)]
+    [InlineData(120_000, true)]
+    public void A_refund_from_the_large_refund_threshold_up_needs_a_manager(long amountPiastres, bool needsManager)
+    {
+        Assert.Equal(needsManager, RefundRules.NeedsManagerApproval(Money.FromPiastres(amountPiastres)));
+    }
 }

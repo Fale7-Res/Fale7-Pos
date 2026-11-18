@@ -58,6 +58,7 @@ public sealed class UpdateSettingsHandler
         Check(r.MaxLatePenaltyHours < 0, "الحد الأقصى لساعات خصم التأخير لا يمكن أن يكون بالسالب.");
         Check(r.LatePenaltyMultiplier is { } late && (late < 0 || !double.IsFinite(late)), "معامل خصم التأخير لا يمكن أن يكون بالسالب.");
         Check(r.OvertimeMultiplier is { } over && (over < 0 || !double.IsFinite(over)), "معامل الإضافي لا يمكن أن يكون بالسالب.");
+        Check(r.MaxDiscountWithoutApprovalBasisPoints is < 0 or > 10_000, "حد الخصم بدون مدير يجب أن يكون بين 0% و 100%.");
     }
 
     public async Task<SettingsDto> HandleAsync(UpdateSettingsRequest request, CancellationToken ct = default)
@@ -74,7 +75,7 @@ public sealed class UpdateSettingsHandler
             && request.StandardWorkdayHours is null && request.LateGraceMinutes is null && request.MaxLatePenaltyHours is null
             && request.LatePenaltyMultiplier is null && request.OvertimeMultiplier is null
             && request.HoldPreparationUntilPaymentConfirmed is null && request.MenuUrl is null
-            && request.DefaultOpeningCashPiastres is null;
+            && request.DefaultOpeningCashPiastres is null && request.MaxDiscountWithoutApprovalBasisPoints is null;
         if (!onlyGrillSound)
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
         AssertPlausibleNumbers(request);
@@ -134,12 +135,15 @@ public sealed class UpdateSettingsHandler
             if (defaultOpeningCash < 0) throw new DomainException("الرصيد الافتتاحي الافتراضي لا يمكن أن يكون بالسالب.");
             entity.DefaultOpeningCashPiastres = defaultOpeningCash;
         }
+        if (request.MaxDiscountWithoutApprovalBasisPoints is { } discountLimit) entity.MaxDiscountWithoutApprovalBasisPoints = discountLimit;
 
         // The float every shift starts from is named explicitly when it changes: it decides what the
         // next cashier is handed, so a reviewer should see who changed it and to what.
         var details = $"تم تحديث الإعدادات (سعر الساعة الإضافية: {entity.OvertimeHourlyRatePiastres} قرش)"
             + (request.DefaultOpeningCashPiastres is null ? ""
-                : $" (الرصيد الافتتاحي الافتراضي: {entity.DefaultOpeningCashPiastres} قرش)");
+                : $" (الرصيد الافتتاحي الافتراضي: {entity.DefaultOpeningCashPiastres} قرش)")
+            + (request.MaxDiscountWithoutApprovalBasisPoints is null ? ""
+                : $" (حد الخصم بدون مدير: {entity.MaxDiscountWithoutApprovalBasisPoints / 100m:0.##}%)");
 
         _auditLog.Append(new AuditEvent(
             $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,

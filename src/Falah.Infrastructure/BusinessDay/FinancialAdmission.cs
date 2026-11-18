@@ -18,7 +18,7 @@ internal static class FinancialAdmission
         var mode = closing ? "Exclusive" : "Shared";
         await db.Database.ExecuteSqlRawAsync(
             "EXEC @admissionResult = sys.sp_getapplock @Resource=N'FalahFinancialAdmission', @LockMode=N'" + mode +
-            "', @LockOwner=N'Transaction', @LockTimeout=15000", new object[] { result }, ct);
+            "', @LockOwner=N'Transaction', @LockTimeout=" + Falah.Infrastructure.Persistence.LockTimeouts.Milliseconds, new object[] { result }, ct);
         if (result.Value is not int code || code < 0)
             throw new DomainException("تعذر بدء العملية أثناء إغلاق أو تحديث مالي متزامن. أعد المحاولة.");
     }

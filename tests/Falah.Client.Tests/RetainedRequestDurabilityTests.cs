@@ -192,6 +192,20 @@ public class RetainedRequestDurabilityTests : IDisposable
         Assert.False(recovered.HasPending);
     }
 
+    // Audit 2026-11-18: List() read every file inside one try, so a single half-written file from a
+    // power cut made it return nothing, and the start-up notice hid every OTHER unresolved payment too.
+    [Fact]
+    public void A_corrupt_pending_file_does_not_hide_the_other_pending_operations()
+    {
+        Store().Save("cashier.checkout", new SampleRequest("r-1", 4500, "بيع"));
+        File.WriteAllText(Path.Combine(_directory, "owner.broken.json"), "");
+
+        var listed = Store().List();
+
+        var record = Assert.Single(listed);
+        Assert.Equal("cashier.checkout", record.OwnerKey);
+    }
+
     [Fact]
     public async Task A_store_that_cannot_write_still_protects_the_current_session()
     {

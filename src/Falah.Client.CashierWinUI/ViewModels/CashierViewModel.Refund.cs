@@ -16,7 +16,12 @@ public partial class CashierViewModel
     private RefundOrderRequest? _pendingRefund;
     private string _refundRequestId = Guid.NewGuid().ToString("N");
     private bool _reviewingExistingOrder;
-    public bool RefundNeedsApproval => !_session.HasPermission("orders_refund");
+    /// <summary>Without orders_refund every refund needs a manager; with it, a refund of 500 ج or more
+    /// still does (owner, 2026-11-18 - RefundRules.NeedsManagerApproval, which the server applies too).</summary>
+    public bool RefundNeedsApproval => !_session.HasPermission("orders_refund")
+        || (!_session.CanApproveOwn("orders_refund") && CashInput.TryParse(RefundAmountText, out var amount)
+            && Falah.Domain.Orders.RefundRules.NeedsManagerApproval(Falah.Domain.Common.Money.FromPiastres(amount)));
+    partial void OnRefundAmountTextChanged(string value) => OnPropertyChanged(nameof(RefundNeedsApproval));
     public bool CanRefundOrder => OrderLookupResult is { PaymentMethod: not "multi" } order
         && (order.IsPaid || order.CustomerFundsCollected)
         && !string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase)

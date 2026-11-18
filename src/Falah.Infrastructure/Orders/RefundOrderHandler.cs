@@ -95,6 +95,19 @@ public sealed class RefundOrderHandler
             var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);
             if (!safeAmount.IsPositive) throw new DomainException("لا يوجد مبلغ متبقٍ للاسترجاع.");
 
+            // Owner, 2026-11-18: a large refund needs a manager even from an orders_refund holder. A holder
+            // passed AuthorizeCommand above without spending anything, so the approval is spent here; one
+            // who lacks the permission has already spent theirs there.
+            // A manager refunding themselves is the person the rule asks for (they could issue the
+            // approval to their own session with their PIN), so no second manager is fetched.
+            if (RefundRules.NeedsManagerApproval(safeAmount) && authorization.Approver is null
+                && !AuthorizationPolicy.CanIssueApproval(cashier, "orders_refund"))
+            {
+                if (approval is null) throw new DomainException(RefundRules.LargeRefundNeedsManagerMessage);
+                authorization = authorization with { Approver = AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_refund", approval, cashier.Id) };
+                authorizedByName = authorization.Approver?.ApproverName ?? cashier.Name;
+            }
+
             // Ported from postRefund in lib/enterprise-store.tsx: a refund can only leave a
             // protected account (drawer/main/bank/instapay - never wallet) if it actually holds
             // enough posted balance. A real gap found during the legacy-parity audit: every other
@@ -102,7 +115,7 @@ public sealed class RefundOrderHandler
             // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive
             // an account negative.
             var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);
-            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, refundSourceAccount, ct);
+            var refundSourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, refundSourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(refundSourceMovements, refundSourceAccount, safeAmount);
 
             var originalShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == order.ShiftId, ct)

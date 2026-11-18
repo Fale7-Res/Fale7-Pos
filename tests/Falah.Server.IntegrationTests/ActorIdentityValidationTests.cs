@@ -265,7 +265,9 @@ public class ActorIdentityValidationTests : IAsyncLifetime
         // ReceiverApproverUserId (handover receipt) is the receiver proven by their own PIN at the till: the handler accepts
         // it only through ValidateApproval - issued by exactly that user, spent by the session that asked for it - the same
         // shape as ManagerApproverUserId (ShiftHandoverReceiptTests covers a forged one).
-        var notTheActor = new[] { "ManagerApproverUserId", "CompApproverUserId", "UserId", "HandoverReceiverUserId", "ReceiverApproverUserId" };
+        // DiscountApproverUserId (checkout above the discount limit) is the manager proven by their PIN, accepted only
+        // through ValidateApproval exactly like CompApproverUserId (CheckoutVerticalSliceTests covers a spent one).
+        var notTheActor = new[] { "ManagerApproverUserId", "CompApproverUserId", "DiscountApproverUserId", "UserId", "HandoverReceiverUserId", "ReceiverApproverUserId" };
 
         var unverified = typeof(CloseShiftRequest).Assembly.GetTypes()
             .Where(t => t.Name.EndsWith("Request", StringComparison.Ordinal))

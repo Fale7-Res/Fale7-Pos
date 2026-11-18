@@ -502,31 +502,50 @@ public sealed class OwnerDashboardQueryService
             .OrderByDescending(b => b.CompletedAtUtc)
             .FirstOrDefault();
 
+        // Audit 2026-11-18: this loaded every print job and every attempt ever made, per route, on each
+        // dashboard load - about a thousand jobs a day, so it slowed down for as long as the restaurant
+        // ran. The same figures are now aggregated by the database and only the answers come back.
         var routes = new List<PrintRouteHealthDto>();
         var now = DateTimeOffset.UtcNow;
+        const string pendingStatus = nameof(PrintJobStatus.Pending);
+        const string failedStatus = nameof(PrintJobStatus.Failed);
+        var jobCounts = await _db.PrintJobs.AsNoTracking()
+            .Where(j => j.Status == pendingStatus || j.Status == failedStatus)
+            .GroupBy(j => new { j.Route, j.Status })
+            .Select(g => new { g.Key.Route, g.Key.Status, Count = g.Count(), Oldest = g.Min(j => j.CreatedAtUtc) })
+            .ToListAsync(ct);
+        var lastAttempts = await (
+                from a in _db.PrintJobAttempts.AsNoTracking()
+                join j in _db.PrintJobs.AsNoTracking() on a.PrintJobId equals j.Id
+                group a by new { j.Route, a.Succeeded } into g
+                select new { g.Key.Route, g.Key.Succeeded, Last = g.Max(x => x.AttemptedAtUtc) })
+            .ToListAsync(ct);
+
         foreach (var route in Enum.GetNames<PrintRoute>())
         {
-            var jobs = await _db.PrintJobs.AsNoTracking().Where(j => j.Route == route)
-                .Select(j => new { j.Id, j.Status, j.CreatedAtUtc }).ToListAsync(ct);
-            var pending = jobs.Where(j => j.Status == nameof(PrintJobStatus.Pending)).ToList();
-            var jobIds = jobs.Select(j => j.Id).ToList();
-
-            var attempts = await _db.PrintJobAttempts.AsNoTracking()
-                .Where(a => jobIds.Contains(a.PrintJobId))
-                .Select(a => new { a.Succeeded, a.AttemptedAtUtc, a.Error })
-                .ToListAsync(ct);
-
-            var lastSuccess = attempts.Where(a => a.Succeeded).OrderByDescending(a => a.AttemptedAtUtc).FirstOrDefault();
-            var lastFailure = attempts.Where(a => !a.Succeeded).OrderByDescending(a => a.AttemptedAtUtc).FirstOrDefault();
+            var pending = jobCounts.FirstOrDefault(c => c.Route == route && c.Status == pendingStatus);
+            var failedCount = jobCounts.FirstOrDefault(c => c.Route == route && c.Status == failedStatus)?.Count ?? 0;
+            var lastSuccessAt = lastAttempts.FirstOrDefault(a => a.Route == route && a.Succeeded)?.Last;
+            var lastFailureAt = lastAttempts.FirstOrDefault(a => a.Route == route && !a.Succeeded)?.Last;
+            string? lastError = null;
+            if (lastFailureAt is { } failedAt)
+            {
+                lastError = await (
+                        from a in _db.PrintJobAttempts.AsNoTracking()
+                        join j in _db.PrintJobs.AsNoTracking() on a.PrintJobId equals j.Id
+                        where j.Route == route && !a.Succeeded && a.AttemptedAtUtc == failedAt
+                        select a.Error)
+                    .FirstOrDefaultAsync(ct);
+            }
 
             routes.Add(new PrintRouteHealthDto(
                 route,
-                pending.Count,
-                pending.Count > 0 ? Math.Round((now - pending.Min(p => p.CreatedAtUtc)).TotalMinutes, 1) : null,
-                lastSuccess?.AttemptedAtUtc,
-                lastFailure?.AttemptedAtUtc,
-                lastFailure?.Error,
-                jobs.Count(j => j.Status == nameof(PrintJobStatus.Failed))));
+                pending?.Count ?? 0,
+                pending is { Count: > 0 } ? Math.Round((now - pending.Oldest).TotalMinutes, 1) : null,
+                lastSuccessAt,
+                lastFailureAt,
+                lastError,
+                failedCount));
         }
 
         return new SystemHealthDto(

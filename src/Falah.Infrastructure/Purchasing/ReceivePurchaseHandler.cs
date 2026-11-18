@@ -100,7 +100,7 @@ public sealed class ReceivePurchaseHandler
             var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             if (accountId is not null)
             {
-                var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
+                var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, accountId, ct);
                 FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
             }
             var idempotencyKey = $"purchase-{purchaseId}";

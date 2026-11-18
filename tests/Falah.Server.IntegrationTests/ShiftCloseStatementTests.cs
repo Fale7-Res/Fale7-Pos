@@ -92,9 +92,7 @@ public class ShiftCloseStatementTests : IAsyncLifetime
             .EnsureSuccessStatusCode();
 
         // ---- the blind close, 10 short, with a reason ----
-        var prepared = await (await _client.PostAsJsonAsync("/api/shifts/prepare-close",
-            new PrepareShiftCloseRequest(shiftId, 0))).Content.ReadFromJsonAsync<PrepareShiftCloseResult>();
-        var counted = prepared!.ExpectedCashPiastres - 1_000;
+        var counted = await _factory.ExpectedDrawerCashAsync(shiftId) - 1_000;
         var close = new CloseShiftRequest($"close-{Guid.NewGuid():N}", shiftId, _managerId, counted, "عجز بسيط", null, null);
         var closed = await (await _client.PostAsJsonAsync("/api/shifts/close", close)).Content.ReadFromJsonAsync<CloseShiftResult>();
         Assert.Equal("Closed", closed!.Status);

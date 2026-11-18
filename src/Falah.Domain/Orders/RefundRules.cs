@@ -6,6 +6,15 @@ using Falah.Domain.Shifts;
 
 public static class RefundRules
 {
+    /// <summary>Owner, 2026-11-18: a refund from the large-refund threshold up (ControlCenterRules,
+    /// 500 ج - the same line the audit trail already marks "critical") needs a manager's approval,
+    /// spent on it, even from someone who holds orders_refund. Below it the permission is enough.</summary>
+    public static bool NeedsManagerApproval(Money refundAmount) =>
+        refundAmount.Piastres >= Falah.Domain.ControlCenter.ControlCenterRules.LargeRefundThresholdPiastres;
+
+    public static string LargeRefundNeedsManagerMessage =>
+        $"استرداد {Falah.Domain.ControlCenter.ControlCenterRules.LargeRefundThresholdPiastres / 100} ج أو أكثر يتطلب اعتماد مدير، حتى لصاحب صلاحية الاسترداد.";
+
     public static Money RefundableRemaining(Money total, Money alreadyRefunded)
     {
         var remaining = total - alreadyRefunded;

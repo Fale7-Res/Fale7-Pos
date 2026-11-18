@@ -98,6 +98,10 @@ public static class CheckoutRules
             throw new DomainException("يجب تحديد تفاصيل الدفع المتعدد.");
 
         var subtotal = ComputeSubtotal(items);
+        // A discount above the items' value used to be accepted and stored whole while the taxable base
+        // clamped to 0, so the discount reports showed money that was never given away.
+        if (discount > subtotal)
+            throw new DomainException("الخصم لا يمكن أن يتجاوز قيمة الأصناف.");
         var taxableBase = subtotal - discount;
         if (taxableBase.IsNegative) taxableBase = Money.Zero;
         var tax = TaxEngine.Calculate(taxableBase, taxRule);

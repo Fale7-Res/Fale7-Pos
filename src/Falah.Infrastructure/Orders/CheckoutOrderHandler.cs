@@ -126,6 +126,38 @@ public sealed class CheckoutOrderHandler
         if (discount.IsPositive && !AuthorizationPolicy.HasPermission(cashier, "orders_discount"))
             throw new DomainException("ليس لديك صلاحية تطبيق خصم يدوي.");
 
+        // Owner, 2026-11-18: orders_discount covers a discount up to the Settings limit (10% of the
+        // items unless changed). Above it a manager's approval is spent on the order, like a comp's -
+        // before this, orders_discount alone could take 100% off a sale a comp of which needed a manager.
+        string? discountApprovedByName = null;
+        if (discount.IsPositive)
+        {
+            var itemsValue = CheckoutRules.ComputeSubtotal(items);
+            if (discount > itemsValue) throw new DomainException("الخصم لا يمكن أن يتجاوز قيمة الأصناف.");
+            var limit = await _db.Settings.AsNoTracking()
+                .Where(s => s.Id == SettingsEntity.SingletonId)
+                .Select(s => s.MaxDiscountWithoutApprovalBasisPoints)
+                .FirstOrDefaultAsync(ct) ?? PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints;
+            if (PricingRules.DiscountNeedsApproval(discount, itemsValue, limit)
+                && AuthorizationPolicy.CanIssueApproval(cashier, "orders_discount"))
+            {
+                // The person the limit asks for is at the till: they could issue this approval to
+                // themselves with their own PIN, so they are named as its authoriser instead.
+                discountApprovedByName = cashierUser.Name;
+            }
+            else if (PricingRules.DiscountNeedsApproval(discount, itemsValue, limit))
+            {
+                if (string.IsNullOrEmpty(request.DiscountApprovalId) || string.IsNullOrEmpty(request.DiscountApproverUserId))
+                    throw new DomainException($"خصم أكبر من {limit / 100m:0.##}% من قيمة الأصناف يتطلب اعتماد مدير.");
+                var discountApprover = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.DiscountApproverUserId, ct)
+                    ?? throw new DomainException("المعتمد غير موجود.");
+                AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_discount",
+                    new ManagerApproval(request.DiscountApprovalId, discountApprover.Id, discountApprover.Name,
+                        discountApprover.Role, DateTimeOffset.UtcNow, "orders_discount", null), cashier.Id);
+                discountApprovedByName = discountApprover.Name;
+            }
+        }
+
         string? compApprovedByName = null;
         if (compAmount.IsPositive)
         {
@@ -232,7 +264,8 @@ public sealed class CheckoutOrderHandler
                 _auditLog.Append(new AuditEvent(
                     $"audit-discount-{orderId}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                     "خصم يدوي على طلب", "order", $"خصم {discount.Piastres} قرش على طلب {orderNumber}",
-                    "normal", now, ShiftId: request.ShiftId, ReferenceId: orderId));
+                    discountApprovedByName is null ? "normal" : "warning", now, ShiftId: request.ShiftId,
+                    AuthorizedBy: discountApprovedByName, ReferenceId: orderId));
             }
 
             // Ported from registerDeliveryOrder in the reference app: every delivery-type order gets

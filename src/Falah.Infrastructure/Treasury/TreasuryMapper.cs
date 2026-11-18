@@ -5,6 +5,8 @@ using Falah.Domain.Financial;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 /// <summary>Loads just the posted movements that touch one account, for FinancialRules'
 /// balance-derivation functions - never the whole table.</summary>
@@ -19,8 +21,8 @@ public static class TreasuryBalanceQuery
         .Select(TreasuryMapper.ToDomain).ToList();
 
     /// <summary>
-    /// Reads an account's movements in order to SPEND from it, holding a lock on those rows until
-    /// the caller's transaction commits.
+    /// Takes the account's spending lock and returns its posted balance, in order to SPEND from it.
+    /// The lock is held until the caller's transaction ends.
     ///
     /// Every money-moving command reads this account's balance, decides the balance is sufficient,
     /// and then writes. Without the lock, several concurrent commands each read the SAME balance,
@@ -29,21 +31,53 @@ public static class TreasuryBalanceQuery
     /// here: these are genuinely different operations, not a retry of one, and every existing
     /// protection in this system deduplicates by request key.
     ///
-    /// HOLDLOCK is a range lock, which matters because the danger is a concurrent INSERT of a new
-    /// movement for this account, not an update of an existing one - a plain row lock would leave
-    /// exactly the gap being closed. The caller must already be inside a transaction; the lock is
-    /// released when that transaction ends.
+    /// PERF-0001 (audit 2026-11-18). This used to read every posted movement the account ever had
+    /// WITH (UPDLOCK, HOLDLOCK). The account columns are not indexed, so that range lock covered the
+    /// whole table: every checkout's own movement insert waited behind a refund, a safe drop or an
+    /// expense, and the wait grew with the history. Now the spenders of one account queue on an
+    /// application lock (exclusive, owned by the transaction), and the balance is a SUM read under
+    /// READ_COMMITTED_SNAPSHOT (set at startup): it takes no row locks, so sales keep posting, and
+    /// it sees every spend committed before this lock was granted. Money only ever arriving while
+    /// the lock is held cannot make the balance insufficient, so inflows need no lock. Nothing in the
+    /// system flips a posted movement to Reversed; a correction is a new movement that takes this lock.
     /// </summary>
-    public static async Task<IReadOnlyList<TreasuryMovement>> LoadAccountMovementsForUpdateAsync(
-        FalahDbContext db, string accountId, CancellationToken ct) =>
-        (await db.TreasuryMovements
-            .FromSqlRaw(
-                "SELECT * FROM TreasuryMovements WITH (UPDLOCK, HOLDLOCK) " +
-                "WHERE Status = {0} AND (SourceAccountId = {1} OR DestinationAccountId = {1})",
-                nameof(MovementStatus.Posted), accountId)
-            .AsNoTracking()
-            .ToListAsync(ct))
-        .Select(TreasuryMapper.ToDomain).ToList();
+    public static async Task<Money> LockAndReadBalanceAsync(FalahDbContext db, string accountId, CancellationToken ct)
+    {
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("A balance check before spending requires a transaction.");
+        var result = new SqlParameter("@balanceLockResult", SqlDbType.Int) { Direction = ParameterDirection.Output };
+        var resource = new SqlParameter("@balanceLockResource", SqlDbType.NVarChar, 255) { Value = "FalahAccount:" + accountId };
+        await db.Database.ExecuteSqlRawAsync(
+            "EXEC @balanceLockResult = sys.sp_getapplock @Resource = @balanceLockResource, @LockMode = N'Exclusive', " +
+            "@LockOwner = N'Transaction', @LockTimeout = " + LockTimeouts.Milliseconds,
+            new object[] { result, resource }, ct);
+        if (result.Value is not int code || code < 0) throw new BalanceLockTimeoutException(accountId, result.Value as int?);
+
+        var posted = nameof(MovementStatus.Posted);
+        var totals = await db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.Status == posted && (m.SourceAccountId == accountId || m.DestinationAccountId == accountId))
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                In = g.Sum(m => m.DestinationAccountId == accountId ? m.AmountPiastres : 0L),
+                Out = g.Sum(m => m.SourceAccountId == accountId ? m.AmountPiastres : 0L),
+            })
+            .FirstOrDefaultAsync(ct);
+        return totals is null ? Money.Zero : Money.FromPiastres(checked(totals.In - totals.Out));
+    }
+}
+
+/// <summary>The account's spending lock was not granted in time (or SQL Server chose this request as a
+/// deadlock victim). Nothing was written; BalanceLockContention treats it like any other lost race.</summary>
+public sealed class BalanceLockTimeoutException : DomainException
+{
+    public BalanceLockTimeoutException(string accountId, int? code) : base(BalanceLockContention.RetryMessage)
+    {
+        AccountId = accountId;
+        LockResult = code;
+    }
+
+    public string AccountId { get; }
+    public int? LockResult { get; }
 }
 
 internal static class TreasuryMapper

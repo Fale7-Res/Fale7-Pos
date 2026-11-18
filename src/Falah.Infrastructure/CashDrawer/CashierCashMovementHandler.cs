@@ -89,8 +89,8 @@ public sealed class CashierCashMovementHandler
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var sourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, sourceAccount, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var sourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, sourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(sourceMovements, sourceAccount, amount);
 
             var journal = new EfFinancialJournal(_db);

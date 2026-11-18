@@ -47,6 +47,58 @@ public class BackupVerticalSliceTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
+    // Audit 2026-11-18: every backup sat on the disk the database itself is on, so the disk that failed
+    // took the backups with it. Backup:CopyToDirectory (a second disk, a USB drive, a share) gets a copy.
+    [Fact]
+    public async Task A_backup_is_also_copied_to_the_configured_second_place()
+    {
+        var copyDirectory = Path.Combine(TestBackupDirectory, "copy-" + Guid.NewGuid().ToString("N"));
+        using var factory = new FalahApiFactory(configOverrides: new Dictionary<string, string?>
+        {
+            ["Backup:DefaultDirectory"] = TestBackupDirectory, ["Backup:CopyToDirectory"] = copyDirectory,
+        });
+        try
+        {
+            var client = factory.CreateAuthenticatedClient();
+            var adminId = await factory.SeedUserAsync("مسؤول النسخ", "supervisor", "backup_manage");
+
+            var record = await (await client.PostAsJsonAsync("/api/backups", new CreateBackupRequest(adminId, TestBackupDirectory)))
+                .Content.ReadFromJsonAsync<BackupRecordDto>();
+
+            Assert.Equal("Succeeded", record!.Status);
+            var copy = Path.Combine(copyDirectory, Path.GetFileName(record.FilePath));
+            Assert.True(File.Exists(copy), $"expected the second copy at {copy}");
+            Assert.Equal(new FileInfo(record.FilePath).Length, new FileInfo(copy).Length);
+        }
+        finally { try { Directory.Delete(copyDirectory, recursive: true); } catch { } }
+    }
+
+    [Fact]
+    public async Task A_second_copy_that_cannot_be_written_keeps_the_backup_and_raises_a_critical_audit()
+    {
+        var notADirectory = Path.Combine(TestBackupDirectory, "not-a-dir-" + Guid.NewGuid().ToString("N") + ".txt");
+        Directory.CreateDirectory(TestBackupDirectory);
+        File.WriteAllText(notADirectory, "x");
+        using var factory = new FalahApiFactory(configOverrides: new Dictionary<string, string?>
+        {
+            ["Backup:DefaultDirectory"] = TestBackupDirectory, ["Backup:CopyToDirectory"] = notADirectory,
+        });
+        try
+        {
+            var client = factory.CreateAuthenticatedClient();
+            var adminId = await factory.SeedUserAsync("مسؤول النسخ", "supervisor", "backup_manage");
+
+            var record = await (await client.PostAsJsonAsync("/api/backups", new CreateBackupRequest(adminId, TestBackupDirectory)))
+                .Content.ReadFromJsonAsync<BackupRecordDto>();
+
+            Assert.Equal("Succeeded", record!.Status);
+            var audit = await factory.QueryAsync(db => db.AuditEvents.AsNoTracking()
+                .Where(e => e.ReferenceId == record.Id && e.Severity == "critical").ToListAsync());
+            Assert.Contains(audit, e => e.Action == "فشل نسخ النسخة الاحتياطية إلى المكان الثاني");
+        }
+        finally { File.Delete(notADirectory); }
+    }
+
     [Fact]
     public async Task Creating_a_backup_against_the_real_database_succeeds_and_writes_a_real_file()
     {

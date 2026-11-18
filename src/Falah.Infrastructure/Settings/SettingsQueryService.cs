@@ -41,5 +41,6 @@ public sealed class SettingsQueryService
         e.AutoLockMinutes, e.ActiveShiftName, e.PrinterWidth, e.AutoPrintReceipt, e.AutoPrintPreparationTicket,
         e.NumberOfReceiptCopies, e.GrillScreenSoundAlert, e.StandardWorkdayHours, e.LateGraceMinutes,
         e.MaxLatePenaltyHours, e.LatePenaltyMultiplier, e.OvertimeMultiplier, e.HoldPreparationUntilPaymentConfirmed,
-        e.DefaultOpeningCashPiastres, e.MenuUrl);
+        e.DefaultOpeningCashPiastres, e.MenuUrl,
+        e.MaxDiscountWithoutApprovalBasisPoints ?? Falah.Domain.Pricing.PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints);
 }

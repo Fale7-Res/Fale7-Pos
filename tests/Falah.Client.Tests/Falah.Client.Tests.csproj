@@ -11,6 +11,7 @@
     <Using Include="Xunit" />
     <ProjectReference Include="../../src/Falah.Application/Falah.Application.csproj" />
     <Compile Include="../../src/Falah.Client.Shared/WindowsUserDataProtection.cs" Link="Security/WindowsUserDataProtection.cs" />
+    <Compile Include="../../src/Falah.Client.Shared/CrashLog.cs" Link="Diagnostics/CrashLog.cs" />
     <!-- ThemeService/ThemeResources are excluded: both depend on Microsoft.UI.Xaml types
          (ElementTheme, FrameworkElement, ResourceDictionary) that only exist in the real WinUI 3
          app, not in this plain net8.0 test project - the same reason HeaderViewModel/MainViewModel

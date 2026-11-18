@@ -426,7 +426,7 @@ public class DriverFeeSettlementAndHandoverTests : IAsyncLifetime
         Assert.Equal("tre-drawer", gap.SourceAccountId);
         Assert.Null(gap.ShiftId);
         Assert.Equal(a.ShiftId, gap.ReferenceId);
-        Assert.Equal(99_000, await ExpectedAsync(b.ShiftId, 99_000));       // B is answerable for 990, not 1,000
+        Assert.Equal(99_000, await _factory.ExpectedDrawerCashAsync(b.ShiftId));       // B is answerable for 990, not 1,000
         Assert.Equal(99_000, await BalanceAsync("tre-drawer"));             // the drawer ledger states what is really there
 
         // B hands everything over: an overage is the counted figure, not hidden in the float.

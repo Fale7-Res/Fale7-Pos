@@ -582,7 +582,10 @@
     "CORR-CLOSED",
     "SEC-0037 (review 2026-11-17): should attendance check-in/out (the biometric path) require a station permission and a mandatory request id? Today any logged-in session can clock in an employee and post a day's wage (unchanged)",
     "PAYR-0021 (review 2026-11-17): should the dashboard wage cost include attendance-correction Adjustment entries, as payroll does? (accountant; unchanged)",
-    "UI-0052 (review 2026-11-17): menu photos are now readable without a login (GET /api/products/{id}/image only) so the tills can show them - keep, or load them through the session instead?"
+    "UI-0052 (review 2026-11-17): menu photos are now readable without a login (GET /api/products/{id}/image only) so the tills can show them - keep, or load them through the session instead?",
+    "Audit 2026-11-18: should confirming an InstaPay/wallet transfer require the bank or wallet reference to be typed (none is captured today; the confirmation is now audited)?",
+    "Audit 2026-11-18: backup encryption (needs a SQL Server certificate kept off the machine) and the acceptable data loss window (automatic backup every 20 h today; MaxAgeHours lower or full recovery with log backups?).",
+    "Audit 2026-11-18 (PERF-0001 follow-up): narrow TreasuryMovements SourceAccountId/DestinationAccountId/ShiftId/Status from nvarchar(max) so they can be indexed? Not additive - needs a reviewed migration."
   ],
   "last_codex_update_utc": "2026-11-07T23:30:51.242Z",
   "handoff_document": "docs/CODEX_TAKEOVER_20261108.md",
@@ -740,5 +743,14 @@
       "EXPORT-PAYROLL",
       "EXPORT-PRINTER"
     ]
+  },
+  "claude_audit_20261118": {
+    "owner_decisions": [
+      "A cash count that differs from the shift's first count (a re-count after the preview showed the expected cash) needs a manager's PIN.",
+      "A manual discount above 10% of the items needs a manager's PIN even from an orders_discount holder; the limit is a setting (Settings.MaxDiscountWithoutApprovalBasisPoints).",
+      "A ticket the Windows queue could not print is reported failed and LEFT in the queue (it prints when the printer returns).",
+      "A refund from the large-refund threshold (500 EGP) up needs a manager's PIN even from an orders_refund holder."
+    ],
+    "record": "All Issues/REVIEW_20261117_WHOLE_PROJECT.md section 'Audit 2026-11-18'"
   }
 }

@@ -314,6 +314,84 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
         Assert.Equal(0, count);
     }
 
+    // Audit 2026-11-18 (owner decision the same day): the preview shows the expected cash, so a count
+    // changed after it is a re-count, and a re-count needs a manager. Without this a cashier who counted
+    // 510 ج against 500 ج expected could close at 500 and keep the 10 ج, and the close showed no difference.
+    private Task<PrepareShiftCloseResult?> PrepareAsync(string shiftId, long countedPiastres) =>
+        _client.PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(shiftId, countedPiastres))
+            .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<PrepareShiftCloseResult>()).Unwrap();
+
+    [Fact]
+    public async Task Closing_at_a_figure_other_than_the_first_count_without_a_manager_is_refused()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        var firstCount = await PrepareAsync(shiftId, 51000);
+        Assert.False(firstCount!.RequiresManagerApproval); // 10 ج over, inside the threshold
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 50000, $"creq-{Guid.NewGuid():N}"));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        var shift = await _factory.QueryAsync(db => db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId));
+        Assert.Equal("Open", shift.Status);
+    }
+
+    [Fact]
+    public async Task A_recount_that_differs_from_the_first_count_asks_for_a_manager_in_the_preview()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 51000);
+
+        var recount = await PrepareAsync(shiftId, 50000);
+
+        Assert.True(recount!.RequiresManagerApproval);
+        Assert.Equal(0, recount.DifferencePiastres);
+    }
+
+    [Fact]
+    public async Task A_recount_with_a_valid_manager_approval_closes_and_records_the_approver()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 51000);
+        await PrepareAsync(shiftId, 50000);
+        var approval = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "shifts_manage", "إعادة عدّ")))
+            .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close",
+            CloseRequest(shiftId, 50000, $"creq-{Guid.NewGuid():N}", "أعيد العدّ أمام المدير", approval.ApprovalId, _managerId));
+
+        response.EnsureSuccessStatusCode();
+        var shift = await _factory.QueryAsync(db => db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId));
+        Assert.Equal("Closed", shift.Status);
+        Assert.Equal("المدير", shift.DifferenceAuthorizedBy);
+    }
+
+    [Fact]
+    public async Task Counting_the_same_figure_again_and_closing_at_it_needs_no_manager()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 50500);
+        var again = await PrepareAsync(shiftId, 50500);
+        Assert.False(again!.RequiresManagerApproval);
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 50500, $"creq-{Guid.NewGuid():N}"));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task A_close_with_no_preview_is_recorded_as_the_shifts_only_count()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+
+        (await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 49500, $"creq-{Guid.NewGuid():N}"))).EnsureSuccessStatusCode();
+
+        var counts = await _factory.QueryAsync(db => db.ControlAuditEvents.AsNoTracking()
+            .Where(e => e.Action == Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.DeclarationAuditAction && e.EntityId == shiftId)
+            .Select(e => e.AmountPiastres).ToListAsync());
+        Assert.Equal(new long?[] { 49500 }, counts);
+    }
+
     [Fact]
     public async Task A_manager_holding_shifts_manage_but_not_shifts_open_own_can_still_open_a_shift()
     {

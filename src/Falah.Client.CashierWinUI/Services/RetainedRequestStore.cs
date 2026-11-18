@@ -93,10 +93,19 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
         try { return envelope with { Payload = null, Protected = Convert.ToBase64String(_protector.Protect(bytes)) }; }
         finally { CryptographicOperations.ZeroMemory(bytes); }
     }
+    /// <summary>Written through to the disk before the rename (audit 2026-11-18). NTFS journals the
+    /// rename but not the file's contents, so a power cut a second after File.WriteAllText could leave
+    /// the right name over an empty file - and the payment this file exists to remember was forgotten,
+    /// so the cashier rang it up again under a new request id.</summary>
     private void WriteEnvelope(string path, Envelope envelope)
     {
         var temp = path + ".tmp";
-        File.WriteAllText(temp, JsonSerializer.Serialize(envelope, Options));
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
+        using (var file = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+        {
+            file.Write(bytes);
+            file.Flush(flushToDisk: true);
+        }
         File.Move(temp, path, overwrite: true);
     }
     private JsonElement ReadPayload(Envelope envelope, string path)
@@ -185,13 +194,22 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
             var records = new List<RetainedRequestRecord>();
             foreach (var path in Directory.EnumerateFiles(_directory, "*.json"))
             {
-                var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
-                if (envelope is null) continue;
-                _ = ReadPayload(envelope, path);
-                records.Add(new RetainedRequestRecord(
-                    Path.GetFileNameWithoutExtension(path),
-                    envelope.Type.Split(',')[0].Split('.').Last(),
-                    envelope.SavedAtUtc));
+                // One file at a time (audit 2026-11-18): a single half-written file used to empty the
+                // whole list, so the start-up notice hid every other unresolved operation as well.
+                try
+                {
+                    var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
+                    if (envelope is null) continue;
+                    _ = ReadPayload(envelope, path);
+                    records.Add(new RetainedRequestRecord(
+                        Path.GetFileNameWithoutExtension(path),
+                        envelope.Type.Split(',')[0].Split('.').Last(),
+                        envelope.SavedAtUtc));
+                }
+                catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+                {
+                    ReportError(ex);
+                }
             }
             return records;
         }

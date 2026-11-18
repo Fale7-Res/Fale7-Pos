@@ -104,9 +104,25 @@ public sealed class CloseShiftHandler
 
             var shift = Shift.Reconstitute(entity.Id, entity.ShiftName, entity.OpenedByUserId, openingCash,
                 entity.BusinessDate, entity.OpenedAtUtc, ShiftStatus.Open, null, null, null, null, null, null, null);
-            var blindResult = shift.PrepareBlindClose(actual, expected, threshold);
+            // A close at a figure other than the first count is a re-count made after the preview showed
+            // the expected cash, and needs a manager (owner, 2026-11-18). A close with no preview at all is
+            // a genuinely blind count; it is written down below as the shift's count.
+            var firstDeclared = await PrepareShiftCloseHandler.FirstDeclaredAsync(_db, entity.Id, ct);
+            var lastDeclared = await PrepareShiftCloseHandler.LastDeclaredPiastresAsync(_db, entity.Id, ct);
+            var blindResult = shift.PrepareBlindClose(actual, expected, threshold, firstDeclared);
+            if (blindResult.IsRecount && approval is null)
+                throw new DomainException(Shift.RecountNeedsManagerMessage);
 
             AuthorizationPolicy.AuthorizeShiftClose(_approvalRegistry, actor, approval, blindResult.RequiresManagerApproval);
+            if (lastDeclared != actual.Piastres)
+            {
+                _db.ControlAuditEvents.Add(new ControlAuditEventEntity
+                {
+                    Id = $"audit-{Guid.NewGuid():N}", Action = PrepareShiftCloseHandler.DeclarationAuditAction, Actor = cashierUser.Name,
+                    EntityId = entity.Id, AmountPiastres = actual.Piastres, Reason = $"عدّ الإغلاق ({cashierUser.Id})",
+                    CreatedAtUtc = DateTimeOffset.UtcNow,
+                });
+            }
             var authorizedByName = approval?.ApproverName;
 
             var now = DateTimeOffset.UtcNow;

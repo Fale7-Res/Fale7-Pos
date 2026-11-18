@@ -80,9 +80,7 @@ public class SplitOrderVoidTests : IAsyncLifetime
         return body.RootElement.GetProperty("balancePiastres").GetInt64();
     }
 
-    private async Task<long> ExpectedCashAsync(string shiftId) =>
-        (await (await As(_cashierId).PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(shiftId, 0)))
-            .Content.ReadFromJsonAsync<PrepareShiftCloseResult>())!.ExpectedCashPiastres;
+    private Task<long> ExpectedCashAsync(string shiftId) => _factory.ExpectedDrawerCashAsync(shiftId);
 
     private static long Optional(JsonElement element, string property) =>
         element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetInt64() : 0;

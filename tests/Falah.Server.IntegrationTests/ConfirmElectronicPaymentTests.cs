@@ -60,6 +60,25 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
+    // Audit 2026-11-18: confirming a transfer posts money and was the one money command with no line in
+    // the audit trail - a cashier could ring cash as InstaPay, keep the cash and confirm a transfer that
+    // never came, and nothing named who confirmed it. Exactly one line, also after a replay.
+    [Fact]
+    public async Task Confirming_a_transfer_writes_one_audit_line_naming_who_confirmed_it_and_how_much()
+    {
+        var order = await InstaPayOrderAsync(15000);
+        var request = new ConfirmElectronicPaymentRequest(order.OrderId, _cashierId);
+        (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", request)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", request)).EnsureSuccessStatusCode();
+
+        var lines = await _factory.QueryAsync(db => db.AuditEvents.AsNoTracking()
+            .Where(e => e.ReferenceId == order.OrderId && e.Action == "تأكيد تحصيل إلكتروني").ToListAsync());
+        var line = Assert.Single(lines);
+        Assert.Equal(_cashierId, line.UserId);
+        Assert.Contains("15000", line.Details);
+        Assert.Contains(order.OrderNumber, line.Details);
+    }
+
     [Fact]
     public async Task Retrying_confirm_sequentially_never_posts_a_second_movement()
     {

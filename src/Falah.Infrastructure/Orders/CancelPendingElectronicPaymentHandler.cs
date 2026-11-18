@@ -89,7 +89,7 @@ public sealed class CancelPendingElectronicPaymentHandler
                 {
                     var source = paid.DestinationAccountId ?? throw new DomainException("حساب التحصيل الأصلي غير موجود.");
                     var amount = Money.FromPiastres(paid.AmountPiastres);
-                    var balance = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, source, ct);
+                    var balance = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, source, ct);
                     FinancialRules.AssertProtectedSourceBalance(balance, source, amount);
                     var reversal = TreasuryMovementFactory.BuildCashLifecycleMovement(
                         $"tm-{Guid.NewGuid():N}", $"void-return-{paid.Id}", $"op-{Guid.NewGuid():N}", "void_return",

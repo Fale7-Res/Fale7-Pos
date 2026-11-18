@@ -14,7 +14,7 @@ internal static class InventoryWriteLock
     {
         if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("An inventory transaction is required.");
         var result = new SqlParameter("@stockLockResult", SqlDbType.Int) { Direction = ParameterDirection.Output };
-        await db.Database.ExecuteSqlRawAsync("EXEC @stockLockResult=sys.sp_getapplock @Resource=N'FalahStockPosting', @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=15000", new object[] { result }, ct);
+        await db.Database.ExecuteSqlRawAsync("EXEC @stockLockResult=sys.sp_getapplock @Resource=N'FalahStockPosting', @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=" + Falah.Infrastructure.Persistence.LockTimeouts.Milliseconds, new object[] { result }, ct);
         if (result.Value is not int code || code < 0) throw new DomainException("توجد حركة مخزون أخرى قيد التنفيذ؛ أعد المحاولة بنفس الطلب.");
     }
 }

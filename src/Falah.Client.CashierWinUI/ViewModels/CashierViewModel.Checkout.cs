@@ -21,7 +21,16 @@ public partial class CashierViewModel
     [ObservableProperty] private bool _isDiscountEnabled;
     [ObservableProperty] private string _discountAmountText = "0";
     [ObservableProperty] private string _discountManagerPin = "";
-    public bool DiscountNeedsApproval => !_session.HasPermission("orders_discount");
+
+    /// <summary>The Settings limit a discount may reach without a manager, in basis points of the items
+    /// (owner, 2026-11-18: 10%). Read at start-up; the server applies the same rule and has the last word.</summary>
+    private int _maxDiscountWithoutApprovalBasisPoints = Falah.Domain.Pricing.PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints;
+
+    /// <summary>True when the typed discount is above the limit, so the till asks for a manager's PIN
+    /// before sending it - even from a cashier who holds orders_discount.</summary>
+    public bool DiscountNeedsApproval => !_session.CanApproveOwn("orders_discount") && Falah.Domain.Pricing.PricingRules.DiscountNeedsApproval(
+        Falah.Domain.Common.Money.FromPiastres(DiscountAmountPiastres), Falah.Domain.Common.Money.FromPiastres(CartSubtotalPiastres),
+        _maxDiscountWithoutApprovalBasisPoints);
     public long DiscountAmountPiastres =>
         IsDiscountEnabled && CashInput.TryParse(DiscountAmountText, out var v) ? v : 0;
 
@@ -29,6 +38,7 @@ public partial class CashierViewModel
     {
         if (!value) { DiscountAmountText = "0"; DiscountManagerPin = ""; }
         OnPropertyChanged(nameof(DiscountAmountPiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
         NotifyTotals();
@@ -37,6 +47,7 @@ public partial class CashierViewModel
     partial void OnDiscountAmountTextChanged(string value)
     {
         OnPropertyChanged(nameof(DiscountAmountPiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
         NotifyTotals();
@@ -361,6 +372,10 @@ public partial class CashierViewModel
                 compApprovalId = aid; compApproverUserId = auid;
             }
 
+            var (discountApprovalId, discountApproverUserId, discountOk) = await ResolveManagerApprovalIfNeededAsync(
+                DiscountNeedsApproval, DiscountManagerPin, "orders_discount", "خصم يدوي أكبر من الحد", e => CheckoutError = e);
+            if (!discountOk) return;
+
             IReadOnlyList<CheckoutSplitRequest>? splitPayments = null;
             if (IsSplitPaymentEnabled)
             {
@@ -398,6 +413,8 @@ public partial class CashierViewModel
                 CompApprovalId: compApprovalId,
                 CompApproverUserId: compApproverUserId,
                 CompReason: CompAmountPiastres > 0 ? CompReasonText : null,
+                DiscountApprovalId: discountApprovalId,
+                DiscountApproverUserId: discountApproverUserId,
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: splitPayments,
                 WalletProvider: PaymentMethod == "wallet" || IsSplitPaymentEnabled && (SplitMethod1 == "wallet" || SplitMethod2 == "wallet") ? NullIfEmpty(WalletProvider) : null,

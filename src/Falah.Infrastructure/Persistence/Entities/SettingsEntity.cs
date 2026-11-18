@@ -57,6 +57,12 @@ public class SettingsEntity
     public int MaxLatePenaltyHours { get; set; }
     public double LatePenaltyMultiplier { get; set; }
     public double OvertimeMultiplier { get; set; }
+
+    /// <summary>How large a manual discount may be without a manager, in basis points of the items'
+    /// value. Null (every row saved before it existed) reads as 10% - the owner's choice of
+    /// 2026-11-18 (PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints). Nullable rather than a
+    /// database default so that 0, "every discount needs a manager", stays a value that can be stored.</summary>
+    public int? MaxDiscountWithoutApprovalBasisPoints { get; set; }
 }
 
 /// <summary>Ported from CashHandover in enterprise-types.ts / createHandover in

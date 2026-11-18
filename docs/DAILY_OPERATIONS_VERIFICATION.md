@@ -63,6 +63,8 @@ second machine.
 8. **A full day** — open day, two shifts, sales of every payment type, a delivery failure, a refund of
    yesterday's sale, a cancelled InstaPay, close both shifts, close the day; reconcile the Daily
    Statement's cash flow against counted cash in each account.
+   The software side of this day is automated in `FullTradingDayScenarioTests` (2026-11-18, green); on site it
+   is still to be done with real cash, real tills and printers.
 9. **Driver settlement and physical handover (2026-11-12)** — on the real tills, with real cash and a real driver.
    Follow the full-shift scenario in the handover report:
    - open on 990 and top up 10 from the safe;

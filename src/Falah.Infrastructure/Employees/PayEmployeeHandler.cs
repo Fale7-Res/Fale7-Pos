@@ -105,7 +105,7 @@ public sealed class PayEmployeeHandler
             var currentBalance = Money.FromPiastres(lockedEntries.Sum(e => e.CreditPiastres - e.DebitPiastres));
             EmployeeRules.AssertPaymentWithinBalance(amount, currentBalance);
 
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.PaymentAccountId, ct);
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, request.PaymentAccountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, amount);
 
             var journal = new EfFinancialJournal(_db);

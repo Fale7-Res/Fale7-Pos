@@ -84,6 +84,14 @@ public partial class MainViewModel : ObservableObject
         IsLoggedIn = true;
         var vm = _session.GetOrderDesk(Header);
         CurrentView = vm;
-        await vm.InitializeAsync();
+        // async void (an event handler): anything that escaped InitializeAsync used to close the whole
+        // call-center app at login. The desk stays open and the operator is told (audit 2026-11-18).
+        try { await vm.InitializeAsync(); }
+        catch (Exception ex)
+        {
+            Falah.Client.Diagnostics.CrashLog.Write(System.IO.Path.Combine(Services.FileRetainedRequestStore.DataRoot(), "logs"),
+                "callcenter", ex, "order desk start-up");
+            vm.ShiftError = "تعذر تحميل بيانات المحطة. تحقق من الاتصال ثم اضغط تحديث.";
+        }
     }
 }

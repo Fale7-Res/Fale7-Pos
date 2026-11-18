@@ -74,7 +74,7 @@ public sealed class OpenShiftHandler
 
             if (inherited is null && openingCash.IsPositive)
             {
-                var mainMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Main, ct);
+                var mainMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Main, ct);
                 FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
             }
 

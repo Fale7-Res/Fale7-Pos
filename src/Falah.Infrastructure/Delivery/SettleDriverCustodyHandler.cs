@@ -151,7 +151,7 @@ public sealed class SettleDriverCustodyHandler
             if (paidToDriver.IsPositive)
             {
                 var payoutKey = $"{idempotencyKey}-payout";
-                var drawerMovements = await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, TreasuryAccounts.Drawer, ct);
+                var drawerMovements = await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Drawer, ct);
                 FinancialRules.AssertProtectedSourceBalance(drawerMovements, TreasuryAccounts.Drawer, paidToDriver);
                 if (!journal.TryStart(payoutKey, "driver_fee_payout"))
                     throw new DeliveryConflictException("مفتاح العملية المالية هذا مستخدم بالفعل.");

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 /// <summary>Expected-cash computation shared by prepare (preview) and close (authoritative
 /// recompute - a close request's own supplied "expected" is never trusted, only actualCash is).
 /// Ported from calculateShiftExpectedCash in the current app's lib/store.tsx.</summary>
-internal static class ShiftReconciliation
+public static class ShiftReconciliation
 {
     /// <summary>
     /// Every posted movement type that takes cash OUT of this shift's drawer by a hand, as opposed

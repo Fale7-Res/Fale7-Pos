@@ -31,7 +31,7 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
 | UI-0025 | Two-stage pickup (prepare first, pay at collection) is not supported | Workflow / requirement | High | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/UI-0025.md](ISSUES/UI-0025.md) |
-| API-0004 | Fixed 10-second client timeout versus growing full-history server work | API / availability | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/API-0004.md](ISSUES/API-0004.md) |
+| API-0004 | Fixed 10-second client timeout versus growing full-history server work | API / availability | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/API-0004.md](ISSUES/API-0004.md) |
 | DOC-0002 | Backlog statuses lag the code | Documentation | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0002.md](ISSUES/DOC-0002.md) |
 | FIN-0005 | Split (multi-payment) orders cannot be refunded | Financial / refunds | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/FIN-0005.md](ISSUES/FIN-0005.md) |
 | FIN-0020 | Business-day cash count is compared against a typed "expected" figure, not the system's expected cash | Financial / controls | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0020.md](ISSUES/FIN-0020.md) |
@@ -44,9 +44,9 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | PAYR-0006 | Salary catch-up accrual uses the current salary for past days | Payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0006.md](ISSUES/PAYR-0006.md) |
 | PAYR-0007 | Part-month payroll pays the full profile salary while accrual covers employed days only | Payroll / policy | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0007.md](ISSUES/PAYR-0007.md) |
 | PAYR-0017 | Monthly salary accrual and its dating in reports | Payroll | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0017.md](ISSUES/PAYR-0017.md) |
-| PERF-0001 | Treasury balance re-sums all history under UPDLOCK/HOLDLOCK with no account index | Performance / database | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0001.md](ISSUES/PERF-0001.md) |
+| PERF-0001 | Treasury balance re-sums all history under UPDLOCK/HOLDLOCK with no account index | Performance / database | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0001.md](ISSUES/PERF-0001.md) |
 | PERF-0003 | Business-day close evaluator loads all shifts, custodies, journal rows and movements | Performance | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0003.md](ISSUES/PERF-0003.md) |
-| PRT-0004 | "Succeeded" means the transport accepted bytes; paper-out and cover-open are invisible; uncertain outcomes look like failures | Printing / hardware | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0004.md](ISSUES/PRT-0004.md) |
+| PRT-0004 | "Succeeded" means the transport accepted bytes; paper-out and cover-open are invisible; uncertain outcomes look like failures | Printing / hardware | Medium | P2 | PARTIALLY_FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0004.md](ISSUES/PRT-0004.md) |
 | PRT-0005 | Spooler submission is synchronous and ignores cancellation | Printing | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0005.md](ISSUES/PRT-0005.md) |
 | PRT-0013 | Failed print jobs are never retried automatically | Printing / recovery | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0013.md](ISSUES/PRT-0013.md) |
 | PRT-0016 | Held kitchen ticket is not released automatically when the transfer is confirmed | Printing / workflow | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0016.md](ISSUES/PRT-0016.md) |

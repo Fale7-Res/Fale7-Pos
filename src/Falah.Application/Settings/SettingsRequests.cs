@@ -22,7 +22,10 @@ public sealed record SettingsDto(
     /// <summary>Where the menu QR on the customer receipt points. Null means no menu link is
     /// configured, and the receipt then prints no QR at all - it never falls back to a guessed or
     /// placeholder address, because a QR that opens the wrong page is worse than none.</summary>
-    string? MenuUrl = null);
+    string? MenuUrl = null,
+    /// <summary>How large a manual discount may be without a manager's PIN, in basis points of the
+    /// items' value (1000 = 10%, the owner's choice). 0 means every discount needs a manager.</summary>
+    int MaxDiscountWithoutApprovalBasisPoints = 1000);
 
 /// <summary>Ported from updateSettings in lib/store.tsx: a partial update (every field optional,
 /// null = "leave unchanged") gated on `settings_manage` - EXCEPT when the only field being changed
@@ -42,4 +45,6 @@ public sealed record UpdateSettingsRequest(
     /// <summary>Null leaves the menu link unchanged; an empty string clears it.</summary>
     string? MenuUrl = null,
     /// <summary>The float the open-shift dialog starts with, in piastres. Null leaves it unchanged.</summary>
-    long? DefaultOpeningCashPiastres = null);
+    long? DefaultOpeningCashPiastres = null,
+    /// <summary>Basis points of the items' value a discount may reach without a manager (0..10000). Null leaves it unchanged.</summary>
+    int? MaxDiscountWithoutApprovalBasisPoints = null);

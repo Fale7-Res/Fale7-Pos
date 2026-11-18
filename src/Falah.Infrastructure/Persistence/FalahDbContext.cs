@@ -84,6 +84,9 @@ public class FalahDbContext : DbContext
             // race between a same-task double click and its own network retry cannot both win.
             b.HasIndex(o => o.CheckoutRequestId).IsUnique();
             b.HasIndex(o => o.SequenceNumber).IsUnique();
+            // Audit 2026-11-18: every daily/monthly/dashboard figure selects orders by a UTC range on
+            // CreatedAtUtc; without this each report scanned the whole table, slower every month.
+            b.HasIndex(o => o.CreatedAtUtc);
             // A plain application-managed concurrency token rather than a native SQL Server
             // rowversion column (IsRowVersion()) - callers that mutate an existing order (refund,
             // payment confirmation) are responsible for incrementing it before SaveChanges. This
@@ -134,6 +137,10 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(m => m.Id);
             b.HasIndex(m => m.IdempotencyKey).IsUnique();
+            // Audit 2026-11-18: cash flow and statements select movements by a UTC range. The account,
+            // shift and status columns are nvarchar(max) and cannot be index keys without narrowing
+            // them, which is not an additive change - see docs/ASSESSMENT.md (PERF-0001).
+            b.HasIndex(m => m.CreatedAtUtc);
         });
 
         modelBuilder.Entity<BusinessDayEntity>(b =>
@@ -398,6 +405,8 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(a => a.Id);
             b.HasIndex(a => a.IdempotencyKey).IsUnique();
+            // The dashboard's print health reads the last day's attempts, not every attempt ever made.
+            b.HasIndex(a => a.AttemptedAtUtc);
         });
 
         modelBuilder.Entity<ChecklistItemEntity>(b =>

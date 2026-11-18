@@ -83,8 +83,8 @@ public sealed class PayPurchaseHandler
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, accountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, amount);
 
             var journal = new Falah.Infrastructure.Persistence.EfFinancialJournal(_db);
