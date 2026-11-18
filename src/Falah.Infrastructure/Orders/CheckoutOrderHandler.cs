@@ -248,21 +248,12 @@ public sealed class CheckoutOrderHandler
                     ShiftId = order.ShiftId, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
                 });
 
-                // The first of the two delivery print events: one DeliveryOrder ticket per delivery
-                // order, created here at order creation. Keyed on this checkout's own
-                // CheckoutRequestId, so it inherits the handler's existing idempotency exactly - a
-                // retried checkout short-circuits at FindExistingAsync before reaching this line and
-                // can never mint a second ticket. Creating the JOB writes no money and touches no
-                // order field; whether the paper ever comes out is the print agent's problem and is
-                // recorded only on the job itself, so a print failure can never affect this order.
-                _db.PrintJobs.Add(new PrintJobEntity
-                {
-                    Id = $"printjob-{request.CheckoutRequestId}-{Falah.Domain.Printing.PrintRoute.DeliveryOrder}",
-                    CreateRequestId = request.CheckoutRequestId, OrderId = orderId, OrderNumber = orderNumber,
-                    Route = nameof(Falah.Domain.Printing.PrintRoute.DeliveryOrder),
-                    Status = nameof(Falah.Domain.Printing.PrintJobStatus.Pending), AttemptCount = 0,
-                    IsReprint = false, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
-                });
+                // Owner, 2026-11-17: a delivery order prints ONE paper into the restaurant when it is
+                // taken (the station's own customer copy - the call center's prep slip) and the
+                // customer's full receipt when the driver collects it (DriverDispatch). The separate
+                // DeliveryOrder ticket that used to be queued here came out beside the prep slip, so
+                // two papers printed at once; it is no longer queued. The route and its composer stay,
+                // so an older job already on record can still be printed or reprinted.
             }
 
             // Stock leaves the kitchen the moment the order is made, independent of whether the

@@ -228,6 +228,10 @@ public partial class CallCenterViewModel : ObservableObject
         if (!CanEditOperation || !product.IsAvailable) return;
         var offer = offerId is null ? null : product.ApplicableOffers.FirstOrDefault(o => o.Id == offerId);
         var unitPrice = offer?.FixedPricePiastres ?? variant?.PricePiastres ?? product.BasePricePiastres;
+        // Owner 2026-11-17: the same item tapped again raises its quantity; a line with its own note stays apart.
+        var same = Cart.FirstOrDefault(l => l.ProductId == product.Id && l.VariantId == variant?.Id
+            && l.AppliedOfferId == offer?.Id && string.IsNullOrWhiteSpace(l.Notes));
+        if (same is not null) { same.Quantity++; RecomputeCartTotals(); return; }
         Cart.Add(new CartLine
         {
             ProductId = product.Id,

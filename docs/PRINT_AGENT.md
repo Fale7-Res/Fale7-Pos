@@ -147,6 +147,13 @@ Spec: `docs/superpowers/specs/2026-11-17-paper-design-design.md`; plan:
     totals, what to collect, delivery notes, the **menu QR**, and the settings footer. It keeps the
     «إعادة إسناد» marker. The server builds its header and totals with the same code as the takeaway
     receipt (`PrintJobQueryService.ReceiptPartsAsync`).
+- **Amendment 3 (owner, 2026-11-17 trial): one paper at order time.** The separate delivery-order
+  ticket («أوردر الدليفري / بون التشغيل», route `DeliveryOrder`) printed beside the prep slip, so two
+  papers came out at once. Checkout no longer queues it. A delivery order now prints the taking station's
+  customer copy (the call center's «تحضير طلب») plus the kitchen tickets when it is taken, and the driver
+  paper when a driver takes it. The route, its composer and the agent setting stay, so an older job can
+  still print; a `DeliveryOrder` agent now simply has nothing to do. Open question: a delivery order rung
+  up at the **till** still prints the till's priced receipt at order time.
 - **Wire compatibility:** new element kind `logo` and row flag `fitStart`. An agent older than the
   server prints a blank line for the logo and wraps labels as before. Deploy server and agents together.
 - **Kitchen tickets are longer** than before the redesign: about 70 mm instead of 55 mm for the review

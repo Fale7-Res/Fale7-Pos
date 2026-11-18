@@ -47,6 +47,15 @@ review of every file and a run of everything before being told the system is OK.
 | UI-0052 | Menu photos never showed: the image control downloads without the session token, so every photo got 401 | `GET`/`HEAD /api/products/{id}/image` alone is readable without a session. A menu photo is public menu content. Uploading and every other product read still need a session. **This decision is the owner's to keep or reverse** | `AuthenticationTests.A_menu_photo_is_readable_by_an_image_control_but_nothing_else_about_products_is` |
 | TEST-0003 | `EndpointReadGateCoverageTests` failed: the report-export routes added in dc08460 were not in its probe or its allow-list | The probe now names a report and format, so those routes hit their permission gate. The catalog, which is self-filtered, is listed with its reason | The class plus ReportExportTests, 13/13 |
 
+## Owner trial requests (2026-11-17/18, the trial run on `FalahSmoke_Demo_*`)
+
+| Request | Change | Evidence |
+|---|---|---|
+| Tapping «فلافل صمون» again added a second line | On the till and at the call center, the same product, choice and offer raises the quantity. A line with its own kitchen note stays separate | `CartMergeTests` (3): red 2/3, then green |
+| Two orders at once («عدد سلات») | A first try (a «تعليق الأوردر» button with chips) was rejected by the owner. He chose fixed basket tabs above the cart: «سلة 1 \| سلة 2 \| … \| +». Each basket keeps its own items, type and customer/delivery details. Tap a tab to work on it, «+» opens an empty basket, and × closes an empty basket that is not the last. Switching is refused on the payment screen or while an operation is unresolved. Screen-only: no server write, no money, lost on close or logout | `HeldOrderTests` (4). Client 424/424 |
+| Delivery printed two papers into the restaurant | Checkout no longer queues the `DeliveryOrder` ticket (owner chose «تحضير طلب» only). See PRINT_AGENT.md Amendment 3 | `DeliveryVerticalSliceTests` rewritten for the rule. Delivery, intake, printing, dashboard and driver-fee classes 127/127 |
+| Nothing printed | The `XP-80C` queue was offline on USB001 (another, unplugged printer). A temporary `XP-80C-Trial` queue was added on USB002 for the trial. It is to be removed when the trial ends | Spooler queue drained after the reprint of #0128 |
+
 ## Checked and not a defect (rejected)
 
 - **Restore without a manager PIN for a `backup_manage` holder:** documented design ("permission-or-approval", `RestoreBackupRequest`).

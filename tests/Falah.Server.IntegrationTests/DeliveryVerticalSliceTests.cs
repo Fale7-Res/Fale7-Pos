@@ -490,110 +490,36 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         Assert.Empty(oldAfter.BlockingOrders);
     }
 
-    // ---- Delivery ORDER ticket (printed at order creation, before any driver exists) ----
+    // ---- Delivery papers (owner, 2026-11-17): one paper into the restaurant when the order is taken,
+    // the customer's full receipt when the driver collects it. The separate "بون التشغيل" (DeliveryOrder
+    // route) printed beside the prep slip, so two papers came out at once; it is no longer queued.
 
     [Fact]
-    public async Task Creating_a_delivery_order_creates_exactly_one_delivery_order_ticket_with_customer_items_and_amount_to_collect()
+    public async Task Taking_a_delivery_order_queues_no_separate_delivery_order_ticket()
     {
         var shiftId = await OpenShiftAsync();
         var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
 
-        var jobs = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId && j.Route == "DeliveryOrder").ToListAsync());
-        var job = Assert.Single(jobs);
-        Assert.Equal(order.OrderNumber, job.OrderNumber);
-        Assert.Equal("Pending", job.Status);
-        Assert.False(job.IsReprint);
-
-        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
-        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
-        Assert.Contains("أوردر دليفري", text);
-        Assert.Contains(order.OrderNumber, text);
-        Assert.Contains("عميل اختبار", text);          // customer name
-        Assert.Contains("01000000000", text);           // phone
-        // The address printed is the one checkout COMPOSED from the structured street/area fields
-        // (DeliveryRules.ComposeDeliveryAddress), not the request's own free-text DeliveryAddress,
-        // which checkout deliberately ignores for delivery orders.
-        Assert.Contains("شارع 9", text);
-        Assert.Contains("المنطقة أ", text);             // area
-        Assert.Contains("المطلوب تحصيله", text);        // explicit COD collect line
-        Assert.Contains("150", text);                   // 15000 piastres = 150 EGP
+        var routes = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId).Select(j => j.Route).ToListAsync());
+        Assert.DoesNotContain("DeliveryOrder", routes);
+        Assert.DoesNotContain("DriverDispatch", routes);   // the customer's receipt waits for the driver
     }
 
     [Fact]
-    public async Task A_prepaid_delivery_order_ticket_says_prepaid_instead_of_an_amount_to_collect()
-    {
-        var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card");
-
-        var job = await _factory.QueryAsync(db => db.PrintJobs.SingleAsync(j => j.OrderId == order.OrderId && j.Route == "DeliveryOrder"));
-        var content = await (await GetTicketContentAsync(job.Id)).Content.ReadFromJsonAsync<Falah.Application.Printing.ComposedTicketDto>();
-        var text = string.Join("\n", content!.Lines.SelectMany(TicketDtoText.Of));
-        Assert.Contains("مدفوع مسبقًا", text);
-        Assert.DoesNotContain("المطلوب تحصيله", text);
-    }
-
-    [Fact]
-    public async Task Retrying_the_same_checkout_never_creates_a_second_delivery_order_ticket()
-    {
-        var shiftId = await OpenShiftAsync();
-        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
-        var productId = await _factory.SeedProductAsync(15000);
-        var request = new CheckoutOrderRequest(
-            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
-            OrderType: "delivery", PaymentMethod: "cash",
-            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
-            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
-            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
-            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
-            TableNumber: null, CustomerName: "عميل اختبار", CustomerPhone: "01000000000",
-            DeliveryAddress: "شارع الاختبار", DeliveryArea: "المنطقة أ", BusinessDayId: null,
-            DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل سريع");
-
-        var first = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
-        var second = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
-
-        Assert.False(first!.WasReplayed);
-        Assert.True(second!.WasReplayed);
-        var jobCount = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == first.OrderId && j.Route == "DeliveryOrder"));
-        Assert.Equal(1, jobCount);
-    }
-
-    [Fact]
-    public async Task A_non_delivery_order_creates_no_delivery_order_ticket()
-    {
-        var shiftId = await OpenShiftAsync();
-        var productId = await _factory.SeedProductAsync(10000);
-        var order = await (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
-            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
-            OrderType: "takeaway", PaymentMethod: "cash",
-            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
-            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
-            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
-            AmountPaidPiastres: 10000, SplitPayments: null, WalletProvider: null,
-            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null,
-            BusinessDayId: null))).Content.ReadFromJsonAsync<CheckoutOrderResult>();
-
-        var jobCount = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == order!.OrderId && j.Route == "DeliveryOrder"));
-        Assert.Equal(0, jobCount);
-    }
-
-    /// <summary>The order ticket and the dispatch ticket are two separate print events for the same
-    /// order, each created at its own moment, neither replacing the other.</summary>
-    [Fact]
-    public async Task The_order_ticket_and_the_dispatch_ticket_coexist_as_two_distinct_jobs()
+    public async Task At_pickup_the_driver_paper_is_the_one_new_paper_and_no_delivery_order_ticket_appears()
     {
         var shiftId = await OpenShiftAsync();
         var order = await CheckoutDeliveryOrderAsync(shiftId, 15000);
+        var before = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == order.OrderId));
         var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
         await MarkReadyAsync(deliveryId);
         (await AssignAsync(deliveryId, await CreateDriverAsync("سائق"))).EnsureSuccessStatusCode();
 
         var routes = await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == order.OrderId)
             .Select(j => j.Route).ToListAsync());
-        Assert.Contains("DeliveryOrder", routes);
-        Assert.Contains("DriverDispatch", routes);
-        Assert.Equal(1, routes.Count(r => r == "DeliveryOrder"));
+        Assert.Equal(before + 1, routes.Count);
         Assert.Equal(1, routes.Count(r => r == "DriverDispatch"));
+        Assert.DoesNotContain("DeliveryOrder", routes);
     }
 
     // ---- Driver dispatch ticket (final pre-go-live pass) ----
