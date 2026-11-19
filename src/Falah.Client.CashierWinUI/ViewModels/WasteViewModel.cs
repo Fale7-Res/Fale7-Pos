@@ -26,7 +26,22 @@ public partial class WasteViewModel : ObservableObject
         _businessDate = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, cairo).DateTime);
     }
 
-    public sealed record LossTypeRow(string Type, string Label, long ValuePiastres);
+    public sealed record LossTypeRow(string Type, string Label, long ValuePiastres, int UnknownValueCount = 0)
+    {
+        public string ValueDisplay => UnknownValueCount > 0 && ValuePiastres == 0 ? "غير معلوم"
+            : (UnknownValueCount > 0 ? "من " : "") + CashInput.Format(ValuePiastres) + " ج";
+    }
+    public string TotalValueDisplay => Summary is null ? "—"
+        : Summary.UnknownValueMovementCount > 0 && Summary.UnknownValueMovementCount == Summary.MovementCount ? "غير معلوم"
+        : (Summary.UnknownValueMovementCount > 0 ? "من " : "") + CashInput.Format(Summary.TotalLossValuePiastres) + " ج";
+    public string UnknownValueNote => Summary is { UnknownValueMovementCount: > 0 } s
+        ? $"{s.UnknownValueMovementCount} حركة فاقد بلا تكلفة؛ القيمة المعروضة للجزء المعروف فقط." : "";
+    public bool HasUnknownValue => Summary?.UnknownValueMovementCount > 0;
+    partial void OnSummaryChanged(LossSummaryDto? value)
+    {
+        OnPropertyChanged(nameof(TotalValueDisplay)); OnPropertyChanged(nameof(UnknownValueNote)); OnPropertyChanged(nameof(HasUnknownValue));
+    }
+    private bool _reloadRequested;
 
     [ObservableProperty] private DateOnly _businessDate;
     [ObservableProperty] private bool _isLoading;
@@ -52,13 +67,15 @@ public partial class WasteViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAsync()
     {
-        if (IsLoading) return;
+        if (IsLoading) { _reloadRequested = true; return; }
+        var date = BusinessDate;
         IsLoading = true;
         LoadError = null;
         try
         {
             var actor = _session.CurrentUser!.Id;
-            var summary = await _session.Api.GetLossSummaryAsync(actor, BusinessDate);
+            var summary = await _session.Api.GetLossSummaryAsync(actor, date);
+            if (date != BusinessDate) return;
             if (!summary.Success || summary.Value is null)
             {
                 LoadError = summary.Error ?? "تعذر تحميل ملخص الفاقد.";
@@ -68,10 +85,12 @@ public partial class WasteViewModel : ObservableObject
 
             ByType.Clear();
             foreach (var kv in summary.Value.ValueByType.OrderByDescending(k => k.Value))
-                ByType.Add(new LossTypeRow(kv.Key, LabelFor(kv.Key), kv.Value));
+                ByType.Add(new LossTypeRow(kv.Key, LabelFor(kv.Key), kv.Value, summary.Value.UnknownValueByType.GetValueOrDefault(kv.Key)));
 
             // The movement log filtered to the three loss types - the same rows the summary totals.
-            var movements = await _session.Api.GetStockMovementsAsync(limit: 200);
+            var (start, end) = Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDate(date);
+            var movements = await _session.Api.GetStockMovementsAsync(limit: 200, from: start, to: end.AddTicks(-1), lossesOnly: true);
+            if (date != BusinessDate) return;
             if (!movements.Success || movements.Value is null) { LoadError = movements.Error ?? "تعذر تحميل حركات الفاقد."; return; }
             Movements.Clear();
             if (movements.Success && movements.Value is not null)
@@ -82,6 +101,7 @@ public partial class WasteViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(HasNoLoss));
+            if (_reloadRequested || date != BusinessDate) { _reloadRequested = false; await LoadAsync(); }
         }
     }
 

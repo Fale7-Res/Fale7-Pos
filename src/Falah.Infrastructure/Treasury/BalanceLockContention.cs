@@ -27,7 +27,7 @@ internal static class BalanceLockContention
     private const int LockRequestTimeout = 1222;
 
     public static bool IsContention(Exception ex) =>
-        Sql(ex) is { Number: DeadlockVictim or LockRequestTimeout };
+        ex is BalanceLockTimeoutException || Sql(ex) is { Number: DeadlockVictim or LockRequestTimeout };
 
     private static SqlException? Sql(Exception? ex)
     {

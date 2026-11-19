@@ -20,6 +20,7 @@
     <Grid Background="{ThemeResource ShellBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -32,7 +33,40 @@
             </ScrollViewer>
         </Border>
 
-        <ContentControl x:Name="PageHost" Grid.Row="1"
+        <!-- One row per unresolved attempt. It sits above every screen, so it must not take a third of
+             the window: at four stacked rows per item it pushed the screen's own dialog (the very
+             place the retry is pressed) below the fold. -->
+        <Border Grid.Row="1" Padding="16,8" Background="{ThemeResource WarningBackgroundBrush}"
+                BorderBrush="{ThemeResource WarningBrush}" BorderThickness="0,0,0,1"
+                AutomationProperties.AutomationId="RecoveryPanel"
+                Visibility="{Binding Recovery.HasItems, Converter={StaticResource BoolToVisibleConverter}}">
+            <ScrollViewer MaxHeight="140" VerticalScrollBarVisibility="Auto"><StackPanel Spacing="4">
+                <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource WarningTextBrush}" FontSize="12">
+                    <Run Text="محاولات تحتاج مراجعة: " FontWeight="Bold"/><Run Text="أعد المحاولة من شاشتها أولًا للتحقق. إذا استمر الرفض، راجع سجل العملية على السيرفر قبل إنهاء المحاولة المحفوظة؛ إنهاؤها لا يلغي أي عملية نُفّذت على السيرفر."/>
+                </TextBlock>
+                <ItemsControl ItemsSource="{Binding Recovery.Items}">
+                    <ItemsControl.ItemTemplate><DataTemplate>
+                        <Grid ColumnSpacing="12" Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                <Run Text="{Binding Label}" FontWeight="SemiBold"/><Run Text=" — "/><Run Text="{Binding Status}"/>
+                            </TextBlock>
+                            <CheckBox Grid.Column="1" VerticalAlignment="Center" MinWidth="0"
+                                      Content="راجعت سجل السيرفر" IsChecked="{Binding ServerRecordReviewed, Mode=TwoWay}"/>
+                            <Button Grid.Column="2" VerticalAlignment="Center" Content="إنهاء المحاولة المحفوظة"
+                                    Command="{Binding DiscardCommand}" IsEnabled="{Binding CanDiscard}"/>
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Error}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource DangerBrush}"
+                                       Visibility="{Binding Error, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        </Grid>
+                    </DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel></ScrollViewer>
+        </Border>
+        <ContentControl x:Name="PageHost" Grid.Row="2"
                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
     </Grid>
 </UserControl>

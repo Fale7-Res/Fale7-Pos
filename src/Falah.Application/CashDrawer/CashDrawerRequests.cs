@@ -16,6 +16,10 @@ public sealed record CashDrawerOpenDto(string Id, string ShiftId, string Reason,
 /// ReportPrintJobResultRequest for the printer side.</summary>
 public sealed record ReportCashDrawerResultRequest(string CashDrawerOpenId, bool Succeeded, string? Error, string ReportedByUserId);
 
+/// <summary>What the print station wired to the till's drawer asks for: the open-drawer commands it
+/// should send now. AgentId names the station in the audit trail.</summary>
+public sealed record ClaimCashDrawerKicksRequest(string AgentId);
+
 /// <summary>Ported from the 'cash_in'/'cash_out' cases of addCashMovement in lib/store.tsx - a
 /// cashier manually moving cash between Main Treasury and their own drawer mid-shift (float top-up
 /// or skim), distinct from both an owner deposit/withdrawal (Treasury/DepositHandler etc., gated on

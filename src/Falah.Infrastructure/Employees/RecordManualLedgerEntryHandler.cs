@@ -32,13 +32,15 @@ public sealed class RecordManualLedgerEntryHandler
         // appeared on the employee's statement, and was then skipped by the payroll calculation -
         // which matches "Bonus". The employee simply did not get paid it, and nothing anywhere said
         // so. Whatever casing the caller uses, one spelling reaches the database.
-        if (!Enum.TryParse<LedgerEntryType>(request.Type, ignoreCase: true, out var entryType))
+        if (!Enum.TryParse<LedgerEntryType>(request.Type, ignoreCase: true, out var entryType) || !Enum.IsDefined(entryType))
             throw new DomainException("نوع حركة كشف الحساب غير صالح.");
         var canonicalType = entryType.ToString();
         var amount = Money.FromPiastres(request.AmountPiastres);
         EmployeeRules.AssertLedgerAmount(amount);
         if (string.IsNullOrWhiteSpace(request.Description)) throw new DomainException("وصف الحركة مطلوب.");
 
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await LedgerCreditReplay.LockEmployeeAsync(_db, request.EmployeeId, ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
@@ -72,6 +74,7 @@ public sealed class RecordManualLedgerEntryHandler
         };
         _db.EmployeeLedgerEntries.Add(entity);
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return EmployeeQueryService.ToLedgerDto(entity);
     }
 }

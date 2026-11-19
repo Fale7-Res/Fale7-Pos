@@ -89,6 +89,7 @@ public partial class PrintingViewModel : ObservableObject
         public string StatusLabel => Job.Status switch
         {
             "Failed" => "فشل",
+            "Sending" => "بدأ الإرسال — افحص الورق قبل إعادة الطباعة",
             "Succeeded" => "تمت",
             _ => "في الانتظار",
         };
@@ -113,15 +114,18 @@ public partial class PrintingViewModel : ObservableObject
     [ObservableProperty] private string? _loadError;
     [ObservableProperty] private string _selectedRoute = "Receipt";
 
-    /// <summary>The four real print routes this system models - see Falah.Domain.Printing.PrintRoute.
-    /// They map one-to-one onto the restaurant's four physical printers.</summary>
-    private static readonly (string Route, string Label)[] Routes =
-    {
-        ("Receipt", "إيصال الكاشير"),
-        ("CallCenter", "إيصال مركز الاتصال"),
-        ("Charcoal", "محطة الفحم"),
-        ("Grill", "محطة الشواية"),
-    };
+    // Derive route membership from the domain, including both delivery ticket routes.
+    private static readonly (string Route, string Label)[] Routes = Enum.GetValues<Falah.Domain.Printing.PrintRoute>()
+        .Select(route => (Route: route.ToString(), Label: route switch
+        {
+            Falah.Domain.Printing.PrintRoute.Receipt => "إيصال الكاشير",
+            Falah.Domain.Printing.PrintRoute.CallCenter => "إيصال مركز الاتصال",
+            Falah.Domain.Printing.PrintRoute.Charcoal => "محطة الفحم",
+            Falah.Domain.Printing.PrintRoute.Grill => "محطة الشواية",
+            Falah.Domain.Printing.PrintRoute.DriverDispatch => "تذكرة السائق",
+            Falah.Domain.Printing.PrintRoute.DeliveryOrder => "أوردر الدليفري",
+            _ => route.ToString()
+        })).ToArray();
 
     public bool HasNoPending => !IsLoading && LoadError is null && RouteJobs.Count == 0;
     public bool HasAttention => NeedsAttention.Count > 0;

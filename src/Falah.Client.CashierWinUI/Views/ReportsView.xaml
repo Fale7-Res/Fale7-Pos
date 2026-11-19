@@ -46,7 +46,7 @@
                         AutomationProperties.Name="اليوم التالي" Command="{Binding NextDayCommand}">
                     <FontIcon Glyph="&#xE76B;" FontSize="12"/>
                 </Button>
-                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                <Button AutomationProperties.Name="تحديث" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                         <TextBlock Text="تحديث" FontSize="13"/>
@@ -57,6 +57,51 @@
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24">
             <StackPanel Spacing="16" Visibility="{Binding HasData, Converter={StaticResource BoolToVisibleConverter}}">
+
+                <!-- Export and print. The period is the one this screen shows; the files are generated on the server
+                     from one snapshot of the same reports, so they say exactly what the screens say. -->
+                <Border Style="{StaticResource PageCardStyle}" AutomationProperties.AutomationId="Reports.Export"
+                        Visibility="{Binding HasExportReports, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="تصدير وطباعة التقارير" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap">
+                            <Run Text="الفترة: "/><Run Text="{Binding RangeLabel}"/><Run Text=" (غيّرها من أعلى الشاشة). الملف يُنشأ من نفس أرقام التقارير، ومعه بصمة بياناته."/>
+                        </TextBlock>
+                        <ComboBox Header="التقرير" MinHeight="44" MinWidth="320" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding ExportReports}" DisplayMemberPath="Title"
+                                  SelectedItem="{Binding SelectedExportReport, Mode=TwoWay}"
+                                  AutomationProperties.Name="التقرير المطلوب تصديره" AutomationProperties.AutomationId="Reports.ExportReport"/>
+                        <TextBlock Text="{Binding SelectedExportReport.Description}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Excel" MinHeight="44" MinWidth="96" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ExportCommand}" CommandParameter="xlsx"
+                                    AutomationProperties.Name="تصدير Excel" AutomationProperties.AutomationId="Reports.ExportXlsx"/>
+                            <Button Content="PDF" MinHeight="44" MinWidth="96" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ExportCommand}" CommandParameter="pdf"
+                                    AutomationProperties.Name="تصدير PDF" AutomationProperties.AutomationId="Reports.ExportPdf"/>
+                            <Button Content="Word" MinHeight="44" MinWidth="96" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ExportCommand}" CommandParameter="docx"
+                                    AutomationProperties.Name="تصدير Word" AutomationProperties.AutomationId="Reports.ExportDocx"/>
+                            <Button Content="صورة ملخص" MinHeight="44" MinWidth="96" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ExportCommand}" CommandParameter="png"
+                                    AutomationProperties.Name="تصدير صورة ملخص" AutomationProperties.AutomationId="Reports.ExportPng"/>
+                            <Button Content="معاينة وطباعة (A4)" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{Binding PrintCommand}"
+                                    AutomationProperties.Name="معاينة وطباعة التقرير" AutomationProperties.AutomationId="Reports.Print"/>
+                            <Button Content="فتح آخر ملف" MinHeight="44" Style="{StaticResource GhostButtonStyle}"
+                                    Command="{Binding OpenLastExportCommand}"
+                                    Visibility="{Binding CanOpenLastExport, Converter={StaticResource BoolToVisibleConverter}}"
+                                    AutomationProperties.AutomationId="Reports.OpenLastExport"/>
+                        </StackPanel>
+                        <ProgressBar IsIndeterminate="True" Visibility="{Binding IsExporting, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <TextBlock Text="{Binding ExportMessage}" TextWrapping="Wrap" IsTextSelectionEnabled="True"
+                                   AutomationProperties.AutomationId="Reports.ExportMessage"
+                                   Visibility="{Binding ExportMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <TextBlock Text="{Binding ExportError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                   AutomationProperties.AutomationId="Reports.ExportError"
+                                   Visibility="{Binding ExportError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    </StackPanel>
+                </Border>
 
                 <!-- Headline figures -->
                 <Border Style="{StaticResource PageCardStyle}">
@@ -344,7 +389,7 @@
                             <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
                                     Visibility="{Binding HasIncompleteFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock Text="بعض الأصناف المباعة ليس لها تكلفة معروفة، فالرقم أعلاه أقل من التكلفة الحقيقية. أضف وصفة أو تكلفة لهذه الأصناف."
-                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"/>
+                                           Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"/>
                             </Border>
                         </StackPanel>
                     </Border>

@@ -72,12 +72,14 @@ public sealed class ControlCenterQueryService
         var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == businessDayId, ct)
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
-        var dayShifts = await _db.Shifts.AsNoTracking()
-            .Where(s => s.BusinessDate == day.BusinessDate && s.Status == "Closed" && s.CashDifferencePiastres != null)
+        var dayShifts = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(_db.Shifts.AsNoTracking(), day)
+            .Where(s => s.Status == "Closed" && s.CashDifferencePiastres != null)
             .Select(s => new { s.Id, Diff = s.CashDifferencePiastres!.Value }).ToListAsync(ct);
-        var dayOrders = await _db.Orders.AsNoTracking()
-            .Where(o => o.BusinessDayId == day.Id && o.RefundAmountPiastres > 0)
-            .Select(o => new { o.Id, o.RefundAmountPiastres }).ToListAsync(ct);
+        // Same refund basis as CloseBusinessDayHandler.BuildDayExceptionsAsync: refunds made in this
+        // day, per order.
+        var dayOrders = (await Falah.Infrastructure.Reports.RefundEventQueries.LoadAsync(_db, null, null, day.Id, ct))
+            .GroupBy(r => r.OrderId)
+            .Select(g => new { Id = g.Key, RefundAmountPiastres = g.Sum(r => r.Amount.Piastres) }).ToList();
         var dayExpenses = await _db.Expenses.AsNoTracking()
             .Where(e => e.BusinessDayId == day.Id).Select(e => new { e.Id, e.AmountPiastres }).ToListAsync(ct);
         var unsettledCustodyIds = await _db.DriverCustodies.AsNoTracking()
@@ -88,7 +90,10 @@ public sealed class ControlCenterQueryService
         // wide, not day-scoped, matching the reference app's own selectDeliveryExceptions which
         // operates on whatever deliveries are currently live regardless of business date.
         var dayDeliveries = await _db.Deliveries.AsNoTracking()
-            .Where(d => d.Status == "Ready" || d.Status == "OutForDelivery" || d.Status == "Failed" || d.Status == "Returned")
+            // AUD-13: "New" too - an order never made ready - unless its order was cancelled (a cancelled pending
+            // electronic sale leaves nothing to dispatch).
+            .Where(d => d.Status == "Ready" || d.Status == "OutForDelivery" || d.Status == "Failed" || d.Status == "Returned"
+                || (d.Status == "New" && _db.Orders.Any(o => o.Id == d.OrderId && o.Status != "cancelled")))
             .Select(d => new { d.Id, OrderNumber = _db.Orders.Where(o => o.Id == d.OrderId).Select(o => o.OrderNumber).FirstOrDefault(), d.Status, HasDriver = d.DriverId != null, d.OutForDeliveryAtUtc })
             .ToListAsync(ct);
 
@@ -100,7 +105,9 @@ public sealed class ControlCenterQueryService
             Expenses: dayExpenses.Select(e => (e.Id, e.AmountPiastres)).ToList(),
             UnsettledCustodyIds: unsettledCustodyIds,
             IncompleteJournalIds: incompleteJournalIds,
-            Deliveries: dayDeliveries.Select(d => (d.Id, d.OrderNumber, d.Status, d.HasDriver, d.OutForDeliveryAtUtc)).ToList());
+            Deliveries: dayDeliveries.Select(d => (d.Id, d.OrderNumber, d.Status, d.HasDriver, d.OutForDeliveryAtUtc)).ToList(),
+            UnconfirmedHandovers: await FinancialFollowUps.UnconfirmedHandoversAsync(_db, day, ct),
+            UnresolvedShortfalls: await FinancialFollowUps.UnresolvedShortfallsAsync(_db, ct));
         var exceptions = Falah.Domain.ControlCenter.ControlCenterRules.BuildExceptions(input);
 
         var states = await _db.ControlExceptionStates.AsNoTracking()

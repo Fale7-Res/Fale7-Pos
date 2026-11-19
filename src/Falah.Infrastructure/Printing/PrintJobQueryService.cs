@@ -22,15 +22,62 @@ public sealed class PrintJobQueryService
 {
     private readonly FalahDbContext _db;
     private readonly SettingsQueryService _settings;
-    public PrintJobQueryService(FalahDbContext db, SettingsQueryService settings)
+    private readonly Falah.Infrastructure.Reports.ReportingQueryService _reporting;
+    private readonly Falah.Infrastructure.Delivery.DeliveryQueryService _delivery;
+    public PrintJobQueryService(FalahDbContext db, SettingsQueryService settings, Falah.Infrastructure.Reports.ReportingQueryService reporting,
+        Falah.Infrastructure.Delivery.DeliveryQueryService delivery)
     {
         _db = db;
         _settings = settings;
+        _reporting = reporting;
+        _delivery = delivery;
     }
 
     public async Task<List<PrintJobDto>> ListJobsForOrderAsync(string orderId, CancellationToken ct = default) =>
         (await _db.PrintJobs.AsNoTracking().Where(j => j.OrderId == orderId).OrderBy(j => j.CreatedAtUtc).ToListAsync(ct))
             .Select(CreatePrintJobsHandler.ToDto).ToList();
+
+    /// <summary>
+    /// The pending jobs of a route that this agent will print, claimed for <paramref name="lease"/>
+    /// in one atomic UPDATE so two agents polling at the same instant can never be handed the same
+    /// job. A job is claimable when nobody holds it, its holder's lease has run out (the agent
+    /// crashed or lost its printer), or it is this agent's own (restarted under the same identity).
+    /// READPAST skips rows another agent's claim is locking right now instead of waiting on them.
+    /// </summary>
+    public async Task<List<PrintJobDto>> ClaimPendingJobsForRouteAsync(string route, string agentId, TimeSpan lease, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(agentId) || agentId.Length > 160 || agentId.Contains('|'))
+            throw new DomainException("معرّف وكيل الطباعة غير صالح أو أطول من 160 حرفًا.");
+        var now = DateTimeOffset.UtcNow;
+        var claimId = $"{agentId}|{Guid.NewGuid():N}";
+        var claimed = await _db.PrintJobs.FromSqlRaw(
+                """
+                WITH next_job AS (
+                    SELECT TOP (1) * FROM PrintJobs WITH (ROWLOCK, READPAST, UPDLOCK)
+                    WHERE Route = {2} AND Status = {3}
+                      AND (ClaimedBy IS NULL OR ClaimedUntilUtc IS NULL OR ClaimedUntilUtc < {4}
+                           OR LEFT(ClaimedBy, LEN({5}) + 1) = {5} + '|')
+                    ORDER BY CreatedAtUtc, Id
+                )
+                UPDATE next_job SET ClaimedBy = {0}, ClaimedUntilUtc = {1}
+                OUTPUT INSERTED.*
+                """,
+                claimId, now + lease, route, nameof(PrintJobStatus.Pending), now, agentId)
+            .AsNoTracking().ToListAsync(ct);
+        return claimed.Select(j => CreatePrintJobsHandler.ToDto(j) with { ClaimId = j.ClaimedBy }).ToList();
+    }
+
+    /// <summary>Once bytes may leave, a job is never reclaimed automatically. A lost agent/report
+    /// leaves Sending visible for inspection, rather than creating a second physical ticket.</summary>
+    public async Task<bool> StartSendingAsync(string jobId, string claimId, CancellationToken ct)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var count = await _db.PrintJobs.Where(j => j.Id == jobId && j.ClaimedBy == claimId
+                && (j.Status == nameof(PrintJobStatus.Sending)
+                    || j.Status == nameof(PrintJobStatus.Pending) && j.ClaimedUntilUtc >= now))
+            .ExecuteUpdateAsync(s => s.SetProperty(j => j.Status, nameof(PrintJobStatus.Sending)), ct);
+        return count == 1;
+    }
 
     /// <summary>What a station's own print agent polls: "give me my pending work." Ordered oldest
     /// first so a backlog drains in submission order.</summary>
@@ -58,7 +105,7 @@ public sealed class PrintJobQueryService
         foreach (var route in new[] { "Receipt", "CallCenter", "Charcoal", "Grill", nameof(PrintRoute.DriverDispatch), nameof(PrintRoute.DeliveryOrder) })
         {
             var forRoute = jobs.Where(j => j.Route == route).ToList();
-            var pending = forRoute.Where(j => j.Status == nameof(PrintJobStatus.Pending)).ToList();
+            var pending = forRoute.Where(j => (j.Status == nameof(PrintJobStatus.Pending) || j.Status == nameof(PrintJobStatus.Sending))).ToList();
             routes.Add(new PrintRouteStatusDto(
                 route,
                 pending.Count,
@@ -73,6 +120,7 @@ public sealed class PrintJobQueryService
         // working through this screen would pick them up in anyway.
         var attention = jobs
             .Where(j => j.Status == nameof(PrintJobStatus.Failed)
+                        || (j.Status == nameof(PrintJobStatus.Sending) && j.ClaimedUntilUtc <= DateTimeOffset.UtcNow)
                         || (j.Status == nameof(PrintJobStatus.Pending) && j.CreatedAtUtc <= stuckBefore))
             .OrderBy(j => j.Status == nameof(PrintJobStatus.Failed) ? 0 : 1)
             .ThenBy(j => j.CreatedAtUtc)
@@ -110,6 +158,7 @@ public sealed class PrintJobQueryService
                 PrintDocumentKind.ShiftOpen => await ComposeShiftOpenSlipAsync(job, ct),
                 PrintDocumentKind.ShiftClose => await ComposeShiftCloseSlipAsync(job, ct),
                 PrintDocumentKind.Expense => await ComposeExpenseSlipAsync(job, ct),
+                PrintDocumentKind.DriverStatement => await ComposeDriverStatementAsync(job, ct),
                 _ => throw new InvalidOperationException($"نوع مستند طباعة غير معروف: {kindName}"),
             };
             return ToDto(MarkIfReprint(slip, job));
@@ -132,12 +181,33 @@ public sealed class PrintJobQueryService
                     orderType, ticketItems, order.CreatedAtUtc, order.RequestedPickupAtUtc),
             PrintRoute.Receipt or PrintRoute.CallCenter => await ComposeReceiptAsync(route, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             PrintRoute.DeliveryOrder => await ComposeDeliveryOrderAsync(order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
-            PrintRoute.DriverDispatch => await ComposeDriverDispatchAsync(job, order, ct),
+            PrintRoute.DriverDispatch => await ComposeDriverDispatchAsync(job, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             _ => throw new InvalidOperationException($"مسار طباعة غير معروف: {route}"),
         };
 
         return ToDto(MarkIfReprint(composed, job));
     }
+
+    /// <summary>The key a driver-statement print job carries in place of an order id: driver, business
+    /// day, payment filter, and summary/detail. Built and parsed only here.</summary>
+    public static string DriverStatementKey(string driverId, DateOnly businessDate, string? filter, bool detailed) =>
+        $"drv|{driverId}|{businessDate:yyyy-MM-dd}|{(string.IsNullOrWhiteSpace(filter) ? "all" : filter)}|{(detailed ? "d" : "s")}";
+
+    /// <summary>UI-REQ-001: composed at print time from the very query the screen shows.</summary>
+    private async Task<ComposedTicket> ComposeDriverStatementAsync(PrintJobEntity job, CancellationToken ct)
+    {
+        var parts = job.OrderId.Split('|');
+        if (parts.Length != 5 || parts[0] != "drv") throw new InvalidOperationException("مفتاح كشف السائق غير صالح.");
+        var date = DateOnly.ParseExact(parts[2], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        var statement = await _delivery.GetDriverDailyStatementAsync(parts[1], date, parts[3], ct);
+        var settings = await _settings.GetAsync(ct);
+        return PrintRules.ComposeDriverStatement(settings.RestaurantName, settings.SubName, statement.DriverName, date, statement.PaymentFilter,
+            statement.Orders, statement.Totals, parts[4] == "d", job.CreatedBy, job.CreatedAtUtc);
+    }
+
+    /// <summary>The closing statement's paper, composed exactly as the print agent receives it (UI-REQ-002 preview).</summary>
+    public static ComposedTicketDto ComposeCloseStatementPaper(ShiftCloseStatement statement, bool recomputed) =>
+        ToDto(PrintRules.ComposeShiftCloseStatement(statement, recomputed));
 
     private static ComposedTicketDto ToDto(ComposedTicket composed) =>
         new(composed.Route.ToString(), composed.OrderId, composed.OrderNumber,
@@ -166,6 +236,8 @@ public sealed class PrintJobQueryService
     internal static string ShiftReference(string shiftId) =>
         shiftId.Length <= 6 ? shiftId.ToUpperInvariant() : shiftId[^6..].ToUpperInvariant();
 
+    /// <summary>No new opening slips are queued since the paper redesign (2026-11-17); this stays so a
+    /// job queued before that deployment still prints instead of failing.</summary>
     private async Task<ComposedTicket> ComposeShiftOpenSlipAsync(PrintJobEntity job, CancellationToken ct)
     {
         var (shift, identity) = await LoadShiftIdentityAsync(job.OrderId, ct);
@@ -180,50 +252,36 @@ public sealed class PrintJobQueryService
     /// </summary>
     private async Task<ComposedTicket> ComposeShiftCloseSlipAsync(PrintJobEntity job, CancellationToken ct)
     {
-        var (shift, identity) = await LoadShiftIdentityAsync(job.OrderId, ct);
-        var opening = Money.FromPiastres(shift.OpeningCashPiastres);
-        var breakdown = await Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeBreakdownAsync(_db, shift.Id, opening, ct);
-        var actual = Money.FromPiastres(shift.ActualCashPiastres ?? 0);
-        var expected = Money.FromPiastres(shift.ExpectedCashPiastres ?? breakdown.ExpectedCash.Piastres);
-        breakdown = breakdown with
-        {
-            ExpectedCash = expected,
-            ActualCash = actual,
-            Difference = Money.FromPiastres(shift.CashDifferencePiastres ?? (actual - expected).Piastres),
-        };
-
-        var expenses = (await _db.Expenses.AsNoTracking()
-                .Where(e => e.ShiftId == shift.Id && e.PaidFromDrawer)
-                .Select(e => new { e.Category, e.AmountPiastres }).ToListAsync(ct))
-            .GroupBy(e => e.Category)
-            .Select(g => new ExpenseSummaryLine(g.Key, Money.FromPiastres(g.Sum(e => e.AmountPiastres))))
-            .OrderByDescending(l => l.Amount.Piastres).ToList();
-
-        return PrintRules.ComposeShiftCloseTicket(identity, shift.ClosedAtUtc ?? job.CreatedAtUtc, breakdown,
-            expenses, await LoadCloseWarningsAsync(shift, ct), shift.DifferenceReason);
+        var (statement, recomputed) = await LoadCloseStatementAsync(job.OrderId, ct);
+        return PrintRules.ComposeShiftCloseStatement(statement, recomputed);
     }
 
-    /// <summary>What is still unfinished as this shift is handed over. Read-only: the close itself
-    /// is never blocked by this - the slip states it so the money is counted with it in view.</summary>
-    private async Task<List<string>> LoadCloseWarningsAsync(ShiftEntity shift, CancellationToken ct)
+    /// <summary>
+    /// UI-REQ-002: the closing statement as the close froze it - the paper, its reprints and the
+    /// screen all read this one copy. A shift closed before statements were frozen gets the same
+    /// statement rebuilt from today's records around the expected/counted/difference figures the close
+    /// persisted, and is flagged as recomputed so nobody mistakes it for the original.
+    /// </summary>
+    public async Task<(ShiftCloseStatement Statement, bool Recomputed)> LoadCloseStatementAsync(string shiftId, CancellationToken ct)
     {
-        var warnings = new List<string>();
+        var frozen = await Falah.Infrastructure.Shifts.ShiftCloseStatements.LoadFrozenAsync(_db, shiftId, ct);
+        if (frozen is not null) return (frozen, false);
 
-        var pendingElectronic = await _db.Orders.AsNoTracking()
-            .CountAsync(o => o.ShiftId == shift.Id && o.ElectronicPaymentStatus == "pending", ct);
-        if (pendingElectronic > 0) warnings.Add($"طلبات بانتظار تأكيد تحويل إلكتروني: {pendingElectronic}");
-
-        var unsettled = await _db.DriverCustodies.AsNoTracking()
-            .Where(c => c.Status == "Open").Select(c => c.ExpectedPiastres).ToListAsync(ct);
-        if (unsettled.Count > 0)
-            warnings.Add($"عهدة سائقين غير مسواة: {unsettled.Count} بقيمة {Money.FromPiastres(unsettled.Sum()).Egp} ج");
-
-        var unpaidOrders = await _db.Orders.AsNoTracking()
-            .CountAsync(o => o.ShiftId == shift.Id && !o.IsPaid && o.Status != "cancelled" && o.ElectronicPaymentStatus == null, ct);
-        if (unpaidOrders > 0) warnings.Add($"طلبات غير مدفوعة: {unpaidOrders}");
-
-        return warnings;
+        var (shift, identity) = await LoadShiftIdentityAsync(shiftId, ct);
+        if (shift.ClosedAtUtc is null) throw new InvalidOperationException("الوردية لم تُغلق بعد.");
+        var closer = shift.ClosedByUserId is { } id
+            ? await _db.Users.AsNoTracking().Where(u => u.Id == id).Select(u => u.Name).FirstOrDefaultAsync(ct) ?? id
+            : identity.CashierName;
+        var opening = Money.FromPiastres(shift.OpeningCashPiastres);
+        var expected = shift.ExpectedCashPiastres
+            ?? (await Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeBreakdownAsync(_db, shift.Id, opening, ct)).ExpectedCash.Piastres;
+        var actual = shift.ActualCashPiastres ?? 0;
+        var rebuilt = await Falah.Infrastructure.Shifts.ShiftCloseStatements.BuildAsync(_db, _reporting, shift, identity.CashierName, closer,
+            shift.DifferenceAuthorizedBy, shift.ClosedAtUtc.Value, expected, actual, shift.CashDifferencePiastres ?? actual - expected,
+            shift.DifferenceReason, ct);
+        return (rebuilt, true);
     }
+    // The open items at handover are frozen with the statement (ShiftCloseStatements.LoadOutstandingAsync).
 
     private async Task<ComposedTicket> ComposeExpenseSlipAsync(PrintJobEntity job, CancellationToken ct)
     {
@@ -258,6 +316,15 @@ public sealed class PrintJobQueryService
         PrintRoute route, OrderEntity order, OrderType orderType, string cashierName,
         IReadOnlyList<TicketItem> ticketItems, CancellationToken ct)
     {
+        var (header, totals) = await ReceiptPartsAsync(order, orderType, cashierName, ct);
+        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals);
+    }
+
+    /// <summary>The customer-receipt header and frozen totals of an order - shared by the takeaway
+    /// receipt, the call center's copy and the driver's paper, so they can never disagree.</summary>
+    private async Task<(ReceiptHeader Header, ReceiptTotals Totals)> ReceiptPartsAsync(
+        OrderEntity order, OrderType orderType, string cashierName, CancellationToken ct)
+    {
         var settings = await _settings.GetAsync(ct);
         var header = new ReceiptHeader(
             order.Id, settings.RestaurantName, settings.SubName, settings.Address, order.OrderNumber, order.CreatedAtUtc,
@@ -274,7 +341,7 @@ public sealed class PrintJobQueryService
             Money.FromPiastres(order.CompAmountPiastres), Money.FromPiastres(order.TotalPiastres),
             Money.FromPiastres(order.AmountPaidPiastres), Money.FromPiastres(order.ChangeDuePiastres),
             OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod));
-        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals);
+        return (header, totals);
     }
 
     /// <summary>The delivery ORDER ticket, composed from the same frozen order snapshot the receipt
@@ -310,7 +377,8 @@ public sealed class PrintJobQueryService
     /// <summary>Loads the delivery/driver facts the customer-facing receipt never needed and never
     /// carried. isReassignment is detected, not stored: true whenever an EARLIER DriverDispatch job
     /// already exists for this order - the first dispatch is never marked, every one after it is.</summary>
-    private async Task<ComposedTicket> ComposeDriverDispatchAsync(PrintJobEntity job, OrderEntity order, CancellationToken ct)
+    private async Task<ComposedTicket> ComposeDriverDispatchAsync(PrintJobEntity job, OrderEntity order, OrderType orderType,
+        string cashierName, IReadOnlyList<TicketItem> ticketItems, CancellationToken ct)
     {
         var delivery = await _db.Deliveries.AsNoTracking().FirstOrDefaultAsync(d => d.OrderId == order.Id, ct)
             ?? throw new InvalidOperationException("طلب الدليفري المرتبط بهذا الطلب غير موجود.");
@@ -332,15 +400,13 @@ public sealed class PrintJobQueryService
         // The SAME rule checkout used and the same one the delivery order ticket is given. Derived
         // here rather than re-expressed, so the two delivery tickets for one order can never
         // disagree about whether the driver is collecting money.
-        var settings = await _settings.GetAsync(ct);
-        var orderType = OrderEnumMapping.ParseOrderType(order.OrderType);
-        var paymentMethod = OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod);
+        // Amendment 2 (owner): this paper is the delivery customer's receipt, so it carries exactly
+        // what the takeaway receipt does - the same header, the same frozen totals - plus the driver.
+        var (header, totals) = await ReceiptPartsAsync(order, orderType, cashierName, ct);
+        var paymentMethod = totals.PaymentMethod;
         var isCashOnDelivery = CheckoutRules.IsCashOnDelivery(orderType, paymentMethod, Money.FromPiastres(order.TotalPiastres));
         var amountToCollect = Money.FromPiastres(Math.Max(0, order.TotalPiastres - order.AmountPaidPiastres));
-        return PrintRules.ComposeDriverDispatchTicket(
-            settings.RestaurantName, order.Id, order.OrderNumber, driverName, order.CustomerName, order.CustomerPhone,
-            order.DeliveryAddress, order.DeliveryArea, amountToCollect, isCashOnDelivery,
-            electronicPaymentPending: order.ElectronicPaymentStatus == "pending",
-            order.DeliveryNotes, job.CreatedAtUtc, earlierJobExists);
+        var info = new DeliveryOrderTicketInfo(order.CustomerPhone, order.DeliveryNotes, amountToCollect, isCashOnDelivery);
+        return PrintRules.ComposeDriverDispatchTicket(header, ticketItems, totals, info, driverName, job.CreatedAtUtc, earlierJobExists);
     }
 }

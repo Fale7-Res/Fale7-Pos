@@ -35,7 +35,7 @@ A corrupt journal blocks printing; do not discard it to make the agent start. Pr
 when deploying. The machine-wide route mutex uses the canonical route name.
 
 The final receipt concepts and the no-print preview tool are documented in
-[FINAL_CLOSEOUT_REVIEW.md](FINAL_CLOSEOUT_REVIEW.md). Physical approval remains pending.
+[FINAL_CLOSEOUT_REVIEW.md](archive/documentation-20261108.zip "Archived entry: docs/FINAL_CLOSEOUT_REVIEW.md"). Physical approval remains pending.
 
 ## Configuration (`appsettings.json`)
 
@@ -43,8 +43,10 @@ The final receipt concepts and the no-print preview tool are documented in
 | --- | --- |
 | `ServerBaseAddress` | The Falah.Server this station talks to |
 | `Route` | `Receipt`, `CallCenter`, `Charcoal`, `Grill`, `DeliveryOrder` or `DriverDispatch` - this station's own printer |
-| `ReportedByUserId` | The user print attempts are recorded against |
-| `Pin` | That user's PIN - the agent logs in like any other client. Keep it only in each station's deployed config (see `GO_LIVE_CLEANUP_CHECKLIST.md` §12.2) |
+| `ReportedByUserId` | Obsolete: attempts are recorded against the user the PIN logs in as (the server accepts no other). Ignored with a warning when it names someone else |
+| `Pin` | **Never in this file** (it is tracked by git). The PIN of a user that holds only `print_agent`, from the `FALAH_PRINT_AGENT_PIN` environment variable (wins) or `{"Pin": "..."}` in `appsettings.local.json` beside the agent (git-ignored; survives copying a new build over). The agent refuses to start without one. If the session later ends, the agent logs in again on its own; after a refused login it waits 5 minutes (or the server's `Retry-After`) so a dead PIN cannot stop logins on its machine |
+| `CashDrawerKickEnabled` | `false` by default. On **one** station only - the one wired to the till's drawer - it sends the drawer pulse when a cashier opens the drawer from the till. Requests older than `CashDrawer:KickMaxAgeSeconds` (server, default 30) expire instead of opening the drawer late |
+| `CashDrawerKickBytes` | Hex bytes of the pulse, default `1B 70 00 19 FA` (ESC p, pin 2). Settle with `--test-drawer` on the real printer first; alternatives `1B 70 01 19 FA` (pin 5), `10 14 01 00 05` (DLE DC4) |
 | `Transport` | `network`, `serial`, `windows` or `file` |
 | `PrinterHost` / `PrinterPort` | Network printers - JetDirect raw port, 9100 by default |
 | `SerialPort` / `SerialBaudRate` | Serial, including the virtual COM port some USB thermal printers expose |
@@ -81,8 +83,8 @@ the same agent - only the composition differs, chosen by the job's `DocumentKind
 
 | DocumentKind | Paper | Queued by |
 | --- | --- | --- |
-| `Order` (or empty, for every job written before slips existed) | Customer receipt, kitchen ticket, delivery/dispatch ticket | Checkout, or an explicit print/reprint |
-| `ShiftOpen` | Shift opening slip: cashier, shift, date, time, opening float | Opening a shift, in the same transaction |
+| `Order` (or empty, for every job written before slips existed) | Customer receipt (one piece, with the logo), kitchen ticket, delivery/dispatch ticket | Checkout, or an explicit print/reprint |
+| `ShiftOpen` | **Retired 2026-11-17 (owner).** No new opening slip is queued and it cannot be reprinted (`reprint-document` answers 422). A job queued before that still composes and prints | — |
 | `ShiftClose` | Handover slip: the whole cash story, the count, the difference, warnings | Closing a shift, in the same transaction |
 | `Expense` | Expense voucher: amount, category, description, employee, account | Recording an expense, in the same transaction |
 
@@ -106,6 +108,72 @@ are proven on this firmware: `ESC @`, `GS v 0`, line feed, `GS V 0`. **Do not ad
 
 Character mode (`RenderAsImage: false`) is kept for other printers, but prints unreadable Arabic on
 this one.
+
+## Paper design (redesign approved 2026-11-17)
+
+Spec (with the owner's amendments): `docs/PAPER_DESIGN.md`.
+
+- **Typeface: Dubai** (Medium for normal text, Bold for bold) at 23/30/40/64/88 px, chosen by the owner
+  on paper over Segoe UI and Tahoma. Lines sit on a fixed 1.5 em advance (Dubai's own line height is
+  42 dots at 23 px for 32 dots of ink). Dubai ships with Windows 10/11. **A station without it prints
+  in the pre-redesign Segoe UI faces and sizes, and the agent logs a WARNING at start.** Check the log
+  on each station.
+- **Logo** on the customer receipt and the call-center copy only: `src/Falah.PrintAgent/Assets/receipt-logo.png`
+  (256 × 256 dots, ~32 mm), embedded in the agent and never stroke-thickened. It is generated from
+  `docs/assets/fale7-logo-original.png` by `tools/ReceiptLogo`. The owner chose "variant C": green
+  and the rim print as ink, red and yellow print as paper, except the red «ale7».
+- **One visual system:**
+  - customer header: logo, name, the Settings sub-name;
+  - internal header: name, the paper's title, the order number at 64 px, a heavy rule;
+  - label/value lines whose label never wraps (`TicketRow.FitStart`);
+  - amounts as `12,500 ج`;
+  - dates `dd-MM-yyyy` and times `hh:mm ص/م`, Cairo;
+  - order numbers isolated so `(#0281)` never flips.
+- **The cashier receipt is one piece.** The separate customer-number ticket is gone; the customer
+  collects with the large number on the receipt.
+- **Amendment 1 (owner, same day, approved on paper):**
+  - every section opens on a black band with its title in white (`TicketLayout.SectionBand`);
+  - item tables are ruled grids, with each item's notes and offer inside the grid under it;
+  - the takeaway receipt no longer carries the menu QR (Amendment 2 below says where it went);
+  - the Cashier app's on-screen shift-close preview shows bands as centred headings and ignores
+    the logo.
+- **Amendment 2 (owner, same day, approved on paper): the two delivery papers swap roles.**
+  - The **call-center copy**, printed when the order is taken, goes into the restaurant. It is now a
+    small preparation paper, «تحضير طلب»: number, customer, area and address, items and notes.
+    No logo, prices, totals or QR. It keeps the unconfirmed-transfer warning.
+  - The **driver dispatch paper**, printed when a driver takes the order, goes to the customer. It is
+    now the customer's full receipt: logo, number, driver, customer and phone, the priced item grid,
+    totals, what to collect, delivery notes, the **menu QR**, and the settings footer. It keeps the
+    «إعادة إسناد» marker. The server builds its header and totals with the same code as the takeaway
+    receipt (`PrintJobQueryService.ReceiptPartsAsync`).
+- **Amendment 3 (owner, 2026-11-17 trial): one paper at order time.** The separate delivery-order
+  ticket («أوردر الدليفري / بون التشغيل», route `DeliveryOrder`) printed beside the prep slip, so two
+  papers came out at once. Checkout no longer queues it. A delivery order now prints the taking station's
+  customer copy (the call center's «تحضير طلب») plus the kitchen tickets when it is taken, and the driver
+  paper when a driver takes it. The route, its composer and the agent setting stay, so an older job can
+  still print; a `DeliveryOrder` agent now simply has nothing to do. **2026-11-18 (owner):** a delivery
+  order rung up at the **till** prints the same «تحضير طلب» on the till's own printer (`Receipt` route),
+  not a priced receipt. That paper replaced a second customer receipt. Takeaway and pickup receipts are
+  unchanged.
+- **Amendment 4 (owner, 2026-11-18 trial):** the cashier receipt (takeaway and pickup) no longer
+  carries the logo or the brand sign-off at its end. «فالح أبو العنبه» and the Settings sub-name
+  print once, at the top, and the paper ends with the money. The driver's paper (the delivery
+  customer's receipt) is unchanged and keeps the logo, the menu QR and its footer.
+- **Wire compatibility:** new element kind `logo` and row flag `fitStart`. An agent older than the
+  server prints a blank line for the logo and wraps labels as before. Deploy server and agents together.
+- **Kitchen tickets are longer** than before the redesign: about 70 mm instead of 55 mm for the review
+  sample, because of the larger owner-chosen type and the 64 px order number. `TicketTypographyTests`
+  pins today's length so it cannot creep.
+- **Previews:** `dotnet run --project tools/ReceiptPreview -- <dir>` renders all ten papers with the
+  production code and decodes the menu QR.
+
+**Physical acceptance (2026-11-17, XP-D200N on the development laptop, queue `XP-D200N-Charcoal`).**
+The owner printed and approved, on paper, each of the ten redesigned papers: cashier receipt,
+call-center copy, Charcoal and Grill kitchen tickets, delivery order, driver dispatch, driver statement
+summary and detail, shift close statement, and expense voucher. He confirmed that the Arabic was
+readable, nothing was clipped, the logo was clear, and every paper was cut. Logo variants and
+typefaces were also chosen on that printer. Not yet done: the same check on each restaurant station
+PC (Dubai present, agent log has no WARNING).
 
 ## Verification performed
 
@@ -137,6 +205,14 @@ Sends one sample ticket through the configured transport and exits. It carries A
 digits and Latin digits on purpose: this is the command that settles the `TextEncoding` question
 against the actual printer, which no automated test can answer.
 
+```bash
+dotnet run --project src/Falah.PrintAgent -- path/to/appsettings.json --test-drawer
+```
+
+Sends `CashDrawerKickBytes` once through the configured transport and exits (exit 2 if the transport
+refuses). Whether the drawer opened is something only a person at the counter can see - record the
+printer model and the bytes that worked before setting `CashDrawerKickEnabled`.
+
 ## Running it
 
 ```bash
@@ -150,6 +226,30 @@ Start the server first. Exit codes:
 | Code | Meaning |
 | --- | --- |
 | 1 | Invalid configuration (the problems are listed) |
-| 2 | `--test-print` could not reach the printer |
+| 2 | `--test-print` / `--test-drawer` could not reach the printer |
 | 3 | Could not log in - usually the server is not running yet. The agent does not retry; start it again once the server is up |
 | 4 | Another agent is already running for the same route on this machine. Two agents would print every ticket twice, so the second refuses to start |
+
+
+## Runtime recovery and Windows service (Codex continuation)
+
+- Startup waits for the API: network failures back off 2, 4, 8 seconds up to 60 seconds; a refused login waits five minutes. Ctrl+C also cancels startup. Fix a refused station credential promptly: repeated genuine wrong PINs still count toward the server's daily allowance. No PIN or login-response body is logged.
+- DataDirectory defaults to %ProgramData%\Falah\PrintAgent. An explicit relative directory resolves against the executable directory. Per-route journals live there; logs live in its logs subdirectory. Each log rolls at 5 MiB and keeps five archives. Operational errors reach both the console and file; an unavailable file log warns once and falls back to console. Configuration errors before logger creation remain on stderr.
+- Startup probes journal write/move/delete access before logging in. Old per-route/shared journals beside the executable are merged without deleting their originals or replacing entries already in the new directory. A corrupt journal fails closed. If persistence fails before transport, no paper is sent and the job is reported failed; later persistence errors do not hide the transport result or stall the queue.
+- Exit codes: 0 normal shutdown; 1 invalid configuration/platform; 2 explicit test-print/test-drawer failure; 3 retired; 4 route mutex unavailable/already owned; 5 unusable journal.
+
+On the station, publish the agent to a stable administrator-controlled directory, separate from the source/bin folders. Prepare appsettings.local.json with the dedicated print_agent account's PIN in the configuration directory (default %ProgramData%\Falah\PrintAgent\<Route>). Do not put a PIN in the base/tracked appsettings.json. Prefer the secrets file to an environment variable for a newly installed service; machine environment changes can require a restart before services inherit them.
+
+Example registration, from an elevated PowerShell on that station:
+
+~~~powershell
+.\tools\install-falah-print-agent-service.ps1 -Route Receipt -PublishPath 'C:\Program Files\Falah\PrintAgent'
+~~~
+
+The installer preserves existing configuration and journals, checks that no agent owns the route, restricts the secrets file to SYSTEM/Administrators, and registers automatic recovery under LocalSystem. Windows-queue transport depends on Spooler. It does not overwrite a registered service; uninstall explicitly before changing registration. The service keeps the route mutex on the original main thread and cancels/waits up to 20 seconds when stopped. A Running service can still be waiting for login: inspect its log.
+
+**On-site verification still required:** confirm the LocalSystem printer queue and any LocalMachine HTTPS trust; stop/start while the API is down; check cancelled output recovery; print one real ticket; rehearse the power-cut drill. No service was installed and no physical ticket was printed by this remediation. Uninstall preserves files:
+
+~~~powershell
+.\tools\install-falah-print-agent-service.ps1 -Route Receipt -Uninstall
+~~~

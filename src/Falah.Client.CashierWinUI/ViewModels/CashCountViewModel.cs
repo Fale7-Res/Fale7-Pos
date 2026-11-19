@@ -25,7 +25,7 @@ public partial class CashCountViewModel : ObservableObject
     private string? _businessDayId;
     private string? _pendingId;
 
-    public CashCountViewModel(AppSession session) => _session = session;
+    public CashCountViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     public sealed partial class DenominationRow : ObservableObject
     {
@@ -38,7 +38,7 @@ public partial class CashCountViewModel : ObservableObject
             ? $"{DenominationPiastres / 100} ج"
             : $"{DenominationPiastres} قرش";
 
-        public long Quantity => long.TryParse(QuantityText, out var q) && q > 0 ? q : 0;
+        public long Quantity => CashInput.TryParseCount(QuantityText, out var q) && q > 0 ? q : 0;
         public string LineTotalDisplay => CashInput.Format(Quantity * DenominationPiastres) + " ج";
 
         partial void OnQuantityTextChanged(string value)

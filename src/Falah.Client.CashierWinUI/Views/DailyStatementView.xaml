@@ -54,8 +54,8 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                             <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="10">
-                                <StackPanel Spacing="2"><TextBlock Text="صافي المبيعات" Style="{StaticResource CaptionText}" Foreground="{ThemeResource SuccessBrush}"/>
-                                    <TextBlock Text="{Binding Statement.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel>
+                                <StackPanel Spacing="2"><TextBlock Text="صافي المبيعات" Style="{StaticResource CaptionText}" Foreground="{ThemeResource SuccessTextBrush}"/>
+                                    <TextBlock Text="{Binding Statement.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/></StackPanel>
                             </Border>
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="10">
                                 <StackPanel Spacing="2"><TextBlock Text="إجمالي المبيعات (قبل المرتجع)" Style="{StaticResource CaptionText}"/>
@@ -117,7 +117,7 @@
                 <!-- Section 2: Sold products (complete list, not top-N) -->
                 <Expander Header="٢. الأصناف المباعة اليوم (القائمة الكاملة)" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                     <StackPanel Spacing="8" Padding="4,10,4,4">
-                        <ComboBox ItemsSource="{Binding ProductCategories}" SelectedItem="{Binding CategoryFilter, Mode=TwoWay}" MinWidth="180" HorizontalAlignment="Left"/>
+                        <ComboBox AutomationProperties.Name="تصفية حسب التصنيف" ItemsSource="{Binding ProductCategories}" SelectedItem="{Binding CategoryFilter, Mode=TwoWay}" MinWidth="180" HorizontalAlignment="Left"/>
                         <Grid ColumnSpacing="8" Padding="8,4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
@@ -155,7 +155,7 @@
 
                 <!-- Section 3: Product x hour -->
                 <Expander Header="٣. المبيعات حسب الساعة (متى بيع كل صنف)" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
-                    <ItemsControl ItemsSource="{Binding ProductHourly}" Padding="4,10,4,4">
+                    <ItemsControl ItemsSource="{Binding ProductHourly}" Margin="4,10,4,4">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Spacing="2" Padding="8,6" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1">
@@ -175,6 +175,47 @@
                 <Expander Header="٤. المصروفات (التفصيل الكامل)" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                     <StackPanel Spacing="8" Padding="4,10,4,4">
                         <TextBlock FontSize="13"><Run Text="إجمالي المصروفات: "/><Run Text="{Binding Statement.Expenses.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></TextBlock>
+                        <!-- AUD-04: cancelling a mistaken expense records a linked reversal (a negative line below); nothing
+                             is deleted. Only while the expense's shift is open - the server says so otherwise. -->
+                        <Border Visibility="{Binding IsReversalOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                                Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                    <Run Text="إلغاء المصروف: "/><Run Text="{Binding ReversalTarget.Description}"/><Run Text=" — "/>
+                                    <Run Text="{Binding ReversalTarget.AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                </TextBlock>
+                                <TextBlock Text="يُسجَّل قيد إلغاء مرتبط بالمصروف الأصلي ويعود المبلغ لحسابه. لا يُحذف أي سجل. إذا خرج المبلغ فعلًا ولن يعود فالمصروف صحيح ولا يُلغى." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                <TextBlock Text="ماذا حدث للمبلغ؟ (إلزامي)" FontWeight="SemiBold"/>
+                                <RadioButton GroupName="ReversalDisposition" MinHeight="44"
+                                             Content="خطأ تسجيل: المبلغ لم يخرج من الحساب أصلًا"
+                                             AutomationProperties.AutomationId="DailyStatement_ReversalNotPaid"
+                                             IsChecked="{Binding IsReversalNotPaid, Mode=TwoWay}"/>
+                                <RadioButton GroupName="ReversalDisposition" MinHeight="44"
+                                             Content="صُرف المبلغ ثم عاد نقدًا الآن (استرداد من المحل أو المورد)"
+                                             AutomationProperties.AutomationId="DailyStatement_ReversalCashReturned"
+                                             IsChecked="{Binding IsReversalCashReturned, Mode=TwoWay}"/>
+                                <TextBox Header="المبلغ المُلغى (اتركه فارغًا لإلغاء المصروف كله)" MinHeight="44" InputScope="Number"
+                                         PlaceholderText="مثال: 4500 إذا كُتب 5000 وصُرف 500"
+                                         AutomationProperties.AutomationId="DailyStatement_ReversalAmount"
+                                         Text="{Binding ReversalAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Header="سبب الإلغاء (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                         AutomationProperties.AutomationId="DailyStatement_ReversalReason"
+                                         Text="{Binding ReversalReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <PasswordBox PlaceholderText="رمز المدير" MinHeight="44"
+                                             AutomationProperties.Name="رمز المدير لاعتماد إلغاء المصروف"
+                                             Visibility="{Binding ReversalNeedsManagerPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Password="{Binding ReversalManagerPin, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding ReversalMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding ReversalMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="تأكيد الإلغاء" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                            AutomationProperties.AutomationId="DailyStatement_ConfirmReversal"
+                                            Command="{Binding ConfirmReversalCommand}"/>
+                                    <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding CancelReversalCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
                         <ItemsControl ItemsSource="{Binding ExpenseLines}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -182,7 +223,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/>
                                             <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding CreatedAtUtc}" FontSize="11" Style="{StaticResource MutedText}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding Category}" FontSize="12" FontWeight="Bold"/>
@@ -196,6 +237,12 @@
                                                 AutomationProperties.AutomationId="DailyStatement_ReprintExpense"
                                                 AutomationProperties.Name="إعادة طباعة إيصال المصروف"
                                                 Command="{Binding ElementName=Root, Path=DataContext.ReprintExpenseCommand}" CommandParameter="{Binding}"/>
+                                        <Button Grid.Column="7" Content="إلغاء" MinHeight="44" FontSize="12"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                AutomationProperties.AutomationId="DailyStatement_ReverseExpense"
+                                                Visibility="{Binding AmountPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}"
+                                                AutomationProperties.Name="إلغاء المصروف بقيد مرتبط"
+                                                Command="{Binding ElementName=Root, Path=DataContext.OpenReversalCommand}" CommandParameter="{Binding}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -214,7 +261,7 @@
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="إجمالي الافتتاح" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.ShiftTotals.OpeningCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel></Border>
                             <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="المتوقع بالدرج" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.ShiftTotals.ExpectedCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel></Border>
                             <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="الفعلي المعدود" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.ShiftTotals.ActualCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel></Border>
-                            <Border Grid.Column="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="عجز / زيادة" Style="{StaticResource CaptionText}"/><TextBlock FontWeight="Bold"><Run Text="-"/><Run Text="{Binding Statement.ShiftTotals.ShortagePiastres, Converter={StaticResource PiastresToDisplayConverter}}" Foreground="{ThemeResource DangerBrush}"/><Run Text=" / +"/><Run Text="{Binding Statement.ShiftTotals.OveragePiastres, Converter={StaticResource PiastresToDisplayConverter}}" Foreground="{ThemeResource SuccessBrush}"/></TextBlock></StackPanel></Border>
+                            <Border Grid.Column="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="عجز / زيادة" Style="{StaticResource CaptionText}"/><TextBlock FontWeight="Bold"><Run Text="-"/><Run Text="{Binding Statement.ShiftTotals.ShortagePiastres, Converter={StaticResource PiastresToDisplayConverter}}" Foreground="{ThemeResource DangerBrush}"/><Run Text=" / +"/><Run Text="{Binding Statement.ShiftTotals.OveragePiastres, Converter={StaticResource PiastresToDisplayConverter}}" Foreground="{ThemeResource SuccessTextBrush}"/></TextBlock></StackPanel></Border>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Shifts}">
                             <ItemsControl.ItemTemplate>
@@ -277,25 +324,46 @@
 
                 <!-- Section 7: Employees -->
                 <Expander Header="٧. الموظفون" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
-                    <ItemsControl ItemsSource="{Binding Employees}" Padding="4,10,4,4">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnSpacing="8" Padding="8,6" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding EmployeeName}" FontSize="12" FontWeight="Bold"/>
-                                    <TextBlock Grid.Column="1" FontSize="11"><Run Text="{Binding CheckIn}"/><Run Text=" → "/><Run Text="{Binding CheckOut}"/></TextBlock>
-                                    <TextBlock Grid.Column="2" FontSize="11"><Run Text="تأخير "/><Run Text="{Binding LateMinutes}"/><Run Text=" د"/></TextBlock>
-                                    <TextBlock Grid.Column="3" Text="{Binding DailyWageAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding OvertimeAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
-                                    <TextBlock Grid.Column="5" FontSize="11"><Run Text="إجمالي صرف اليوم: "/><Run Text="{Binding TotalPaidTodayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/></TextBlock>
-                                    <TextBlock Grid.Column="6" Text="{Binding RunningBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12" FontWeight="Bold"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <!-- Earned today (daily wage, the day's share of a monthly salary - by the day it was
+                         earned for - and overtime) is not the same as paid today (advances, withdrawals,
+                         payroll, settlements); the balance is what is still owed after both. -->
+                    <StackPanel Padding="4,10,4,4">
+                        <Grid ColumnSpacing="8" Padding="8,6" Background="{ThemeResource TableHeaderBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="الموظف" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="الحضور" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="التأخير" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="3" Text="يومية مستحقة" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="4" Text="حصة الراتب الشهري" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="5" Text="ساعات إضافية" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="6" Text="صُرف اليوم" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="7" Text="الرصيد المستحق" FontSize="11" FontWeight="Bold"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Employees}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="8" Padding="8,6" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1"
+                                          AutomationProperties.Name="{Binding EmployeeName}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding EmployeeName}" FontSize="12" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" FontSize="11"><Run Text="{Binding CheckIn}"/><Run Text=" → "/><Run Text="{Binding CheckOut}"/></TextBlock>
+                                        <TextBlock Grid.Column="2" FontSize="11"><Run Text="{Binding LateMinutes}"/><Run Text=" د"/></TextBlock>
+                                        <TextBlock Grid.Column="3" Text="{Binding DailyWageAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding SalaryAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding OvertimeAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding TotalPaidTodayPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12"/>
+                                        <TextBlock Grid.Column="7" Text="{Binding RunningBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontSize="12" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Expander>
 
                 <!-- Section 8: Inventory / Purchasing / Waste -->
@@ -325,13 +393,13 @@
                     <Grid ColumnSpacing="8" RowSpacing="8" Padding="4,10,4,4">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
-                        <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="تم التسليم" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.DeliveredCount}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel></Border>
+                        <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="تم التسليم" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.DeliveredCount}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/></StackPanel></Border>
                         <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="فشل" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.FailedCount}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel></Border>
                         <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="مرتجع" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.ReturnedCount}" FontWeight="Bold"/></StackPanel></Border>
                         <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="رسوم التوصيل" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.DeliveryFeesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel></Border>
 
                         <Border Grid.Row="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="متوسط زمن التوصيل (دقيقة)" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.AverageDeliveryMinutes}" FontWeight="Bold"/></StackPanel></Border>
-                        <Border Grid.Row="1" Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="عهدة غير مسوّاة (الآن)" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/></StackPanel></Border>
+                        <Border Grid.Row="1" Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="عهدة غير مسوّاة (الآن)" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.UnsettledCustodyExpectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/></StackPanel></Border>
                         <Border Grid.Row="1" Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="تسويات اليوم" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Delivery.SettlementCount}" FontWeight="Bold"/></StackPanel></Border>
                         <Border Grid.Row="1" Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="عجز/زيادة في التسويات" Style="{StaticResource CaptionText}"/><TextBlock FontWeight="Bold"><Run Text="-"/><Run Text="{Binding Statement.Delivery.ShortagesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/><Run Text=" / +"/><Run Text="{Binding Statement.Delivery.OveragesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/></TextBlock></StackPanel></Border>
                     </Grid>
@@ -385,7 +453,7 @@
                         <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                         <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="طباعات معلّقة" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Printing.PendingCount}" FontWeight="Bold"/></StackPanel></Border>
                         <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="طباعات فاشلة" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Printing.FailedCount}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel></Border>
-                        <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="طباعات متوقفة" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Printing.StuckCount}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/></StackPanel></Border>
+                        <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="طباعات متوقفة" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Printing.StuckCount}" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/></StackPanel></Border>
                         <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="إعادة طباعة اليوم" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Printing.ReprintCount}" FontWeight="Bold"/></StackPanel></Border>
 
                         <Border Grid.Row="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="8"><StackPanel><TextBlock Text="آخر نسخة احتياطية موثّقة" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Statement.Backup.LastVerifiedBackupAtUtc}" FontWeight="Bold" FontSize="11"/></StackPanel></Border>

@@ -22,6 +22,13 @@
                    TextWrapping="Wrap" MaxLines="2"/>
         <Button x:Name="CloseButton" Grid.Column="1" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
                 Style="{StaticResource ModalCloseButtonStyle}" VerticalAlignment="Top"
-                AutomationProperties.Name="إغلاق"/>
+                AutomationProperties.Name="إغلاق" KeyboardAcceleratorPlacementMode="Hidden">
+            <!-- Escape closes the dialog: every dialog is a custom overlay, and none answered Escape
+                 (keyboard pass 2026-11-08). An accelerator inside a collapsed overlay is not processed,
+                 so only the dialog actually on screen reacts. -->
+            <Button.KeyboardAccelerators>
+                <KeyboardAccelerator Key="Escape" Invoked="OnEscapeInvoked"/>
+            </Button.KeyboardAccelerators>
+        </Button>
     </Grid>
 </UserControl>

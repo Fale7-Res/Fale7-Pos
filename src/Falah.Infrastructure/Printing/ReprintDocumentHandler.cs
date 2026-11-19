@@ -33,14 +33,16 @@ public sealed class ReprintDocumentHandler
         if (!Enum.TryParse<PrintDocumentKind>(request.DocumentKind, ignoreCase: true, out var kind)
             || kind == PrintDocumentKind.Order)
             throw new DomainException("نوع المستند المطلوب إعادة طباعته غير صالح.");
+        // Retired by the owner (paper redesign 2026-11-17). Jobs queued before that still compose
+        // and print (PrintJobQueryService keeps the composition); no new one is created.
+        if (kind == PrintDocumentKind.ShiftOpen)
+            throw new DomainException("إيصال افتتاح الوردية لم يعد يُطبع.");
 
         var actor = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
 
         var (label, exists) = kind switch
         {
-            PrintDocumentKind.ShiftOpen => (PrintRules.ShiftOpenLabel,
-                await _db.Shifts.AsNoTracking().AnyAsync(s => s.Id == request.DocumentId, ct)),
             PrintDocumentKind.ShiftClose => (PrintRules.ShiftCloseLabel,
                 await _db.Shifts.AsNoTracking().AnyAsync(s => s.Id == request.DocumentId && s.ClosedAtUtc != null, ct)),
             _ => (PrintRules.ExpenseLabel,

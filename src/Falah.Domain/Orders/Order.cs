@@ -197,6 +197,26 @@ public sealed class Order
     /// the reference app never touches stock on this path. Idempotent: cancelling an
     /// already-cancelled order is a no-op, matching the original exactly.
     /// </summary>
+    /// <summary>
+    /// Voids a cash-on-delivery order whose delivery failed or came back: no money ever changed hands
+    /// (checkout deferred all of it), so it is not a refund - the order simply stops being a sale.
+    /// Only for an unpaid cash-on-delivery order with nothing refunded; anything that took money is
+    /// reversed through a refund instead. Idempotent like CancelElectronicPayment.
+    /// </summary>
+    public void VoidUndeliveredCashOnDelivery(string reason, string cancelledBy, DateTimeOffset nowUtc)
+    {
+        if (Status == OrderStatus.Cancelled) return;
+        if (!CheckoutRules.IsCashOnDelivery(OrderType, PaymentMethod, Total) || IsPaid)
+            throw new DomainException("الإلغاء بعد فشل التوصيل متاح فقط لطلب دفع عند الاستلام لم يُحصَّل.");
+        if (RefundAmount.IsPositive) throw new DomainException("هذا الطلب يحتوي على مرتجع سابق ولا يمكن إلغاؤه.");
+        if (string.IsNullOrWhiteSpace(reason)) throw new DomainException("سبب الإلغاء مطلوب.");
+
+        Status = OrderStatus.Cancelled;
+        CancelledAtUtc = nowUtc;
+        CancelReason = reason.Trim();
+        CancelledBy = cancelledBy;
+    }
+
     public void CancelElectronicPayment(string reason, string cancelledBy, DateTimeOffset nowUtc)
     {
         if (Status == OrderStatus.Cancelled) return;
@@ -217,11 +237,25 @@ public sealed class Order
     /// value, marks the order fully Refunded. The order and multi-payment restrictions are enforced
     /// here too (not only by the caller) so this aggregate can never be pushed into an invalid
     /// state regardless of what the Application layer forgets to check.</summary>
-    public void ApplyRefund(OrderRefund refund)
+    public void AssertCollectedForRefund(bool cashOnDeliverySettled)
+    {
+        if (ElectronicPayment is { Status: ElectronicPaymentStatus.Pending })
+            throw new DomainException("لا يمكن استرجاع طلب لم يتأكد تحويله الإلكتروني بعد.");
+        if (CheckoutRules.IsCashOnDelivery(OrderType, PaymentMethod, Total))
+        {
+            if (!cashOnDeliverySettled)
+                throw new DomainException("لا يمكن استرجاع طلب دفع عند الاستلام قبل تحصيل ثمنه وتسوية عهدة السائق.");
+            return;
+        }
+        if (!IsPaid) throw new DomainException("لا يمكن استرجاع مبلغ لم يُحصَّل.");
+    }
+
+    public void ApplyRefund(OrderRefund refund, bool cashOnDeliverySettled = false)
     {
         if (Status == OrderStatus.Cancelled) throw new DomainException("لا يمكن استرجاع طلب ملغي.");
         if (PaymentMethod == PaymentMethod.Multi) throw new DomainException("مرتجع الدفع المتعدد غير مدعوم في المسار المالي الحالي.");
 
+        AssertCollectedForRefund(cashOnDeliverySettled);
         var refundableBefore = Total - RefundAmount;
         if (refund.Amount.IsZero || refund.Amount.IsNegative || refund.Amount > refundableBefore)
             throw new DomainException("مبلغ المرتجع غير صالح.");

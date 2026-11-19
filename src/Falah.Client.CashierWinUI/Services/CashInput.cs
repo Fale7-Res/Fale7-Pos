@@ -16,5 +16,14 @@ public static class CashInput
         return true;
     }
 
+    /// <summary>A whole count (notes, coins), read with the same Arabic-digit handling as amounts.</summary>
+    public static bool TryParseCount(string? text, out long count)
+    {
+        var normalized = string.Concat((text ?? "").Trim().Select(c =>
+            c is >= '٠' and <= '٩' ? (char)('0' + c - '٠') :
+            c is >= '۰' and <= '۹' ? (char)('0' + c - '۰') : c));
+        return long.TryParse(normalized, NumberStyles.None, CultureInfo.InvariantCulture, out count);
+    }
+
     public static string Format(long piastres) => (piastres / 100m).ToString("0.00", CultureInfo.InvariantCulture);
 }

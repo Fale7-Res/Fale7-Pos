@@ -71,10 +71,12 @@ public sealed class PayEmployeeHandler
         var employee = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
             ?? throw new InvalidOperationException("الموظف غير موجود.");
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            if (await LoadReplayAsync() is { } admissionReplay) return admissionReplay;
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             // Same "lock the employee row first" discipline as RecordEmployeeCashOutHandler: an
             // employee with no ledger rows yet has no stable row of their own to serialize two
             // concurrent first-payments on.
@@ -103,7 +105,7 @@ public sealed class PayEmployeeHandler
             var currentBalance = Money.FromPiastres(lockedEntries.Sum(e => e.CreditPiastres - e.DebitPiastres));
             EmployeeRules.AssertPaymentWithinBalance(amount, currentBalance);
 
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.PaymentAccountId, ct);
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, request.PaymentAccountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, amount);
 
             var journal = new EfFinancialJournal(_db);

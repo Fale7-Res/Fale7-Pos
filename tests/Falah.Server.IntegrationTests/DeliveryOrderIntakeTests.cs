@@ -28,6 +28,7 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
         _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", feePiastres: 1000, name: "توصيل سريع");
 
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
@@ -39,14 +40,15 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
     private async Task<CheckoutOrderRequest> DeliveryOrderAsync(
         long totalPiastres = 10000, string? customerPhone = "01000000000", string? customerName = "أحمد",
         string? deliveryServiceId = "svc-1", string? deliveryArea = "المعادي", string? deliveryStreet = "شارع 9",
-        string? building = "5", string? floor = "3", string? apartment = "12", string? landmark = null)
+        string? building = "5", string? floor = "3", string? apartment = "12", string? landmark = null,
+        long deliveryFeePiastres = 1000)
     {
         var productId = await _factory.SeedProductAsync(totalPiastres);
         return new(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
             OrderType: "delivery", PaymentMethod: "cash",
             Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
-            DiscountPiastres: 0, DeliveryFeePiastres: 1000, CompAmountPiastres: 0,
+            DiscountPiastres: 0, DeliveryFeePiastres: deliveryFeePiastres, CompAmountPiastres: 0,
             CompApprovalId: null, CompApproverUserId: null, CompReason: null,
             AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
             TableNumber: null, CustomerName: customerName, CustomerPhone: customerPhone, DeliveryAddress: null, DeliveryArea: deliveryArea,
@@ -122,6 +124,84 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
         Assert.Equal("12", order.DeliveryApartment);
         Assert.Equal("svc-1", order.DeliveryServiceId);
         Assert.Equal("توصيل سريع", order.DeliveryServiceName);
+        Assert.Equal(1000, order.DeliveryFeePiastres);
+    }
+
+    // AUD-01: the delivery charge is the zone's configured fee, decided by the server. The driver is paid the fee on
+    // the order, so a fee the client made up (or kept from before the zone was re-priced) would move both the
+    // customer's total and the driver's pay. The customer was quoted the screen's total, so a stale fee is refused
+    // rather than silently replaced.
+    [Fact]
+    public async Task A_delivery_fee_that_differs_from_the_zone_fee_is_refused_and_no_order_is_created()
+    {
+        await _factory.SeedDeliveryServiceAsync("svc-1", feePiastres: 1500, name: "توصيل سريع");
+        var request = await DeliveryOrderAsync(deliveryFeePiastres: 1000);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("رسوم التوصيل", await response.Content.ReadAsStringAsync());
+        Assert.False(await _factory.QueryAsync(db => db.Orders.AnyAsync(o => o.CheckoutRequestId == request.CheckoutRequestId)));
+    }
+
+    [Fact]
+    public async Task A_delivery_fee_of_zero_is_refused_for_a_zone_that_charges_a_fee()
+    {
+        var request = await DeliveryOrderAsync(deliveryFeePiastres: 0);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_delivery_order_naming_a_service_that_does_not_exist_is_refused()
+    {
+        var request = await DeliveryOrderAsync(deliveryServiceId: "svc-made-up");
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("خدمة التوصيل", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task A_delivery_order_naming_a_retired_service_is_refused()
+    {
+        await _factory.SeedDeliveryServiceAsync("svc-old", feePiastres: 1000, name: "منطقة قديمة", active: false);
+        var request = await DeliveryOrderAsync(deliveryServiceId: "svc-old");
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_non_delivery_order_carrying_a_delivery_fee_is_refused()
+    {
+        var productId = await _factory.SeedProductAsync(10000);
+        var request = new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 1000, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 11000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null);
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task The_service_name_frozen_on_the_order_is_the_servers_not_the_clients()
+    {
+        var request = await DeliveryOrderAsync() with { DeliveryServiceName = "اسم من الجهاز" };
+        var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
+
+        var order = await (await _client.GetAsync($"/api/orders/{checkout!.OrderId}")).Content.ReadFromJsonAsync<OrderDetailsDto>();
+        Assert.Equal("توصيل سريع", order!.DeliveryServiceName);
         Assert.Equal(1000, order.DeliveryFeePiastres);
     }
 

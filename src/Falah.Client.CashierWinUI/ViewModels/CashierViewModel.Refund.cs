@@ -16,9 +16,16 @@ public partial class CashierViewModel
     private RefundOrderRequest? _pendingRefund;
     private string _refundRequestId = Guid.NewGuid().ToString("N");
     private bool _reviewingExistingOrder;
-    public bool RefundNeedsApproval => !_session.HasPermission("orders_refund");
-    public bool CanRefundOrder => OrderLookupResult is { IsPaid: true, PaymentMethod: not "multi", Status: not "cancelled" } order &&
-        order.TotalPiastres > order.RefundAmountPiastres;
+    /// <summary>Without orders_refund every refund needs a manager; with it, a refund of 500 ج or more
+    /// still does (owner, 2026-11-18 - RefundRules.NeedsManagerApproval, which the server applies too).</summary>
+    public bool RefundNeedsApproval => !_session.HasPermission("orders_refund")
+        || (!_session.CanApproveOwn("orders_refund") && CashInput.TryParse(RefundAmountText, out var amount)
+            && Falah.Domain.Orders.RefundRules.NeedsManagerApproval(Falah.Domain.Common.Money.FromPiastres(amount)));
+    partial void OnRefundAmountTextChanged(string value) => OnPropertyChanged(nameof(RefundNeedsApproval));
+    public bool CanRefundOrder => OrderLookupResult is { PaymentMethod: not "multi" } order
+        && (order.IsPaid || order.CustomerFundsCollected)
+        && !string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase)
+        && order.TotalPiastres > order.RefundAmountPiastres;
     public bool LookupHasPendingPayment => OrderLookupResult?.ElectronicPaymentStatus == "pending";
 
     /// <summary>How a split-paid order was actually paid. The server has recorded the breakdown all
@@ -86,20 +93,22 @@ public partial class CashierViewModel
     }
     [RelayCommand] private async Task SubmitRefundAsync()
     {
-        if (IsRefunding || OrderLookupResult is null) return;
+        // A recovered refund is retried as it was sent; only a NEW refund needs the looked-up order.
+        if (IsRefunding || (OrderLookupResult is null && _pendingRefund is null)) return;
         IsRefunding = true; RefundError = null;
         try
         {
             if (_pendingRefund is null)
             {
+                if (OrderLookupResult is not { } order) return;
                 if (!CashInput.TryParse(RefundAmountText, out var amount) || amount <= 0 ||
-                    amount > OrderLookupResult.TotalPiastres - OrderLookupResult.RefundAmountPiastres)
+                    amount > order.TotalPiastres - order.RefundAmountPiastres)
                 { RefundError = "أدخل مبلغاً ضمن الرصيد المتاح للاسترداد."; return; }
                 if (string.IsNullOrWhiteSpace(RefundReason)) { RefundError = "أدخل سبب الاسترداد."; return; }
                 var (approvalId, approver, ok) = await ResolveManagerApprovalIfNeededAsync(RefundNeedsApproval,
                     RefundManagerPin, "orders_refund", RefundReason, e => RefundError = e);
                 if (!ok) return;
-                var request = new RefundOrderRequest(_refundRequestId, OrderLookupResult.Id, amount, RefundReason,
+                var request = new RefundOrderRequest(_refundRequestId, order.Id, amount, RefundReason,
                     _session.CurrentUser!.Id, approvalId, approver);
                 await CompleteRefundAsync(request, false);
             }
@@ -109,14 +118,17 @@ public partial class CashierViewModel
     }
     private async Task CompleteRefundAsync(RefundOrderRequest request, bool wasUnresolved)
     {
-        _pendingRefund = request; RefreshOperationState();
+        _pendingRefund = request; Remember(RefundOperation, request); RefreshOperationState();
         var result = await _session.Api.RefundAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingRefund = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingRefund = null; Remember(RefundOperation, null); }
+        NoteRetryOutcome(RefundOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         RefreshOperationState();
         if (!result.Success || result.Value is null) { RefundError = result.Error; return; }
         _refundRequestId = Guid.NewGuid().ToString("N");
-        OrderLookupResult = OrderLookupResult! with { Status = result.Value.OrderStatus,
-            RefundAmountPiastres = OrderLookupResult.TotalPiastres - result.Value.RemainingRefundablePiastres };
+        // A refund recovered after a restart has no looked-up order on screen to update.
+        if (OrderLookupResult is { } looked && looked.Id == result.Value.OrderId)
+            OrderLookupResult = looked with { Status = result.Value.OrderStatus,
+                RefundAmountPiastres = looked.TotalPiastres - result.Value.RemainingRefundablePiastres };
         ReprintStatusMessage = "تم تسجيل استرداد " + CashInput.Format(result.Value.AmountPiastres) + " ج";
         IsRefundOpen = false; RefundManagerPin = "";
     }

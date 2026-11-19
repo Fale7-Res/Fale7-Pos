@@ -24,6 +24,7 @@ public partial class AttendanceViewModel : ObservableObject
     public AttendanceViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         var cairo = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
         _date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, cairo).DateTime);
     }

@@ -19,11 +19,13 @@ public sealed class CreateUserHandler
 {
     private readonly FalahDbContext _db;
     private readonly IApprovalRegistry _approvalRegistry;
+    private readonly PinChoiceGuard _pinChoices;
 
-    public CreateUserHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+    public CreateUserHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, PinChoiceGuard pinChoices)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
+        _pinChoices = pinChoices;
     }
 
     public async Task<CreateUserResult> HandleAsync(CreateUserRequest request, CancellationToken ct = default)
@@ -33,14 +35,14 @@ public sealed class CreateUserHandler
         if (existing is not null) return new CreateUserResult(existing.Id, WasReplayed: true);
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم المستخدم مطلوب.");
-        if (string.IsNullOrWhiteSpace(request.Role)) throw new DomainException("دور المستخدم مطلوب.");
+        var role = UserManagementRules.CanonicalRole(request.Role);
         // "Provisioned once" is now enforced as exactly that rather than as "never": an installation
         // with no owner at all has no protected emergency account, and the owner is the ONE account
         // that cannot be deactivated or stripped of its permissions. A till whose only administrator
         // is an ordinary manager has no way back if that manager is lost. So the first owner may be
         // created here - and only the first. Every later attempt is refused exactly as before.
-        if (request.Role == UserManagementRules.OwnerRole
-            && await _db.Users.AsNoTracking().AnyAsync(u => u.Role == UserManagementRules.OwnerRole, ct))
+        if (role == UserManagementRules.OwnerRole
+            && await _db.Users.AsNoTracking().AnyAsync(u => u.Role.Trim().ToLower() == UserManagementRules.OwnerRole, ct))
         {
             throw new DomainException("يوجد حساب مالك بالفعل - لا يمكن إنشاء حساب مالك ثانٍ.");
         }
@@ -53,10 +55,30 @@ public sealed class CreateUserHandler
         var permissions = request.Permissions.Distinct().ToList();
         UserManagementRules.AssertKnownPermissions(permissions);
         UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, permissions);
+        // Owner/manager can issue approvals for every action even without explicit permissions.
+        // Creating either role therefore grants authority equivalent to all.
+        if (role is "owner" or "manager")
+            UserManagementRules.AssertNoPrivilegeEscalation(actor.Permissions, new[] { "all" });
+
+        // A mistyped PIN is refused before it costs a choice; then the choice is claimed, because the
+        // uniqueness check below answers "is this somebody's PIN?" (PinChoiceGuard).
+        PinHasher.AssertValidPin(request.InitialPin);
+        await _pinChoices.ClaimAsync(_db, actorUser, $"إنشاء المستخدم {request.Name.Trim()}", ct);
+
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        // PIN-choice audit was committed first. Serialize actual account creation across hosts,
+        // then recheck replay and the single-owner invariant inside this transaction.
+        await UserIdentityLock.AcquireAsync(_db, ct);
+        var committed = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct);
+        if (committed is not null) return new CreateUserResult(committed.Id, WasReplayed: true);
+        if (role == UserManagementRules.OwnerRole && await _db.Users.AsNoTracking().AnyAsync(u => u.Role.Trim().ToLower() == UserManagementRules.OwnerRole, ct))
+            throw new DomainException("يوجد حساب مالك بالفعل - لا يمكن إنشاء حساب مالك ثانٍ.");
 
         try
         {
-            await PinUniquenessChecker.AssertNotInUseAsync(_db, request.InitialPin, excludeUserId: null, ct);
+            // This request's own id is excluded: a concurrent retry of the same request that has
+            // already inserted it is a replay (handled below), not a collision to be written down.
+            await PinUniquenessChecker.AssertNotInUseAsync(_db, request.InitialPin, excludeUserId: id, chosenBy: actorUser, ct);
         }
         catch (DomainException)
         {
@@ -71,7 +93,7 @@ public sealed class CreateUserHandler
 
         var entity = new UserEntity
         {
-            Id = id, Name = request.Name.Trim(), Role = request.Role, Active = true,
+            Id = id, Name = request.Name.Trim(), Role = role, Active = true,
             Permissions = string.Join(",", permissions),
             PinHash = hashed.HashBase64, PinSalt = hashed.SaltBase64, PinIterations = hashed.Iterations,
         };
@@ -81,7 +103,7 @@ public sealed class CreateUserHandler
             _db.ControlAuditEvents.Add(new ControlAuditEventEntity
             {
                 Id = $"audit-{Guid.NewGuid():N}", Action = "user_created", Actor = actorUser.Name,
-                EntityId = id, Reason = $"دور: {request.Role}", CreatedAtUtc = DateTimeOffset.UtcNow,
+                EntityId = id, Reason = $"دور: {role}", CreatedAtUtc = DateTimeOffset.UtcNow,
             });
             await _db.SaveChangesAsync(ct);
         }
@@ -91,6 +113,7 @@ public sealed class CreateUserHandler
             if (replay is null) throw;
             return new CreateUserResult(replay.Id, WasReplayed: true);
         }
+        await transaction.CommitAsync(ct);
         return new CreateUserResult(entity.Id, WasReplayed: false);
     }
 }

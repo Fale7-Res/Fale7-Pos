@@ -6,6 +6,9 @@ using CC = Falah.Client.CallCenterWinUI;
 
 namespace Falah.Client.Tests;
 
+// Shares the process-wide RetainedRequestStorage.Current with the other durability classes; running them in
+// parallel let one class's store leak into another's assertions.
+[Collection(RetainedRequestStorageCollection.Name)]
 public class FinalVerificationTests
 {
     private sealed class Handler(Func<HttpRequestMessage, Task<HttpResponseMessage>> send) : HttpMessageHandler
@@ -332,6 +335,7 @@ public class FinalVerificationTests
             """{"orderId":"order","electronicPaymentStatus":"pending"}""",
             new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         vm.CancelPendingReason = "لم يصل التحويل";
+        vm.IsCancelFoodNotPrepared = true;   // a cancel now always says what became of the food
         var submit = confirm ? vm.ConfirmElectronicPaymentCommand : vm.CancelPendingElectronicPaymentCommand;
         var opposite = confirm ? vm.CancelPendingElectronicPaymentCommand : vm.ConfirmElectronicPaymentCommand;
         await submit.ExecuteAsync(null);
@@ -542,4 +546,21 @@ public class FinalVerificationTests
         vm.Cart.Add(new CC.Models.CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10001 });
         Assert.Equal(expected, vm.GrandTotalPiastres);
     }
+
+    [Theory]
+    [InlineData("draft", "calculated")]
+    [InlineData("calculated", "reviewed")]
+    [InlineData("reviewed", "approved")]
+    [InlineData("approved", null)]
+    [InlineData("paid", null)]
+    [InlineData("cancelled", null)]
+    public void Payroll_uses_the_servers_status_vocabulary(string status, string? next)
+    {
+        var vm = new PayrollViewModel(Session(_ => Task.FromResult(Json("[]"))));
+        vm.SelectedRun = new Falah.Application.Employees.PayrollRunDto(
+            "run", "2026-09", status, "actor", DateTimeOffset.UtcNow, null, null, null, null, null, null);
+        Assert.Equal(next, vm.NextStatus);
+        Assert.Equal(status == "approved", vm.IsApprovedAndUnpaid);
+    }
+
 }

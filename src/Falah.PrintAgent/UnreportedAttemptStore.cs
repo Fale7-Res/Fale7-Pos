@@ -24,7 +24,7 @@ public sealed class UnreportedAttemptStore
     private readonly object _gate = new();
     private Dictionary<string, StoredAttempt> _attempts;
 
-    public sealed record StoredAttempt(string AttemptRequestId, bool Succeeded, string? Error, DateTimeOffset AtUtc);
+    public sealed record StoredAttempt(string AttemptRequestId, bool Succeeded, string? Error, DateTimeOffset AtUtc, string? ClaimId = null);
 
     public UnreportedAttemptStore(string path)
     {
@@ -32,14 +32,39 @@ public sealed class UnreportedAttemptStore
         _attempts = Load(path);
     }
 
-    public static UnreportedAttemptStore ForRoute(string directory, string route)
+    public static UnreportedAttemptStore ForRoute(string directory, string route, string? legacyDirectory = null)
     {
+        var probe = Path.Combine(directory, $".falah-journal-probe-{Guid.NewGuid():N}");
+        try
+        {
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(probe + ".tmp", "journal write probe");
+            File.Move(probe + ".tmp", probe, overwrite: true);
+            File.Delete(probe);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new InvalidOperationException($"Print-attempt journal folder '{directory}' is not writable by '{Environment.UserName}'.", ex);
+        }
+        finally
+        {
+            try { File.Delete(probe + ".tmp"); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            try { File.Delete(probe); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
         var canonical = Enum.Parse<Falah.Domain.Printing.PrintRoute>(route, true).ToString();
         var store = new UnreportedAttemptStore(Path.Combine(directory, $"unreported-print-attempts-{canonical}.json"));
         // Preserve any outcomes recorded by the earlier shared journal. Each route only ever
         // looks up its own pending job ids; do not delete the legacy file during an upgrade.
         foreach (var entry in Load(Path.Combine(directory, "unreported-print-attempts.json")))
             if (store.Find(entry.Key) is null) store.Remember(entry.Key, entry.Value);
+        if (!string.IsNullOrWhiteSpace(legacyDirectory)
+            && !string.Equals(Path.GetFullPath(directory).TrimEnd(Path.DirectorySeparatorChar),
+                Path.GetFullPath(legacyDirectory).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var file in new[] { $"unreported-print-attempts-{canonical}.json", "unreported-print-attempts.json" })
+                foreach (var entry in Load(Path.Combine(legacyDirectory, file)))
+                    if (store.Find(entry.Key) is null) store.Remember(entry.Key, entry.Value);
+        }
         return store;
     }
 
@@ -88,6 +113,11 @@ public sealed class UnreportedAttemptStore
         {
             if (_attempts.Remove(printJobId)) Save();
         }
+    }
+
+    public IReadOnlyDictionary<string, StoredAttempt> Snapshot()
+    {
+        lock (_gate) return new Dictionary<string, StoredAttempt>(_attempts);
     }
 
     public int Count

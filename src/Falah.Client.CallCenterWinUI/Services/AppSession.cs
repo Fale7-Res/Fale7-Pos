@@ -35,7 +35,7 @@ public sealed class AppSession
     /// <summary>Blocks locking the screen while a financial command's outcome is still unknown -
     /// same rule the Cashier station enforces, for the same reason: walking away from an
     /// unresolved checkout is how a duplicate order gets created by the next person.</summary>
-    public bool HasUnresolvedOperation => _drafts.Values.Any(draft => !draft.CanEditOperation);
+    public bool HasUnresolvedOperation => RetainedRequestStorage.Current?.RecoveryError is not null || _drafts.Values.Any(draft => !draft.CanEditOperation);
 
     public bool HasPermission(string permission) =>
         CurrentUser is not null && (CurrentUser.Permissions.Contains("all") || CurrentUser.Permissions.Contains(permission));

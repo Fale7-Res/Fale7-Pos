@@ -52,6 +52,7 @@ public class FalahDbContext : DbContext
     public DbSet<DeliveryReassignmentEntity> DeliveryReassignments => Set<DeliveryReassignmentEntity>();
     public DbSet<DeliveryEventEntity> DeliveryEvents => Set<DeliveryEventEntity>();
     public DbSet<DriverSettlementEntity> DriverSettlements => Set<DriverSettlementEntity>();
+    public DbSet<CollectionShortfallResolutionEntity> CollectionShortfallResolutions => Set<CollectionShortfallResolutionEntity>();
 
     public DbSet<PrintJobEntity> PrintJobs => Set<PrintJobEntity>();
     public DbSet<PrintJobAttemptEntity> PrintJobAttempts => Set<PrintJobAttemptEntity>();
@@ -83,6 +84,9 @@ public class FalahDbContext : DbContext
             // race between a same-task double click and its own network retry cannot both win.
             b.HasIndex(o => o.CheckoutRequestId).IsUnique();
             b.HasIndex(o => o.SequenceNumber).IsUnique();
+            // Audit 2026-11-18: every daily/monthly/dashboard figure selects orders by a UTC range on
+            // CreatedAtUtc; without this each report scanned the whole table, slower every month.
+            b.HasIndex(o => o.CreatedAtUtc);
             // A plain application-managed concurrency token rather than a native SQL Server
             // rowversion column (IsRowVersion()) - callers that mutate an existing order (refund,
             // payment confirmation) are responsible for incrementing it before SaveChanges. This
@@ -126,12 +130,17 @@ public class FalahDbContext : DbContext
             // any number of Closed shifts coexist freely; only "Open" is constrained to at most one.
             b.HasIndex(s => s.Status).IsUnique().HasFilter("[Status] = 'Open'");
             b.Property(s => s.Version).IsConcurrencyToken();
+            b.HasIndex(s => s.BusinessDayId);
         });
 
         modelBuilder.Entity<TreasuryMovementEntity>(b =>
         {
             b.HasKey(m => m.Id);
             b.HasIndex(m => m.IdempotencyKey).IsUnique();
+            // Audit 2026-11-18: cash flow and statements select movements by a UTC range. The account,
+            // shift and status columns are nvarchar(max) and cannot be index keys without narrowing
+            // them, which is not an additive change - see docs/ASSESSMENT.md (PERF-0001).
+            b.HasIndex(m => m.CreatedAtUtc);
         });
 
         modelBuilder.Entity<BusinessDayEntity>(b =>
@@ -203,7 +212,11 @@ public class FalahDbContext : DbContext
             // because Recipe.ProductId already points the other way (one product -> one active
             // recipe is the real relation); this column only feeds resolution at checkout time.
         });
-        modelBuilder.Entity<ProductVariantEntity>(b => b.HasKey(v => v.Id));
+        modelBuilder.Entity<ProductVariantEntity>(b =>
+        {
+            b.HasKey(v => v.Id);
+            b.Property(v => v.Active).HasDefaultValue(true);
+        });
 
         modelBuilder.Entity<ProductImageEntity>(b =>
         {
@@ -362,12 +375,25 @@ public class FalahDbContext : DbContext
             b.HasIndex(s => s.IdempotencyKey).IsUnique();
         });
 
+        // One classification per delivery's shortfall, one row per request id: the database, not only the handler,
+        // is what makes a classification single and a retried request a replay.
+        modelBuilder.Entity<CollectionShortfallResolutionEntity>(b =>
+        {
+            b.HasKey(r => r.Id);
+            b.HasIndex(r => r.DeliveryId).IsUnique();
+            b.HasIndex(r => r.RequestId).IsUnique();
+            b.Property(r => r.DeliveryId).HasMaxLength(200);
+            b.Property(r => r.RequestId).HasMaxLength(200);
+            b.Property(r => r.Classification).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<PrintJobEntity>(b =>
         {
             b.HasKey(j => j.Id);
             // A station's own print agent polls "pending jobs for my route" - this is the exact
             // shape of that query.
             b.HasIndex(j => new { j.Route, j.Status });
+            b.Property(j => j.ClaimedBy).HasMaxLength(200);
             b.HasIndex(j => j.OrderId);
             b.HasIndex(j => j.CreateRequestId);
             b.HasMany(j => j.Attempts).WithOne().HasForeignKey(a => a.PrintJobId).OnDelete(DeleteBehavior.Cascade);
@@ -379,6 +405,8 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(a => a.Id);
             b.HasIndex(a => a.IdempotencyKey).IsUnique();
+            // The dashboard's print health reads the last day's attempts, not every attempt ever made.
+            b.HasIndex(a => a.AttemptedAtUtc);
         });
 
         modelBuilder.Entity<ChecklistItemEntity>(b =>
@@ -401,6 +429,7 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(s => s.Id);
             b.HasIndex(s => s.BusinessDayId);
+            b.HasIndex(s => new { s.BusinessDayId, s.CloseRevision }).IsUnique();
             b.HasOne<BusinessDayEntity>().WithMany().HasForeignKey(s => s.BusinessDayId).OnDelete(DeleteBehavior.Restrict);
         });
 

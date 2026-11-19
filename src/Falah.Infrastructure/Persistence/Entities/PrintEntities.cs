@@ -29,6 +29,12 @@ public class PrintJobEntity
     public int AttemptCount { get; set; }
     public DateTimeOffset? LastAttemptAtUtc { get; set; }
     public string? LastError { get; set; }
+    /// <summary>The print agent currently holding this job, and until when. A job is handed to one
+    /// agent at a time (PrintJobQueryService.ClaimPendingJobsForRouteAsync), so two agents serving one
+    /// route from two machines never both print it; reporting a result releases it, and an expired
+    /// lease lets another agent take the job of one that crashed.</summary>
+    public string? ClaimedBy { get; set; }
+    public DateTimeOffset? ClaimedUntilUtc { get; set; }
     /// <summary>True when this job was created by an explicit reprint request rather than the
     /// original post-checkout print request - purely informational, never affects routing/content.</summary>
     public bool IsReprint { get; set; }

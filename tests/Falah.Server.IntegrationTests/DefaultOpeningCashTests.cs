@@ -114,22 +114,17 @@ public class DefaultOpeningCashTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task The_opening_slip_prints_the_amount_this_shift_actually_opened_with()
+    public async Task The_shift_keeps_the_amount_it_actually_opened_with_and_queues_no_opening_slip()
     {
+        // Paper redesign spec 2026-11-17, Goal 5: the opening slip is retired, so the amount the
+        // shift opened with is checked on the shift itself instead of on its slip.
         (await SetDefaultOpeningCashAsync(100_000)).EnsureSuccessStatusCode();
         var opened = await OpenShiftAsync(150_000);
-
-        // Changed again before the slip is composed: the paper must still say 1500.
         (await SetDefaultOpeningCashAsync(20_000)).EnsureSuccessStatusCode();
 
-        var slip = await _factory.QueryAsync(db => db.PrintJobs.AsNoTracking()
-            .FirstAsync(j => j.OrderId == opened.ShiftId && j.DocumentKind == "ShiftOpen"));
-        var ticket = await (await _client.GetAsync($"/api/print-jobs/{slip.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
-        var text = ticket!.Lines.SelectMany(TicketDtoText.Of).Where(t => t is not null).Select(t => t!).ToList();
-
-        Assert.Contains("رصيد افتتاحي", text);
-        Assert.Contains("1500 ج", text);
-        Assert.DoesNotContain("200 ج", text);
+        var stored = await _factory.QueryAsync(db => db.Shifts.AsNoTracking().FirstAsync(s => s.Id == opened.ShiftId));
+        Assert.Equal(150_000, stored.OpeningCashPiastres);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == opened.ShiftId && j.DocumentKind == "ShiftOpen")));
     }
 
     [Fact]

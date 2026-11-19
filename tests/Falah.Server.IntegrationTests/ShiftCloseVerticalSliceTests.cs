@@ -32,6 +32,11 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
+    /// <summary>The main treasury balance exactly as the server derives it (from its movements).</summary>
+    private Task<long> MainBalanceAsync() => _factory.QueryAsync(async db =>
+        Falah.Domain.Financial.FinancialRules.TreasuryBalanceFromMovements(
+            await Falah.Infrastructure.Treasury.TreasuryBalanceQuery.LoadAccountMovementsAsync(db, "tre-main", default), "tre-main").Piastres);
+
     private async Task<string> OpenShiftAsync(long openingCashPiastres = 50000) =>
         (await (await _client.PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, openingCashPiastres)))
@@ -176,6 +181,45 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
         Assert.Equal(3, movementCount);
     }
 
+    /// <summary>UI-0001 (shift screens): the client now re-sends a lost open unchanged. The retry
+    /// arrives while the shift it opened is open, so it must replay - not fail as "already open" -
+    /// and the float must leave the main treasury once.</summary>
+    [Fact]
+    public async Task Retrying_a_shift_open_whose_response_was_lost_replays_and_moves_the_float_once()
+    {
+        var mainBefore = await MainBalanceAsync();
+        var request = new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000);
+        var first = await (await _client.PostAsJsonAsync("/api/shifts/open", request)).Content.ReadFromJsonAsync<OpenShiftResult>();
+        var retry = await _client.PostAsJsonAsync("/api/shifts/open", request);
+
+        retry.EnsureSuccessStatusCode();
+        var second = await retry.Content.ReadFromJsonAsync<OpenShiftResult>();
+        Assert.True(second!.WasReplayed);
+        Assert.Equal(first!.ShiftId, second.ShiftId);
+        Assert.Equal(1, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ShiftId == first.ShiftId && m.Type == "shift_opening_float")));
+        var mainAfter = await MainBalanceAsync();
+        Assert.Equal(mainBefore - 50000, mainAfter);
+    }
+
+    /// <summary>The client re-sends a lost approved close with the approval it already spent. The
+    /// replay check comes first, so the spent approval is not a reason to refuse it.</summary>
+    [Fact]
+    public async Task Retrying_an_approved_close_after_its_approval_was_spent_replays_the_close()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        var approval = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "shifts_manage", "فرق كبير")))
+            .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
+        var request = CloseRequest(shiftId, 40000, $"creq-{Guid.NewGuid():N}", "عجز كبير", approval.ApprovalId, _managerId);
+        (await _client.PostAsJsonAsync("/api/shifts/close", request)).EnsureSuccessStatusCode();
+
+        var retry = await _client.PostAsJsonAsync("/api/shifts/close", request);
+
+        retry.EnsureSuccessStatusCode();
+        Assert.True((await retry.Content.ReadFromJsonAsync<CloseShiftResult>())!.WasReplayed);
+        Assert.Equal(3, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ShiftId == shiftId)));
+    }
+
     [Fact]
     public async Task Concurrent_close_requests_with_the_same_idempotency_key_race_to_exactly_one_close()
     {
@@ -268,6 +312,84 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
 
         var count = await _factory.QueryAsync(db => db.Shifts.CountAsync(s => s.OpenedByUserId == noPermissionUser));
         Assert.Equal(0, count);
+    }
+
+    // Audit 2026-11-18 (owner decision the same day): the preview shows the expected cash, so a count
+    // changed after it is a re-count, and a re-count needs a manager. Without this a cashier who counted
+    // 510 ج against 500 ج expected could close at 500 and keep the 10 ج, and the close showed no difference.
+    private Task<PrepareShiftCloseResult?> PrepareAsync(string shiftId, long countedPiastres) =>
+        _client.PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(shiftId, countedPiastres))
+            .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<PrepareShiftCloseResult>()).Unwrap();
+
+    [Fact]
+    public async Task Closing_at_a_figure_other_than_the_first_count_without_a_manager_is_refused()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        var firstCount = await PrepareAsync(shiftId, 51000);
+        Assert.False(firstCount!.RequiresManagerApproval); // 10 ج over, inside the threshold
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 50000, $"creq-{Guid.NewGuid():N}"));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        var shift = await _factory.QueryAsync(db => db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId));
+        Assert.Equal("Open", shift.Status);
+    }
+
+    [Fact]
+    public async Task A_recount_that_differs_from_the_first_count_asks_for_a_manager_in_the_preview()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 51000);
+
+        var recount = await PrepareAsync(shiftId, 50000);
+
+        Assert.True(recount!.RequiresManagerApproval);
+        Assert.Equal(0, recount.DifferencePiastres);
+    }
+
+    [Fact]
+    public async Task A_recount_with_a_valid_manager_approval_closes_and_records_the_approver()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 51000);
+        await PrepareAsync(shiftId, 50000);
+        var approval = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "shifts_manage", "إعادة عدّ")))
+            .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close",
+            CloseRequest(shiftId, 50000, $"creq-{Guid.NewGuid():N}", "أعيد العدّ أمام المدير", approval.ApprovalId, _managerId));
+
+        response.EnsureSuccessStatusCode();
+        var shift = await _factory.QueryAsync(db => db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId));
+        Assert.Equal("Closed", shift.Status);
+        Assert.Equal("المدير", shift.DifferenceAuthorizedBy);
+    }
+
+    [Fact]
+    public async Task Counting_the_same_figure_again_and_closing_at_it_needs_no_manager()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+        await PrepareAsync(shiftId, 50500);
+        var again = await PrepareAsync(shiftId, 50500);
+        Assert.False(again!.RequiresManagerApproval);
+
+        var response = await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 50500, $"creq-{Guid.NewGuid():N}"));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task A_close_with_no_preview_is_recorded_as_the_shifts_only_count()
+    {
+        var shiftId = await OpenShiftAsync(50000);
+
+        (await _client.PostAsJsonAsync("/api/shifts/close", CloseRequest(shiftId, 49500, $"creq-{Guid.NewGuid():N}"))).EnsureSuccessStatusCode();
+
+        var counts = await _factory.QueryAsync(db => db.ControlAuditEvents.AsNoTracking()
+            .Where(e => e.Action == Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.DeclarationAuditAction && e.EntityId == shiftId)
+            .Select(e => e.AmountPiastres).ToListAsync());
+        Assert.Equal(new long?[] { 49500 }, counts);
     }
 
     [Fact]

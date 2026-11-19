@@ -10,8 +10,8 @@ namespace Falah.Client.CashierWinUI.ViewModels;
 
 public partial class UsersViewModel
 {
-    private readonly RetainedRequest<CreateUserRequest> _pendingCreate = new("users.create");
-    private readonly RetainedRequest<ChangePinRequest> _pendingPin = new("users.change-pin");
+    private readonly RetainedRequest<CreateUserRequest> _pendingCreate = new();
+    private readonly RetainedRequest<ChangePinRequest> _pendingPin = new();
     private readonly RetainedRequest<SetUserActiveRequest> _pendingActive = new("users.set-active");
     private readonly RetainedRequest<UpdateUserPermissionsRequest> _pendingPermissions = new("users.permissions");
     public bool HasPendingAction => _pendingCreate.HasPending || _pendingPin.HasPending || _pendingActive.HasPending || _pendingPermissions.HasPending;
@@ -23,7 +23,7 @@ public partial class UsersViewModel
         (SelectedUser.Id == _session.CurrentUser?.Id || (!IsOwnerSelected && _session.HasPermission("users_manage")));
     public bool IsPinChangeOpen => PinTarget is not null;
     public bool IsSelfPinChange => PinTarget?.Id == _session.CurrentUser?.Id;
-    public string PinChangeTitle => IsSelfPinChange ? "تغيير رمزي السري" : "إعادة تعيين الرمز السري";
+    public string PinChangeTitle => IsSelfPinChange ? "تغيير رمزي السري" : _reactivating ? "تفعيل الحساب برمز سري غير مستخدم" : "إعادة تعيين الرمز السري";
     public string CreateUserLabel => IsBusy ? "جارٍ التحقق..." : _pendingCreate.HasPending ? "التحقق وإعادة المحاولة" : "إنشاء المستخدم";
     public string ChangePinLabel => IsBusy ? "جارٍ التحقق..." : _pendingPin.HasPending ? "التحقق وإعادة المحاولة" : "تأكيد التغيير";
     public ObservableCollection<PermissionToggle> NewUserPermissions { get; } = new();
@@ -61,6 +61,7 @@ public partial class UsersViewModel
         : "";
     [ObservableProperty] private string _newUserPin = "";
     [ObservableProperty] private string _confirmUserPin = "";
+    private bool _reactivating;
     [ObservableProperty] private UserDetailsDto? _pinTarget;
     [ObservableProperty] private string _currentPin = "";
     [ObservableProperty] private string _newPin = "";
@@ -141,6 +142,7 @@ public partial class UsersViewModel
     {
         if (!CanChangeSelectedPin) return;
         CurrentPin = NewPin = ConfirmPin = ""; ActionError = ActionNote = null;
+        _reactivating = false;
         PinTarget = SelectedUser;
     }
 
@@ -148,33 +150,22 @@ public partial class UsersViewModel
     private async Task ChangePinAsync()
     {
         if (IsBusy || (!_pendingPin.HasPending && (!CanEditAction || PinTarget is null))) return;
-        var wasPending = _pendingPin.HasPending;
         var request = _pendingPin.Value;
         if (request is null)
         {
             if (IsSelfPinChange && string.IsNullOrEmpty(CurrentPin)) { ActionError = "أدخل الرمز الحالي."; return; }
-            if (!IsSelfPinChange && (PinTarget!.Role == UserManagementRules.OwnerRole || !_session.HasPermission("users_manage"))) return;
+            if (!IsSelfPinChange && (UserManagementRules.IsRole(PinTarget!.Role, UserManagementRules.OwnerRole) || !_session.HasPermission("users_manage"))) return;
             if (!ValidatePin(NewPin, ConfirmPin)) return;
-            request = new ChangePinRequest(PinTarget!.Id, IsSelfPinChange ? CurrentPin : null, NewPin, _session.CurrentUser!.Id);
+            request = new ChangePinRequest(PinTarget!.Id, IsSelfPinChange ? CurrentPin : null, NewPin, _session.CurrentUser!.Id, $"change-pin-{Guid.NewGuid():N}", Reactivate: _reactivating);
         }
         IsBusy = true; ActionError = null;
         try
         {
-            var result = await _pendingPin.SendAsync(request, async original =>
-            {
-                // The self-service endpoint proves the OLD PIN, so replay after a committed
-                // change may reject it. Confirm the intended new credential belongs to this
-                // exact user before issuing another write. Never change the logged-in session.
-                if (wasPending && original.UserId == original.ActorUserId)
-                {
-                    var proof = await _session.Api.LoginByPinAsync(original.NewPin);
-                    if (proof.Success && proof.Value?.Id == original.UserId) return new ApiClient.ApiResult<bool>(true, true, null);
-                }
-                return await _session.Api.ChangePinAsync(original);
-            });
+            var result = await _pendingPin.SendAsync(request, original => _session.Api.ChangePinAsync(original));
             if (!result.Success) { ActionError = _pendingPin.FailureMessage(result.Error); return; }
             PinTarget = null; CurrentPin = NewPin = ConfirmPin = "";
-            ActionNote = "تم تأكيد تغيير الرمز السري.";
+            ActionNote = request.Reactivate ? "تم تفعيل الحساب بالرمز السري الجديد." : "تم تأكيد تغيير الرمز السري.";
+            if (request.Reactivate) await ReloadAsync(request.UserId);
         }
         finally { IsBusy = false; }
     }

@@ -64,7 +64,7 @@
                                 <DataTemplate>
                                     <!-- A row that can be resolved is a button. An alert you cannot act
                                          on is where the trail goes cold. -->
-                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                    <Button AutomationProperties.Name="{Binding Text}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                             MinHeight="44" Margin="0,0,0,6" Padding="12,6"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             IsEnabled="{Binding CanOpen}"
@@ -174,18 +174,18 @@
                                     <DataTemplate>
                                         <Grid ColumnSpacing="9" Margin="0,0,0,9">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="72"/>
+                                                <ColumnDefinition Width="Auto" MinWidth="72" MaxWidth="150"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="46"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Label}" Style="{StaticResource TableCellText}"
                                                        VerticalAlignment="Center"/>
-                                            <Border Grid.Column="1" Height="9" CornerRadius="5" VerticalAlignment="Center"
-                                                    Background="{ThemeResource SurfaceBrush}">
-                                                <Border HorizontalAlignment="Right" CornerRadius="5"
-                                                        Background="{ThemeResource BrandPrimaryBrush}"
-                                                        Width="{Binding Fraction, Converter={StaticResource FractionToWidthConverter}}"/>
-                                            </Border>
+                                            <!-- A share of the whole row, not of a fixed 150px track (73% used to look like half). -->
+                                            <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Fraction}"
+                                                         Height="9" MinHeight="9" CornerRadius="5" VerticalAlignment="Center"
+                                                         Background="{ThemeResource SurfaceBrush}"
+                                                         Foreground="{ThemeResource BrandPrimaryBrush}"
+                                                         AutomationProperties.Name="{Binding Label}"/>
                                             <TextBlock Grid.Column="2" Text="{Binding PercentDisplay}"
                                                        Style="{StaticResource CaptionText}" TextAlignment="Left"
                                                        VerticalAlignment="Center"/>
@@ -243,37 +243,51 @@
 
                     <Border Style="{StaticResource PageCardStyle}">
                         <StackPanel Spacing="10">
-                            <TextBlock Text="الربحية" Style="{StaticResource SectionTitleText}"/>
+                            <TextBlock Text="الربحية (تقديرية)" Style="{StaticResource SectionTitleText}"/>
+                            <!-- Every line below is computed on revenue without VAT (the restaurant is assumed
+                                 VAT-registered - open question S1) and food cost is an estimate (today's
+                                 recipes x last purchase prices), so the results are estimates, labelled so. -->
                             <Grid ColumnSpacing="10" RowSpacing="9">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="تكلفة الطعام" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Text="الإيراد بدون ضريبة القيمة المضافة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Data.Profitability.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="1" Text="تكلفة الطعام التقديرية" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Data.Profitability.KnownFoodCostPiastres, Converter={StaticResource MoneyOrUnknownConverter}}"/>
-                                <TextBlock Grid.Row="1" Text="مجمل الربح" Style="{StaticResource TableCellText}" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="Bold"
+                                <TextBlock Grid.Row="2" Text="مجمل الربح التقديري" Style="{StaticResource TableCellText}" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="Bold"
                                            Text="{Binding Data.Profitability.GrossProfitPiastres, Converter={StaticResource MoneyOrUnknownConverter}}"/>
-                                <TextBlock Grid.Row="2" Text="الأجور المرحّلة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold">
+                                <TextBlock Grid.Row="3" Text="الأجور المستحقة (يوميات وحصص رواتب، بعد الخصومات)" Style="{StaticResource TableCellText}"
+                                           Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold">
                                     <Run Text="{Binding Data.Profitability.WagesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                     <Run Text=" · "/><Run Text="{Binding Data.Profitability.WagePercent, Converter={StaticResource PercentOrUnknownConverter}}"/>
                                 </TextBlock>
-                                <TextBlock Grid.Row="3" Text="بعد التكلفة والمصروفات والأجور" Style="{StaticResource TableCellText}"
+                                <!-- AUD-02: the delivery fee is inside revenue and the driver keeps it, so his pay is a cost. -->
+                                <TextBlock Grid.Row="4" Text="أجر التوصيل للسائقين (رسوم التوصيلات المكتملة)" Style="{StaticResource TableCellText}"
+                                           Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Data.Profitability.DriverCompensationPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <TextBlock Grid.Row="5" Text="النتيجة التشغيلية التقديرية (بعد التكلفة والمصروفات والأجور وأجر التوصيل وعجز تحصيل التوصيل)" Style="{StaticResource TableCellText}"
                                            TextWrapping="Wrap" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="Bold" VerticalAlignment="Bottom"
+                                <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="Bold" VerticalAlignment="Bottom"
                                            Text="{Binding Data.Profitability.OperatingResultPiastres, Converter={StaticResource MoneyOrUnknownConverter}}"/>
                             </Grid>
+                            <TextBlock Text="{Binding DriverPayPendingLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                       Visibility="{Binding HasDriverPayPending, Converter={StaticResource BoolToVisibleConverter}}"/>
                             <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
                                     Visibility="{Binding HasUnknownFoodCost, Converter={StaticResource BoolToVisibleConverter}}">
                                 <TextBlock Text="{Binding UnknownCostLabel}" TextWrapping="Wrap"
-                                           Foreground="{ThemeResource WarningBrush}"/>
+                                           Foreground="{ThemeResource WarningTextBrush}"/>
                             </Border>
-                            <TextBlock Text="لا يشمل الإيجار ولا الإهلاك ولا أي مصروف غير مسجَّل في النظام."
+                            <TextBlock Text="تقدير وليس ربحًا صافيًا محاسبيًا: تكلفة الطعام بالوصفات الحالية وآخر سعر شراء، ولا يشمل الإيجار ولا الإهلاك ولا أي مصروف غير مسجَّل في النظام."
                                        Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
@@ -288,7 +302,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="العروض" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold"
@@ -305,7 +319,15 @@
                                 <TextBlock Grid.Row="4" Text="الهالك" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold"
                                            Text="{Binding Data.Leakage.WasteValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <!-- AUD-03: part of a delivered sale the customer did not pay (approved). -->
+                                <TextBlock Grid.Row="5" Text="عجز تحصيل التوصيل (معتمد)" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold"
+                                           Text="{Binding Data.Leakage.DeliveryCollectionShortfallPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
+                            <!-- AUD-14: a loss with no known cost is not a loss of zero. -->
+                            <TextBlock Text="{Binding WasteUnknownLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource WarningTextBrush}"
+                                       Visibility="{Binding HasWasteUnknownValue, Converter={StaticResource BoolToVisibleConverter}}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -438,7 +460,7 @@
                                         <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
                                                    FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
-                                                   FontWeight="SemiBold" Foreground="{ThemeResource WarningBrush}"
+                                                   FontWeight="SemiBold" Foreground="{ThemeResource WarningTextBrush}"
                                                    Text="{Binding BalanceMilliUnits, Converter={StaticResource MilliUnitsToDisplayConverter}}"/>
                                         <TextBlock Grid.Column="2" Style="{StaticResource TableCellText}" VerticalAlignment="Center"
                                                    Foreground="{ThemeResource TextMutedBrush}"

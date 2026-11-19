@@ -98,6 +98,6 @@ public sealed class EmployeeQueryService
     }
 
     internal static AttendanceRecordDto ToAttendanceDto(AttendanceRecordEntity a) => new(
-        a.Id, a.EmployeeId, a.EmployeeName, a.Date, a.CheckIn, a.CheckOut, a.ShiftName, a.Status, a.LateMinutes,
+        a.Id, a.EmployeeId, a.EmployeeName, a.Date, AttendanceInstants.Display(AttendanceInstants.CheckIn(a), a.CheckIn), AttendanceInstants.Display(AttendanceInstants.CheckOut(a), a.CheckOut), a.ShiftName, a.Status, a.LateMinutes,
         a.WorkHours, a.OvertimeHours, a.TatbiqCount, a.IsManualCorrection, a.CorrectedBy, a.CorrectionReason, a.Source);
 }

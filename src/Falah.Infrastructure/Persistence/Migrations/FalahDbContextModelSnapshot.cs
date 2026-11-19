@@ -30,8 +30,14 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("CheckIn")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTimeOffset?>("CheckInAtUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("CheckOut")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("CheckOutAtUtc")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CorrectedBy")
                         .HasColumnType("nvarchar(max)");
@@ -261,6 +267,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessDayId");
+
+                    b.HasIndex("BusinessDayId", "CloseRevision")
+                        .IsUnique();
 
                     b.ToTable("BusinessDayCloseSnapshots");
                 });
@@ -597,6 +606,66 @@ namespace Falah.Infrastructure.Persistence.Migrations
                             Required = false,
                             SortOrder = 4
                         });
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.CollectionShortfallResolutionEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AmountPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Classification")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ClassifiedByName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClassifiedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeliveryId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DriverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Evidence")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId")
+                        .IsUnique();
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.ToTable("CollectionShortfallResolutions");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ControlAuditEventEntity", b =>
@@ -1030,6 +1099,15 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("ApprovedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("CarriedInPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CarriedOutPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CashCollectedPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -1046,12 +1124,18 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long>("ExpectedPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("FeeEntitlementPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("GrossOrderPiastres")
                         .HasColumnType("bigint");
 
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("KeepsBalanceOpen")
+                        .HasColumnType("bit");
 
                     b.Property<string>("OperationId")
                         .IsRequired()
@@ -1064,6 +1148,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("PaidToDriverPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PayoutTreasuryMovementId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("PrepaidPiastres")
                         .HasColumnType("bigint");
 
@@ -1072,6 +1162,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("ReceivedBy")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceivedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TreasuryMovementId")
@@ -1400,6 +1496,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("Reason")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RequestedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ApprovalId");
 
                     b.ToTable("ManagerApprovals");
@@ -1574,6 +1673,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CheckoutRequestId")
                         .IsUnique();
+
+                    b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("SequenceNumber")
                         .IsUnique();
@@ -2008,6 +2109,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AttemptedAtUtc");
+
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
 
@@ -2023,6 +2126,13 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("AttemptCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("ClaimedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset?>("ClaimedUntilUtc")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CreateRequestId")
                         .IsRequired()
@@ -2147,6 +2257,11 @@ namespace Falah.Infrastructure.Persistence.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2440,6 +2555,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<double>("LatePenaltyMultiplier")
                         .HasColumnType("float");
 
+                    b.Property<int?>("MaxDiscountWithoutApprovalBasisPoints")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaxLatePenaltyHours")
                         .HasColumnType("int");
 
@@ -2502,6 +2620,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("BusinessDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("BusinessDayId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<long?>("CashDifferencePiastres")
                         .HasColumnType("bigint");
 
@@ -2523,8 +2644,41 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long?>("ExpectedCashPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("HandedOverPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("HandoverAcknowledgeRequestId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("HandoverAcknowledgedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("HandoverAcknowledgedByName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandoverAcknowledgedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandoverReceiptNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandoverReceiptStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("HandoverReceivedPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("HandoverReceiverName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandoverReceiverUserId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HandoverTreasuryMovementId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("InheritedFloatPiastres")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("OpenRequestId")
                         .IsRequired()
@@ -2543,6 +2697,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("ReconciliationTreasuryMovementId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("RetainedFloatPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("ShiftName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -2556,6 +2713,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessDayId");
 
                     b.HasIndex("CloseRequestId")
                         .IsUnique()
@@ -2815,6 +2974,8 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();

@@ -1,6 +1,7 @@
 namespace Falah.Domain.Payroll;
 
 using Falah.Domain.Common;
+using Falah.Domain.Employees;
 
 public enum PayrollRunStatus { Draft, Calculated, Reviewed, Approved, Paid, Cancelled }
 
@@ -10,12 +11,16 @@ public enum PayrollRunStatus { Draft, Calculated, Reviewed, Approved, Paid, Canc
 /// independently-invented ones).</summary>
 public static class PayrollRules
 {
+    // Paid is not a status transition. It is the result of PayPayrollHandler, which checks the run
+    // is Approved itself and posts the treasury payment and every line's settlement in the same
+    // transaction as the status. A status change alone would show the run as paid with no money
+    // moved, and leave it unpayable because it is no longer Approved.
     private static readonly IReadOnlyDictionary<PayrollRunStatus, PayrollRunStatus[]> Transitions = new Dictionary<PayrollRunStatus, PayrollRunStatus[]>
     {
         [PayrollRunStatus.Draft] = new[] { PayrollRunStatus.Calculated, PayrollRunStatus.Cancelled },
         [PayrollRunStatus.Calculated] = new[] { PayrollRunStatus.Reviewed, PayrollRunStatus.Cancelled },
         [PayrollRunStatus.Reviewed] = new[] { PayrollRunStatus.Approved, PayrollRunStatus.Cancelled },
-        [PayrollRunStatus.Approved] = new[] { PayrollRunStatus.Paid, PayrollRunStatus.Cancelled },
+        [PayrollRunStatus.Approved] = new[] { PayrollRunStatus.Cancelled },
         [PayrollRunStatus.Paid] = Array.Empty<PayrollRunStatus>(),
         [PayrollRunStatus.Cancelled] = Array.Empty<PayrollRunStatus>(),
     };
@@ -65,7 +70,10 @@ public static class PayrollRules
     /// never go negative).</summary>
     public static Money OutstandingAdvance(IEnumerable<(string Type, Money Debit, Money AdvanceDeduction)> entries, long floorAtZero = 0)
     {
-        var net = entries.Sum(e => (e.Type == "advance" ? e.Debit.Piastres : 0) - (e.Type == "payroll_settlement" ? e.AdvanceDeduction.Piastres : 0));
+        var net = entries.Sum(e =>
+            (string.Equals(e.Type, nameof(LedgerEntryType.Advance), StringComparison.OrdinalIgnoreCase) ? e.Debit.Piastres : 0)
+            - (string.Equals(e.Type, nameof(LedgerEntryType.PayrollSettlement), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(e.Type, "payroll_settlement", StringComparison.OrdinalIgnoreCase) ? e.AdvanceDeduction.Piastres : 0));
         return Money.FromPiastres(Math.Max(floorAtZero, net));
     }
 
@@ -80,6 +88,20 @@ public static class PayrollRules
     /// <summary>Ported verbatim from calculatePayrollLines - an inactive employee with no earning
     /// activity this period is simply excluded (not a zero-payout line), matching legacy's own
     /// `if (!emp.isActive && !has) return []`.</summary>
+    /// <summary>
+    /// The share of a monthly salary earned on one calendar day: the month split evenly by its own
+    /// number of days, the last day taking whatever the integer split left over, so a full month of
+    /// shares adds up to exactly the salary - never a piastre more or less. The owner's rule for
+    /// monthly staff: the salary is earned daily, so the wage cost of a day includes it.
+    /// </summary>
+    public static Money DailySalaryAccrual(Money monthlySalary, DateOnly date)
+    {
+        if (!monthlySalary.IsPositive) return Money.Zero;
+        var days = DateTime.DaysInMonth(date.Year, date.Month);
+        var share = monthlySalary.Piastres / days;
+        return Money.FromPiastres(date.Day == days ? monthlySalary.Piastres - share * (days - 1) : share);
+    }
+
     public static IReadOnlyList<PayrollLine> CalculatePayrollLines(IEnumerable<PayrollLineInput> inputs)
     {
         var result = new List<PayrollLine>();
@@ -98,7 +120,8 @@ public static class PayrollRules
             var overtime = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == "Overtime").Sum(e => e.Credit.Piastres));
             var extraShifts = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type == "ExtraShift").Sum(e => e.Credit.Piastres));
             var bonuses = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is "Bonus" or "OtherEarning").Sum(e => e.Credit.Piastres));
-            var deductions = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is "Deduction" or "Adjustment").Sum(e => e.Debit.Piastres));
+            var deductions = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is "Deduction" or "Adjustment")
+                .Sum(e => e.Debit.Piastres - (e.Type == "Adjustment" ? e.Credit.Piastres : 0)));
 
             if (emp.RequestedAdvanceDeduction.IsNegative || emp.RequestedAdvanceDeduction > emp.AvailableAdvance)
                 throw new DomainException($"استقطاع السلفة للموظف {emp.EmployeeId} يتجاوز الرصيد المتفق عليه.");

@@ -57,6 +57,9 @@ public sealed class ReceivePurchaseHandler
             ?? throw new DomainException("المورد المحدد غير موجود.");
         if (request.Lines.Count == 0) throw new DomainException("يجب إضافة صنف واحد على الأقل للفاتورة.");
 
+        if (request.Lines.Any(l => l.QuantityMilliUnits <= 0 || l.UnitCostPiastres < 0))
+            throw new DomainException("كمية كل بند يجب أن تكون أكبر من صفر والتكلفة يجب ألا تكون سالبة.");
+
         var lines = request.Lines.Select(l => new
         {
             l.InventoryItemId, l.QuantityMilliUnits, l.UnitCostPiastres,
@@ -72,11 +75,6 @@ public sealed class ReceivePurchaseHandler
 
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod);
         if (paid.IsPositive && accountId is null) throw new DomainException("يجب تحديد حساب دفع فعلي للمبلغ المدفوع.");
-        if (accountId is not null)
-        {
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
-            FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
-        }
         // Read each ingredient's current cost basis BEFORE this receipt is written, so the change
         // this invoice causes can be recorded. See PurchasingRules.DescribeUnitCostChange for why
         // this matters more here than it looks: one line rewrites every recipe using that item.
@@ -92,11 +90,19 @@ public sealed class ReceivePurchaseHandler
             previousUnitCosts[itemId] = lastCost is { } c ? Money.FromPiastres(c) : null;
         }
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindPurchaseAsync(purchaseId, ct);
+            if (admissionReplay is not null) return ToDto(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            if (accountId is not null)
+            {
+                var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, accountId, ct);
+                FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, paid);
+            }
             var idempotencyKey = $"purchase-{purchaseId}";
             var journal = new Falah.Infrastructure.Persistence.EfFinancialJournal(_db);
             if (!journal.TryStart(idempotencyKey, "purchase"))
@@ -162,11 +168,18 @@ public sealed class ReceivePurchaseHandler
                 });
             }
 
+            await Falah.Infrastructure.Inventory.InventoryWriteLock.AcquireAsync(_db, ct);
+            // An invoice may list one ingredient on several lines (two cartons at two prices). The
+            // first keeps the established key; each repeat gets its line number, so the keys stay
+            // unique without changing any receipt already on record.
+            var seenItems = new Dictionary<string, int>();
             foreach (var line in lines)
             {
+                var repeat = seenItems[line.InventoryItemId] = seenItems.GetValueOrDefault(line.InventoryItemId) + 1;
+                var stockKey = $"purchase-stock-{purchaseId}-{line.InventoryItemId}" + (repeat > 1 ? $"-{repeat}" : "");
                 _db.StockMovements.Add(new Falah.Infrastructure.Persistence.Entities.StockMovementEntity
                 {
-                    IdempotencyKey = $"purchase-stock-{purchaseId}-{line.InventoryItemId}", InventoryItemId = line.InventoryItemId,
+                    IdempotencyKey = stockKey, InventoryItemId = line.InventoryItemId,
                     Type = nameof(StockMovementType.PurchaseReceipt), Direction = nameof(StockDirection.In),
                     QuantityMilliUnits = line.QuantityMilliUnits, UnitCostPiastres = line.UnitCostPiastres,
                     ReferenceType = "purchase", ReferenceId = purchaseId, SupplierId = supplier.Id,

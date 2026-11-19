@@ -41,6 +41,8 @@ public partial class OwnerDashboardViewModel : ObservableObject
         new PeriodOption("last7", "آخر ٧ أيام"),
         new PeriodOption("last30", "آخر ٣٠ يومًا"),
         new PeriodOption("month", "هذا الشهر"),
+        new PeriodOption("last_month", "الشهر الماضي"),
+        new PeriodOption("year", "من أول السنة"),
     };
 
     /// <summary>One headline figure with its direction. Kept as a view model rather than a pile of
@@ -110,6 +112,8 @@ public partial class OwnerDashboardViewModel : ObservableObject
             "last7" => new BusinessDateRange(today.AddDays(-6), today),
             "last30" => new BusinessDateRange(today.AddDays(-29), today),
             "month" => new BusinessDateRange(new DateOnly(today.Year, today.Month, 1), today),
+            "last_month" => new BusinessDateRange(new DateOnly(today.Year, today.Month, 1).AddMonths(-1), new DateOnly(today.Year, today.Month, 1).AddDays(-1)),
+            "year" => new BusinessDateRange(new DateOnly(today.Year, 1, 1), today),
             _ => BusinessDateRange.SingleDay(today),
         };
     }
@@ -201,6 +205,8 @@ public partial class OwnerDashboardViewModel : ObservableObject
             nameof(UnknownCostLabel), nameof(HasAttention), nameof(AttentionCount), nameof(HasLowStock),
             nameof(BackupLabel), nameof(BackupIsMissing), nameof(SeriesTitle), nameof(SeriesPoints),
             nameof(HasDriverSettlementNote), nameof(DriverSettlementNote),
+            nameof(HasDriverPayPending), nameof(DriverPayPendingLabel),
+            nameof(HasWasteUnknownValue), nameof(WasteUnknownLabel),
             nameof(CanExpandAttention), nameof(AttentionToggleLabel),
         }) OnPropertyChanged(name);
     }
@@ -214,11 +220,16 @@ public partial class OwnerDashboardViewModel : ObservableObject
 
         var series = d.Trend.Series.Select(p => p.NetSalesPiastres).ToList();
 
-        Metrics.Add(Card("إجمالي المبيعات", Money(d.Cash.NetSalesPiastres), d.Trend.NetSales,
-            $"{d.Cash.OrderCount} طلب · متوسط {Money(d.Cash.AverageOrderValuePiastres)}", series));
+        // Net of the period's refunds, VAT included (METRIC_DEFINITIONS: NetSales) - labelled "إجمالي"
+        // (gross) before, which is the figure before refunds.
+        Metrics.Add(Card("صافي المبيعات", Money(d.Cash.NetSalesPiastres), d.Trend.NetSales,
+            $"{d.Cash.OrderCount} طلب · بعد المرتجعات · متوسط {Money(d.Cash.AverageOrderValuePiastres)}", series));
 
-        Metrics.Add(Card("المحصّل فعليًا", Money(d.Cash.CollectedSalesPiastres), d.Trend.Collected,
-            "ما دخل خزينة المطعم بالفعل", series));
+        // AUD-07: this is sales-based (net sales less pending electronic and cash still with drivers), not the cash that
+        // reached the treasury: a settled delivery counts at its full total although the driver kept his fee and any
+        // approved shortfall was never paid. Those two are shown on their own lines.
+        Metrics.Add(Card("المبيعات المحصّلة", Money(d.Cash.CollectedSalesPiastres), d.Trend.Collected,
+            "صافي المبيعات بعد استبعاد المعلّق إلكترونيًا وما مع السائقين؛ يشمل أجر التوصيل الذي احتفظ به السائقون", series));
 
         Metrics.Add(Card("مع السائقين", Money(d.Cash.CashWithDriversPiastres), d.Trend.CashWithDrivers,
             "ليست في عهدة المطعم بعد", Array.Empty<long>()));
@@ -280,9 +291,18 @@ public partial class OwnerDashboardViewModel : ObservableObject
             Attention.Add(new AttentionItem("warn",
                 $"عهدة سائقين غير مسواة: {a.UnsettledCustodyCount} بقيمة {Money(a.UnsettledCustodyPiastres)}", "delivery"));
 
+        // A claim, not money: how much, and how long the oldest has waited, so it is chased in order.
         if (a.PendingElectronicOrderCount > 0)
             Attention.Add(new AttentionItem("warn",
-                $"مدفوعات إلكترونية لم تُؤكَّد: {a.PendingElectronicOrderCount} طلب", "orders"));
+                $"مدفوعات إلكترونية لم تُؤكَّد: {a.PendingElectronicOrderCount} طلب بقيمة {Money(a.PendingElectronicPiastres)}"
+                + (a.OldestPendingElectronicMinutes is { } oldest ? $" · أقدمها منذ {FinancialControlViewModel.Age(oldest)}" : ""),
+                "financial_control"));
+
+        // FIN-0042: the customer paid and never got the order - money owed back until refunded.
+        if (a.PaidUndeliveredOrderCount > 0)
+            Attention.Add(new AttentionItem("bad",
+                $"طلبات توصيل مدفوعة لم تصل للعميل: {a.PaidUndeliveredOrderCount} طلب بقيمة {Money(a.PaidUndeliveredOwedPiastres)} تحتاج استرجاعًا",
+                "orders"));
 
         if (d.Stock.LowStockCount > 0)
             Attention.Add(new AttentionItem("warn",
@@ -373,11 +393,15 @@ public partial class OwnerDashboardViewModel : ObservableObject
     /// collected total, because a settled driver's cash arrived through a settlement rather than
     /// through any sale's payment leg. Saying so is the difference between a reader trusting the
     /// numbers and a reader concluding one of them is broken.</summary>
-    public bool HasDriverSettlementNote => Data is { Cash.SettledFromDriversPiastres: > 0 };
+    public bool HasDriverSettlementNote => Data is { Cash.SettledFromDriversPiastres: > 0 } or { Cash.DriverFeesRetainedPiastres: > 0 };
 
     public string DriverSettlementNote => Data is null ? ""
-        : $"يشمل «المحصَّل» مبلغ {Money(Data.Cash.SettledFromDriversPiastres)} وصل من تسويات السائقين،"
-          + " ولذلك لا يساوي مجموع طرق الدفع أعلاه.";
+        : Data.Cash.DriverFeesRetainedPiastres > 0
+            ? $"يشمل «المحصَّل» مبلغ {Money(Data.Cash.SettledFromDriversPiastres)} وصل من تسويات السائقين"
+              + $" و{Money(Data.Cash.DriverFeesRetainedPiastres)} أجر توصيل احتفظ به السائقون من النقدية التي حصّلوها،"
+              + " ولذلك لا يساوي مجموع طرق الدفع أعلاه."
+            : $"يشمل «المحصَّل» مبلغ {Money(Data.Cash.SettledFromDriversPiastres)} وصل من تسويات السائقين،"
+              + " ولذلك لا يساوي مجموع طرق الدفع أعلاه.";
 
     private void RebuildSplit(OwnerDashboardDto? d)
     {
@@ -418,6 +442,21 @@ public partial class OwnerDashboardViewModel : ObservableObject
         Data?.Trend.Series.Select(p => p.NetSalesPiastres).ToList() ?? new List<long>();
 
     public bool HasUnknownFoodCost => Data is { Profitability.IsFoodCostComplete: false };
+
+    /// <summary>AUD-14: waste recorded with no known cost is in the count but not in the value.</summary>
+    public bool HasWasteUnknownValue => Data is { Leakage.WasteUnknownValueCount: > 0 };
+
+    public string WasteUnknownLabel => Data is { Leakage: { WasteUnknownValueCount: > 0 } l }
+        ? $"{l.WasteUnknownValueCount} من {l.WasteMovementCount} حركة هالك بلا تكلفة معروفة - قيمة الهالك الحقيقية أكبر من الرقم المعروض."
+        : "";
+
+    /// <summary>AUD-02: deliveries of the period not resolved yet. Their fee is in revenue but is owed to a driver only
+    /// if delivered, so the operating result is not final until they are.</summary>
+    public bool HasDriverPayPending => Data is { Profitability.DriverCompensationPendingCount: > 0 };
+
+    public string DriverPayPendingLabel => Data is { Profitability: { DriverCompensationPendingCount: > 0 } p }
+        ? $"{p.DriverCompensationPendingCount} طلب توصيل لم تُحسم نتيجته بعد (رسومها {Money(p.DriverCompensationPendingPiastres)}): إن سُلِّم يُستحق أجره للسائق ويقل الربح بنفس المبلغ."
+        : "";
 
     public string UnknownCostLabel
     {

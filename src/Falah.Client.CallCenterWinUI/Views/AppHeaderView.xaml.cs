@@ -13,6 +13,15 @@ public sealed partial class AppHeaderView : UserControl
     public AppHeaderView()
     {
         InitializeComponent();
+        ThemeButton.Content = Services.ThemeService.Label(Services.ThemeService.Instance.Current);
+    }
+
+    /// <summary>The station's appearance, from the header: the Call Center has no settings screen.</summary>
+    private void OnThemeClicked(object sender, RoutedEventArgs e)
+    {
+        var next = Services.ThemeService.Next(Services.ThemeService.Instance.Current);
+        Services.ThemeService.Instance.Set(next);
+        ThemeButton.Content = Services.ThemeService.Label(next);
     }
 
     private void OnLockClicked(object sender, RoutedEventArgs e) => LockRequested?.Invoke(this, EventArgs.Empty);

@@ -22,6 +22,7 @@ public partial class ControlCenterViewModel : ObservableObject
     public ControlCenterViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         CashCount = new CashCountViewModel(session);
         if (_safeDropRequest.Value is { } recovered)
         {
@@ -143,6 +144,11 @@ public partial class ControlCenterViewModel : ObservableObject
             OnPropertyChanged(nameof(HasBlockers));
         }
     }
+
+    /// <summary>What UI Automation reads for a checklist row: the label and whether it is done (and required).
+    /// The screen shows done / not done as an icon only, which a screen reader cannot see.</summary>
+    public static string ChecklistAccessibleName(ChecklistItemStatusDto item) =>
+        $"{item.Label}، {(item.Completed ? "تم" : "لم يتم")}{(item.Required ? "، إلزامي" : "")}";
 
     [RelayCommand]
     private async Task ToggleChecklistItemAsync(ChecklistItemStatusDto item)

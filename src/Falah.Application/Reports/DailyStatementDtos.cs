@@ -36,7 +36,12 @@ public sealed record DailyStatementDto(
     IReadOnlyList<RefundActivityDto> Refunds,
     IReadOnlyList<DailyAuditEntryDto> AuditTrail,
     DailyPrintingDto Printing,
-    DailyBackupDto Backup);
+    DailyBackupDto Backup,
+    /// <summary>Per-account opening, ins and outs by kind, and closing for the day. Trailing and
+    /// optional so clients built before it keep deserializing the statement unchanged.</summary>
+    CashFlowReportDto? CashFlow = null,
+    /// <summary>The day's voided orders (trailing and optional, like CashFlow).</summary>
+    VoidsReportDto? Voids = null);
 
 /// <summary>Every product sold on the day, not just the top N - the complete list Section 2 of the
 /// statement asks for. Grouped by product NAME, matching GetTopSellingItemsAsync/
@@ -74,7 +79,9 @@ public sealed record DailyEmployeeRowDto(
     string? CheckIn, string? CheckOut, double WorkHours, int LateMinutes, double OvertimeHours,
     long DailyWageAccruedPiastres, long OvertimeAccruedPiastres, long BonusPiastres, long DeductionPiastres,
     long AdvancePaidTodayPiastres, long WithdrawalPaidTodayPiastres, long PayrollSettlementPaidTodayPiastres,
-    long RunningBalancePiastres, long SettlementPaidTodayPiastres = 0)
+    long RunningBalancePiastres, long SettlementPaidTodayPiastres = 0,
+    // The day's share of a monthly salary, by the day it was earned for (not when it was posted).
+    long SalaryAccruedPiastres = 0)
 {
     public long TotalPaidTodayPiastres => AdvancePaidTodayPiastres + WithdrawalPaidTodayPiastres
         + PayrollSettlementPaidTodayPiastres + SettlementPaidTodayPiastres;

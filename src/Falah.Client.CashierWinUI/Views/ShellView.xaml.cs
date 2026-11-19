@@ -120,6 +120,7 @@ public sealed partial class ShellView : UserControl
             ReportsViewModel vm => new ReportsView { DataContext = vm },
             DailyStatementViewModel vm => new DailyStatementView { DataContext = vm },
             DailySummaryViewModel vm => new DailySummaryView { DataContext = vm },
+            FinancialControlViewModel vm => new FinancialControlView { DataContext = vm },
             InventoryViewModel vm => new InventoryView { DataContext = vm },
             TreasuryViewModel vm => new TreasuryView { DataContext = vm },
             ShiftsViewModel vm => new ShiftsView { DataContext = vm },

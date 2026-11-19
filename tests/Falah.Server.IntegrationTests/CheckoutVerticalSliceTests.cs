@@ -267,6 +267,98 @@ public class CheckoutVerticalSliceTests : IAsyncLifetime
         response.EnsureSuccessStatusCode();
     }
 
+    // Audit 2026-11-18 (owner decision the same day): orders_discount alone let a cashier take 100% off
+    // with no manager, while a comp of the same order needed one. Above 10% of the items it now needs
+    // a manager's approval, spent on the order like a comp's.
+    [Fact]
+    public async Task A_discount_above_ten_percent_without_a_manager_is_refused()
+    {
+        var request = (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with { DiscountPiastres = 1001, AmountPaidPiastres = 8999 };
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.Orders.CountAsync(o => o.CheckoutRequestId == request.CheckoutRequestId)));
+    }
+
+    [Fact]
+    public async Task A_discount_above_ten_percent_with_a_manager_approval_is_accepted_and_names_the_manager()
+    {
+        var managerId = await _factory.SeedUserAsync("مدير الخصم", "manager", "all");
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(managerId), "orders_discount", "خصم عميل دائم"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+        var request = (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with
+        {
+            DiscountPiastres = 5000, AmountPaidPiastres = 5000,
+            DiscountApprovalId = approval!.ApprovalId, DiscountApproverUserId = managerId,
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        response.EnsureSuccessStatusCode();
+        var order = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        Assert.Equal(5000, order!.TotalPiastres);
+        var audit = await _factory.QueryAsync(db => db.AuditEvents.AsNoTracking().FirstAsync(e => e.ReferenceId == order.OrderId && e.Action == "خصم يدوي على طلب"));
+        Assert.Equal("مدير الخصم", audit.AuthorizedBy);
+        var spentAgain = await _client.PostAsJsonAsync("/api/orders/checkout", (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with
+        {
+            DiscountPiastres = 5000, AmountPaidPiastres = 5000,
+            DiscountApprovalId = approval.ApprovalId, DiscountApproverUserId = managerId,
+        });
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, spentAgain.StatusCode);
+    }
+
+    // A manager at the till is the person the limit would ask for: they give a large discount
+    // themselves without fetching a second manager, and are named as its authoriser.
+    [Fact]
+    public async Task A_manager_giving_a_large_discount_needs_no_second_manager()
+    {
+        var managerId = await _factory.SeedUserAsync("مدير على الكاشير", "manager", "all");
+        var request = (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with
+        {
+            CashierId = managerId, DiscountPiastres = 5000, AmountPaidPiastres = 5000,
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var order = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var audit = await _factory.QueryAsync(db => db.AuditEvents.AsNoTracking().FirstAsync(e => e.ReferenceId == order!.OrderId && e.Action == "خصم يدوي على طلب"));
+        Assert.Equal("مدير على الكاشير", audit.AuthorizedBy);
+    }
+
+    [Fact]
+    public async Task A_discount_larger_than_the_items_is_refused_even_with_a_manager()
+    {
+        var managerId = await _factory.SeedUserAsync("مدير الخصم", "manager", "all");
+        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(managerId), "orders_discount", "خصم"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+        var request = (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with
+        {
+            DiscountPiastres = 1_000_000, AmountPaidPiastres = 0,
+            DiscountApprovalId = approval!.ApprovalId, DiscountApproverUserId = managerId,
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_discount_limit_of_zero_in_settings_makes_every_discount_need_a_manager()
+    {
+        var ownerId = await _factory.SeedUserAsync("المالك", "owner", "all");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(ownerId, MaxDiscountWithoutApprovalBasisPoints: 0)))
+            .EnsureSuccessStatusCode();
+
+        var response = await _client.PostAsJsonAsync("/api/orders/checkout",
+            (await CashOrder($"req-{Guid.NewGuid():N}", 10000)) with { DiscountPiastres = 100, AmountPaidPiastres = 9900 });
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        var settings = await (await _client.GetAsync("/api/settings")).Content.ReadFromJsonAsync<Falah.Application.Settings.SettingsDto>();
+        Assert.Equal(0, settings!.MaxDiscountWithoutApprovalBasisPoints);
+    }
+
     // Legacy-parity audit (2026-09-04): the reference app's own comp-reason-code taxonomy
     // (hospitality/complaint/kitchen_error/staff_meal/owner_guest) was never captured at checkout -
     // only a free-text CompReason reached the audit log. Fixed to require and persist one.

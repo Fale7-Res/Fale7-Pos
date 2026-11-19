@@ -89,7 +89,8 @@ public sealed class ReportingQueryService
     {
         var entities = await LoadSalesOrdersAsync(range, shiftId, ct);
         var orders = entities.Select(OrderMapper.ToDomain).ToList();
-        var report = SalesRules.ComputeSalesReport(orders, await LoadOrderIdsWithCashOutsideRestaurantAsync(orders, ct));
+        var report = SalesRules.ComputeSalesReport(orders, await LoadOrderIdsWithCashOutsideRestaurantAsync(orders, ct),
+            await RefundEventQueries.LoadAsync(_db, range, shiftId, businessDayId: null, ct));
         return ToDto(report);
     }
 
@@ -104,7 +105,7 @@ public sealed class ReportingQueryService
     {
         var entities = await LoadSalesOrdersAsync(range, shiftId, ct);
         var orders = entities.Select(OrderMapper.ToDomain).ToList();
-        var report = SalesRules.ComputeTaxReport(orders);
+        var report = SalesRules.ComputeTaxReport(orders, await RefundEventQueries.LoadAsync(_db, range, shiftId, businessDayId: null, ct));
         return new TaxReportDto(report.Gross.Piastres, report.Taxable.Piastres, report.Tax.Piastres,
             report.RefundTaxImpact.Piastres, report.NetTax.Piastres);
     }
@@ -149,12 +150,12 @@ public sealed class ReportingQueryService
         var query = _db.OrderRefunds.AsNoTracking()
             .Where(r => (string.IsNullOrEmpty(shiftId) || r.OperationalShiftId == shiftId)
                 && (start == null || r.CreatedAtUtc >= start) && (end == null || r.CreatedAtUtc < end))
-            .Join(_db.Orders.AsNoTracking(), r => r.OrderId, o => o.Id, (r, o) => new { Refund = r, o.OrderNumber });
+            .Join(_db.Orders.AsNoTracking(), r => r.OrderId, o => o.Id, (r, o) => new { Refund = r, o.OrderNumber, SaleAtUtc = o.CreatedAtUtc });
 
         var rows = await query.ToListAsync(ct);
         return rows.Select(x => new RefundActivityDto(x.Refund.OrderId, x.OrderNumber, x.Refund.AmountPiastres,
             x.Refund.PaymentMethod, x.Refund.Reason, x.Refund.CreatedBy, x.Refund.AuthorizedBy, x.Refund.CreatedAtUtc,
-            x.Refund.OriginalShiftId, x.Refund.OperationalShiftId)).ToList();
+            x.Refund.OriginalShiftId, x.Refund.OperationalShiftId, x.SaleAtUtc)).ToList();
     }
 
     /// <summary>The read-only equivalent of reconcileBusinessDay in lib/control-layer-domain.mjs -
@@ -170,7 +171,8 @@ public sealed class ReportingQueryService
             .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.BusinessDayId == businessDayId).ToListAsync(ct);
         var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
         var sales = SalesRules.ComputeSalesReport(
-            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct));
+            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct),
+            await RefundEventQueries.LoadAsync(_db, range: null, processingShiftId: null, businessDayId, ct));
 
         var expensesTotal = await _db.Expenses.AsNoTracking().Where(e => e.BusinessDayId == businessDayId).SumAsync(e => (long?)e.AmountPiastres, ct) ?? 0;
 
@@ -180,7 +182,7 @@ public sealed class ReportingQueryService
         var treasury = new TreasuryBalancesDto(Balance(TreasuryAccounts.Main), Balance(TreasuryAccounts.Drawer),
             Balance(TreasuryAccounts.Bank), Balance(TreasuryAccounts.InstaPay), Balance(TreasuryAccounts.Wallet));
 
-        var dayShifts = await _db.Shifts.AsNoTracking().Where(s => s.BusinessDate == day.BusinessDate).ToListAsync(ct);
+        var dayShifts = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(_db.Shifts.AsNoTracking(), day).ToListAsync(ct);
         var shiftsExpected = dayShifts.Sum(s => s.ExpectedCashPiastres ?? 0);
         var shiftsActual = dayShifts.Sum(s => s.ActualCashPiastres ?? 0);
         var shortage = dayShifts.Where(s => (s.CashDifferencePiastres ?? 0) < 0).Sum(s => Math.Abs(s.CashDifferencePiastres ?? 0));
@@ -218,18 +220,20 @@ public sealed class ReportingQueryService
         var day = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == businessDayId, ct)
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
-        var (start, end) = BusinessClock.UtcRangeForBusinessDate(day.BusinessDate);
-        var ledgerEntries = await _db.EmployeeLedgerEntries.AsNoTracking()
-            .Where(l => l.CreatedAtUtc >= start && l.CreatedAtUtc < end).ToListAsync(ct);
+        // Salary accruals by the day they were earned for (the business day's date), everything else by
+        // when it was recorded (EmployeeLedgerPeriods).
+        var ledgerEntries = await Falah.Infrastructure.Employees.EmployeeLedgerPeriods
+            .ForDays(_db.EmployeeLedgerEntries.AsNoTracking(), day.BusinessDate, day.BusinessDate).ToListAsync(ct);
         long SumType(string type, bool credit) => ledgerEntries.Where(l => l.Type == type)
             .Sum(l => credit ? l.CreditPiastres : l.DebitPiastres);
         var employeeLedger = new EmployeeLedgerTotalsDto(
             SumType(nameof(LedgerEntryType.DailyWage), credit: true),
             SumType(nameof(LedgerEntryType.Overtime), credit: true),
             SumType(nameof(LedgerEntryType.Advance), credit: false),
-            SumType(nameof(LedgerEntryType.Withdrawal), credit: false));
+            SumType(nameof(LedgerEntryType.Withdrawal), credit: false),
+            SumType(nameof(LedgerEntryType.Salary), credit: true));
 
-        var dayShifts = await _db.Shifts.AsNoTracking().Where(s => s.BusinessDate == day.BusinessDate).ToListAsync(ct);
+        var dayShifts = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(_db.Shifts.AsNoTracking(), day).ToListAsync(ct);
         var cashierUserIds = dayShifts.Select(s => s.OpenedByUserId).Distinct();
         var cashierNames = await _db.Users.AsNoTracking().Where(u => cashierUserIds.Contains(u.Id))
             .Select(u => u.Name).Distinct().ToListAsync(ct);
@@ -240,6 +244,9 @@ public sealed class ReportingQueryService
 
     private (DateTimeOffset? Start, DateTimeOffset? End) Range(DateOnly? from, DateOnly? to)
     {
+        // RPT-0001: a reversed range is the same range, as BusinessClock.UtcRangeForBusinessDates
+        // already treats it for the sales report - not an empty window that answers "nothing sold".
+        if (from is { } a && to is { } b && b < a) (from, to) = (b, a);
         DateTimeOffset? start = from is { } f ? BusinessClock.UtcRangeForBusinessDate(f).Start : null;
         DateTimeOffset? end = to is { } t ? BusinessClock.UtcRangeForBusinessDate(t).End : null;
         return (start, end);
@@ -524,13 +531,22 @@ public sealed class ReportingQueryService
         return result;
     }
 
+    /// <summary>One shift's own sales under the shared definitions - the single computation behind the
+    /// Shifts screen, the shift report and the frozen closing statement (UI-REQ-002), so the three
+    /// cannot disagree.</summary>
+    internal async Task<SalesRules.SalesReport> ComputeShiftSalesAsync(string shiftId, CancellationToken ct = default)
+    {
+        var orderEntities = await LoadSalesOrdersAsync(null, shiftId, ct);
+        var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
+        return SalesRules.ComputeSalesReport(
+            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct),
+            await RefundEventQueries.LoadAsync(_db, range: null, processingShiftId: shiftId, businessDayId: null, ct));
+    }
+
     private async Task<ShiftSummaryDto> BuildShiftSummaryAsync(
         ShiftEntity shift, IReadOnlyDictionary<string, string> userNames, CancellationToken ct)
     {
-        var orderEntities = await LoadSalesOrdersAsync(null, shift.Id, ct);
-        var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
-        var sales = SalesRules.ComputeSalesReport(
-            domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct));
+        var sales = await ComputeShiftSalesAsync(shift.Id, ct);
         var expensesTotal = await _db.Expenses.AsNoTracking().Where(e => e.ShiftId == shift.Id).SumAsync(e => (long?)e.AmountPiastres, ct) ?? 0;
 
         return new ShiftSummaryDto(shift.Id, shift.ShiftName, shift.OpenedByUserId, shift.Status, shift.OpeningCashPiastres,
@@ -538,6 +554,112 @@ public sealed class ReportingQueryService
             userNames.GetValueOrDefault(shift.OpenedByUserId),
             shift.ClosedByUserId is { } closedBy ? userNames.GetValueOrDefault(closedBy) : null,
             shift.OpenedAtUtc, shift.ClosedAtUtc, shift.DifferenceReason);
+    }
+
+    private static readonly string[] CashFlowAccounts =
+        { TreasuryAccounts.Main, TreasuryAccounts.Drawer, TreasuryAccounts.Bank, TreasuryAccounts.InstaPay, TreasuryAccounts.Wallet };
+
+    /// <summary>
+    /// Money through each treasury account over a span of Cairo calendar dates, from the same posted
+    /// movements every balance in this system is derived from. Opening is every posted movement
+    /// before the span; the span's movements are grouped by type into what came in and what went
+    /// out; closing is opening + in − out, which by construction is the balance at the span's end.
+    /// A transfer between two accounts is an outflow of one and an inflow of the other.
+    /// </summary>
+    public async Task<CashFlowReportDto> GetCashFlowAsync(BusinessDateRange range, CancellationToken ct = default)
+    {
+        var (start, end) = range.ToUtcRange();
+        var posted = _db.TreasuryMovements.AsNoTracking().Where(m => m.Status == nameof(MovementStatus.Posted));
+
+        var openingIn = await posted.Where(m => m.CreatedAtUtc < start && m.DestinationAccountId != null)
+            .GroupBy(m => m.DestinationAccountId!).Select(g => new { Account = g.Key, Sum = g.Sum(m => m.AmountPiastres) })
+            .ToDictionaryAsync(x => x.Account, x => x.Sum, ct);
+        var openingOut = await posted.Where(m => m.CreatedAtUtc < start && m.SourceAccountId != null)
+            .GroupBy(m => m.SourceAccountId!).Select(g => new { Account = g.Key, Sum = g.Sum(m => m.AmountPiastres) })
+            .ToDictionaryAsync(x => x.Account, x => x.Sum, ct);
+        var during = await posted.Where(m => m.CreatedAtUtc >= start && m.CreatedAtUtc < end)
+            .Select(m => new { m.Type, m.SourceAccountId, m.DestinationAccountId, m.AmountPiastres })
+            .ToListAsync(ct);
+
+        var accounts = CashFlowAccounts.Select(account =>
+        {
+            var opening = openingIn.GetValueOrDefault(account) - openingOut.GetValueOrDefault(account);
+            var lines = during
+                .Where(m => m.SourceAccountId == account || m.DestinationAccountId == account)
+                .GroupBy(m => m.Type)
+                .Select(g => new CashFlowLineDto(g.Key,
+                    g.Where(m => m.DestinationAccountId == account).Sum(m => m.AmountPiastres),
+                    g.Where(m => m.SourceAccountId == account).Sum(m => m.AmountPiastres),
+                    g.Count()))
+                .OrderBy(l => l.MovementType, StringComparer.Ordinal)
+                .ToList();
+            var inflow = lines.Sum(l => l.InflowPiastres);
+            var outflow = lines.Sum(l => l.OutflowPiastres);
+            return new AccountCashFlowDto(account, opening, inflow, outflow, opening + inflow - outflow, lines);
+        }).ToList();
+
+        return new CashFlowReportDto(range.From.ToString("yyyy-MM-dd"), range.To.ToString("yyyy-MM-dd"), accounts);
+    }
+
+    /// <summary>
+    /// Orders voided in a span of Cairo calendar dates, by when they were voided. They are not sales,
+    /// so no sales figure shows them; this is where an owner sees what was rung up and then did not
+    /// happen. What became of the food is read back from the stock movements the void posted
+    /// (OrderStockDisposition): a usage reversal with waste = prepared, a reversal alone = not prepared.
+    /// </summary>
+    public async Task<VoidsReportDto> GetVoidsAsync(BusinessDateRange range, CancellationToken ct = default)
+    {
+        var (start, end) = range.ToUtcRange();
+        var cancelled = OrderStatus.Cancelled.ToWireString();   // stored lower-case; not left to the collation (D2)
+        var orders = await _db.Orders.AsNoTracking()
+            .Where(o => o.Status == cancelled && o.CancelledAtUtc >= start && o.CancelledAtUtc < end)
+            .Select(o => new { o.Id, o.OrderNumber, o.OrderType, o.PaymentMethod, o.ElectronicPaymentStatus, o.TotalPiastres, o.CancelReason, o.CancelledBy, o.CancelledAtUtc })
+            .ToListAsync(ct);
+        var ids = orders.Select(o => o.Id).ToList();
+        var stock = await _db.StockMovements.AsNoTracking()
+            .Where(m => m.ReferenceType == "order" && ids.Contains(m.ReferenceId)
+                && (m.Type == nameof(StockMovementType.UsageReversal) || m.Type == nameof(StockMovementType.Waste)))
+            .Select(m => new { m.ReferenceId, m.Type }).ToListAsync(ct);
+
+        var returns = await _db.TreasuryMovements.AsNoTracking()
+            .Where(m => ids.Contains(m.ReferenceId) && m.Type == "void_return" && m.Status == nameof(MovementStatus.Posted))
+            .GroupBy(m => m.ReferenceId).Select(g => new { Id = g.Key, Amount = g.Sum(m => m.AmountPiastres) }).ToDictionaryAsync(g => g.Id, g => g.Amount, ct);
+
+        var voids = orders.Select(o =>
+        {
+            var types = stock.Where(m => m.ReferenceId == o.Id).Select(m => m.Type).ToHashSet();
+            string? disposition = types.Contains(nameof(StockMovementType.Waste)) ? "prepared"
+                : types.Contains(nameof(StockMovementType.UsageReversal)) ? "not_prepared" : null;
+            var kind = OrderEnumMapping.ParseOrderType(o.OrderType) == OrderType.Delivery
+                && OrderEnumMapping.ParsePaymentMethod(o.PaymentMethod) == PaymentMethod.Cash
+                ? "undelivered_cash_on_delivery" : o.ElectronicPaymentStatus == "cancelled" ? "electronic_unconfirmed" : "other";
+            return new VoidedOrderDto(o.Id, o.OrderNumber, kind, o.TotalPiastres, o.CancelReason, o.CancelledBy, o.CancelledAtUtc, disposition, returns.GetValueOrDefault(o.Id));
+        }).OrderBy(v => v.CancelledAtUtc).ToList();
+
+        return new VoidsReportDto(voids.Count, voids.Sum(v => v.TotalPiastres), voids);
+    }
+
+    /// <summary>Every electronic payment still awaiting confirmation, now. Each order's own pending
+    /// leg (OrderMapper reconstitutes it, split or standalone), oldest first.</summary>
+    public async Task<PendingElectronicReportDto> GetPendingElectronicAsync(CancellationToken ct = default)
+    {
+        var pendingWire = ElectronicPaymentStatus.Pending.ToWireString();
+        var entities = await _db.Orders.AsNoTracking().Include(o => o.Items)
+            .Where(o => o.ElectronicPaymentStatus == pendingWire && o.Status != nameof(OrderStatus.Cancelled))
+            .ToListAsync(ct);
+
+        var now = DateTimeOffset.UtcNow;
+        var payments = entities
+            .Select(e => (Entity: e, Leg: OrderMapper.ToDomain(e).ElectronicPayment))
+            .Where(x => x.Leg is { Status: ElectronicPaymentStatus.Pending })
+            .Select(x => new PendingElectronicPaymentDto(
+                x.Entity.Id, x.Entity.OrderNumber, x.Leg!.Method.ToWireString(), x.Leg.Provider, x.Leg.Amount.Piastres,
+                x.Entity.CreatedAtUtc, Math.Round((now - x.Entity.CreatedAtUtc).TotalMinutes, 1), x.Entity.ShiftId))
+            .OrderBy(p => p.CreatedAtUtc)
+            .ToList();
+
+        return new PendingElectronicReportDto(payments.Count, payments.Sum(p => p.AmountPiastres),
+            payments.Count == 0 ? null : payments.Max(p => p.AgeMinutes), payments);
     }
 
     /// <summary>Delivery outcome counts + unsettled driver custody for a period - "delivery
@@ -574,6 +696,13 @@ public sealed class ReportingQueryService
             .Where(s => start == null || s.CreatedAtUtc >= start).Where(s => end == null || s.CreatedAtUtc < end)
             .Select(s => new { s.ActualPiastres, s.DifferencePiastres }).ToListAsync(ct);
 
+        // AUD-03: same delivered-in-the-period basis as DeliveredCount above.
+        var collectionGaps = await (from d in _db.Deliveries.AsNoTracking()
+                                    join c in _db.DriverCustodies.AsNoTracking() on d.Id equals c.DeliveryId
+                                    where d.DeliveredAtUtc != null && (start == null || d.DeliveredAtUtc >= start) && (end == null || d.DeliveredAtUtc < end)
+                                        && c.CollectedPiastres < c.ExpectedPiastres
+                                    select c.ExpectedPiastres - c.CollectedPiastres).ToListAsync(ct);
+
         return new DeliveryOutcomesReportDto(
             deliveredIds.Count, failedCount, returnedCount, deliveryFees,
             unsettled.Count, unsettled.Sum(c => c.CollectedPiastres),
@@ -581,6 +710,7 @@ public sealed class ReportingQueryService
             settlements.Sum(s => s.ActualPiastres),
             settlements.Sum(s => Math.Max(0, -s.DifferencePiastres)),
             settlements.Sum(s => Math.Max(0, s.DifferencePiastres)),
-            settlements.Count);
+            settlements.Count,
+            collectionGaps.Sum(), collectionGaps.Count);
     }
 }

@@ -22,7 +22,9 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 {
     private FalahApiFactory _factory = default!;
     private HttpClient _client = default!;
+    private HttpClient _ticketClient = default!;
     private string _cashierId = default!;
+    private string _agentId = default!;
     private string _menuManagerId = default!;
     private string _shiftId = default!;
 
@@ -30,8 +32,14 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        var ticketAgent = await _factory.SeedUserAsync("قارئ تذاكر الطباعة", "print_agent", "print_agent");
+        _ticketClient = _factory.CreateClient();
+        _ticketClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(ticketAgent));
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
+        // Print results are reported by the print station's own account, never a till (SEC5).
+        _agentId = await _factory.SeedUserAsync("محطة الطباعة", "print_agent", "print_agent");
         _menuManagerId = await _factory.SeedUserAsync("مدير المنيو", "supervisor", "menu_manage");
+        _factory.StationUserId = _cashierId;
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
 
         var opened = await (await _client.PostAsJsonAsync("/api/shifts/open",
@@ -121,7 +129,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
         foreach (var job in jobs!.Jobs)
         {
-            var ticket = await (await _client.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
+            var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
                 .Content.ReadFromJsonAsync<ComposedTicketDto>();
             var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
             // Not the digits - the shop's own phone number on the footer contains "12". What must
@@ -167,7 +175,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobs = await CreatePrintJobsAsync(checkout.OrderId, "Receipt");
         foreach (var job in jobs!.Jobs)
         {
-            var ticket = await (await _client.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
+            var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{job.Id}/ticket"))
                 .Content.ReadFromJsonAsync<ComposedTicketDto>();
             var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
             Assert.Contains("موعد الاستلام", text);
@@ -260,7 +268,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
 
         var failing = jobs!.Jobs.First(j => j.Route == "Charcoal");
         (await _client.PostAsJsonAsync($"/api/print-jobs/{failing.Id}/report-result",
-            new ReportPrintJobResultRequest($"pra-{Guid.NewGuid():N}", failing.Id, false, "الطابعة مش راضية تطبع", _cashierId)))
+            new ReportPrintJobResultRequest($"pra-{Guid.NewGuid():N}", failing.Id, false, "الطابعة مش راضية تطبع", _agentId)))
             .EnsureSuccessStatusCode();
 
         var overview = await (await _client.GetAsync("/api/print-jobs/overview"))
@@ -340,7 +348,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         Assert.Equal(new HashSet<string> { "Receipt", "Charcoal", "Grill" }, routes);
 
         var charcoalJobId = result.Jobs.Single(j => j.Route == "Charcoal").Id;
-        var charcoalTicket = await (await _client.GetAsync($"/api/print-jobs/{charcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
+        var charcoalTicket = await (await _ticketClient.GetAsync($"/api/print-jobs/{charcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
         var charcoalText = string.Join('\n', charcoalTicket!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", charcoalText);
         Assert.DoesNotContain("فراخ مشوية", charcoalText);
@@ -427,12 +435,12 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         foreach (var job in result!.Jobs)
         {
             await _client.PostAsJsonAsync($"/api/print-jobs/{job.Id}/report-result",
-                new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", job.Id, true, null, _cashierId));
+                new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", job.Id, true, null, _agentId));
         }
         // A reprint, and a failed report too - still no financial/stock effect either way.
         await CreatePrintJobsAsync(order.OrderId, "Receipt", isReprint: true);
         await _client.PostAsJsonAsync($"/api/print-jobs/{result.Jobs[0].Id}/report-result",
-            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", result.Jobs[0].Id, false, "paper jam", _cashierId));
+            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", result.Jobs[0].Id, false, "paper jam", _agentId));
 
         var stockAfter = await _factory.QueryAsync(db => db.StockMovements.CountAsync());
         var treasuryAfter = await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync());
@@ -500,7 +508,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobId = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single(j => j.Route == "Charcoal").Id;
 
         var response = await _client.PostAsJsonAsync($"/api/print-jobs/{jobId}/report-result",
-            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, true, null, _cashierId));
+            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, true, null, _agentId));
         var job = await response.Content.ReadFromJsonAsync<PrintJobDto>();
 
         Assert.Equal("Succeeded", job!.Status);
@@ -516,14 +524,14 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobId = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single(j => j.Route == "Charcoal").Id;
 
         await _client.PostAsJsonAsync($"/api/print-jobs/{jobId}/report-result",
-            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, false, "printer offline", _cashierId));
+            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, false, "printer offline", _agentId));
         var afterFailure = await (await _client.GetAsync($"/api/print-jobs/{jobId}")).Content.ReadFromJsonAsync<PrintJobDetailsDto>();
         Assert.Equal("Failed", afterFailure!.Job.Status);
         Assert.Equal("printer offline", afterFailure.Job.LastError);
 
         // Retry = report another attempt against the SAME job id.
         var retryResponse = await _client.PostAsJsonAsync($"/api/print-jobs/{jobId}/report-result",
-            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, true, null, _cashierId));
+            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", jobId, true, null, _agentId));
         var afterRetry = await retryResponse.Content.ReadFromJsonAsync<PrintJobDto>();
 
         Assert.Equal("Succeeded", afterRetry!.Status);
@@ -544,7 +552,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var jobId = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single(j => j.Route == "Charcoal").Id;
         var requestId = $"rreq-{Guid.NewGuid():N}";
 
-        var request = new ReportPrintJobResultRequest(requestId, jobId, true, null, _cashierId);
+        var request = new ReportPrintJobResultRequest(requestId, jobId, true, null, _agentId);
         await _client.PostAsJsonAsync($"/api/print-jobs/{jobId}/report-result", request);
         await _client.PostAsJsonAsync($"/api/print-jobs/{jobId}/report-result", request);
 
@@ -564,7 +572,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var grillJobId = jobs.Single(j => j.Route == "Grill").Id;
 
         await _client.PostAsJsonAsync($"/api/print-jobs/{charcoalJobId}/report-result",
-            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", charcoalJobId, false, "out of paper", _cashierId));
+            new ReportPrintJobResultRequest($"rreq-{Guid.NewGuid():N}", charcoalJobId, false, "out of paper", _agentId));
 
         var grillJob = await (await _client.GetAsync($"/api/print-jobs/{grillJobId}")).Content.ReadFromJsonAsync<PrintJobDetailsDto>();
         Assert.Equal("Pending", grillJob!.Job.Status);
@@ -597,7 +605,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         Assert.DoesNotContain("Grill", reprintRoutes);
 
         var reprintCharcoalJobId = reprint.Jobs.Single(j => j.Route == "Charcoal").Id;
-        var reprintTicket = await (await _client.GetAsync($"/api/print-jobs/{reprintCharcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
+        var reprintTicket = await (await _ticketClient.GetAsync($"/api/print-jobs/{reprintCharcoalJobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
         Assert.Equal("Charcoal", reprintTicket!.Route);
         Assert.Contains("كباب حلة", string.Join('\n', reprintTicket.Lines.SelectMany(TicketDtoText.Of)));
 
@@ -626,13 +634,13 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         Assert.Equal(new HashSet<string> { "Receipt", "Charcoal", "Grill" }, routes);
 
         var oldCharcoalJobId = reprint.Jobs.Single(j => j.Route == "Charcoal").Id;
-        var oldCharcoalText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{oldCharcoalJobId}/ticket"))
+        var oldCharcoalText = string.Join('\n', (await (await _ticketClient.GetAsync($"/api/print-jobs/{oldCharcoalJobId}/ticket"))
             .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", oldCharcoalText); // originally-Charcoal product still on the Charcoal ticket
         Assert.DoesNotContain("فراخ مشوية", oldCharcoalText);
 
         var oldGrillJobId = reprint.Jobs.Single(j => j.Route == "Grill").Id;
-        var oldGrillText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{oldGrillJobId}/ticket"))
+        var oldGrillText = string.Join('\n', (await (await _ticketClient.GetAsync($"/api/print-jobs/{oldGrillJobId}/ticket"))
             .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("فراخ مشوية", oldGrillText); // originally-Grill product still on the Grill ticket
         Assert.DoesNotContain("كباب", oldGrillText);
@@ -642,12 +650,12 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var newJobs = await CreatePrintJobsAsync(newOrder.OrderId, "Receipt");
 
         var newGrillJobId = newJobs!.Jobs.Single(j => j.Route == "Grill").Id;
-        var newGrillText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{newGrillJobId}/ticket"))
+        var newGrillText = string.Join('\n', (await (await _ticketClient.GetAsync($"/api/print-jobs/{newGrillJobId}/ticket"))
             .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("كباب", newGrillText); // now-Grill product (originally Charcoal) is on the new Grill ticket
 
         var newCharcoalJobId = newJobs.Jobs.Single(j => j.Route == "Charcoal").Id;
-        var newCharcoalText = string.Join('\n', (await (await _client.GetAsync($"/api/print-jobs/{newCharcoalJobId}/ticket"))
+        var newCharcoalText = string.Join('\n', (await (await _ticketClient.GetAsync($"/api/print-jobs/{newCharcoalJobId}/ticket"))
             .Content.ReadFromJsonAsync<ComposedTicketDto>())!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("فراخ مشوية", newCharcoalText); // now-Charcoal product (originally Grill) is on the new Charcoal ticket
     }
@@ -662,7 +670,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var order = await CheckoutAsync((charcoalProduct, 1), (grillProduct, 1));
         await CreatePrintJobsAsync(order.OrderId, "Receipt");
 
-        var pendingCharcoal = await (await _client.GetAsync("/api/print-jobs/pending?route=Charcoal")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
+        var pendingCharcoal = await (await _ticketClient.GetAsync("/api/print-jobs/pending?route=Charcoal")).Content.ReadFromJsonAsync<List<PrintJobDto>>();
         Assert.Contains(pendingCharcoal!, j => j.OrderId == order.OrderId);
         Assert.DoesNotContain(pendingCharcoal!, j => j.Route != "Charcoal");
     }
@@ -685,7 +693,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var order = await CheckoutAsync((product, 1));
         var jobId = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single().Id;
 
-        var ticket = await (await _client.GetAsync($"/api/print-jobs/{jobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
+        var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{jobId}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
         var text = string.Join('\n', ticket!.Lines.SelectMany(TicketDtoText.Of));
         Assert.Contains("الإجمالي", text);
         Assert.Contains(order.OrderNumber, text);
@@ -754,22 +762,23 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
     /// it as a QR only while one is configured. Nothing invents an address: with no link there is no
     /// code, and a malformed link is refused rather than printed as a code that goes nowhere.</summary>
     [Fact]
-    public async Task The_configured_menu_link_becomes_the_receipt_qr_and_nothing_else_does()
+    public async Task The_configured_menu_link_is_validated_and_never_reaches_the_takeaway_or_order_taking_paper()
     {
+        // Paper redesign Amendment 2 (owner, 2026-11-17): the QR prints on the driver's paper only
+        // (DeliveryVerticalSliceTests.The_menu_link_becomes_the_qr_on_the_drivers_paper). Here: the link
+        // is still validated and stored trimmed, and the papers printed at the till and at the call
+        // center never carry it.
         var settingsAdmin = await _factory.SeedUserAsync("مسؤول المنيو", "manager", "settings_manage");
         var product = await CreateProductAsync("مياه", 1_000, null);
 
-        async Task<List<TicketElementDto>> ReceiptLinesAsync()
+        async Task<List<TicketElementDto>> ReceiptLinesAsync(string route)
         {
             var order = await CheckoutAsync((product, 1));
-            var jobs = await CreatePrintJobsAsync(order.OrderId, "Receipt");
-            var receipt = jobs!.Jobs.Single(j => j.Route == "Receipt");
-            var ticket = await (await _client.GetAsync($"/api/print-jobs/{receipt.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
+            var jobs = await CreatePrintJobsAsync(order.OrderId, route);
+            var receipt = jobs!.Jobs.Single(j => j.Route == route);
+            var ticket = await (await _ticketClient.GetAsync($"/api/print-jobs/{receipt.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>();
             return ticket!.Lines.ToList();
         }
-
-        // Nothing configured: no code.
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
 
         // Refused, and nothing stored.
         foreach (var bad in new[] { "menu.falah", "ftp://menu.example/x", "javascript:alert(1)" })
@@ -778,24 +787,38 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
                 new Falah.Application.Settings.UpdateSettingsRequest(settingsAdmin, MenuUrl: bad));
             Assert.False(refused.IsSuccessStatusCode, $"'{bad}' should have been refused");
         }
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.True(string.IsNullOrEmpty((await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl));
 
-        // Configured: exactly one code, carrying the link as stored (trimmed).
+        // Configured and stored trimmed - yet neither paper carries a code.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, MenuUrl: "  https://menu.example/falah  "))).EnsureSuccessStatusCode();
         var settings = await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings");
         Assert.Equal("https://menu.example/falah", settings!.MenuUrl);
-        var qr = Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
-        Assert.Equal("https://menu.example/falah", qr.Text);
+        Assert.DoesNotContain(await ReceiptLinesAsync("Receipt"), l => l.Kind == "qr");
+        Assert.DoesNotContain(await ReceiptLinesAsync("CallCenter"), l => l.Kind == "qr");
 
         // Another settings change that does not mention the link leaves it alone.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, RestaurantName: "فالح أبو العنبه"))).EnsureSuccessStatusCode();
-        Assert.Single(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.Equal("https://menu.example/falah", (await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl);
 
-        // Cleared with an empty value: the code goes away again.
+        // Cleared with an empty value.
         (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
             settingsAdmin, MenuUrl: ""))).EnsureSuccessStatusCode();
-        Assert.DoesNotContain(await ReceiptLinesAsync(), l => l.Kind == "qr");
+        Assert.True(string.IsNullOrEmpty((await _client.GetFromJsonAsync<Falah.Application.Settings.SettingsDto>("/api/settings"))!.MenuUrl));
     }
+
+    [Fact]
+    public async Task Different_first_print_requests_share_one_job_per_order_and_route()
+    {
+        var product = await CreateProductAsync("طباعة", 1000, "Grill");
+        var order = await CheckoutAsync((product, 1));
+        var first = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!;
+        var more = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => CreatePrintJobsAsync(order.OrderId, "Receipt")));
+        Assert.All(more, r => Assert.Equal(first.Jobs.Select(j => j.Id).OrderBy(x => x), r!.Jobs.Select(j => j.Id).OrderBy(x => x)));
+        var jobs = await _factory.QueryAsync(db => db.PrintJobs.AsNoTracking().Where(j => j.OrderId == order.OrderId && !j.IsReprint).ToListAsync());
+        Assert.Equal(2, jobs.Count);
+        Assert.All(jobs.GroupBy(j => j.Route), g => Assert.Single(g));
+    }
+
 }

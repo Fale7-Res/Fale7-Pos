@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using Falah.Client.Security;
 
 namespace Falah.Client.CallCenterWinUI.Services;
 
@@ -16,6 +18,7 @@ namespace Falah.Client.CallCenterWinUI.Services;
 /// </summary>
 public interface IRetainedRequestStore
 {
+    string? RecoveryError => null;
     void Save(string ownerKey, object request);
     void Clear(string ownerKey);
 
@@ -31,24 +34,34 @@ public sealed record RetainedRequestRecord(string OwnerKey, string TypeName, Dat
 
 public sealed class FileRetainedRequestStore : IRetainedRequestStore
 {
-    private sealed record Envelope(string Type, DateTimeOffset SavedAtUtc, JsonElement Payload);
+    private sealed record Envelope(string Type, DateTimeOffset SavedAtUtc, JsonElement? Payload = null, string? Protected = null);
 
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = false };
     private readonly string _directory;
+    private readonly ILocalDataProtector _protector;
+    public string? RecoveryError { get; private set; }
     private readonly Action<Exception>? _onError;
 
-    public FileRetainedRequestStore(string directory, Action<Exception>? onError = null)
+    public FileRetainedRequestStore(string directory, Action<Exception>? onError = null, ILocalDataProtector? protector = null)
     {
         _directory = directory;
+        _protector = protector ?? WindowsUserDataProtection.Instance;
         _onError = onError;
         Directory.CreateDirectory(_directory);
+        ValidateAndMigrate();
     }
 
     /// <summary>Scoped per station: both clients can run on one machine, and neither should surface
     /// the other's pending work as its own.</summary>
-    public static string DirectoryFor(string station) => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Falah", "pending-operations", station);
+    public static string DirectoryFor(string station) => Path.Combine(DataRoot(), "pending-operations", station);
+
+    /// <summary>Where this station keeps its local state. FALAH_CLIENT_DATA_ROOT (process-scoped) lets an
+    /// isolated verification session run the real client without reading, clearing or replaying the
+    /// station's own pending operations; LOCALAPPDATA alone does not redirect the known-folder API.</summary>
+    public static string DataRoot() =>
+        Environment.GetEnvironmentVariable("FALAH_CLIENT_DATA_ROOT") is { Length: > 0 } root
+            ? root
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Falah");
 
     private string PathFor(string ownerKey)
     {
@@ -56,28 +69,78 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
         return Path.Combine(_directory, safe + ".json");
     }
 
+    private void ReportError(Exception ex)
+    {
+        if (ex is PendingDataProtectionException)
+            RecoveryError = "تعذر فتح محاولة محفوظة بحساب ويندوز الحالي. الملفات محفوظة؛ استخدم حساب ويندوز الأصلي أو استعد مفاتيحه قبل تسجيل عمليات جديدة.";
+        _onError?.Invoke(ex);
+    }
+    private Envelope ProtectEnvelope(Envelope envelope)
+    {
+        var payload = envelope.Payload ?? throw new JsonException("Pending payload is missing.");
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(payload, Options);
+        try { return envelope with { Payload = null, Protected = Convert.ToBase64String(_protector.Protect(bytes)) }; }
+        finally { CryptographicOperations.ZeroMemory(bytes); }
+    }
+    /// <summary>Written through to the disk before the rename (audit 2026-11-18). NTFS journals the
+    /// rename but not the file's contents, so a power cut a second after File.WriteAllText could leave
+    /// the right name over an empty file - and the payment this file exists to remember was forgotten,
+    /// so the cashier rang it up again under a new request id.</summary>
+    private void WriteEnvelope(string path, Envelope envelope)
+    {
+        var temp = path + ".tmp";
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
+        using (var file = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+        {
+            file.Write(bytes);
+            file.Flush(flushToDisk: true);
+        }
+        File.Move(temp, path, overwrite: true);
+    }
+    private JsonElement ReadPayload(Envelope envelope, string path)
+    {
+        if (envelope.Protected is null)
+        {
+            var payload = envelope.Payload ?? throw new JsonException("Pending payload is missing.");
+            WriteEnvelope(path, ProtectEnvelope(envelope));
+            return payload;
+        }
+        byte[]? bytes = null;
+        try
+        {
+            bytes = _protector.Unprotect(Convert.FromBase64String(envelope.Protected));
+            return JsonSerializer.Deserialize<JsonElement>(bytes, Options);
+        }
+        catch (Exception ex) when (ex is PendingDataProtectionException or FormatException or CryptographicException or JsonException)
+        { throw new PendingDataProtectionException("تعذر فتح الطلب المحمي. لم يُحذف الملف.", ex); }
+        finally { if (bytes is not null) CryptographicOperations.ZeroMemory(bytes); }
+    }
+    private void ValidateAndMigrate()
+    {
+        foreach (var path in Directory.EnumerateFiles(_directory, "*.json").Concat(Directory.EnumerateFiles(_directory, "*.json.tmp")).ToArray())
+        {
+            try
+            {
+                var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
+                if (envelope is not null) _ = ReadPayload(envelope, path);
+            }
+            catch (Exception ex) { ReportError(ex); }
+        }
+    }
+
     public void Save(string ownerKey, object request)
     {
         try
         {
-            var envelope = new
-            {
-                Type = request.GetType().AssemblyQualifiedName,
-                SavedAtUtc = DateTimeOffset.UtcNow,
-                Payload = request,
-            };
-            // Written whole, then moved into place: a station losing power mid-write must never leave
-            // a half-written file that reads back as a different request than the one submitted.
-            var path = PathFor(ownerKey);
-            var temp = path + ".tmp";
-            File.WriteAllText(temp, JsonSerializer.Serialize(envelope, Options));
-            File.Move(temp, path, overwrite: true);
+            var payload = JsonSerializer.SerializeToElement(request, request.GetType(), Options);
+            var envelope = ProtectEnvelope(new Envelope(request.GetType().AssemblyQualifiedName!, DateTimeOffset.UtcNow, payload));
+            WriteEnvelope(PathFor(ownerKey), envelope);
         }
         catch (Exception ex)
         {
             // Losing the ability to persist must not stop the operation itself - the in-memory
             // retention still protects this session, which is what the behaviour was before.
-            _onError?.Invoke(ex);
+            ReportError(ex);
         }
     }
 
@@ -88,7 +151,7 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
             var path = PathFor(ownerKey);
             if (File.Exists(path)) File.Delete(path);
         }
-        catch (Exception ex) { _onError?.Invoke(ex); }
+        catch (Exception ex) { ReportError(ex); }
     }
 
     public object? Load(string ownerKey)
@@ -99,15 +162,16 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
             if (!File.Exists(path)) return null;
             var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
             if (envelope is null) return null;
+            var payload = ReadPayload(envelope, path);
             var type = Type.GetType(envelope.Type);
             // A request type that no longer exists cannot be re-sent; leaving the file in place would
             // strand the screen, so it is dropped and the operator sees no false pending state.
             if (type is null) { Clear(ownerKey); return null; }
-            return envelope.Payload.Deserialize(type, Options);
+            return payload.Deserialize(type, Options);
         }
         catch (Exception ex)
         {
-            _onError?.Invoke(ex);
+            ReportError(ex);
             return null;
         }
     }
@@ -119,18 +183,28 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
             var records = new List<RetainedRequestRecord>();
             foreach (var path in Directory.EnumerateFiles(_directory, "*.json"))
             {
-                var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
-                if (envelope is null) continue;
-                records.Add(new RetainedRequestRecord(
-                    Path.GetFileNameWithoutExtension(path),
-                    envelope.Type.Split(',')[0].Split('.').Last(),
-                    envelope.SavedAtUtc));
+                // One file at a time (audit 2026-11-18): a single half-written file used to empty the
+                // whole list, so the start-up notice hid every other unresolved operation as well.
+                try
+                {
+                    var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path), Options);
+                    if (envelope is null) continue;
+                    _ = ReadPayload(envelope, path);
+                    records.Add(new RetainedRequestRecord(
+                        Path.GetFileNameWithoutExtension(path),
+                        envelope.Type.Split(',')[0].Split('.').Last(),
+                        envelope.SavedAtUtc));
+                }
+                catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+                {
+                    ReportError(ex);
+                }
             }
             return records;
         }
         catch (Exception ex)
         {
-            _onError?.Invoke(ex);
+            ReportError(ex);
             return Array.Empty<RetainedRequestRecord>();
         }
     }

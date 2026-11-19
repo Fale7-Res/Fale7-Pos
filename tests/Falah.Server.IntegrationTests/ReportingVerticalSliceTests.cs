@@ -111,8 +111,8 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Expense_report_totals_and_lists_every_expense_for_the_shift()
     {
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 3000, "أدوات تنظيف", "tre-drawer", _cashierId, null, null));
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "صيانة", 2000, "إصلاح باب", "tre-drawer", _cashierId, null, null));
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 3000, "أدوات تنظيف", "tre-drawer", _cashierId, null, null));
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "صيانة سريعة", 2000, "إصلاح باب", "tre-drawer", _cashierId, null, null));
 
         var report = await (await _client.GetAsync($"/api/reports/expenses?actorUserId={_managerId}&shiftId={_shiftId}"))
             .Content.ReadFromJsonAsync<ExpenseReportDto>();
@@ -145,7 +145,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     public async Task Business_day_reconciliation_reflects_sales_expenses_and_treasury_balances()
     {
         await CashOrderAsync(15000);
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 3000, "أدوات", "tre-drawer", _cashierId, null, null));
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 3000, "أدوات", "tre-drawer", _cashierId, null, null));
 
         var day = await (await _client.GetAsync($"/api/reports/business-day/{_businessDayId}?actorUserId={_managerId}"))
             .Content.ReadFromJsonAsync<BusinessDayReconciliationDto>();
@@ -310,10 +310,11 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Significant_actions_lists_a_manager_approved_drawer_expense()
     {
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
-            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_add_drawer", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var noPermCashier = await _factory.SeedUserAsync("كاشير بلا صلاحية", "cashier", "pos");
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 4000, "بند حساس", "tre-drawer", noPermCashier, approval!.ApprovalId, _managerId));
+        // Asked for at that cashier's own till: an approval is spent only by the session that asked.
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, noPermCashier, "/api/approvals/issue",
+            new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "expenses_add_drawer", "اعتماد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 4000, "بند حساس", "tre-drawer", noPermCashier, approval!.ApprovalId, _managerId));
 
         var actions = await (await _client.GetAsync($"/api/reports/significant-actions?actorUserId={_managerId}")).Content.ReadFromJsonAsync<List<SignificantActionDto>>();
         Assert.Contains(actions!, a => a.Category == "expense" && a.Approver == "المدير" && a.AmountPiastres == 4000);
@@ -324,7 +325,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task An_unapproved_expense_never_appears_in_significant_actions()
     {
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 1000, "بند عادي", "tre-drawer", _cashierId, null, null));
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 1000, "بند عادي", "tre-drawer", _cashierId, null, null));
         var actions = await (await _client.GetAsync($"/api/reports/significant-actions?actorUserId={_managerId}")).Content.ReadFromJsonAsync<List<SignificantActionDto>>();
         Assert.DoesNotContain(actions!, a => a.AmountPiastres == 1000);
     }
@@ -335,7 +336,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     public async Task Shift_summary_reports_sales_expenses_and_opening_cash_for_one_shift()
     {
         await CashOrderAsync(10000);
-        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 2000, "أدوات", "tre-drawer", _cashierId, null, null));
+        await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 2000, "أدوات", "tre-drawer", _cashierId, null, null));
 
         var summary = await (await _client.GetAsync($"/api/reports/shifts/{_shiftId}?actorUserId={_managerId}")).Content.ReadFromJsonAsync<ShiftSummaryDto>();
         Assert.Equal(50000, summary!.OpeningCashPiastres);
@@ -409,6 +410,7 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Delivery_outcomes_report_counts_delivered_orders_and_unsettled_custody()
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 1000, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(15000);
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
@@ -435,13 +437,16 @@ public class ReportingVerticalSliceTests : IAsyncLifetime
         // Ported from deliveryReport's settledCashPiastres/shortages/overages/trips (here:
         // SettlementCount, since this per-order model has no separate "trip" concept) - a real gap
         // found during the legacy-parity audit.
-        await _client.PostAsJsonAsync($"/api/delivery/drivers/{driver!.Id}/settle",
-            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driver.Id, 16000, null, _managerId, null, null));
+        // Owner rule (2026-11-08): the driver keeps the delivery fee recorded on the order, so of the 16000 he
+        // collected he hands over 15000 - exactly, with no difference.
+        var settle = await _client.PostAsJsonAsync($"/api/delivery/drivers/{driver!.Id}/settle",
+            new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driver.Id, 15000, null, _managerId, null, null));
+        Assert.True(settle.IsSuccessStatusCode, await settle.Content.ReadAsStringAsync());
 
         var afterSettle = await (await _client.GetAsync($"/api/reports/delivery-outcomes?actorUserId={_managerId}")).Content.ReadFromJsonAsync<DeliveryOutcomesReportDto>();
         Assert.Equal(0, afterSettle!.UnsettledCustodyCount);
         Assert.Equal(1, afterSettle.SettlementCount);
-        Assert.Equal(16000, afterSettle.SettledCashPiastres);
+        Assert.Equal(15000, afterSettle.SettledCashPiastres);
         Assert.Equal(0, afterSettle.ShortagesPiastres);
         Assert.Equal(0, afterSettle.OveragesPiastres);
     }

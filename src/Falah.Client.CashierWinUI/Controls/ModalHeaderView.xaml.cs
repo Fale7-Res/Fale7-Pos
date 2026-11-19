@@ -42,6 +42,12 @@ public sealed partial class ModalHeaderView : UserControl
         set => SetValue(CloseAutomationIdProperty, value);
     }
 
+    private void OnEscapeInvoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        if (CloseCommand is { } close && close.CanExecute(null)) close.Execute(null);
+    }
+
     private static void OnTitleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
         ((ModalHeaderView)d).TitleBlock.Text = (string)e.NewValue;
 

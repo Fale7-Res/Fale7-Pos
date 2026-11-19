@@ -35,9 +35,12 @@ public sealed class CloseShiftHandler
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
     private readonly IAuditLog _auditLog;
+    private readonly Falah.Infrastructure.Reports.ReportingQueryService _reporting;
 
-    public CloseShiftHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, Microsoft.Extensions.Configuration.IConfiguration configuration, IAuditLog auditLog)
+    public CloseShiftHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, Microsoft.Extensions.Configuration.IConfiguration configuration, IAuditLog auditLog,
+        Falah.Infrastructure.Reports.ReportingQueryService reporting)
     {
+        _reporting = reporting;
         _db = db;
         _approvalRegistry = approvalRegistry;
         _configuration = configuration;
@@ -56,6 +59,8 @@ public sealed class CloseShiftHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct, closing: true);
+            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(_db, ct);
             // Same UPDLOCK/ROWLOCK/HOLDLOCK pattern as RefundOrderHandler - a second concurrent
             // close attempt against the SAME shift blocks here instead of both computing the same
             // stale expected cash and racing to post two handovers.
@@ -99,13 +104,50 @@ public sealed class CloseShiftHandler
 
             var shift = Shift.Reconstitute(entity.Id, entity.ShiftName, entity.OpenedByUserId, openingCash,
                 entity.BusinessDate, entity.OpenedAtUtc, ShiftStatus.Open, null, null, null, null, null, null, null);
-            var blindResult = shift.PrepareBlindClose(actual, expected, threshold);
+            // A close at a figure other than the first count is a re-count made after the preview showed
+            // the expected cash, and needs a manager (owner, 2026-11-18). A close with no preview at all is
+            // a genuinely blind count; it is written down below as the shift's count.
+            var firstDeclared = await PrepareShiftCloseHandler.FirstDeclaredAsync(_db, entity.Id, ct);
+            var lastDeclared = await PrepareShiftCloseHandler.LastDeclaredPiastresAsync(_db, entity.Id, ct);
+            var blindResult = shift.PrepareBlindClose(actual, expected, threshold, firstDeclared);
+            if (blindResult.IsRecount && approval is null)
+                throw new DomainException(Shift.RecountNeedsManagerMessage);
 
             AuthorizationPolicy.AuthorizeShiftClose(_approvalRegistry, actor, approval, blindResult.RequiresManagerApproval);
+            if (lastDeclared != actual.Piastres)
+            {
+                _db.ControlAuditEvents.Add(new ControlAuditEventEntity
+                {
+                    Id = $"audit-{Guid.NewGuid():N}", Action = PrepareShiftCloseHandler.DeclarationAuditAction, Actor = cashierUser.Name,
+                    EntityId = entity.Id, AmountPiastres = actual.Piastres, Reason = $"عدّ الإغلاق ({cashierUser.Id})",
+                    CreatedAtUtc = DateTimeOffset.UtcNow,
+                });
+            }
             var authorizedByName = approval?.ApproverName;
 
             var now = DateTimeOffset.UtcNow;
             var difference = blindResult.Difference;
+
+            // The physical handover. Counted = retained + handed over; nothing is created, nothing is hidden. A
+            // shortage or overage is still the difference above, recorded against THIS shift whatever is retained.
+            var retained = Money.FromPiastres(request.RetainedFloatPiastres ?? 0);
+            if (retained.IsNegative) throw new DomainException("العهدة المتروكة في الدرج لا يمكن أن تكون سالبة.");
+            if (retained > actual) throw new DomainException("لا يمكن ترك عهدة في الدرج أكبر من النقدية المعدودة.");
+            var handedOver = actual - retained;
+            string? receiverName = null;
+            if (!string.IsNullOrWhiteSpace(request.HandoverReceiverUserId))
+            {
+                var receiverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.HandoverReceiverUserId, ct);
+                if (receiverUser is null || !receiverUser.Active) throw new DomainException("مستلم النقدية غير موجود أو غير نشط.");
+                if (!AuthorizationPolicy.HasPermission(OrderMapper.ToActor(receiverUser), "shifts_manage"))
+                    throw new DomainException("مستلم نقدية الإغلاق يجب أن يكون مديرًا مخولًا بإدارة الورديات.");
+                receiverName = receiverUser.Name;
+            }
+
+            // Both movements below belong to the business day the close happens in, like every other
+            // movement the shift posted. Without it a closed day's reconciliation showed its drawer
+            // still holding every sale and main treasury never receiving the handover. Not required:
+            // a shift opened before every shift needed a business day must still be closable.
 
             string? reconciliationMovementId = null;
             if (!difference.IsZero)
@@ -115,21 +157,24 @@ public sealed class CloseShiftHandler
                     difference.IsNegative ? "cash_shortage" : "cash_overage",
                     sourceAccountId: difference.IsNegative ? TreasuryAccounts.Drawer : null,
                     destinationAccountId: difference.IsPositive ? TreasuryAccounts.Drawer : null,
-                    difference.Abs(), "shift_reconciliation", entity.Id, businessDayId: null, entity.Id,
+                    difference.Abs(), "shift_reconciliation", entity.Id, businessDayId, entity.Id,
                     string.IsNullOrWhiteSpace(request.Reason) ? "فرق نقدية ضمن الحد المسموح" : request.Reason,
                     cashierUser.Name, authorizedByName, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(reconciliation));
                 reconciliationMovementId = reconciliation.Id;
             }
 
+            // Only what physically left the drawer moves to main; the retained float stays in the drawer's balance and
+            // is what the next opening finds there (OpenShiftHandler), so it is never withdrawn and re-issued.
             string? handoverMovementId = null;
-            if (actual.IsPositive)
+            if (handedOver.IsPositive)
             {
                 var handover = TreasuryMovementFactory.BuildCashLifecycleMovement(
                     $"tm-{Guid.NewGuid():N}", $"shift-close-handover-{entity.Id}", $"op-{Guid.NewGuid():N}",
                     "shift_handover", TreasuryAccounts.Drawer, TreasuryAccounts.Main,
-                    actual, "shift_handover", entity.Id, businessDayId: null, entity.Id,
-                    $"تسليم إغلاق {entity.ShiftName}", cashierUser.Name, authorizedByName, now);
+                    handedOver, "shift_handover", entity.Id, businessDayId, entity.Id,
+                    receiverName is null ? $"تسليم إغلاق {entity.ShiftName}" : $"تسليم إغلاق {entity.ShiftName} إلى {receiverName}",
+                    cashierUser.Name, receiverName ?? authorizedByName, now);
                 _db.TreasuryMovements.Add(OrderMapper.ToEntity(handover));
                 handoverMovementId = handover.Id;
             }
@@ -147,13 +192,28 @@ public sealed class CloseShiftHandler
             entity.CloseRequestId = request.CloseRequestId;
             entity.ReconciliationTreasuryMovementId = reconciliationMovementId;
             entity.HandoverTreasuryMovementId = handoverMovementId;
+            entity.RetainedFloatPiastres = retained.Piastres;
+            entity.HandedOverPiastres = handedOver.Piastres;
+            entity.HandoverReceiverUserId = string.IsNullOrWhiteSpace(request.HandoverReceiverUserId) ? null : request.HandoverReceiverUserId;
+            entity.HandoverReceiverName = receiverName;
+            // P4: naming a receiver is not a receipt. Pending until the receiver confirms (AcknowledgeShiftHandoverHandler),
+            // unless the closer handed it to himself. The money movement above is unchanged, so are retries and recovery.
+            AcknowledgeShiftHandoverHandler.RecordAtClose(entity, cashierUser.Id, cashierUser.Name, now);
             entity.Version++;
+
+            // UI-REQ-002: the closing statement, frozen with the close in the same transaction. Screen,
+            // printed statement and every later reprint read this copy, never today's data.
+            var openerName = entity.OpenedByUserId == cashierUser.Id ? cashierUser.Name
+                : (await _db.Users.AsNoTracking().Where(u => u.Id == entity.OpenedByUserId).Select(u => u.Name).FirstOrDefaultAsync(ct)) ?? entity.OpenedByUserId;
+            var statement = await ShiftCloseStatements.BuildAsync(_db, _reporting, entity, openerName, cashierUser.Name, authorizedByName,
+                now, entity.ExpectedCashPiastres!.Value, entity.ActualCashPiastres!.Value, entity.CashDifferencePiastres!.Value, entity.DifferenceReason, ct);
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 "إغلاق وردية", "shift", $"إغلاق {entity.ShiftName} - المتوقع {expected.Piastres} والفعلي {actual.Piastres}",
                 blindResult.RequiresManagerApproval ? "critical" : "normal", now,
-                ShiftId: entity.Id, Reason: request.Reason, AuthorizedBy: authorizedByName));
+                ShiftId: entity.Id, Reason: request.Reason, AuthorizedBy: authorizedByName,
+                NewValue: ShiftCloseStatements.Serialize(statement)));
 
             // The handover paper. Same transaction as the close, keyed on the shift, so it is
             // queued exactly once and only for a close that actually committed.
@@ -179,5 +239,7 @@ public sealed class CloseShiftHandler
 
     private static CloseShiftResult ToResult(ShiftEntity entity, bool wasReplayed) => new(
         entity.Id, entity.Status, entity.ExpectedCashPiastres ?? 0, entity.ActualCashPiastres ?? 0,
-        entity.CashDifferencePiastres ?? 0, wasReplayed);
+        entity.CashDifferencePiastres ?? 0, wasReplayed,
+        entity.RetainedFloatPiastres ?? 0, entity.HandedOverPiastres ?? (entity.ActualCashPiastres ?? 0), entity.HandoverReceiverName,
+        AcknowledgeShiftHandoverHandler.StatusOf(entity));
 }

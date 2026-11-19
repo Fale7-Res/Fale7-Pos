@@ -28,7 +28,7 @@
                         Command="{Binding OpenTreasuryActionCommand}" CommandParameter="withdraw"/>
                 <Button Content="تحويل" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding OpenTreasuryActionCommand}" CommandParameter="transfer"/>
-                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                <Button AutomationProperties.Name="تحديث" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                     <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                 </Button>
             </StackPanel>
@@ -50,7 +50,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button MinWidth="160" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
+                            <Button AutomationProperties.Name="{Binding AccountId, Converter={StaticResource TreasuryAccountLabelConverter}}" MinWidth="160" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
                                     Style="{StaticResource GhostButtonStyle}"
                                     ToolTipService.ToolTip="اعرض حركات هذا الحساب فقط"
                                     Command="{Binding ElementName=Root, Path=DataContext.FilterByAccountCommand}"
@@ -84,7 +84,7 @@
                             <TextBlock Text="تحويلات لم تُؤكَّد" Style="{StaticResource CaptionText}"
                                        Foreground="{ThemeResource TextMutedBrush}"/>
                             <TextBlock Text="{Binding PendingElectronicDisplay}" Style="{StaticResource MetricValueText}"
-                                       FontSize="19" Foreground="{ThemeResource WarningBrush}"/>
+                                       FontSize="19" Foreground="{ThemeResource WarningTextBrush}"/>
                             <TextBlock Text="{Binding PendingElectronicNote}" Style="{StaticResource CaptionText}"
                                        Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
@@ -92,7 +92,7 @@
                             <TextBlock Text="نقدية مع السائقين" Style="{StaticResource CaptionText}"
                                        Foreground="{ThemeResource TextMutedBrush}"/>
                             <TextBlock Text="{Binding DriverCustodyDisplay}" Style="{StaticResource MetricValueText}"
-                                       FontSize="19" Foreground="{ThemeResource WarningBrush}"/>
+                                       FontSize="19" Foreground="{ThemeResource WarningTextBrush}"/>
                             <TextBlock Text="{Binding DriverCustodyNote}" Style="{StaticResource CaptionText}"
                                        Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
@@ -146,6 +146,36 @@
                 </Grid>
 
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                    <!-- P3: a hand-typed entry that did not physically happen is corrected by its linked opposite. -->
+                    <Border Visibility="{Binding IsCorrectionOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                            Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12" Margin="16,8">
+                        <StackPanel Spacing="8">
+                            <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                <Run Text="تصحيح: "/><Run Text="{Binding CorrectionTarget.TypeLabel}"/><Run Text=" — "/><Run Text="{Binding CorrectionTarget.AmountDisplay}"/>
+                            </TextBlock>
+                            <TextBlock Text="تُسجَّل حركة عكسية مرتبطة بالأصلية وتبقى الأصلية كما هي. للحركات التي لم تحدث فعلًا فقط."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <CheckBox MinHeight="44" Content="أؤكد أن هذا المال لم يتحرك فعلًا (خطأ في التسجيل)"
+                                      AutomationProperties.AutomationId="Treasury_CorrectionConfirm"
+                                      IsChecked="{Binding CorrectionConfirmedNotMoved, Mode=TwoWay}"/>
+                            <TextBox Header="مبلغ التصحيح (اتركه فارغًا لتصحيح الحركة كلها)" MinHeight="44" InputScope="Number"
+                                     Text="{Binding CorrectionAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Header="سبب التصحيح (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                     AutomationProperties.AutomationId="Treasury_CorrectionReason"
+                                     Text="{Binding CorrectionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" AutomationProperties.Name="رمز المدير لاعتماد التصحيح"
+                                         Visibility="{Binding CorrectionNeedsManagerPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                         Password="{Binding CorrectionManagerPin, Mode=TwoWay}"/>
+                            <TextBlock Text="{Binding CorrectionMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                       Visibility="{Binding CorrectionMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="تأكيد التصحيح" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                        AutomationProperties.AutomationId="Treasury_ConfirmCorrection" Command="{Binding ConfirmCorrectionCommand}"/>
+                                <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelCorrectionCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                     <ItemsControl ItemsSource="{Binding Movements}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -183,12 +213,18 @@
                                                        TextWrapping="Wrap">
                                                 <Run Text="{Binding ActorDisplay}"/><Run Text=" · "/><Run Text="{Binding ReferenceDisplay}"/>
                                             </TextBlock>
+                                            <Button Content="تصحيح خطأ تسجيل" MinHeight="36" FontSize="12" HorizontalAlignment="Left"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Visibility="{Binding IsCorrectable, Converter={StaticResource BoolToVisibleConverter}}"
+                                                    AutomationProperties.Name="تصحيح حركة مسجلة بالخطأ"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenCorrectionCommand}" CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -224,14 +260,16 @@
         <Border Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
                 Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource CardBackgroundBrush}" FontWeight="SemiBold"/>
         </Border>
 
         <!-- ================= DEPOSIT / WITHDRAW / TRANSFER ================= -->
         <Grid Grid.Row="0" Grid.RowSpan="3" Background="{ThemeResource OverlayBrush}"
               Visibility="{Binding IsActionOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460" MaxHeight="680"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="14">
                         <controls:ModalHeaderView Title="{Binding ActionTitle}" CloseCommand="{Binding CloseTreasuryActionCommand}"/>
@@ -245,22 +283,34 @@
                                       SelectedValue="{Binding DepositType, Mode=TwoWay}"/>
                             <ComboBox Header="إلى حساب" HorizontalAlignment="Stretch" MinHeight="44"
                                       IsEnabled="{Binding CanEditAction}"
-                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}"/>
+                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}">
+                                <!-- Account names, never the internal code (tre-main). -->
+                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={StaticResource TreasuryAccountLabelConverter}}"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
 
                         <StackPanel Spacing="8" Visibility="{Binding IsWithdraw, Converter={StaticResource BoolToVisibleConverter}}">
                             <ComboBox Header="من حساب" HorizontalAlignment="Stretch" MinHeight="44"
                                       IsEnabled="{Binding CanEditAction}"
-                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}"/>
+                                      ItemsSource="{Binding FundingAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}">
+                                <!-- Account names, never the internal code (tre-main). -->
+                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={StaticResource TreasuryAccountLabelConverter}}"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
 
                         <StackPanel Spacing="8" Visibility="{Binding IsTransfer, Converter={StaticResource BoolToVisibleConverter}}">
                             <ComboBox Header="من حساب" HorizontalAlignment="Stretch" MinHeight="44"
                                       IsEnabled="{Binding CanEditAction}"
-                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}"/>
+                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding SourceAccount, Mode=TwoWay}">
+                                <!-- Account names, never the internal code (tre-main). -->
+                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={StaticResource TreasuryAccountLabelConverter}}"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
                             <ComboBox Header="إلى حساب" HorizontalAlignment="Stretch" MinHeight="44"
                                       IsEnabled="{Binding CanEditAction}"
-                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}"/>
+                                      ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding DestinationAccount, Mode=TwoWay}">
+                                <!-- Account names, never the internal code (tre-main). -->
+                                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={StaticResource TreasuryAccountLabelConverter}}"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
 
                         <TextBox Header="المبلغ بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
@@ -282,14 +332,20 @@
                                          Password="{Binding ManagerPin, Mode=TwoWay}"/>
                         </StackPanel>
 
+                    </StackPanel>
+                </ScrollViewer>
+                <!-- The outcome and the action stay in view at any window height: the retry of an
+                     unresolved movement is pressed here, so it must never sit below the fold. -->
+                <StackPanel Grid.Row="1" Spacing="10" Padding="0,12,0,0">
                         <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
                         <Button Content="تنفيذ العملية" MinHeight="52" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="TreasuryActionSubmit"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitTreasuryActionCommand}"/>
-                    </StackPanel>
-                </ScrollViewer>
+                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

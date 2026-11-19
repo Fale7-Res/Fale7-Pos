@@ -21,7 +21,59 @@ public partial class TreasuryViewModel : ObservableObject
 {
     private readonly AppSession _session;
 
-    public TreasuryViewModel(AppSession session) => _session = session;
+    public TreasuryViewModel(AppSession session)
+    {
+        _session = session;
+        // UI-0001: a movement whose outcome was never learned survives a crash or power cut. It comes
+        // back as the open action, to be re-sent with its ORIGINAL request id (the server replays it),
+        // never retyped as a new one that would record the money twice.
+        if (_write.Value is { } recovered)
+        {
+            OpenAction = recovered switch { DepositRequest => "deposit", WithdrawalRequest => "withdraw", _ => "transfer" };
+            _pendingAmount = recovered switch
+            {
+                DepositRequest d => d.AmountPiastres, WithdrawalRequest w => w.AmountPiastres,
+                TransferRequest t => t.AmountPiastres, _ => 0,
+            };
+            // Shown exactly as it will be re-sent (the stored request, not these fields, is what goes).
+            AmountText = CashInput.Format(_pendingAmount);
+            (Reason, Reference) = recovered switch
+            {
+                DepositRequest d => (d.Reason, d.Reference ?? ""), WithdrawalRequest w => (w.Reason, w.Reference ?? ""),
+                TransferRequest t => (t.Reason, ""), _ => ("", ""),
+            };
+            switch (recovered)
+            {
+                case DepositRequest d: DepositType = d.Type; DestinationAccount = d.DestinationAccountId; break;
+                case WithdrawalRequest w: SourceAccount = w.SourceAccountId; break;
+                case TransferRequest t: SourceAccount = t.SourceAccountId; DestinationAccount = t.DestinationAccountId; break;
+            }
+            _pendingCommit = () => SendDurableAsync(recovered);
+            _outcomeUnknown = true;
+            ActionError = "حركة خزينة سابقة لم تُحسم نتيجتها قبل إغلاق البرنامج. أعد المحاولة بنفس الطلب للتحقق.";
+        }
+        // Also surfaces a correction kept from before the restart in the recovery list.
+        RefreshOperationState();
+    }
+
+    private readonly RetainedRequest<object> _write = new("treasury.action");
+
+
+
+    private async Task<(bool Success, bool OutcomeUnknown, string? Error)> SendDurableAsync(object request)
+    {
+        var result = await _write.SendAsync(request, async r => r switch
+        {
+            DepositRequest d => Confirm(await _session.Api.TreasuryDepositAsync(d)),
+            WithdrawalRequest w => Confirm(await _session.Api.TreasuryWithdrawAsync(w)),
+            TransferRequest t => Confirm(await _session.Api.TreasuryTransferAsync(t)),
+            _ => throw new InvalidOperationException("Unsupported treasury command."),
+        });
+        return (result.Success, result.OutcomeUnknown || _write.HasPending, result.Error);
+
+        static ApiClient.ApiResult<bool> Confirm<T>(ApiClient.ApiResult<T> r) =>
+            new(r.Success && r.Value is not null, r.Success && r.Value is not null, r.Error, r.OutcomeUnknown, r.StatusCode);
+    }
 
     public ObservableCollection<TreasuryAccountBalanceDto> Balances { get; } = new();
     public ObservableCollection<MovementRow> Movements { get; } = new();
@@ -41,6 +93,10 @@ public partial class TreasuryViewModel : ObservableObject
             "sale" or "sale_collection" => "مبيعات",
             "refund" => "مرتجع",
             "expense" or "expense_payment" => "مصروف",
+            "expense_reversal" => "إلغاء مصروف",
+            "expense_correction" => "تصحيح مصروف مسجل بالخطأ",
+            "expense_refund" => "مبلغ مصروف عاد نقدًا",
+            "movement_correction" => "تصحيح حركة مسجلة بالخطأ",
             "owner_deposit" => "إيداع من المالك",
             "capital_injection" => "ضخ رأس مال",
             "other_external_inflow" => "تدفق خارجي",
@@ -54,7 +110,9 @@ public partial class TreasuryViewModel : ObservableObject
             "cash_out" => "سحب نقدية من الدرج",
             "employee_advance" => "سلفة موظف",
             "employee_withdrawal" => "سحب موظف من رصيده",
-            _ => Movement.Type,
+            // Shift float/handover, reconciliation, drawer transfers, employee and settlement lines:
+            // the shared vocabulary names them, so this ledger never prints "shift_opening_float".
+            _ => Services.DisplayLabels.TreasuryMovementType(Movement.Type),
         };
 
         public string AmountDisplay => CashInput.Format(Movement.AmountPiastres) + " ج";
@@ -71,12 +129,22 @@ public partial class TreasuryViewModel : ObservableObject
         public string ReferenceDisplay => Movement.ReferenceType switch
         {
             "order" => "طلب " + (Movement.ReferenceLabel ?? Movement.ReferenceId),
+            // A refund references its order too; it used to fall through and print "order_refund ord-…".
+            "order_refund" => "استرجاع طلب " + (Movement.ReferenceLabel ?? Movement.ReferenceId),
             "purchase" => "فاتورة " + Movement.ReferenceId,
             "expense" => "مصروف " + Movement.ReferenceId,
             "payroll" => "مسيّر " + Movement.ReferenceId,
             "employee" => "موظف",
             "employee_ledger" => "كشف حساب موظف",
-            _ => string.IsNullOrWhiteSpace(Movement.ReferenceId) ? "" : Movement.ReferenceType + " " + Movement.ReferenceId,
+            "external_funding" => "تمويل خارجي",
+            "shift" or "shift_handover" or "shift_opening" => "وردية",
+            "safe_drop" => "إيداع آمن",
+            "transfer" or "treasury_transfer" => "تحويل بين الحسابات",
+            "driver_settlement" or "delivery_trip" => "تسوية سائق",
+            "cash_movement" or "cash_drawer" => "حركة درج",
+            // Never an internal type and id ("external_funding 7bd4…") in the owner's ledger
+            // (native review 2026-11-07); the reason column already describes the movement.
+            _ => "",
         };
 
         /// <summary>
@@ -90,6 +158,11 @@ public partial class TreasuryViewModel : ObservableObject
                                 && Movement.ReferenceId is { Length: > 0 } id
             ? Movement.Reason.Replace(id, number, StringComparison.Ordinal)
             : Movement.Reason;
+        /// <summary>A hand-typed entry (TreasuryCorrectionRules) - the only kind corrected from this screen; the server
+        /// re-checks it, and refuses a second correction of the same entry.</summary>
+        public bool AlreadyCorrected { get; init; }
+        public bool IsCorrectable => !AlreadyCorrected && Falah.Domain.Financial.TreasuryCorrectionRules.CorrectableTypes.Contains(Movement.Type);
+
         public string? SourceAccountId => Movement.SourceAccountId;
         public string? DestinationAccountId => Movement.DestinationAccountId;
     }
@@ -168,7 +241,7 @@ public partial class TreasuryViewModel : ObservableObject
     private void RefreshOperationState()
     {
         OnPropertyChanged(nameof(CanEditAction));
-        _session.SetManagementOperationPending(this, IsBusy || _pendingCommit is not null);
+        _session.SetManagementOperationPending(this, IsBusy || _pendingCommit is not null || _correction.HasPending);
     }
 
     public bool CanManage => _session.HasPermission("treasury_manage");
@@ -177,7 +250,9 @@ public partial class TreasuryViewModel : ObservableObject
     /// wallet, matching the server's own rule rather than discovering it via a rejection.</summary>
     public IReadOnlyList<string> FundingAccounts { get; } = new[] { "tre-main", "tre-bank", "tre-instapay" };
 
-    public IReadOnlyList<string> AllAccounts { get; } = new[] { "tre-main", "tre-drawer", "tre-bank", "tre-instapay", "tre-wallet" };
+    /// <summary>Transfer pickers. The drawer is left out, matching the server: drawer cash moves only
+    /// through the cashier screen's shift commands, so it counts in the shift's expected cash.</summary>
+    public IReadOnlyList<string> AllAccounts { get; } = new[] { "tre-main", "tre-bank", "tre-instapay", "tre-wallet" };
 
     [RelayCommand]
     public async Task LoadAsync()
@@ -205,7 +280,10 @@ public partial class TreasuryViewModel : ObservableObject
             var movements = await _session.Api.GetTreasuryMovementsAsync(actor, limit: 200);
             if (!movements.Success || movements.Value is null) { LoadError = movements.Error ?? "تعذر تحميل حركة الخزينة."; return; }
             _allMovements.Clear();
-            foreach (var m in movements.Value) _allMovements.Add(new MovementRow { Movement = m });
+            // An entry already corrected offers no second correction (the server would refuse it anyway).
+            var corrected = movements.Value.Where(m => m.Type == Falah.Domain.Financial.TreasuryCorrectionRules.MovementType)
+                .Select(m => m.ReferenceId).ToHashSet();
+            foreach (var m in movements.Value) _allMovements.Add(new MovementRow { Movement = m, AlreadyCorrected = corrected.Contains(m.Id) });
             ApplyMovementFilter();
         }
         finally
@@ -342,19 +420,19 @@ public partial class TreasuryViewModel : ObservableObject
             {
                 var request = new DepositRequest(
                     _requestId!, DepositType, amount, DestinationAccount, Reason, reference, actor, approvalId, approverId);
-                _pendingCommit = () => NormalizeAsync(_session.Api.TreasuryDepositAsync(request));
+                _pendingCommit = () => SendDurableAsync(request);
             }
             else if (IsWithdraw)
             {
                 var request = new WithdrawalRequest(
                     _requestId!, amount, SourceAccount, Reason, reference, actor, approvalId, approverId);
-                _pendingCommit = () => NormalizeAsync(_session.Api.TreasuryWithdrawAsync(request));
+                _pendingCommit = () => SendDurableAsync(request);
             }
             else
             {
                 var request = new TransferRequest(
                     _requestId!, SourceAccount, DestinationAccount, amount, Reason, actor, approvalId, approverId);
-                _pendingCommit = () => NormalizeAsync(_session.Api.TreasuryTransferAsync(request));
+                _pendingCommit = () => SendDurableAsync(request);
             }
             _pendingAmount = amount;
             await SendPendingAsync();
@@ -362,11 +440,6 @@ public partial class TreasuryViewModel : ObservableObject
         finally { IsBusy = false; }
     }
 
-    private static async Task<(bool Success, bool OutcomeUnknown, string? Error)> NormalizeAsync<T>(Task<ApiClient.ApiResult<T>> task)
-    {
-        var result = await task;
-        return (result.Success && result.Value is not null, result.OutcomeUnknown, result.Error);
-    }
 
     private async Task SendPendingAsync()
     {

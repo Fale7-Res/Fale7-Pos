@@ -20,7 +20,7 @@
                 <TextBlock Text="سجل المراجعة" Style="{StaticResource PageTitleText}"/>
                 <TextBlock Text="سجل غير قابل للتعديل لأهم العمليات في النظام" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
+            <Button AutomationProperties.Name="تحديث" Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding LoadCommand}">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
             </Button>

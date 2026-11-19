@@ -134,6 +134,138 @@ public partial class DailyStatementViewModel : ObservableObject
         }
     }
 
+    // ---- Cancelling a mistaken expense (AUD-04) ----
+
+    /// <summary>Kept on disk until its outcome is known, like every money command (CashierViewModel.Durability).</summary>
+    private readonly RetainedRequest<Falah.Application.Expenses.ReverseExpenseRequest> _reversalRequest = new("dailystatement.expense.reversal");
+
+    [ObservableProperty] private DailyExpenseLineDto? _reversalTarget;
+    [ObservableProperty] private string _reversalReason = "";
+    [ObservableProperty] private string _reversalManagerPin = "";
+    [ObservableProperty] private string? _reversalMessage;
+    [ObservableProperty] private bool _isReversing;
+
+    /// <summary>What happened to the money - required, never assumed (ExpenseCorrectionRules): "not_paid" (a posting
+    /// error, it never left) or "cash_returned" (it left and came back). Money that left and stays gone is not reversed.</summary>
+    [ObservableProperty] private string? _reversalDisposition;
+    /// <summary>Blank = the whole expense; otherwise only the part that never left / came back (5000 typed, 500 paid: 4500).</summary>
+    [ObservableProperty] private string _reversalAmountText = "";
+
+    public bool IsReversalNotPaid
+    {
+        get => ReversalDisposition == "not_paid";
+        set { if (value) ReversalDisposition = "not_paid"; }
+    }
+
+    public bool IsReversalCashReturned
+    {
+        get => ReversalDisposition == "cash_returned";
+        set { if (value) ReversalDisposition = "cash_returned"; }
+    }
+
+    partial void OnReversalDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsReversalNotPaid));
+        OnPropertyChanged(nameof(IsReversalCashReturned));
+    }
+
+    public bool IsReversalOpen => ReversalTarget is not null;
+
+    /// <summary>A drawer expense is cancelled by a holder of shifts_manage or with a manager's PIN; a main-treasury
+    /// one needs the owner's own permission, with no PIN fallback (the server enforces both).</summary>
+    public bool ReversalNeedsManagerPin =>
+        ReversalTarget is { PaymentAccountId: "tre-drawer" } && !_session.HasPermission("shifts_manage");
+
+    partial void OnReversalTargetChanged(DailyExpenseLineDto? value)
+    {
+        OnPropertyChanged(nameof(IsReversalOpen));
+        OnPropertyChanged(nameof(ReversalNeedsManagerPin));
+    }
+
+    [RelayCommand]
+    private void OpenReversal(DailyExpenseLineDto? line)
+    {
+        if (line is null || IsReversing || _reversalRequest.HasPending) return;
+        // A reversal line is not reversed again, and an expense is reversed once (the server refuses both too).
+        if (line.AmountPiastres <= 0) return;
+        if (ExpenseLines.Any(e => e.Id == $"exp-rev-{line.Id}")) { ReprintMessage = "تم إلغاء هذا المصروف بالفعل؛ قيد الإلغاء ظاهر في القائمة."; return; }
+        ReversalReason = "";
+        ReversalManagerPin = "";
+        ReversalMessage = null;
+        ReversalDisposition = null;
+        ReversalAmountText = "";
+        ReversalTarget = line;
+    }
+
+    [RelayCommand]
+    private void CancelReversal()
+    {
+        if (IsReversing || _reversalRequest.HasPending) return;
+        ReversalTarget = null;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmReversalAsync()
+    {
+        if (IsReversing) return;
+        var pending = _reversalRequest.Value;
+        if (pending is null)
+        {
+            if (ReversalTarget is not { } line) return;
+            if (string.IsNullOrWhiteSpace(ReversalReason)) { ReversalMessage = "اكتب سبب إلغاء المصروف."; return; }
+            if (ReversalDisposition is null) { ReversalMessage = "حدّد ما حدث للمبلغ: لم يُصرف أصلًا، أم صُرف ثم عاد نقدًا. إذا خرج المبلغ ولن يعود فالمصروف صحيح."; return; }
+            if (!string.IsNullOrWhiteSpace(ReversalAmountText)
+                && (!CashInput.TryParse(ReversalAmountText, out var part) || part <= 0 || part > line.AmountPiastres))
+            { ReversalMessage = "المبلغ المُلغى يجب أن يكون أكبر من صفر ولا يتجاوز مبلغ المصروف."; return; }
+            if (ReversalNeedsManagerPin && ReversalManagerPin.Length < 4) { ReversalMessage = "أدخل رمز المدير لاعتماد الإلغاء."; return; }
+        }
+
+        IsReversing = true;
+        ReversalMessage = null;
+        try
+        {
+            var request = pending;
+            if (request is null)
+            {
+                var line = ReversalTarget!;
+                string? approvalId = null, approverUserId = null;
+                if (ReversalNeedsManagerPin)
+                {
+                    var approval = await _session.Api.IssueManagerApprovalAsync(
+                        new Falah.Application.Approvals.IssueManagerApprovalRequest(ReversalManagerPin, "shifts_manage", ReversalReason));
+                    if (!approval.Success || approval.Value is null)
+                    {
+                        ReversalMessage = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل.";
+                        return;
+                    }
+                    approvalId = approval.Value.ApprovalId;
+                    approverUserId = approval.Value.ApproverUserId;
+                }
+                long? partial = CashInput.TryParse(ReversalAmountText, out var p) && p > 0 ? p : null;
+                request = new Falah.Application.Expenses.ReverseExpenseRequest(
+                    $"rev-{Guid.NewGuid():N}", line.Id, ReversalReason.Trim(), _session.CurrentUser!.Id, approvalId, approverUserId,
+                    ReversalDisposition, string.IsNullOrWhiteSpace(ReversalAmountText) ? null : partial);
+            }
+
+            var result = await _reversalRequest.SendAsync(request, r => _session.Api.ReverseExpenseAsync(r));
+            if (!result.Success || result.Value is null)
+            {
+                ReversalMessage = _reversalRequest.FailureMessage(result.Error);
+                return;
+            }
+            ReversalTarget = null;
+            ReprintMessage = result.Value.CashDisposition == "cash_returned"
+                ? $"سُجّل عودة {CashInput.Format(result.Value.AmountPiastres)} ج نقدًا إلى حساب المصروف."
+                : $"سُجّل تصحيح خطأ التسجيل: {CashInput.Format(result.Value.AmountPiastres)} ج لم تُصرف وتعود لحساب المصروف.";
+        }
+        finally
+        {
+            IsReversing = false;
+            ReversalManagerPin = "";
+        }
+        await LoadAsync();
+    }
+
     [RelayCommand]
     public async Task LoadAsync()
     {

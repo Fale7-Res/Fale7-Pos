@@ -1,4 +1,4 @@
-<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterDeliveryEditorView"
+﻿<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterDeliveryEditorView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,8 +12,8 @@
         Field order matches DeliveryRules.FirstMissingDeliveryField exactly, so what this form asks for
         in sequence is what the server will demand at checkout.
     -->
-    <Grid Background="#66313D35" Visibility="{Binding IsDeliveryEditorOpen, Converter={StaticResource BoolToVisibleConverter}}">
-        <Border Background="White" CornerRadius="20" MaxWidth="760" Margin="28"
+    <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsDeliveryEditorOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" MaxWidth="760" Margin="28"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid>
                 <Grid.RowDefinitions>
@@ -39,7 +39,7 @@
                         </Grid>
 
                         <ProgressBar IsIndeterminate="True" Visibility="{Binding IsLookingUpCustomer, Converter={StaticResource BoolToVisibleConverter}}"/>
-                        <TextBlock Text="{Binding CustomerLookupNote}" TextWrapping="Wrap" Foreground="{StaticResource TextMutedBrush}"
+                        <TextBlock Text="{Binding CustomerLookupNote}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
                                    Visibility="{Binding CustomerLookupNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 
                         <TextBox Header="اسم العميل" MinHeight="44"
@@ -91,16 +91,16 @@
                         <TextBox Header="ملاحظات التوصيل" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding DeliveryNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{Binding DeliveryServicesError}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                        <TextBlock Text="{Binding DeliveryServicesError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                    Visibility="{Binding DeliveryServicesError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="تحديث خدمات التوصيل" Style="{StaticResource GhostButtonStyle}" MinHeight="44"
                                 HorizontalAlignment="Right" Command="{Binding LoadDeliveryServicesCommand}"/>
                     </StackPanel>
                 </ScrollViewer>
 
-                <Border Grid.Row="2" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,16">
+                <Border Grid.Row="2" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,16">
                     <StackPanel Spacing="10">
-                        <TextBlock Text="{Binding DeliveryError}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding DeliveryError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding DeliveryError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="حفظ بيانات التوصيل" HorizontalAlignment="Stretch" MinHeight="52"

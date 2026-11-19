@@ -209,7 +209,7 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     {
         var created = await (await CreateUserAsync("كاشير جديد", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>();
         (await SetActiveAsync(created!.UserId, false, _managerId)).EnsureSuccessStatusCode();
-        (await SetActiveAsync(created.UserId, true, _managerId)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/users/{created.UserId}/change-pin", new ChangePinRequest(created.UserId, null, "4715", _managerId, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
 
         var login = await LoginAsync("4715");
         login.EnsureSuccessStatusCode();
@@ -388,7 +388,7 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
     {
         var created = await (await CreateUserAsync("كاشير جديد", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>();
         (await SetActiveAsync(created!.UserId, false, _managerId, "استقالة")).EnsureSuccessStatusCode();
-        (await SetActiveAsync(created.UserId, true, _managerId)).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/users/{created.UserId}/change-pin", new ChangePinRequest(created.UserId, null, "4715", _managerId, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
         (await ChangePinAsync(created.UserId, currentPin: null, "8264", _managerId)).EnsureSuccessStatusCode();
         (await UpdatePermissionsAsync(created.UserId, new[] { "orders_refund" }, Array.Empty<string>(), _managerId)).EnsureSuccessStatusCode();
 
@@ -499,6 +499,12 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
         using var setup = new NoOwnerSetup();
         var first = await setup.Factory.SeedUserAsync("مدير أول", "manager", "users_manage");
         var second = await setup.Factory.SeedUserAsync("مدير ثانٍ", "manager", "users_manage");
+        // This scenario needs EXACTLY two administrators. Development fixtures also seed a demo
+        // manager; leaving that third administrator active makes both revocations valid.
+        await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Id != first && u.Id != second)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.Active, false)));
+        var initial = await setup.Factory.QueryAsync(db => db.Users.Where(u => u.Active).Select(u => u.Permissions).ToListAsync());
+        Assert.Equal(2, initial.Count(p => UserManagementRules.CanManageUsers(p.Split(','))));
         var responses = await Task.WhenAll(new[] { first, second }.Select(id =>
             setup.Client.PostAsJsonAsync($"/api/users/{id}/permissions",
                 new UpdateUserPermissionsRequest(id, Array.Empty<string>(), new[] { "users_manage" }, id))));
@@ -534,16 +540,16 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
         await LeaveOnlyOneAdministratorAsync(setup.Client, first);
 
         // Two administrators again, deliberately: standing one of them down is ordinary and allowed.
-        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
-            new SetUserActiveRequest(second, true, "اختبار", first))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/change-pin",
+            new ChangePinRequest(second, null, "7351", first, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
         (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
             new SetUserActiveRequest(second, false, "اختبار", first))).EnsureSuccessStatusCode();
 
         // "first" is now the last administrator. Self-deactivation was already refused before this
         // guard existed, so the case that needed covering is a colleague doing it - here the
         // stood-down administrator is brought back solely to aim at the last one.
-        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/active",
-            new SetUserActiveRequest(second, true, "اختبار", first))).EnsureSuccessStatusCode();
+        (await setup.Client.PostAsJsonAsync($"/api/users/{second}/change-pin",
+            new ChangePinRequest(second, null, "7351", first, $"reactivate-{Guid.NewGuid():N}", Reactivate: true))).EnsureSuccessStatusCode();
         (await setup.Client.PostAsJsonAsync($"/api/users/{first}/active",
             new SetUserActiveRequest(first, false, "اختبار", second))).EnsureSuccessStatusCode();
 
@@ -552,4 +558,135 @@ public class UserManagementVerticalSliceTests : IAsyncLifetime
 
         Assert.False(response.IsSuccessStatusCode);
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task A_pin_change_retry_replays_without_spending_another_choice(bool selfService)
+    {
+        var target = await _factory.SeedUserAsync("موظف", "cashier", "pos");
+        var actor = selfService ? target : _managerId;
+        var request = new ChangePinRequest(target, selfService ? _factory.PinFor(target) : null, "4715", actor, Guid.NewGuid().ToString("N"));
+        var path = $"/api/users/{target}/change-pin";
+        (await _client.PostAsJsonAsync(path, request)).EnsureSuccessStatusCode();
+        var choices = await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_choice"));
+        var repeated = await _client.PostAsJsonAsync(path, request);
+        Assert.True(repeated.IsSuccessStatusCode, await repeated.Content.ReadAsStringAsync());
+        Assert.Equal(choices, await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_choice")));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.ControlAuditEvents.CountAsync(e => e.Action == "pin_changed" && e.EntityId == target)));
+        (await LoginAsync("4715")).EnsureSuccessStatusCode();
+    }
+
+
+    /// <summary>Whole-project review 2026-11-17: resetting someone's PIN lets the resetter log in as
+    /// them, so it is a grant of every permission that account holds. A users_manage holder who could
+    /// not grant those permissions directly must not be able to take them this way.</summary>
+    [Fact]
+    public async Task A_limited_admin_cannot_reset_the_pin_of_an_account_holding_more_than_they_do()
+    {
+        var response = await ChangePinAsync(_managerId, null, "4715", _limitedAdminId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await LoginAsync("4715")).StatusCode);
+        (await LoginAsync(_factory.PinFor(_managerId))).EnsureSuccessStatusCode();
+
+        var menuEditor = await _factory.SeedUserAsync("محرر قوائم", "supervisor", "menu_manage");
+        (await ChangePinAsync(menuEditor, null, "6284", _limitedAdminId)).EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task A_pin_change_request_key_cannot_be_reused_for_another_target()
+    {
+        var first = await _factory.SeedUserAsync("موظف أ", "cashier", "pos");
+        var second = await _factory.SeedUserAsync("موظف ب", "cashier", "pos");
+        var request = new ChangePinRequest(first, null, "4715", _managerId, Guid.NewGuid().ToString("N"));
+        (await _client.PostAsJsonAsync($"/api/users/{first}/change-pin", request)).EnsureSuccessStatusCode();
+        var response = await _client.PostAsJsonAsync($"/api/users/{second}/change-pin", request with { UserId = second, NewPin = "5826" });
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        (await LoginAsync(_factory.PinFor(second))).EnsureSuccessStatusCode();
+    }
+
+
+    [Theory]
+    [InlineData("Owner")]
+    [InlineData(" OWNER ")]
+    public async Task Role_casing_cannot_create_a_second_owner(string role)
+    {
+        var r = await CreateUserAsync("آخر", role, "5813", new[] { "all" }, _managerId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("CaShIeR", "cashier")]
+    [InlineData(" SUPERVISOR ", "supervisor")]
+    public async Task User_roles_are_stored_canonically(string input, string expected)
+    {
+        var r = await CreateUserAsync("جديد", input, "5813", new[] { "pos" }, _managerId);
+        r.EnsureSuccessStatusCode();
+        var created = (await r.Content.ReadFromJsonAsync<CreateUserResult>())!;
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.Users.Where(u => u.Id == created.UserId).Select(u => u.Role).SingleAsync()));
+    }
+
+    [Fact]
+    public async Task Unknown_roles_are_refused_without_creating_a_user()
+    {
+        var r = await CreateUserAsync("آخر", "not-a-role", "5813", new[] { "pos" }, _managerId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_limited_user_administrator_cannot_create_a_role_that_can_approve_every_action()
+    {
+        var r = await CreateUserAsync("آخر", "manager", "5813", Array.Empty<string>(), _limitedAdminId);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_legacy_mixed_case_owner_remains_protected()
+    {
+        var id = await _factory.SeedUserAsync("مالك قديم", "Owner", "all");
+        var r = await SetActiveAsync(id, false, _managerId, "اختبار");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode);
+    }
+
+
+    [Fact]
+    public async Task Concurrent_first_owner_requests_leave_exactly_one_owner()
+    {
+        using var setup = new NoOwnerSetup();
+        var admin = await setup.Factory.SeedUserAsync("المدير", "manager", "all");
+        var tasks = new[] { "7351", "7362", "7463" }.Select(pin => setup.Client.PostAsJsonAsync("/api/users",
+            new CreateUserRequest($"req-{Guid.NewGuid():N}", "المالك", " OWNER ", pin, new[] { "all" }, admin)));
+        var responses = await Task.WhenAll(tasks);
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.All(responses.Where(r => !r.IsSuccessStatusCode), r => Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode));
+        Assert.Equal(1, await setup.Factory.QueryAsync(db => db.Users.CountAsync(u => u.Role == "owner")));
+    }
+
+
+    [Fact]
+    public async Task Reactivation_cannot_reintroduce_a_pin_used_while_the_account_was_inactive()
+    {
+        var a = (await (await CreateUserAsync("أول", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        (await SetActiveAsync(a.UserId, false, _managerId)).EnsureSuccessStatusCode();
+        (await CreateUserAsync("ثان", "cashier", "4715", new[] { "pos" }, _managerId)).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await SetActiveAsync(a.UserId, true, _managerId)).StatusCode);
+        var collide = await _client.PostAsJsonAsync($"/api/users/{a.UserId}/change-pin", new ChangePinRequest(a.UserId, null, "4715", _managerId, "reactivate-collision", Reactivate: true));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, collide.StatusCode);
+        Assert.False(await _factory.QueryAsync(db => db.Users.Where(u => u.Id == a.UserId).Select(u => u.Active).SingleAsync()));
+        (await _client.PostAsJsonAsync($"/api/users/{a.UserId}/change-pin", new ChangePinRequest(a.UserId, null, "6284", _managerId, "reactivate-unique", Reactivate: true))).EnsureSuccessStatusCode();
+        Assert.True(await _factory.QueryAsync(db => db.Users.Where(u => u.Id == a.UserId).Select(u => u.Active).SingleAsync()));
+        (await LoginAsync("6284")).EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task Concurrent_pin_changes_cannot_assign_one_pin_to_two_active_people()
+    {
+        var a = (await (await CreateUserAsync("أول", "cashier", "4715", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        var b = (await (await CreateUserAsync("ثان", "cashier", "6284", new[] { "pos" }, _managerId)).Content.ReadFromJsonAsync<CreateUserResult>())!;
+        var responses = await Task.WhenAll(new[] { a.UserId, b.UserId }.Select(id => _client.PostAsJsonAsync($"/api/users/{id}/change-pin", new ChangePinRequest(id, null, "7351", _managerId, $"pin-race-{id}"))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.Single(responses.Where(r => r.StatusCode == HttpStatusCode.UnprocessableEntity));
+        (await LoginAsync("7351")).EnsureSuccessStatusCode();
+    }
+
 }

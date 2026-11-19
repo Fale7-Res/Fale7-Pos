@@ -44,9 +44,9 @@ public sealed class SavePrepRecipeHandler
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "menu_manage", approval, requireApproval: true);
 
         var prepRecipeId = request.PrepRecipeId ?? $"prep-{request.RequestId}";
-        await AssertDoesNotConsumeItsOwnOutputAsync(prepRecipeId, request, ct);
-
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await InventoryWriteLock.AcquireAsync(_db, ct);
+        await AssertDoesNotConsumeItsOwnOutputAsync(prepRecipeId, request, ct);
 
         var entity = await _db.PrepRecipes.Include(p => p.Lines).FirstOrDefaultAsync(p => p.Id == prepRecipeId, ct);
         if (entity is null)

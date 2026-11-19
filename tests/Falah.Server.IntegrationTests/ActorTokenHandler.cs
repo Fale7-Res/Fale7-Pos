@@ -34,11 +34,9 @@ public sealed class ActorTokenHandler : DelegatingHandler
         _anyToken = anyToken;
     }
 
-    /// <summary>The same field names the server's own middleware treats as "who is acting".</summary>
-    private static readonly string[] ActorFields =
-    {
-        "actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId",
-    };
+    /// <summary>The server middleware's own list, not a copy: a copy is how closedByUserId came to be
+    /// missing from both, and the suite closed shifts on whatever session it found first.</summary>
+    private static IReadOnlyList<string> ActorFields => AuthenticationMiddleware.ActorFields;
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
@@ -46,7 +44,11 @@ public sealed class ActorTokenHandler : DelegatingHandler
         var token = actorId is not null ? _tokenFor(actorId) : null;
 
         // Nothing named an actor - a plain read, or manager approval whose approver comes from its
-        // PIN. Either way it arrives from a station where somebody is logged in.
+        // PIN. Either way it arrives from a station where somebody is logged in: the session the
+        // test put on the request (FalahApiFactory.PostAsSessionOfAsync - which matters for approvals, spent only by the
+        // session that asked for them), or else any seeded one.
+        if (token is null && request.Headers.Authorization is not null)
+            return await base.SendAsync(request, ct);
         token ??= _anyToken();
 
         if (token is not null)
@@ -79,9 +81,11 @@ public sealed class ActorTokenHandler : DelegatingHandler
         {
             using var document = JsonDocument.Parse(body);
             if (document.RootElement.ValueKind != JsonValueKind.Object) return null;
-            foreach (var field in ActorFields)
-                if (document.RootElement.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String)
-                    return value.GetString();
+            // Matched the way the middleware matches: any casing, every property.
+            foreach (var property in document.RootElement.EnumerateObject())
+                if (ActorFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase)
+                    && property.Value.ValueKind == JsonValueKind.String)
+                    return property.Value.GetString();
         }
         catch (JsonException)
         {

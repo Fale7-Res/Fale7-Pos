@@ -45,7 +45,12 @@ public partial class MenuViewModel : ObservableObject
     {
         public required MenuProductDto Product { get; init; }
         public required string CategoryName { get; init; }
-        [ObservableProperty] private bool _isAvailable;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ToggleAccessibleName))]
+        private bool _isAvailable;
+
+        /// <summary>What the row's toggle does, to which product - every row's button read just "تبديل التوفر".</summary>
+        public string ToggleAccessibleName => (IsAvailable ? "إيقاف توفر " : "إتاحة ") + Product.Name;
 
         public string PriceDisplay => (Product.Variants.Count > 1 ? "من " : "") +
             CashInput.Format(Product.Variants.Count > 0 ? Product.Variants.Min(v => v.PricePiastres) : Product.BasePricePiastres) + " ج";

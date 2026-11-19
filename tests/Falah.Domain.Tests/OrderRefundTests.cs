@@ -74,6 +74,37 @@ public class OrderRefundTests
         Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
     }
 
+    [Theory]
+    [InlineData(PaymentMethod.InstaPay)]
+    [InlineData(PaymentMethod.Wallet)]
+    public void An_unconfirmed_transfer_cannot_be_refunded(PaymentMethod method)
+    {
+        var order = MakeOrder(200m, method);
+        Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
+        Assert.Empty(order.Refunds);
+        Assert.Equal(Money.Zero, order.RefundAmount);
+    }
+
+    [Fact]
+    public void Cash_with_a_driver_cannot_be_refunded_before_settlement()
+    {
+        var items = new[] { Item(200m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Cash, items,
+            Money.Zero, null, Money.Zero, Money.Zero, Money.Zero, null, null);
+        var order = Order.Create(plan, "cod", "#1", 1, "cashier", "shift", items, "req", "day", Now);
+        Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
+        Assert.Empty(order.Refunds);
+    }
+
+    [Fact]
+    public void A_confirmed_transfer_can_be_refunded()
+    {
+        var order = MakeOrder(200m, PaymentMethod.InstaPay);
+        order.ConfirmElectronicPayment();
+        order.ApplyRefund(MakeRefund(Money.FromEgp(50m)));
+        Assert.Equal(Money.FromEgp(50m), order.RefundAmount);
+    }
+
     [Fact]
     public void ClampRefundAmount_never_returns_more_than_what_remains()
     {
@@ -115,5 +146,27 @@ public class OrderRefundTests
     public void Cannot_cancel_an_order_that_already_has_a_refund()
     {
         Assert.Throws<DomainException>(() => RefundRules.AssertOrderCanBeCancelled(Money.FromEgp(10m)));
+    }
+
+    [Fact]
+    public void Settled_cash_delivery_can_be_refunded()
+    {
+        var items = new[] { Item(200m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Cash, items,
+            Money.Zero, null, Money.Zero, Money.Zero, Money.Zero, null, null);
+        var order = Order.Create(plan, "cod", "#1", 1, "cashier", "shift", items, "req", "day", Now);
+        order.ApplyRefund(MakeRefund(Money.FromEgp(50m)), cashOnDeliverySettled: true);
+        Assert.Equal(Money.FromEgp(50m), order.RefundAmount);
+    }
+
+    // Owner decision 2026-11-18: from the large-refund threshold (500 ج) up, a refund needs a
+    // manager's approval even from someone who holds orders_refund.
+    [Theory]
+    [InlineData(49_999, false)]
+    [InlineData(50_000, true)]
+    [InlineData(120_000, true)]
+    public void A_refund_from_the_large_refund_threshold_up_needs_a_manager(long amountPiastres, bool needsManager)
+    {
+        Assert.Equal(needsManager, RefundRules.NeedsManagerApproval(Money.FromPiastres(amountPiastres)));
     }
 }

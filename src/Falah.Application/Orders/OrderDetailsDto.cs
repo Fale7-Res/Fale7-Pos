@@ -25,6 +25,11 @@ public sealed record OrderDetailsDto(
     /// still reads back for the orders written before it was.</summary>
     string? TableNumber = null,
     /// <summary>When the customer said they would collect a pickup order. Null elsewhere.</summary>
-    DateTimeOffset? RequestedPickupAtUtc = null);
+    DateTimeOffset? RequestedPickupAtUtc = null)
+{
+    /// <summary>Read-side collection fact; the refund command rechecks it transactionally.
+    /// Cash on delivery is collected for refunds only after the driver's full cash is settled.</summary>
+    public bool CustomerFundsCollected { get; init; }
+}
 
 public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);

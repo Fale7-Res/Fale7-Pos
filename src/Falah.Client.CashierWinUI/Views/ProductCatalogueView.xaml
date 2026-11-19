@@ -31,12 +31,49 @@
                                                Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibleConverter}}"/>
                                         <!-- Earned, not assigned: this is on the card because the
                                              item actually sold, so it is worth the corner it takes. -->
-                                        <Border Background="#F2FFFFFF" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
+                                        <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1"
                                                 CornerRadius="8" Padding="8,3" Margin="8" HorizontalAlignment="Right" VerticalAlignment="Top"
                                                 Visibility="{Binding IsBestSeller, Converter={StaticResource BoolToVisibleConverter}}">
                                             <TextBlock Text="🔥 الأكثر مبيعًا" FontSize="10" FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextPrimaryBrush}"/>
                                         </Border>
+                                        <!-- Offers sit INSIDE the fixed picture band, not below the card. The grid's
+                                             ItemsWrapGrid gives every item the FIRST item's height, so pills
+                                             stacked under the card were cut off whenever the first product in the
+                                             list had no offer - the offer simply disappeared (UI-0036). -->
+                                        <ItemsControl ItemsSource="{Binding Offers}" VerticalAlignment="Bottom" Margin="8,0,8,8">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <!-- This Button sits inside the same GridViewItem as the product card, and the
+                                                         GridView's own IsItemClickEnabled tap recognition wins the race against a
+                                                         plain Command binding here - tapping this pill was silently firing the
+                                                         GridView's ItemClick (selecting the BASE product) instead of this button's
+                                                         Command, so the offer discount was never actually applied. Handling Tapped
+                                                         directly and marking it e.Handled=true stops the event from ever reaching
+                                                         the GridViewItem. See ProductCatalogueView.xaml.cs: OnOfferTapped. -->
+                                                    <Button HorizontalAlignment="Stretch" Background="{ThemeResource SuccessBackgroundBrush}" BorderBrush="{ThemeResource SuccessBrush}" BorderThickness="1"
+                                                            CornerRadius="8" Padding="8,4" Margin="0,4,0,0" MinHeight="32"
+                                                            Tapped="OnOfferTapped" Click="OnOfferClicked"
+                                                    AutomationProperties.Name="{Binding AccessibleName}">
+                                                        <!-- Two real columns, not two overlapping HorizontalAlignment TextBlocks - on a
+                                                             narrow card an offer name long enough (e.g. "عرض الكفتة") collided with the
+                                                             price and rendered as garbled overlapping text. The Star column gives the
+                                                             name the actual remaining width to wrap into instead of just floating over
+                                                             whatever the price didn't cover. -->
+                                                        <Grid ColumnSpacing="6">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SuccessTextBrush}"
+                                                                       TextWrapping="Wrap" TextAlignment="Right" VerticalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                                       FontSize="12" FontWeight="Black" Foreground="{ThemeResource SuccessTextBrush}" VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                     </Grid>
                                 </Border>
                             <Grid Grid.Row="1" RowSpacing="10" Padding="14">
@@ -45,7 +82,9 @@
                                      item is actually sent to, the same PreparationStation that drives its
                                      print job) instead of a decorative icon. Items with no kitchen routing
                                      show no badge, so the row stays quiet rather than uniformly noisy. -->
-                                <Grid>
+                                <!-- Fixed heights (chip row and two name lines): ItemsWrapGrid sizes every cell to the FIRST card, so a
+                                     first card without a chip or with a one-line name clipped every taller card below it. -->
+                                <Grid MinHeight="22">
                                     <Border Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="8" Padding="8,3" HorizontalAlignment="Right"
                                             Visibility="{Binding StationLabel, Converter={StaticResource NullToCollapsedConverter}}">
                                         <TextBlock Text="{Binding StationLabel}" FontSize="11" FontWeight="SemiBold"
@@ -55,7 +94,8 @@
                                         Visibility="{Binding Product.Variants, Converter={StaticResource CountGreaterThanOneToVisibleConverter}}"/>
                                 </Grid>
                                 <TextBlock Grid.Row="1" Text="{Binding Product.Name}" FontSize="18" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"
-                                    TextWrapping="Wrap" MaxLines="3" MinHeight="48"/>
+                                    TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Height="54"
+                                    ToolTipService.ToolTip="{Binding Product.Name}"/>
                                 <Grid Grid.Row="2" ColumnSpacing="6"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding StartingPriceDisplay}" FontSize="21" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="1" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left">
@@ -65,38 +105,6 @@
                             </Grid>
                             </Grid>
                         </Border>
-                        <ItemsControl ItemsSource="{Binding Offers}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <!-- This Button sits inside the same GridViewItem as the product card, and the
-                                         GridView's own IsItemClickEnabled tap recognition wins the race against a
-                                         plain Command binding here - tapping this pill was silently firing the
-                                         GridView's ItemClick (selecting the BASE product) instead of this button's
-                                         Command, so the offer discount was never actually applied. Handling Tapped
-                                         directly and marking it e.Handled=true stops the event from ever reaching
-                                         the GridViewItem. See ProductCatalogueView.xaml.cs: OnOfferTapped. -->
-                                    <Button HorizontalAlignment="Stretch" Background="#ECFDF5" BorderBrush="#6EE7B7" BorderThickness="1"
-                                            CornerRadius="8" Padding="8,5" Margin="0,4,0,0"
-                                            Tapped="OnOfferTapped">
-                                        <!-- Two real columns, not two overlapping HorizontalAlignment TextBlocks - on a
-                                             narrow card an offer name long enough (e.g. "عرض الكفتة") collided with the
-                                             price and rendered as garbled overlapping text. The Star column gives the
-                                             name the actual remaining width to wrap into instead of just floating over
-                                             whatever the price didn't cover. -->
-                                        <Grid ColumnSpacing="6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="12" FontWeight="SemiBold" Foreground="#065F46"
-                                                       TextWrapping="Wrap" TextAlignment="Right" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
-                                                       FontSize="12" FontWeight="Black" Foreground="#065F46" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
                     </StackPanel>
                 </DataTemplate>
             </GridView.ItemTemplate>

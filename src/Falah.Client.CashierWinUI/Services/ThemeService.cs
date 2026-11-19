@@ -38,8 +38,7 @@ public sealed class ThemeService
     private ThemeService()
     {
         _filePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Falah", "preferences", "cashier-appearance.json");
+            FileRetainedRequestStore.DataRoot(), "preferences", "cashier-appearance.json");
         Current = Load();
     }
 

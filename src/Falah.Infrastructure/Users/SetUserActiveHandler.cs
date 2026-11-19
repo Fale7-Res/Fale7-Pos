@@ -28,6 +28,7 @@ public sealed class SetUserActiveHandler
     {
         // Keep the surviving-administrator check and the update in one serializable transaction.
         await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
+        await UserIdentityLock.AcquireAsync(_db, ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
@@ -42,6 +43,8 @@ public sealed class SetUserActiveHandler
             throw new DomainException("لا يمكنك تعطيل حسابك الخاص.");
 
         if (target.Active == request.Active) return; // idempotent no-op - already in the requested state
+
+        if (request.Active) throw new DomainException("لإعادة تفعيل الحساب، اختر رمز PIN غير مستخدم من شاشة إدارة المستخدمين.");
 
         // The self-deactivation guard above covers the common case, but an actor acting on a one-off
         // manager approval rather than on a permission of their own can still deactivate the last

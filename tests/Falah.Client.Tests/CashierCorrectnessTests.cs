@@ -142,6 +142,108 @@ public class CashierCorrectnessTests
         Assert.Equal(0, calls); Assert.NotNull(vm.CheckoutError);
     }
 
+    // Owner decisions 2026-11-18: a discount above 10% of the items, and a refund of 500 ج or more,
+    // need a manager's PIN even from a cashier who holds the permission. The till asks for it up front.
+    [Fact]
+    public void A_discount_above_ten_percent_asks_for_a_manager_and_one_within_it_does_not()
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10000 });
+        vm.OpenCheckoutCommand.Execute(null); vm.IsDiscountEnabled = true;
+
+        vm.DiscountAmountText = "10";
+        Assert.False(vm.DiscountNeedsApproval);
+        vm.DiscountAmountText = "10.01";
+        Assert.True(vm.DiscountNeedsApproval);
+    }
+
+    [Fact]
+    public async Task A_discount_above_the_limit_sends_the_manager_approval_with_the_checkout()
+    {
+        var paths = new List<string>(); string? checkoutBody = null;
+        var (vm, _) = Create(async request =>
+        {
+            paths.Add(request.RequestUri!.AbsolutePath);
+            if (request.RequestUri.AbsolutePath == "/api/approvals/issue")
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = JsonContent.Create(new { approvalId = "ap-1", approverUserId = "mgr", approverName = "المدير", action = "orders_discount", approvedAtUtc = DateTimeOffset.UtcNow }) };
+            if (request.RequestUri.AbsolutePath == "/api/orders/checkout") checkoutBody = await request.Content!.ReadAsStringAsync();
+            return new HttpResponseMessage(HttpStatusCode.UnprocessableEntity) { Content = JsonContent.Create(new { error = "stop" }) };
+        });
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10000 });
+        vm.OpenCheckoutCommand.Execute(null); vm.IsDiscountEnabled = true; vm.DiscountAmountText = "50";
+        vm.DiscountManagerPin = "4321";
+
+        await vm.SubmitPaymentCommand.ExecuteAsync(null);
+
+        Assert.Contains("/api/approvals/issue", paths);
+        Assert.NotNull(checkoutBody);
+        Assert.Contains("\"discountApprovalId\":\"ap-1\"", checkoutBody);
+        Assert.Contains("\"discountApproverUserId\":\"mgr\"", checkoutBody);
+    }
+
+    [Theory]
+    [InlineData("499.99", false)]
+    [InlineData("500", true)]
+    public void A_refund_of_500_or_more_asks_for_a_manager_even_from_a_permission_holder(string amount, bool needsManager)
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.OrderLookupResult = System.Text.Json.JsonSerializer.Deserialize<Falah.Application.Orders.OrderDetailsDto>(
+            """{"id":"order","orderNumber":"42","items":[],"isPaid":true,"paymentMethod":"cash","status":"completed","totalPiastres":80000,"refundAmountPiastres":0}""",
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        vm.OpenRefundCommand.Execute(null);
+
+        vm.RefundAmountText = amount;
+
+        Assert.Equal(needsManager, vm.RefundNeedsApproval);
+    }
+
+    // The server lets a manager authorise their own large discount or refund, so the till does not
+    // ask a manager at the till for a manager's PIN.
+    [Fact]
+    public void A_manager_at_the_till_is_not_asked_for_a_manager_pin()
+    {
+        var (vm, session) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
+        session.CurrentUser = new UserSummaryDto("mgr", "مدير", "manager", new[] { "all" });
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 10000 });
+        vm.OpenCheckoutCommand.Execute(null); vm.IsDiscountEnabled = true;
+        vm.DiscountAmountText = "50";
+        Assert.False(vm.DiscountNeedsApproval);
+
+        vm.OrderLookupResult = System.Text.Json.JsonSerializer.Deserialize<Falah.Application.Orders.OrderDetailsDto>(
+            """{"id":"order","orderNumber":"42","items":[],"isPaid":true,"paymentMethod":"cash","status":"completed","totalPiastres":80000,"refundAmountPiastres":0}""",
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        vm.OpenRefundCommand.Execute(null);
+        vm.RefundAmountText = "800";
+        Assert.False(vm.RefundNeedsApproval);
+    }
+
+    // Owner, 2026-11-19: a sale that went through needs no "تم تسجيل الطلب / طلب جديد" card - the
+    // till goes straight back to an empty order. The card stays only when the cashier still has
+    // something to do or know: an unconfirmed transfer, or tickets the server could not queue.
+    [Theory]
+    [InlineData("null", true, false)]        // paid, printed: no card
+    [InlineData("\"pending\"", true, true)]  // transfer awaiting confirmation: card with its actions
+    [InlineData("null", false, true)]        // tickets not queued: card with the reprint warning
+    public async Task After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do(
+        string electronicStatus, bool printJobsQueued, bool cardShown)
+    {
+        var (vm, _) = Create(r => Task.FromResult(r.RequestUri!.AbsolutePath == "/api/orders/checkout"
+            ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
+                $$"""{"orderId":"o1","orderNumber":"#0128","sequenceNumber":128,"totalPiastres":8500,"amountPaidPiastres":10000,"changeDuePiastres":1500,"status":"completed","isPaid":true,"electronicPaymentStatus":{{electronicStatus}},"wasReplayed":false,"printJobsQueued":{{(printJobsQueued ? "true" : "false")}}}""",
+                System.Text.Encoding.UTF8, "application/json") }
+            : new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 8500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        vm.AmountPaidText = "100";
+
+        await vm.SubmitPaymentCommand.ExecuteAsync(null);
+
+        Assert.Equal(cardShown, vm.HasCheckoutResult);
+        Assert.Empty(vm.Cart);
+        Assert.False(vm.IsCheckoutOpen);
+        if (!cardShown) Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
+    }
+
     private static (CashierViewModel, AppSession) Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)
     {
         var session = new AppSession(new ApiClient(new HttpClient(new Handler(send)) { BaseAddress = new Uri("http://test") })) {

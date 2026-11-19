@@ -9,10 +9,10 @@
          the product catalogue each live in their own UserControl so no single file combines a
          GridView DataTemplate with another templated content region (see CashierView.xaml.cs's
          documented WinUI 3 XamlCompiler crash). -->
-    <Grid Background="{StaticResource PosSurfaceBrush}">
+    <Grid Background="{ThemeResource PosSurfaceBrush}">
 
         <!-- ================= NO SHIFT OPEN: this station has none of its own to open ================= -->
-        <Grid Background="{StaticResource SurfaceBrush}"
+        <Grid Background="{ThemeResource SurfaceBrush}"
               Visibility="{Binding IsShiftOpen, Converter={StaticResource InverseBoolToVisibleConverter}}">
             <Border Style="{StaticResource CardBorderStyle}" Width="440" Padding="32"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -41,7 +41,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,8,12,0">
-                    <Button AutomationProperties.AutomationId="OrderLookupButton" Style="{StaticResource GhostButtonStyle}"
+                    <Button AutomationProperties.Name="بحث عن طلب / إعادة طباعة" AutomationProperties.AutomationId="OrderLookupButton" Style="{StaticResource GhostButtonStyle}"
                             Command="{Binding OpenOrderLookupCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon Glyph="&#xE721;" FontSize="14"/>
@@ -58,16 +58,30 @@
         <!-- ================= CALLER / DELIVERY EDITOR ================= -->
         <views:CallCenterDeliveryEditorView/>
 
+        <!-- ================= CANCEL ORDER CONFIRMATION (UI-0044) ================= -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsClearOrderOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Style="{StaticResource CardBorderStyle}" Width="400" Padding="28" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Spacing="18">
+                    <TextBlock Text="إلغاء الطلب الحالي؟" Style="{StaticResource TitleText}"/>
+                    <TextBlock Text="سيتم حذف الأصناف وبيانات العميل والتوصيل من هذا الطلب." TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"/>
+                    <Button Content="الاحتفاظ بالطلب" Command="{Binding CancelClearOrderCommand}" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
+                            AutomationProperties.AutomationId="ClearOrder_Keep"/>
+                    <Button Content="نعم، إلغاء الطلب" Command="{Binding ConfirmClearOrderCommand}" Style="{StaticResource GhostButtonStyle}"
+                            Foreground="{ThemeResource DangerBrush}" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="ClearOrder_Confirm"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <!-- ================= VARIANT PICKER MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="20" Width="420" MaxHeight="500"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="420" MaxHeight="500"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="12">
                     <controls:ModalHeaderView Title="{Binding VariantPickerProduct.Name}"
                                               CloseCommand="{Binding CloseVariantPickerCommand}"/>
-                    <Border Background="#ECFDF5" BorderBrush="#6EE7B7" BorderThickness="1" CornerRadius="10" Padding="10,8"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" BorderBrush="{ThemeResource SuccessBrush}" BorderThickness="1" CornerRadius="10" Padding="10,8"
                             Visibility="{Binding HasPendingOffer, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="{Binding PendingOfferBanner}" FontSize="12" FontWeight="Bold" Foreground="#065F46"
+                        <TextBlock Text="{Binding PendingOfferBanner}" FontSize="12" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"
                                    TextWrapping="Wrap" TextAlignment="Right"/>
                     </Border>
                     <ItemsControl ItemsSource="{Binding VariantPickerProduct.Variants}">
@@ -75,7 +89,7 @@
                             <DataTemplate>
                                 <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                         Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8"
-                                        Command="{Binding ElementName=Root, Path=DataContext.SelectVariantCommand}" CommandParameter="{Binding}">
+                                        Command="{Binding ElementName=Root, Path=DataContext.SelectVariantCommand}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}">
                                     <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -83,7 +97,7 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Right"/>
                                         <TextBlock Grid.Column="1" Text="{Binding PricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
-                                                   FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
+                                                   FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Button>
                             </DataTemplate>
@@ -94,13 +108,13 @@
         </Grid>
 
         <!-- ================= ORDER SUCCESS CONFIRMATION ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="28" Width="380"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="28" Width="380"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="10" HorizontalAlignment="Center">
                     <TextBlock Text="✅" FontSize="34" HorizontalAlignment="Center"/>
                     <TextBlock Text="تم تسجيل الطلب" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
-                    <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrandPrimaryBrush}">
+                    <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}">
                         <Run Text="{Binding LastCheckoutResult.OrderNumber}"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
@@ -110,10 +124,10 @@
                     <!-- The order is never failed for a printing problem, so this is the only thing
                          that distinguishes a confirmation copy that printed from one that was never
                          created. Absent whenever printing worked. -->
-                    <Border Background="{StaticResource WarningBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding HasPrintWarning, Converter={StaticResource BoolToVisibleConverter}}">
                         <TextBlock Text="{Binding PrintWarningText}" TextWrapping="Wrap" TextAlignment="Center"
-                                   FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource WarningBrush}"/>
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource WarningBrush}"/>
                     </Border>
                     <Button Content="إعادة محاولة طلب الطباعة" Style="{StaticResource SecondaryButtonStyle}"
                             Command="{Binding RetryPrintCommand}" HorizontalAlignment="Stretch"
@@ -126,8 +140,8 @@
         </Grid>
 
         <!-- ================= ORDER LOOKUP / REPRINT MODAL ================= -->
-        <Grid Background="#66313D35" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="White" CornerRadius="20" Padding="20" Width="420" MaxHeight="560"
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="420" MaxHeight="560"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="12">
                     <controls:ModalHeaderView Title="بحث عن طلب" CloseCommand="{Binding CloseOrderLookupCommand}"/>
@@ -137,22 +151,27 @@
                     <Button Content="بحث" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding LookupOrderCommand}"/>
 
-                    <TextBlock Text="{Binding LookupError}" Foreground="{StaticResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
+                    <TextBlock Text="{Binding LookupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
                                Visibility="{Binding LookupError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
                     <StackPanel Spacing="6" Visibility="{Binding LookedUpOrder, Converter={StaticResource NullToCollapsedConverter}}">
-                        <Border Height="1" Background="{StaticResource CardBorderBrush}" Margin="0,4"/>
+                        <Border Height="1" Background="{ThemeResource CardBorderBrush}" Margin="0,4"/>
                         <TextBlock FontWeight="Black" FontSize="16">
                             <Run Text="{Binding LookedUpOrder.OrderNumber}"/>
                         </TextBlock>
-                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextMutedBrush}">
                             <Run Text="الحالة: "/><Run Text="{Binding LookedUpOrder.Status, Converter={StaticResource OrderStatusLabelConverter}}"/>
                         </TextBlock>
-                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}">
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextMutedBrush}">
                             <Run Text="العميل: "/><Run Text="{Binding LookedUpOrder.CustomerName}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.CustomerPhone}"/>
                         </TextBlock>
-                        <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap">
-                            <Run Text="العنوان: "/><Run Text="{Binding LookedUpOrder.DeliveryArea}"/><Run Text=" - "/><Run Text="{Binding LookedUpOrder.DeliveryStreet}"/>
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"
+                                   Visibility="{Binding HasLookedUpAddress, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Run Text="العنوان: "/><Run Text="{Binding LookedUpAddressLine}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap"
+                                   Visibility="{Binding HasLookedUpDeliveryNotes, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Run Text="ملاحظات التوصيل: "/><Run Text="{Binding LookedUpDeliveryNotes}"/>
                         </TextBlock>
                         <TextBlock FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
                                    Visibility="{Binding HasLookedUpRequestedPickup, Converter={StaticResource BoolToVisibleConverter}}">

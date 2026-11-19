@@ -19,6 +19,7 @@ public static class TicketElementMapping
     public const string KindRule = "rule";
     public const string KindCut = "cut";
     public const string KindQr = "qr";
+    public const string KindLogo = "logo";
 
     public static TicketElementDto ToDto(TicketElement element) => element switch
     {
@@ -26,7 +27,9 @@ public static class TicketElementMapping
             Inverted: t.Inverted),
         TicketRow r => new TicketElementDto(KindRow, Size: SizeToWire(r.Size),
             Cells: r.Cells.Select(c => new TicketCellDto(c.Text, c.WidthPercent, AlignToWire(c.Align), c.Bold)).ToList(),
-            Inverted: r.Inverted, Boxed: r.Boxed, Continuation: r.Continuation),
+            Inverted: r.Inverted, Boxed: r.Boxed, Continuation: r.Continuation, FitStart: r.FitStart),
+        // No Text: an agent that predates the logo prints a blank line in its place.
+        TicketLogo => new TicketElementDto(KindLogo, Align: "center"),
         TicketRule rule => new TicketElementDto(KindRule, Rule: RuleToWire(rule.Style)),
         TicketCut => new TicketElementDto(KindCut),
         // The payload rides in Text, so an agent that predates QR support prints the link as a
@@ -40,10 +43,11 @@ public static class TicketElementMapping
         KindRow => new TicketRow(
             (dto.Cells ?? Array.Empty<TicketCellDto>())
                 .Select(c => new TicketCell(c.Text, c.WidthPercent, AlignFromWire(c.Align), c.Bold)).ToList(),
-            SizeFromWire(dto.Size), dto.Inverted, dto.Boxed, dto.Continuation),
+            SizeFromWire(dto.Size), dto.Inverted, dto.Boxed, dto.Continuation, dto.FitStart),
         KindRule => new TicketRule(RuleFromWire(dto.Rule)),
         KindCut => new TicketCut(),
         KindQr => new TicketQr(dto.Text ?? ""),
+        KindLogo => new TicketLogo(),
         // Unknown kinds fall through to text, which is why Text carries the content for every kind
         // that has any: an agent built before a future element type still prints something true.
         _ => new TicketText(dto.Text ?? "", dto.Bold, AlignFromWire(dto.Align), SizeFromWire(dto.Size), dto.Inverted),

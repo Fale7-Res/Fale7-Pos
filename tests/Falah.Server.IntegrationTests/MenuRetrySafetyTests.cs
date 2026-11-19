@@ -101,4 +101,41 @@ public class MenuRetrySafetyTests : IAsyncLifetime
             Assert.False((await _client.GetFromJsonAsync<ProductDetailsDto>($"/api/products/{id}"))!.IsAvailable);
         }
     }
+
+    [Fact]
+    public async Task Removing_a_sold_size_retires_it_without_breaking_history_or_future_checkout()
+    {
+        await _factory.SeedOpenBusinessDayWithFundedMainAsync();
+        var opened = await _client.PostAsJsonAsync("/api/shifts/open", new Falah.Application.Shifts.OpenShiftRequest(Key(), "وردية", _actor, 0));
+        opened.EnsureSuccessStatusCode();
+        var shift = (await opened.Content.ReadFromJsonAsync<Falah.Application.Shifts.OpenShiftResult>())!.ShiftId;
+        var product = await _factory.SeedProductAsync(4500);
+        var variant = await _factory.SeedVariantAsync(product, 6000, "كبير");
+        var checkout = new Falah.Application.Orders.CheckoutOrderRequest(Key(), _actor, shift, "takeaway", "cash",
+            new[] { new Falah.Application.Orders.CheckoutItemRequest(product, variant, 1, null, null) }, 0, 0, 0, null, null, null, 6000, null, null, null, null, null, null, null, null);
+        var sale = await _client.PostAsJsonAsync("/api/orders/checkout", checkout);
+        sale.EnsureSuccessStatusCode();
+        var original = (await _client.GetFromJsonAsync<ProductDetailsDto>($"/api/products/{product}"))!;
+        var edit = new UpdateProductRequest(product, original.CategoryId, original.Name, original.BasePricePiastres, false, null, 1, null,
+            Array.Empty<ProductVariantInput>(), _actor, Key());
+        var saved = await _client.PutAsJsonAsync($"/api/products/{product}", edit);
+        Assert.True(saved.IsSuccessStatusCode, await saved.Content.ReadAsStringAsync());
+        (await _client.PutAsJsonAsync($"/api/products/{product}", edit)).EnsureSuccessStatusCode();
+        var current = (await _client.GetFromJsonAsync<ProductDetailsDto>($"/api/products/{product}"))!;
+        Assert.Empty(current.Variants);
+        var historical = await _factory.QueryAsync(db => Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.AnyAsync(db.OrderItems, i => i.VariantId == variant));
+        Assert.True(historical);
+        var staleSale = await _client.PostAsJsonAsync("/api/orders/checkout", checkout with { CheckoutRequestId = Key() });
+        Assert.Equal(System.Net.HttpStatusCode.UnprocessableEntity, staleSale.StatusCode);
+        var replay = await _client.PostAsJsonAsync("/api/orders/checkout", checkout);
+        replay.EnsureSuccessStatusCode();
+    }
+
+
+    [Fact]
+    public async Task The_variant_retirement_snapshot_matches_the_current_database_model()
+    {
+        Assert.False(await _factory.QueryAsync(db => Task.FromResult(Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.HasPendingModelChanges(db.Database))));
+    }
+
 }

@@ -37,6 +37,10 @@ public sealed class CorrectAttendanceHandler
         // financial delta. The immutable audit snapshot also confirms a retry without
         // reapplying an old correction over a newer one (even for a zero-delta change).
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        var employeeId = await _db.AttendanceRecords.AsNoTracking().Where(a => a.Id == request.RecordId).Select(a => a.EmployeeId).FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException("سجل الحضور غير موجود.");
+        // All employee-ledger writers lock employee before attendance/ledger rows.
+        await LedgerCreditReplay.LockEmployeeAsync(_db, employeeId, ct);
         var record = await _db.AttendanceRecords
             .FromSqlRaw("SELECT * FROM AttendanceRecords WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.RecordId)
             .FirstOrDefaultAsync(ct)

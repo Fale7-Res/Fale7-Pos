@@ -75,6 +75,11 @@ public class ShiftEntity
     public string? DifferenceAuthorizedBy { get; set; }
     public string Status { get; set; } = default!;
     public DateOnly BusinessDate { get; set; }
+    /// <summary>The business day the shift was opened under. Not the same thing as BusinessDate,
+    /// which is the Cairo calendar date of the opening: a shift opened after midnight in a business
+    /// day that began the evening before has today's date and yesterday's business day. Null only for
+    /// shifts opened before it was recorded - see BusinessDayShifts for how those are matched.</summary>
+    public string? BusinessDayId { get; set; }
     public DateTimeOffset OpenedAtUtc { get; set; }
     public DateTimeOffset? ClosedAtUtc { get; set; }
     public string OpenRequestId { get; set; } = default!;
@@ -86,6 +91,30 @@ public class ShiftEntity
     public string? ReconciliationTreasuryMovementId { get; set; }
     public string? HandoverTreasuryMovementId { get; set; }
     public uint Version { get; set; }
+
+    // Physical handover (owner, 2026-11-08). Additive: a shift closed before these columns reads null - all of
+    // its counted cash was handed over and nothing was retained, which is what that close did.
+    /// <summary>Cash the drawer already held when this shift opened (the previous close's retained float).
+    /// Null for a shift opened with an empty drawer or before this was recorded.</summary>
+    public long? InheritedFloatPiastres { get; set; }
+    /// <summary>Of the counted cash, the part left in the drawer for the next cashier.</summary>
+    public long? RetainedFloatPiastres { get; set; }
+    /// <summary>Of the counted cash, the part physically handed to the receiver (moved drawer -> main).</summary>
+    public long? HandedOverPiastres { get; set; }
+    public string? HandoverReceiverUserId { get; set; }
+    public string? HandoverReceiverName { get; set; }
+
+    /// <summary>Receipt of the handed-over cash (P4). Null on a shift closed before receipt was recorded, or when
+    /// nothing was handed over; "pending" until the receiver confirms; "acknowledged" when the receiver confirmed the
+    /// amount; "disputed" when the receiver counted a different amount. Choosing a receiver at the close is not a
+    /// receipt: only the receiver's own session, or the receiver's PIN typed at the till, records one.</summary>
+    public string? HandoverReceiptStatus { get; set; }
+    public long? HandoverReceivedPiastres { get; set; }
+    public DateTimeOffset? HandoverAcknowledgedAtUtc { get; set; }
+    public string? HandoverAcknowledgedByUserId { get; set; }
+    public string? HandoverAcknowledgedByName { get; set; }
+    public string? HandoverAcknowledgeRequestId { get; set; }
+    public string? HandoverReceiptNote { get; set; }
 }
 
 public class TreasuryMovementEntity

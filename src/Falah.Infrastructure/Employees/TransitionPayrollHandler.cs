@@ -31,7 +31,10 @@ public sealed class TransitionPayrollHandler
         var actor = OrderMapper.ToActor(actorUser);
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "employees_manage");
 
-        var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var run = await _db.PayrollRuns
+            .FromSqlRaw("SELECT * FROM PayrollRuns WITH (UPDLOCK, HOLDLOCK) WHERE Id = {0}", request.PayrollRunId)
+            .FirstOrDefaultAsync(ct)
             ?? throw new InvalidOperationException("مسير الرواتب غير موجود.");
         var currentStatus = Enum.Parse<PayrollRunStatus>(run.Status);
         PayrollRules.AssertTransition(currentStatus, targetStatus);
@@ -57,6 +60,7 @@ public sealed class TransitionPayrollHandler
         if (targetStatus == PayrollRunStatus.Reviewed) { run.ReviewedBy = actor.Name; run.ReviewedAtUtc = now; }
 
         await _db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return CreatePayrollHandler.ToDto(run, wasReplayed: false);
     }
 }

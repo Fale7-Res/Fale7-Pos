@@ -28,8 +28,11 @@
                     <TextBlock Text="افتح الوردية" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
                     <TextBlock Text="أدخل الرصيد الافتتاحي بالجنيه لبدء العمل" Style="{StaticResource MutedText}"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBox IsEnabled="{Binding CanEditOperation}" Text="{Binding OpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
+                    <TextBox AutomationProperties.Name="الرصيد الافتتاحي بالجنيه" IsEnabled="{Binding CanEditOperation}" Text="{Binding OpeningCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center" HorizontalAlignment="Stretch"/>
+                    <TextBlock Text="{Binding OpeningInheritedNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" TextAlignment="Center"
+                               AutomationProperties.AutomationId="OpenShift_InheritedNote"
+                               Visibility="{Binding OpeningInheritedNote, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <TextBlock Text="{Binding OpenShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Visibility="{Binding OpenShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
@@ -75,7 +78,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button Content="البحث عن طلب" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding OpenOrderLookupCommand}"/>
                         <Button Content="مصروف" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding OpenAddExpenseCommand}"/>
-                    <Button x:Name="CashierOperationsButton" MinHeight="44" AutomationProperties.AutomationId="CashierOperationsButton" Style="{StaticResource GhostButtonStyle}">
+                    <Button AutomationProperties.Name="عمليات الكاشير" x:Name="CashierOperationsButton" MinHeight="44" AutomationProperties.AutomationId="CashierOperationsButton" Style="{StaticResource GhostButtonStyle}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon Glyph="&#xE713;" FontSize="14"/>
                             <TextBlock Text="عمليات الكاشير" FontSize="13" FontWeight="SemiBold"/>
@@ -122,13 +125,13 @@
         <!-- ================= VARIANT PICKER MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="420" MaxHeight="500"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto">
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="12">
                     <controls:ModalHeaderView Title="{Binding VariantPickerProduct.Name}"
                                               CloseCommand="{Binding CloseVariantPickerCommand}"/>
-                    <Border Background="#ECFDF5" BorderBrush="#6EE7B7" BorderThickness="1" CornerRadius="10" Padding="10,8"
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" BorderBrush="{ThemeResource SuccessBrush}" BorderThickness="1" CornerRadius="10" Padding="10,8"
                             Visibility="{Binding HasPendingOffer, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="{Binding PendingOfferBanner}" FontSize="12" FontWeight="Bold" Foreground="#065F46"
+                        <TextBlock Text="{Binding PendingOfferBanner}" FontSize="12" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"
                                    TextWrapping="Wrap" TextAlignment="Right"/>
                     </Border>
                     <ItemsControl ItemsSource="{Binding VariantPickerProduct.Variants}">
@@ -136,7 +139,7 @@
                             <DataTemplate>
                                 <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                         Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8"
-                                        Command="{Binding ElementName=Root, Path=DataContext.SelectVariantCommand}" CommandParameter="{Binding}">
+                                        Command="{Binding ElementName=Root, Path=DataContext.SelectVariantCommand}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}">
                                     <!-- Same real-columns fix as the offer pill in ProductCatalogueView - two
                                          overlapping HorizontalAlignment TextBlocks garble as soon as a variant
                                          name is long enough to reach the price. -->
@@ -168,8 +171,11 @@
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="28" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14" HorizontalAlignment="Center">
                     <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="40" Width="72" Height="72">
-                        <TextBlock Text="✓" FontSize="34" Foreground="{ThemeResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="✓" FontSize="34" Foreground="{ThemeResource SuccessTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
+                    <TextBlock Text="{Binding VoidCashToHandBackText}" TextWrapping="Wrap" TextAlignment="Center" FontWeight="Bold"
+                               Foreground="{ThemeResource WarningTextBrush}" Width="300"
+                               Visibility="{Binding VoidCashToHandBackText, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <TextBlock Text="{Binding CheckoutTitle}" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
                     <TextBlock HorizontalAlignment="Center" FontSize="13" Foreground="{ThemeResource TextMutedBrush}">
                         <Run Text="رقم الطلب: "/><Run Text="{Binding LastCheckoutResult.OrderNumber}" FontWeight="Bold"/>
@@ -184,7 +190,7 @@
                     <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="12" Padding="14,10" Width="320"
                             Visibility="{Binding HasPrintWarning, Converter={StaticResource BoolToVisibleConverter}}">
                         <TextBlock Text="{Binding PrintWarningText}" TextWrapping="Wrap" TextAlignment="Center"
-                                   FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource WarningBrush}"/>
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource WarningTextBrush}"/>
                     </Border>
 
                     <!-- Pending InstaPay/wallet claim: not paid yet, needs a follow-up confirm once the
@@ -193,13 +199,19 @@
                     <StackPanel Spacing="10" Width="300" Visibility="{Binding IsElectronicPaymentPending, Converter={StaticResource BoolToVisibleConverter}}">
                         <Border Background="{ThemeResource WarningBackgroundBrush}" BorderBrush="{ThemeResource WarningBrush}" BorderThickness="1" CornerRadius="10" Padding="10,8">
                             <TextBlock Text="دفع إلكتروني معلّق - أكّد بعد استلام المبلغ فعليًا، أو ألغِ الطلب إذا لم يصل."
-                                       Foreground="{ThemeResource WarningBrush}" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+                                       Foreground="{ThemeResource WarningTextBrush}" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
                         </Border>
                         <TextBlock Text="{Binding PendingPaymentActionError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                    TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding PendingPaymentActionError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="تأكيد استلام المبلغ" Style="{StaticResource SuccessButtonStyle}" HorizontalAlignment="Stretch"
                                 IsEnabled="{Binding CanConfirmPendingPayment}" Command="{Binding ConfirmElectronicPaymentCommand}"/>
                         <TextBox IsEnabled="{Binding CanEditOperation}" PlaceholderText="سبب الإلغاء" Text="{Binding CancelPendingReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!-- Required before cancelling: checkout already took the ingredients out of stock. -->
+                        <TextBlock Text="هل تم تحضير الطلب؟" FontWeight="SemiBold" TextAlignment="Center"/>
+                        <RadioButton GroupName="CancelPendingFood" Content="تم التحضير — يُسجَّل هالكًا" IsEnabled="{Binding CanEditOperation}"
+                                     IsChecked="{Binding IsCancelFoodPrepared, Mode=TwoWay}"/>
+                        <RadioButton GroupName="CancelPendingFood" Content="لم يُحضَّر — تعود الخامات للمخزون" IsEnabled="{Binding CanEditOperation}"
+                                     IsChecked="{Binding IsCancelFoodNotPrepared, Mode=TwoWay}"/>
                         <Button Content="إلغاء الطلب المعلّق" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Stretch"
                                 IsEnabled="{Binding CanCancelPendingPayment}" Command="{Binding CancelPendingElectronicPaymentCommand}"/>
                     </StackPanel>
@@ -224,7 +236,7 @@
                     <StackPanel Spacing="10" Visibility="{Binding IsCloseShiftCounting, Converter={StaticResource BoolToVisibleConverter}}">
                         <TextBlock Text="عدّ الدرج فعليًا ثم أدخل المبلغ بالجنيه - سيظهر المتوقع بعد ذلك مباشرة."
                                    Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
-                        <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CloseShift_ActualCash" Text="{Binding CloseShiftActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
+                        <TextBox AutomationProperties.Name="النقدية المعدودة بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CloseShift_ActualCash" Text="{Binding CloseShiftActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                                  FontSize="20" TextAlignment="Center"/>
                         <TextBlock Text="{Binding CloseShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                    TextAlignment="Center" TextWrapping="Wrap"
@@ -262,6 +274,25 @@
 
                         <TextBox IsEnabled="{Binding CanEditOperation}" PlaceholderText="سبب الفارق (اختياري إن كان ضمن الحد المسموح)"
                                  Text="{Binding CloseShiftReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Physical handover: counted = left in the drawer + handed to the receiver. -->
+                        <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="التسليم" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <TextBox Header="عهدة تُترك في الدرج للوردية التالية (ج)" IsEnabled="{Binding CanEditOperation}"
+                                         AutomationProperties.Name="عهدة تُترك في الدرج للوردية التالية" AutomationProperties.AutomationId="CloseShift_Retained"
+                                         Text="{Binding CloseShiftRetainedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="يُسلَّم للمسؤول:" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" HorizontalAlignment="Left" FontWeight="Bold" AutomationProperties.AutomationId="CloseShift_HandedOver"
+                                               Text="{Binding CloseShiftHandedOverText}"/>
+                                </Grid>
+                                <ComboBox Header="المستلم" PlaceholderText="اختر المسؤول الذي استلم النقدية" HorizontalAlignment="Stretch"
+                                          IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CloseShift_Receiver"
+                                          ItemsSource="{Binding HandoverReceivers}" SelectedItem="{Binding SelectedHandoverReceiver, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                            </StackPanel>
+                        </Border>
 
                         <StackPanel Spacing="8" Visibility="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
                             <TextBlock Text="الفارق يتجاوز الحد المسموح - السبب أعلاه إلزامي، وأدخل رمز المدير المخوّل باعتماد الإغلاق."
@@ -310,38 +341,38 @@
                     <Grid ColumnSpacing="6" RowSpacing="6">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <Button Grid.Row="0" Grid.Column="0" Content="مستلزمات مطبخ وخضار" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
-                                Command="{Binding SetExpenseCategoryCommand}" CommandParameter="مستلزمات مطبخ وخضار"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات مطبخ وخضار|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات مطبخ وخضار|WhiteBrush|TextPrimaryBrush}"/>
+                        <Button Grid.Row="0" Grid.Column="0" Content="مستلزمات تشغيل (غير الخامات)" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                                Command="{Binding SetExpenseCategoryCommand}" CommandParameter="مستلزمات تشغيل"
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات تشغيل|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات تشغيل|AccentTextBrush|TextPrimaryBrush}"/>
                         <Button Grid.Row="0" Grid.Column="1" Content="غاز وفحم وشواية" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="غاز وفحم"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|WhiteBrush|TextPrimaryBrush}"/>
-                        <Button Grid.Row="1" Grid.Column="0" Content="أكياس وورق وتغليف" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
-                                Command="{Binding SetExpenseCategoryCommand}" CommandParameter="أكياس وتغليف"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أكياس وتغليف|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أكياس وتغليف|WhiteBrush|TextPrimaryBrush}"/>
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|AccentTextBrush|TextPrimaryBrush}"/>
+                        <!-- Ingredients and packaging are stock: bought through Purchasing so they enter the
+                             inventory at their cost, never as an expense (ExpenseCategories, owner's decision). -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="الخامات والتغليف تُشترى من شاشة المشتريات" Style="{StaticResource CaptionText}"
+                                   TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
                         <Button Grid.Row="1" Grid.Column="1" Content="نظافة ومطهرات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="نظافة ومطهرات"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|WhiteBrush|TextPrimaryBrush}"/>
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|AccentTextBrush|TextPrimaryBrush}"/>
                         <Button Grid.Row="2" Grid.Column="0" Content="مواصلات وبنزين" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="مواصلات ودليفري"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|WhiteBrush|TextPrimaryBrush}"/>
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|AccentTextBrush|TextPrimaryBrush}"/>
                         <Button Grid.Row="2" Grid.Column="1" Content="صيانة سريعة وأدوات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="صيانة سريعة"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|WhiteBrush|TextPrimaryBrush}"/>
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|AccentTextBrush|TextPrimaryBrush}"/>
                         <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="نثريات أخرى" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="أخرى"
-                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|ActionBlueBrush|WhiteBrush}"
-                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|WhiteBrush|TextPrimaryBrush}"/>
+                                Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|ActionBlueBrush|CardBackgroundBrush}"
+                                Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|AccentTextBrush|TextPrimaryBrush}"/>
                     </Grid>
 
                     <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
-                    <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Amount" Text="{Binding ExpenseAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
+                    <TextBox AutomationProperties.Name="مبلغ المصروف بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Amount" Text="{Binding ExpenseAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center"/>
 
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Description" PlaceholderText="بيان المصروف" Text="{Binding ExpenseDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -384,5 +415,26 @@
          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16" MaxWidth="440"><TextBlock Text="تعذر استعادة الوردية" Style="{StaticResource TitleText}"/><TextBlock Text="{Binding SessionError}" TextWrapping="Wrap"/><Button Content="إعادة المحاولة" Command="{Binding InitializeCommand}" Style="{StaticResource CtaButtonStyle}"/></StackPanel>
         </Border>
 
+        <!-- REC3: a kept request the server refused on retry. Last child, so it sits above any modal
+             (the recovered request reopens its own). The till never drops one by itself; the
+             operator checks and lets it go. -->
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,12,0,0" MaxWidth="640"
+                Background="{ThemeResource WarningBackgroundBrush}" BorderBrush="{ThemeResource WarningBrush}" BorderThickness="1"
+                CornerRadius="12" Padding="16,12"
+                Visibility="{Binding HasRefusedRetry, Converter={StaticResource BoolToVisibleConverter}}"
+                AutomationProperties.AutomationId="Cashier.RefusedRetryBanner">
+            <StackPanel Spacing="8">
+                <TextBlock Text="عملية سابقة لم يصل تأكيدها تحتاج مراجعتك" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/>
+                <TextBlock Text="{Binding RefusedRetryMessage}" TextWrapping="Wrap"/>
+                <TextBlock Text="الرفض يعني غالبًا أن العملية لم تُسجَّل. راجع قائمة الطلبات أو الدرج للتأكد، ثم تجاهلها لتكمل العمل - ولو كانت لازمة نفّذها من جديد."
+                           Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                <Button Content="تأكدت - تجاهل هذه العملية" HorizontalAlignment="Left" MinHeight="44"
+                        Style="{StaticResource WarningOutlineButtonStyle}" Command="{Binding DiscardRefusedRetriesCommand}"
+                        AutomationProperties.AutomationId="Cashier.DiscardRefusedRetry"/>
+            </StackPanel>
+        </Border>
+
+        <!-- UI-REQ-002: closing statement after closing the shift from the POS. -->
+        <views:ShiftStatementView Grid.RowSpan="10" Grid.ColumnSpan="10" DataContext="{Binding ShiftStatement}"/>
     </Grid>
 </UserControl>

@@ -42,6 +42,25 @@ public sealed class UpdateSettingsHandler
         return trimmed;
     }
 
+    /// <summary>Refuses numbers no restaurant can mean, before anything is written: a negative fee
+    /// lowers order totals, zero receipt copies prints nothing, zero workday hours divides payroll by
+    /// zero. Zero stays allowed wherever it is a real answer (no auto-lock, no grace, no threshold).</summary>
+    internal static void AssertPlausibleNumbers(UpdateSettingsRequest r)
+    {
+        static void Check(bool bad, string message) { if (bad) throw new DomainException(message); }
+        Check(r.OvertimeHourlyRatePiastres < 0, "سعر ساعة الإضافي لا يمكن أن يكون بالسالب.");
+        Check(r.DeliveryFeePiastres < 0, "رسوم التوصيل لا يمكن أن تكون بالسالب.");
+        Check(r.CashDiscrepancyThresholdPiastres < 0, "حد فرق النقدية لا يمكن أن يكون بالسالب.");
+        Check(r.AutoLockMinutes < 0, "مدة القفل التلقائي لا يمكن أن تكون بالسالب.");
+        Check(r.NumberOfReceiptCopies < 1, "عدد نسخ الإيصال يجب أن يكون نسخة واحدة على الأقل.");
+        Check(r.StandardWorkdayHours < 1 || r.StandardWorkdayHours > 24, "ساعات يوم العمل يجب أن تكون بين 1 و 24.");
+        Check(r.LateGraceMinutes < 0, "مهلة التأخير لا يمكن أن تكون بالسالب.");
+        Check(r.MaxLatePenaltyHours < 0, "الحد الأقصى لساعات خصم التأخير لا يمكن أن يكون بالسالب.");
+        Check(r.LatePenaltyMultiplier is { } late && (late < 0 || !double.IsFinite(late)), "معامل خصم التأخير لا يمكن أن يكون بالسالب.");
+        Check(r.OvertimeMultiplier is { } over && (over < 0 || !double.IsFinite(over)), "معامل الإضافي لا يمكن أن يكون بالسالب.");
+        Check(r.MaxDiscountWithoutApprovalBasisPoints is < 0 or > 10_000, "حد الخصم بدون مدير يجب أن يكون بين 0% و 100%.");
+    }
+
     public async Task<SettingsDto> HandleAsync(UpdateSettingsRequest request, CancellationToken ct = default)
     {
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -56,9 +75,10 @@ public sealed class UpdateSettingsHandler
             && request.StandardWorkdayHours is null && request.LateGraceMinutes is null && request.MaxLatePenaltyHours is null
             && request.LatePenaltyMultiplier is null && request.OvertimeMultiplier is null
             && request.HoldPreparationUntilPaymentConfirmed is null && request.MenuUrl is null
-            && request.DefaultOpeningCashPiastres is null;
+            && request.DefaultOpeningCashPiastres is null && request.MaxDiscountWithoutApprovalBasisPoints is null;
         if (!onlyGrillSound)
             AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
+        AssertPlausibleNumbers(request);
 
         var entity = await _db.Settings.FirstOrDefaultAsync(s => s.Id == SettingsEntity.SingletonId, ct);
         if (entity is null)
@@ -115,12 +135,15 @@ public sealed class UpdateSettingsHandler
             if (defaultOpeningCash < 0) throw new DomainException("الرصيد الافتتاحي الافتراضي لا يمكن أن يكون بالسالب.");
             entity.DefaultOpeningCashPiastres = defaultOpeningCash;
         }
+        if (request.MaxDiscountWithoutApprovalBasisPoints is { } discountLimit) entity.MaxDiscountWithoutApprovalBasisPoints = discountLimit;
 
         // The float every shift starts from is named explicitly when it changes: it decides what the
         // next cashier is handed, so a reviewer should see who changed it and to what.
         var details = $"تم تحديث الإعدادات (سعر الساعة الإضافية: {entity.OvertimeHourlyRatePiastres} قرش)"
             + (request.DefaultOpeningCashPiastres is null ? ""
-                : $" (الرصيد الافتتاحي الافتراضي: {entity.DefaultOpeningCashPiastres} قرش)");
+                : $" (الرصيد الافتتاحي الافتراضي: {entity.DefaultOpeningCashPiastres} قرش)")
+            + (request.MaxDiscountWithoutApprovalBasisPoints is null ? ""
+                : $" (حد الخصم بدون مدير: {entity.MaxDiscountWithoutApprovalBasisPoints / 100m:0.##}%)");
 
         _auditLog.Append(new AuditEvent(
             $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,

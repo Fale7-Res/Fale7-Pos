@@ -328,7 +328,8 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
             $"req-{Guid.NewGuid():N}", null, "عرض", new[] { product!.ProductId }, 8000, null, null, null, true, noPermissionUser, null, null));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutApproval.StatusCode);
 
-        var approvalId = (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at that user's own session, which spends it.
+        var approvalId = (await (await _factory.PostAsSessionOfAsync(_client, noPermissionUser, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_ownerId), "offers_manage", "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
         var withApproval = await _client.PostAsJsonAsync("/api/price-rules", new SavePriceRuleRequest(
             $"req-{Guid.NewGuid():N}", null, "عرض", new[] { product.ProductId }, 8000, null, null, null, true, noPermissionUser, approvalId, _ownerId));
@@ -402,4 +403,26 @@ public class MenuManagementVerticalSliceTests : IAsyncLifetime
         Assert.Equal(new[] { "أول", "ثاني", "ثالث" }, managed.Select(p => p.Name));
         Assert.Equal(new[] { "صغير", "وسط", "كبير" }, managed[0].Variants.Select(v => v.Name));
     }
+
+    [Theory]
+    [InlineData("inclusive", "Inclusive")]
+    [InlineData("0", "Inclusive")]
+    [InlineData("exclusive", "Exclusive")]
+    public async Task Tax_modes_are_canonical_on_create_and_update(string input, string expected)
+    {
+        var response = await _client.PostAsJsonAsync("/api/tax-rules", new CreateTaxRuleRequest($"case-{Guid.NewGuid():N}", "ضريبة", 1000, input, true, _menuManagerId));
+        response.EnsureSuccessStatusCode();
+        var created = (await response.Content.ReadFromJsonAsync<CreateTaxRuleResult>())!;
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.TaxRules.Where(t => t.Id == created.TaxRuleId).Select(t => t.Mode).SingleAsync()));
+        var update = await _client.PutAsJsonAsync($"/api/tax-rules/{created.TaxRuleId}", new UpdateTaxRuleRequest(created.TaxRuleId, "ضريبة", 1000, input, true, _menuManagerId));
+        update.EnsureSuccessStatusCode();
+        Assert.Equal(expected, await _factory.QueryAsync(db => db.TaxRules.Where(t => t.Id == created.TaxRuleId).Select(t => t.Mode).SingleAsync()));
+    }
+
+    [Fact]
+    public async Task Undefined_numeric_tax_mode_is_refused()
+    {
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await _client.PostAsJsonAsync("/api/tax-rules", new CreateTaxRuleRequest($"case-{Guid.NewGuid():N}", "ضريبة", 1000, "999", true, _menuManagerId))).StatusCode);
+    }
+
 }

@@ -33,7 +33,7 @@ public sealed class CreatePrintJobsHandler
     {
         var existing = await _db.PrintJobs.AsNoTracking()
             .Where(j => j.CreateRequestId == request.RequestId).ToListAsync(ct);
-        if (existing.Count > 0) return new CreatePrintJobsResult(existing.Select(ToDto).ToList(), WasReplayed: true);
+        if (request.IsReprint && existing.Count > 0) return new CreatePrintJobsResult(existing.Select(ToDto).ToList(), WasReplayed: true);
 
         PrintRoute? customerRoute = null;
         if (!string.IsNullOrEmpty(request.CustomerRoute))
@@ -43,7 +43,10 @@ public sealed class CreatePrintJobsHandler
             customerRoute = parsed;
         }
 
-        var order = await _db.Orders.AsNoTracking().Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var order = await _db.Orders
+            .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
+            .AsNoTracking().Include(o => o.Items).FirstOrDefaultAsync(ct)
             ?? throw new InvalidOperationException("الطلب غير موجود.");
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -56,8 +59,12 @@ public sealed class CreatePrintJobsHandler
         if (customerRoute is { } cr) routes.Insert(0, cr);
         if (routes.Count == 0) throw new DomainException("لا توجد محطة طباعة مطلوبة لهذا الطلب.");
 
+        var routeNames = routes.Select(r => r.ToString()).ToList();
+        var firstJobs = request.IsReprint ? new List<PrintJobEntity>() : await _db.PrintJobs.AsNoTracking()
+            .Where(j => j.OrderId == order.Id && !j.IsReprint && routeNames.Contains(j.Route)).ToListAsync(ct);
+        var missingRoutes = routes.Where(r => !firstJobs.Any(j => j.Route == r.ToString()));
         var now = DateTimeOffset.UtcNow;
-        var jobs = routes.Select(route => new PrintJobEntity
+        var jobs = missingRoutes.Select(route => new PrintJobEntity
         {
             Id = $"printjob-{request.RequestId}-{route}", CreateRequestId = request.RequestId, OrderId = order.Id, OrderNumber = order.OrderNumber,
             Route = route.ToString(), Status = nameof(PrintJobStatus.Pending), AttemptCount = 0,
@@ -81,15 +88,17 @@ public sealed class CreatePrintJobsHandler
                     "normal", now, ReferenceId: order.Id, Reason: request.Reason));
             }
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (DbUpdateException)
         {
+            await transaction.RollbackAsync(ct);
             var replay = await _db.PrintJobs.AsNoTracking().Where(j => j.CreateRequestId == request.RequestId).ToListAsync(ct);
             if (replay.Count > 0) return new CreatePrintJobsResult(replay.Select(ToDto).ToList(), WasReplayed: true);
             throw new PrintingConflictException("تعذر إنشاء طلبات الطباعة بسبب تعارض في مفتاح منع التكرار - يحتاج مراجعة يدوية.");
         }
 
-        return new CreatePrintJobsResult(jobs.Select(ToDto).ToList(), WasReplayed: false);
+        return new CreatePrintJobsResult(firstJobs.Concat(jobs).OrderBy(j => routeNames.IndexOf(j.Route)).Select(ToDto).ToList(), WasReplayed: jobs.Count == 0);
     }
 
     internal static PrintJobDto ToDto(PrintJobEntity j) => new(

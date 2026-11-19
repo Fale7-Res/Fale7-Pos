@@ -11,6 +11,29 @@ public class CheckoutRulesTests
         new("i1", "prod-1", null, "شاورما فراخ", null, Money.FromEgp(unitPrice), Money.FromEgp(unitPrice), qty,
             Money.FromEgp(unitPrice * qty), false, null, null, null);
 
+    // Audit 2026-11-18: a discount above the items' value was accepted, the taxable base clamped to 0,
+    // and the whole requested figure stored - so the discount reports showed money never given away.
+    [Fact]
+    public void A_discount_larger_than_the_items_is_refused()
+    {
+        var items = new[] { Item(100m) };
+
+        var ex = Assert.Throws<DomainException>(() => CheckoutRules.BuildPlan(OrderType.Takeaway, PaymentMethod.Cash, items,
+            Money.FromEgp(100.01m), taxRule: null, Money.Zero, Money.Zero, Money.FromEgp(100m), null, null));
+        Assert.Contains("الخصم", ex.Message);
+    }
+
+    [Fact]
+    public void A_discount_of_exactly_the_items_is_accepted()
+    {
+        var items = new[] { Item(100m) };
+
+        var plan = CheckoutRules.BuildPlan(OrderType.Takeaway, PaymentMethod.Cash, items,
+            Money.FromEgp(100m), taxRule: null, Money.Zero, Money.Zero, Money.Zero, null, null);
+
+        Assert.Equal(Money.Zero, plan.PayableTotal);
+    }
+
     [Fact]
     public void Plain_cash_order_is_paid_immediately_and_defers_nothing()
     {
@@ -47,6 +70,24 @@ public class CheckoutRulesTests
         Assert.Equal(Money.Zero, plan.PayableTotal);
         Assert.False(plan.CashOnDelivery, "nothing to collect on delivery is not cash-on-delivery custody");
         Assert.True(plan.DefersAllMoney, "a fully comped order posts no Treasury movement at all");
+    }
+
+    /// <summary>Whole-project review 2026-11-17: a fully comped order collects nothing, so there is no
+    /// transfer to wait for. It used to open a 0 ج "pending" InstaPay leg that held the kitchen ticket
+    /// and blocked the day close until someone confirmed a payment that could never arrive.</summary>
+    [Theory]
+    [InlineData(PaymentMethod.InstaPay)]
+    [InlineData(PaymentMethod.Wallet)]
+    public void A_fully_comped_electronic_order_has_no_pending_transfer_and_is_paid(PaymentMethod method)
+    {
+        var items = new[] { Item(100m) };
+        var plan = CheckoutRules.BuildPlan(OrderType.Takeaway, method, items,
+            Money.Zero, taxRule: null, Money.Zero, Money.FromEgp(100m), Money.Zero, null, "vodafone");
+
+        Assert.Equal(Money.Zero, plan.PayableTotal);
+        Assert.Null(plan.ElectronicLeg);
+        Assert.True(plan.IsPaid);
+        Assert.True(plan.DefersAllMoney, "nothing changed hands, so nothing posts");
     }
 
     [Fact]

@@ -44,7 +44,7 @@ public sealed class AddExpenseHandler
             throw new DomainException("حساب الدفع غير صالح لتسجيل مصروف.");
         if (request.AmountPiastres <= 0) throw new DomainException("مبلغ المصروف يجب أن يكون أكبر من صفر.");
         if (string.IsNullOrWhiteSpace(request.Description)) throw new DomainException("بيان المصروف مطلوب.");
-        if (string.IsNullOrWhiteSpace(request.Category)) throw new DomainException("فئة المصروف مطلوبة.");
+        Falah.Domain.Financial.ExpenseCategories.AssertAllowed(request.Category);   // fixed list, no ingredients (owner)
 
         var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -66,15 +66,20 @@ public sealed class AddExpenseHandler
         // a main-treasury expense, by design (see its own doc comment).
         var authorization = AuthorizationPolicy.AuthorizeExpense(_approvalRegistry, actor, paidFromDrawer, approval);
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await _db.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == expenseId, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            var admittedShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+            if (admittedShift?.Status != "Open") throw new DomainException("يجب أن تكون الوردية مفتوحة قبل تسجيل العملية.");
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.PaymentAccountId, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, request.PaymentAccountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, Money.FromPiastres(request.AmountPiastres));
 
             var idempotencyKey = $"expense-{expenseId}";

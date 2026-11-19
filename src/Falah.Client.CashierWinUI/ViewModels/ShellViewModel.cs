@@ -31,6 +31,7 @@ public partial class ShellViewModel : ObservableObject
     /// identity, clock, shift status) so the pane's own branding block shows the identical, real
     /// identity rather than a second hardcoded copy.</summary>
     public HeaderViewModel Header => _header;
+    public ManagementRecovery Recovery => _session.Recovery;
 
     public ShellViewModel(AppSession session, HeaderViewModel header)
     {
@@ -63,7 +64,7 @@ public partial class ShellViewModel : ObservableObject
         ("menu",       "القائمة والتسعير",  new[] { "menu", "recipes" }),
         ("stock",      "المخزون",           new[] { "inventory", "waste" }),
         ("buying",     "المشتريات",         new[] { "purchasing", "suppliers" }),
-        ("money",      "الخزينة",           new[] { "treasury", "shifts" }),
+        ("money",      "الخزينة",           new[] { "treasury", "shifts", "financial_control" }),
         ("people",     "الموظفون",          new[] { "employees", "attendance", "payroll" }),
         ("insight",    "التقارير",          new[] { "reports", "daily_statement", "daily_summary", "audit" }),
         ("more",       "المزيد",            new[] { "controlcenter", "printing", "users", "backup", "settings" }),
@@ -109,6 +110,9 @@ public partial class ShellViewModel : ObservableObject
         // missing from AllCandidates entirely - the group plan and Navigate() both referenced
         // "treasury", but nothing ever added it to NavItems, so no role could ever open the screen.
         new("treasury", "الخزينة", "reports_view"),
+        // Cash flow per account, unconfirmed electronic payments, voids, refunds with their sale's
+        // date - the reports the owner checks money against. Same gate as every report.
+        new("financial_control", "الرقابة المالية", "reports_view"),
         new("orders", "الطلبات", "orders_view_all"),
         new("delivery", "التوصيل والسائقون", "delivery_manage"),
         new("customers", "العملاء", "delivery_manage"),
@@ -154,6 +158,7 @@ public partial class ShellViewModel : ObservableObject
             "reports" => CreateReports(),
             "daily_statement" => CreateDailyStatement(),
             "daily_summary" => CreateDailySummary(),
+            "financial_control" => CreateFinancialControl(),
             "inventory" => CreateInventory(),
             "treasury" => CreateTreasury(),
             "shifts" => CreateShifts(),
@@ -184,6 +189,9 @@ public partial class ShellViewModel : ObservableObject
     }
 
     private CustomersViewModel CreateCustomers() => new(_session);
+
+    // The constructor's period selection already starts the first load.
+    private FinancialControlViewModel CreateFinancialControl() => new(_session);
 
     private MenuViewModel CreateMenu()
     {

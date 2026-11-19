@@ -26,10 +26,18 @@ public partial class DeliveryViewModel : ObservableObject
         _session.SetManagementOperationPending(this, !CanEditAction);
     }
 
+    /// <summary>UI-REQ-001: a driver's daily statement (screen and paper).</summary>
+    public DriverStatementViewModel DriverStatement { get; }
+
+    [RelayCommand]
+    private Task OpenDriverStatementAsync() => DriverStatement.OpenAsync();
+
     public DeliveryViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         Directory = new DeliveryDirectoryViewModel(session);
+        DriverStatement = new DriverStatementViewModel(session);
         // Adding or retiring a driver changes who this board can assign, so the board re-reads.
         Directory.Changed += () => _ = LoadAsync();
     }
@@ -64,17 +72,17 @@ public partial class DeliveryViewModel : ObservableObject
         public bool HasAddress => AddressDisplay.Length > 0;
 
         public string AmountToCollectDisplay =>
-            Delivery.AmountToCollectPiastres > 0 ? CashInput.Format(Delivery.AmountToCollectPiastres) + " ج" : "—";
+            CollectPiastres(Delivery) > 0 ? CashInput.Format(CollectPiastres(Delivery)) + " ج" : "—";
 
         /// <summary>Three states, not two. "Paid" and "collect on delivery" are both settled
         /// questions; a transfer nobody has confirmed is neither, and handing that order to a driver
         /// without saying so is how an order goes out with nothing to collect and nothing collected.</summary>
         public string PaymentStateLabel =>
-            Delivery.ElectronicPaymentStatus == "Pending" ? "تحويل لم يُؤكَّد"
+            IsPaymentUnconfirmed ? "تحويل لم يُؤكَّد"
             : Delivery.PaymentAlreadySettled ? "مدفوع"
             : "تحصيل عند التسليم";
 
-        public bool IsPaymentUnconfirmed => Delivery.ElectronicPaymentStatus == "Pending";
+        public bool IsPaymentUnconfirmed => string.Equals(Delivery.ElectronicPaymentStatus, "pending", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>How long this order has been on the board. The single most useful number on a
         /// dispatch screen and the one it did not have.</summary>
@@ -197,8 +205,17 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private DeliveryDto? _assignTarget;
     [ObservableProperty] private DriverDto? _assignDriver;
     [ObservableProperty] private string? _assignError;
+    /// <summary>What the driver actually has to bring back - the same rule the server uses to open a
+    /// custody (DeliveryRules.DeliveryCashResponsibility): cash on delivery always, any other method
+    /// only while its money has not arrived. A paid card order shows nothing to collect.</summary>
+    public static long CollectPiastres(DeliveryDto d) =>
+        d.PaymentMethod == "cash" || !d.PaymentAlreadySettled ? d.AmountToCollectPiastres : 0;
+
+    public string AssignCollectDisplay => AssignTarget is { } t && CollectPiastres(t) > 0
+        ? CashInput.Format(CollectPiastres(t)) + " ج" : "لا شيء (مدفوع)";
+
     public bool IsAssignOpen => AssignTarget is not null;
-    partial void OnAssignTargetChanged(DeliveryDto? value) => OnPropertyChanged(nameof(IsAssignOpen));
+    partial void OnAssignTargetChanged(DeliveryDto? value) { OnPropertyChanged(nameof(IsAssignOpen)); OnPropertyChanged(nameof(AssignCollectDisplay)); }
 
     /// <summary>Minted once per assignment dialog and reused by a retry, so a lost response cannot
     /// become a second assignment - the server keys its own idempotency on this value.</summary>
@@ -260,11 +277,40 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private DeliveryDto? _outcomeTarget;
     [ObservableProperty] private string _outcomeResult = "delivered";
     [ObservableProperty] private string _outcomeCollectedText = "";
+    [ObservableProperty] private string _outcomeManagerPin = "";
+
+    /// <summary>AUD-03: the typed amount is below what the driver had to collect. The server then needs the authority
+    /// that approves a settlement difference, so a user without it is asked for a manager's PIN.</summary>
+    public bool IsOutcomeShortfall =>
+        IsDeliveredOutcome && OutcomeTarget is { } t
+        && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < t.AmountToCollectPiastres;
+
+    public bool OutcomeShortfallNeedsApproval => IsOutcomeShortfall && !_session.HasPermission("delivery_settlement_approve");
+
+    public string OutcomeShortfallLabel =>
+        OutcomeTarget is { } t && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < t.AmountToCollectPiastres
+            ? $"المحصّل أقل من المستحق بـ {Egp(t.AmountToCollectPiastres - collected)}. يحتاج اعتماد مدير مخوّل باعتماد فروق التسليم."
+            : "";
+
+    partial void OnOutcomeCollectedTextChanged(string value) => RaiseShortfall();
+
+    private void RaiseShortfall()
+    {
+        OnPropertyChanged(nameof(IsOutcomeShortfall));
+        OnPropertyChanged(nameof(OutcomeShortfallNeedsApproval));
+        OnPropertyChanged(nameof(OutcomeShortfallLabel));
+    }
+
     [ObservableProperty] private string _outcomeReason = "";
     [ObservableProperty] private string _outcomeNotes = "";
     [ObservableProperty] private string? _outcomeError;
     public bool IsOutcomeOpen => OutcomeTarget is not null;
-    partial void OnOutcomeTargetChanged(DeliveryDto? value) => OnPropertyChanged(nameof(IsOutcomeOpen));
+    partial void OnOutcomeTargetChanged(DeliveryDto? value)
+    {
+        OnPropertyChanged(nameof(IsOutcomeOpen));
+        OnPropertyChanged(nameof(NeedsFoodDisposition));
+        RaiseShortfall();
+    }
 
     public bool IsDeliveredOutcome => OutcomeResult == "delivered";
     public bool IsFailedOutcome => OutcomeResult == "failed";
@@ -272,6 +318,35 @@ public partial class DeliveryViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsDeliveredOutcome));
         OnPropertyChanged(nameof(IsFailedOutcome));
+        OnPropertyChanged(nameof(NeedsFoodDisposition));
+        RaiseShortfall();
+    }
+
+    /// <summary>A cash-on-delivery order that failed or came back is voided by the server, which then
+    /// needs to know what became of its food - prepared (waste) or not (back to stock). A paid order
+    /// is not voided here (its money goes back through a refund), so it is not asked.</summary>
+    public bool NeedsFoodDisposition =>
+        OutcomeResult is "failed" or "returned"
+        && OutcomeTarget is { PaymentMethod: "cash", PaymentAlreadySettled: false, AmountToCollectPiastres: > 0 };
+
+    [ObservableProperty] private string? _outcomeStockDisposition;
+
+    public bool IsOutcomeFoodPrepared
+    {
+        get => OutcomeStockDisposition == "prepared";
+        set { if (value) OutcomeStockDisposition = "prepared"; }
+    }
+
+    public bool IsOutcomeFoodNotPrepared
+    {
+        get => OutcomeStockDisposition == "not_prepared";
+        set { if (value) OutcomeStockDisposition = "not_prepared"; }
+    }
+
+    partial void OnOutcomeStockDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsOutcomeFoodPrepared));
+        OnPropertyChanged(nameof(IsOutcomeFoodNotPrepared));
     }
 
     private string? _outcomeRequestId;
@@ -302,6 +377,8 @@ public partial class DeliveryViewModel : ObservableObject
         OutcomeCollectedText = CashInput.Format(delivery.AmountToCollectPiastres);
         OutcomeReason = "";
         OutcomeNotes = "";
+        OutcomeManagerPin = "";
+        OutcomeStockDisposition = null;
         _outcomeRequestId = $"res-{Guid.NewGuid():N}";
         OutcomeTarget = delivery;
     }
@@ -338,16 +415,51 @@ public partial class DeliveryViewModel : ObservableObject
             }
             collected = piastres;
         }
+        if (NeedsFoodDisposition && OutcomeStockDisposition is null)
+        {
+            OutcomeError = "حدد هل تم تحضير الطلب (يُسجَّل هالكًا) أم لم يُحضَّر (يعود للمخزون).";
+            return;
+        }
+
+        var shortfallNeedsApproval = OutcomeShortfallNeedsApproval;
+        if (IsOutcomeShortfall && string.IsNullOrWhiteSpace(OutcomeReason))
+        {
+            OutcomeError = "المحصّل أقل من المستحق - اكتب السبب.";
+            return;
+        }
+        if (shortfallNeedsApproval && OutcomeManagerPin.Length < 4)
+        {
+            OutcomeError = "أدخل رمز المدير المخوّل باعتماد التحصيل الأقل من المستحق.";
+            return;
+        }
 
         IsBusy = true;
         OutcomeError = null;
         try
         {
+            string? approvalId = null, approverUserId = null;
+            if (shortfallNeedsApproval)
+            {
+                // The server checks the PIN and names the approver; the approval is spent by this one result.
+                var approval = await _session.Api.IssueManagerApprovalAsync(
+                    new Falah.Application.Approvals.IssueManagerApprovalRequest(
+                        OutcomeManagerPin, "delivery_settlement_approve", OutcomeReason));
+                if (!approval.Success || approval.Value is null)
+                {
+                    OutcomeError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد فروق التسليم.";
+                    return;
+                }
+                approvalId = approval.Value.ApprovalId;
+                approverUserId = approval.Value.ApproverUserId;
+            }
+
             await CompleteOutcomeAsync(new RecordDeliveryResultRequest(
                 _outcomeRequestId!, OutcomeTarget.DeliveryId, OutcomeResult, collected,
                 string.IsNullOrWhiteSpace(OutcomeReason) ? null : OutcomeReason,
                 string.IsNullOrWhiteSpace(OutcomeNotes) ? null : OutcomeNotes,
-                _session.CurrentUser!.Id, null, null));
+                _session.CurrentUser!.Id, approvalId, approverUserId,
+                NeedsFoodDisposition ? OutcomeStockDisposition : null));
+            OutcomeManagerPin = "";
         }
         finally { IsBusy = false; }
     }
@@ -377,7 +489,29 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private string _settleManagerPin = "";
     [ObservableProperty] private string? _settleError;
     [ObservableProperty] private string? _settleNote;
+    // Owner rule (2026-11-08): the driver keeps the full delivery fee of each completed delivery, so he hands over
+    // collected cash less his fees (plus any balance carried from a partial settlement). When that is negative the
+    // restaurant owes him and pays it out of the drawer explicitly; nothing is ever clamped to zero.
+    [ObservableProperty] private string _settlePaidToDriverText = "0";
+    [ObservableProperty] private bool _settleKeepRemainderOpen;
     public bool IsDriverAccountOpen => AccountDriver is not null;
+
+    private static string Egp(long piastres) => CashInput.Format(piastres) + " ج";
+    public string SettleCollectedText => DriverAccount is null ? "—" : Egp(DriverAccount.CashCustodyPiastres);
+    public string SettleFeesText => DriverAccount is null ? "—" : Egp(DriverAccount.PendingFeesPiastres);
+    public string SettleCarriedText => DriverAccount is null ? "—" : DriverAccount.CarriedBalancePiastres switch
+    {
+        > 0 => $"عليه {Egp(DriverAccount.CarriedBalancePiastres)}", < 0 => $"له {Egp(-DriverAccount.CarriedBalancePiastres)}", _ => Egp(0),
+    };
+    public string SettleNetLabel => DriverAccount is { NetDuePiastres: < 0 } ? "مستحق للسائق يُصرف له" : "صافي يسلّمه السائق";
+    public string SettleNetText => DriverAccount is null ? "—" : Egp(Math.Abs(DriverAccount.NetDuePiastres));
+    public bool RestaurantOwesDriver => DriverAccount is { NetDuePiastres: < 0 };
+    partial void OnDriverAccountChanged(DriverAccountDto? value)
+    {
+        foreach (var name in new[] { nameof(SettleCollectedText), nameof(SettleFeesText), nameof(SettleCarriedText),
+                     nameof(SettleNetLabel), nameof(SettleNetText), nameof(RestaurantOwesDriver) })
+            OnPropertyChanged(name);
+    }
     partial void OnAccountDriverChanged(DriverDto? value) => OnPropertyChanged(nameof(IsDriverAccountOpen));
 
     private string? _settleRequestId;
@@ -423,7 +557,9 @@ public partial class DeliveryViewModel : ObservableObject
                 return;
             }
             DriverAccount = result.Value;
-            SettleActualCashText = CashInput.Format(result.Value.CashCustodyPiastres);
+            SettleActualCashText = CashInput.Format(Math.Max(0, result.Value.NetDuePiastres));
+            SettlePaidToDriverText = CashInput.Format(Math.Max(0, -result.Value.NetDuePiastres));
+            SettleKeepRemainderOpen = false;
         }
         finally { if (version == _accountVersion) IsLoadingAccount = false; }
     }
@@ -458,7 +594,24 @@ public partial class DeliveryViewModel : ObservableObject
             return;
         }
 
-        var difference = actual - DriverAccount.CashCustodyPiastres;
+        if (!CashInput.TryParse(SettlePaidToDriverText, out var paidToDriver) || paidToDriver < 0 || actual < 0)
+        {
+            SettleError = "أدخل المبالغ بشكل صحيح.";
+            return;
+        }
+        if (actual > 0 && paidToDriver > 0)
+        {
+            SettleError = "إما أن يسلّم السائق نقدية أو يُصرف له مستحقه - لا الاثنان في نفس التسوية.";
+            return;
+        }
+        if (paidToDriver > Math.Max(0, -DriverAccount.NetDuePiastres))
+        {
+            SettleError = "لا يمكن صرف أكثر من مستحق السائق.";
+            return;
+        }
+
+        // A partial settlement carries what is left to the next one; only a final settlement has a difference.
+        var difference = SettleKeepRemainderOpen ? 0 : actual - paidToDriver - DriverAccount.NetDuePiastres;
         if (difference != 0 && string.IsNullOrWhiteSpace(SettleReason))
         {
             SettleError = "يوجد فارق في التسليم - سبب الفارق إلزامي.";
@@ -493,7 +646,8 @@ public partial class DeliveryViewModel : ObservableObject
             await CompleteSettlementAsync(new SettleDriverCustodyRequest(
                 _settleRequestId!, AccountDriver.Id, actual,
                 string.IsNullOrWhiteSpace(SettleReason) ? null : SettleReason,
-                _session.CurrentUser!.Id, approvalId, approverUserId));
+                _session.CurrentUser!.Id, approvalId, approverUserId,
+                PaidToDriverPiastres: paidToDriver, KeepRemainderOpen: SettleKeepRemainderOpen));
         }
         finally { IsBusy = false; }
     }
@@ -508,10 +662,18 @@ public partial class DeliveryViewModel : ObservableObject
                 return;
             }
 
-            SettleNote = $"تمت التسوية: {result.Value.OrderCount} طلب، فارق {CashInput.Format(result.Value.DifferencePiastres)} ج.";
+            var v = result.Value;
+            SettleNote = $"تمت التسوية: {v.OrderCount} طلب - أجر توصيل {CashInput.Format(v.FeeEntitlementPiastres)} ج"
+                + (v.ActualPiastres > 0 ? $" - استُلم {CashInput.Format(v.ActualPiastres)} ج" : "")
+                + (v.PaidToDriverPiastres > 0 ? $" - صُرف للسائق {CashInput.Format(v.PaidToDriverPiastres)} ج" : "")
+                + (v.CarriedOutPiastres != 0 ? $" - مرحّل {CashInput.Format(v.CarriedOutPiastres)} ج" : "")
+                + (v.DifferencePiastres != 0 ? $" - فارق {CashInput.Format(v.DifferencePiastres)} ج" : "") + ".";
             _settleRequestId = $"set-{Guid.NewGuid():N}";
             DriverAccount = null;
             await LoadDriverAccountAsync(request.DriverId);
+            // The statistics panel in the same dialog states current custody and the settlement count; left as
+            // loaded at opening it still showed the custody this settlement just cleared.
+            await LoadDriverStatisticsAsync(request.DriverId);
             await LoadAsync();
     }
 }

@@ -23,11 +23,17 @@ namespace Falah.Client.CashierWinUI.Services;
 public sealed partial class ApiClient
 {
     private readonly HttpClient _http;
-    public ApiClient(HttpClient http) => _http = http;
+
+    /// <summary>Report exports only: a month's PDF can take longer than the 10 s every till request is held to. Same
+    /// server address, and each request carries the session token explicitly (ApiClient.Controls.Export).</summary>
+    private readonly HttpClient _exportHttp;
+
+    public ApiClient(HttpClient http) { _http = http; _exportHttp = http; }
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
-        _http = new HttpClient { BaseAddress = new Uri(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _exportHttp = new HttpClient { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -65,10 +71,12 @@ public sealed partial class ApiClient
         }
 
         string? message = null;
+        bool? retryable = null;
         try
         {
             var body = await response.Content.ReadFromJsonAsync<ErrorBody>(cancellationToken: ct);
             message = body?.error;
+            retryable = body?.retryable;
         }
         catch
         {
@@ -80,7 +88,7 @@ public sealed partial class ApiClient
             System.Net.HttpStatusCode.NotFound => "العنصر المطلوب غير موجود.",
             _ => $"حدث خطأ غير متوقع من السيرفر ({(int)response.StatusCode}).",
         };
-        return new ApiResult<T>(false, default, message, (int)response.StatusCode >= 500, (int)response.StatusCode);
+        return new ApiResult<T>(false, default, message, (int)response.StatusCode >= 500 && retryable != false, (int)response.StatusCode);
     }
 
     /// <summary>
@@ -138,6 +146,12 @@ public sealed partial class ApiClient
 
     public Task<ApiResult<CurrentShiftDto>> GetCurrentShiftAsync(CancellationToken ct = default) =>
         ReadAsync<CurrentShiftDto>(() => _http.GetAsync("/api/shifts/current", ct), ct);
+    /// <summary>The float the last close left in the drawer (null amount on an empty drawer).</summary>
+    public Task<ApiResult<DrawerFloatDto>> GetDrawerFloatAsync(CancellationToken ct = default) =>
+        ReadAsync<DrawerFloatDto>(() => _http.GetAsync("/api/shifts/drawer-float", ct), ct);
+    /// <summary>Who may receive a close's handed-over cash.</summary>
+    public Task<ApiResult<IReadOnlyList<HandoverReceiverDto>>> GetHandoverReceiversAsync(CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<HandoverReceiverDto>>(() => _http.GetAsync("/api/shifts/handover-receivers", ct), ct);
     public Task<ApiResult<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>> GetTaxRulesAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<Falah.Application.Pricing.TaxRuleDto>>(() => _http.GetAsync("/api/tax-rules", ct), ct);
     public Task<ApiResult<Falah.Application.Settings.SettingsDto>> GetSettingsAsync(CancellationToken ct = default) =>
@@ -147,7 +161,7 @@ public sealed partial class ApiClient
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
-    private sealed record ErrorBody(string? error);
+    private sealed record ErrorBody(string? error, bool? retryable = null);
 
     /// <summary>The session token this client presents on every later request. Set once at login
     /// and cleared at logout; without it the server refuses everything, which is the point - the
@@ -545,9 +559,20 @@ public sealed partial class ApiClient
     public Task<ApiResult<Falah.Application.Inventory.RecordWasteResult>> RecordWasteAsync(Falah.Application.Inventory.RecordWasteRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Inventory.RecordWasteResult>(() => _http.PostAsJsonAsync("/api/inventory/waste", request, ct), ct);
 
-    public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>> GetStockMovementsAsync(string? inventoryItemId = null, int limit = 50, CancellationToken ct = default) =>
+    public Task<ApiResult<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>> GetStockMovementsAsync(string? inventoryItemId = null, int limit = 50, CancellationToken ct = default, DateTimeOffset? from = null, DateTimeOffset? to = null, bool lossesOnly = false) =>
         ReadAsync<IReadOnlyList<Falah.Application.Inventory.StockMovementDto>>(() => _http.GetAsync(
-            $"/api/inventory/movements?inventoryItemId={Uri.EscapeDataString(inventoryItemId ?? "")}&limit={limit}", ct), ct);
+            StockMovementsQuery(inventoryItemId, limit, from, to, lossesOnly), ct), ct);
+
+    // Only parameters that have a value: an empty `from=`/`to=` cannot bind to DateTimeOffset? and the
+    // server answered 400, so the Inventory screen never loaded its movements (native run 2026-11-07).
+    private static string StockMovementsQuery(string? inventoryItemId, int limit, DateTimeOffset? from, DateTimeOffset? to, bool lossesOnly)
+    {
+        var query = $"/api/inventory/movements?limit={limit}&lossesOnly={lossesOnly.ToString().ToLowerInvariant()}";
+        if (!string.IsNullOrEmpty(inventoryItemId)) query += $"&inventoryItemId={Uri.EscapeDataString(inventoryItemId)}";
+        if (from is { } f) query += $"&from={Uri.EscapeDataString(f.ToString("O"))}";
+        if (to is { } t) query += $"&to={Uri.EscapeDataString(t.ToString("O"))}";
+        return query;
+    }
 
     // ---------------- Reports (read-only; every endpoint is gated on reports_view server-side) ----------------
 
@@ -614,6 +639,19 @@ public sealed partial class ApiClient
 
     // ---------------- Delivery dispatch (drivers, board, assignment, outcomes, settlement) ----------------
 
+    /// <summary>UI-REQ-001: one driver's statement for one business day and payment filter.</summary>
+    public Task<ApiResult<Falah.Application.Delivery.DriverDailyStatementDto>> GetDriverDailyStatementAsync(
+        string driverId, DateOnly businessDate, string? paymentFilter, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Delivery.DriverDailyStatementDto>(() => _http.GetAsync(
+            $"/api/delivery/drivers/{Uri.EscapeDataString(driverId)}/daily-statement?businessDate={businessDate:yyyy-MM-dd}"
+            + (string.IsNullOrWhiteSpace(paymentFilter) || paymentFilter == "all" ? "" : $"&paymentFilter={Uri.EscapeDataString(paymentFilter)}"), ct), ct);
+
+    public sealed record PrintQueuedResult(string PrintJobId, bool WasReplayed);
+
+    /// <summary>Queues the statement's paper (summary or detailed); a replay of the same request id is the same job.</summary>
+    public Task<ApiResult<PrintQueuedResult>> PrintDriverDailyStatementAsync(
+        string driverId, Falah.Application.Delivery.PrintDriverDailyStatementRequest request, CancellationToken ct = default) =>
+        SendAsync<PrintQueuedResult>(() => _http.PostAsJsonAsync($"/api/delivery/drivers/{Uri.EscapeDataString(driverId)}/daily-statement/print", request, ct), ct);
     public Task<ApiResult<IReadOnlyList<DriverDto>>> GetActiveDriversAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers", ct), ct);
 
@@ -682,6 +720,12 @@ public sealed partial class ApiClient
         return await SendAsync<AddExpenseResult>(() => _http.PostAsJsonAsync("/api/expenses", request, ct), ct);
     }
 
+    /// <summary>AUD-04: cancels a mistaken expense by a linked reversal while its shift is open.</summary>
+    public async Task<ApiResult<ReverseExpenseResult>> ReverseExpenseAsync(ReverseExpenseRequest request, CancellationToken ct = default)
+    {
+        return await SendAsync<ReverseExpenseResult>(() => _http.PostAsJsonAsync($"/api/expenses/{Uri.EscapeDataString(request.ExpenseId)}/reverse", request, ct), ct);
+    }
+
     // ---------------- Cashier Operations (Safe Drop / Cash In-Out / Cash Drawer / Cash Count / Reprint) ----------------
 
     public async Task<ApiResult<SafeDropResult>> SafeDropAsync(SafeDropRequest request, CancellationToken ct = default)
@@ -715,6 +759,10 @@ public sealed partial class ApiClient
 
     /// <summary>Prints a shift slip or an expense voucher again. The server queues a marked print
     /// job and audits it; nothing about the shift or the expense itself changes.</summary>
+    /// <summary>UI-REQ-002: the frozen closing statement, its composed paper and the paper's print status.</summary>
+    public Task<ApiResult<Falah.Application.Shifts.ShiftCloseStatementResponse>> GetShiftCloseStatementAsync(string shiftId, CancellationToken ct = default) =>
+        ReadAsync<Falah.Application.Shifts.ShiftCloseStatementResponse>(() => _http.GetAsync($"/api/shifts/{Uri.EscapeDataString(shiftId)}/close-statement", ct), ct);
+
     public async Task<ApiResult<CreatePrintJobsResult>> ReprintDocumentAsync(ReprintDocumentRequest request, CancellationToken ct = default)
     {
         return await SendAsync<CreatePrintJobsResult>(() => _http.PostAsJsonAsync("/api/print-jobs/reprint-document", request, ct), ct);

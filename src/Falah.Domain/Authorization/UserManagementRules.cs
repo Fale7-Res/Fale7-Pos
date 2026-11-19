@@ -12,6 +12,19 @@ public static class UserManagementRules
 {
     public const string OwnerRole = "owner";
 
+    // User roles supported by the administrative UI and authorization policy. Print stations have
+    // a dedicated role with no authority beyond their explicit print_agent permission.
+    public static string CanonicalRole(string role)
+    {
+        var canonical = role?.Trim().ToLowerInvariant();
+        if (canonical is not ("owner" or "manager" or "supervisor" or "cashier" or "print_agent"))
+            throw new DomainException("دور المستخدم غير معروف.");
+        return canonical;
+    }
+
+    public static bool IsRole(string? role, string expected) =>
+        string.Equals(role?.Trim(), expected, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>The owner account can never be deactivated, reassigned a role, or have its
     /// permissions changed through the administrative user-management commands - not even by
     /// another `users_manage` holder. (The owner MAY still change their own PIN - that path never
@@ -19,7 +32,7 @@ public static class UserManagementRules
     /// by `users_manage`.)</summary>
     public static void AssertTargetIsNotOwner(string targetRole, string action)
     {
-        if (targetRole == OwnerRole)
+        if (IsRole(targetRole, OwnerRole))
             throw new DomainException($"لا يمكن {action} حساب المالك.");
     }
 

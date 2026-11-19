@@ -66,27 +66,27 @@
     <!-- Brand-blue primary action. -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Background" Value="{ThemeResource BrandPrimaryBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextBrush}"/>
     </Style>
 
     <!-- The one big checkout CTA - brighter blue. Measured 357x52 (the width is a container-fill
          concern, not this style's) at font-size 16/900. -->
     <Style x:Key="CtaButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Background" Value="{ThemeResource ActionBlueBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextBrush}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="Black"/>
         <Setter Property="Height" Value="52"/>
     </Style>
 
     <Style x:Key="SuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-        <Setter Property="Background" Value="{ThemeResource SuccessBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{ThemeResource SuccessTextBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextBrush}"/>
     </Style>
 
     <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Background" Value="{ThemeResource DangerBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextBrush}"/>
     </Style>
 
     <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
@@ -99,7 +99,7 @@
          actions) where a solid Success/Danger/WarningButtonStyle would be too visually heavy. -->
     <Style x:Key="SuccessOutlineButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Background" Value="{ThemeResource SuccessBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{ThemeResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource SuccessTextBrush}"/>
         <Setter Property="BorderBrush" Value="{ThemeResource SuccessBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
@@ -111,7 +111,7 @@
     </Style>
     <Style x:Key="WarningOutlineButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Background" Value="{ThemeResource WarningBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{ThemeResource WarningBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource WarningTextBrush}"/>
         <Setter Property="BorderBrush" Value="{ThemeResource WarningBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>

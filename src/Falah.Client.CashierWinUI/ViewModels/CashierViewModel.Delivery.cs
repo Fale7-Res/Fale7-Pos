@@ -133,6 +133,8 @@ public partial class CashierViewModel
         CustomerName = CustomerPhone = DeliveryArea = DeliveryStreet = DeliveryBuilding = DeliveryFloor =
             DeliveryApartment = DeliveryLandmark = DeliveryNotes = "";
         SelectedDeliveryService = null; DeliveryError = null;
+        PickupDate = null; PickupTime = null; PickupError = null;
+        SavedAddresses.Clear(); SelectedSavedAddress = null; CustomerLookupMessage = null;
         OnPropertyChanged(nameof(DeliverySummary));
     }
 

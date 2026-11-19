@@ -20,10 +20,10 @@ public sealed class InventoryQueryService
     public async Task<List<InventoryItemDto>> ListInventoryItemsAsync(CancellationToken ct = default)
     {
         var items = await _db.InventoryItems.AsNoTracking().ToListAsync(ct);
-        var movements = await _db.StockMovements.AsNoTracking()
-            .Select(m => new { m.InventoryItemId, m.Direction, m.QuantityMilliUnits }).ToListAsync(ct);
-        var balances = movements.GroupBy(m => m.InventoryItemId)
-            .ToDictionary(g => g.Key, g => g.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits));
+        var balances = await _db.StockMovements.AsNoTracking()
+            .GroupBy(m => m.InventoryItemId)
+            .Select(g => new { Id = g.Key, Balance = g.Sum(m => m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits) })
+            .ToDictionaryAsync(g => g.Id, g => g.Balance, ct);
 
         return items.Select(i =>
         {
@@ -36,15 +36,20 @@ public sealed class InventoryQueryService
 
     public async Task<long> GetStockBalanceAsync(string inventoryItemId, CancellationToken ct = default)
     {
-        var movements = await LoadFactsAsync(inventoryItemId, ct);
-        return InventoryRules.StockBalanceMilliUnits(movements, inventoryItemId);
+        return await _db.StockMovements.AsNoTracking().Where(m => m.InventoryItemId == inventoryItemId)
+            .SumAsync(m => (long?)(m.Direction == nameof(StockDirection.In) ? m.QuantityMilliUnits : -m.QuantityMilliUnits), ct) ?? 0;
     }
 
-    public async Task<List<StockMovementDto>> ListStockMovementsAsync(string? inventoryItemId, int limit = 50, CancellationToken ct = default)
+    public async Task<List<StockMovementDto>> ListStockMovementsAsync(string? inventoryItemId, int limit = 50, CancellationToken ct = default,
+        DateTimeOffset? from = null, DateTimeOffset? to = null, bool lossesOnly = false)
     {
+        if (from > to) (from, to) = (to, from);
         var query = _db.StockMovements.AsNoTracking().AsQueryable();
         if (inventoryItemId is not null) query = query.Where(m => m.InventoryItemId == inventoryItemId);
-        var rows = await query.OrderByDescending(m => m.CreatedAtUtc).Take(limit).ToListAsync(ct);
+        if (from is not null) query = query.Where(m => m.CreatedAtUtc >= from);
+        if (to is not null) query = query.Where(m => m.CreatedAtUtc <= to);
+        if (lossesOnly) query = query.Where(m => m.Type == "Waste" || m.Type == "Spoilage" || m.Type == "Breakage");
+        var rows = await query.OrderByDescending(m => m.CreatedAtUtc).ThenByDescending(m => m.Id).Take(Math.Clamp(limit, 1, 500)).ToListAsync(ct);
         return rows.Select(m => new StockMovementDto(m.InventoryItemId, m.Type, m.Direction, m.QuantityMilliUnits,
             m.UnitCostPiastres, m.LossValuePiastres, m.ReferenceType, m.ReferenceId, m.Reason, m.CreatedBy, m.ApprovedBy, m.CreatedAtUtc)).ToList();
     }
@@ -61,7 +66,11 @@ public sealed class InventoryQueryService
             .Select(m => new { m.Type, m.LossValuePiastres }).ToListAsync(ct);
 
         var byType = rows.GroupBy(m => m.Type).ToDictionary(g => g.Key, g => g.Sum(m => m.LossValuePiastres ?? 0));
-        return new LossSummaryDto(rows.Sum(m => m.LossValuePiastres ?? 0), rows.Count, byType);
+        return new LossSummaryDto(rows.Sum(m => m.LossValuePiastres ?? 0), rows.Count, byType)
+        {
+            UnknownValueMovementCount = rows.Count(m => m.LossValuePiastres is null),
+            UnknownValueByType = rows.Where(m => m.LossValuePiastres is null).GroupBy(m => m.Type).ToDictionary(g => g.Key, g => g.Count())
+        };
     }
 
     public async Task<IngredientCostDto> GetIngredientCostAsync(string inventoryItemId, CancellationToken ct = default)
@@ -433,6 +442,7 @@ public sealed class InventoryQueryService
     public async Task<InventoryItemDetailDto> GetInventoryItemDetailAsync(
         string inventoryItemId, DateTimeOffset? from, DateTimeOffset? to, int movementLimit = 60, CancellationToken ct = default)
     {
+        if (from > to) (from, to) = (to, from);
         var item = await _db.InventoryItems.AsNoTracking().FirstOrDefaultAsync(i => i.Id == inventoryItemId, ct)
             ?? throw new InvalidOperationException("الخامة غير موجودة.");
 
@@ -445,7 +455,7 @@ public sealed class InventoryQueryService
         var totals = InventoryRules.ActualMovementTotals(facts, inventoryItemId, from, to);
         var variance = await GetVarianceAsync(inventoryItemId, from, to, ct);
 
-        var movements = await ListStockMovementRowsAsync(inventoryItemId, movementLimit, ct);
+        var movements = await ListStockMovementRowsAsync(inventoryItemId, movementLimit, ct, from, to);
 
         return new InventoryItemDetailDto(
             item.Id, item.Name, item.Category, item.Unit, item.IsPackaging, item.Active,
@@ -461,13 +471,17 @@ public sealed class InventoryQueryService
 
     /// <summary>Movements carrying the name and unit of what moved, so a history is readable
     /// without a lookup per row.</summary>
-    public async Task<List<StockMovementRowDto>> ListStockMovementRowsAsync(string? inventoryItemId, int limit = 60, CancellationToken ct = default)
+    public async Task<List<StockMovementRowDto>> ListStockMovementRowsAsync(string? inventoryItemId, int limit = 60, CancellationToken ct = default, DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
+        if (from > to) (from, to) = (to, from);
         var query = _db.StockMovements.AsNoTracking().AsQueryable();
         if (inventoryItemId is not null) query = query.Where(m => m.InventoryItemId == inventoryItemId);
-        var rows = await query.OrderByDescending(m => m.CreatedAtUtc).Take(limit).ToListAsync(ct);
+        if (from is not null) query = query.Where(m => m.CreatedAtUtc >= from);
+        if (to is not null) query = query.Where(m => m.CreatedAtUtc <= to);
+        var rows = await query.OrderByDescending(m => m.CreatedAtUtc).ThenByDescending(m => m.Id).Take(Math.Clamp(limit, 1, 500)).ToListAsync(ct);
 
-        var names = await _db.InventoryItems.AsNoTracking()
+        var itemIds = rows.Select(m => m.InventoryItemId).Distinct().ToList();
+        var names = await _db.InventoryItems.AsNoTracking().Where(i => itemIds.Contains(i.Id))
             .Select(i => new { i.Id, i.Name, i.Unit }).ToDictionaryAsync(i => i.Id, i => i, ct);
 
         return rows.Select(m =>

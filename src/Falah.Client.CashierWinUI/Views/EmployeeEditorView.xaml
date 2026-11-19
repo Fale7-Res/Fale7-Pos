@@ -47,7 +47,7 @@
                                 <ItemsControl ItemsSource="{Binding Roster}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                                     MinHeight="60" Margin="12,0,12,8" Padding="12,8"
                                                     Style="{StaticResource SecondaryButtonStyle}"
                                                     Command="{Binding ElementName=Root, Path=DataContext.SelectCommand}"
@@ -199,7 +199,7 @@
                     </Border>
                     <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessTextBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <Button Content="{Binding SaveLabel}" MinHeight="52" MinWidth="220" HorizontalAlignment="Left"

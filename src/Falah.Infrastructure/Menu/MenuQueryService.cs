@@ -65,7 +65,7 @@ public sealed class MenuQueryService
         // Variants cheapest first, so sizes read small to large on the till. Before this there was no
         // variant order at all: they came out in whatever order the join happened to produce, which
         // could change from one query plan to the next.
-        foreach (var variant in (await _db.ProductVariants.AsNoTracking().ToListAsync(ct))
+        foreach (var variant in (await _db.ProductVariants.AsNoTracking().Where(v => v.Active).ToListAsync(ct))
                      .OrderBy(v => v.PricePiastres).ThenBy(v => v.Id, StringComparer.Ordinal))
             if (byId.TryGetValue(variant.ProductId, out var product)) product.Variants.Add(variant);
 
@@ -131,6 +131,6 @@ public sealed class MenuQueryService
 
     private static ProductDetailsDto ToProductDetailsDto(Falah.Infrastructure.Persistence.Entities.ProductEntity p, string? imageVersion) => new(
         p.Id, p.CategoryId, p.Name, p.BasePricePiastres, p.SendToGrill, p.PreparationStation, p.IsAvailable, p.SortOrder, p.RecipeId,
-        p.Variants.Select(v => new ProductVariantDetailsDto(v.Id, v.Name, v.PricePiastres, v.RecipeId)).ToList(),
+        p.Variants.Where(v => v.Active).Select(v => new ProductVariantDetailsDto(v.Id, v.Name, v.PricePiastres, v.RecipeId)).ToList(),
         imageVersion);
 }

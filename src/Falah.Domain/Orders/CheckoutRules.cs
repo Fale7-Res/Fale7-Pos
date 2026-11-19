@@ -50,11 +50,16 @@ public static class CheckoutRules
     public static ElectronicPayment? SelectElectronicLeg(
         PaymentMethod paymentMethod, Money payableTotal, IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)
     {
+        // A fully comped order collects nothing: there is no transfer to wait for, and a 0 ج pending
+        // claim would hold the kitchen ticket and the day close for a payment that cannot arrive.
+        if (paymentMethod is PaymentMethod.InstaPay or PaymentMethod.Wallet && !payableTotal.IsPositive) return null;
         if (paymentMethod is PaymentMethod.InstaPay or PaymentMethod.Wallet)
             return new ElectronicPayment(paymentMethod, paymentMethod == PaymentMethod.Wallet ? walletProvider : null, payableTotal, ElectronicPaymentStatus.Pending);
 
         if (paymentMethod == PaymentMethod.Multi && splitPayments is not null)
         {
+            if (splitPayments.Count(p => p.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet) > 1)
+                throw new DomainException("الدفع المقسم يدعم تحويلًا إلكترونيًا واحدًا فقط لكل طلب.");
             var hasElectronic = splitPayments.Any(p => p.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet);
             if (!hasElectronic) return null;
             var part = splitPayments.First(p => p.Method is PaymentMethod.InstaPay or PaymentMethod.Wallet);
@@ -86,10 +91,17 @@ public static class CheckoutRules
         Money discount, TaxRule? taxRule, Money deliveryFee, Money compAmount, Money amountPaid,
         IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)
     {
+        if (discount.IsNegative || deliveryFee.IsNegative || compAmount.IsNegative)
+            throw new DomainException("الخصم ورسوم التوصيل والمجانيات يجب ألا تكون سالبة.");
+
         if (paymentMethod == PaymentMethod.Multi && (splitPayments is null || splitPayments.Count == 0))
             throw new DomainException("يجب تحديد تفاصيل الدفع المتعدد.");
 
         var subtotal = ComputeSubtotal(items);
+        // A discount above the items' value used to be accepted and stored whole while the taxable base
+        // clamped to 0, so the discount reports showed money that was never given away.
+        if (discount > subtotal)
+            throw new DomainException("الخصم لا يمكن أن يتجاوز قيمة الأصناف.");
         var taxableBase = subtotal - discount;
         if (taxableBase.IsNegative) taxableBase = Money.Zero;
         var tax = TaxEngine.Calculate(taxableBase, taxRule);

@@ -28,7 +28,8 @@ public sealed class CreatePayrollHandler
 
     public async Task<PayrollRunDto> HandleAsync(CreatePayrollRequest request, CancellationToken ct = default)
     {
-        if (!System.Text.RegularExpressions.Regex.IsMatch(request.Period, @"^\d{4}-\d{2}$"))
+        if (!DateOnly.TryParseExact(request.Period + "-01", "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out var periodStart))
             throw new DomainException("فترة Payroll غير صالحة.");
 
         var existing = await _db.PayrollRuns.AsNoTracking()
@@ -39,11 +40,10 @@ public sealed class CreatePayrollHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "employees_manage");
 
-        var periodYear = int.Parse(request.Period[..4]);
-        var periodMonth = int.Parse(request.Period[5..]);
+        var periodEnd = periodStart.AddMonths(1).AddDays(-1);
         var employees = await _db.Employees.AsNoTracking().ToListAsync(ct);
         var periodEntries = await _db.EmployeeLedgerEntries.AsNoTracking()
-            .Where(e => e.CreatedAtUtc.Year == periodYear && e.CreatedAtUtc.Month == periodMonth)
+            .ForDays(periodStart, periodEnd)
             .ToListAsync(ct);
 
         // Advance-deduction-during-payroll (legacy's optional per-employee advanceDeductions map)
@@ -57,7 +57,7 @@ public sealed class CreatePayrollHandler
                 .Select(e => (e.Type, Credit: Money.FromPiastres(e.CreditPiastres), Debit: Money.FromPiastres(e.DebitPiastres)))
                 .ToList();
             return new PayrollRules.PayrollLineInput(
-                emp.Id, emp.IsActive, emp.CompensationType == nameof(CompensationType.Monthly),
+                emp.Id, emp.IsActive, Enum.TryParse<CompensationType>(emp.CompensationType, true, out var savedType) && savedType == CompensationType.Monthly,
                 emp.MonthlySalaryPiastres is null ? null : Money.FromPiastres(emp.MonthlySalaryPiastres.Value),
                 empEntries, Money.Zero, Money.Zero);
         }).ToList();

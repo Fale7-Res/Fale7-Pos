@@ -36,15 +36,11 @@ public sealed partial class CartPanelView : UserControl
             if (Grid.GetRow(child) < 5) child.MinHeight = compact ? 24 : 26;
         FooterTotalLabel.MinHeight = FooterTotalAmount.MinHeight = compact ? 44 : 52;
         FooterTotalAmount.FontSize = compact ? 24 : 26;
-        Grid.SetColumn(FooterCheckoutButton, compact ? 1 : 0);
-        Grid.SetColumnSpan(FooterCheckoutButton, compact ? 1 : 2);
         FooterCheckoutButton.MinHeight = compact ? 48 : 56;
         FooterCheckoutButton.Content = compact ? "الدفع ←" : "متابعة إلى الدفع  ←";
-        Grid.SetRow(FooterCancelButton, compact ? 10 : 11);
-        Grid.SetColumnSpan(FooterCancelButton, compact ? 1 : 2);
-        // Compact puts cancel beside checkout, so the checkout button no longer spans the footer -
-        // the reason line still does, and stays centred over both.
-        FooterCancelButton.Margin = new Thickness(0, compact ? 12 : 0, 0, 0);
+        // The hold / cancel pair keeps its own row under checkout in both densities (owner 2026-11-17
+        // added «تعليق الأوردر» beside cancel); compact only tightens the gap above it.
+        FooterActions.Margin = new Thickness(0, compact ? 4 : 6, 0, 0);
     }
 
     private void Subscribe()

@@ -36,7 +36,6 @@ public sealed class PayPurchaseHandler
         var purchase = await _db.Purchases.Include(p => p.Lines).Include(p => p.Payments)
             .FirstOrDefaultAsync(p => p.Id == request.PurchaseId, ct)
             ?? throw new InvalidOperationException("فاتورة الشراء غير موجودة.");
-        if (purchase.Status == "cancelled") throw new DomainException("فاتورة الشراء غير متاحة للسداد.");
 
         var idempotencyKey = $"purchase-payment-{purchase.Id}-{request.RequestId}";
         var existingPayment = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);
@@ -54,30 +53,38 @@ public sealed class PayPurchaseHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "purchasing_manage", purchase.InvoiceNumber);
         }
-        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "purchasing_manage", approval, requireApproval: true);
-
-        var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()
-            .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);
-        var outstanding = PurchasingRules.SupplierOutstandingFromLedger(
-            ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),
-            purchase.SupplierId, purchase.Id);
 
         var amount = Money.FromPiastres(request.AmountPiastres);
-        PurchasingRules.AssertPurchasePayment(amount, outstanding);
         if (!amount.IsPositive) throw new DomainException("مبلغ السداد يجب أن يكون أكبر من صفر.");
 
         var accountId = PurchasingRules.PurchasePaymentAccountFor(request.PaymentMethod)
             ?? throw new DomainException("يجب تحديد حساب دفع فعلي.");
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            await _db.Purchases.FromSqlRaw("SELECT * FROM Purchases WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.PurchaseId)
+                .Select(p => p.Id).SingleAsync(ct);
+            await _db.Entry(purchase).ReloadAsync(ct);
+            await _db.Entry(purchase).Collection(p => p.Payments).LoadAsync(ct);
+            var admissionReplay = await _db.PurchasePayments.AsNoTracking().FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, ct);
+            if (admissionReplay is not null) return ReceivePurchaseHandler.ToDto(purchase, wasReplayed: true);
+            if (purchase.Status == "cancelled") throw new DomainException("فاتورة الشراء غير متاحة للسداد.");
+            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "purchasing_manage", approval, requireApproval: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            var ledgerEntries = await _db.SupplierLedgerEntries.AsNoTracking()
+                .Where(e => e.SupplierId == purchase.SupplierId).ToListAsync(ct);
+            var outstanding = PurchasingRules.SupplierOutstandingFromLedger(
+                ledgerEntries.Select(e => new SupplierLedgerEntry(e.SupplierId, e.PurchaseId, e.ReferenceId, Money.FromPiastres(e.DebitPiastres), Money.FromPiastres(e.CreditPiastres))),
+                purchase.SupplierId, purchase.Id);
+
+            PurchasingRules.AssertPurchasePayment(amount, outstanding);
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, accountId, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, accountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, accountId, amount);
 
             var journal = new Falah.Infrastructure.Persistence.EfFinancialJournal(_db);

@@ -53,6 +53,9 @@ public partial class SettingsViewModel : ObservableObject
     /// what the cashier actually entered, and changing this never touches a shift already opened.</summary>
     [ObservableProperty] private string _defaultOpeningCashText = "";
     [ObservableProperty] private string _cashDiscrepancyThresholdText = "";
+    /// <summary>How large a manual discount may be without a manager's PIN, as a percentage of the items
+    /// (owner, 2026-11-18: 10). 0 means every discount needs a manager. The server enforces it.</summary>
+    [ObservableProperty] private string _maxDiscountPercentText = "";
     [ObservableProperty] private string _overtimeHourlyRateText = "";
     [ObservableProperty] private string _autoLockMinutesText = "";
     [ObservableProperty] private string _numberOfReceiptCopiesText = "";
@@ -96,6 +99,7 @@ public partial class SettingsViewModel : ObservableObject
             CashDiscrepancyThresholdText = CashInput.Format(s.CashDiscrepancyThresholdPiastres);
             OvertimeHourlyRateText = CashInput.Format(s.OvertimeHourlyRatePiastres);
             DefaultOpeningCashText = CashInput.Format(s.DefaultOpeningCashPiastres);
+            MaxDiscountPercentText = (s.MaxDiscountWithoutApprovalBasisPoints / 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
             AutoLockMinutesText = s.AutoLockMinutes.ToString();
             NumberOfReceiptCopiesText = s.NumberOfReceiptCopies.ToString();
             AutoPrintReceipt = s.AutoPrintReceipt;
@@ -123,6 +127,12 @@ public partial class SettingsViewModel : ObservableObject
             || !CashInput.TryParse(OvertimeHourlyRateText, out var overtimeRate))
         {
             SaveError = "تحقق من صحة المبالغ المدخلة.";
+            return;
+        }
+        // A percentage with up to two decimals is exactly a whole number of basis points.
+        if (!CashInput.TryParse(MaxDiscountPercentText, out var discountLimitBasisPoints) || discountLimitBasisPoints > 10_000)
+        {
+            SaveError = "أدخل حد الخصم بدون مدير نسبةً بين 0 و 100.";
             return;
         }
         if (!int.TryParse(AutoLockMinutesText, out var autoLock) || autoLock < 0
@@ -157,7 +167,8 @@ public partial class SettingsViewModel : ObservableObject
                 NumberOfReceiptCopies: copies,
                 AutoPrintReceipt: AutoPrintReceipt,
                 AutoPrintPreparationTicket: AutoPrintPreparationTicket,
-                HoldPreparationUntilPaymentConfirmed: HoldPreparationUntilPaymentConfirmed));
+                HoldPreparationUntilPaymentConfirmed: HoldPreparationUntilPaymentConfirmed,
+                MaxDiscountWithoutApprovalBasisPoints: (int)discountLimitBasisPoints));
 
             if (!result.Success || result.Value is null)
             {

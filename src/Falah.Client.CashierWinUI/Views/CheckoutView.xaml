@@ -29,17 +29,17 @@
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
        <Button Content="نقدي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="cash" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
-        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|WhiteBrush}"
-        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|WhiteBrush|TextPrimaryBrush}"/>
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|CardBackgroundBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|AccentTextBrush|TextPrimaryBrush}"/>
        <Button Grid.Column="1" Content="بطاقة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="card" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
-        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|BrandPrimaryBrush|WhiteBrush}"
-        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|WhiteBrush|TextPrimaryBrush}"/>
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|BrandPrimaryBrush|CardBackgroundBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|AccentTextBrush|TextPrimaryBrush}"/>
        <Button Grid.Row="1" Content="إنستاباي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="instapay" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
-        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|WhiteBrush}"
-        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|WhiteBrush|TextPrimaryBrush}"/>
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|CardBackgroundBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|AccentTextBrush|TextPrimaryBrush}"/>
        <Button Grid.Row="1" Grid.Column="1" Content="محفظة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="wallet" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
-        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|BrandPrimaryBrush|WhiteBrush}"
-        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|WhiteBrush|TextPrimaryBrush}"/>
+        Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|BrandPrimaryBrush|CardBackgroundBrush}"
+        Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|AccentTextBrush|TextPrimaryBrush}"/>
       </Grid>
       <TextBlock Text="يظل التحويل الإلكتروني معلقاً حتى تأكيد وصول المبلغ." TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
       <TextBox IsEnabled="{Binding CanEditOperation}" Header="اسم مزود المحفظة" Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -63,6 +63,10 @@
         <StackPanel Spacing="8" Visibility="{Binding CanDiscount, Converter={StaticResource BoolToVisibleConverter}}">
          <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="خصم يدوي" IsOn="{Binding IsDiscountEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
          <TextBox IsEnabled="{Binding CanEditOperation}" Header="الخصم بالجنيه" Text="{Binding DiscountAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsDiscountEnabled, Converter={StaticResource BoolToVisibleConverter}}"/>
+         <!-- Owner, 2026-11-18: a discount above the Settings limit (10% of the items) needs a manager's PIN. -->
+         <PasswordBox IsEnabled="{Binding CanEditOperation}" Header="خصم أكبر من الحد المسموح - رمز المدير" Password="{Binding DiscountManagerPin, Mode=TwoWay}"
+          AutomationProperties.Name="رمز المدير لاعتماد الخصم" AutomationProperties.AutomationId="Checkout_DiscountManagerPin"
+          Visibility="{Binding DiscountNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
         </StackPanel>
         <ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="ضيافة" IsOn="{Binding IsCompEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
         <StackPanel Spacing="8" Visibility="{Binding IsCompEnabled, Converter={StaticResource BoolToVisibleConverter}}">

@@ -100,11 +100,70 @@ public sealed class ReportCashDrawerResultHandler
         _ = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ReportedByUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
 
+        // An expired command was never sent; a late report cannot make it look like it was.
+        if (entity.Status == nameof(CashDrawerCommandStatus.Expired)) return OpenCashDrawerHandler.ToDto(entity);
+
         entity.Status = request.Succeeded ? nameof(CashDrawerCommandStatus.Succeeded) : nameof(CashDrawerCommandStatus.Failed);
         entity.LastError = request.Succeeded ? null : request.Error;
         entity.ReportedAtUtc = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync(ct);
 
         return OpenCashDrawerHandler.ToDto(entity);
+    }
+}
+
+/// <summary>
+/// HW1. The open-drawer commands the print station wired to the till's drawer sends to its printer.
+///
+/// A receipt printer opens a cash drawer when it receives a pulse command on its drawer port; the
+/// print agent on that station claims the commands and sends the pulse. Claimed atomically (one
+/// station, once - same locking as print-job claims). A command not claimed within
+/// <c>CashDrawer:KickMaxAgeSeconds</c> is expired and never sent: a drawer springing open minutes
+/// after somebody asked - because the station was off, or the network was down - is worse than one
+/// that did not open, and the cashier can simply ask again.
+/// </summary>
+public sealed class CashDrawerKickQueue
+{
+    private readonly FalahDbContext _db;
+    public CashDrawerKickQueue(FalahDbContext db) => _db = db;
+
+    public async Task<List<CashDrawerOpenDto>> ClaimAsync(string agentId, string agentUserName, TimeSpan maxAge, CancellationToken ct = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var cutoff = now - maxAge;
+        await _db.Database.ExecuteSqlRawAsync(
+            """
+            UPDATE CashDrawerOpens SET Status = {0}, LastError = {1}, ReportedAtUtc = {2}
+            WHERE Status = {3} AND RequestedAtUtc < {4}
+            """,
+            new object[]
+            {
+                nameof(CashDrawerCommandStatus.Expired),
+                "لم يُرسل أمر فتح الدرج لأنه تأخر عن موعده (لم يكن جهاز الطباعة متصلاً) - اطلب الفتح من جديد إذا لزم.",
+                now, nameof(CashDrawerCommandStatus.Requested), cutoff,
+            }, ct);
+
+        var claimed = await _db.CashDrawerOpens.FromSqlRaw(
+                """
+                UPDATE CashDrawerOpens WITH (ROWLOCK, READPAST, UPDLOCK)
+                SET Status = {0}
+                OUTPUT INSERTED.*
+                WHERE Status = {1} AND RequestedAtUtc >= {2}
+                """,
+                nameof(CashDrawerCommandStatus.Dispatched), nameof(CashDrawerCommandStatus.Requested), cutoff)
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        foreach (var command in claimed)
+        {
+            _db.ControlAuditEvents.Add(new ControlAuditEventEntity
+            {
+                Id = $"audit-{Guid.NewGuid():N}", Action = "cash_drawer_dispatched", Actor = agentUserName, EntityId = command.Id,
+                Reason = $"أُرسل أمر فتح الدرج إلى جهاز الطباعة {agentId}", CreatedAtUtc = now,
+            });
+        }
+        if (claimed.Count > 0) await _db.SaveChangesAsync(ct);
+
+        return claimed.OrderBy(c => c.RequestedAtUtc).Select(OpenCashDrawerHandler.ToDto).ToList();
     }
 }

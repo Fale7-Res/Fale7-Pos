@@ -25,6 +25,20 @@ public sealed class AuthenticationMiddleware
         "/api/auth/login-by-pin",
     };
 
+    /// <summary>GET /api/products/{id}/image only. The tills show menu photos with an image control,
+    /// which downloads by URL and cannot send the session token, so a gated photo was never shown. A
+    /// menu photo is the public menu (the same pictures are on the restaurant's menu site) and carries
+    /// no business data; uploading or removing one, and every other product read, still need a session.</summary>
+    private static bool IsMenuPhotoRead(HttpRequest request)
+    {
+        if (!HttpMethods.IsGet(request.Method) && !HttpMethods.IsHead(request.Method)) return false;
+        var segments = (request.Path.Value ?? "").Split('/', StringSplitOptions.RemoveEmptyEntries);
+        return segments.Length == 4
+            && segments[0].Equals("api", StringComparison.OrdinalIgnoreCase)
+            && segments[1].Equals("products", StringComparison.OrdinalIgnoreCase)
+            && segments[3].Equals("image", StringComparison.OrdinalIgnoreCase);
+    }
+
     public const string ActorItemKey = "falah.actor";
 
     public async Task InvokeAsync(HttpContext context, SessionService sessions)
@@ -33,7 +47,7 @@ public sealed class AuthenticationMiddleware
 
         // Swagger and static files are not the business API and carry no actor.
         var isApi = path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase);
-        if (!isApi || AnonymousPaths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase)))
+        if (!isApi || AnonymousPaths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase)) || IsMenuPhotoRead(context.Request))
         {
             await _next(context);
             return;
@@ -82,10 +96,14 @@ public sealed class AuthenticationMiddleware
     }
 
     /// <summary>Field names that mean "the user performing this request". Every one of them used to
-    /// be taken on trust.</summary>
-    private static readonly string[] ActorFields =
+    /// be taken on trust. Public so the integration suite's ActorTokenHandler reads the same list
+    /// rather than a copy that can fall behind it.
+    ///
+    /// closedByUserId is the shift closer: missing from this list, a cashier's session could close a
+    /// shift that the record, the audit trail and the handover slip all attributed to a manager.</summary>
+    public static readonly IReadOnlyList<string> ActorFields = new[]
     {
-        "actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId",
+        "actorUserId", "cashierId", "createdByUserId", "openedByUserId", "reportedByUserId", "closedByUserId",
     };
 
     private static async Task<string?> FindActorMismatchAsync(HttpContext context, string authenticatedUserId)
@@ -109,14 +127,17 @@ public sealed class AuthenticationMiddleware
                 context.Request.Body, cancellationToken: context.RequestAborted);
             if (document.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
 
-            foreach (var field in ActorFields)
+            // Every property, matched without regard to case, duplicates included - because that is
+            // how the endpoint binds the body. Looking up the exact camel-case name let
+            // "CreatedByUserId" through unexamined while it still bound, and a second copy of a field
+            // could carry a different user past the first.
+            foreach (var property in document.RootElement.EnumerateObject())
             {
-                if (document.RootElement.TryGetProperty(field, out var value)
-                    && value.ValueKind == System.Text.Json.JsonValueKind.String)
-                {
-                    var claimed = value.GetString();
-                    if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return field;
-                }
+                if (!ActorFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase)) continue;
+                if (property.Value.ValueKind != System.Text.Json.JsonValueKind.String) continue;
+
+                var claimed = property.Value.GetString();
+                if (!string.IsNullOrEmpty(claimed) && claimed != authenticatedUserId) return property.Name;
             }
         }
         catch (System.Text.Json.JsonException)

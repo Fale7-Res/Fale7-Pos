@@ -38,9 +38,13 @@ public partial class CashierViewModel
         {
             if (PickupDate is not { } date || PickupTime is not { } time) return null;
             var local = DateTime.SpecifyKind(date.Date.Add(time), DateTimeKind.Unspecified);
+            if (BusinessClock.CairoTimeZone.IsInvalidTime(local)) return null;
             return new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(local, BusinessClock.CairoTimeZone), TimeSpan.Zero);
         }
     }
+
+    private const string InvalidPickupTimeMessage = "الوقت المختار غير موجود بسبب تغيير التوقيت الصيفي. اختر وقتًا آخر.";
+    private bool HasInvalidPickupTime => PickupDate is not null && PickupTime is not null && RequestedPickupAtUtc is null;
 
     private void ClearRequestedPickupTime()
     {
@@ -54,6 +58,7 @@ public partial class CashierViewModel
         {
             if (string.IsNullOrWhiteSpace(CustomerPhone)) return "أضف اسم العميل ورقم هاتفه";
             var who = $"{CustomerName} · {CustomerPhone}";
+            if (HasInvalidPickupTime) return who + Environment.NewLine + InvalidPickupTimeMessage;
             return RequestedPickupAtUtc is { } at
                 ? $"{who}" + Environment.NewLine + $"موعد الاستلام: {TimeZoneInfo.ConvertTime(at, BusinessClock.CairoTimeZone):yyyy-MM-dd HH:mm}"
                 : who;
@@ -84,6 +89,8 @@ public partial class CashierViewModel
             PickupError = "موعد الاستلام يحتاج التاريخ والوقت معًا - أو اتركهما فارغين.";
             return;
         }
+
+        if (HasInvalidPickupTime) { PickupError = InvalidPickupTimeMessage; return; }
 
         try
         {

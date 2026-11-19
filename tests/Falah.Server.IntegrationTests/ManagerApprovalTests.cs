@@ -18,10 +18,12 @@ public class ManagerApprovalTests : IAsyncLifetime
         using var secondScope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var first = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(firstScope.ServiceProvider);
         var second = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(secondScope.ServiceProvider);
-        var a = new Falah.Infrastructure.Persistence.EfApprovalRegistry(first);
-        var b = new Falah.Infrastructure.Persistence.EfApprovalRegistry(second);
-        Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(a, "orders_comp", a.Find(approval.ApprovalId)!);
-        Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(b, "orders_comp", b.Find(approval.ApprovalId)!);
+        // Each scope's registry works on that scope's own DbContext, exactly as two requests would.
+        var a = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Domain.Authorization.IApprovalRegistry>(firstScope.ServiceProvider);
+        var b = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Domain.Authorization.IApprovalRegistry>(secondScope.ServiceProvider);
+        var issued = a.Find(approval.ApprovalId)!;
+        Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(a, "orders_comp", issued, issued.RequestedByUserId!);
+        Falah.Domain.Authorization.AuthorizationPolicy.ValidateApproval(b, "orders_comp", b.Find(approval.ApprovalId)!, issued.RequestedByUserId!);
         await first.SaveChangesAsync();
         await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => second.SaveChangesAsync());
     }
@@ -48,6 +50,12 @@ public class ManagerApprovalTests : IAsyncLifetime
 
     private async Task<IssueManagerApprovalResult> IssueAsync(string action, string reason = "اعتماد اختبار") =>
         (await (await _client.PostAsJsonAsync("/api/approvals/issue", new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, reason)))
+            .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
+
+    /// <summary>Asked for at <paramref name="tillUserId"/>'s till - the only session that can spend it.</summary>
+    private async Task<IssueManagerApprovalResult> IssueAtAsync(string tillUserId, string action) =>
+        (await (await _factory.PostAsSessionOfAsync(_client, tillUserId, "/api/approvals/issue",
+                new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار")))
             .Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!;
 
     [Fact]
@@ -175,7 +183,7 @@ public class ManagerApprovalTests : IAsyncLifetime
     {
         var compCashier = await _factory.SeedUserAsync("كاشير بصلاحية ضيافة ٢", "cashier", "pos", "orders_comp");
         var productId = await _factory.SeedProductAsync(10000);
-        var approval = await IssueAsync("orders_comp");
+        var approval = await IssueAtAsync(compCashier, "orders_comp");
 
         var first = await _client.PostAsJsonAsync("/api/orders/checkout", CompCheckout(compCashier, productId, approval.ApprovalId));
         first.EnsureSuccessStatusCode();

@@ -39,6 +39,8 @@ public partial class ShiftsViewModel : ObservableObject
     {
         _session = session;
         _header = header;
+        Statement = new ShiftStatementViewModel(session);
+        session.TrackManagementOwner(this);   // a recovered open/close blocks closing the app and is listed for review
     }
 
     public bool CanOpenShift => _session.HasPermission("shifts_manage") || _session.HasPermission("shifts_open_own");
@@ -72,14 +74,19 @@ public partial class ShiftsViewModel : ObservableObject
 
     public ObservableCollection<ShiftRow> History { get; } = new();
 
+    /// <summary>UI-REQ-002: the closing statement, shown after a close and from a closed history row.</summary>
+    public ShiftStatementViewModel Statement { get; }
+
+    [RelayCommand]
+    private Task ShowCloseStatementAsync(ShiftRow? row) =>
+        row is { IsClosed: true } ? Statement.ShowAsync(row.ShiftId) : Task.CompletedTask;
+
     // ---- Reprinting a shift's own paperwork ----
 
     [ObservableProperty] private string? _reprintMessage;
     [ObservableProperty] private bool _isReprinting;
 
-    [RelayCommand]
-    private Task ReprintShiftOpenAsync(ShiftRow? row) =>
-        ReprintAsync(row, "ShiftOpen", "إعادة طباعة إيصال افتتاح الوردية");
+    // No reprint of the opening slip: the slip is retired (paper redesign 2026-11-17).
 
     [RelayCommand]
     private Task ReprintShiftCloseAsync(ShiftRow? row) =>

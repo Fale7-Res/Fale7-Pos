@@ -5,6 +5,7 @@ using Falah.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,13 +35,18 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
     /// connection string - e.g. RateLimit:Login:WindowSeconds, so a rate-limit test can shrink the
     /// window to a couple of seconds instead of racing a real 60-second wall-clock window against
     /// the rest of a large parallel suite.</param>
-    public FalahApiFactory(string? reuseDatabaseName = null, IReadOnlyDictionary<string, string?>? configOverrides = null)
+    /// <param name="environment">The host environment; Development (WebApplicationFactory's default)
+    /// when null. "Production" is how a test sees what the restaurant's own service does.</param>
+    public FalahApiFactory(string? reuseDatabaseName = null, IReadOnlyDictionary<string, string?>? configOverrides = null, string? environment = null)
     {
         _ownsDatabase = reuseDatabaseName is null;
         DatabaseName = reuseDatabaseName ?? $"FalahTest_{Guid.NewGuid():N}";
         _configOverrides = configOverrides;
+        _environment = environment;
         if (_ownsDatabase) CreateDatabase();
     }
+
+    private readonly string? _environment;
 
     private void CreateDatabase()
     {
@@ -63,9 +69,62 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:Falah"] = $@"Server=.\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;",
+                // The automatic backup writes to the restaurant's real backup folder by default
+                // (appsettings.json). A test host must never do that; a test that exercises the
+                // worker itself can still turn it back on through configOverrides.
+                ["Backup:Automatic:Enabled"] = "false",
+                // Explicitly provision only this uniquely named test database, including Production-mode fixtures.
+                ["Database:MigrateOnStartup"] = "true",
             });
             if (_configOverrides is not null) config.AddInMemoryCollection(_configOverrides);
         });
+        builder.ConfigureServices(services => services.AddTransient<Microsoft.AspNetCore.Hosting.IStartupFilter, TestRemoteAddressFilter>());
+        if (_environment is not null) builder.UseEnvironment(_environment);
+    }
+
+    /// <summary>Sends <paramref name="body"/> as JSON from <paramref name="userId"/>'s own session. For
+    /// requests that name no actor but whose sender matters - a manager approval is spent only by the
+    /// session that asked for it, so the till that asks has to be the till that spends.</summary>
+    public Task<HttpResponseMessage> PostAsSessionOfAsync<T>(HttpClient client, string userId, string url, T body)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = System.Net.Http.Json.JsonContent.Create(body) };
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenFor(userId));
+        return client.SendAsync(request);
+    }
+
+    /// <summary>The header a test sets to say which machine a request comes from. TestServer has no
+    /// real connection, so every request otherwise arrives from the same unknown address. Honoured by
+    /// test hosts only: the filter that reads it is registered here, never by the server itself.</summary>
+    public const string RemoteAddressHeader = "X-Test-Remote-Address";
+
+    /// <summary>A client whose every request comes from <paramref name="address"/>.</summary>
+    public HttpClient CreateClientFrom(string address)
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add(RemoteAddressHeader, address);
+        return client;
+    }
+
+    private sealed class TestRemoteAddressFilter : Microsoft.AspNetCore.Hosting.IStartupFilter
+    {
+        public Action<Microsoft.AspNetCore.Builder.IApplicationBuilder> Configure(Action<Microsoft.AspNetCore.Builder.IApplicationBuilder> next) => app =>
+        {
+            app.Use(nextMiddleware => async context =>
+            {
+                if (context.Request.Headers.TryGetValue(RemoteAddressHeader, out var value)
+                    && System.Net.IPAddress.TryParse(value.ToString(), out var address))
+                {
+                    context.Connection.RemoteIpAddress = address;
+                    // A real till on another machine reaches the server over TLS - plain HTTP from the
+                    // network is refused by ServerTransportGuard (B35). The simulated LAN client must
+                    // arrive the way a real one does; TransportSecurityTests prove the refusal itself
+                    // with their own requests, not through this header (fixture fix 2026-11-07).
+                    if (!System.Net.IPAddress.IsLoopback(address)) context.Request.Scheme = "https";
+                }
+                await nextMiddleware(context);
+            });
+            next(app);
+        };
     }
 
     /// <summary>Real session tokens for the users this factory seeded, so requests go through the
@@ -123,8 +182,19 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
     ///
     /// The station user holds one ordinary permission: it exists to satisfy authentication, and
     /// anything that checks authorisation names its own actor and gets that actor's token.</summary>
+    /// <summary>Whose station a request that names nobody comes from, when a class needs it to be a
+    /// particular person - the Control Center's reads come from a manager's station, not a till's.
+    /// Unset, it is the first user the class seeded (below).</summary>
+    public string? StationUserId { get; set; }
+
     public string? AnySessionToken()
     {
+        if (StationUserId is { } station && TokenFor(station) is { } stationToken) return stationToken;
+        // The FIRST user this factory seeded - classes seed their principal user first - rather than
+        // whichever value a ConcurrentDictionary happens to enumerate first, which is not insertion
+        // order (and string hashing is randomised per process), so "any session" used to differ from
+        // run to run.
+        if (Volatile.Read(ref _firstSeededToken) is { } first) return first;
         if (_tokens.Values.FirstOrDefault() is { } existing) return existing;
 
         lock (_stationLock)
@@ -179,9 +249,12 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
 
         await db.SaveChangesAsync();
         _tokens[id] = token;
+        Interlocked.CompareExchange(ref _firstSeededToken, token, null);
         _pins[id] = pinValue;
         return id;
     }
+
+    private string? _firstSeededToken;
 
     /// <summary>Seeds a minimal, available, grill-flagged-as-requested product at an exact price -
     /// the price the server will look up and freeze, never something the test's HTTP request
@@ -200,6 +273,30 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         });
         await db.SaveChangesAsync();
         return productId;
+    }
+
+    /// <summary>Creates the delivery service (zone) a delivery checkout names, or re-prices an existing one - the
+    /// fee the server charges is the service's own, so a test that sends a fee must first configure that fee here
+    /// (AUD-01). Calling it again with another fee is how a test re-prices a zone between orders.</summary>
+    public async Task SeedDeliveryServiceAsync(string id = "svc-1", long? feePiastres = 0, string name = "توصيل سريع", bool active = true)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
+        var existing = await db.DeliveryServices.FirstOrDefaultAsync(s => s.Id == id);
+        if (existing is null)
+        {
+            db.DeliveryServices.Add(new DeliveryServiceEntity
+            {
+                Id = id, Name = name, FeePiastres = feePiastres, Active = active, CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow,
+            });
+        }
+        else
+        {
+            existing.Name = name;
+            existing.FeePiastres = feePiastres;
+            existing.Active = active;
+        }
+        await db.SaveChangesAsync();
     }
 
     public async Task<string> SeedVariantAsync(string productId, long pricePiastres, string name = "حجم كبير", string? recipeId = null)
@@ -316,6 +413,17 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
         var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
         return await query(db);
     }
+
+    /// <summary>The open shift's expected drawer cash, read the way the close computes it but without
+    /// declaring a count. prepare-close records every figure it is given as the cashier's count
+    /// (audit 2026-11-18), so a test that only wants the expected figure must not use it as a probe:
+    /// closing at a different figure afterwards is a re-count, which needs a manager.</summary>
+    public Task<long> ExpectedDrawerCashAsync(string shiftId) => QueryAsync(async db =>
+    {
+        var shift = await db.Shifts.AsNoTracking().FirstAsync(s => s.Id == shiftId);
+        return (await Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(
+            db, shiftId, Falah.Domain.Common.Money.FromPiastres(shift.OpeningCashPiastres), default)).Piastres;
+    });
 
     protected override void Dispose(bool disposing)
     {

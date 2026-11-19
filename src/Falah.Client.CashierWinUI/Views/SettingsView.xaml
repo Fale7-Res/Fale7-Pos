@@ -109,6 +109,11 @@
                         </Grid>
                         <TextBlock Text="حد فرق الدرج هو ما يقرّر متى يحتاج إغلاق الوردية اعتماد مدير - يطبّقه السيرفر وحده."
                                    Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <TextBox Header="أقصى خصم بدون رمز مدير (% من قيمة الأصناف)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                 AutomationProperties.Name="أقصى خصم بدون رمز مدير بالنسبة المئوية" AutomationProperties.AutomationId="Settings_MaxDiscountPercent"
+                                 Text="{Binding MaxDiscountPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="الخصم الأكبر من هذه النسبة يحتاج رمز مدير حتى لصاحب صلاحية الخصم. صفر يعني أن كل خصم يحتاج مديرًا."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                         <TextBox Header="قفل الشاشة تلقائيًا بعد (دقيقة)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
                                  Text="{Binding AutoLockMinutesText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -137,7 +142,7 @@
                 <TextBlock Text="{Binding SaveError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                            TextWrapping="Wrap" TextAlignment="Center"
                            Visibility="{Binding SaveError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                <TextBlock Text="{Binding SavedNote}" Foreground="{ThemeResource SuccessBrush}" FontWeight="SemiBold"
+                <TextBlock Text="{Binding SavedNote}" Foreground="{ThemeResource SuccessTextBrush}" FontWeight="SemiBold"
                            TextWrapping="Wrap" TextAlignment="Center"
                            Visibility="{Binding SavedNote, Converter={StaticResource NullToCollapsedConverter}}"/>
             </StackPanel>

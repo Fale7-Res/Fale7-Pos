@@ -76,15 +76,15 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Content="هدر تحضير" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetWasteTypeCommand}" CommandParameter="Waste"
-                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Waste|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Waste|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Waste|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="1" Content="تلف/انتهاء" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetWasteTypeCommand}" CommandParameter="Spoilage"
-                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Spoilage|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Spoilage|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Spoilage|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="2" Content="كسر" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetWasteTypeCommand}" CommandParameter="Breakage"
-                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Breakage|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Breakage|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding WasteType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=Breakage|BrandPrimaryBrush|TextMutedBrush}"/>
                         </Grid>
 

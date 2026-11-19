@@ -139,4 +139,44 @@ public class DriverSettlementEntity
     public string? TreasuryMovementId { get; set; }
     public string ReceivedBy { get; set; } = default!;
     public DateTimeOffset CreatedAtUtc { get; set; }
+
+    // Owner-confirmed settlement (2026-11-08). Columns are additive: a settlement written before them reads 0 / null,
+    // which is exactly what it was (no fee deduction, nothing carried, received into Main).
+    /// <summary>The open shift whose drawer received (or paid) the cash; null for a settlement made before.</summary>
+    public string? ShiftId { get; set; }
+    public string? ReceivedByUserId { get; set; }
+    /// <summary>Balance carried in from this driver's previous partial settlement (positive = he owed).</summary>
+    public long CarriedInPiastres { get; set; }
+    /// <summary>Customer cash the driver collected on the deliveries this settlement closed.</summary>
+    public long CashCollectedPiastres { get; set; }
+    /// <summary>Recorded delivery fees of the completed deliveries this settlement closed - the driver's earning.</summary>
+    public long FeeEntitlementPiastres { get; set; }
+    /// <summary>Cash paid FROM the drawer to the driver when the restaurant owed him.</summary>
+    public long PaidToDriverPiastres { get; set; }
+    /// <summary>What is still owed after this settlement (positive = by the driver); 0 for a final settlement.</summary>
+    public long CarriedOutPiastres { get; set; }
+    public bool KeepsBalanceOpen { get; set; }
+    public string? PayoutTreasuryMovementId { get; set; }
+}
+
+/// <summary>
+/// A manager's classification of one delivered order's collection shortfall (CollectionShortfallRules): what the
+/// gap between the amount due and the amount collected IS - a customer receivable, an approved discount, a write-off
+/// or a driver liability - with the evidence for it. One per delivery. The amount is the custody's own gap at the
+/// moment of classification. A shortfall with no row here is unresolved, and is reported as such.
+/// </summary>
+public class CollectionShortfallResolutionEntity
+{
+    public string Id { get; set; } = default!;
+    public string DeliveryId { get; set; } = default!;
+    public string OrderId { get; set; } = default!;
+    public string DriverId { get; set; } = default!;
+    public long AmountPiastres { get; set; }
+    public string Classification { get; set; } = default!;
+    public string Evidence { get; set; } = default!;
+    public string RequestId { get; set; } = default!;
+    public string ClassifiedByUserId { get; set; } = default!;
+    public string ClassifiedByName { get; set; } = default!;
+    public string? ApprovedBy { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
 }

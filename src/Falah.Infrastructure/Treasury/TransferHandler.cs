@@ -35,6 +35,11 @@ public sealed class TransferHandler
         if (request.SourceAccountId == request.DestinationAccountId) throw new DomainException("يجب أن يختلف حساب المصدر عن حساب الوجهة.");
         if (!TreasuryAccountValidation.IsKnownAccount(request.SourceAccountId) || !TreasuryAccountValidation.IsKnownAccount(request.DestinationAccountId))
             throw new DomainException("حساب الخزينة المحدد غير صالح.");
+        // A transfer belongs to no shift, so the shift's expected cash would never see it: drawer cash
+        // taken this way turned into the cashier's shortage at close. The drawer moves only through
+        // the shift's own commands (safe drop, cash in/out), which post to the shift.
+        if (request.SourceAccountId == TreasuryAccounts.Drawer || request.DestinationAccountId == TreasuryAccounts.Drawer)
+            throw new DomainException("لا يُحوَّل من درج الكاشير أو إليه من شاشة الخزينة؛ استخدم الإيداع الآمن أو إضافة/سحب نقدية من شاشة الكاشير حتى تُحسب على الوردية.");
         if (request.AmountPiastres <= 0) throw new DomainException("المبلغ يجب أن يكون أكبر من صفر.");
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب التحويل مطلوب.");
 
@@ -52,15 +57,18 @@ public sealed class TransferHandler
         }
         var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "treasury_manage", approval, requireApproval: true);
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.SourceAccountId, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, request.SourceAccountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, request.SourceAccountId, Money.FromPiastres(request.AmountPiastres));
 
             var journal = new EfFinancialJournal(_db);

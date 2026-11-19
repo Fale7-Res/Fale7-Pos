@@ -29,6 +29,7 @@ public sealed class UpdateUserPermissionsHandler
     {
         // Concurrent revocations must not each count the other administrator as a survivor.
         await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
+        await UserIdentityLock.AcquireAsync(_db, ct);
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);

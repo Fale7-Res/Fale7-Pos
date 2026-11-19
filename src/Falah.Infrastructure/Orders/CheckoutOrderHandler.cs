@@ -60,7 +60,7 @@ public sealed class CheckoutOrderHandler
         var taxRuleEntity = await _db.TaxRules.AsNoTracking().FirstOrDefaultAsync(t => t.Enabled, ct);
         var taxRule = taxRuleEntity is null ? null
             : new TaxRule(taxRuleEntity.Id, taxRuleEntity.Name, taxRuleEntity.RateBasisPoints,
-                taxRuleEntity.Mode == "Inclusive" ? TaxMode.Inclusive : TaxMode.Exclusive, taxRuleEntity.Enabled);
+                Enum.TryParse<TaxMode>(taxRuleEntity.Mode, true, out var savedMode) && Enum.IsDefined(savedMode) ? savedMode : throw new DomainException("نوع الضريبة المحفوظ غير صالح؛ راجع إعدادات الضرائب."), taxRuleEntity.Enabled);
 
         var discount = Money.FromPiastres(request.DiscountPiastres);
         var deliveryFee = Money.FromPiastres(request.DeliveryFeePiastres);
@@ -97,6 +97,20 @@ public sealed class CheckoutOrderHandler
             if (missing is not null) throw new DomainException(missing);
         }
 
+        // AUD-01: the fee (and the service name frozen with it) is the configured zone's, never the client's.
+        DeliveryRules.DeliveryServiceTerms? serviceTerms = null;
+        string? deliveryServiceName = null;
+        if (orderType == OrderType.Delivery)
+        {
+            var service = await _db.DeliveryServices.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.DeliveryServiceId, ct);
+            if (service is not null)
+            {
+                serviceTerms = new DeliveryRules.DeliveryServiceTerms(service.Active, Money.FromPiastres(service.FeePiastres ?? 0));
+                deliveryServiceName = service.Name;
+            }
+        }
+        deliveryFee = DeliveryRules.ResolveDeliveryFee(orderType, deliveryFee, serviceTerms);
+
         CheckoutRules.AssertRequestedPickupTime(orderType, request.RequestedPickupAtUtc, DateTimeOffset.UtcNow);
 
         // Ported from checkout() in lib/store.tsx: 'pos' is the base gate on EVERY checkout,
@@ -111,6 +125,38 @@ public sealed class CheckoutOrderHandler
         // - previously enforced nowhere server-side in this port despite the field being fully live.
         if (discount.IsPositive && !AuthorizationPolicy.HasPermission(cashier, "orders_discount"))
             throw new DomainException("ليس لديك صلاحية تطبيق خصم يدوي.");
+
+        // Owner, 2026-11-18: orders_discount covers a discount up to the Settings limit (10% of the
+        // items unless changed). Above it a manager's approval is spent on the order, like a comp's -
+        // before this, orders_discount alone could take 100% off a sale a comp of which needed a manager.
+        string? discountApprovedByName = null;
+        if (discount.IsPositive)
+        {
+            var itemsValue = CheckoutRules.ComputeSubtotal(items);
+            if (discount > itemsValue) throw new DomainException("الخصم لا يمكن أن يتجاوز قيمة الأصناف.");
+            var limit = await _db.Settings.AsNoTracking()
+                .Where(s => s.Id == SettingsEntity.SingletonId)
+                .Select(s => s.MaxDiscountWithoutApprovalBasisPoints)
+                .FirstOrDefaultAsync(ct) ?? PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints;
+            if (PricingRules.DiscountNeedsApproval(discount, itemsValue, limit)
+                && AuthorizationPolicy.CanIssueApproval(cashier, "orders_discount"))
+            {
+                // The person the limit asks for is at the till: they could issue this approval to
+                // themselves with their own PIN, so they are named as its authoriser instead.
+                discountApprovedByName = cashierUser.Name;
+            }
+            else if (PricingRules.DiscountNeedsApproval(discount, itemsValue, limit))
+            {
+                if (string.IsNullOrEmpty(request.DiscountApprovalId) || string.IsNullOrEmpty(request.DiscountApproverUserId))
+                    throw new DomainException($"خصم أكبر من {limit / 100m:0.##}% من قيمة الأصناف يتطلب اعتماد مدير.");
+                var discountApprover = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.DiscountApproverUserId, ct)
+                    ?? throw new DomainException("المعتمد غير موجود.");
+                AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_discount",
+                    new ManagerApproval(request.DiscountApprovalId, discountApprover.Id, discountApprover.Name,
+                        discountApprover.Role, DateTimeOffset.UtcNow, "orders_discount", null), cashier.Id);
+                discountApprovedByName = discountApprover.Name;
+            }
+        }
 
         string? compApprovedByName = null;
         if (compAmount.IsPositive)
@@ -135,7 +181,7 @@ public sealed class CheckoutOrderHandler
             // used to skip the check entirely and record whatever approver the request named.
             var approval = new ManagerApproval(request.CompApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "orders_comp", request.CompReason);
-            AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_comp", approval);
+            AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_comp", approval, cashier.Id);
             compApprovedByName = approverUser.Name;
         }
 
@@ -145,6 +191,13 @@ public sealed class CheckoutOrderHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(request.CheckoutRequestId, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(_db, ct);
+            var currentShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+            if (currentShift?.Status != nameof(ShiftStatus.Open))
+                throw new ShiftNotOpenException("يجب فتح وردية قبل تسجيل أي عملية بيع.");
             var saleKey = $"sale-{request.CheckoutRequestId}";
             if (!plan.DefersAllMoney)
             {
@@ -160,8 +213,7 @@ public sealed class CheckoutOrderHandler
 
             // Server-resolved, never trusted from the client (request.BusinessDayId is accepted on
             // the wire only for source-compat and otherwise ignored) - see BusinessDayGate.
-            // TryGetActiveAsync's own doc comment for why a plain sale does not REQUIRE one to exist.
-            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.TryGetActiveAsync(_db, ct);
+            // Admission above rechecks the open day and shift inside this transaction.
 
             var order = Order.Create(plan, orderId, orderNumber, sequence, request.CashierId, request.ShiftId,
                 items, request.CheckoutRequestId, businessDayId, now,
@@ -182,7 +234,7 @@ public sealed class CheckoutOrderHandler
             orderEntity.DeliveryLandmark = request.DeliveryLandmark;
             orderEntity.DeliveryNotes = request.DeliveryNotes;
             orderEntity.DeliveryServiceId = request.DeliveryServiceId;
-            orderEntity.DeliveryServiceName = request.DeliveryServiceName;
+            orderEntity.DeliveryServiceName = orderType == OrderType.Delivery ? deliveryServiceName : request.DeliveryServiceName;
 
             // No order type has a table any more - DineIn was the only one, and it is gone. The
             // column and the request field stay so the orders written before the change still read
@@ -212,7 +264,8 @@ public sealed class CheckoutOrderHandler
                 _auditLog.Append(new AuditEvent(
                     $"audit-discount-{orderId}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                     "خصم يدوي على طلب", "order", $"خصم {discount.Piastres} قرش على طلب {orderNumber}",
-                    "normal", now, ShiftId: request.ShiftId, ReferenceId: orderId));
+                    discountApprovedByName is null ? "normal" : "warning", now, ShiftId: request.ShiftId,
+                    AuthorizedBy: discountApprovedByName, ReferenceId: orderId));
             }
 
             // Ported from registerDeliveryOrder in the reference app: every delivery-type order gets
@@ -228,21 +281,12 @@ public sealed class CheckoutOrderHandler
                     ShiftId = order.ShiftId, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
                 });
 
-                // The first of the two delivery print events: one DeliveryOrder ticket per delivery
-                // order, created here at order creation. Keyed on this checkout's own
-                // CheckoutRequestId, so it inherits the handler's existing idempotency exactly - a
-                // retried checkout short-circuits at FindExistingAsync before reaching this line and
-                // can never mint a second ticket. Creating the JOB writes no money and touches no
-                // order field; whether the paper ever comes out is the print agent's problem and is
-                // recorded only on the job itself, so a print failure can never affect this order.
-                _db.PrintJobs.Add(new PrintJobEntity
-                {
-                    Id = $"printjob-{request.CheckoutRequestId}-{Falah.Domain.Printing.PrintRoute.DeliveryOrder}",
-                    CreateRequestId = request.CheckoutRequestId, OrderId = orderId, OrderNumber = orderNumber,
-                    Route = nameof(Falah.Domain.Printing.PrintRoute.DeliveryOrder),
-                    Status = nameof(Falah.Domain.Printing.PrintJobStatus.Pending), AttemptCount = 0,
-                    IsReprint = false, CreatedBy = cashierUser.Name, CreatedAtUtc = now,
-                });
+                // Owner, 2026-11-17: a delivery order prints ONE paper into the restaurant when it is
+                // taken (the station's own customer copy - the call center's prep slip) and the
+                // customer's full receipt when the driver collects it (DriverDispatch). The separate
+                // DeliveryOrder ticket that used to be queued here came out beside the prep slip, so
+                // two papers printed at once; it is no longer queued. The route and its composer stay,
+                // so an older job already on record can still be printed or reprinted.
             }
 
             // Stock leaves the kitchen the moment the order is made, independent of whether the

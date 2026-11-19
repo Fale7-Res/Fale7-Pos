@@ -192,6 +192,20 @@ public class RetainedRequestDurabilityTests : IDisposable
         Assert.False(recovered.HasPending);
     }
 
+    // Audit 2026-11-18: List() read every file inside one try, so a single half-written file from a
+    // power cut made it return nothing, and the start-up notice hid every OTHER unresolved payment too.
+    [Fact]
+    public void A_corrupt_pending_file_does_not_hide_the_other_pending_operations()
+    {
+        Store().Save("cashier.checkout", new SampleRequest("r-1", 4500, "بيع"));
+        File.WriteAllText(Path.Combine(_directory, "owner.broken.json"), "");
+
+        var listed = Store().List();
+
+        var record = Assert.Single(listed);
+        Assert.Equal("cashier.checkout", record.OwnerKey);
+    }
+
     [Fact]
     public async Task A_store_that_cannot_write_still_protects_the_current_session()
     {
@@ -210,4 +224,59 @@ public class RetainedRequestDurabilityTests : IDisposable
         File.Delete(_directory);
         Directory.CreateDirectory(_directory);
     }
+
+    [Fact]
+    public async Task Reviewed_recovery_clears_the_durable_question_but_never_drops_an_in_flight_send()
+    {
+        var request = new SampleRequest("reviewed", 100, "اختبار");
+        var store = Store();
+        var retained = new RetainedRequest<SampleRequest>("review.owner", store);
+        var completion = new TaskCompletionSource<ApiClient.ApiResult<bool>>();
+        var sending = retained.SendAsync(request, _ => completion.Task);
+        Assert.Throws<InvalidOperationException>(() => retained.DiscardAfterReview(true));
+        completion.SetResult(Unknown()); await sending;
+        Assert.Throws<InvalidOperationException>(() => retained.DiscardAfterReview(false));
+        retained.DiscardAfterReview(true);
+        Assert.False(retained.HasPending);
+        Assert.Empty(store.List());
+        Assert.False(new RetainedRequest<SampleRequest>("review.owner", store).HasPending);
+    }
+
+
+    [Fact]
+    public void A_pending_request_is_not_readable_on_disk()
+    {
+        var store = Store(); var request = new SampleRequest("private", 100, "customer-01012345678");
+        store.Save("private.owner", request);
+        Assert.DoesNotContain(request.Reason, File.ReadAllText(Path.Combine(_directory, "private.owner.json")));
+        Assert.Equal(request, Assert.IsType<SampleRequest>(store.Load("private.owner")));
+    }
+    [Fact]
+    public void A_pending_file_written_before_protection_is_recovered_and_then_protected()
+    {
+        var request = new SampleRequest("legacy", 200, "legacy-01098765432");
+        var path = Path.Combine(_directory, "legacy.owner.json");
+        File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(new { Type = typeof(SampleRequest).AssemblyQualifiedName, SavedAtUtc = DateTimeOffset.UtcNow, Payload = request }));
+        var store = Store();
+        Assert.Equal(request, Assert.IsType<SampleRequest>(store.Load("legacy.owner")));
+        Assert.DoesNotContain(request.Reason, File.ReadAllText(path));
+    }
+
+
+    private sealed class WrongWindowsProfile : Falah.Client.Security.ILocalDataProtector
+    {
+        public byte[] Protect(byte[] value) => Falah.Client.Security.WindowsUserDataProtection.Instance.Protect(value);
+        public byte[] Unprotect(byte[] value) => throw new Falah.Client.Security.PendingDataProtectionException("wrong profile");
+    }
+    [Fact]
+    public void A_protected_file_that_cannot_be_decrypted_is_preserved_and_reported()
+    {
+        var store = Store(); store.Save("locked.owner", new SampleRequest("locked", 100, "sensitive"));
+        var path = Path.Combine(_directory, "locked.owner.json"); var before = File.ReadAllText(path);
+        var wrongProfile = new FileRetainedRequestStore(_directory, protector: new WrongWindowsProfile());
+        Assert.Null(wrongProfile.Load("locked.owner"));
+        Assert.NotNull(wrongProfile.RecoveryError);
+        Assert.Equal(before, File.ReadAllText(path));
+    }
+
 }

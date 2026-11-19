@@ -24,7 +24,7 @@
                 <TextBlock Text="تقرير إداري شامل يلخص المبيعات، حركات الخزنة، يوميات وسلف العمال، والمصروفات"
                            Style="{StaticResource PageSubtitleText}" TextWrapping="Wrap"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+            <Button AutomationProperties.Name="تحديث" Grid.Column="1" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
             </Button>
         </Grid>
@@ -58,8 +58,13 @@
                             </Grid.ColumnDefinitions>
                             <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="إجمالي المبيعات" Style="{StaticResource CaptionText}" Foreground="{ThemeResource SuccessBrush}"/>
-                                    <TextBlock Text="{Binding Summary.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/>
+                                    <!-- Net of the day's refunds, VAT included (METRIC_DEFINITIONS: NetSales). It was
+                                         labelled "إجمالي" (gross), which is a different figure. -->
+                                    <TextBlock Text="صافي المبيعات (بعد المرتجعات)" Style="{StaticResource CaptionText}" Foreground="{ThemeResource SuccessTextBrush}"/>
+                                    <TextBlock Text="{Binding Summary.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/>
+                                    <TextBlock Style="{StaticResource CaptionText}">
+                                        <Run Text="الإجمالي قبل المرتجعات: "/><Run Text="{Binding Summary.Sales.GrossSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                    </TextBlock>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -124,7 +129,7 @@
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="السلف والسحوبات النقدية" Style="{StaticResource CaptionText}"/>
-                                    <TextBlock Text="{Binding AdvancesAndWithdrawalsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/>
+                                    <TextBlock Text="{Binding AdvancesAndWithdrawalsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -140,11 +145,18 @@
                     <StackPanel Spacing="10">
                         <TextBlock Text="3. يوميات وسلف العمال المسجلة" Style="{StaticResource SectionTitleText}"/>
                         <Grid ColumnSpacing="10">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="إجمالي اليوميات المستحقة" Style="{StaticResource CaptionText}"/>
                                     <TextBlock Text="{Binding Summary.EmployeeLedger.DailyWagePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                            <!-- The monthly salaries' share for this day, by the day it was earned for. -->
+                            <Border Grid.Column="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="حصة الرواتب الشهرية لليوم" Style="{StaticResource CaptionText}"/>
+                                    <TextBlock Text="{Binding Summary.EmployeeLedger.SalaryAccruedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -156,7 +168,7 @@
                             <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="السلف المنصرفة" Style="{StaticResource CaptionText}"/>
-                                    <TextBlock Text="{Binding Summary.EmployeeLedger.AdvancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/>
+                                    <TextBlock Text="{Binding Summary.EmployeeLedger.AdvancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">

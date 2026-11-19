@@ -49,10 +49,14 @@ public static class FinancialRules
 
     /// <summary>The four historically-fixed accounts (tre-wallet deliberately excluded, matching
     /// the original) may never be drawn below zero by a command that debits them directly.</summary>
-    public static void AssertProtectedSourceBalance(IEnumerable<TreasuryMovement> movements, string sourceAccountId, Money amount)
+    public static void AssertProtectedSourceBalance(IEnumerable<TreasuryMovement> movements, string sourceAccountId, Money amount) =>
+        AssertProtectedSourceBalance(TreasuryBalanceFromMovements(movements, sourceAccountId), sourceAccountId, amount);
+
+    /// <summary>The same rule given an already summed posted balance (the server sums it in the
+    /// database under the account's lock rather than loading every movement the account ever had).</summary>
+    public static void AssertProtectedSourceBalance(Money balance, string sourceAccountId, Money amount)
     {
-        if (TreasuryAccounts.Protected.Contains(sourceAccountId)
-            && TreasuryBalanceFromMovements(movements, sourceAccountId) < amount)
+        if (TreasuryAccounts.Protected.Contains(sourceAccountId) && balance < amount)
             throw new DomainException("رصيد حساب المصدر غير كافٍ لتنفيذ الحركة.");
     }
 }

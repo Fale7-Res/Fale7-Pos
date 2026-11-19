@@ -28,6 +28,8 @@ public sealed class ReopenBusinessDayHandler
 
     public async Task<BusinessDayDto> HandleAsync(ReopenBusinessDayRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct, closing: true);
         var day = await _db.BusinessDays.FirstOrDefaultAsync(d => d.Id == request.BusinessDayId, ct)
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
@@ -95,6 +97,7 @@ public sealed class ReopenBusinessDayHandler
             });
 
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
             return ToDto(day);
         }
         catch (DomainException ex)
@@ -106,6 +109,7 @@ public sealed class ReopenBusinessDayHandler
                 EntityId = day.Id, Reason = ex.Message, CreatedAtUtc = now,
             });
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
             throw;
         }
     }

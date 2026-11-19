@@ -24,6 +24,8 @@ public sealed class OpenBusinessDayHandler
 
     public async Task<OpenBusinessDayResult> HandleAsync(OpenBusinessDayRequest request, CancellationToken ct = default)
     {
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await FinancialAdmission.AcquireAsync(_db, ct, closing: true);
         var existing = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.OpenRequestId == request.RequestId, ct);
         if (existing is not null) return ToResult(existing, wasReplayed: true);
 
@@ -52,6 +54,7 @@ public sealed class OpenBusinessDayHandler
         {
             _db.BusinessDays.Add(entity);
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
             return ToResult(entity, wasReplayed: false);
         }
         catch (DbUpdateException)

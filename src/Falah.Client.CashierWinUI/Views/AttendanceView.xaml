@@ -85,7 +85,7 @@
                                             <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}"
                                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="تصحيح يدوي" Style="{StaticResource CaptionText}"
-                                                       Foreground="{ThemeResource WarningBrush}"
+                                                       Foreground="{ThemeResource WarningTextBrush}"
                                                        Visibility="{Binding IsManualCorrection, Converter={StaticResource BoolToVisibleConverter}}"/>
                                         </StackPanel>
 
@@ -132,7 +132,7 @@
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="24"
                 Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionNote}" Foreground="White" TextWrapping="Wrap" MaxWidth="540"/>
+            <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource CardBackgroundBrush}" TextWrapping="Wrap" MaxWidth="540"/>
         </Border>
 
         <Grid Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"

@@ -21,7 +21,16 @@ public partial class CashierViewModel
     [ObservableProperty] private bool _isDiscountEnabled;
     [ObservableProperty] private string _discountAmountText = "0";
     [ObservableProperty] private string _discountManagerPin = "";
-    public bool DiscountNeedsApproval => !_session.HasPermission("orders_discount");
+
+    /// <summary>The Settings limit a discount may reach without a manager, in basis points of the items
+    /// (owner, 2026-11-18: 10%). Read at start-up; the server applies the same rule and has the last word.</summary>
+    private int _maxDiscountWithoutApprovalBasisPoints = Falah.Domain.Pricing.PricingRules.DefaultMaxDiscountWithoutApprovalBasisPoints;
+
+    /// <summary>True when the typed discount is above the limit, so the till asks for a manager's PIN
+    /// before sending it - even from a cashier who holds orders_discount.</summary>
+    public bool DiscountNeedsApproval => !_session.CanApproveOwn("orders_discount") && Falah.Domain.Pricing.PricingRules.DiscountNeedsApproval(
+        Falah.Domain.Common.Money.FromPiastres(DiscountAmountPiastres), Falah.Domain.Common.Money.FromPiastres(CartSubtotalPiastres),
+        _maxDiscountWithoutApprovalBasisPoints);
     public long DiscountAmountPiastres =>
         IsDiscountEnabled && CashInput.TryParse(DiscountAmountText, out var v) ? v : 0;
 
@@ -29,6 +38,7 @@ public partial class CashierViewModel
     {
         if (!value) { DiscountAmountText = "0"; DiscountManagerPin = ""; }
         OnPropertyChanged(nameof(DiscountAmountPiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
         NotifyTotals();
@@ -37,6 +47,7 @@ public partial class CashierViewModel
     partial void OnDiscountAmountTextChanged(string value)
     {
         OnPropertyChanged(nameof(DiscountAmountPiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
         NotifyTotals();
@@ -108,7 +119,34 @@ public partial class CashierViewModel
     [ObservableProperty] private bool _isConfirmingElectronicPayment;
     [ObservableProperty] private bool _isCancellingElectronicPayment;
     [ObservableProperty] private string _cancelPendingReason = "";
+
+    /// <summary>What became of the food of the order being cancelled - "prepared" (recorded as waste)
+    /// or "not_prepared" (its ingredients go back into stock). No default: the operator must say,
+    /// and the server refuses a cancel without it.</summary>
+    [ObservableProperty] private string? _cancelPendingStockDisposition;
+
+    public bool IsCancelFoodPrepared
+    {
+        get => CancelPendingStockDisposition == "prepared";
+        set { if (value) CancelPendingStockDisposition = "prepared"; }
+    }
+
+    public bool IsCancelFoodNotPrepared
+    {
+        get => CancelPendingStockDisposition == "not_prepared";
+        set { if (value) CancelPendingStockDisposition = "not_prepared"; }
+    }
+
+    partial void OnCancelPendingStockDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsCancelFoodPrepared));
+        OnPropertyChanged(nameof(IsCancelFoodNotPrepared));
+    }
     [ObservableProperty] private string? _pendingPaymentActionError;
+    [ObservableProperty] private long _voidCashToHandBackPiastres;
+    public string? VoidCashToHandBackText => VoidCashToHandBackPiastres > 0
+        ? $"أعد للعميل {CashInput.Format(VoidCashToHandBackPiastres)} ج من الدرج. تم تسجيل المبلغ على الوردية الحالية." : null;
+    partial void OnVoidCashToHandBackPiastresChanged(long value) => OnPropertyChanged(nameof(VoidCashToHandBackText));
 
     public bool IsElectronicPaymentPending => LastCheckoutResult?.ElectronicPaymentStatus == "pending";
     private readonly RetainedRequest<ConfirmElectronicPaymentRequest> _pendingElectronicConfirm = new("cashier.electronic-confirm");
@@ -128,7 +166,9 @@ public partial class CashierViewModel
         try
         {
             var request = _pendingElectronicConfirm.Value ?? new ConfirmElectronicPaymentRequest(LastCheckoutResult.OrderId, _session.CurrentUser!.Id);
+            var wasUnresolved = _pendingElectronicConfirm.HasPending;
             var result = await _pendingElectronicConfirm.SendAsync(request, r => _session.Api.ConfirmElectronicPaymentAsync(r));
+            NoteRetryOutcome(ElectronicConfirmOperation, wasUnresolved, result.Success && result.Value is not null, result.OutcomeUnknown, result.Error);
             if (!result.Success || result.Value is null)
             {
                 PendingPaymentActionError = _pendingElectronicConfirm.FailureMessage(result.Error);
@@ -153,19 +193,29 @@ public partial class CashierViewModel
             PendingPaymentActionError = "أدخل سبب الإلغاء.";
             return;
         }
+        if (!_pendingElectronicCancel.HasPending && CancelPendingStockDisposition is null)
+        {
+            PendingPaymentActionError = "حدد هل تم تحضير الطلب (يُسجَّل هالكًا) أم لم يُحضَّر (يعود للمخزون).";
+            return;
+        }
         IsCancellingElectronicPayment = true;
         PendingPaymentActionError = null;
         try
         {
-            var request = _pendingElectronicCancel.Value ?? new CancelPendingElectronicPaymentRequest(LastCheckoutResult.OrderId, CancelPendingReason, _session.CurrentUser!.Id);
+            var request = _pendingElectronicCancel.Value ?? new CancelPendingElectronicPaymentRequest(
+                LastCheckoutResult.OrderId, CancelPendingReason, _session.CurrentUser!.Id, CancelPendingStockDisposition);
+            var wasUnresolved = _pendingElectronicCancel.HasPending;
             var result = await _pendingElectronicCancel.SendAsync(request, r => _session.Api.CancelPendingElectronicPaymentAsync(r));
+            NoteRetryOutcome(ElectronicCancelOperation, wasUnresolved, result.Success && result.Value is not null, result.OutcomeUnknown, result.Error);
             if (!result.Success || result.Value is null)
             {
                 PendingPaymentActionError = _pendingElectronicCancel.FailureMessage(result.Error);
                 return;
             }
-            LastCheckoutResult = null;
+            LastCheckoutResult = LastCheckoutResult with { Status = result.Value.Status, ElectronicPaymentStatus = result.Value.ElectronicPaymentStatus, IsPaid = false };
+            VoidCashToHandBackPiastres = result.Value.CashToHandBackPiastres;
             CancelPendingReason = "";
+            CancelPendingStockDisposition = null;
         }
         finally
         {
@@ -183,6 +233,7 @@ public partial class CashierViewModel
     public bool HasCheckoutResult => LastCheckoutResult is not null;
     partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
     {
+        if (value?.Status != "cancelled") VoidCashToHandBackPiastres = 0;
         OnPropertyChanged(nameof(HasCheckoutResult));
         OnPropertyChanged(nameof(CheckoutTitle));
         OnPropertyChanged(nameof(CheckoutSubtitle));
@@ -298,6 +349,7 @@ public partial class CashierViewModel
         try
         {
             if (_pendingCheckout is not null) { await CompleteCheckoutAsync(_pendingCheckout); return; }
+            if (IsPickup && HasInvalidPickupTime) { CheckoutError = InvalidPickupTimeMessage; return; }
 
             if (IsCompEnabled && string.IsNullOrWhiteSpace(CompReasonText))
             {
@@ -319,6 +371,10 @@ public partial class CashierViewModel
                 if (!ok) return;
                 compApprovalId = aid; compApproverUserId = auid;
             }
+
+            var (discountApprovalId, discountApproverUserId, discountOk) = await ResolveManagerApprovalIfNeededAsync(
+                DiscountNeedsApproval, DiscountManagerPin, "orders_discount", "خصم يدوي أكبر من الحد", e => CheckoutError = e);
+            if (!discountOk) return;
 
             IReadOnlyList<CheckoutSplitRequest>? splitPayments = null;
             if (IsSplitPaymentEnabled)
@@ -357,6 +413,8 @@ public partial class CashierViewModel
                 CompApprovalId: compApprovalId,
                 CompApproverUserId: compApproverUserId,
                 CompReason: CompAmountPiastres > 0 ? CompReasonText : null,
+                DiscountApprovalId: discountApprovalId,
+                DiscountApproverUserId: discountApproverUserId,
                 AmountPaidPiastres: amountPiastres,
                 SplitPayments: splitPayments,
                 WalletProvider: PaymentMethod == "wallet" || IsSplitPaymentEnabled && (SplitMethod1 == "wallet" || SplitMethod2 == "wallet") ? NullIfEmpty(WalletProvider) : null,
@@ -403,9 +461,11 @@ public partial class CashierViewModel
     {
         var wasUnresolved = _pendingCheckout is not null;
         _pendingCheckout = request;
+        Remember(CheckoutOperation, request);   // before the send: that is the window a power cut hits
         RefreshOperationState();
         var result = await _session.Api.CheckoutAsync(request);
-        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingCheckout = null;
+        if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) { _pendingCheckout = null; Remember(CheckoutOperation, null); }
+        NoteRetryOutcome(CheckoutOperation, wasUnresolved, result.Success, result.OutcomeUnknown, result.Error);
         RefreshOperationState();
         if (!result.Success || result.Value is null)
         {
@@ -424,6 +484,15 @@ public partial class CashierViewModel
         IsDiscountEnabled = false;
         IsCompEnabled = false;
         IsSplitPaymentEnabled = false;
+        // Owner, 2026-11-19: a sale that went through goes straight back to an empty order, with no
+        // "تم تسجيل الطلب / طلب جديد" card in between. The card stays when the cashier still has
+        // something to do or know: a transfer to confirm or cancel, or tickets that were not queued.
+        // (Not DismissCheckoutResult: that refuses while this payment is still marked in progress.)
+        if (!IsElectronicPaymentPending && !HasPrintWarning)
+        {
+            LastCheckoutResult = null;
+            ResetDelivery();
+        }
     }
 
 }

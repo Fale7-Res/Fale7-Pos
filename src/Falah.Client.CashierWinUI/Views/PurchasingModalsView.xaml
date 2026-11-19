@@ -115,19 +115,19 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Content="نقدًا" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetReceivePaymentMethodCommand}" CommandParameter="cash"
-                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="1" Content="إنستاباي" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetReceivePaymentMethodCommand}" CommandParameter="instapay"
-                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="2" Content="بنك" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetReceivePaymentMethodCommand}" CommandParameter="bank"
-                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="3" Content="آجل" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetReceivePaymentMethodCommand}" CommandParameter="credit"
-                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=credit|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=credit|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding ReceivePaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=credit|BrandPrimaryBrush|TextMutedBrush}"/>
                         </Grid>
 
@@ -166,7 +166,7 @@
                                 Visibility="{Binding HasSuspiciousCostShift, Converter={StaticResource BoolToVisibleConverter}}">
                             <StackPanel Spacing="8">
                                 <TextBlock Text="{Binding SuspiciousCostShiftLabel}" TextWrapping="Wrap"
-                                           Foreground="{ThemeResource WarningBrush}" FontWeight="SemiBold"/>
+                                           Foreground="{ThemeResource WarningTextBrush}" FontWeight="SemiBold"/>
                                 <CheckBox Content="راجعت السعر وهو صحيح" MinHeight="44"
                                           IsEnabled="{Binding CanEditAction}"
                                           IsChecked="{Binding CostShiftAcknowledged, Mode=TwoWay}"/>
@@ -204,15 +204,15 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Content="نقدًا" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetPayMethodCommand}" CommandParameter="cash"
-                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="1" Content="إنستاباي" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetPayMethodCommand}" CommandParameter="instapay"
-                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="2" Content="بنك" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
                                     Command="{Binding SetPayMethodCommand}" CommandParameter="bank"
-                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding PayMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=bank|BrandPrimaryBrush|TextMutedBrush}"/>
                         </Grid>
 
@@ -226,6 +226,45 @@
                                    Visibility="{Binding PayError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="تنفيذ السداد" MinHeight="52" HorizontalAlignment="Stretch"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitPayCommand}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ================= CORRECT AN INVOICE / SUPPLIER CREDIT / GOODS RETURNED (P3) ================= -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCreditOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460" MaxHeight="660"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+                        <controls:ModalHeaderView Title="تصحيح فاتورة مورد" CloseCommand="{Binding CloseCreditCommand}"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                            <Run Text="المتبقي على الفاتورة: "/>
+                            <Run Text="{Binding CreditTarget.RemainingAmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
+                        </TextBlock>
+                        <TextBlock Text="يُسجَّل رصيد دائن للمورد مرتبط بالفاتورة؛ الفاتورة كما استُلمت لا تتغير ولا تتحرك أي نقدية." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <ComboBox Header="نوع التصحيح" MinHeight="44" HorizontalAlignment="Stretch" ItemsSource="{Binding CreditKinds}" DisplayMemberPath="Label"
+                                  AutomationProperties.AutomationId="Purchasing_CreditKind" SelectedItem="{Binding SelectedCreditKind, Mode=TwoWay}"/>
+                        <TextBox Header="المبلغ بالجنيه" InputScope="Number" MinHeight="44"
+                                 Visibility="{Binding IsAmountCredit, Converter={StaticResource BoolToVisibleConverter}}"
+                                 Text="{Binding CreditAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <StackPanel Spacing="8" Visibility="{Binding IsGoodsReturn, Converter={StaticResource BoolToVisibleConverter}}">
+                            <ComboBox Header="الصنف المرتجع" MinHeight="44" HorizontalAlignment="Stretch" ItemsSource="{Binding CreditReturnOptions}"
+                                      DisplayMemberPath="Label" SelectedItem="{Binding CreditReturnLine, Mode=TwoWay}"/>
+                            <TextBox Header="الكمية المرتجعة" InputScope="Number" MinHeight="44"
+                                     Text="{Binding CreditReturnQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="قيمة المرتجع تُحسب بسعر الفاتورة نفسها وتخرج الكمية من المخزون." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <TextBox Header="السبب (إلزامي)" MinHeight="44" TextWrapping="Wrap"
+                                 Text="{Binding CreditReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <PasswordBox PlaceholderText="رمز المدير" MinHeight="44"
+                                     Visibility="{Binding PayNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
+                                     Password="{Binding CreditManagerPin, Mode=TwoWay}"/>
+                        <TextBlock Text="{Binding CreditError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   Visibility="{Binding CreditError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <Button Content="تسجيل التصحيح" MinHeight="52" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="Purchasing_SubmitCredit"
+                                Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitCreditCommand}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

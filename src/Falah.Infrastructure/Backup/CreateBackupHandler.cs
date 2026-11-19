@@ -22,13 +22,15 @@ public sealed class CreateBackupHandler
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly IAuditLog _auditLog;
     private readonly IConfiguration _configuration;
+    private readonly TimeProvider _time;
 
-    public CreateBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog, IConfiguration configuration)
+    public CreateBackupHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog, IConfiguration configuration, TimeProvider? time = null)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
         _auditLog = auditLog;
         _configuration = configuration;
+        _time = time ?? TimeProvider.System;
     }
 
     public async Task<BackupRecordDto> HandleAsync(CreateBackupRequest request, CancellationToken ct = default)
@@ -52,8 +54,8 @@ public sealed class CreateBackupHandler
 
         var databaseName = _db.Database.GetDbConnection().Database;
         BackupRules.AssertSafeDatabaseIdentifier(databaseName);
-        var now = DateTimeOffset.UtcNow;
-        var fileName = $"falah-{databaseName}-{now:yyyyMMdd-HHmmss}.bak";
+        var now = _time.GetUtcNow();
+        var fileName = $"falah-{databaseName}-{now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}.bak";
         var filePath = Path.Combine(directory, fileName);
 
         var entity = new BackupRecordEntity
@@ -86,6 +88,7 @@ public sealed class CreateBackupHandler
                 $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "إنشاء نسخة احتياطية لقاعدة البيانات", "backup", $"تم حفظ النسخة في {filePath} ({entity.FileSizeBytes} بايت)",
                 "normal", entity.CompletedAtUtc.Value, ReferenceId: entity.Id));
+            CopyToSecondPlace(actor, entity, filePath, fileName);
         }
         catch (Exception ex)
         {
@@ -100,5 +103,36 @@ public sealed class CreateBackupHandler
 
         await _db.SaveChangesAsync(ct);
         return BackupQueryService.ToDto(entity);
+    }
+
+    /// <summary>
+    /// Audit 2026-11-18: every backup was kept on the disk the database is on, so a failed disk, a
+    /// theft or ransomware took the database and all sixty backups together. When
+    /// <c>Backup:CopyToDirectory</c> is set (a second disk, a USB drive, a network share) each good
+    /// backup is copied there too. A copy that fails leaves the backup itself standing and is written
+    /// to the audit trail as critical, so the owner hears about it rather than discovering it on the day
+    /// it was needed. Unset, nothing changes.
+    /// </summary>
+    private void CopyToSecondPlace(BackupActor actor, BackupRecordEntity entity, string filePath, string fileName)
+    {
+        if (_configuration["Backup:CopyToDirectory"] is not { Length: > 0 } copyDirectory) return;
+        var copyPath = Path.Combine(copyDirectory, fileName);
+        try
+        {
+            Directory.CreateDirectory(copyDirectory);
+            File.Copy(filePath, copyPath, overwrite: false);
+            _auditLog.Append(new AuditEvent(
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
+                "نسخ النسخة الاحتياطية إلى المكان الثاني", "backup", $"تم نسخها إلى {copyPath}",
+                "normal", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            _auditLog.Append(new AuditEvent(
+                $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
+                "فشل نسخ النسخة الاحتياطية إلى المكان الثاني", "backup",
+                $"النسخة محفوظة في {filePath} لكن نسخها إلى {copyPath} فشل - الخطأ: {ex.Message}",
+                "critical", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
+        }
     }
 }

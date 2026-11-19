@@ -134,21 +134,29 @@ public class CloseoutRegressionTests
             "shift-77", "صباحية", "user-1", "Closed", 50_000, 60_000, 60_000, 0,
             new Falah.Application.Reports.SalesReportDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
             0, "أحمد", "أحمد", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow));
-        await shifts.ReprintShiftOpenCommand.ExecuteAsync(row);
+        // The opening slip's reprint is gone (paper redesign spec 2026-11-17, Goal 5).
         await shifts.ReprintShiftCloseCommand.ExecuteAsync(row);
 
         var statement = new DailyStatementViewModel(Session(Record));
         await statement.ReprintExpenseCommand.ExecuteAsync(new Falah.Application.Reports.DailyExpenseLineDto(
             "exp-9", DateTimeOffset.UtcNow, "مستلزمات", "أكياس", 16_000, "أحمد", null, "tre-drawer", "shift-77"));
 
-        Assert.Equal(3, calls.Count);
+        Assert.Equal(2, calls.Count);
         Assert.All(calls, c => Assert.Equal("/api/print-jobs/reprint-document", c.Path));
-        Assert.Equal(new[] { "ShiftOpen", "ShiftClose", "Expense" }, calls.Select(c => c.Body.DocumentKind));
-        Assert.Equal(new[] { "shift-77", "shift-77", "exp-9" }, calls.Select(c => c.Body.DocumentId));
+        Assert.Equal(new[] { "ShiftClose", "Expense" }, calls.Select(c => c.Body.DocumentKind));
+        Assert.Equal(new[] { "shift-77", "exp-9" }, calls.Select(c => c.Body.DocumentId));
         Assert.All(calls, c => Assert.False(string.IsNullOrWhiteSpace(c.Body.Reason)));
         // Every press is its own reprint, so a reviewer sees each one.
-        Assert.Equal(3, calls.Select(c => c.Body.RequestId).Distinct().Count());
+        Assert.Equal(2, calls.Select(c => c.Body.RequestId).Distinct().Count());
     }
+
+    [Fact]
+    public void The_shifts_screen_offers_no_opening_slip_reprint()
+    {
+        // Paper redesign spec 2026-11-17, Goal 5.
+        Assert.Null(typeof(ShiftsViewModel).GetProperty("ReprintShiftOpenCommand"));
+    }
+
     /// <summary>The open-shift dialog offers the configured float rather than a number baked into
     /// the screen, and whatever the cashier types over it is what gets sent.</summary>
     [Fact]

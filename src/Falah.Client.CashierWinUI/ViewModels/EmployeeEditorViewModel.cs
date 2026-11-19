@@ -27,7 +27,7 @@ public partial class EmployeeEditorViewModel : ObservableObject
     private readonly RetainedRequest<object> _write = new("employees.record");
     private EmployeeDto? _editing;
 
-    public EmployeeEditorViewModel(AppSession session) => _session = session;
+    public EmployeeEditorViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     public event Action? Saved;
 

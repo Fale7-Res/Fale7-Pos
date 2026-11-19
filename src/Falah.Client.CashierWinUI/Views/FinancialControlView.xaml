@@ -1,0 +1,522 @@
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.FinancialControlView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!--
+        The owner checks money against the books here. Four answers, in the order they are asked:
+        what each account held, took in, paid out and holds now (the figure a physical count is
+        checked against); which electronic payments are still only a claim; which orders were voided
+        and what became of their food; which refunds were made, and when the sale behind each was.
+        Every figure is one server report shown as it came - see docs/METRIC_DEFINITIONS.md.
+    -->
+    <Grid Background="{ThemeResource ShellBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Padding="28,22,28,12" ColumnSpacing="12" RowSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Spacing="3">
+                <TextBlock Text="الرقابة المالية" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Style="{StaticResource PageSubtitleText}" TextWrapping="Wrap">
+                    <Run Text="أيام تقويمية بتوقيت القاهرة · "/><Run Text="{Binding PeriodDisplay}"/>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <ComboBox MinHeight="44" MinWidth="160" ItemsSource="{Binding Periods}" DisplayMemberPath="Label"
+                          SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                          AutomationProperties.Name="الفترة" AutomationProperties.AutomationId="FinancialControl.Period"/>
+                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}"
+                        AutomationProperties.Name="تحديث" AutomationProperties.AutomationId="FinancialControl.Refresh"
+                        ToolTipService.ToolTip="تحديث">
+                    <FontIcon Glyph="&#xE72C;" FontSize="13"/>
+                </Button>
+            </StackPanel>
+
+            <!-- A custom span: two dates and an explicit "show". -->
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10"
+                        Visibility="{Binding IsCustomPeriod, Converter={StaticResource BoolToVisibleConverter}}">
+                <CalendarDatePicker Date="{Binding CustomFrom, Mode=TwoWay}" Header="من" MinWidth="170"
+                                    AutomationProperties.Name="من تاريخ" AutomationProperties.AutomationId="FinancialControl.From"/>
+                <CalendarDatePicker Date="{Binding CustomTo, Mode=TwoWay}" Header="إلى" MinWidth="170"
+                                    AutomationProperties.Name="إلى تاريخ" AutomationProperties.AutomationId="FinancialControl.To"/>
+                <Button Content="عرض" MinHeight="44" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding LoadCommand}" AutomationProperties.AutomationId="FinancialControl.ShowCustom"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24"
+                      Visibility="{Binding HasData, Converter={StaticResource BoolToVisibleConverter}}">
+            <StackPanel Spacing="14">
+
+                <!-- Headline: what is still unsettled, and what left the books in the period. -->
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel Spacing="4" AutomationProperties.Name="مدفوعات إلكترونية لم تُؤكَّد">
+                            <TextBlock Text="مدفوعات إلكترونية لم تُؤكَّد (الآن)" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding PendingTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                       Style="{StaticResource MetricValueText}" Foreground="{ThemeResource WarningTextBrush}"/>
+                            <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap">
+                                <Run Text="{Binding PendingCount}"/><Run Text=" طلب · أقدمها منذ "/><Run Text="{Binding OldestPendingDisplay}"/>
+                            </TextBlock>
+                            <TextBlock Text="مطالبة وليست نقدية محصّلة" Style="{StaticResource CaptionText}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel Spacing="4" AutomationProperties.Name="الطلبات الملغاة في الفترة">
+                            <TextBlock Text="الطلبات الملغاة في الفترة" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding VoidsTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                       Style="{StaticResource MetricValueText}"/>
+                            <TextBlock Text="ليست مبيعات ولا تدخل في أي رقم مبيعات" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel Spacing="4" AutomationProperties.Name="المرتجعات في الفترة">
+                            <TextBlock Text="المرتجعات في الفترة" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding RefundsTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                       Style="{StaticResource MetricValueText}" Foreground="{ThemeResource DangerBrush}"/>
+                            <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap">
+                                <Run Text="منها عن مبيعات قبل الفترة: "/><Run Text="{Binding RefundsOfEarlierSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- P5: the owner's financial report. Each figure as the server defined it: amount or "غير متاح" (unknown
+                     is never 0), actual or estimate, its definition and its source records. -->
+                <Border Style="{StaticResource PageCardStyle}" AutomationProperties.AutomationId="FinancialControl.OwnerReport">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="التقرير المالي للمالك" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="كل رقم معه تعريفه ومصدره. «تقديري» ليس ربحًا فعليًا، و«غير متاح» يعني أن البيانات لا تكفي لحسابه - وليس صفرًا."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding OwnerReportError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                   Visibility="{Binding OwnerReportError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <TextBlock Text="{Binding ReconciliationLabel}" TextWrapping="Wrap" FontWeight="SemiBold"
+                                   AutomationProperties.AutomationId="FinancialControl.Reconciliation"
+                                   Visibility="{Binding HasOwnerReport, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <ItemsControl ItemsSource="{Binding OwnerSections}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Spacing="4" Margin="0,6,0,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <ItemsControl ItemsSource="{Binding Rows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,6">
+                                                        <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding Label}">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="3*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel Spacing="2">
+                                                                <TextBlock Text="{Binding Label}" Style="{StaticResource TableCellText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Definition}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding SourceDisplay}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" Opacity="0.75"/>
+                                                                <TextBlock Text="{Binding Note}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                                                           Foreground="{ThemeResource WarningTextBrush}"
+                                                                           Visibility="{Binding Note, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1" Text="{Binding AmountDisplay}" Style="{StaticResource TableCellText}" FontWeight="Bold"
+                                                                       VerticalAlignment="Top" TextWrapping="Wrap"/>
+                                                            <Border Grid.Column="2" CornerRadius="8" Padding="8,2" VerticalAlignment="Top"
+                                                                    Background="{ThemeResource WarningBackgroundBrush}">
+                                                                <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource CaptionText}"/>
+                                                            </Border>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="أين ذهبت أموال مبيعات الفترة" FontWeight="Bold" Margin="0,8,0,0"/>
+                        <ItemsControl ItemsSource="{Binding SalesBridge}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="8" Padding="12,3">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" Style="{StaticResource TableCellText}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="حركة المال حسب نوعها (التحويلات الداخلية والتصحيحات والإيداعات ليست تحصيلًا)" FontWeight="Bold" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        <ItemsControl ItemsSource="{Binding MoneyFlow}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="8" Padding="12,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" Style="{StaticResource TableCellText}"/>
+                                        <TextBlock Grid.Column="1" Style="{StaticResource CaptionText}"><Run Text="وارد "/><Run Text="{Binding InflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/></TextBlock>
+                                        <TextBlock Grid.Column="2" Style="{StaticResource CaptionText}"><Run Text="منصرف "/><Run Text="{Binding OutflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/></TextBlock>
+                                        <TextBlock Grid.Column="3" Style="{StaticResource CaptionText}"><Run Text="داخلي "/><Run Text="{Binding InternalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/></TextBlock>
+                                        <TextBlock Grid.Column="4" Style="{StaticResource CaptionText}"><Run Text="{Binding Count}"/><Run Text=" حركة"/></TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding TimingNotes}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- AUD-03: collection shortfalls - unresolved until a manager classifies them with evidence. -->
+                <Border Style="{StaticResource PageCardStyle}" AutomationProperties.AutomationId="FinancialControl.Shortfalls">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="فروق تحصيل التوصيل" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap">
+                            <Run Text="غير محسوم: "/><Run Text="{Binding ShortfallUnresolvedPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                            <Run Text=" في "/><Run Text="{Binding ShortfallUnresolvedCount}"/><Run Text=" طلب. الفرق غير المحسوم ليس خسارة مؤكدة ولا دينًا - صنّفه بدليل."/>
+                        </TextBlock>
+                        <TextBlock Text="لا توجد فروق تحصيل." Style="{StaticResource CaptionText}"
+                                   Visibility="{Binding HasShortfalls, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <ItemsControl ItemsSource="{Binding Shortfalls}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,6">
+                                        <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding OrderLabel}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding OrderLabel}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DriverName}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding ShortfallPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding StatusLabel}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <Button Grid.Column="4" Content="تصنيف" MinHeight="44"
+                                                    Visibility="{Binding IsUnresolved, Converter={StaticResource BoolToVisibleConverter}}"
+                                                    AutomationProperties.Name="تصنيف فرق التحصيل"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenClassifyCommand}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Visibility="{Binding IsClassifyOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                                Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                    <Run Text="تصنيف فرق الطلب "/><Run Text="{Binding ClassifyTarget.OrderLabel}"/><Run Text=" — "/>
+                                    <Run Text="{Binding ClassifyTarget.ShortfallPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                </TextBlock>
+                                <ComboBox Header="التصنيف" MinHeight="44" MinWidth="260" ItemsSource="{Binding ClassificationOptions}" DisplayMemberPath="Label"
+                                          AutomationProperties.AutomationId="FinancialControl.Classification"
+                                          SelectedItem="{Binding SelectedClassification, Mode=TwoWay}"/>
+                                <TextBox Header="الدليل (إلزامي): من وافق، لماذا، وأي مستند" MinHeight="44" TextWrapping="Wrap"
+                                         AutomationProperties.AutomationId="FinancialControl.ClassificationEvidence"
+                                         Text="{Binding ClassificationEvidence, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" AutomationProperties.Name="رمز المدير لاعتماد التصنيف"
+                                             Visibility="{Binding ClassificationNeedsManagerPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Password="{Binding ClassificationManagerPin, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding ClassificationMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding ClassificationMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="تأكيد التصنيف" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                            AutomationProperties.AutomationId="FinancialControl.ConfirmClassification"
+                                            Command="{Binding ConfirmClassifyCommand}"/>
+                                    <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelClassifyCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- P4: a handover is received only when the receiver confirms it. -->
+                <Border Style="{StaticResource PageCardStyle}" AutomationProperties.AutomationId="FinancialControl.Handovers">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="نقدية إغلاق لم يؤكد مستلمها استلامها" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="اختيار اسم المستلم عند الإغلاق لا يعني الاستلام. يؤكده المستلم من جلسته أو برمزه، بالمبلغ الذي عدّه."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <TextBlock Text="كل التسليمات مؤكدة." Style="{StaticResource CaptionText}"
+                                   Visibility="{Binding HasHandovers, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <ItemsControl ItemsSource="{Binding Handovers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,6">
+                                        <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding ShiftName}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding ShiftName}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ClosedBy}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding ReceiverName}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding HandedOverPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding StatusLabel}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                            <Button Grid.Column="5" Content="تأكيد الاستلام" MinHeight="44"
+                                                    Visibility="{Binding IsPending, Converter={StaticResource BoolToVisibleConverter}}"
+                                                    AutomationProperties.Name="تأكيد استلام نقدية الإغلاق"
+                                                    Command="{Binding ElementName=Root, Path=DataContext.OpenAcknowledgeCommand}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Visibility="{Binding IsAcknowledgeOpen, Converter={StaticResource BoolToVisibleConverter}}"
+                                Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                    <Run Text="استلام نقدية "/><Run Text="{Binding AcknowledgeTarget.ShiftName}"/><Run Text=" — المسلَّم "/>
+                                    <Run Text="{Binding AcknowledgeTarget.HandedOverPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                </TextBlock>
+                                <TextBox Header="المبلغ الذي عددته فعلًا" MinHeight="44" InputScope="Number"
+                                         AutomationProperties.AutomationId="FinancialControl.ReceivedAmount"
+                                         Text="{Binding ReceivedAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Header="ملاحظة (إلزامية إذا اختلف المبلغ)" MinHeight="44" TextWrapping="Wrap"
+                                         Text="{Binding ReceiptNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <PasswordBox PlaceholderText="رمز المستلم" MinHeight="44" AutomationProperties.Name="رمز المستلم لتأكيد الاستلام"
+                                             Visibility="{Binding AcknowledgeNeedsReceiverPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Password="{Binding ReceiverPin, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding ReceiptMessage}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding ReceiptMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="تأكيد الاستلام" MinHeight="44" Style="{StaticResource CtaButtonStyle}"
+                                            AutomationProperties.AutomationId="FinancialControl.ConfirmReceipt"
+                                            Command="{Binding ConfirmAcknowledgeCommand}"/>
+                                    <Button Content="تراجع" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelAcknowledgeCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 1. Cash flow per account -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="1. حركة الحسابات (أول المدة، الوارد، المنصرف، آخر المدة)" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="آخر المدة = أول المدة + الوارد − المنصرف، وهو الرقم الذي يُطابق عليه الجرد الفعلي لكل حساب. التحويل بين حسابين وارد لأحدهما ومنصرف من الآخر."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="12,0" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="الحساب" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="أول المدة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="الوارد" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="المنصرف" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="آخر المدة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Accounts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,8">
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding AccountLabel}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding AccountLabel}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding OpeningPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding InflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource SuccessTextBrush}"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding OutflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource DangerBrush}"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding ClosingPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <ItemsControl ItemsSource="{Binding Lines}" Margin="18,0,0,0"
+                                                          Visibility="{Binding HasMovement, Converter={StaticResource BoolToVisibleConverter}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid ColumnSpacing="8">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Label}" Style="{StaticResource CaptionText}"/>
+                                                            <TextBlock Grid.Column="1" Style="{StaticResource CaptionText}"><Run Text="{Binding Count}"/><Run Text=" حركة"/></TextBlock>
+                                                            <TextBlock Grid.Column="2" Text="{Binding InflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource CaptionText}"/>
+                                                            <TextBlock Grid.Column="3" Text="{Binding OutflowPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource CaptionText}"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Pending electronic payments (current state) -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="2. مدفوعات إلكترونية تنتظر التأكيد (الوضع الحالي)" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="لا توجد مدفوعات معلقة." Style="{StaticResource MutedText}"
+                                   Visibility="{Binding HasPending, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <StackPanel Visibility="{Binding HasPending, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="12,0" ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الطلب" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="الوسيلة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="المبلغ المعلق" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="منذ" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="4" Text="وقت البيع" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Pending}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,8">
+                                            <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding OrderNumber}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding MethodLabel}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding AgeDisplay}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource WarningTextBrush}"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding CreatedDisplay}" Style="{StaticResource TableCellText}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. Voided orders -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="3. الطلبات الملغاة ومصير الطعام" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="لا توجد طلبات ملغاة في هذه الفترة." Style="{StaticResource MutedText}"
+                                   Visibility="{Binding HasVoids, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <StackPanel Visibility="{Binding HasVoids, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="12,0" ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الطلب" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="سبب الإلغاء" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="القيمة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="الطعام" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="4" Text="بواسطة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="5" Text="الوقت" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Voids}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,8">
+                                            <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding OrderNumber}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding KindLabel}" Style="{StaticResource TableCellText}"/>
+                                                    <TextBlock Text="{Binding Reason}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="{Binding TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding FoodLabel}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding By}" Style="{StaticResource TableCellText}"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding AtDisplay}" Style="{StaticResource TableCellText}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 4. Refunds, with the date of the sale each one reverses -->
+                <Border Style="{StaticResource PageCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="4. المرتجعات وتاريخ البيع الأصلي" Style="{StaticResource SectionTitleText}"/>
+                        <TextBlock Text="المرتجع يُحسب في يوم صرفه، وتبقى أيام البيع الأصلية كما سُجّلت. المرتجع عن بيع سابق للفترة قد يجعل صافي مبيعات الفترة سالبًا."
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                        <TextBlock Text="لا توجد مرتجعات في هذه الفترة." Style="{StaticResource MutedText}"
+                                   Visibility="{Binding HasRefunds, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <StackPanel Visibility="{Binding HasRefunds, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Grid Style="{StaticResource TableHeaderRowStyle}" Padding="12,0" ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الطلب" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="المبلغ" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="الوسيلة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="السبب / بواسطة" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="4" Text="وقت المرتجع" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="5" Text="وقت البيع الأصلي" Style="{StaticResource TableHeaderText}" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Refunds}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource TableRowBorderStyle}" Padding="12,8">
+                                            <Grid ColumnSpacing="8" AutomationProperties.Name="{Binding OrderNumber}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource DangerBrush}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding MethodLabel}" Style="{StaticResource TableCellText}"/>
+                                                <StackPanel Grid.Column="3">
+                                                    <TextBlock Text="{Binding Reason}" Style="{StaticResource TableCellText}" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding By}" Style="{StaticResource CaptionText}"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="4" Text="{Binding RefundedAtDisplay}" Style="{StaticResource TableCellText}"/>
+                                                <StackPanel Grid.Column="5">
+                                                    <TextBlock Text="{Binding SoldAtDisplay}" Style="{StaticResource TableCellText}"/>
+                                                    <TextBlock Text="بيع قبل الفترة" Style="{StaticResource CaptionText}" Foreground="{ThemeResource WarningTextBrush}"
+                                                               Visibility="{Binding SaleBeforePeriod, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
+            <ProgressRing IsActive="True" Width="36" Height="36"/>
+            <TextBlock Text="جاري تحميل الرقابة المالية..." Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
+                    Visibility="{Binding LoadError, Converter={StaticResource NullToCollapsedConverter}}">
+            <TextBlock Text="{Binding LoadError}" Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"
+                       AutomationProperties.AutomationId="FinancialControl.Error"/>
+            <Button Content="إعادة المحاولة" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Center" Command="{Binding LoadCommand}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
+                    Visibility="{Binding CanView, Converter={StaticResource InverseBoolToVisibleConverter}}">
+            <TextBlock Text="هذه الشاشة تتطلب صلاحية عرض التقارير." Style="{StaticResource BodyText}" TextAlignment="Center" TextWrapping="Wrap"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

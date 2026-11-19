@@ -81,12 +81,14 @@ public sealed class DailyStatementQueryService
         var auditTrail = await BuildAuditTrailAsync(start, end, ct);
         var printing = await BuildPrintingAsync(start, end, ct);
         var backup = await BuildBackupAsync(start, end, ct);
+        var cashFlow = await _reports.GetCashFlowAsync(range, ct);
+        var voids = await _reports.GetVoidsAsync(range, ct);
 
         return new DailyStatementDto(
             businessDate.ToString("yyyy-MM-dd"), day?.Id, day?.Status,
             sales, tax, soldProducts, productHourly, expenses, expenseLines,
             shifts, shiftTotals, treasuryMovements, treasuryBalancesNow,
-            employeeRows, inventory, delivery, refunds, auditTrail, printing, backup);
+            employeeRows, inventory, delivery, refunds, auditTrail, printing, backup, cashFlow, voids);
     }
 
     private async Task<List<DailyExpenseLineDto>> BuildExpenseLinesAsync(DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
@@ -160,8 +162,9 @@ public sealed class DailyStatementQueryService
             .Where(a => a.Date == businessDate).ToListAsync(ct);
         var attendanceByEmployee = attendance.ToDictionary(a => a.EmployeeId);
 
-        var ledgerRows = await _db.EmployeeLedgerEntries.AsNoTracking()
-            .Where(l => l.CreatedAtUtc >= start && l.CreatedAtUtc < end).ToListAsync(ct);
+        // Salary accruals by the day they were earned for, everything else by when it was recorded.
+        var ledgerRows = await Falah.Infrastructure.Employees.EmployeeLedgerPeriods
+            .ForDays(_db.EmployeeLedgerEntries.AsNoTracking(), businessDate, businessDate).ToListAsync(ct);
         var ledgerByEmployee = ledgerRows.GroupBy(l => l.EmployeeId).ToDictionary(g => g.Key, g => g.ToList());
 
         var rows = new List<DailyEmployeeRowDto>(employees.Count);
@@ -175,13 +178,15 @@ public sealed class DailyStatementQueryService
 
             rows.Add(new DailyEmployeeRowDto(
                 employee.Id, employee.Name, attendanceRow is not null, attendanceRow?.Status,
-                attendanceRow?.CheckIn, attendanceRow?.CheckOut, attendanceRow?.WorkHours ?? 0,
+                attendanceRow is null ? null : Falah.Infrastructure.Employees.EmployeeQueryService.ToAttendanceDto(attendanceRow).CheckIn,
+                attendanceRow is null ? null : Falah.Infrastructure.Employees.EmployeeQueryService.ToAttendanceDto(attendanceRow).CheckOut, attendanceRow?.WorkHours ?? 0,
                 attendanceRow?.LateMinutes ?? 0, attendanceRow?.OvertimeHours ?? 0,
                 SumCredit(nameof(LedgerEntryType.DailyWage)), SumCredit(nameof(LedgerEntryType.Overtime)),
                 SumCredit(nameof(LedgerEntryType.Bonus)), SumDebit(nameof(LedgerEntryType.Deduction)),
                 SumDebit(nameof(LedgerEntryType.Advance)), SumDebit(nameof(LedgerEntryType.Withdrawal)),
                 SumDebit(nameof(LedgerEntryType.PayrollSettlement)), balance,
-                SumDebit(nameof(LedgerEntryType.Settlement))));
+                SumDebit(nameof(LedgerEntryType.Settlement)),
+                SumCredit(nameof(LedgerEntryType.Salary))));
         }
         return rows;
     }
@@ -210,7 +215,9 @@ public sealed class DailyStatementQueryService
 
         return new DailyInventoryDto(
             SumQuantity(StockMovementType.PurchaseReceipt), SumQuantity(StockMovementType.ManualReceipt),
-            SumQuantity(StockMovementType.Usage, isPackaging: false), SumQuantity(StockMovementType.Usage, isPackaging: true),
+            // Usage net of the usage given back by orders voided after checkout (UsageReversal).
+            SumQuantity(StockMovementType.Usage, isPackaging: false) - SumQuantity(StockMovementType.UsageReversal, isPackaging: false),
+            SumQuantity(StockMovementType.Usage, isPackaging: true) - SumQuantity(StockMovementType.UsageReversal, isPackaging: true),
             SumQuantity(StockMovementType.Waste), SumQuantity(StockMovementType.Spoilage), SumQuantity(StockMovementType.Breakage),
             loss.TotalLossValuePiastres, NetAdjustment(), purchasesValue,
             overview.LowStockCount, overview.NegativeBalanceCount, overview.ItemsWithoutCostCount);

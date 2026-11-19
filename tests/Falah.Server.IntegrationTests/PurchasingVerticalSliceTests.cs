@@ -27,6 +27,8 @@ public class PurchasingVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        // Read-only assertions use the owner session; mutation bodies still name their actual actor.
+        _factory.StationUserId = await _factory.SeedUserAsync("قارئ بيانات المالك للاختبار", "owner", "all");
         _purchasingManagerId = await _factory.SeedUserAsync("مسؤول المشتريات", "supervisor", "purchasing_manage", "inventory_manage");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
@@ -60,6 +62,27 @@ public class PurchasingVerticalSliceTests : IAsyncLifetime
     private Task<HttpResponseMessage> PayAsync(string purchaseId, long amountPiastres, string paymentMethod, string? requestId = null, string? actorId = null) =>
         _client.PostAsJsonAsync($"/api/purchases/{purchaseId}/payments", new PayPurchaseRequest(
             requestId ?? $"payreq-{Guid.NewGuid():N}", purchaseId, amountPiastres, paymentMethod, actorId ?? _purchasingManagerId, null, null));
+
+    /// <summary>Whole-project review 2026-11-17: a paper invoice often lists one ingredient twice (two
+    /// cartons at different prices). Both lines shared one stock-movement key, so the receipt failed
+    /// as a "needs manual review" conflict and could not be entered as printed.</summary>
+    [Fact]
+    public async Task An_invoice_listing_the_same_ingredient_on_two_lines_is_received_whole()
+    {
+        var supplier = await CreateSupplierAsync();
+        var item = await CreateInventoryItemAsync();
+        var response = await _client.PostAsJsonAsync("/api/purchases", new ReceivePurchaseRequest(
+            $"preq-{Guid.NewGuid():N}", supplier, "INV-2L",
+            new[] { new PurchaseLineRequest(item, 2_000, 1_500), new PurchaseLineRequest(item, 3_000, 1_600) },
+            0, "credit", _purchasingManagerId, null, null, null));
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var stockIn = await _factory.QueryAsync(db => db.StockMovements
+            .Where(m => m.InventoryItemId == item && m.Type == "PurchaseReceipt").SumAsync(m => m.QuantityMilliUnits));
+        Assert.Equal(5_000, stockIn);
+        var invoice = await _factory.QueryAsync(db => db.Purchases.SingleAsync(p => p.InvoiceNumber == "INV-2L"));
+        Assert.Equal(2 * 1_500 + 3 * 1_600, invoice.TotalPiastres);
+    }
 
     // ---- Supplier authorization: a real gap the reference app's own UI comment documents finding ----
 

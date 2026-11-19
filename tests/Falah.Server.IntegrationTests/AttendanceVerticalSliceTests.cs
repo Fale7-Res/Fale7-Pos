@@ -23,6 +23,8 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        // Read-only assertions use the owner session; mutation bodies still name their actual actor.
+        _factory.StationUserId = await _factory.SeedUserAsync("قارئ بيانات المالك للاختبار", "owner", "all");
         _hrUserId = await _factory.SeedUserAsync("مسؤول الموارد البشرية", "supervisor", "employees_manage", "employees_ledger", "attendance_manage");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
     }
@@ -289,7 +291,8 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
             new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at the cashier's own till: an approval is spent only by the session that asked.
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
             new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_hrUserId), "attendance_manage", "مراجعة")))
             .Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>();
         var request = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
@@ -326,4 +329,144 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         var balance = await _client.GetFromJsonAsync<BalanceResponse>($"/api/employees/{employee.Id}/balance");
         Assert.Equal(20000, balance!.balancePiastres);
     }
+
+    [Theory]
+    [InlineData("daily-wage")]
+    [InlineData("overtime")]
+    [InlineData("extra-shift")]
+    public async Task A_credit_retry_replays_before_checking_its_spent_approval(string action)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var issued = await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_hrUserId), "employees_ledger", "اختبار"));
+        issued.EnsureSuccessStatusCode();
+        var approval = (await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!;
+        var id = Guid.NewGuid().ToString("N");
+        object request = action switch
+        {
+            "daily-wage" => new RecordDailyWageRequest(employee.Id, null, null, _cashierId, approval.ApprovalId, _hrUserId, id),
+            "overtime" => new RecordOvertimeRequest(id, employee.Id, 2, 1000, null, _cashierId, approval.ApprovalId, _hrUserId),
+            _ => new RecordExtraShiftRequest(id, employee.Id, 1, null, _cashierId, approval.ApprovalId, _hrUserId)
+        };
+        var path = $"/api/employees/{employee.Id}/{action}";
+        var first = await _client.PostAsJsonAsync(path, request);
+        first.EnsureSuccessStatusCode();
+        var second = await _client.PostAsJsonAsync(path, request);
+        Assert.True(second.IsSuccessStatusCode, await second.Content.ReadAsStringAsync());
+        Assert.Equal(await first.Content.ReadFromJsonAsync<EmployeeLedgerEntryDto>(), await second.Content.ReadFromJsonAsync<EmployeeLedgerEntryDto>());
+        var entries = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Single(entries!);
+    }
+
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Concurrent_credits_preserve_one_entry_per_request_and_running_balances(bool sameRequest)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var first = new RecordOvertimeRequest(Guid.NewGuid().ToString("N"), employee.Id, 2, 1000, null, _hrUserId, null, null);
+        var second = sameRequest ? first : first with { RequestId = Guid.NewGuid().ToString("N") };
+        var path = $"/api/employees/{employee.Id}/overtime";
+        var responses = await Task.WhenAll(_client.PostAsJsonAsync(path, first), _client.PostAsJsonAsync(path, second));
+        foreach (var response in responses) Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var entries = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Equal(sameRequest ? 1 : 2, entries!.Count);
+        Assert.Equal(sameRequest ? 2000 : 4000, entries.Sum(e => e.CreditPiastres));
+        if (!sameRequest) Assert.Equal(new long[] { 2000, 4000 }, entries.Select(e => e.BalanceAfterPiastres).OrderBy(x => x));
+    }
+
+
+    [Theory]
+    [InlineData("daily-wage", 20000L)]
+    [InlineData("overtime", 2000L)]
+    [InlineData("extra-shift", 15000L)]
+    public async Task Concurrent_same_id_credits_replay_without_spending_the_approval_again(string action, long credit)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var issued = await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_hrUserId), "employees_ledger", "تزامن"));
+        issued.EnsureSuccessStatusCode();
+        var approval = (await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!;
+        var id = Guid.NewGuid().ToString("N");
+        object request = action switch
+        {
+            "daily-wage" => new RecordDailyWageRequest(employee.Id, null, null, _cashierId, approval.ApprovalId, _hrUserId, id),
+            "overtime" => new RecordOvertimeRequest(id, employee.Id, 2, 1000, null, _cashierId, approval.ApprovalId, _hrUserId),
+            _ => new RecordExtraShiftRequest(id, employee.Id, 1, null, _cashierId, approval.ApprovalId, _hrUserId)
+        };
+        var responses = await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => _client.PostAsJsonAsync($"/api/employees/{employee.Id}/{action}", request)));
+        foreach (var response in responses) Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var entries = await _client.GetFromJsonAsync<List<EmployeeLedgerEntryDto>>($"/api/employees/{employee.Id}/ledger");
+        Assert.Equal(credit, Assert.Single(entries!).CreditPiastres);
+    }
+
+
+    private sealed class AttendanceClock(DateTimeOffset instant) : TimeProvider
+    { public override DateTimeOffset GetUtcNow() => instant; }
+
+    private async Task<AttendanceRecordDto> AtAsync(string employeeId, DateTimeOffset instant, bool checkIn, string? eventId = null)
+    {
+        using var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services);
+        var db = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(scope.ServiceProvider);
+        if (checkIn) return (await new Falah.Infrastructure.Employees.BiometricCheckInHandler(db, new AttendanceClock(instant))
+            .HandleAsync(new BiometricCheckInRequest(employeeId, eventId, _cashierId)))!;
+        return await new Falah.Infrastructure.Employees.BiometricCheckOutHandler(db, new AttendanceClock(instant))
+            .HandleAsync(new BiometricCheckOutRequest(employeeId, eventId, _cashierId));
+    }
+
+    [Theory]
+    [InlineData("2026-11-06T23:00:00Z", "2026-11-07T08:00:00Z", 9d, "01:00", "10:00")]
+    [InlineData("2026-11-06T15:00:00Z", "2026-11-07T01:00:00Z", 10d, "17:00", "03:00")]
+    [InlineData("2026-10-29T20:30:00Z", "2026-10-30T01:30:00Z", 5d, "23:30", "03:30")]
+    public async Task Biometric_hours_use_full_instants_across_UTC_Cairo_and_DST_midnight(string start, string end, double hours, string localIn, string localOut)
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var first = await AtAsync(employee.Id, DateTimeOffset.Parse(start), true);
+        var closed = await AtAsync(employee.Id, DateTimeOffset.Parse(end), false);
+        Assert.Equal(first.Id, closed.Id);
+        Assert.Equal(first.Date, closed.Date);
+        Assert.Equal(localOut, closed.CheckOut);
+        Assert.Equal(hours, closed.WorkHours);
+        Assert.Equal(localIn, first.CheckIn);
+    }
+
+    [Fact]
+    public async Task Repeated_biometric_events_preserve_first_check_in_and_check_out()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var start = DateTimeOffset.Parse("2026-11-07T05:00:00Z");
+        var first = await AtAsync(employee.Id, start, true, "first-in");
+        var duplicate = await AtAsync(employee.Id, start.AddHours(4), true, "duplicate-in");
+        Assert.Equal(first.CheckIn, duplicate.CheckIn);
+        var closed = await AtAsync(employee.Id, start.AddHours(9), false, "first-out");
+        var retry = await AtAsync(employee.Id, start.AddHours(11), false, "first-out");
+        Assert.Equal(closed.CheckOut, retry.CheckOut);
+        Assert.Equal(9, retry.WorkHours);
+    }
+
+
+    [Fact]
+    public async Task Legacy_biometric_UTC_clock_is_anchored_to_its_Cairo_date_without_rewriting_history()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        using (var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services))
+        {
+            var db = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(scope.ServiceProvider);
+            db.AttendanceRecords.Add(new Falah.Infrastructure.Persistence.Entities.AttendanceRecordEntity {
+                Id = "legacy-clock", EmployeeId = employee.Id, EmployeeName = employee.Name,
+                Date = new DateOnly(2026,11,7), CheckIn = "23:00", Source = "biometric", Status = "Present", ShiftName = "ليلية",
+                CreatedAtUtc = DateTimeOffset.Parse("2026-11-06T23:00:00Z") });
+            await db.SaveChangesAsync();
+        }
+        var closed = await AtAsync(employee.Id, DateTimeOffset.Parse("2026-11-07T08:00:00Z"), false);
+        Assert.Equal("01:00", closed.CheckIn); Assert.Equal("10:00", closed.CheckOut); Assert.Equal(9, closed.WorkHours);
+        using var verify = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services);
+        var current = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(verify.ServiceProvider);
+        var saved = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.SingleAsync(current.AttendanceRecords);
+        Assert.Equal("23:00", saved.CheckIn);
+        Assert.Equal(DateTimeOffset.Parse("2026-11-06T23:00:00Z"), saved.CheckInAtUtc);
+        Assert.Equal(DateTimeOffset.Parse("2026-11-07T08:00:00Z"), saved.CheckOutAtUtc);
+    }
+
 }

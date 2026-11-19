@@ -134,7 +134,7 @@
                         <ItemsControl ItemsSource="{Binding Users}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="60"
+                                    <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="60"
                                             Background="Transparent" BorderThickness="0,0,0,1"
                                             BorderBrush="{ThemeResource CardBorderBrush}" CornerRadius="0" Padding="16,10"
                                             Command="{Binding ElementName=Root, Path=DataContext.SelectUserCommand}" CommandParameter="{Binding}">
@@ -180,7 +180,7 @@
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
                 Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
+            <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource CardBackgroundBrush}" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
 
         <Grid Grid.RowSpan="2" Background="{ThemeResource OverlayBrush}"

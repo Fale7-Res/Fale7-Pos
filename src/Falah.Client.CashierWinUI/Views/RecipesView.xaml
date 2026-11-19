@@ -29,7 +29,7 @@
                 <TextBlock Text="الوصفات والتكلفة" Style="{StaticResource PageTitleText}"/>
                 <TextBlock Text="مكوّنات كل صنف وتكلفتها الحقيقية ونسبة تكلفة الطعام" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" MinWidth="52" VerticalAlignment="Center"
+            <Button AutomationProperties.Name="تحديث" Grid.Column="1" MinHeight="44" MinWidth="52" VerticalAlignment="Center"
                     Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}"
                     ToolTipService.ToolTip="تحديث">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
@@ -49,7 +49,7 @@
                 <StackPanel Spacing="3">
                     <TextBlock Text="{Binding CoverageHeadline}" FontWeight="SemiBold" Style="{StaticResource BodyText}"/>
                     <TextBlock Text="{Binding CoverageDetail}" Style="{StaticResource CaptionText}"
-                               Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                               Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"
                                Visibility="{Binding HasCoverageWarning, Converter={StaticResource BoolToVisibleConverter}}"/>
                 </StackPanel>
             </Border>
@@ -58,7 +58,7 @@
                      Style="{StaticResource SearchBoxStyle}" PlaceholderText="ابحث باسم الصنف أو القسم"
                      Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <ComboBox Grid.Column="2" Width="180" MinHeight="44" VerticalAlignment="Stretch"
+            <ComboBox AutomationProperties.Name="تصفية الوصفات" Grid.Column="2" Width="180" MinHeight="44" VerticalAlignment="Stretch"
                       SelectedIndex="{Binding FilterIndex, Mode=TwoWay}">
                 <ComboBoxItem Content="كل الوصفات"/>
                 <ComboBoxItem Content="تكلفة غير مكتملة"/>
@@ -90,7 +90,7 @@
                                         <TextBlock Text="{Binding CategoryName}" Style="{StaticResource CaptionText}"
                                                    Foreground="{ThemeResource TextMutedBrush}"/>
                                         <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource CaptionText}"
-                                                   Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                                                   Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"
                                                    Visibility="{Binding IsComplete, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="3" HorizontalAlignment="Left" MinWidth="86">
@@ -286,7 +286,7 @@
                                                             <TextBlock Text="{Binding ItemName}" Style="{StaticResource TableCellText}"
                                                                        FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                             <TextBlock Text="{Binding MissingReason}" Style="{StaticResource CaptionText}"
-                                                                       Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                                                                       Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"
                                                                        Visibility="{Binding HasMissingReason, Converter={StaticResource BoolToVisibleConverter}}"/>
                                                         </StackPanel>
 
@@ -338,9 +338,13 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="8">
+                                <TextBox MinHeight="44" PlaceholderText="ابحث عن خامة بالاسم"
+                                         Text="{Binding IngredientSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 <ComboBox ItemsSource="{Binding Ingredients}" SelectedItem="{Binding IngredientToAdd, Mode=TwoWay}"
                                           DisplayMemberPath="Name" MinHeight="44" HorizontalAlignment="Stretch"
                                           PlaceholderText="اختر خامة لإضافتها"/>
+                                </StackPanel>
                                 <Button Grid.Column="1" MinHeight="44" Content="إضافة مكوّن"
                                         Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddIngredientCommand}"/>
                             </Grid>
@@ -367,7 +371,7 @@
                                                                  PlaceholderText="{Binding UnitLabel}"
                                                                  Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                                        <ComboBox Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
+                                                        <ComboBox AutomationProperties.Name="نوع المكوّن" Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
                                                                   SelectedIndex="{Binding KindIndex, Mode=TwoWay}">
                                                             <ComboBoxItem Content="مباشر"/>
                                                             <ComboBoxItem Content="بالقطعة"/>
@@ -379,7 +383,7 @@
                                                                  Visibility="{Binding IsYield, Converter={StaticResource BoolToVisibleConverter}}"
                                                                  Text="{Binding YieldRatioText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                                        <Button Grid.Column="4" MinHeight="44" MinWidth="44"
+                                                        <Button AutomationProperties.Name="حذف المكوّن" Grid.Column="4" MinHeight="44" MinWidth="44"
                                                                 Style="{StaticResource IconButtonDangerStyle}"
                                                                 ToolTipService.ToolTip="حذف المكوّن"
                                                                 Command="{Binding DataContext.RemoveLineCommand, ElementName=Root}"
@@ -415,10 +419,10 @@
                                 <TextBlock Text="{Binding DetailCompletenessLabel}" Style="{StaticResource CaptionText}"
                                            Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding DetailMissingLabel}" Style="{StaticResource CaptionText}"
-                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding HasDetailMissing, Converter={StaticResource BoolToVisibleConverter}}"/>
                                 <TextBlock Text="{Binding MarginWithheldReason}" Style="{StaticResource CaptionText}"
-                                           Foreground="{ThemeResource WarningBrush}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningTextBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding HasMarginWithheldReason, Converter={StaticResource BoolToVisibleConverter}}"/>
                             </StackPanel>
 

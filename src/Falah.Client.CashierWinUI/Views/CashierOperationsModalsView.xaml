@@ -21,7 +21,7 @@
                     <controls:ModalHeaderView Title="إيداع بالخزنة (Safe Drop)" CloseCommand="{Binding CancelSafeDropCommand}" CloseAutomationId="SafeDrop_Close"/>
                     <TextBlock Text="نقل مبلغ فائض من الدرج إلى الخزنة أثناء الوردية." Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
                     <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
-                    <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="SafeDrop_Amount" Text="{Binding SafeDropAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
+                    <TextBox AutomationProperties.Name="مبلغ التوريد بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="SafeDrop_Amount" Text="{Binding SafeDropAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center"/>
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="SafeDrop_Reason" PlaceholderText="سبب الإيداع" Text="{Binding SafeDropReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel Spacing="8" Visibility="{Binding SafeDropNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
@@ -44,7 +44,7 @@
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="{Binding CashMovementTitle}" CloseCommand="{Binding CancelCashMovementCommand}" CloseAutomationId="CashMovement_Close"/>
                     <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
-                    <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashMovement_Amount" Text="{Binding CashMovementAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
+                    <TextBox AutomationProperties.Name="المبلغ بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashMovement_Amount" Text="{Binding CashMovementAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center"/>
                     <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="CashMovement_Reason" PlaceholderText="سبب الحركة" Text="{Binding CashMovementReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel Spacing="8" Visibility="{Binding CashMovementNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">

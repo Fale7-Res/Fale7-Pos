@@ -32,19 +32,19 @@
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Content="الأصناف والأحجام" Style="{StaticResource SegmentButtonStyle}"
                             HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="products"
-                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=products|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=products|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=products|BrandPrimaryBrush|TextMutedBrush}"/>
                     <Button Grid.Column="1" Content="الأقسام" Style="{StaticResource SegmentButtonStyle}"
                             HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="categories"
-                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=categories|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=categories|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=categories|BrandPrimaryBrush|TextMutedBrush}"/>
                     <Button Grid.Column="2" Content="قواعد الضريبة" Style="{StaticResource SegmentButtonStyle}"
                             HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="tax"
-                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=tax|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=tax|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=tax|BrandPrimaryBrush|TextMutedBrush}"/>
                     <Button Grid.Column="3" Content="عروض الأسعار" Style="{StaticResource SegmentButtonStyle}"
                             HorizontalAlignment="Stretch" Command="{Binding SetKindCommand}" CommandParameter="prices"
-                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=prices|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=prices|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Kind, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=prices|BrandPrimaryBrush|TextMutedBrush}"/>
                 </Grid>
 
@@ -85,7 +85,7 @@
                                 <ItemsControl ItemsSource="{Binding Rows}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                                     MinHeight="60" Margin="12,0,12,8" Padding="12,8"
                                                     Style="{StaticResource SecondaryButtonStyle}"
                                                     Command="{Binding ElementName=Root, Path=DataContext.SelectRowCommand}"
@@ -283,7 +283,7 @@
                                                         <TextBox Grid.Column="1" PlaceholderText="السعر" MinHeight="44" InputScope="Number"
                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
                                                                  Text="{Binding PriceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                                        <ComboBox Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
+                                                        <ComboBox AutomationProperties.Name="الوصفة" Grid.Column="2" MinHeight="44" HorizontalAlignment="Stretch"
                                                                   IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
                                                                   ItemsSource="{Binding ElementName=Root, Path=DataContext.RecipeChoices}"
                                                                   DisplayMemberPath="Label" SelectedItem="{Binding Recipe, Mode=TwoWay}"/>
@@ -354,7 +354,7 @@
                     </Border>
                     <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessTextBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <TextBlock Text="ليس لديك صلاحية تعديل هذا القسم؛ يمكنك الاطلاع فقط."

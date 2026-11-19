@@ -73,15 +73,24 @@ public sealed class CashierCashMovementHandler
         var sourceAccount = isCashIn ? TreasuryAccounts.Main : TreasuryAccounts.Drawer;
         var destinationAccount = isCashIn ? TreasuryAccounts.Drawer : TreasuryAccounts.Main;
 
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(idempotencyKey, ct);
+            if (admissionReplay is not null) return ToResult(admissionReplay, wasReplayed: true);
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            // Re-read once admitted (as SafeDropHandler does): the check above ran before the
+            // admission lock, so a close committed in between would otherwise get this movement
+            // posted to a shift whose statement and expected cash are already frozen.
+            var admittedShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+            if (admittedShift?.Status != nameof(ShiftStatus.Open))
+                throw new DomainException("يجب فتح وردية قبل تسجيل حركة خزنة.");
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var sourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, sourceAccount, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var sourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, sourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(sourceMovements, sourceAccount, amount);
 
             var journal = new EfFinancialJournal(_db);

@@ -1,0 +1,145 @@
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.DriverStatementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
+             FlowDirection="RightToLeft">
+    <!-- UI-REQ-001: a delivery driver's daily statement. Every figure comes from the server's one
+         query; the summary and detail papers are composed from the same query. -->
+    <Grid Background="{ThemeResource OverlayBrush}" AutomationProperties.AutomationId="DriverStatementOverlay"
+          Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" MaxWidth="1100" MaxHeight="820"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="24">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <controls:ModalHeaderView Title="كشف يومية السائق" CloseCommand="{Binding CloseCommand}" CloseAutomationId="DriverStatement_Close"/>
+
+                <!-- Filters -->
+                <Grid Grid.Row="1" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Header="السائق" HorizontalAlignment="Stretch" MinHeight="44" AutomationProperties.AutomationId="DriverStatement_Driver"
+                              ItemsSource="{Binding Drivers}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedDriver, Mode=TwoWay}"/>
+                    <CalendarDatePicker Grid.Column="1" Header="يوم العمل" MinHeight="44" AutomationProperties.AutomationId="DriverStatement_Date"
+                                        Date="{Binding BusinessDate, Mode=TwoWay}" DateFormat="{}{day.integer(2)}-{month.integer(2)}-{year.full}"/>
+                    <ComboBox Grid.Column="2" Header="طريقة الدفع" HorizontalAlignment="Stretch" MinHeight="44" AutomationProperties.AutomationId="DriverStatement_Filter"
+                              ItemsSource="{Binding Filters}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"/>
+                    <Button Grid.Column="3" Content="عرض" MinHeight="44" MinWidth="96" VerticalAlignment="Bottom"
+                            AutomationProperties.AutomationId="DriverStatement_Load"
+                            Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadCommand}"/>
+                </Grid>
+
+                <!-- Summary: kept apart, never added across groups. -->
+                <StackPanel Grid.Row="2" Spacing="8">
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="12"><StackPanel Spacing="2">
+                            <TextBlock Text="عدد الفواتير" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding InvoiceCount}" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel></Border>
+                        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="12"><StackPanel Spacing="2">
+                            <TextBlock Text="المبيعات بدون خدمة التوصيل" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding FoodSales}" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel></Border>
+                        <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="12"><StackPanel Spacing="2">
+                            <TextBlock Text="خدمة التوصيل (من العملاء)" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding DeliveryFees}" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel></Border>
+                        <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Padding="12"><StackPanel Spacing="2">
+                            <TextBlock Text="الإجمالي" Style="{StaticResource CaptionText}"/>
+                            <TextBlock Text="{Binding OrderTotal}" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}"/></StackPanel></Border>
+                    </Grid>
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2"><TextBlock Text="مدفوع مسبقًا" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Prepaid}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="على السائق تحصيله" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding ToCollect}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="2"><TextBlock Text="حصّله السائق" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Collected}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="3" Spacing="2"><TextBlock Text="لم يُسوَّ بعد" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Unsettled}" FontWeight="SemiBold" Foreground="{ThemeResource WarningTextBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="4" Spacing="2"><TextBlock Text="مرتجعات على الطلبات" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding Refunded}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/></StackPanel>
+                        <StackPanel Grid.Column="5" Spacing="2"><TextBlock Text="أجر التوصيل للسائق" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding DriverFees}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}" AutomationProperties.AutomationId="DriverStatement_DriverFees"/></StackPanel>
+                        <StackPanel Grid.Column="6" Spacing="2"><TextBlock Text="{Binding NetAfterFeesLabel}" Style="{StaticResource CaptionText}"/><TextBlock Text="{Binding NetAfterFees}" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}" AutomationProperties.AutomationId="DriverStatement_Net"/></StackPanel>
+                    </Grid>
+                    <TextBlock Text="{Binding Footnote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Error}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                               Visibility="{Binding Error, Converter={StaticResource NullToCollapsedConverter}}"/>
+                </StackPanel>
+
+                <!-- Orders -->
+                <Border Grid.Row="3" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="12">
+                    <Grid>
+                        <!-- Width is the dialog's, never unbounded: with horizontal scrolling the star columns sized to
+                             their own text, so the customer and notes cells ran past the edge instead of wrapping. -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled"
+                                      AutomationProperties.AutomationId="DriverStatement_Rows">
+                            <StackPanel>
+                                <Grid Background="{ThemeResource TableHeaderBrush}" Padding="12,8" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="64"/><ColumnDefinition Width="50"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="64"/>
+                                        <ColumnDefinition Width="84"/><ColumnDefinition Width="70"/><ColumnDefinition Width="84"/><ColumnDefinition Width="84"/><ColumnDefinition Width="104"/><ColumnDefinition Width="1.3*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="الطلب" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="1" Text="الوقت" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="2" Text="العميل والعنوان" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="3" Text="الدفع" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="4" Text="الأكل" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="5" Text="التوصيل" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="6" Text="الإجمالي" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="7" Text="يحصّل" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="8" Text="حصّل" Style="{StaticResource TableHeaderText}"/>
+                                    <TextBlock Grid.Column="9" Text="ملاحظات" Style="{StaticResource TableHeaderText}"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding Rows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Padding="12,8" ColumnSpacing="8" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64"/><ColumnDefinition Width="50"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="84"/><ColumnDefinition Width="70"/><ColumnDefinition Width="84"/><ColumnDefinition Width="84"/><ColumnDefinition Width="104"/><ColumnDefinition Width="1.3*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Number}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Time}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="{Binding Customer}" Foreground="{ThemeResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding Address}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="3" Text="{Binding Payment}" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding Food}" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding Fee}" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="6" Text="{Binding Total}" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="7" Text="{Binding ToCollect}" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                                <TextBlock Grid.Column="8" Text="{Binding Collected}" Foreground="{ThemeResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                                <TextBlock Grid.Column="9" Text="{Binding Notes}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <TextBlock Text="لا توجد طلبات لهذا السائق في يوم العمل وطريقة الدفع المختارة." Style="{StaticResource MutedText}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"
+                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32"
+                                      Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Actions stay in view at any height. -->
+                <Grid Grid.Row="4" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding PrintMessage}" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"/>
+                    <Button Grid.Column="1" Content="طباعة الملخص" MinHeight="48" MinWidth="140" AutomationProperties.AutomationId="DriverStatement_PrintSummary"
+                            Style="{StaticResource SecondaryButtonStyle}" Command="{Binding PrintSummaryCommand}"/>
+                    <Button Grid.Column="2" Content="طباعة التفاصيل" MinHeight="48" MinWidth="140" AutomationProperties.AutomationId="DriverStatement_PrintDetail"
+                            Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintDetailCommand}"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

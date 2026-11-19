@@ -53,40 +53,9 @@ public sealed class NullablePiastresToDisplayConverter : IValueConverter
 /// so a movement type added server-side stays visible as itself rather than rendering blank.</summary>
 public sealed class TreasuryMovementTypeLabelConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
-    {
-        "sale_collection" => "تحصيل مبيعات",
-        "shift_handover" => "تسليم وردية",
-        "shift_opening_float" => "عهدة افتتاح وردية",
-        "safe_drop" => "إيداع بالخزنة",
-        "cash_in" => "إيداع نقدي بالدرج",
-        "cash_out" => "سحب نقدي من الدرج",
-        "driver_settlement" => "تسوية عهدة سائق",
-        "owner_deposit" => "إيداع من المالك",
-        "capital_injection" => "ضخ رأس مال",
-        "other_external_inflow" => "تدفق خارجي آخر",
-        "owner_withdrawal" => "سحب المالك",
-        "transfer" => "تحويل بين الحسابات",
-        "expense" or "expense_payment" => "مصروف",
-        "refund" => "مرتجع",
-        "purchase_payment" => "سداد مشتريات",
-        "supplier_payment" => "سداد مورد",
-        "reconciliation" => "تسوية",
-        // Written by shift close, employee cash-outs, payroll and driver settlement - all of which
-        // reached the ledger in English before these were added.
-        "cash_overage" => "زيادة نقدية في الدرج",
-        "cash_shortage" => "عجز نقدي في الدرج",
-        "cash_in_transfer" => "تحويل إلى الدرج",
-        "cash_out_transfer" => "تحويل من الدرج",
-        "employee_advance" => "سلفة موظف",
-        "employee_withdrawal" => "مسحوبات موظف",
-        "employee_payment" => "صرف مستحقات موظف",
-        "payroll_payment" => "صرف رواتب",
-        "settlement_overage" => "زيادة في تسوية سائق",
-        "settlement_shortage" => "عجز في تسوية سائق",
-        null or "" => "",
-        var other => other,
-    };
+    // The words live in Services.DisplayLabels so view models (and their tests) use the same ones.
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        Services.DisplayLabels.TreasuryMovementType(value as string);
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
@@ -105,16 +74,7 @@ public sealed class TreasuryMovementTypeLabelConverter : IValueConverter
 /// </summary>
 public sealed class PaymentMethodLabelConverter : IValueConverter
 {
-    public static string Label(string? method) => method?.ToLowerInvariant() switch
-    {
-        "cash" => "كاش",
-        "card" => "فيزا",
-        "instapay" => "إنستاباي",
-        "wallet" => "محفظة",
-        "multi" => "دفع مقسّم",
-        null or "" => "",
-        _ => method!,
-    };
+    public static string Label(string? method) => Services.DisplayLabels.PaymentMethod(method);
 
     public object Convert(object value, Type targetType, object parameter, string language) => Label(value as string);
     public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
@@ -167,7 +127,7 @@ public sealed class StockMovementTypeLabelConverter : IValueConverter
     {
         "PurchaseReceipt" => "استلام شراء",
         "ManualReceipt" => "إدخال يدوي",
-        "Usage" => "استهلاك مبيعات",
+        "Usage" => "استهلاك مبيعات", "UsageReversal" => "إلغاء استهلاك طلب ملغي",
         "Waste" => "هدر تحضير",
         "Spoilage" => "تلف وانتهاء صلاحية",
         "Breakage" => "كسر",
@@ -230,16 +190,8 @@ public sealed class SignificantActionTypeLabelConverter : IValueConverter
 /// counterpart account (a safe drop) is a real, meaningful case, not missing data.</summary>
 public sealed class TreasuryAccountLabelConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
-    {
-        "tre-main" => "الخزينة الرئيسية",
-        "tre-drawer" => "درج الكاشير",
-        "tre-bank" => "البنك",
-        "tre-instapay" => "إنستاباي",
-        "tre-wallet" => "المحفظة",
-        null or "" => "خارج النظام",
-        var other => other,
-    };
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        Services.DisplayLabels.TreasuryAccount(value as string);
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
@@ -325,11 +277,11 @@ public sealed class OrderTypeLabelConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
     {
-        "pickup" => "استلام من المحل",
+        "pickup" => "استلام من المطعم",
         "takeaway" => "تيك أواي",
         "delivery" => "توصيل",
         // Pre-rename spelling still present on historical Pickup orders (see OrderEnumMapping).
-        "dine_in" or "dinein" => "استلام من المحل",
+        "dine_in" or "dinein" => "استلام من المطعم",
         _ => value as string ?? "",
     };
 
@@ -717,6 +669,7 @@ public sealed class NavKeyToGlyphConverter : IValueConverter
 {
     private static readonly Dictionary<string, string> Glyphs = new()
     {
+        ["financial_control"] = "", // Segoe Fluent "ReportDocument"
         ["dashboard"] = "",
         ["cashier"] = "",
         ["orders"] = "",
@@ -845,6 +798,36 @@ public sealed class ZeroCountToVisibleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
         value is int and 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Bold for a true value (a printed line marked bold shows bold on screen too).</summary>
+public sealed class BoolToBoldConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is true ? Microsoft.UI.Text.FontWeights.Bold : Microsoft.UI.Text.FontWeights.Normal;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Centred for a true value, otherwise the reading start (right, in RTL).</summary>
+public sealed class BoolToCenterAlignmentConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is true ? TextAlignment.Center : TextAlignment.Start;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>A Control Center checklist row's accessible name: label plus done / not done (see ControlCenterViewModel.ChecklistAccessibleName).</summary>
+public sealed class ChecklistAccessibleNameConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is Falah.Application.BusinessDay.ChecklistItemStatusDto item ? Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ChecklistAccessibleName(item) : "";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();

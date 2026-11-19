@@ -355,7 +355,8 @@ public class PrintAgentTests
         }.Validate();
 
         Assert.Contains(problems, p => p.Contains("Route"));
-        Assert.Contains(problems, p => p.Contains("ReportedByUserId"));
+        // Who the agent is comes from the PIN it logs in with (SEC5), so the PIN is what must be there.
+        Assert.Contains(problems, p => p.Contains("PIN") && p.Contains("FALAH_PRINT_AGENT_PIN"));
         Assert.Contains(problems, p => p.Contains("PrinterHost"));
     }
 
@@ -374,4 +375,122 @@ public class PrintAgentTests
 
         Assert.Empty(problems);
     }
+
+    [Fact]
+    public async Task An_unwritable_attempt_journal_reports_failure_without_printing_or_stalling_the_queue()
+    {
+        var blocker = Path.Combine(Path.GetTempPath(), "falah-journal-blocker-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(blocker, "not a directory");
+        try
+        {
+            var server = new FakeServer(); var transport = new FakeTransport();
+            server.Pending.Add(Job("blocked-1")); server.Pending.Add(Job("blocked-2"));
+            var store = new UnreportedAttemptStore(Path.Combine(blocker, "attempts.json"));
+            Assert.Equal(2, await Processor(server, transport, store).DrainAsync("Receipt", CancellationToken.None));
+            Assert.Empty(transport.Sent);
+            Assert.Equal(2, server.Reports.Count);
+            Assert.All(server.Reports, report => {
+                Assert.False(report.Succeeded);
+                Assert.Contains("journal", report.Error!, StringComparison.OrdinalIgnoreCase);
+            });
+        }
+        finally { File.Delete(blocker); }
+    }
+
+    [Fact]
+    public void A_route_with_an_unwritable_journal_directory_fails_before_processing_jobs()
+    {
+        var blocker = Path.Combine(Path.GetTempPath(), "falah-journal-blocker-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(blocker, "not a directory");
+        try { Assert.Throws<InvalidOperationException>(() => UnreportedAttemptStore.ForRoute(blocker, "Receipt")); }
+        finally { File.Delete(blocker); }
+    }
+
+
+    [Fact]
+    public void Moving_the_journal_preserves_old_attempts_and_keeps_newer_destination_entries()
+    {
+        var parent = Path.Combine(Path.GetTempPath(), "falah-journal-migrate-" + Guid.NewGuid().ToString("N"));
+        var legacy = Path.Combine(parent, "old"); var current = Path.Combine(parent, "new");
+        try
+        {
+            var old = UnreportedAttemptStore.ForRoute(legacy, "Receipt");
+            var original = new UnreportedAttemptStore.StoredAttempt("old-attempt", false, "inspect paper", DateTimeOffset.UtcNow);
+            old.Remember("legacy", original); old.Remember("shared", original);
+            var newer = original with { AttemptRequestId = "new-attempt", Succeeded = true };
+            UnreportedAttemptStore.ForRoute(current, "Receipt").Remember("shared", newer);
+            var merged = UnreportedAttemptStore.ForRoute(current, "receipt", legacy);
+            Assert.Equal(original, merged.Find("legacy")); Assert.Equal(newer, merged.Find("shared"));
+            Assert.True(File.Exists(Path.Combine(legacy, "unreported-print-attempts-Receipt.json")));
+        }
+        finally { if (Directory.Exists(parent)) Directory.Delete(parent, true); }
+    }
+
+
+    private sealed class PriorityProbeTransport(Func<int> priorityRuns) : ITicketTransport
+    {
+        public TaskCompletionSource Entered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public int Sent { get; private set; }
+        public string Description => "slow priority probe";
+        public async Task SendAsync(byte[] data, CancellationToken ct)
+        {
+            Assert.True(priorityRuns() > Sent, "Drawer work must run before each ticket.");
+            if (Sent == 0) { Entered.TrySetResult(); await Release.Task.WaitAsync(ct); }
+            Sent++;
+        }
+    }
+    [Fact]
+    public async Task Drawer_work_runs_before_a_slow_receipt_and_between_every_ticket_in_a_backlog()
+    {
+        var server = new FakeServer();
+        server.Pending.AddRange(new[] { Job("priority-1"), Job("priority-2"), Job("priority-3") });
+        var priorityRuns = 0;
+        var transport = new PriorityProbeTransport(() => priorityRuns);
+        var processor = new PrintJobProcessor(server, transport, Encoding.UTF8, "usr-1", _ => { }, NewStore());
+        var draining = processor.DrainAsync("Receipt", default, _ => { priorityRuns++; return Task.CompletedTask; });
+        await transport.Entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(1, priorityRuns);
+        transport.Release.TrySetResult();
+        Assert.Equal(3, await draining);
+        Assert.Equal(4, priorityRuns);
+        Assert.Equal(3, transport.Sent);
+    }
+
+
+    /// <summary>Whole-project review 2026-11-17: the drawer step ran first and unguarded, so a drawer
+    /// endpoint that kept failing (say, a missing grant) stopped every receipt on that station from
+    /// printing, with only "poll failed" in the log. The drawer failure is logged; tickets still print.</summary>
+    [Fact]
+    public async Task A_failing_drawer_step_does_not_stop_the_tickets_from_printing()
+    {
+        var server = new FakeServer();
+        server.Pending.AddRange(new[] { Job("after-drawer-1"), Job("after-drawer-2") });
+        var transport = new FakeTransport();
+        var log = new List<string>();
+        var processor = new PrintJobProcessor(server, transport, Encoding.UTF8, "usr-1", log.Add, NewStore());
+
+        var printed = await processor.DrainAsync("Receipt", default,
+            _ => throw new HttpRequestException("drawer claim refused (403)"));
+
+        Assert.Equal(2, printed);
+        Assert.Equal(2, transport.Sent.Count);
+        Assert.Contains(log, line => line.Contains("drawer claim refused"));
+    }
+
+    [Fact]
+    public async Task A_restarted_agent_reports_a_fenced_attempt_even_when_it_is_no_longer_pending()
+    {
+        var store = NewStore();
+        store.Remember("sending-before-restart", new UnreportedAttemptStore.StoredAttempt("attempt-before-restart", true, null, DateTimeOffset.UtcNow, "opaque-claim"));
+        var server = new FakeServer(); var transport = new FakeTransport();
+        Assert.Equal(0, await Processor(server, transport, store).DrainAsync("Receipt", default));
+        var report = Assert.Single(server.Reports);
+        Assert.Equal("attempt-before-restart", report.RequestId);
+        Assert.Equal("opaque-claim", report.ClaimId);
+        Assert.True(report.Succeeded);
+        Assert.Empty(transport.Sent);
+        Assert.Equal(0, store.Count);
+    }
+
 }

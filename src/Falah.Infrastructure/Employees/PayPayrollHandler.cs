@@ -59,63 +59,71 @@ public sealed class PayPayrollHandler
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(actorUser);
 
-        var run = await _db.PayrollRuns.FirstOrDefaultAsync(r => r.Id == request.PayrollRunId, ct)
-            ?? throw new InvalidOperationException("مسير الرواتب غير موجود.");
-        if (run.Status == nameof(PayrollRunStatus.Paid))
-        {
-            // A concurrent request settled this run between the idempotency lookup above and this
-            // read. A paid run is not an unapproved one: the caller must see the same result the
-            // winning request saw, not a rejection that would send an operator to pay it again.
-            // Reading Paid here proves the winner committed, and its movement commits in the same
-            // transaction, so the replay is guaranteed to be visible.
-            if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;
-        }
-        if (run.Status != nameof(PayrollRunStatus.Approved))
-            throw new DomainException("يجب اعتماد مسير الرواتب قبل الدفع.");
-
-        ManagerApproval? approval = null;
-        if (!string.IsNullOrEmpty(request.ManagerApprovalId))
-        {
-            var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
-                ?? throw new DomainException("المعتمد غير موجود.");
-            approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
-                approverUser.Role, DateTimeOffset.UtcNow, "payroll_pay", $"صرف Payroll {run.Period}");
-        }
-        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "payroll_pay", approval, requireApproval: true);
-
-        var lines = await _db.PayrollLines.Where(l => l.PayrollRunId == request.PayrollRunId).ToListAsync(ct);
-        var total = lines.Sum(l => l.NetPayablePiastres);
-        if (total <= 0)
-        {
-            // Refusing is right - there is nothing to pay. But "the total is invalid" tells an
-            // operator nothing about why, and the commonest cause by far is silent: an employee
-            // marked Monthly whose monthly salary was never entered computes a base of zero, no
-            // matter how many daily-wage entries their ledger holds (see
-            // PayrollRules.CalculatePayrollLines). Naming them turns a dead end into a task.
-            var employeeIds = lines.Select(l => l.EmployeeId).ToList();
-            var unpriced = await _db.Employees.AsNoTracking()
-                .Where(e => employeeIds.Contains(e.Id)
-                    && e.CompensationType == nameof(CompensationType.Monthly)
-                    && (e.MonthlySalaryPiastres == null || e.MonthlySalaryPiastres == 0))
-                .Select(e => e.Name).ToListAsync(ct);
-
-            throw new DomainException(lines.Count == 0
-                ? $"لا توجد بنود في مسير {run.Period} - لم تُسجَّل أجور لهذه الفترة بعد."
-                : unpriced.Count > 0
-                    ? $"إجمالي المسير صفر. لا يوجد راتب شهري مُسجَّل للموظفين: {string.Join("، ", unpriced)}."
-                    : "إجمالي المسير صفر بعد الاستقطاعات، فلا يوجد مبلغ للصرف.");
-        }
-        var totalMoney = Money.FromPiastres(total);
-
-        var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            if (await LoadReplayAsync() is { } admissionReplay) return admissionReplay;
+            var businessDayId = await BusinessDayGate.RequireOpenAsync(_db, ct);
+            var run = await _db.PayrollRuns
+                .FromSqlRaw("SELECT * FROM PayrollRuns WITH (UPDLOCK, HOLDLOCK) WHERE Id = {0}", request.PayrollRunId)
+                .FirstOrDefaultAsync(ct)
+                ?? throw new InvalidOperationException("مسير الرواتب غير موجود.");
+            if (run.Status == nameof(PayrollRunStatus.Paid))
+            {
+                // A concurrent request settled this run between the idempotency lookup above and this
+                // read. A paid run is not an unapproved one: the caller must see the same result the
+                // winning request saw, not a rejection that would send an operator to pay it again.
+                // Reading Paid here proves the winner committed, and its movement commits in the same
+                // transaction, so the replay is guaranteed to be visible.
+                if (await LoadReplayAsync() is { } settledConcurrently) return settledConcurrently;
+            }
+            if (run.Status != nameof(PayrollRunStatus.Approved))
+                throw new DomainException("يجب اعتماد مسير الرواتب قبل الدفع.");
+
+            ManagerApproval? approval = null;
+            if (!string.IsNullOrEmpty(request.ManagerApprovalId))
+            {
+                var approverUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
+                    ?? throw new DomainException("المعتمد غير موجود.");
+                approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
+                    approverUser.Role, DateTimeOffset.UtcNow, "payroll_pay", $"صرف Payroll {run.Period}");
+            }
+            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "payroll_pay", approval, requireApproval: true);
+
+            var lines = await _db.PayrollLines.Where(l => l.PayrollRunId == request.PayrollRunId).ToListAsync(ct);
+            var total = lines.Sum(l => l.NetPayablePiastres);
+            if (total <= 0)
+            {
+                // Refusing is right - there is nothing to pay. But "the total is invalid" tells an
+                // operator nothing about why, and the commonest cause by far is silent: an employee
+                // marked Monthly whose monthly salary was never entered computes a base of zero, no
+                // matter how many daily-wage entries their ledger holds (see
+                // PayrollRules.CalculatePayrollLines). Naming them turns a dead end into a task.
+                var employeeIds = lines.Select(l => l.EmployeeId).ToList();
+                var unpriced = await _db.Employees.AsNoTracking()
+                    .Where(e => employeeIds.Contains(e.Id)
+                        && e.CompensationType == nameof(CompensationType.Monthly)
+                        && (e.MonthlySalaryPiastres == null || e.MonthlySalaryPiastres == 0))
+                    .Select(e => e.Name).ToListAsync(ct);
+
+                throw new DomainException(lines.Count == 0
+                    ? $"لا توجد بنود في مسير {run.Period} - لم تُسجَّل أجور لهذه الفترة بعد."
+                    : unpriced.Count > 0
+                        ? $"إجمالي المسير صفر. لا يوجد راتب شهري مُسجَّل للموظفين: {string.Join("، ", unpriced)}."
+                        : "إجمالي المسير صفر بعد الاستقطاعات، فلا يوجد مبلغ للصرف.");
+            }
+            var totalMoney = Money.FromPiastres(total);
+
+            // Same lock order as individual payouts: employee balances before treasury funds.
+            foreach (var employeeId in lines.Select(l => l.EmployeeId).Distinct().OrderBy(id => id, StringComparer.Ordinal))
+                await LedgerCreditReplay.LockEmployeeAsync(_db, employeeId, ct);
+
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
             // them, and each write - which is how an account holding 30 paid out three separate
-            // transfers of 20. See TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync.
-            var accountMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, request.PaymentAccountId, ct);
+            // transfers of 20. See TreasuryBalanceQuery.LockAndReadBalanceAsync.
+            var accountMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, request.PaymentAccountId, ct);
             FinancialRules.AssertProtectedSourceBalance(accountMovements, request.PaymentAccountId, totalMoney);
 
             var journal = new EfFinancialJournal(_db);
@@ -132,6 +140,12 @@ public sealed class PayPayrollHandler
             var movementEntity = OrderMapper.ToEntity(movement);
             _db.TreasuryMovements.Add(movementEntity);
             journal.Complete(idempotencyKey);
+
+            // True-up: every day of the period not yet accrued (by a business-day close) is accrued
+            // now, in the same transaction as the payout, so a monthly employee is paid against a
+            // whole month earned and their ledger settles to what the run actually owed them.
+            var periodEnd = new DateOnly(int.Parse(run.Period[..4]), int.Parse(run.Period[5..]), 1).AddMonths(1).AddDays(-1);
+            await SalaryAccrual.AccrueThroughAsync(_db, periodEnd, actorUser.Name, lines.Select(l => l.EmployeeId).ToList(), ct);
 
             var settlementCount = 0;
             foreach (var line in lines.Where(l => l.NetPayablePiastres > 0))

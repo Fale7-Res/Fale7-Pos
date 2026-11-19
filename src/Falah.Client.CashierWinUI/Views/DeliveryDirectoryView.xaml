@@ -27,11 +27,11 @@
                     </Grid.ColumnDefinitions>
                     <Button Content="السائقون" Style="{StaticResource SegmentButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SetTabCommand}" CommandParameter="drivers"
-                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=drivers|BrandPrimaryBrush|TextMutedBrush}"/>
                     <Button Grid.Column="1" Content="خدمات التوصيل" Style="{StaticResource SegmentButtonStyle}" HorizontalAlignment="Stretch"
                             Command="{Binding SetTabCommand}" CommandParameter="services"
-                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|WhiteBrush|NeutralBackgroundBrush}"
+                            Background="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|CardBackgroundBrush|NeutralBackgroundBrush}"
                             Foreground="{Binding Tab, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=services|BrandPrimaryBrush|TextMutedBrush}"/>
                 </Grid>
 
@@ -106,7 +106,7 @@
                                 <ItemsControl ItemsSource="{Binding Services}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                                     MinHeight="60" Margin="16,0,16,8" Padding="12,8"
                                                     Style="{StaticResource SecondaryButtonStyle}"
                                                     IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
@@ -188,7 +188,7 @@
                     </Border>
                     <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="12" Padding="14,10"
                             Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}"
+                        <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessTextBrush}"
                                    FontWeight="SemiBold" TextWrapping="Wrap"/>
                     </Border>
                     <StackPanel Spacing="10" HorizontalAlignment="Center"

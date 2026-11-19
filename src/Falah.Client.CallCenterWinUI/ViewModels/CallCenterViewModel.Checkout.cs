@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Falah.Application.Customers;
 using Falah.Application.Orders;
@@ -92,6 +92,23 @@ public partial class CallCenterViewModel
     }
 
     public bool HasPendingCheckout => _pendingCheckout is not null;
+
+    /// <summary>The kept checkout was retried and the server definitively refused it.</summary>
+    [ObservableProperty] private bool _hasRefusedCheckoutRetry;
+
+    /// <summary>Lets go of a kept checkout the server refused on retry, after the operator checked
+    /// the orders list. A checkout whose outcome is still unknown is never dropped here.</summary>
+    [RelayCommand]
+    private void DiscardRefusedCheckout()
+    {
+        if (!HasRefusedCheckoutRetry || IsOperationBusy || _pendingCheckout is null) return;
+        _pendingCheckout = null;
+        PersistPending(CheckoutOwnerKey, null);
+        HasRefusedCheckoutRetry = false;
+        CheckoutError = null;
+        OnPropertyChanged(nameof(HasPendingCheckout));
+        RefreshOperationState();
+    }
 
     private bool CanSubmitOrder() => !IsOperationBusy && !HasCheckoutResult && _pendingPrint is null;
 
@@ -187,9 +204,14 @@ public partial class CallCenterViewModel
                 // Do NOT clear the cart or the form: we genuinely do not know whether this order
                 // exists on the server. Retrying the identical request is what resolves it.
                 _pendingCheckout = request;
+                // A definite refusal of a RETRY usually means the order was never recorded, but it
+                // can follow a lost success, so it is kept - and the operator may let it go after checking.
+                HasRefusedCheckoutRetry = !result.OutcomeUnknown;
                 OnPropertyChanged(nameof(HasPendingCheckout));
                 RefreshOperationState();
-                CheckoutError = "لم يصل تأكيد من السيرفر. اضغط \"إعادة المحاولة\" بنفس البيانات للتحقق من الطلب.";
+                CheckoutError = HasRefusedCheckoutRetry
+                    ? $"الخادم رفض إعادة محاولة الطلب السابق: {result.Error ?? "رفضها الخادم."} الرفض يعني غالبًا أن الطلب لم يُسجَّل. تأكد من قائمة الطلبات ثم اضغط \"تأكدت - تجاهل الطلب السابق\"."
+                    : "لم يصل تأكيد من السيرفر. اضغط \"إعادة المحاولة\" بنفس البيانات للتحقق من الطلب.";
                 return;
             }
 
@@ -200,11 +222,15 @@ public partial class CallCenterViewModel
             OnPropertyChanged(nameof(HasPendingCheckout));
             RefreshOperationState();
             CheckoutError = result.Error ?? "تعذر تسجيل الطلب.";
+            // The server charges the zone's current fee and refuses a stale one (AUD-01). Reloading the zones puts
+            // the fee it will accept on screen, so the operator can read the new total to the customer and resend.
+            await LoadDeliveryServicesAsync();
             return;
         }
 
         _pendingCheckout = null;
         PersistPending(CheckoutOwnerKey, null);
+        HasRefusedCheckoutRetry = false;
         OnPropertyChanged(nameof(HasPendingCheckout));
         RefreshOperationState();
         LastCheckoutResult = result.Value;
@@ -270,19 +296,49 @@ public partial class CallCenterViewModel
         {
             if (LookedUpOrder is not { } order) return "";
             var how = order.SplitPayments is { Count: > 0 } splits
-                ? string.Join(" + ", splits.Select(s => $"{s.Method} {CashInput.Format(s.AmountPiastres)} ج"))
-                : order.PaymentMethod;
+                ? string.Join(" + ", splits.Select(s => $"{PaymentLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"))
+                : PaymentLabel(order.PaymentMethod);
+            if (string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase))
+                return $"{how} - ملغى؛ لا يوجد مبلغ مطلوب تحصيله";
             return order.ElectronicPaymentStatus == "pending" ? $"{how} - تحويل لم يُؤكَّد"
-                : order.IsPaid ? $"{how} - مدفوع"
+                : order.IsPaid || order.CustomerFundsCollected ? $"{how} - مدفوع"
                 : $"{how} - تحصيل عند التسليم";
         }
     }
 
+    private static string PaymentLabel(string? method) => method?.ToLowerInvariant() switch
+    {
+        "cash" => "نقدي", "card" => "بطاقة", "instapay" => "إنستاباي", "wallet" => "محفظة", "multi" => "دفع مقسم", _ => "وسيلة دفع أخرى"
+    };
+
     public bool HasLookedUpPaymentLine => LookedUpPaymentLine.Length > 0;
     public bool IsLookedUpPaymentUnconfirmed => LookedUpOrder?.ElectronicPaymentStatus == "pending";
 
+    /// <summary>The whole delivery address, as stored at checkout. It falls back to composing the stored parts
+    /// with the shared rule. Showing only area and street left the operator reading half an address.</summary>
+    public string LookedUpAddressLine
+    {
+        get
+        {
+            if (LookedUpOrder is not { } o) return "";
+            if (!string.IsNullOrWhiteSpace(o.DeliveryAddress)) return o.DeliveryAddress;
+            if (new[] { o.DeliveryArea, o.DeliveryStreet, o.DeliveryBuilding, o.DeliveryFloor, o.DeliveryApartment, o.DeliveryLandmark }.All(string.IsNullOrWhiteSpace))
+                return "";
+            return Falah.Domain.Delivery.DeliveryRules.ComposeDeliveryAddress(
+                o.DeliveryArea, o.DeliveryStreet, o.DeliveryBuilding, o.DeliveryFloor, o.DeliveryApartment, o.DeliveryLandmark);
+        }
+    }
+
+    public bool HasLookedUpAddress => LookedUpAddressLine.Length > 0;
+    public string LookedUpDeliveryNotes => LookedUpOrder?.DeliveryNotes?.Trim() ?? "";
+    public bool HasLookedUpDeliveryNotes => LookedUpDeliveryNotes.Length > 0;
+
     partial void OnLookedUpOrderChanged(OrderDetailsDto? value)
     {
+        OnPropertyChanged(nameof(LookedUpAddressLine));
+        OnPropertyChanged(nameof(HasLookedUpAddress));
+        OnPropertyChanged(nameof(LookedUpDeliveryNotes));
+        OnPropertyChanged(nameof(HasLookedUpDeliveryNotes));
         OnPropertyChanged(nameof(LookedUpPaymentLine));
         OnPropertyChanged(nameof(HasLookedUpPaymentLine));
         OnPropertyChanged(nameof(IsLookedUpPaymentUnconfirmed));
@@ -340,7 +396,7 @@ public partial class CallCenterViewModel
         if (_pendingPrint is not null) { await SendPrintAsync(_pendingPrint); return; }
         if (LookedUpOrder is null) return;
         await SendPrintAsync(new CreatePrintJobsRequest($"pj-{Guid.NewGuid():N}",
-            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id));
+            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false));
     }
 
     [RelayCommand]
@@ -384,6 +440,7 @@ public partial class CallCenterViewModel
     private void ClearResolvedPrint()
     {
         if (_hasUnresolvedPrint) return;
+        PersistPending(PrintOwnerKey, null);
         _pendingPrint = null;
         ReprintNote = null;
         OnPropertyChanged(nameof(HasPendingPrint));

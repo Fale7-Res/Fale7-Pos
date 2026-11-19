@@ -88,4 +88,11 @@ public class UserManagementRulesTests
         // permissions at all, which is the normal shape of the business this runs in.
         UserManagementRules.AssertUserAdministrationSurvives(1);
     }
+
+    [Theory]
+    [InlineData("Owner")]
+    [InlineData(" OWNER ")]
+    public void Legacy_owner_spellings_remain_immune(string role) =>
+        Assert.Throws<DomainException>(() => UserManagementRules.AssertTargetIsNotOwner(role, "تعطيل"));
+
 }

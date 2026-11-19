@@ -35,6 +35,9 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         _client = _factory.CreateAuthenticatedClient();
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
+        // The Control Center reads (checklist, blockers, snapshots, counts, exceptions) name nobody;
+        // they come from the manager's station, as on the restaurant's screens - a till may not read them.
+        _factory.StationUserId = _managerId;
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
         // Funds tre-main WITHOUT opening a business day - these tests open their own business day
         // through the real endpoint under test, but shifts/purchases/etc. still draw opening floats
@@ -79,8 +82,9 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         _client.PostAsJsonAsync($"/api/business-day/{businessDayId}/reopen",
             new ReopenBusinessDayRequest($"reopen-{Guid.NewGuid():N}", businessDayId, reason, actorId ?? _managerId, approvalId, approverId));
 
-    private async Task<string> IssueApprovalAsync(string action) =>
-        (await (await _client.PostAsJsonAsync("/api/approvals/issue",
+    /// <summary>Asked for at <paramref name="tillUserId"/>'s session, the one that spends it.</summary>
+    private async Task<string> IssueApprovalAsync(string action, string tillUserId) =>
+        (await (await _factory.PostAsSessionOfAsync(_client, tillUserId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), action, "اعتماد اختبار"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>())!.ApprovalId;
 
     /// <summary>A day with all shifts closed and the required closing checklist complete - the
@@ -163,6 +167,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         // the (expected, unavoidable) OPEN_SHIFT blocker for that same still-open shift.
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -345,7 +350,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         var withoutApproval = await ReopenBusinessDayAsync(dayId, "مراجعة", noPermissionUser);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, withoutApproval.StatusCode);
 
-        var approvalId = await IssueApprovalAsync("business_day_reopen");
+        var approvalId = await IssueApprovalAsync("business_day_reopen", noPermissionUser);
         var withApproval = await ReopenBusinessDayAsync(dayId, "مراجعة", noPermissionUser, approvalId, _managerId);
         withApproval.EnsureSuccessStatusCode();
     }
@@ -458,11 +463,40 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     // during the legacy-parity audit: selectDeliveryExceptions' per-delivery types need no "trip"
     // concept at all, unlike the trip-scoped types this system genuinely cannot port) ----
 
+    // AUD-13: an order never even made ready is on the manager's review list too (a warning, never a blocker).
+    [Fact]
+    public async Task A_delivery_never_made_ready_is_a_control_exception_but_does_not_block_the_close()
+    {
+        var dayId = await OpenBusinessDayAsync();
+        var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل");
+        var productId = await _factory.SeedProductAsync(10000);
+        var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "delivery", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 0, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: "منطقة", BusinessDayId: null,
+            DeliveryStreet: "شارع 1", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل"));
+        checkout.EnsureSuccessStatusCode();
+        var order = await checkout.Content.ReadFromJsonAsync<CheckoutOrderResult>();
+        var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order!.OrderId).Select(d => d.Id).FirstAsync());
+
+        var exceptions = await (await _client.GetAsync($"/api/business-day/{dayId}/exceptions")).Content.ReadFromJsonAsync<List<ControlExceptionDto>>();
+        Assert.Contains(exceptions!, e => e.EntityId == deliveryId && e.Category == "delivery" && e.Severity == "warning");
+
+        var blockers = await (await _client.GetAsync($"/api/business-day/{dayId}/close-blockers")).Content.ReadAsStringAsync();
+        Assert.DoesNotContain(deliveryId, blockers);
+    }
+
     [Fact]
     public async Task A_ready_delivery_with_no_driver_is_a_control_exception()
     {
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -487,6 +521,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     {
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
@@ -599,4 +634,14 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     }
 
     private sealed record BlockedResponse(string error, List<CloseBlockerDto> blockers);
+
+    [Fact]
+    public async Task Concurrent_distinct_open_requests_produce_only_one_active_day()
+    {
+        var responses = await Task.WhenAll(Enumerable.Range(0, 8).Select(i => _client.PostAsJsonAsync("/api/business-day/open", new OpenBusinessDayRequest($"concurrent-day-{i}", _managerId))));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.All(responses.Where(r => !r.IsSuccessStatusCode), r => Assert.Equal(HttpStatusCode.UnprocessableEntity, r.StatusCode));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.BusinessDays.CountAsync(d => d.Status == "Open" || d.Status == "Reopened" || d.Status == "Closing")));
+    }
+
 }

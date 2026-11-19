@@ -19,10 +19,12 @@ public sealed record PayrollLineDto(
     long ExtraShiftsPiastres, long BonusesPiastres, long DeductionsPiastres, long AdvanceDeductionsPiastres,
     long NetPayablePiastres, string Status, DateTimeOffset? PaidAtUtc);
 
-/// <summary>Ported from transitionPayroll - draft→calculated→reviewed→approved→paid|cancelled
-/// (PAYROLL_TRANSITIONS), with `approved` additionally requiring `payroll_approve` (permission or
-/// approval) STACKED on top of the base `employees_manage` every transition requires - the same
-/// "base gate + stacked gate for the sensitive step" shape AuthorizeShiftClose already uses.</summary>
+/// <summary>Ported from transitionPayroll - draft→calculated→reviewed→approved, or cancelled from
+/// any of those (PAYROLL_TRANSITIONS), with `approved` additionally requiring `payroll_approve`
+/// (permission or approval) STACKED on top of the base `employees_manage` every transition requires -
+/// the same "base gate + stacked gate for the sensitive step" shape AuthorizeShiftClose already
+/// uses. `paid` is not a transition: only PayPayrollRequest reaches it, because only paying posts
+/// the money.</summary>
 public sealed record TransitionPayrollRequest(string PayrollRunId, string Status, string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);
 
 /// <summary>Ported from payPayroll - gated on `payroll_pay`, requires the run to already be

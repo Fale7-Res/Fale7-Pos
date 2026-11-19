@@ -1,12 +1,11 @@
 namespace Falah.Application.Inventory;
 
-/// <summary>Ported from recordInventoryCountAdjustment. Direction/QuantityMilliUnits are the
-/// human's OBSERVED correction (actual physical count vs system balance, computed client-side
-/// exactly as the reference app does it) - this command never recomputes or second-guesses them,
-/// only validates shape. See InventoryRules' own doc comment for why.</summary>
+/// <summary>Physical counts send CountedTotalMilliUnits: the server derives the adjustment against
+/// the current balance under the stock lock. Legacy delta callers retain Direction/QuantityMilliUnits.
+/// The request id makes both forms replay-safe, including a zero-net physical observation.</summary>
 public sealed record RecordCountAdjustmentRequest(
     string RequestId, string InventoryItemId, long QuantityMilliUnits, string Direction, string Reason,
-    string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId);
+    string ActorUserId, string? ManagerApprovalId, string? ManagerApproverUserId, long? CountedTotalMilliUnits = null);
 
 public sealed record RecordCountAdjustmentResult(string MovementId, string InventoryItemId, bool WasReplayed);
 

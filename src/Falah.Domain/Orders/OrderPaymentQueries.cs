@@ -23,14 +23,27 @@ public static class OrderPaymentQueries
     /// legs, matching the original), while a single-payment-method order counts Total minus
     /// RefundAmount.
     /// </summary>
-    public static IReadOnlyDictionary<PaymentMethod, Money> PaymentMethodTotals(IEnumerable<Order> orders)
+    public static IReadOnlyDictionary<PaymentMethod, Money> PaymentMethodTotals(IEnumerable<Order> orders) =>
+        Totals(orders, netOfRefunds: true);
+
+    /// <summary>
+    /// The same channel attribution at each order's full paid value, before any refund. For a report
+    /// that accounts for refunds as events of the period they happen in (SalesRules) rather than
+    /// against the period of the sale they reverse: it subtracts the period's refunds itself, so
+    /// netting each order's cumulative refund here as well would take them off twice - and off the
+    /// wrong day.
+    /// </summary>
+    public static IReadOnlyDictionary<PaymentMethod, Money> PaymentMethodTotalsAsSold(IEnumerable<Order> orders) =>
+        Totals(orders, netOfRefunds: false);
+
+    private static IReadOnlyDictionary<PaymentMethod, Money> Totals(IEnumerable<Order> orders, bool netOfRefunds)
     {
         var totals = TrackedMethods.ToDictionary(m => m, _ => Money.Zero);
 
         foreach (var order in orders)
         {
             if (order.Status == OrderStatus.Cancelled) continue;
-            var netTotal = order.Total - order.RefundAmount;
+            var netTotal = netOfRefunds ? order.Total - order.RefundAmount : order.Total;
 
             if (order.PaymentMethod == PaymentMethod.Multi && order.SplitPayments is { } splits)
             {

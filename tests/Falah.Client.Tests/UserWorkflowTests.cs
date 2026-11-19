@@ -6,6 +6,7 @@ using Falah.Client.CashierWinUI.ViewModels;
 
 namespace Falah.Client.Tests;
 
+[Collection(RetainedRequestStorageCollection.Name)]
 public class UserWorkflowTests
 {
     private sealed class Handler(Func<HttpRequestMessage, Task<HttpResponseMessage>> send) : HttpMessageHandler
@@ -78,35 +79,36 @@ public class UserWorkflowTests
     }
 
     [Fact]
-    public async Task Lost_self_pin_confirmation_is_reconciled_to_the_same_user_without_rewriting_the_pin()
+    public async Task Lost_pin_confirmation_retries_the_same_command_without_logging_in()
     {
-        var writes = 0; var proofs = 0;
+        var bodies = new List<string>();
+        var logins = 0;
         var session = Session(async r =>
         {
             if (r.RequestUri!.AbsolutePath == "/api/auth/login-by-pin")
             {
-                proofs++; var proof = await r.Content!.ReadFromJsonAsync<LoginByPinRequest>();
-                Assert.Equal("2468", proof!.Pin);
-                return Json(new UserSummaryDto(Owner.Id, Owner.Name, Owner.Role, Owner.Permissions));
+                logins++;
+                return Json(new UserSummaryDto(Target.Id, Target.Name, Target.Role, Target.Permissions));
             }
-            writes++; throw new HttpRequestException("committed, confirmation lost");
+            bodies.Add(await r.Content!.ReadAsStringAsync());
+            if (bodies.Count == 1) throw new HttpRequestException("lost");
+            return new HttpResponseMessage(HttpStatusCode.OK);
         });
         var vm = new UsersViewModel(session); await vm.LoadAsync(); vm.OpenPinChangeCommand.Execute(null);
-        Assert.True(vm.IsSelfPinChange);
         vm.CurrentPin = "1357"; vm.NewPin = vm.ConfirmPin = "2468";
         await vm.ChangePinCommand.ExecuteAsync(null);
         Assert.True(session.HasUnresolvedOperation);
-        vm.CloseUserDialogCommand.Execute(null); Assert.True(vm.IsPinChangeOpen);
-        vm.CurrentPin = "changed"; vm.NewPin = "bad";
         await vm.RetryUserActionCommand.ExecuteAsync(null);
-        Assert.Equal(1, writes); Assert.Equal(1, proofs);
-        Assert.False(session.HasUnresolvedOperation); Assert.False(vm.IsPinChangeOpen);
-        Assert.Empty(vm.CurrentPin); Assert.Empty(vm.NewPin); Assert.Empty(vm.ConfirmPin);
+        Assert.Equal(0, logins);
+        Assert.Equal(2, bodies.Count);
+        Assert.Equal(bodies[0], bodies[1]);
+        Assert.Contains("requestId", bodies[0]);
+        Assert.False(session.HasUnresolvedOperation);
         Assert.Equal(Owner.Id, session.CurrentUser!.Id);
     }
 
     [Fact]
-    public async Task A_pin_proof_for_a_different_user_does_not_confirm_the_pending_change()
+    public async Task A_refused_retry_of_an_unconfirmed_pin_change_stays_pending()
     {
         var bodies = new List<string>();
         var session = Session(async r =>
@@ -138,4 +140,57 @@ public class UserWorkflowTests
         await vm.CreateUserCommand.ExecuteAsync(null);
         Assert.Equal(0, writes); Assert.NotNull(vm.ActionError);
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Unconfirmed_user_credentials_are_retained_only_in_memory(bool create)
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "falah-pin-store-" + Guid.NewGuid().ToString("N"));
+        var previous = RetainedRequestStorage.Current;
+        try
+        {
+            RetainedRequestStorage.Current = new FileRetainedRequestStore(directory);
+            var session = Session(_ => throw new HttpRequestException("lost"));
+            var vm = new UsersViewModel(session); await vm.LoadAsync();
+            if (create)
+            {
+                vm.OpenCreateUserCommand.Execute(null);
+                vm.NewUserName = "كاشير"; vm.NewUserRole = "cashier";
+                vm.NewUserPin = vm.ConfirmUserPin = "2468";
+                vm.NewUserPermissions.Single(p => p.Key == "pos").IsGranted = true;
+                await vm.CreateUserCommand.ExecuteAsync(null);
+            }
+            else
+            {
+                vm.OpenPinChangeCommand.Execute(null);
+                vm.CurrentPin = "1357"; vm.NewPin = vm.ConfirmPin = "2468";
+                await vm.ChangePinCommand.ExecuteAsync(null);
+            }
+            Assert.True(vm.HasPendingAction);
+            Assert.Empty(Directory.EnumerateFiles(directory));
+        }
+        finally { RetainedRequestStorage.Current = previous; if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+    }
+
+    [Fact]
+    public void Old_pin_request_files_are_removed_without_deleting_financial_requests()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "falah-pin-store-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            foreach (var key in new[] { "users.create", "users.change-pin" })
+            {
+                File.WriteAllText(Path.Combine(directory, key + ".json"), "legacy credential");
+                File.WriteAllText(Path.Combine(directory, key + ".json.tmp"), "legacy credential");
+            }
+            var financial = Path.Combine(directory, "checkout.json");
+            File.WriteAllText(financial, "pending financial operation");
+            _ = new FileRetainedRequestStore(directory);
+            Assert.Equal(new[] { financial }, Directory.GetFiles(directory));
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
 }

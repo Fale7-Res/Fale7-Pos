@@ -83,14 +83,19 @@ public sealed class ScheduledBackupService : BackgroundService
 
     private async Task RunCycleAsync(CancellationToken ct)
     {
-        using var scope = _scopes.CreateScope();
+        // Async scope: DatabaseActivityScope is IAsyncDisposable only, so a synchronous scope
+        // dispose throws after every cycle (B36 verification, 2026-11-07).
+        await using var scope = _scopes.CreateAsyncScope();
+        await using var activity = scope.ServiceProvider.GetRequiredService<DatabaseActivityScope>();
+        await activity.EnterRequestAsync(false, ct);
         var db = scope.ServiceProvider.GetRequiredService<FalahDbContext>();
 
-        var newest = await db.BackupRecords.AsNoTracking()
+        var recent = await db.BackupRecords.AsNoTracking()
             .Where(b => b.Kind == nameof(BackupRecordKind.Backup)
                         && b.Status == nameof(BackupRecordStatus.Succeeded))
             .OrderByDescending(b => b.CompletedAtUtc)
-            .FirstOrDefaultAsync(ct);
+            .ToListAsync(ct);
+        var newest = recent.FirstOrDefault(b => File.Exists(b.FilePath));
 
         var now = DateTimeOffset.UtcNow;
         if (!Falah.Domain.Backup.BackupRules.IsAutomaticBackupDue(newest?.CompletedAtUtc, now, MaxAgeHours)) return;
@@ -138,11 +143,16 @@ public sealed class ScheduledBackupService : BackgroundService
 
         if (prunable.Count == 0) return;
 
+        // Older releases could give two records the same physical file. Never remove a path
+        // still owned by a kept backup, even when the obsolete alias is prunable.
+        var protectedPaths = recorded.Where(b => !prunable.Contains(b.Id))
+            .Select(b => Path.GetFullPath(b.FilePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var record in recorded.Where(b => prunable.Contains(b.Id)))
         {
             try
             {
-                if (File.Exists(record.FilePath)) File.Delete(record.FilePath);
+                if (!protectedPaths.Contains(Path.GetFullPath(record.FilePath)) && File.Exists(record.FilePath))
+                    File.Delete(record.FilePath);
                 // The row stays, with its file marked gone: the history of what was backed up and
                 // when outlives the .bak, which is what an audit of "were we taking backups in
                 // September" actually needs to read.

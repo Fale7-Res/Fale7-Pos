@@ -89,6 +89,18 @@ public class FinancialRulesTests
         FinancialRules.AssertProtectedSourceBalance(Array.Empty<TreasuryMovement>(), "tre-wallet", Money.FromEgp(999m));
     }
 
+    // PERF-0001: the server now sums the balance in the database and passes the figure in.
+    [Theory]
+    [InlineData("tre-drawer", 5000, 10000, true)]
+    [InlineData("tre-drawer", 10000, 10000, false)]
+    [InlineData("tre-wallet", 0, 10000, false)]
+    public void A_protected_account_cannot_spend_more_than_its_summed_balance(string account, long balancePiastres, long amountPiastres, bool refused)
+    {
+        var act = () => FinancialRules.AssertProtectedSourceBalance(Money.FromPiastres(balancePiastres), account, Money.FromPiastres(amountPiastres));
+
+        if (refused) Assert.Throws<DomainException>(act); else act();
+    }
+
     private static TreasuryMovement MakeMovement(string id, string? source, string? destination, Money amount, MovementStatus status) =>
         new(id, $"key-{id}", $"op-{id}", "test", source, destination, amount, "order", "ord-1", null, "shift-1", "test", "cashier", null, Now, status);
 }

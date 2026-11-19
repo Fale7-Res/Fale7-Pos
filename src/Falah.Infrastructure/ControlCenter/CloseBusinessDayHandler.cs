@@ -49,21 +49,24 @@ public sealed class CloseBusinessDayHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "business_day_close", null);
         }
-        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "business_day_close", approval, requireApproval: true);
-
-        var day = await _db.BusinessDays.FirstOrDefaultAsync(d => d.Id == request.BusinessDayId, ct)
-            ?? throw new InvalidOperationException("يوم العمل غير موجود.");
-
-        var currentStatus = Enum.Parse<BusinessDayStatus>(day.Status);
-        BusinessDayRules.AssertTransition(currentStatus, BusinessDayStatus.Closing);
-        BusinessDayRules.AssertTransition(BusinessDayStatus.Closing, BusinessDayStatus.Closed);
-
-        var operationId = $"business-close-{day.Id}-r{day.CloseRevision + 1}";
-        var now = DateTimeOffset.UtcNow;
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct, closing: true);
+            var admissionReplay = await _db.BusinessDayCloseSnapshots.AsNoTracking().FirstOrDefaultAsync(s => s.Id == snapshotId, ct);
+            if (admissionReplay is not null) return ToDto(admissionReplay, wasReplayed: true);
+            var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "business_day_close", approval, requireApproval: true);
+            var day = await _db.BusinessDays.FromSqlRaw("SELECT * FROM BusinessDays WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.BusinessDayId).FirstOrDefaultAsync(ct)
+                ?? throw new InvalidOperationException("يوم العمل غير موجود.");
+
+            var currentStatus = Enum.Parse<BusinessDayStatus>(day.Status);
+            BusinessDayRules.AssertTransition(currentStatus, BusinessDayStatus.Closing);
+            BusinessDayRules.AssertTransition(BusinessDayStatus.Closing, BusinessDayStatus.Closed);
+
+            var operationId = $"business-close-{day.Id}-r{day.CloseRevision + 1}";
+            var now = DateTimeOffset.UtcNow;
+
             _db.ControlAuditEvents.Add(new ControlAuditEventEntity
             {
                 Id = $"audit-{Guid.NewGuid():N}", Action = "business_day_close_started", Actor = actorUser.Name,
@@ -88,7 +91,7 @@ public sealed class CloseBusinessDayHandler
             var exceptions = await BuildDayExceptionsAsync(day, ct);
             var completions = await _db.ChecklistCompletions.AsNoTracking().Where(c => c.BusinessDayId == day.Id).ToListAsync(ct);
 
-            var revision = await _db.BusinessDayCloseSnapshots.CountAsync(s => s.BusinessDayId == day.Id, ct) + 1;
+            var revision = (await _db.BusinessDayCloseSnapshots.Where(s => s.BusinessDayId == day.Id).MaxAsync(s => (int?)s.CloseRevision, ct) ?? 0) + 1;
             await _db.BusinessDayCloseSnapshots.Where(s => s.BusinessDayId == day.Id)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.Authoritative, false), ct);
 
@@ -135,12 +138,14 @@ public sealed class CloseBusinessDayHandler
     /// equivalent, and system-wide is simpler and cannot under-count a real problem.</summary>
     private async Task<IReadOnlyList<ControlException>> BuildDayExceptionsAsync(BusinessDayEntity day, CancellationToken ct)
     {
-        var dayShifts = await _db.Shifts.AsNoTracking()
-            .Where(s => s.BusinessDate == day.BusinessDate && s.Status == "Closed" && s.CashDifferencePiastres != null)
+        var dayShifts = await Falah.Infrastructure.BusinessDay.BusinessDayShifts.Of(_db.Shifts.AsNoTracking(), day)
+            .Where(s => s.Status == "Closed" && s.CashDifferencePiastres != null)
             .Select(s => new { s.Id, Diff = s.CashDifferencePiastres!.Value }).ToListAsync(ct);
-        var dayOrders = await _db.Orders.AsNoTracking()
-            .Where(o => o.BusinessDayId == day.Id && o.RefundAmountPiastres > 0)
-            .Select(o => new { o.Id, o.RefundAmountPiastres }).ToListAsync(ct);
+        // Refunds MADE in this day, per order - not every refund ever made against the orders SOLD in
+        // it, which flagged a closed day for a refund paid out in a later one.
+        var dayOrders = (await Falah.Infrastructure.Reports.RefundEventQueries.LoadAsync(_db, null, null, day.Id, ct))
+            .GroupBy(r => r.OrderId)
+            .Select(g => new { Id = g.Key, RefundAmountPiastres = g.Sum(r => r.Amount.Piastres) }).ToList();
         var dayExpenses = await _db.Expenses.AsNoTracking()
             .Where(e => e.BusinessDayId == day.Id).Select(e => new { e.Id, e.AmountPiastres }).ToListAsync(ct);
         var unsettledCustodyIds = await _db.DriverCustodies.AsNoTracking()
@@ -155,7 +160,9 @@ public sealed class CloseBusinessDayHandler
             RefundedOrders: dayOrders.Select(o => (o.Id, o.RefundAmountPiastres)).ToList(),
             Expenses: dayExpenses.Select(e => (e.Id, e.AmountPiastres)).ToList(),
             UnsettledCustodyIds: unsettledCustodyIds,
-            IncompleteJournalIds: incompleteJournalIds);
+            IncompleteJournalIds: incompleteJournalIds,
+            UnconfirmedHandovers: await FinancialFollowUps.UnconfirmedHandoversAsync(_db, day, ct),
+            UnresolvedShortfalls: await FinancialFollowUps.UnresolvedShortfallsAsync(_db, ct));
         return ControlCenterRules.BuildExceptions(input);
     }
 

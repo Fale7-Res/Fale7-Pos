@@ -90,12 +90,26 @@ public sealed class RecordDeliveryResultHandler
             var facts = DeliveryFactsComposer.Compose(delivery, order);
             var now = DateTimeOffset.UtcNow;
             long? collectedForEvent = null;
+            string? shortfallApprover = null;
+            var shortfall = Money.Zero;
 
             if (targetStatus == DeliveryStatus.Delivered)
             {
                 var expected = DeliveryRules.DeliveryCashResponsibility(facts.PaymentMethod, facts.PaymentAlreadySettled, facts.AmountToCollect);
                 var collected = request.CollectedAmountPiastres.HasValue ? Money.FromPiastres(request.CollectedAmountPiastres.Value) : expected;
                 DeliveryRules.AssertCollectionAmount(expected, collected, request.Reason);
+
+                // AUD-03: less than was due takes money out of the sale the restaurant has already counted, and the
+                // settlement that follows is computed on what was collected, so it would show no difference at all.
+                // It therefore needs the authority that approves a settlement difference - the permission itself or
+                // a manager's approval issued for it - exactly like the settlement shortage it would otherwise be.
+                if (collected < expected)
+                {
+                    var shortfallAuthorization = AuthorizationPolicy.AuthorizeCommand(
+                        _approvalRegistry, actor, "delivery_settlement_approve", approval, requireApproval: true);
+                    shortfallApprover = shortfallAuthorization.Approver?.ApproverName ?? actorUser.Name;
+                    shortfall = expected - collected;
+                }
 
                 delivery.DeliveredAtUtc = now;
                 delivery.CollectedAmountPiastres = collected.Piastres;
@@ -124,6 +138,42 @@ public sealed class RecordDeliveryResultHandler
                 delivery.ReturnReason = request.Reason;
             }
 
+            // A cash-on-delivery order that never reached the customer never took any money, so it is
+            // not a sale (owner's decision): the order is voided, the driver's custody for it closes at
+            // zero - there is nothing for them to bring back - and the food is accounted for the way
+            // the operator says it went. Before this it stayed in sales, its cash "with the driver"
+            // forever and its open custody blocking the business-day close. An order that was already
+            // paid (card, confirmed transfer) is untouched here: its money goes back through a refund.
+            if (targetStatus is DeliveryStatus.Failed or DeliveryStatus.Returned
+                && Falah.Domain.Orders.CheckoutRules.IsCashOnDelivery(
+                    OrderEnumMapping.ParseOrderType(order.OrderType), OrderEnumMapping.ParsePaymentMethod(order.PaymentMethod),
+                    Falah.Domain.Common.Money.FromPiastres(order.TotalPiastres))
+                && !order.IsPaid)
+            {
+                var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+                var orderEntity = await _db.Orders.Include(o => o.Items).Include(o => o.Refunds).FirstAsync(o => o.Id == order.Id, ct);
+                var domainOrder = OrderMapper.ToDomain(orderEntity);
+                domainOrder.VoidUndeliveredCashOnDelivery(request.Reason!, actorUser.Name, now);
+                orderEntity.Status = domainOrder.Status.ToWireString();
+                orderEntity.CancelledAtUtc = domainOrder.CancelledAtUtc;
+                orderEntity.CancelReason = domainOrder.CancelReason;
+                orderEntity.CancelledBy = domainOrder.CancelledBy;
+                orderEntity.Version++;
+
+                var custody = await _db.DriverCustodies.FirstOrDefaultAsync(c => c.DeliveryId == delivery.Id, ct);
+                if (custody is not null && custody.Status != nameof(CustodyStatus.Settled))
+                {
+                    custody.ExpectedPiastres = 0;
+                    custody.CollectedPiastres = 0;
+                    custody.DifferencePiastres = 0;
+                    custody.Status = nameof(CustodyStatus.Settled);
+                    custody.SettledAtUtc = now;
+                }
+
+                await Falah.Infrastructure.Orders.OrderStockDisposition.ApplyAsync(
+                    _db, order.Id, disposition, request.Reason!, actorUser.Name, now, ct);
+            }
+
             delivery.Status = targetStatus.ToString();
             delivery.Version++;
 
@@ -131,8 +181,17 @@ public sealed class RecordDeliveryResultHandler
             {
                 Id = eventId, DeliveryId = delivery.Id, OrderId = delivery.OrderId, DriverId = delivery.DriverId,
                 TripId = delivery.TripId, Type = targetStatus.ToString().ToLowerInvariant(), Reason = request.Reason,
-                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = approval?.ApproverName, CreatedAtUtc = now,
+                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = shortfallApprover ?? approval?.ApproverName, CreatedAtUtc = now,
             });
+
+            if (shortfall.IsPositive)
+            {
+                _auditLog.Append(new AuditEvent(
+                    $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                    "تحصيل أقل من المستحق عند التسليم", "cash",
+                    $"طلب {order.OrderNumber} - المستحق {(shortfall + Money.FromPiastres(collectedForEvent ?? 0)).Piastres} والمحصّل {collectedForEvent} - العجز {shortfall.Piastres} قرش - {request.Reason}",
+                    "critical", now, Reason: request.Reason, AuthorizedBy: shortfallApprover, ReferenceId: delivery.Id));
+            }
 
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,

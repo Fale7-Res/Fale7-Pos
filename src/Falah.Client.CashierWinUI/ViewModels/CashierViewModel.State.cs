@@ -22,6 +22,11 @@ public partial class CashierViewModel
     public bool CanEditOperation => !IsOperationBusy && _pendingRefund is null && _pendingReprint is null && _pendingCheckout is null && _pendingExpense is null &&
         _pendingSafeDrop is null && _pendingCashMovement is null && _pendingCashDrawer is null &&
         _pendingOpenShift is null && _pendingCloseShift is null && !_pendingElectronicConfirm.HasPending && !_pendingElectronicCancel.HasPending;
+    // Read afresh by keyboard accelerators; no shortcut may reach the cart behind a dialog.
+    public bool IsAnyModalOpen => IsCheckoutOpen || IsVariantPickerOpen || IsDeliveryEditorOpen || IsAddExpenseOpen
+        || IsSafeDropOpen || IsCashMovementOpen || IsCashDrawerOpen || IsCashCountOpen || IsOrderLookupOpen
+        || IsPickupEditorOpen || IsRefundOpen || IsCloseShiftOpen || IsClearCartOpen;
+    public bool CanUseWorkspaceShortcuts => CanEditOperation && !HasCheckoutResult && !IsAnyModalOpen;
     public bool CanDiscount => _session.HasPermission("orders_discount");
     public bool CanViewDrawerBalance => _session.HasPermission("treasury_manage") || _session.HasPermission("reports_view");
     public bool UsesWallet => IsSplitPaymentEnabled ? SplitMethod1 == "wallet" || SplitMethod2 == "wallet" : PaymentMethod == "wallet";
@@ -50,7 +55,7 @@ public partial class CashierViewModel
     public string TaxLabel => _taxRule?.Mode == Falah.Domain.Financial.TaxMode.Inclusive ? "الضريبة (مشمولة)" : "الضريبة";
     public string TaxDisplay => CashInput.Format(Falah.Domain.Financial.TaxEngine.Calculate(
         Falah.Domain.Common.Money.FromPiastres(Math.Max(0, CartSubtotalPiastres - DiscountAmountPiastres)), _taxRule).Tax.Piastres) + " ج";
-    public string CheckoutTitle => IsElectronicPaymentPending ? "بانتظار تأكيد التحويل" : "تم تسجيل الطلب";
+    public string CheckoutTitle => LastCheckoutResult?.Status == "cancelled" ? "تم إلغاء الطلب" : IsElectronicPaymentPending ? "بانتظار تأكيد التحويل" : "تم تسجيل الطلب";
     public string CheckoutSubtitle => IsElectronicPaymentPending ? "الطلب مسجل؛ المبلغ لم يُحصّل بعد" : "راجع رقم الطلب والمبلغ المسجل";
 
     /// <summary>Shown only when the sale succeeded but its tickets could not be queued. The sale is
@@ -76,6 +81,7 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(GrandTotalPiastres)); OnPropertyChanged(nameof(GrandTotalDisplay));
         OnPropertyChanged(nameof(DeliveryFeeDisplay)); OnPropertyChanged(nameof(DiscountDisplay));
         OnPropertyChanged(nameof(CompDisplay)); OnPropertyChanged(nameof(ChangeDuePiastres));
+        OnPropertyChanged(nameof(DiscountNeedsApproval));
         OnPropertyChanged(nameof(HasTax)); OnPropertyChanged(nameof(TaxLabel)); OnPropertyChanged(nameof(TaxDisplay));
         NotifyPaymentPresentation();
         NotifyCheckoutAvailability();
@@ -101,9 +107,12 @@ public partial class CashierViewModel
             if (settings.Success && settings.Value is not null)
             {
                 _header.SetIdentity(settings.Value.RestaurantName);
+                TargetFloatPiastres = Math.Max(0, settings.Value.DefaultOpeningCashPiastres);
+                _maxDiscountWithoutApprovalBasisPoints = settings.Value.MaxDiscountWithoutApprovalBasisPoints;
+                OnPropertyChanged(nameof(DiscountNeedsApproval));
                 // Offered, not imposed: the cashier can type over it before opening the shift.
                 if (_session.ShiftId is null)
-                    OpeningCashText = CashInput.Format(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));
+                    await OfferOpeningCashAsync(Math.Max(0, settings.Value.DefaultOpeningCashPiastres));
             }
             if (IsShiftOpen) await LoadMenuAsync();
         }

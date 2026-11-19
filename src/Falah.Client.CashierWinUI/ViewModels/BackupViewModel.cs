@@ -9,19 +9,14 @@ namespace Falah.Client.CashierWinUI.ViewModels;
 /// <summary>
 /// Backups: create and verify.
 ///
-/// RESTORE is deliberately NOT exposed on this screen. A restore is the one command in this system
-/// that can erase committed financial history - the backend guards it with a mandatory reason, a
-/// mandatory literal confirmation phrase, a zero-active-operations check and a manager approval on
-/// top of `backup_manage`. Putting it one click away from "create backup" in a management screen
-/// would undermine all four guards by making it look like a peer of the routine actions beside it.
-/// Verification (RESTORE VERIFYONLY) is safe against a live system and IS offered here, because a
-/// backup nobody has verified is only a hope.
+/// Restore has a separate guarded confirmation flow, protected by the server maintenance
+/// barrier, permission/approval, typed confirmation, reason and an automatic safety backup.
 /// </summary>
 public partial class BackupViewModel : ObservableObject
 {
     private readonly AppSession _session;
 
-    public BackupViewModel(AppSession session) => _session = session;
+    public BackupViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
 
     public ObservableCollection<BackupRecordDto> Backups { get; } = new();
 
@@ -52,10 +47,10 @@ public partial class BackupViewModel : ObservableObject
         {
             if (LastGoodBackup is not { } backup) return "لو ضاعت قاعدة البيانات دلوقتي، مفيش نسخة تترجع منها.";
             var size = backup.FileSizeBytes is { } bytes ? $" · {bytes / 1024 / 1024} م.ب" : "";
-            var verified = backup.VerificationStatus switch
+            var verified = backup.VerificationStatus?.ToLowerInvariant() switch
             {
-                "Verified" => " · تم التحقق من سلامة الملف",
-                "Failed" => " · فشل التحقق من سلامة الملف",
+                "valid" => " · تم التحقق من سلامة الملف",
+                "invalid" => " · فشل التحقق من سلامة الملف",
                 _ => " · لم يتم التحقق من سلامة الملف",
             };
             return backup.CompletedAtUtc!.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm") + size + verified;
@@ -163,9 +158,10 @@ public partial class BackupViewModel : ObservableObject
                 ActionError = result.Error ?? "تعذر التحقق من النسخة.";
                 return;
             }
-            ActionNote = result.Value.VerificationStatus == "Verified"
-                ? "النسخة سليمة وقابلة للاستعادة."
-                : $"نتيجة التحقق: {result.Value.VerificationStatus}";
+            if (string.Equals(result.Value.VerificationStatus, "Valid", StringComparison.OrdinalIgnoreCase))
+                ActionNote = "النسخة سليمة وقابلة للاستعادة.";
+            else
+                ActionError = result.Value.ErrorMessage ?? "فشل التحقق من سلامة النسخة؛ لا تستخدمها للاستعادة.";
             await LoadAsync();
         }
         finally { IsBusy = false; }
@@ -270,8 +266,9 @@ public partial class BackupViewModel : ObservableObject
         // The server records a Blocked restore rather than throwing when a precondition fails, so a
         // successful HTTP response is not by itself proof that the database was restored.
         var record = result.Value;
-        if (string.Equals(record.Status, "Completed", StringComparison.OrdinalIgnoreCase))
-            ActionNote = "تمت استعادة قاعدة البيانات من النسخة الاحتياطية.";
+        if (string.Equals(record.Status, "Succeeded", StringComparison.OrdinalIgnoreCase))
+            ActionNote = "تمت استعادة قاعدة البيانات من النسخة الاحتياطية."
+                + (string.IsNullOrWhiteSpace(record.ErrorMessage) ? "" : " " + record.ErrorMessage);
         else
         {
             RestoreError = record.ErrorMessage ?? $"لم تكتمل الاستعادة. الحالة: {record.Status}";

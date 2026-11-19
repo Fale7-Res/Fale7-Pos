@@ -42,10 +42,20 @@ public sealed class ReportPrintJobResultHandler
                 ?? throw new InvalidOperationException("طلب الطباعة غير موجود.");
 
             var now = DateTimeOffset.UtcNow;
-            job.AttemptCount++;
-            job.LastAttemptAtUtc = now;
-            job.Status = request.Succeeded ? nameof(PrintJobStatus.Succeeded) : nameof(PrintJobStatus.Failed);
-            job.LastError = request.Succeeded ? null : request.Error;
+            // A stale outcome is still evidence, but never overwrites the current holder/result.
+            var currentHolder = request.ClaimId is not null && job.ClaimedBy == request.ClaimId
+                && job.Status is nameof(PrintJobStatus.Pending) or nameof(PrintJobStatus.Sending);
+            var legacyUnclaimed = request.ClaimId is null && job.ClaimedBy is null
+                && job.Status is nameof(PrintJobStatus.Pending) or nameof(PrintJobStatus.Failed);
+            if (currentHolder || legacyUnclaimed)
+            {
+                job.AttemptCount++;
+                job.LastAttemptAtUtc = now;
+                job.Status = request.Succeeded ? nameof(PrintJobStatus.Succeeded) : nameof(PrintJobStatus.Failed);
+                job.LastError = request.Succeeded ? null : request.Error;
+                job.ClaimedBy = null;
+                job.ClaimedUntilUtc = null;
+            }
 
             _db.PrintJobAttempts.Add(new PrintJobAttemptEntity
             {

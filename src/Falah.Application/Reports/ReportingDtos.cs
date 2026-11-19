@@ -21,7 +21,10 @@ public sealed record TaxReportDto(long GrossPiastres, long TaxablePiastres, long
 
 public sealed record RefundActivityDto(
     string OrderId, string? OrderNumber, long AmountPiastres, string PaymentMethod, string Reason,
-    string CreatedBy, string AuthorizedBy, DateTimeOffset CreatedAtUtc, string OriginalShiftId, string ProcessingShiftId);
+    string CreatedBy, string AuthorizedBy, DateTimeOffset CreatedAtUtc, string OriginalShiftId, string ProcessingShiftId,
+    /// <summary>When the sale this refund reverses was made. A refund counts in the period it was
+    /// made in; this says whether the sale belonged to the same one.</summary>
+    DateTimeOffset? OriginalSaleAtUtc = null);
 
 /// <summary>The read-only equivalent of the reference app's reconcileBusinessDay - "where is the
 /// money" for one business day, from the SAME persisted movements/orders/shifts every other screen
@@ -39,7 +42,10 @@ public sealed record BusinessDayReconciliationDto(
 /// for one business day. DailyWage/Overtime are money owed to staff (their Credit side); Advance/
 /// Withdrawal are cash already paid out against that balance (their Debit side) - the same asymmetry
 /// EmployeesViewModel's own cash-out already surfaces rather than nets away.</summary>
-public sealed record EmployeeLedgerTotalsDto(long DailyWagePiastres, long OvertimePiastres, long AdvancePiastres, long WithdrawalPiastres);
+/// <remarks>SalaryAccruedPiastres: the monthly salaries' daily shares earned on this business day's
+/// date, by the date they were earned for - not when the accrual happened to be posted.</remarks>
+public sealed record EmployeeLedgerTotalsDto(long DailyWagePiastres, long OvertimePiastres, long AdvancePiastres, long WithdrawalPiastres,
+    long SalaryAccruedPiastres = 0);
 
 /// <summary>Ported from DailySummaryScreen.tsx - the printable end-of-day sheet. Reuses
 /// GetBusinessDayReconciliationAsync's own sales/expenses/shift-discrepancy figures rather than
@@ -97,4 +103,8 @@ public sealed record ShiftSummaryDto(
 public sealed record DeliveryOutcomesReportDto(
     int DeliveredCount, int FailedCount, int ReturnedCount, long DeliveryFeesPiastres,
     int UnsettledCustodyCount, long UnsettledCustodyExpectedPiastres,
-    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount);
+    long? AverageDeliveryMinutes, long SettledCashPiastres, long ShortagesPiastres, long OveragesPiastres, int SettlementCount,
+    /// <summary>AUD-03: deliveries completed in the period (by delivery time) whose customer paid less than was due -
+    /// approved, but money the order's sale includes and the driver never collected. Separate from ShortagesPiastres,
+    /// which is what a driver failed to hand over at settlement.</summary>
+    long CollectionShortfallPiastres = 0, int CollectionShortfallCount = 0);

@@ -56,11 +56,20 @@ public sealed class RefundOrderHandler
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         try
         {
+            await Falah.Infrastructure.BusinessDay.FinancialAdmission.AcquireAsync(_db, ct);
+            var admissionReplay = await FindExistingAsync(refundKey, ct);
+            if (admissionReplay is not null) return await ToResultAsync(admissionReplay, wasReplayed: true, ct);
+            var businessDayId = await Falah.Infrastructure.BusinessDay.BusinessDayGate.RequireOpenAsync(_db, ct);
             var orderEntity = await _db.Orders
                 .FromSqlRaw("SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.OrderId)
                 .Include(o => o.Items).Include(o => o.Refunds)
                 .FirstOrDefaultAsync(ct)
                 ?? throw new InvalidOperationException("الطلب غير موجود.");
+
+            // Another call may have committed this request while we waited for the order lock.
+            // Replay before checking a spent approval or the now-exhausted refundable amount.
+            var completed = await FindExistingAsync(refundKey, ct);
+            if (completed is not null) return await ToResultAsync(completed, wasReplayed: true, ct);
 
             // Refunds always require either the permission or a manager approval - unlike a shift
             // close discrepancy, there is no threshold below which a refund is self-authorized.
@@ -76,11 +85,28 @@ public sealed class RefundOrderHandler
             var authorizedByName = authorization.Approver?.ApproverName ?? cashier.Name;
 
             var order = OrderMapper.ToDomain(orderEntity);
+            var cashOnDeliverySettled = CheckoutRules.IsCashOnDelivery(order.OrderType, order.PaymentMethod, order.Total)
+                && await _db.DriverCustodies.AsNoTracking().AnyAsync(c => c.OrderId == order.Id
+                    && c.Status == nameof(Falah.Domain.Delivery.CustodyStatus.Settled) && c.CollectedPiastres >= order.Total.Piastres, ct);
+            order.AssertCollectedForRefund(cashOnDeliverySettled);
             var refundable = RefundRules.RefundableRemaining(order.Total, order.RefundAmount);
             // Matches the current app's behaviour exactly: a request for more than what remains is
             // CLAMPED down to what remains, not rejected outright - see RefundRules.ClampRefundAmount.
             var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);
             if (!safeAmount.IsPositive) throw new DomainException("لا يوجد مبلغ متبقٍ للاسترجاع.");
+
+            // Owner, 2026-11-18: a large refund needs a manager even from an orders_refund holder. A holder
+            // passed AuthorizeCommand above without spending anything, so the approval is spent here; one
+            // who lacks the permission has already spent theirs there.
+            // A manager refunding themselves is the person the rule asks for (they could issue the
+            // approval to their own session with their PIN), so no second manager is fetched.
+            if (RefundRules.NeedsManagerApproval(safeAmount) && authorization.Approver is null
+                && !AuthorizationPolicy.CanIssueApproval(cashier, "orders_refund"))
+            {
+                if (approval is null) throw new DomainException(RefundRules.LargeRefundNeedsManagerMessage);
+                authorization = authorization with { Approver = AuthorizationPolicy.ValidateApproval(_approvalRegistry, "orders_refund", approval, cashier.Id) };
+                authorizedByName = authorization.Approver?.ApproverName ?? cashier.Name;
+            }
 
             // Ported from postRefund in lib/enterprise-store.tsx: a refund can only leave a
             // protected account (drawer/main/bank/instapay - never wallet) if it actually holds
@@ -89,7 +115,7 @@ public sealed class RefundOrderHandler
             // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive
             // an account negative.
             var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);
-            var refundSourceMovements = await TreasuryBalanceQuery.LoadAccountMovementsForUpdateAsync(_db, refundSourceAccount, ct);
+            var refundSourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, refundSourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(refundSourceMovements, refundSourceAccount, safeAmount);
 
             var originalShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == order.ShiftId, ct)
@@ -98,20 +124,31 @@ public sealed class RefundOrderHandler
 
             var shiftPolicy = RefundRules.ResolveOperationalShift(
                 order.ShiftId, Enum.Parse<ShiftStatus>(originalShiftEntity.Status), activeShiftEntity?.Id, order.PaymentMethod);
+            // A refund of a closed shift's card/InstaPay/wallet order is allowed with no shift open
+            // (no drawer is touched), but every refund row records the shift that processed it, and
+            // there is none. That used to reach the database as a NOT NULL violation and come back as
+            // a "needs manual review" conflict for a refund that had simply not happened.
+            var operationalShiftId = shiftPolicy.OperationalShiftId
+                ?? throw new DomainException("لا توجد وردية مفتوحة لتسجيل المرتجع عليها. افتح وردية ثم أعد المحاولة.");
+
+            // The refund is an event of the business day it is made in, not of the (possibly long
+            // closed) day of the sale it reverses: stamping the order's own day put it into a day
+            // already closed, counted and handed over. Like every other money-moving command it
+            // needs that day to be open.
 
             var now = DateTimeOffset.UtcNow;
             var movement = TreasuryMovementFactory.BuildRefundMovement(
                 $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", request.RefundRequestId, order.Id,
-                order.PaymentMethod, safeAmount, order.BusinessDayId, shiftPolicy.OperationalShiftId!,
+                order.PaymentMethod, safeAmount, businessDayId, operationalShiftId,
                 cashierUser.Name, authorizedByName, request.Reason, now);
 
             var refund = new OrderRefund($"order-refund-{Guid.NewGuid():N}", movement.OperationId, refundKey,
                 safeAmount, order.PaymentMethod, movement.Id, now, cashierUser.Name, authorizedByName,
-                request.Reason, order.ShiftId, shiftPolicy.OperationalShiftId!);
+                request.Reason, order.ShiftId, operationalShiftId);
 
             // Domain invariants enforced here too (cancelled/multi guard, amount<=refundable,
             // Refunded transition) - not just trusted from the computation above.
-            order.ApplyRefund(refund);
+            order.ApplyRefund(refund, cashOnDeliverySettled);
 
             orderEntity.Status = order.Status.ToWireString();
             orderEntity.RefundAmountPiastres = order.RefundAmount.Piastres;
@@ -124,7 +161,7 @@ public sealed class RefundOrderHandler
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 "استرداد طلب", "order", $"استرداد {safeAmount.Piastres} قرش لطلب {order.OrderNumber} - {request.Reason}",
                 safeAmount.Piastres >= ControlCenterRules.LargeRefundThresholdPiastres ? "critical" : "normal", now,
-                ShiftId: shiftPolicy.OperationalShiftId, Reason: request.Reason, AuthorizedBy: authorizedByName,
+                ShiftId: operationalShiftId, Reason: request.Reason, AuthorizedBy: authorizedByName,
                 OperationId: movement.OperationId, ReferenceId: order.Id));
 
             await _db.SaveChangesAsync(ct);

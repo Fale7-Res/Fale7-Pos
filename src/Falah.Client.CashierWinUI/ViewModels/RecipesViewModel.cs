@@ -380,10 +380,14 @@ public partial class RecipesViewModel : ObservableObject
     public bool HasDetailMissing => DetailMissingLabel.Length > 0;
     public bool HasMarginWithheldReason => MarginWithheldReason.Length > 0;
 
+    private long _detailVersion;
+
     [RelayCommand]
     public async Task LoadDetailAsync()
     {
-        if (SelectedRecipe is not { } row) { Detail = null; return; }
+        var version = ++_detailVersion;
+        Detail = null;
+        if (SelectedRecipe is not { } row) { IsDetailLoading = false; return; }
 
         IsDetailLoading = true;
         DetailError = null;
@@ -391,6 +395,7 @@ public partial class RecipesViewModel : ObservableObject
         try
         {
             var result = await _session.Api.GetRecipeCostDetailAsync(row.Cost.RecipeId, _session.CurrentUser!.Id);
+            if (version != _detailVersion || SelectedRecipe?.Cost.RecipeId != row.Cost.RecipeId) return;
             if (!result.Success || result.Value is null)
             {
                 DetailError = result.Error ?? "تعذر تحميل تفاصيل الوصفة.";
@@ -401,8 +406,12 @@ public partial class RecipesViewModel : ObservableObject
         }
         finally
         {
-            IsDetailLoading = false;
-            OnPropertyChanged(nameof(HasDetail));
+            if (version == _detailVersion)
+            {
+                IsDetailLoading = false;
+                OnPropertyChanged(nameof(HasDetail));
+                OnPropertyChanged(nameof(CanStartEdit));
+            }
         }
     }
 
@@ -467,7 +476,8 @@ public partial class RecipesViewModel : ObservableObject
         ApplyIngredientFilter();
     }
 
-    public bool CanStartEdit => CanEditRecipes && Detail is not null && !IsEditing;
+    public bool CanStartEdit => CanEditRecipes && Detail is not null && !IsEditing && !IsDetailLoading
+        && SelectedRecipe?.Cost.RecipeId == Detail.RecipeId;
 
     [RelayCommand]
     public void StartEdit()
@@ -557,6 +567,11 @@ public partial class RecipesViewModel : ObservableObject
                 if (!MilliUnits.TryParse(line.YieldRatioText, out var ratioMilli) || ratioMilli <= 0)
                 {
                     SaveError = $"سطر بالقطعة يحتاج عدد القطع في الوحدة الواحدة لـ {line.ItemName}.";
+                    return;
+                }
+                if (ratioMilli % 1000 != 0)
+                {
+                    SaveError = $"عدد القطع في الوحدة يجب أن يكون رقمًا صحيحًا دون كسور لـ {line.ItemName}.";
                     return;
                 }
                 yieldRatio = ratioMilli / 1000;

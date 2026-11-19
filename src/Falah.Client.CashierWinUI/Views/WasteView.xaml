@@ -48,7 +48,9 @@
                 <StackPanel Spacing="2" MinWidth="170">
                     <TextBlock Text="إجمالي قيمة الفاقد" Style="{StaticResource CardTitleText}"/>
                     <TextBlock Style="{StaticResource MetricValueText}"
-                               Text="{Binding Summary.TotalLossValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                               Text="{Binding TotalValueDisplay}"/>
+                    <TextBlock Text="{Binding UnknownValueNote}" TextWrapping="Wrap" MaxWidth="280" Foreground="{ThemeResource WarningTextBrush}"
+                               Visibility="{Binding HasUnknownValue, Converter={StaticResource BoolToVisibleConverter}}"/>
                 </StackPanel>
                 <ItemsControl Grid.Column="1" ItemsSource="{Binding ByType}" VerticalAlignment="Center">
                     <ItemsControl.ItemsPanel>
@@ -61,7 +63,7 @@
                             <StackPanel Spacing="2" MinWidth="140">
                                 <TextBlock Text="{Binding Label}" Style="{StaticResource CardTitleText}" TextWrapping="Wrap"/>
                                 <TextBlock FontSize="18" FontWeight="Bold"
-                                           Text="{Binding ValuePiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                           Text="{Binding ValueDisplay}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

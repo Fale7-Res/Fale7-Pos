@@ -38,7 +38,7 @@
                 <Button Content="إيداع آمن" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                         IsEnabled="{Binding CanOpenSafeDrop}"
                         Command="{Binding OpenSafeDropCommand}"/>
-                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                <Button AutomationProperties.Name="تحديث" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                     <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                 </Button>
             </StackPanel>
@@ -73,7 +73,7 @@
                             <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="صافي المبيعات" Style="{StaticResource CaptionText}"/>
-                                    <TextBlock Text="{Binding Reconciliation.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/>
+                                    <TextBlock Text="{Binding Reconciliation.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -151,7 +151,7 @@
                                             <StackPanel Spacing="2">
                                                 <TextBlock Text="{Binding Message}" Style="{StaticResource TableCellText}"
                                                            Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                                <TextBlock Text="{Binding Code}" Style="{StaticResource CaptionText}"/>
+                                                <!-- The machine code (OPEN_SHIFT, CHECKLIST_INCOMPLETE...) is not shown: the Arabic message says it (2026-11-07). -->
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -161,7 +161,7 @@
 
                         <StackPanel Spacing="6" Visibility="{Binding HasBlockers, Converter={StaticResource InverseBoolToVisibleConverter}}">
                             <TextBlock Text="لا توجد موانع - يوم العمل جاهز للإغلاق."
-                                       Foreground="{ThemeResource SuccessBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                       Foreground="{ThemeResource SuccessTextBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
                             <TextBlock Text="راجع القائمة ثم أكّد إغلاق يوم العمل. يعيد السيرفر فحص الموانع عند التأكيد."
                                        Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                         </StackPanel>
@@ -185,10 +185,11 @@
                                         <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" MinHeight="44"
                                                 Style="{StaticResource GhostButtonStyle}"
                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanChangeChecklist}"
+                                                AutomationProperties.Name="{Binding Converter={StaticResource ChecklistAccessibleNameConverter}}"
                                                 Command="{Binding ElementName=Root, Path=DataContext.ToggleChecklistItemCommand}"
                                                 CommandParameter="{Binding}">
                                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                                <FontIcon FontSize="14" Glyph="&#xE73E;" Foreground="{ThemeResource SuccessBrush}"
+                                                <FontIcon FontSize="14" Glyph="&#xE73E;" Foreground="{ThemeResource SuccessTextBrush}"
                                                           Visibility="{Binding Completed, Converter={StaticResource BoolToVisibleConverter}}"/>
                                                 <FontIcon FontSize="14" Glyph="&#xE739;" Foreground="{ThemeResource TextMutedBrush}"
                                                           Visibility="{Binding Completed, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
@@ -199,7 +200,7 @@
                                                 Padding="7,2" VerticalAlignment="Center"
                                                 Visibility="{Binding Required, Converter={StaticResource BoolToVisibleConverter}}">
                                             <TextBlock Text="إلزامي" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource WarningBrush}"/>
+                                                       Foreground="{ThemeResource WarningTextBrush}"/>
                                         </Border>
                                     </Grid>
                                 </DataTemplate>
@@ -248,7 +249,7 @@
                 <Button Content="إعادة فتح اليوم المحدد" MinHeight="48" HorizontalAlignment="Left"
                         Style="{StaticResource SecondaryButtonStyle}" IsEnabled="{Binding CanReopenDay}"
                         Command="{Binding OpenDayActionCommand}" CommandParameter="reopen"/>
-                <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessBrush}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource SuccessTextBrush}" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"/>
                 <Button Content="التحقق وإعادة المحاولة" MinHeight="48" Style="{StaticResource CtaButtonStyle}"
                         Visibility="{Binding HasPendingOperation, Converter={StaticResource BoolToVisibleConverter}}"

@@ -116,4 +116,17 @@ public class PricingRulesTests
     {
         PricingRules.AssertPriceRuleInput("عرض الغداء", new[] { "prod-1" }, Money.FromEgp(50m), new[] { 0, 6 });
     }
+
+    // Owner decision 2026-11-18: a manual discount above 10% of the items needs a manager's PIN.
+    [Theory]
+    [InlineData(10_000, 1_000, 1000, false)] // exactly 10%
+    [InlineData(10_000, 1_001, 1000, true)]  // a piastre over
+    [InlineData(10_000, 0, 1000, false)]     // no discount
+    [InlineData(10_000, 1, 0, true)]         // limit 0: every discount needs a manager
+    [InlineData(0, 1, 1000, true)]           // nothing to discount
+    public void A_discount_above_the_limit_needs_a_manager(long subtotalPiastres, long discountPiastres, int limitBasisPoints, bool needsManager)
+    {
+        Assert.Equal(needsManager, PricingRules.DiscountNeedsApproval(
+            Money.FromPiastres(discountPiastres), Money.FromPiastres(subtotalPiastres), limitBasisPoints));
+    }
 }

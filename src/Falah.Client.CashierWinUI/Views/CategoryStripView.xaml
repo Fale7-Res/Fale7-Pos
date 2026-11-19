@@ -17,7 +17,7 @@
   <GridView.ItemContainerStyle><Style TargetType="GridViewItem"><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,8,0"/></Style></GridView.ItemContainerStyle>
   <GridView.ItemTemplate><DataTemplate>
    <Border MinWidth="116" Height="48" Padding="16,0" CornerRadius="12" BorderThickness="1"
-    Background="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|WhiteBrush}"
+    Background="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|CardBackgroundBrush}"
     BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=BrandPrimaryBrush|CardBorderBrush}">
     <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
      <TextBlock Text="{Binding Category.Icon}" FontSize="19"/>

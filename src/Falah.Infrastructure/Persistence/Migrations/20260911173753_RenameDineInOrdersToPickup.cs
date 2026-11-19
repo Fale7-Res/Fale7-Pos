@@ -21,7 +21,7 @@ namespace Falah.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("UPDATE Orders SET OrderType = 'dine_in' WHERE OrderType = 'pickup';");
+            throw new NotSupportedException("This data normalization is forward-only. Restore a verified backup instead of rewriting genuine pickup orders.");
         }
     }
 }

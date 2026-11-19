@@ -17,14 +17,16 @@ using Falah.Infrastructure.Persistence.Entities;
 /// cannot queue a second one. A deliberate REPRINT passes its own request id instead and is marked,
 /// which is what puts "إعادة طباعة" on the paper.
 /// </summary>
-internal static class DocumentPrintJobs
+public static class DocumentPrintJobs
 {
     public static PrintJobEntity Build(
         PrintDocumentKind kind, string documentId, string label, string createdByName, DateTimeOffset now,
-        string? reprintRequestId = null)
+        string? reprintRequestId = null, string? requestId = null)
     {
         var isReprint = reprintRequestId is not null;
-        var requestId = reprintRequestId ?? $"auto-{kind}-{documentId}";
+        // A report printed on request (the driver statement) carries the caller's own request id: each
+        // press is a separate paper, and a replay of the same press is the same job.
+        requestId ??= reprintRequestId ?? $"auto-{kind}-{documentId}";
         return new PrintJobEntity
         {
             Id = $"printjob-{requestId}-{PrintRoute.Receipt}",

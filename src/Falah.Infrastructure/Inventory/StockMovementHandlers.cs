@@ -35,9 +35,31 @@ public sealed class RecordCountAdjustmentHandler
         var existing = await _db.StockMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
         if (existing is not null) return new RecordCountAdjustmentResult(existing.Id.ToString(), existing.InventoryItemId, WasReplayed: true);
 
-        if (!Enum.TryParse<StockDirection>(request.Direction, ignoreCase: true, out var direction))
-            throw new DomainException("اتجاه حركة المخزون غير صالح.");
-        InventoryRules.AssertCountAdjustmentInput(request.QuantityMilliUnits, request.Reason);
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await InventoryWriteLock.AcquireAsync(_db, ct);
+        existing = await _db.StockMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
+        if (existing is not null) return new RecordCountAdjustmentResult(existing.Id.ToString(), existing.InventoryItemId, WasReplayed: true);
+        StockDirection direction;
+        long quantity;
+        if (request.CountedTotalMilliUnits is { } counted)
+        {
+            if (counted < 0) throw new DomainException("الكمية المعدودة لا يمكن أن تكون سالبة.");
+            var balance = await _db.StockMovements.AsNoTracking().Where(m => m.InventoryItemId == request.InventoryItemId)
+                .SumAsync(m => (long?)(m.Direction == "In" ? m.QuantityMilliUnits : -m.QuantityMilliUnits), ct) ?? 0;
+            var difference = (decimal)counted - balance;
+            if (Math.Abs(difference) > long.MaxValue) throw new DomainException("فرق الجرد يتجاوز حد الكمية المسموح.");
+            quantity = (long)Math.Abs(difference); direction = difference < 0 ? StockDirection.Out : StockDirection.In;
+            // A zero-net observation is retained as the count's receipt, so replay cannot apply
+            // the old physical count again after a later sale or purchase.
+            InventoryRules.AssertCountAdjustmentInput(Math.Max(1, quantity), request.Reason);
+        }
+        else
+        {
+            if (!Enum.TryParse<StockDirection>(request.Direction, true, out direction) || !Enum.IsDefined(direction))
+                throw new DomainException("اتجاه حركة المخزون غير صالح.");
+            quantity = request.QuantityMilliUnits;
+            InventoryRules.AssertCountAdjustmentInput(quantity, request.Reason);
+        }
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -59,7 +81,7 @@ public sealed class RecordCountAdjustmentHandler
         var entity = new StockMovementEntity
         {
             IdempotencyKey = idempotencyKey, InventoryItemId = item.Id, Type = nameof(StockMovementType.CountAdjustment),
-            Direction = direction.ToString(), QuantityMilliUnits = request.QuantityMilliUnits,
+            Direction = direction.ToString(), QuantityMilliUnits = quantity,
             ReferenceType = "inventory_count", ReferenceId = item.Id, Reason = request.Reason.Trim(),
             CreatedBy = actorUser.Name, ApprovedBy = authorization.Approver?.ApproverName,
             OperationId = $"op-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow,
@@ -69,10 +91,11 @@ public sealed class RecordCountAdjustmentHandler
             _db.StockMovements.Add(entity);
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
-                "فرق جرد", "inventory", $"الخامة {item.Id}: {direction} {request.QuantityMilliUnits} - {request.Reason}",
+                "فرق جرد", "inventory", $"الخامة {item.Id}: {direction} {quantity} - {request.Reason}",
                 "normal", entity.CreatedAtUtc, Reason: request.Reason, AuthorizedBy: authorization.Approver?.ApproverName,
                 ReferenceId: item.Id));
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (DbUpdateException)
         {
@@ -110,6 +133,10 @@ public sealed class RecordWasteHandler
         if (existing is not null)
             return new RecordWasteResult(existing.Id.ToString(), existing.InventoryItemId, existing.UnitCostPiastres, existing.LossValuePiastres, WasReplayed: true);
 
+        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await InventoryWriteLock.AcquireAsync(_db, ct);
+        existing = await _db.StockMovements.AsNoTracking().FirstOrDefaultAsync(m => m.IdempotencyKey == idempotencyKey, ct);
+        if (existing is not null) return new RecordWasteResult(existing.Id.ToString(), existing.InventoryItemId, existing.UnitCostPiastres, existing.LossValuePiastres, WasReplayed: true);
         if (!Enum.TryParse<StockMovementType>(request.LossType, ignoreCase: true, out var lossType))
             throw new DomainException("نوع الفقد غير صالح.");
         InventoryRules.AssertWasteInput(request.QuantityMilliUnits, request.Reason, lossType);
@@ -159,6 +186,7 @@ public sealed class RecordWasteHandler
                 entity.CreatedAtUtc, Reason: request.Reason, AuthorizedBy: authorization.Approver?.ApproverName,
                 ReferenceId: item.Id));
             await _db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (DbUpdateException)
         {

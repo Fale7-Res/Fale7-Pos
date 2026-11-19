@@ -14,11 +14,11 @@ using Falah.Domain.Common;
 // routes and their behavior are unchanged.
 public enum PrintRoute { Receipt, CallCenter, Charcoal, Grill, DriverDispatch, DeliveryOrder }
 
-public enum PrintJobStatus { Pending, Succeeded, Failed }
+public enum PrintJobStatus { Pending, Succeeded, Failed, Sending }
 
 /// <summary>What a print job reproduces. Order is the default and what every job was before the
 /// shift and expense slips existed, so it is first and a null column reads as Order.</summary>
-public enum PrintDocumentKind { Order, ShiftOpen, ShiftClose, Expense }
+public enum PrintDocumentKind { Order, ShiftOpen, ShiftClose, Expense, DriverStatement }
 
 /// <summary>Where a piece of text sits across the paper. Start/End rather than Right/Left because
 /// these tickets are laid out right-to-left: Start is the right edge, which is where an Arabic line
@@ -75,12 +75,15 @@ public sealed record TicketCell(
 /// Continuation marks a row that belongs to the boxed row above it (an item's note), so no divider is
 /// drawn between them and the note reads as part of its item rather than as a row of its own.
 /// </summary>
+/// FitStart (paper redesign 2026-11-17) gives the first cell its unwrapped width (up to 70%) so a
+/// label never breaks across lines; the other cell takes what is left and wraps if it must.
 public sealed record TicketRow(
     IReadOnlyList<TicketCell> Cells,
     TicketTextSize Size = TicketTextSize.Normal,
     bool Inverted = false,
     bool Boxed = false,
-    bool Continuation = false) : TicketElement;
+    bool Continuation = false,
+    bool FitStart = false) : TicketElement;
 
 public sealed record TicketRule(TicketRuleStyle Style = TicketRuleStyle.Light) : TicketElement;
 
@@ -95,6 +98,10 @@ public sealed record TicketCut : TicketElement;
 /// renderer draws it as a code; the character-mode renderer prints the payload as text, because a
 /// firmware QR command is unproven on this printer and unknown commands corrupt the stream.</summary>
 public sealed record TicketQr(string Payload) : TicketElement;
+
+/// <summary>The restaurant's logo, as the print agent's own embedded 1-bit bitmap (paper redesign
+/// 2026-11-17). Carries no data: there is one logo, and it ships with the agent.</summary>
+public sealed record TicketLogo : TicketElement;
 
 public sealed record ComposedTicket(PrintRoute Route, string OrderId, string OrderNumber, IReadOnlyList<TicketElement> Lines);
 
@@ -164,7 +171,9 @@ public sealed record ShiftSlipIdentity(
 /// </summary>
 public sealed record ShiftCashBreakdown(
     Money OpeningCash, Money CashSales, Money Refunds, Money CashIn, Money Expenses,
-    Money Withdrawals, Money SafeDrops, Money ExpectedCash, Money ActualCash, Money Difference);
+    Money Withdrawals, Money SafeDrops, Money ExpectedCash, Money ActualCash, Money Difference,
+    // Driver settlements received INTO this drawer, and delivery fees paid FROM it to drivers (owner, 2026-11-08).
+    Money DriverCash = default, Money DriverPayouts = default);
 
 /// <summary>One expense on the closing slip's summary - the category and what it cost.</summary>
 public sealed record ExpenseSummaryLine(string Category, Money Amount);

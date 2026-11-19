@@ -20,7 +20,7 @@ public sealed record SetUserActiveRequest(string UserId, bool Active, string? Re
 /// self-service (the actor proves they know their own current PIN); CurrentPin omitted with
 /// ActorUserId != UserId is an admin reset (gated on users_manage instead, and never permitted
 /// against the owner - only the owner can change their own PIN).</summary>
-public sealed record ChangePinRequest(string UserId, string? CurrentPin, string NewPin, string ActorUserId);
+public sealed record ChangePinRequest(string UserId, string? CurrentPin, string NewPin, string ActorUserId, string? RequestId = null, bool Reactivate = false);
 
 /// <summary>A single call can grant and revoke in the same request (e.g. a permissions-editor
 /// screen saving several toggled checkboxes at once) - granting is checked against privilege

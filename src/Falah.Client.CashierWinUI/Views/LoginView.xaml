@@ -54,18 +54,18 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" Grid.Column="0" Content="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="1"/>
-                    <Button Grid.Row="0" Grid.Column="1" Content="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="2"/>
-                    <Button Grid.Row="0" Grid.Column="2" Content="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="3"/>
-                    <Button Grid.Row="1" Grid.Column="0" Content="4" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="4"/>
-                    <Button Grid.Row="1" Grid.Column="1" Content="5" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="5"/>
-                    <Button Grid.Row="1" Grid.Column="2" Content="6" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="6"/>
-                    <Button Grid.Row="2" Grid.Column="0" Content="7" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="7"/>
-                    <Button Grid.Row="2" Grid.Column="1" Content="8" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="8"/>
-                    <Button Grid.Row="2" Grid.Column="2" Content="9" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="9"/>
-                    <Button Grid.Row="3" Grid.Column="0" Content="مسح" FontSize="13" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ClearCommand}"/>
-                    <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="0"/>
-                    <Button Grid.Row="3" Grid.Column="2" Content="⌫" Style="{StaticResource KeypadButtonStyle}" Command="{Binding BackspaceCommand}"/>
+                    <Button AutomationProperties.AutomationId="PinKey1" Grid.Row="0" Grid.Column="0" Content="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="1"/>
+                    <Button AutomationProperties.AutomationId="PinKey2" Grid.Row="0" Grid.Column="1" Content="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="2"/>
+                    <Button AutomationProperties.AutomationId="PinKey3" Grid.Row="0" Grid.Column="2" Content="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="3"/>
+                    <Button AutomationProperties.AutomationId="PinKey4" Grid.Row="1" Grid.Column="0" Content="4" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="4"/>
+                    <Button AutomationProperties.AutomationId="PinKey5" Grid.Row="1" Grid.Column="1" Content="5" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="5"/>
+                    <Button AutomationProperties.AutomationId="PinKey6" Grid.Row="1" Grid.Column="2" Content="6" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="6"/>
+                    <Button AutomationProperties.AutomationId="PinKey7" Grid.Row="2" Grid.Column="0" Content="7" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="7"/>
+                    <Button AutomationProperties.AutomationId="PinKey8" Grid.Row="2" Grid.Column="1" Content="8" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="8"/>
+                    <Button AutomationProperties.AutomationId="PinKey9" Grid.Row="2" Grid.Column="2" Content="9" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="9"/>
+                    <Button AutomationProperties.AutomationId="PinClear" Grid.Row="3" Grid.Column="0" Content="مسح" FontSize="13" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ClearCommand}"/>
+                    <Button AutomationProperties.AutomationId="PinKey0" Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressDigitCommand}" CommandParameter="0"/>
+                    <Button AutomationProperties.AutomationId="PinBackspace" Grid.Row="3" Grid.Column="2" Content="⌫" Style="{StaticResource KeypadButtonStyle}" Command="{Binding BackspaceCommand}"/>
                 </Grid>
 
                 <!-- Signing in is the primary, expected action, not a destructive one - DangerButtonStyle

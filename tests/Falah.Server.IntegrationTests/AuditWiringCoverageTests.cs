@@ -76,6 +76,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
     [Fact]
     public async Task Assigning_reassigning_and_recording_a_delivery_result_are_all_audited()
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(10000);
         var checkout = await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,

@@ -34,6 +34,7 @@ public sealed class CreateProductHandler
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الصنف مطلوب.");
         if (request.BasePricePiastres <= 0) throw new DomainException("السعر الأساسي يجب أن يكون أكبر من صفر.");
+        if (request.Variants.Any(v => v.PricePiastres < 0)) throw new DomainException("سعر الحجم يجب ألا يكون سالبًا.");
         var station = MenuValidation.AssertValidStation(request.PreparationStation);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -78,7 +79,7 @@ public sealed class CreateProductHandler
 /// is a full "replace the set" upsert, the same idiom SaveRecipeHandler already uses for recipe
 /// lines: a variant editor naturally edits several rows then saves once. A variant carrying an Id
 /// that already exists keeps that row (and its identity for anything that might reference it later);
-/// one with a null Id is newly added; any existing row not present in the new list is removed.</summary>
+/// one with a null Id is newly added; absent rows are retired while preserving historical foreign keys.</summary>
 public sealed class UpdateProductHandler
 {
     private readonly FalahDbContext _db;
@@ -99,6 +100,7 @@ public sealed class UpdateProductHandler
         if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الصنف مطلوب.");
         if (request.BasePricePiastres <= 0) throw new DomainException("السعر الأساسي يجب أن يكون أكبر من صفر.");
+        if (request.Variants.Any(v => v.PricePiastres < 0)) throw new DomainException("سعر الحجم يجب ألا يكون سالبًا.");
         var station = MenuValidation.AssertValidStation(request.PreparationStation);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
@@ -108,8 +110,12 @@ public sealed class UpdateProductHandler
         var category = await _db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == request.CategoryId, ct)
             ?? throw new DomainException("القسم المحدد غير موجود.");
 
-        var entity = await _db.Products.Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == request.ProductId, ct)
+        var entity = await _db.Products
+            .FromSqlRaw("SELECT * FROM Products WITH (UPDLOCK, HOLDLOCK) WHERE Id = {0}", request.ProductId)
+            .Include(p => p.Variants).FirstOrDefaultAsync(ct)
             ?? throw new InvalidOperationException("الصنف غير موجود.");
+
+        if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;
 
         entity.CategoryId = category.Id;
         entity.Name = request.Name.Trim();
@@ -121,7 +127,7 @@ public sealed class UpdateProductHandler
 
         var keepIds = request.Variants.Where(v => v.Id is not null).Select(v => v.Id).ToHashSet();
         var toRemove = entity.Variants.Where(v => !keepIds.Contains(v.Id)).ToList();
-        _db.ProductVariants.RemoveRange(toRemove);
+        foreach (var retired in toRemove) retired.Active = false;
         foreach (var input in request.Variants)
         {
             if (input.Id is not null)
@@ -129,6 +135,7 @@ public sealed class UpdateProductHandler
                 var existingVariant = entity.Variants.FirstOrDefault(v => v.Id == input.Id);
                 if (existingVariant is not null)
                 {
+                    existingVariant.Active = true;
                     existingVariant.Name = input.Name.Trim();
                     existingVariant.PricePiastres = input.PricePiastres;
                     existingVariant.RecipeId = input.RecipeId;

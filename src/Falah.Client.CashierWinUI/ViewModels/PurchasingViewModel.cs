@@ -21,11 +21,11 @@ public partial class PurchasingViewModel : ObservableObject
 {
     private readonly AppSession _session;
 
-    public PurchasingViewModel(AppSession session) => _session = session;
+    public PurchasingViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
     private readonly RetainedRequest<AddSupplierRequest> _supplierRequest = new("purchasing.supplier");
     private readonly RetainedRequest<ReceivePurchaseRequest> _receiveRequest = new("purchasing.receive");
     private readonly RetainedRequest<PayPurchaseRequest> _payRequest = new("purchasing.pay");
-    public bool CanEditAction => !IsBusy && !_supplierRequest.HasPending && !_receiveRequest.HasPending && !_payRequest.HasPending;
+    public bool CanEditAction => !IsBusy && !_supplierRequest.HasPending && !_receiveRequest.HasPending && !_payRequest.HasPending && !_creditRequest.HasPending;
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditAction));

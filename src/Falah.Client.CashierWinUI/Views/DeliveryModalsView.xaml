@@ -17,7 +17,7 @@
                     <controls:ModalHeaderView Title="إسناد الطلب لسائق" CloseCommand="{Binding CloseAssignCommand}"/>
                     <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
                         <Run Text="الطلب "/><Run Text="{Binding AssignTarget.OrderNumber}" FontWeight="Bold"/>
-                        <Run Text=" — للتحصيل "/><Run Text="{Binding AssignTarget.AmountToCollectPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                        <Run Text=" — للتحصيل "/><Run Text="{Binding AssignCollectDisplay}"/>
                     </TextBlock>
 
                     <!-- Assignment IS physical receipt in this system: handing the order to the driver
@@ -59,15 +59,15 @@
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Content="تم التسليم" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
                                     Command="{Binding SetOutcomeResultCommand}" CommandParameter="delivered"
-                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivered|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivered|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivered|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="1" Content="فشل" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
                                     Command="{Binding SetOutcomeResultCommand}" CommandParameter="failed"
-                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=failed|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=failed|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=failed|BrandPrimaryBrush|TextMutedBrush}"/>
                             <Button Grid.Column="2" Content="مرتجع" Style="{StaticResource SegmentButtonStyle}" FontSize="12"
                                     Command="{Binding SetOutcomeResultCommand}" CommandParameter="returned"
-                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=returned|WhiteBrush|TransparentBrush}"
+                                    Background="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=returned|CardBackgroundBrush|TransparentBrush}"
                                     Foreground="{Binding OutcomeResult, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=returned|BrandPrimaryBrush|TextMutedBrush}"/>
                         </Grid>
 
@@ -76,7 +76,14 @@
                         <StackPanel Spacing="8" Visibility="{Binding IsDeliveredOutcome, Converter={StaticResource BoolToVisibleConverter}}">
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المحصّل بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
                                      Text="{Binding OutcomeCollectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Text="أي فرق عن المبلغ المتوقع يستوجب كتابة سبب." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <TextBlock Text="أي فرق عن المبلغ المتوقع يستوجب كتابة سبب. التحصيل الأقل من المستحق يحتاج اعتماد مدير أيضًا." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <!-- AUD-03: less than was due needs the authority that approves a settlement difference. -->
+                            <StackPanel Spacing="6" Visibility="{Binding OutcomeShortfallNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
+                                <TextBlock Text="{Binding OutcomeShortfallLabel}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                           Foreground="{ThemeResource WarningTextBrush}"/>
+                                <PasswordBox IsEnabled="{Binding CanEditAction}" PlaceholderText="رمز المدير" MinHeight="44" FontSize="16"
+                                             Password="{Binding OutcomeManagerPin, Mode=TwoWay}"/>
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- Failed: a fixed reason code, not free text - the server rejects anything
@@ -97,6 +104,16 @@
 
                         <TextBox IsEnabled="{Binding CanEditAction}" Header="السبب / ملاحظة" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding OutcomeReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- A cash-on-delivery order that failed or came back is voided: the server needs
+                             to know what became of its food. Shown only when that applies. -->
+                        <StackPanel Spacing="6" Visibility="{Binding NeedsFoodDisposition, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="هل تم تحضير الطلب؟" Style="{StaticResource MutedText}"/>
+                            <RadioButton GroupName="OutcomeFood" Content="تم التحضير — يُسجَّل هالكًا" IsEnabled="{Binding CanEditAction}"
+                                         IsChecked="{Binding IsOutcomeFoodPrepared, Mode=TwoWay}"/>
+                            <RadioButton GroupName="OutcomeFood" Content="لم يُحضَّر — تعود الخامات للمخزون" IsEnabled="{Binding CanEditAction}"
+                                         IsChecked="{Binding IsOutcomeFoodNotPrepared, Mode=TwoWay}"/>
+                        </StackPanel>
 
                         <TextBlock Text="{Binding OutcomeError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
@@ -152,7 +169,7 @@
                                     <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <TextBlock Text="إحصائيات السائق" FontWeight="Bold" VerticalAlignment="Center"/>
-                                        <ComboBox Grid.Column="1" MinWidth="150" MinHeight="40"
+                                        <ComboBox AutomationProperties.Name="فترة الإحصاءات" Grid.Column="1" MinWidth="150" MinHeight="40"
                                                   ItemsSource="{Binding StatsPeriods}" DisplayMemberPath="Label"
                                                   SelectedItem="{Binding SelectedStatsPeriod, Mode=TwoWay}"/>
                                     </Grid>
@@ -178,7 +195,7 @@
                                         <StackPanel Spacing="2"><TextBlock Text="مُسندة" Style="{StaticResource CaptionText}"/>
                                             <TextBlock Text="{Binding DriverStatistics.AssignedCount}" FontWeight="Bold"/></StackPanel>
                                         <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="تم التسليم" Style="{StaticResource CaptionText}"/>
-                                            <TextBlock Text="{Binding DriverStatistics.DeliveredCount}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel>
+                                            <TextBlock Text="{Binding DriverStatistics.DeliveredCount}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/></StackPanel>
                                         <StackPanel Grid.Column="2" Spacing="2"><TextBlock Text="فشل" Style="{StaticResource CaptionText}"/>
                                             <TextBlock Text="{Binding DriverStatistics.FailedCount}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel>
 
@@ -190,7 +207,7 @@
                                             <TextBlock Text="{Binding DriverStatistics.CashCollectedPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></StackPanel>
 
                                         <StackPanel Grid.Row="2" Spacing="2"><TextBlock Text="العهدة الحالية" Style="{StaticResource CaptionText}"/>
-                                            <TextBlock Text="{Binding DriverStatistics.CurrentCustodyPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningBrush}"/></StackPanel>
+                                            <TextBlock Text="{Binding DriverStatistics.CurrentCustodyPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource WarningTextBrush}"/></StackPanel>
                                         <StackPanel Grid.Row="2" Grid.Column="1" Spacing="2"><TextBlock Text="عدد التسويات" Style="{StaticResource CaptionText}"/>
                                             <TextBlock Text="{Binding DriverStatistics.SettlementCount}" FontWeight="Bold"/></StackPanel>
                                         <StackPanel Grid.Row="2" Grid.Column="2" Spacing="2"><TextBlock Text="متوسط زمن التوصيل" Style="{StaticResource CaptionText}"/>
@@ -199,7 +216,7 @@
                                         <StackPanel Grid.Row="3" Spacing="2"><TextBlock Text="عجز التسويات" Style="{StaticResource CaptionText}"/>
                                             <TextBlock Text="{Binding DriverStatistics.SettlementShortagesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></StackPanel>
                                         <StackPanel Grid.Row="3" Grid.Column="1" Spacing="2"><TextBlock Text="زيادة التسويات" Style="{StaticResource CaptionText}"/>
-                                            <TextBlock Text="{Binding DriverStatistics.SettlementOveragesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessBrush}"/></StackPanel>
+                                            <TextBlock Text="{Binding DriverStatistics.SettlementOveragesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/></StackPanel>
                                         <StackPanel Grid.Row="3" Grid.Column="2" Spacing="2"><TextBlock Text="آخر طلب / آخر تسوية" Style="{StaticResource CaptionText}"/>
                                             <TextBlock Text="{Binding LastOrderDisplay}" FontSize="11"/>
                                             <TextBlock Text="{Binding LastSettlementDisplay}" FontSize="11" Style="{StaticResource MutedText}"/></StackPanel>
@@ -210,7 +227,7 @@
                             <!-- Settlement is driver-scoped and all-or-nothing: the server refuses while
                                  any of this driver's orders is still out for delivery, and names them. -->
                             <StackPanel Spacing="8" Visibility="{Binding DriverAccount.BlockingOrders, Converter={StaticResource NonEmptyCollectionToVisibleConverter}}">
-                                <TextBlock Text="لا يمكن التسوية الآن - طلبات ما زالت في الطريق:" Foreground="{ThemeResource WarningBrush}"
+                                <TextBlock Text="لا يمكن التسوية الآن - طلبات ما زالت في الطريق:" Foreground="{ThemeResource WarningTextBrush}"
                                            FontWeight="SemiBold" TextWrapping="Wrap"/>
                                 <ItemsControl ItemsSource="{Binding DriverAccount.BlockingOrders}">
                                     <ItemsControl.ItemTemplate>
@@ -223,8 +240,33 @@
                                 </ItemsControl>
                             </StackPanel>
 
+                            <!-- The settlement figures, exactly as the server computes them: collected cash, the driver's
+                                 delivery fees (his earnings), any balance carried from a partial settlement, and the net. -->
+                            <Border Style="{StaticResource CardBorderStyle}" Padding="12">
+                                <Grid ColumnSpacing="12" RowSpacing="6">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                    <StackPanel Spacing="2"><TextBlock Text="نقدية حصّلها السائق" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleCollectedText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Collected"/></StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="أجر التوصيل (للسائق)" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleFeesText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Fees"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Spacing="2"><TextBlock Text="رصيد مرحّل من تسوية سابقة" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleCarriedText}" FontWeight="Bold" AutomationProperties.AutomationId="Settle_Carried"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="2"><TextBlock Text="{Binding SettleNetLabel}" Style="{StaticResource CaptionText}"/>
+                                        <TextBlock Text="{Binding SettleNetText}" FontSize="18" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}" AutomationProperties.AutomationId="Settle_Net"/></StackPanel>
+                                </Grid>
+                            </Border>
+
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="المبلغ المسلَّم فعليًا بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     AutomationProperties.AutomationId="Settle_Received"
                                      Text="{Binding SettleActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox IsEnabled="{Binding CanEditAction}" Header="يُصرف للسائق من الدرج بالجنيه" InputScope="Number" MinHeight="44" FontSize="18" TextAlignment="Center"
+                                     AutomationProperties.AutomationId="Settle_PaidToDriver"
+                                     Visibility="{Binding RestaurantOwesDriver, Converter={StaticResource BoolToVisibleConverter}}"
+                                     Text="{Binding SettlePaidToDriverText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <CheckBox IsEnabled="{Binding CanEditAction}" Content="تسوية جزئية - يُرحَّل الباقي للتسوية القادمة"
+                                      AutomationProperties.AutomationId="Settle_KeepOpen"
+                                      IsChecked="{Binding SettleKeepRemainderOpen, Mode=TwoWay}"/>
                             <TextBox IsEnabled="{Binding CanEditAction}" Header="سبب الفارق (إلزامي عند وجود فرق)" MinHeight="44" TextWrapping="Wrap"
                                      Text="{Binding SettleReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -238,7 +280,7 @@
                             <TextBlock Text="{Binding SettleError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                        TextWrapping="Wrap" TextAlignment="Center"
                                        Visibility="{Binding SettleError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                            <TextBlock Text="{Binding SettleNote}" Foreground="{ThemeResource SuccessBrush}" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding SettleNote}" Foreground="{ThemeResource SuccessTextBrush}" FontWeight="SemiBold"
                                        TextWrapping="Wrap" TextAlignment="Center"
                                        Visibility="{Binding SettleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 

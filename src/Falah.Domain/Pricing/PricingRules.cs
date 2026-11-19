@@ -41,6 +41,20 @@ public static class PricingRules
         return ApplicableRules(productId, new[] { rule }, whenUtc, timeZone).Count > 0 ? rule : null;
     }
 
+    /// <summary>What a manual discount may reach without a manager, as basis points of the items'
+    /// value (owner, 2026-11-18: 10%). Settings can change it; 0 means every discount needs one.</summary>
+    public const int DefaultMaxDiscountWithoutApprovalBasisPoints = 1000;
+
+    /// <summary>True when a manual discount is above <paramref name="limitBasisPoints"/> of the items'
+    /// value. Above it the cashier's own orders_discount is not enough: a manager's approval is spent
+    /// on it, the same way a comp's is. Integer arithmetic, so 10% of 100.00 ج is exactly 10.00 ج.</summary>
+    public static bool DiscountNeedsApproval(Money discount, Money subtotal, int limitBasisPoints)
+    {
+        if (!discount.IsPositive) return false;
+        if (limitBasisPoints < 0) limitBasisPoints = 0;
+        return checked(discount.Piastres * 10_000L) > checked(subtotal.Piastres * limitBasisPoints);
+    }
+
     /// <summary>A comp may never exceed the value actually being given away, and may never be
     /// zero/negative.</summary>
     public static void AssertCompAmount(Money compAmount, Money orderValue)

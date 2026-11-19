@@ -23,6 +23,7 @@ public partial class EmployeesViewModel : ObservableObject
     public EmployeesViewModel(AppSession session)
     {
         _session = session;
+        session.TrackManagementOwner(this);
         Editor = new EmployeeEditorViewModel(session);
         // A saved record changes the roster and can change who appears at all (an employee moved to
         // inactive), so the list is re-read from the server rather than patched locally.
@@ -320,7 +321,7 @@ public partial class EmployeesViewModel : ObservableObject
                     if (!CashInput.TryParse(CashOutAmountText, out var wage) || wage <= 0)
                     { CashOutError = "أدخل المبلغ بشكل صحيح."; return; }
                     await CompleteDailyWageAsync(new RecordDailyWageRequest(
-                        CashOutEmployee.Employee.Id, wage, _session.ShiftId, _session.CurrentUser!.Id, approvalId, approverId));
+                        CashOutEmployee.Employee.Id, wage, _session.ShiftId, _session.CurrentUser!.Id, approvalId, approverId, _cashOutRequestId));
                     break;
                 case "overtime":
                     await CompleteOvertimeAsync(new RecordOvertimeRequest(

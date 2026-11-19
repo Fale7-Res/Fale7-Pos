@@ -93,7 +93,7 @@ public sealed class BoolToBrushConverter : IValueConverter
     {
         var keys = ((string)parameter).Split('|');
         var key = value is true ? keys[0] : keys[1];
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -109,7 +109,7 @@ public sealed class StringEqualsToBrushConverter : IValueConverter
     {
         var parts = ((string)parameter).Split('|');
         var isMatch = string.Equals(value as string, parts[0], StringComparison.Ordinal);
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[isMatch ? parts[1] : parts[2]];
+        return Services.ThemeResources.Get(isMatch ? parts[1] : parts[2])!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
@@ -289,7 +289,7 @@ public sealed class StatusToPillBrushConverter : IValueConverter
                 || s.Contains("reviewed") || s.Contains("calculated") => "WarningPillBrush",
             _ => "NeutralPillBrush",
         };
-        return global::Microsoft.UI.Xaml.Application.Current.Resources[key];
+        return Services.ThemeResources.Get(key)!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>

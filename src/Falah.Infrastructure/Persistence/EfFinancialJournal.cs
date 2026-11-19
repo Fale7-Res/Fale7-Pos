@@ -53,6 +53,18 @@ public sealed class EfFinancialJournal : IFinancialJournal
         return true;
     }
 
-    public FinancialJournalEntry? Find(string idempotencyKey) =>
-        throw new NotSupportedException("العنصر المُعاد من دفتر السجل الحقيقي كيان تخزين، وليس Falah.Domain.Idempotency.FinancialJournalEntry - استعلم عن FinancialJournalEntries مباشرة.");
+    public FinancialJournalEntry? Find(string idempotencyKey)
+    {
+        // Include unsaved additions/completions, and hide a deletion already staged by this unit
+        // of work. Returned domain state is detached and cannot mutate the persistence entity.
+        var tracked = _db.ChangeTracker.Entries<FinancialJournalEntryEntity>()
+            .FirstOrDefault(e => e.Entity.IdempotencyKey == idempotencyKey);
+        if (tracked?.State == EntityState.Deleted) return null;
+        var entry = tracked?.Entity ?? _db.FinancialJournalEntries.AsNoTracking()
+            .FirstOrDefault(e => e.IdempotencyKey == idempotencyKey);
+        if (entry is null) return null;
+        if (!Enum.TryParse<JournalStatus>(entry.Status, true, out var status) || !Enum.IsDefined(status))
+            throw new DomainException("حالة القيد المالي المحفوظ غير صالحة.");
+        return FinancialJournalEntry.Restore(entry.IdempotencyKey, entry.Kind, status, entry.CreatedAtUtc);
+    }
 }

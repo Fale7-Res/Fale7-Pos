@@ -33,13 +33,13 @@ public sealed class CreateTaxRuleHandler
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم قاعدة الضريبة مطلوب.");
         if (request.RateBasisPoints < 0) throw new DomainException("نسبة الضريبة يجب أن تكون صفرًا أو أكبر.");
-        if (!Enum.TryParse<TaxMode>(request.Mode, out _)) throw new DomainException("نوع الضريبة يجب أن يكون Inclusive أو Exclusive.");
+        if (!Enum.TryParse<TaxMode>(request.Mode, ignoreCase: true, out var mode) || !Enum.IsDefined(mode)) throw new DomainException("نوع الضريبة يجب أن يكون Inclusive أو Exclusive.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "settings_manage");
 
-        var entity = new TaxRuleEntity { Id = id, Name = request.Name.Trim(), RateBasisPoints = request.RateBasisPoints, Mode = request.Mode, Enabled = request.Enabled };
+        var entity = new TaxRuleEntity { Id = id, Name = request.Name.Trim(), RateBasisPoints = request.RateBasisPoints, Mode = mode.ToString(), Enabled = request.Enabled };
         try
         {
             _db.TaxRules.Add(entity);
@@ -85,7 +85,7 @@ public sealed class UpdateTaxRuleHandler
         if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.TaxRuleId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم قاعدة الضريبة مطلوب.");
         if (request.RateBasisPoints < 0) throw new DomainException("نسبة الضريبة يجب أن تكون صفرًا أو أكبر.");
-        if (!Enum.TryParse<TaxMode>(request.Mode, out _)) throw new DomainException("نوع الضريبة يجب أن يكون Inclusive أو Exclusive.");
+        if (!Enum.TryParse<TaxMode>(request.Mode, ignoreCase: true, out var mode) || !Enum.IsDefined(mode)) throw new DomainException("نوع الضريبة يجب أن يكون Inclusive أو Exclusive.");
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -95,7 +95,7 @@ public sealed class UpdateTaxRuleHandler
             ?? throw new InvalidOperationException("قاعدة الضريبة غير موجودة.");
         entity.Name = request.Name.Trim();
         entity.RateBasisPoints = request.RateBasisPoints;
-        entity.Mode = request.Mode;
+        entity.Mode = mode.ToString();
         entity.Enabled = request.Enabled;
 
         _auditLog.Append(new AuditEvent(

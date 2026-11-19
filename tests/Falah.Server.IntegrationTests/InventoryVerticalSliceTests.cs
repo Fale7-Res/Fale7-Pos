@@ -186,7 +186,8 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
             new RecordCountAdjustmentRequest($"req-{Guid.NewGuid():N}", itemId, 500, "In", "جرد", cashierId, null, null));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, noApproval.StatusCode);
 
-        var approval = await (await _client.PostAsJsonAsync("/api/approvals/issue",
+        // Asked for at the cashier's own session, which spends it.
+        var approval = await (await _factory.PostAsSessionOfAsync(_client, cashierId, "/api/approvals/issue",
             new IssueManagerApprovalRequest(_factory.PinFor(_managerId), "inventory_manage", "اعتماد جرد"))).Content.ReadFromJsonAsync<IssueManagerApprovalResult>();
         var withApproval = await _client.PostAsJsonAsync("/api/inventory/count-adjustments",
             new RecordCountAdjustmentRequest($"req-{Guid.NewGuid():N}", itemId, 500, "In", "جرد", cashierId, approval!.ApprovalId, _managerId));
@@ -824,4 +825,97 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
             $"/api/inventory/items/{itemId}/shared-consumption?from={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddDays(-1).ToString("O"))}&to={Uri.EscapeDataString(DateTimeOffset.UtcNow.ToString("O"))}&actorUserId={noReportsUser}");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Inventory_detail_movement_rows_respect_the_same_range_as_its_totals()
+    {
+        var item = await CreateItemAsync();
+        await SeedPurchaseReceiptAsync(item, 1000, 10000, new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero));
+        await SeedPurchaseReceiptAsync(item, 1000, 20000, new DateTimeOffset(2024, 1, 3, 12, 0, 0, TimeSpan.Zero));
+        var response = await _client.GetAsync($"/api/inventory/items/{item}/detail?actorUserId={_managerId}&from=2024-01-02T00:00:00Z&to=2024-01-04T00:00:00Z");
+        response.EnsureSuccessStatusCode();
+        var detail = (await response.Content.ReadFromJsonAsync<InventoryItemDetailDto>())!;
+        Assert.Equal(30000, detail.BalanceMilliUnits);
+        Assert.Equal(20000, detail.Totals.PurchasedMilliUnits);
+        var movement = Assert.Single(detail.Movements);
+        Assert.Equal(new DateTimeOffset(2024, 1, 3, 12, 0, 0, TimeSpan.Zero), movement.CreatedAtUtc);
+    }
+
+    [Fact]
+    public async Task Loss_summary_exposes_unpriced_movements_instead_of_claiming_a_complete_zero()
+    {
+        var item = await CreateItemAsync();
+        await _factory.QueryAsync(async db => {
+            foreach (var known in new[] { false, true }) db.StockMovements.Add(new StockMovementEntity {
+                IdempotencyKey = Guid.NewGuid().ToString("N"), InventoryItemId = item, Type = "Waste", Direction = "Out", QuantityMilliUnits = 1000,
+                UnitCostPiastres = known ? 500 : null, LossValuePiastres = known ? 500 : null, ReferenceType = "test", ReferenceId = "test", Reason = "test", CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync(); return true;
+        });
+        var direct = await _factory.QueryAsync(db => new Falah.Infrastructure.Inventory.InventoryQueryService(db).GetLossSummaryAsync(Falah.Domain.Common.BusinessClock.Today()));
+        Assert.Equal(1, direct.UnknownValueMovementCount);
+        var raw = await _client.GetStringAsync($"/api/inventory/loss-summary?actorUserId={_managerId}&businessDate={Falah.Domain.Common.BusinessClock.Today():yyyy-MM-dd}");
+        var summary = System.Text.Json.JsonSerializer.Deserialize<LossSummaryDto>(raw, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        Assert.True(summary!.UnknownValueMovementCount == 1, raw);
+        Assert.Equal(2, summary!.MovementCount); Assert.Equal(500, summary.TotalLossValuePiastres);
+        Assert.Equal(1, summary.UnknownValueMovementCount); Assert.False(summary.IsValueComplete);
+        Assert.Equal(1, summary.UnknownValueByType["Waste"]);
+    }
+
+
+    [Theory]
+    [InlineData(8000)]
+    [InlineData(9000)]
+    public async Task A_physical_count_uses_the_current_stock_balance_and_replays_even_a_zero_delta(long current)
+    {
+        var item = await CreateItemAsync(); await SeedPurchaseReceiptAsync(item, 1000, 10000);
+        await _factory.QueryAsync(async db => {
+            db.StockMovements.Add(new StockMovementEntity { IdempotencyKey = "concurrent-sale", InventoryItemId = item, Type = "Usage", Direction = "Out", QuantityMilliUnits = 10000 - current, ReferenceType = "test", ReferenceId = "test", Reason = "sale after count sheet opened", CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync(); return true;
+        });
+        // The sheet saw10000 and computed an old delta2000. The physical count itself is8000.
+        var request = new RecordCountAdjustmentRequest("actual-count", item, 2000, "Out", "جرد", _inventoryManagerId, null, null, CountedTotalMilliUnits: 8000);
+        (await _client.PostAsJsonAsync("/api/inventory/count-adjustments", request)).EnsureSuccessStatusCode();
+        Assert.Equal(8000, await _factory.QueryAsync(db => db.StockMovements.Where(m => m.InventoryItemId == item).SumAsync(m => m.Direction == "In" ? m.QuantityMilliUnits : -m.QuantityMilliUnits)));
+        var posted = await _factory.QueryAsync(db => db.StockMovements.SingleAsync(m => m.IdempotencyKey == "inventory-count-actual-count"));
+        Assert.Equal(current - 8000, posted.QuantityMilliUnits);
+        await SeedPurchaseReceiptAsync(item, 1000, 1000);
+        var replay = await (await _client.PostAsJsonAsync("/api/inventory/count-adjustments", request)).Content.ReadFromJsonAsync<RecordCountAdjustmentResult>();
+        Assert.True(replay!.WasReplayed);
+        Assert.Equal(9000, await _factory.QueryAsync(db => db.StockMovements.Where(m => m.InventoryItemId == item).SumAsync(m => m.Direction == "In" ? m.QuantityMilliUnits : -m.QuantityMilliUnits)));
+    }
+
+    [Fact]
+    public async Task Concurrent_opposite_prep_edges_cannot_create_a_costing_cycle()
+    {
+        var a = await CreateItemAsync("خلطة أ"); var b = await CreateItemAsync("خلطة ب");
+        await _factory.QueryAsync(db => db.InventoryItems.Where(i => i.Id == a || i.Id == b).ExecuteUpdateAsync(s => s.SetProperty(i => i.CostSource, "Prep")));
+        var first = new SavePrepRecipeRequest("edge-a", "edge-a", "أ", a, 1000, true, new[] { new PrepRecipeLineInput(b, 1000) }, _managerId, null, null);
+        var second = new SavePrepRecipeRequest("edge-b", "edge-b", "ب", b, 1000, true, new[] { new PrepRecipeLineInput(a, 1000) }, _managerId, null, null);
+        var responses = await Task.WhenAll(_client.PostAsJsonAsync("/api/prep-recipes", first), _client.PostAsJsonAsync("/api/prep-recipes", second));
+        Assert.Single(responses.Where(r => r.IsSuccessStatusCode));
+        Assert.Single(responses.Where(r => r.StatusCode == HttpStatusCode.UnprocessableEntity));
+    }
+
+    [Fact]
+    public async Task A_unit_change_waits_for_an_in_flight_first_movement_and_then_refuses_it()
+    {
+        var item = await CreateItemAsync(); Task<HttpResponseMessage>? update = null;
+        await _factory.QueryAsync(async db => {
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            await db.Database.ExecuteSqlRawAsync("EXEC sys.sp_getapplock @Resource=N'FalahStockPosting', @LockMode=N'Exclusive', @LockOwner=N'Transaction'");
+            update = _client.PutAsJsonAsync($"/api/inventory/items/{item}", new UpdateInventoryItemRequest(item, "طماطم", "خامات", "piece", 0, true, false, "Purchase", null, _inventoryManagerId));
+            await using var command = db.Database.GetDbConnection().CreateCommand();
+            command.Transaction = Microsoft.EntityFrameworkCore.Storage.DbContextTransactionExtensions.GetDbTransaction(transaction);
+            command.CommandText = "SELECT COUNT(*) FROM sys.dm_exec_requests WHERE database_id=DB_ID() AND wait_type LIKE 'LCK_M_%'";
+            var deadline = DateTime.UtcNow.AddSeconds(15); var blocked = 0;
+            while (DateTime.UtcNow < deadline && !update.IsCompleted && blocked == 0)
+            { blocked = Convert.ToInt32(await command.ExecuteScalarAsync()); if (blocked == 0) await Task.Delay(30); }
+            Assert.True(blocked > 0 && !update.IsCompleted, "The metadata change must wait behind the stock posting transaction.");
+            db.StockMovements.Add(new StockMovementEntity { IdempotencyKey = "first-receipt", InventoryItemId = item, Type = "PurchaseReceipt", Direction = "In", QuantityMilliUnits = 1000, ReferenceType = "test", ReferenceId = "test", Reason = "test", CreatedBy = "test", CreatedAtUtc = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync(); await transaction.CommitAsync(); return true;
+        });
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await update!).StatusCode);
+        Assert.Equal("kg", await _factory.QueryAsync(db => db.InventoryItems.Where(i => i.Id == item).Select(i => i.Unit).SingleAsync()));
+    }
+
 }

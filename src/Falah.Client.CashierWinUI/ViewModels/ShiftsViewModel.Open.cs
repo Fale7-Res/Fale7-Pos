@@ -30,6 +30,7 @@ public partial class ShiftsViewModel
     [ObservableProperty] private long? _mainTreasuryBalancePiastres;
     [ObservableProperty] private string? _openShiftError;
     [ObservableProperty] private bool _isOpeningShift;
+    [ObservableProperty] private string? _openingInheritedNote;
 
     public bool MainTreasuryIsEmpty => CanSeeMainTreasuryBalance && MainTreasuryBalancePiastres is <= 0;
 
@@ -62,6 +63,15 @@ public partial class ShiftsViewModel
             }
         }
 
+        // The previous close left a float in the drawer: the shift opens on that cash, not on a new float.
+        OpeningInheritedNote = null;
+        var left = await _session.Api.GetDrawerFloatAsync();
+        if (left.Success && left.Value?.InheritedFloatPiastres is { } inherited)
+        {
+            suggested = inherited;
+            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Format(inherited)} ج - لن تُصرف عهدة جديدة من الخزنة. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل على الكاشير. لإكمال العهدة استخدم «إضافة نقدية» بعد الفتح.";
+        }
+
         OpeningCashText = Services.CashInput.Format(suggested);
 
         IsOpenShiftModalOpen = true;
@@ -84,15 +94,22 @@ public partial class ShiftsViewModel
         OpenShiftError = null;
         try
         {
-            var request = new OpenShiftRequest(
+            // UI-0001: an open whose outcome is still unknown is re-sent unchanged - same id, same float -
+            // never rebuilt from what is on screen now, or the server would see a second operation.
+            var request = _openWrite.Value ?? new OpenShiftRequest(
                 RequestId: $"shift-open-{Guid.NewGuid():N}",
                 ShiftName: SelectedShiftName.Value,
                 OpenedByUserId: _session.CurrentUser!.Id,
                 OpeningCashPiastres: openingEgp);
 
-            var result = await _session.Api.OpenShiftAsync(request);
+            var result = await SendOpenAsync(request);
             if (!result.Success || result.Value is null)
             {
+                if (_openWrite.HasPending)
+                {
+                    OpenShiftError = _openWrite.FailureMessage(result.Error);
+                    return;
+                }
                 // Never surface the raw "insufficient source balance" domain error to someone who
                 // cannot see the Main Treasury balance in the first place - it would leak the same
                 // information the permission gate above was protecting. Mirrors the reference's own

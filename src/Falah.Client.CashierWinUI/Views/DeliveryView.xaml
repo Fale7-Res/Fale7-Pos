@@ -32,7 +32,10 @@
                 <Button Content="السائقون وخدمات التوصيل" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
                         Visibility="{Binding CanOpenDirectory, Converter={StaticResource BoolToVisibleConverter}}"
                         Command="{Binding OpenDirectoryCommand}"/>
-                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                <Button Content="كشف يومية السائق" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        AutomationProperties.AutomationId="Delivery_DriverStatement"
+                        Command="{Binding OpenDriverStatementCommand}"/>
+                <Button AutomationProperties.Name="تحديث" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                         <TextBlock Text="تحديث" FontSize="13"/>
@@ -185,7 +188,7 @@
                         <ItemsControl ItemsSource="{Binding Drivers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="52"
+                                    <Button AutomationProperties.Name="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="52"
                                             Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource CardBorderBrush}"
                                             CornerRadius="0" Padding="16,12"
                                             Command="{Binding ElementName=Root, Path=DataContext.OpenDriverAccountCommand}" CommandParameter="{Binding}">
@@ -210,17 +213,19 @@
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,28"
                 Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource CardBackgroundBrush}" FontWeight="SemiBold"/>
         </Border>
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,28"
                 Background="{ThemeResource DangerBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionError, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionError}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="420"/>
+            <TextBlock Text="{Binding ActionError}" Foreground="{ThemeResource AccentTextBrush}" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="420"/>
         </Border>
 
         <views:DeliveryModalsView Grid.Row="0" Grid.RowSpan="2"/>
 
         <!-- Declared last so the directory layers above the board and its dispatch modals. -->
         <views:DeliveryDirectoryView Grid.Row="0" Grid.RowSpan="2" DataContext="{Binding Directory}"/>
+        <!-- UI-REQ-001 -->
+        <views:DriverStatementView Grid.RowSpan="10" Grid.ColumnSpan="10" DataContext="{Binding DriverStatement}"/>
     </Grid>
 </UserControl>

@@ -156,7 +156,7 @@ many sold lines had a known cost).
 
 Counts in sections 1–11 above were taken on an earlier date. On 2026-09-19 the database held 57
 orders, 236 stock movements and 77 treasury movements; the integrity checks all passed (see
-`DEMO_READINESS.md` §2).
+the archived docs/DEMO_READINESS.md §2; see [archive guide](archive/README.md)).
 
 | # | Item | Why it matters | Action before go-live |
 |---|------|----------------|-----------------------|
@@ -171,3 +171,8 @@ orders, 236 stock movements and 77 treasury movements; the integrity checks all 
 | 12.9 | **Session table growth** | Expired sessions are never pruned (harmless; they cannot be used). | Optional periodic clean-up. |
 | 12.10 | **Two agents, one route, two machines** | The single-instance guard is per machine. Two stations configured for the same route on different PCs would both print every ticket. | Configure exactly one station per route. |
 
+
+
+### Print-agent service readiness update
+
+Code and installer are available; automatic service registration, LocalSystem printer/certificate access, an actual ticket and power-cut recovery remain on-site acceptance tasks. Do not mark the station ready from a successful build alone. See PRINT_AGENT.md.

@@ -43,6 +43,34 @@ public class ShiftTests
         Assert.Equal(ShiftStatus.Closed, shift.Status);
     }
 
+    // Owner decision 2026-11-18: once the preview has shown the expected cash, a count that differs
+    // from the first one is a re-count and needs a manager, however small the difference left.
+    [Fact]
+    public void A_count_that_differs_from_the_first_declared_count_needs_a_manager_even_when_it_balances()
+    {
+        var shift = Shift.Open("s1", "صباحية", "user-1", Money.FromEgp(500m), Now);
+
+        var result = shift.PrepareBlindClose(Money.FromEgp(1200m), Money.FromEgp(1200m), Threshold, firstDeclared: Money.FromEgp(1210m));
+
+        Assert.True(result.IsBalanced);
+        Assert.True(result.RequiresManagerApproval);
+        Assert.True(result.IsRecount);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(1210)]
+    public void The_first_count_or_the_same_count_again_is_not_a_recount(int? firstDeclaredEgp)
+    {
+        var shift = Shift.Open("s1", "صباحية", "user-1", Money.FromEgp(500m), Now);
+        Money? first = firstDeclaredEgp is { } egp ? Money.FromEgp(egp) : null;
+
+        var result = shift.PrepareBlindClose(Money.FromEgp(1210m), Money.FromEgp(1200m), Threshold, firstDeclared: first);
+
+        Assert.False(result.IsRecount);
+        Assert.False(result.RequiresManagerApproval); // 10 ج over, inside the 20 ج threshold
+    }
+
     [Fact]
     public void Large_shortage_beyond_threshold_is_blocked_without_manager_approval()
     {

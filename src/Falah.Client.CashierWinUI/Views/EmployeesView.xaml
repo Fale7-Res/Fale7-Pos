@@ -31,7 +31,7 @@
                 <Button Content="بيانات الموظفين" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
                         Visibility="{Binding CanOpenEditor, Converter={StaticResource BoolToVisibleConverter}}"
                         Command="{Binding OpenEditorCommand}"/>
-                <Button MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
+                <Button AutomationProperties.Name="تحديث" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}">
                     <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                 </Button>
             </StackPanel>
@@ -143,7 +143,7 @@
         <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40"
                 Background="{ThemeResource TextPrimaryBrush}" CornerRadius="12" Padding="18,12"
                 Visibility="{Binding ActionNote, Converter={StaticResource NullToCollapsedConverter}}">
-            <TextBlock Text="{Binding ActionNote}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
+            <TextBlock Text="{Binding ActionNote}" Foreground="{ThemeResource CardBackgroundBrush}" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="440"/>
         </Border>
 
         <!-- ================= LEDGER ================= -->
@@ -181,7 +181,7 @@
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{ThemeResource DangerBrush}"
                                                        Text="{Binding DebitPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{ThemeResource SuccessBrush}"
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{ThemeResource SuccessTextBrush}"
                                                        Text="{Binding CreditPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                             <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
                                                        Text="{Binding BalanceAfterPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
@@ -306,11 +306,11 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <ComboBox MinWidth="170" MinHeight="44" ItemsSource="{Binding ReportPeriods}" DisplayMemberPath="Label"
+                            <ComboBox AutomationProperties.Name="فترة التقرير" MinWidth="170" MinHeight="44" ItemsSource="{Binding ReportPeriods}" DisplayMemberPath="Label"
                                       SelectedItem="{Binding SelectedReportPeriod, Mode=TwoWay}"/>
                             <TextBlock Grid.Column="1" Text="{Binding ReportRangeLabel}" VerticalAlignment="Center"
                                        Style="{StaticResource MutedText}" Margin="10,0,0,0"/>
-                            <Button Grid.Column="2" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadReportCommand}">
+                            <Button AutomationProperties.Name="تحديث" Grid.Column="2" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadReportCommand}">
                                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
                             </Button>
                         </Grid>
@@ -351,9 +351,9 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding EmployeeName}" Style="{StaticResource TableCellText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Grid.Column="1" Text="{Binding EarningsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding AdditionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource SuccessBrush}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding AdditionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource SuccessTextBrush}"/>
                                             <TextBlock Grid.Column="3" Text="{Binding DeductionsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource DangerBrush}"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding AdvancesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource WarningBrush}"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding AdvancesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}" Foreground="{ThemeResource WarningTextBrush}"/>
                                             <TextBlock Grid.Column="5" Text="{Binding PaymentsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" Style="{StaticResource TableCellText}"/>
                                             <TextBlock Grid.Column="6" Text="{Binding RemainingBalancePiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/>
                                         </Grid>
@@ -410,7 +410,7 @@
                         <StackPanel Spacing="8"
                                     Visibility="{Binding PayHasNothingDue, Converter={StaticResource InverseBoolToVisibleConverter}}">
                             <TextBlock Text="الحساب المصدر" Style="{StaticResource CaptionText}" FontWeight="Bold"/>
-                            <ComboBox IsEnabled="{Binding CanEditAction}" MinHeight="44" HorizontalAlignment="Stretch"
+                            <ComboBox AutomationProperties.Name="حساب الدفع" IsEnabled="{Binding CanEditAction}" MinHeight="44" HorizontalAlignment="Stretch"
                                       ItemsSource="{Binding PayAccounts}" DisplayMemberPath="Label" SelectedValuePath="Id"
                                       SelectedValue="{Binding PayAccount, Mode=TwoWay}"/>
                         </StackPanel>

@@ -22,6 +22,7 @@
          stroke-thickening pass. -->
     <PackageReference Include="QRCoder" Version="1.8.0" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
     <!-- windows-1256 and the other legacy Arabic codepages some ESC/POS firmwares need. -->
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <!-- The physical Xprinter's firmware has no Arabic code page at all (confirmed against its own
@@ -31,6 +32,11 @@
          ESC/POS raster image is the only route to real Arabic on this hardware - Windows-only,
          matching the "windows" transport this same package already exists for. -->
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The restaurant logo for customer receipts (paper redesign 2026-11-17), made by tools/ReceiptLogo. -->
+    <EmbeddedResource Include="Assets\receipt-logo.png" LogicalName="Falah.PrintAgent.Assets.receipt-logo.png" />
   </ItemGroup>
 
   <ItemGroup>

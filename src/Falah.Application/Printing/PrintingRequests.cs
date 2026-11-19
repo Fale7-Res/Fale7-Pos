@@ -28,7 +28,10 @@ public sealed record ReprintDocumentRequest(
 
 public sealed record PrintJobDto(
     string Id, string OrderId, string OrderNumber, string Route, string Status, int AttemptCount,
-    DateTimeOffset? LastAttemptAtUtc, string? LastError, bool IsReprint, DateTimeOffset CreatedAtUtc);
+    DateTimeOffset? LastAttemptAtUtc, string? LastError, bool IsReprint, DateTimeOffset CreatedAtUtc)
+{
+    public string? ClaimId { get; init; }
+}
 
 /// <summary>Every print route's queue at a glance, and the jobs that need a person.
 ///
@@ -53,7 +56,13 @@ public sealed record CreatePrintJobsResult(IReadOnlyList<PrintJobDto> Jobs, bool
 /// once per physical attempt, success or failure, and the job's own AttemptCount/LastError/Status
 /// update from it. Never creates another order/payment/inventory movement - it only describes what
 /// happened when a printer was asked to print.</summary>
-public sealed record ReportPrintJobResultRequest(string RequestId, string PrintJobId, bool Succeeded, string? Error, string ReportedByUserId);
+public sealed record ReportPrintJobResultRequest(string RequestId, string PrintJobId, bool Succeeded, string? Error, string ReportedByUserId, string? ClaimId = null);
+
+/// <summary>An agent asking for the pending jobs of its route that it will print. AgentId identifies
+/// the agent (machine and route) so a job is handed to one agent at a time.</summary>
+public sealed record ClaimPrintJobsRequest(string Route, string AgentId);
+public sealed record StartPrintJobRequest(string PrintJobId, string ClaimId);
+public sealed record StartPrintJobResult(bool Started);
 
 public sealed record PrintJobAttemptDto(DateTimeOffset AttemptedAtUtc, bool Succeeded, string? Error, string ReportedBy);
 

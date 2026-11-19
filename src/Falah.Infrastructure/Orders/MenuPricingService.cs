@@ -46,7 +46,7 @@ public sealed class MenuPricingService
             ProductVariantEntity? variant = null;
             if (request.VariantId is not null)
             {
-                variant = product.Variants.FirstOrDefault(v => v.Id == request.VariantId)
+                variant = product.Variants.FirstOrDefault(v => v.Id == request.VariantId && v.Active)
                     ?? throw new DomainException($"الخيار غير موجود لهذا المنتج: {request.VariantId}");
             }
 

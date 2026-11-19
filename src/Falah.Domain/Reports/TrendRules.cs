@@ -32,7 +32,7 @@ public static class TrendRules
     {
         var delta = current.Piastres - previous.Piastres;
         double? percent = previous.Piastres != 0
-            ? Math.Round((double)delta / Math.Abs(previous.Piastres) * 100, 1)
+            ? Math.Round((double)delta / Math.Abs((double)previous.Piastres) * 100, 1)
             : null;
         return new Change(current.Piastres, previous.Piastres, delta, percent);
     }

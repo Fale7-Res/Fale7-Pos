@@ -46,6 +46,8 @@ public sealed class CreateDeliveryServiceHandler
             .FirstOrDefaultAsync(s => s.Name.ToLower() == normalized.ToLower(), ct);
         if (existing is not null) return ToDto(existing);
 
+        if (request.FeePiastres is < 0) throw new DomainException("رسوم التوصيل يجب ألا تكون سالبة.");
+
         var entity = new DeliveryServiceEntity
         {
             Id = $"delivery-service-{request.RequestId}", Name = normalized, FeePiastres = request.FeePiastres,
@@ -114,6 +116,7 @@ public sealed class UpdateDeliveryServiceHandler
             if (clash) throw new DomainException("يوجد خدمة توصيل أخرى بنفس الاسم بالفعل.");
         }
 
+        if (request.FeePiastres is < 0) throw new DomainException("رسوم التوصيل يجب ألا تكون سالبة.");
         entity.Name = normalized;
         if (request.FeePiastres is not null) entity.FeePiastres = request.FeePiastres;
         if (request.Active is not null) entity.Active = request.Active.Value;

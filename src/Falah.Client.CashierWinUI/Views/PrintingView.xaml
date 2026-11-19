@@ -22,7 +22,7 @@
                 <TextBlock Text="الطباعة والأجهزة" Style="{StaticResource PageTitleText}"/>
                 <TextBlock Text="حالة طوابير الطباعة لكل محطة" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
+            <Button AutomationProperties.Name="تحديث" Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding LoadCommand}">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
             </Button>
@@ -45,7 +45,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button MinHeight="44" MinWidth="230" Style="{StaticResource SecondaryButtonStyle}"
+                            <Button AutomationProperties.Name="{Binding Label}" MinHeight="44" MinWidth="230" Style="{StaticResource SecondaryButtonStyle}"
                                     HorizontalContentAlignment="Stretch" Padding="12,10"
                                     Command="{Binding ElementName=Root, Path=DataContext.SelectRouteCommand}"
                                     CommandParameter="{Binding Route}">

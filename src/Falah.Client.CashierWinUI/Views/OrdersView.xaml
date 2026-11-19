@@ -20,7 +20,7 @@
                 <TextBlock Text="الطلبات" Style="{StaticResource PageTitleText}"/>
                 <TextBlock Text="سجل الطلبات وتفاصيلها" Style="{StaticResource PageSubtitleText}"/>
             </StackPanel>
-            <Button Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
+            <Button AutomationProperties.Name="تحديث" Grid.Column="1" MinHeight="44" VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding LoadCommand}">
                 <FontIcon Glyph="&#xE72C;" FontSize="13"/>
             </Button>
@@ -46,7 +46,7 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="رقم الطلب" Style="{StaticResource TableHeaderText}"/>
@@ -69,7 +69,7 @@
                                             <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="250"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding OrderNumber}" Style="{StaticResource TableCellText}"
@@ -80,11 +80,22 @@
                                                    VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
                                                    Text="{Binding TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
-                                        <Border Grid.Column="4" CornerRadius="8" Padding="8,3" VerticalAlignment="Center"
-                                                HorizontalAlignment="Right"
-                                                Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
-                                            <TextBlock Text="{Binding Status, Converter={StaticResource OrderStatusLabelConverter}}" Style="{StaticResource StatusPillText}"/>
-                                        </Border>
+                                        <!-- The kitchen status alone said "مكتمل" for an order whose transfer nobody had confirmed,
+                                             and nothing marked a partly refunded order (native review 2026-11-07). -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                            <Border CornerRadius="8" Padding="8,3"
+                                                    Background="{Binding Status, Converter={StaticResource StatusToPillBrushConverter}}">
+                                                <TextBlock Text="{Binding Status, Converter={StaticResource OrderStatusLabelConverter}}" Style="{StaticResource StatusPillText}"/>
+                                            </Border>
+                                            <Border CornerRadius="8" Padding="8,3" Background="{ThemeResource WarningPillBrush}"
+                                                    Visibility="{Binding ElectronicPaymentStatus, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=pending}">
+                                                <TextBlock Text="تحويل لم يُؤكَّد" Style="{StaticResource StatusPillText}"/>
+                                            </Border>
+                                            <Border CornerRadius="8" Padding="8,3" Background="{ThemeResource NeutralPillBrush}"
+                                                    Visibility="{Binding RefundAmountPiastres, Converter={StaticResource PositiveAmountToVisibleConverter}}">
+                                                <TextBlock Text="به استرجاع" Style="{StaticResource StatusPillText}"/>
+                                            </Border>
+                                        </StackPanel>
                                         <Button Grid.Column="5" Content="عرض" MinHeight="44" FontSize="12"
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Command="{Binding ElementName=Root, Path=DataContext.OpenOrderCommand}" CommandParameter="{Binding}"/>

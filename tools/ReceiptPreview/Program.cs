@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using Falah.Domain.Common;
+using Falah.Domain.Delivery;
 using Falah.Domain.Financial;
 using Falah.Domain.Orders;
 using Falah.Domain.Printing;
@@ -16,55 +17,74 @@ using ZXing.QrCode;
 // a mock-up. Menu QRs are decoded with an independent reader (ZXing) before anything is reported.
 const string menu = "https://fale7-res.vercel.app/";
 const string brand = "فالح أبو العنبه";
-const string tagline = "ألذ طعم";
+const string tagline = "ألذ سندوتش";   // the owner's wording (Settings sub-name), 2026-11-17
 var output = Path.GetFullPath(args.FirstOrDefault() ?? "artifacts/receipt-previews");
 Directory.CreateDirectory(output);
 
-var soldAt = new DateTimeOffset(2026, 9, 19, 16, 42, 0, TimeSpan.Zero);
-var header = new ReceiptHeader("preview-only", brand, tagline, "", "#0286", soldAt, "أحمد محمد",
-    OrderType.Takeaway, null, null, null, null, MenuUrl: menu, IsPaid: true);
+// Every paper the system prints (paper redesign 2026-11-17), with synthetic data only.
+var at = new DateTimeOffset(2026, 11, 17, 17, 42, 0, TimeSpan.Zero); // 19:42 Cairo
 var items = new[]
 {
     new TicketItem("شاورما فراخ", "جامبو", 2, Money.FromEgp(85), Money.FromEgp(170), "بدون بصل، زيادة طحينة", null, null, "Grill"),
-    new TicketItem("وجبة مشويات مشكلة مع أرز بسمتي وسلطة وطحينة", "عائلي", 1, Money.FromEgp(245), Money.FromEgp(245), null, null, null, "Charcoal"),
+    new TicketItem("كفتة على الفحم", "نص كيلو", 1, Money.FromEgp(245), Money.FromEgp(245), null, null, null, "Charcoal"),
+    new TicketItem("كبدة إسكندراني", "ربع", 2, Money.FromEgp(60), Money.FromEgp(120), "حار", "عرض الغدا", Money.FromEgp(70), "Charcoal"),
     new TicketItem("بطاطس محمرة", "كبير", 3, Money.FromEgp(30), Money.FromEgp(90), null, null, null, null),
     new TicketItem("بيبسي", null, 2, Money.FromEgp(20), Money.FromEgp(40), null, null, null, null),
 };
-var totals = new ReceiptTotals(Money.FromEgp(545), Money.Zero, Money.Zero, null, Money.Zero, Money.Zero,
-    Money.FromEgp(545), Money.FromEgp(600), Money.FromEgp(55), PaymentMethod.Cash);
+var takeaway = new ReceiptHeader("o-1", brand, tagline, "شارع النصر - المعادي", "#0286", at, "أحمد محمد",
+    OrderType.Takeaway, null, null, null, null, Phone1: "01000000000", MenuUrl: menu, IsPaid: true);
+var cashTotals = new ReceiptTotals(Money.FromEgp(665), Money.Zero, Money.Zero, null, Money.Zero, Money.Zero,
+    Money.FromEgp(665), Money.FromEgp(700), Money.FromEgp(35), PaymentMethod.Cash);
+var delivery = new ReceiptHeader("o-2", brand, tagline, "شارع النصر - المعادي", "#0287", at, "منى علي",
+    OrderType.Delivery, null, "عميل تجريبي", "15 شارع 9، عمارة 4، الدور 3، شقة 12، بجوار الصيدلية", "المعادي",
+    Phone1: "01000000000", MenuUrl: menu, IsPaid: false);
+var deliveryTotals = new ReceiptTotals(Money.FromEgp(665), Money.Zero, Money.Zero, null, Money.FromEgp(25), Money.Zero,
+    Money.FromEgp(690), Money.Zero, Money.Zero, PaymentMethod.Cash);
 
-var receipt = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, header, items, totals);
-Save("A-receipt", receipt, expectQr: true);
-Save("B-receipt-reprint", PrintRules.MarkAsReprint(receipt, soldAt.AddMinutes(38), "مدير المحل"), expectQr: true);
+var receipt = PrintRules.ComposeReceiptTicket(PrintRoute.Receipt, takeaway, items, cashTotals);
+Save("01-receipt", receipt, expectQr: false);
+Save("01b-receipt-reprint", PrintRules.MarkAsReprint(receipt, at.AddMinutes(38), "مدير المحل"), expectQr: false);
+Save("02-callcenter", PrintRules.ComposeReceiptTicket(PrintRoute.CallCenter, delivery, items, deliveryTotals), expectQr: false);
+Save("03-charcoal", PrintRules.ComposeKitchenTicket(PrintRoute.Charcoal, brand, "o-1", "#0286", OrderType.Takeaway, items, at), expectQr: false);
+Save("04-grill", PrintRules.ComposeKitchenTicket(PrintRoute.Grill, brand, "o-1", "#0286", OrderType.Takeaway, items, at), expectQr: false);
+Save("05-delivery-order", PrintRules.ComposeDeliveryOrderTicket(delivery, items, deliveryTotals,
+    new DeliveryOrderTicketInfo("01000000000", "الجرس بايظ - كلم العميل لما توصل", Money.FromEgp(690), true)), expectQr: false);
+Save("06-driver-dispatch", PrintRules.ComposeDriverDispatchTicket(delivery, items, deliveryTotals,
+    new DeliveryOrderTicketInfo("01000000000", "الجرس بايظ - كلم العميل لما توصل", Money.FromEgp(690), true),
+    "محمود السواق", at.AddMinutes(20), false), expectQr: true);
 
-var shift = new ShiftSlipIdentity(brand, tagline, "A7F3C1", "صباحية", "أحمد محمد",
-    new DateTimeOffset(2026, 9, 19, 5, 10, 0, TimeSpan.Zero));
-Save("C-shift-open", PrintRules.ComposeShiftOpenTicket(shift, Money.FromEgp(500)), expectQr: false);
-
-// Opening 500 + (cash sales 4,310 - refunds 95) + cash in 200 - expenses 260 - withdrawals 150
-// - safe drops 1,000 = 3,505 expected; counted 3,470, so 35 ج short.
-var cash = new ShiftCashBreakdown(
-    OpeningCash: Money.FromEgp(500), CashSales: Money.FromEgp(4310), Refunds: Money.FromEgp(95),
-    CashIn: Money.FromEgp(200), Expenses: Money.FromEgp(260), Withdrawals: Money.FromEgp(150),
-    SafeDrops: Money.FromEgp(1000), ExpectedCash: Money.FromEgp(3505), ActualCash: Money.FromEgp(3470),
-    Difference: Money.FromEgp(-35));
-var expenses = new[]
+DriverStatementOrder Row(string n, string status, long food, long fee, string pay, long collected) => new(
+    $"o-{n}", n, at.AddHours(-3), "عميل تجريبي", "01000000000", "المعادي - شارع 9", pay, status,
+    food, fee, food + fee, 0, pay == "cash" ? 0 : food + fee, pay == "cash" ? food + fee : 0, collected, false, null, false);
+var rows = new[]
 {
-    new ExpenseSummaryLine("مستلزمات مطبخ", Money.FromEgp(160)),
-    new ExpenseSummaryLine("صيانة", Money.FromEgp(100)),
+    Row("#0251", "Delivered", 45_000, 2_500, "cash", 47_500),
+    Row("#0263", "Delivered", 32_000, 2_500, "instapay", 0),
+    Row("#0270", "Delivered", 61_500, 3_000, "cash", 64_500),
+    Row("#0287", "OutForDelivery", 66_500, 2_500, "cash", 0),
 };
-var warnings = new[]
-{
-    "طلبات بانتظار تأكيد تحويل إلكتروني: 2",
-    "عهدة سائقين غير مسواة: 1 بقيمة 185 ج",
-};
-Save("D-shift-close", PrintRules.ComposeShiftCloseTicket(shift, new DateTimeOffset(2026, 9, 19, 18, 05, 0, TimeSpan.Zero),
-    cash, expenses, warnings, "فرق بسبب باقي عميل لم يُستلم"), expectQr: false);
+var driverTotals = DriverStatementRules.Totals(rows);
+Save("07-driver-statement-summary", PrintRules.ComposeDriverStatement(brand, tagline, "محمود السواق", new DateOnly(2026, 11, 17), null,
+    rows, driverTotals, false, "المدير", at), expectQr: false);
+Save("08-driver-statement-detail", PrintRules.ComposeDriverStatement(brand, tagline, "محمود السواق", new DateOnly(2026, 11, 17), null,
+    rows, driverTotals, true, "المدير", at), expectQr: false);
 
-Save("E-expense", PrintRules.ComposeExpenseTicket(new ExpenseSlipInfo(
-    brand, tagline, "exp-req-77c1", new DateTimeOffset(2026, 9, 19, 12, 30, 0, TimeSpan.Zero),
-    Money.FromEgp(160), "مستلزمات مطبخ", "شراء أكياس وتغليف من السوق", "أحمد محمد", "درج الكاشير",
-    "اعتماد: مدير المحل")), expectQr: false);
+var opened = at.AddHours(-6);
+Save("09-shift-close", PrintRules.ComposeShiftCloseStatement(new ShiftCloseStatement(
+    ShiftCloseStatement.KindName, 1, brand, tagline, "shift-abcdef123456", "A7F3C1", "مسائية", new DateOnly(2026, 11, 17),
+    opened, at, "أحمد محمد", "منى علي", null,
+    new ShiftStatementSales(42, 1_250_000, 15_000, 10_000, 0, 1_225_000, 9_500, 1_215_500, 900_000, 315_500, 0, 0, 0, 0, 1_215_500, 3),
+    new[]
+    {
+        new ShiftStatementExpense("مستلزمات تشغيل", "ثلج وفحم", 30_000, true, "درج الكاشير", "أحمد محمد", opened.AddHours(1)),
+        new ShiftStatementExpense("صيانة سريعة", "تصليح شواية", 50_000, false, "الخزينة الرئيسية", "المدير", opened.AddHours(3)),
+    },
+    new ShiftStatementCash(100_000, 900_000, 0, 9_500, 30_000, 0, 0, 960_500, 958_000, -2_500, 958_000, "الخزينة الرئيسية"),
+    "فرق بسبب باقي عميل لم يُستلم",
+    new[] { "تحويلات إلكترونية بانتظار التأكيد: 1 (" + TicketFormat.Code("#0281") + ")" })), expectQr: false);
+
+Save("10-expense", PrintRules.ComposeExpenseTicket(new ExpenseSlipInfo(brand, tagline, "exp-77c1", at, Money.FromEgp(300),
+    "مستلزمات تشغيل", "ثلج وفحم للشواية", "أحمد محمد", "درج الكاشير", "اعتماد: مدير المحل")), expectQr: false);
 
 Console.WriteLine($"\npreviews written to {output}");
 

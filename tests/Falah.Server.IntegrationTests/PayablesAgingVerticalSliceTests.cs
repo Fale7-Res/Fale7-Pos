@@ -26,6 +26,8 @@ public class PayablesAgingVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        // Read-only assertions use the owner session; mutation bodies still name their actual actor.
+        _factory.StationUserId = await _factory.SeedUserAsync("قارئ بيانات المالك للاختبار", "owner", "all");
         _managerId = await _factory.SeedUserAsync("مسؤول المشتريات", "supervisor", "purchasing_manage", "inventory_manage");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();

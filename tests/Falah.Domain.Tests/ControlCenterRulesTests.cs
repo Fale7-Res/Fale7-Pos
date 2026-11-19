@@ -85,4 +85,18 @@ public class ControlCenterRulesTests
         Assert.Equal("critical", exception.Severity);
         Assert.Equal("system", exception.Category);
     }
+
+    // AUD-13: a delivery order that was never even made ready is money and food nobody has dealt with. It does not
+    // block the close (FIN-0051: such an order cannot be cancelled yet, so a blocker could hold the day forever), but
+    // it must be on the list the manager reviews before closing, like a ready order with no driver.
+    [Fact]
+    public void A_delivery_order_never_made_ready_is_flagged_for_review()
+    {
+        var input = Clean() with { Deliveries = new[] { ("delivery-9", (string?)"#0150", "New", false, (DateTimeOffset?)null) } };
+        var exception = Assert.Single(ControlCenterRules.BuildExceptions(input));
+        Assert.Equal("delivery", exception.Category);
+        Assert.Equal("warning", exception.Severity);
+        Assert.Equal("delivery-new-delivery-9", exception.Id);
+        Assert.Contains("#0150", exception.Message);
+    }
 }

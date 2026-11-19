@@ -10,6 +10,8 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <Using Include="Xunit" />
     <ProjectReference Include="../../src/Falah.Application/Falah.Application.csproj" />
+    <Compile Include="../../src/Falah.Client.Shared/WindowsUserDataProtection.cs" Link="Security/WindowsUserDataProtection.cs" />
+    <Compile Include="../../src/Falah.Client.Shared/CrashLog.cs" Link="Diagnostics/CrashLog.cs" />
     <!-- ThemeService/ThemeResources are excluded: both depend on Microsoft.UI.Xaml types
          (ElementTheme, FrameworkElement, ResourceDictionary) that only exist in the real WinUI 3
          app, not in this plain net8.0 test project - the same reason HeaderViewModel/MainViewModel
@@ -23,7 +25,7 @@
          resulting InitializeAppearance() call in SettingsViewModel.cs simply elides in this build,
          which is exactly what an unimplemented partial method is designed to do. -->
     <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/*.cs" Exclude="../../src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs;../../src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs" Link="Client/ViewModels/%(Filename)%(Extension)" />
-    <Compile Include="../../src/Falah.Client.CallCenterWinUI/Services/*.cs" Link="CallCenter/Services/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/Services/*.cs" Exclude="../../src/Falah.Client.CallCenterWinUI/Services/ThemeService.cs;../../src/Falah.Client.CallCenterWinUI/Services/ThemeResources.cs" Link="CallCenter/Services/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/Models/*.cs" Link="CallCenter/Models/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel*.cs" Link="CallCenter/ViewModels/%(Filename)%(Extension)" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs" Link="CallCenter/ViewModels/MainViewModel.cs" />

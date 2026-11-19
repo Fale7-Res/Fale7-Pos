@@ -55,6 +55,7 @@ public sealed class SaveRecipeHandler
 
         var recipeId = request.RecipeId ?? $"recipe-{request.RequestId}";
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        await InventoryWriteLock.AcquireAsync(_db, ct);
 
         var entity = await _db.Recipes.Include(r => r.Items).FirstOrDefaultAsync(r => r.Id == recipeId, ct);
         if (entity is null)

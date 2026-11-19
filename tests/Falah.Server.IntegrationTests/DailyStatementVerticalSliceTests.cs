@@ -36,6 +36,8 @@ public class DailyStatementVerticalSliceTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
+        // Read-only assertions use the owner session; mutation bodies still name their actual actor.
+        _factory.StationUserId = await _factory.SeedUserAsync("قارئ بيانات المالك للاختبار", "owner", "all");
         _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "expenses_add_drawer", "orders_discount");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _hrUserId = await _factory.SeedUserAsync("الموارد البشرية", "supervisor", "employees_manage", "employees_ledger");
@@ -104,12 +106,12 @@ public class DailyStatementVerticalSliceTests : IAsyncLifetime
     public async Task Expense_lines_are_itemized_with_the_entering_users_real_name()
     {
         await _client.PostAsJsonAsync("/api/expenses",
-            new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات", 3000, "أدوات تنظيف", "tre-drawer", _cashierId, null, null));
+            new AddExpenseRequest($"req-{Guid.NewGuid():N}", _shiftId, "مستلزمات تشغيل", 3000, "أدوات تنظيف", "tre-drawer", _cashierId, null, null));
 
         var statement = await GetTodayAsync();
         Assert.Equal(3000, statement.Expenses.TotalPiastres);
         var line = Assert.Single(statement.ExpenseLines);
-        Assert.Equal("مستلزمات", line.Category);
+        Assert.Equal("مستلزمات تشغيل", line.Category);
         Assert.Equal("أدوات تنظيف", line.Description);
         Assert.Equal(3000, line.AmountPiastres);
         Assert.Equal("كاشير الاختبار", line.EnteredByName); // resolved from CreatedByUserId, not the raw id
@@ -202,6 +204,7 @@ public class DailyStatementVerticalSliceTests : IAsyncLifetime
     [Fact]
     public async Task Delivery_and_cod_custody_figures_match_the_dedicated_delivery_outcomes_report()
     {
+        await _factory.SeedDeliveryServiceAsync("svc-1", 1000, "توصيل"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(15000, "برجر توصيل");
         var request = new CheckoutOrderRequest(
             CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
@@ -241,7 +244,7 @@ public class DailyStatementVerticalSliceTests : IAsyncLifetime
         Assert.Contains(pending.SoldProducts, p => p.ProductName == "مشروب معلق");
 
         await _client.PostAsJsonAsync("/api/orders/cancel-pending-electronic-payment",
-            new CancelPendingElectronicPaymentRequest(order.OrderId, "لم يصل التحويل", _cashierId));
+            new CancelPendingElectronicPaymentRequest(order.OrderId, "لم يصل التحويل", _cashierId, StockDisposition: "not_prepared"));
 
         var afterCancel = await GetTodayAsync();
         Assert.Equal(0, afterCancel.Sales.OrderCount); // cancelled orders are excluded entirely, everywhere

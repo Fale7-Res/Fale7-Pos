@@ -29,10 +29,14 @@
         would silently break whichever of their many call sites actually means literal white.
     -->
 
+    <!-- Brush colours are explicit within each palette: deferred StaticResource lookup crossed
+         theme dictionaries and gave Dark brushes Light colours in a live WinUI run. Keep each
+         literal aligned with its named Color token; normal call sites still use ThemeResource. -->
     <ResourceDictionary.ThemeDictionaries>
 
         <!-- ============================== LIGHT — parity theme ============================== -->
         <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="AccentTextBrush" Color="#FFFFFF"/>
 
             <Color x:Key="BrandPrimaryColor">#0F52BA</Color>
             <Color x:Key="BrandPrimaryHoverColor">#0A3D8F</Color>
@@ -89,7 +93,7 @@
                  new token for the reference's other common secondary tone (slate-600). -->
             <Color x:Key="TextPrimaryColor">#0F172A</Color>
             <Color x:Key="TextSecondaryColor">#475569</Color>
-            <Color x:Key="TextMutedColor">#64748B</Color>
+            <Color x:Key="TextMutedColor">#5B6576</Color>
             <Color x:Key="TextOnDarkColor">#FFFFFF</Color>
             <Color x:Key="TextOnDarkMutedColor">#94A3B8</Color>
 
@@ -106,43 +110,45 @@
                  stroke colour/thickness pair for controls that draw their own focus indicator. -->
             <Color x:Key="FocusRingColor">#3D0F52BA</Color>
 
-            <SolidColorBrush x:Key="BrandPrimaryBrush" Color="{StaticResource BrandPrimaryColor}"/>
-            <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="{StaticResource BrandPrimaryHoverColor}"/>
-            <SolidColorBrush x:Key="BrandPrimaryPressedBrush" Color="{StaticResource BrandPrimaryPressedColor}"/>
-            <SolidColorBrush x:Key="ActionBlueBrush" Color="{StaticResource ActionBlueColor}"/>
-            <SolidColorBrush x:Key="ActionBlueHoverBrush" Color="{StaticResource ActionBlueHoverColor}"/>
-            <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
-            <SolidColorBrush x:Key="PosSurfaceBrush" Color="{StaticResource PosSurfaceColor}"/>
-            <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBackgroundColor}"/>
-            <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorderColor}"/>
-            <SolidColorBrush x:Key="DividerBrush" Color="{StaticResource DividerColor}"/>
-            <SolidColorBrush x:Key="GraphiteBrush" Color="{StaticResource GraphiteColor}"/>
-            <SolidColorBrush x:Key="GraphiteBorderBrush" Color="{StaticResource GraphiteBorderColor}"/>
-            <SolidColorBrush x:Key="GraphiteButtonBrush" Color="{StaticResource GraphiteButtonColor}"/>
-            <SolidColorBrush x:Key="CartBackgroundBrush" Color="{StaticResource CartBackgroundColor}"/>
-            <SolidColorBrush x:Key="CartHeaderBrush" Color="{StaticResource CartHeaderColor}"/>
-            <SolidColorBrush x:Key="CartTabBarBrush" Color="{StaticResource CartTabBarColor}"/>
-            <SolidColorBrush x:Key="CartItemCardBrush" Color="{StaticResource CartItemCardColor}"/>
-            <SolidColorBrush x:Key="CartItemBorderBrush" Color="{StaticResource CartItemBorderColor}"/>
-            <SolidColorBrush x:Key="CartFooterBrush" Color="{StaticResource CartFooterColor}"/>
-            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
-            <SolidColorBrush x:Key="SuccessHoverBrush" Color="{StaticResource SuccessHoverColor}"/>
-            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
-            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
-            <SolidColorBrush x:Key="DangerHoverBrush" Color="{StaticResource DangerHoverColor}"/>
-            <SolidColorBrush x:Key="DangerBackgroundBrush" Color="{StaticResource DangerBackgroundColor}"/>
-            <SolidColorBrush x:Key="InstaPayBrush" Color="{StaticResource InstaPayColor}"/>
-            <SolidColorBrush x:Key="WalletBrush" Color="{StaticResource WalletColor}"/>
-            <SolidColorBrush x:Key="MultiPayBrush" Color="{StaticResource MultiPayColor}"/>
-            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
-            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
-            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}"/>
-            <SolidColorBrush x:Key="TextOnDarkBrush" Color="{StaticResource TextOnDarkColor}"/>
-            <SolidColorBrush x:Key="TextOnDarkMutedBrush" Color="{StaticResource TextOnDarkMutedColor}"/>
-            <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="{StaticResource DisabledBackgroundColor}"/>
-            <SolidColorBrush x:Key="DisabledTextBrush" Color="{StaticResource DisabledTextColor}"/>
-            <SolidColorBrush x:Key="OverlayBrush" Color="{StaticResource OverlayColor}"/>
-            <SolidColorBrush x:Key="FocusRingBrush" Color="{StaticResource FocusRingColor}"/>
+            <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#0F52BA"/>
+            <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="#0A3D8F"/>
+            <SolidColorBrush x:Key="BrandPrimaryPressedBrush" Color="#083069"/>
+            <SolidColorBrush x:Key="ActionBlueBrush" Color="#0866E8"/>
+            <SolidColorBrush x:Key="ActionBlueHoverBrush" Color="#0757C5"/>
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#F5F5F5"/>
+            <SolidColorBrush x:Key="PosSurfaceBrush" Color="#F5F5F5"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="CardBorderBrush" Color="#E2E8F0"/>
+            <SolidColorBrush x:Key="DividerBrush" Color="#E2E8F0"/>
+            <SolidColorBrush x:Key="GraphiteBrush" Color="#1A1F26"/>
+            <SolidColorBrush x:Key="GraphiteBorderBrush" Color="#2C343E"/>
+            <SolidColorBrush x:Key="GraphiteButtonBrush" Color="#232931"/>
+            <SolidColorBrush x:Key="CartBackgroundBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="CartHeaderBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="CartTabBarBrush" Color="#F0F3EF"/>
+            <SolidColorBrush x:Key="CartItemCardBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="CartItemBorderBrush" Color="#E5EAE4"/>
+            <SolidColorBrush x:Key="CartFooterBrush" Color="#F9FAF7"/>
+            <SolidColorBrush x:Key="SuccessTextBrush" Color="#047857"/>
+            <SolidColorBrush x:Key="WarningTextBrush" Color="#92400E"/>
+            <SolidColorBrush x:Key="SuccessBrush" Color="#059669"/>
+            <SolidColorBrush x:Key="SuccessHoverBrush" Color="#047857"/>
+            <SolidColorBrush x:Key="WarningBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
+            <SolidColorBrush x:Key="DangerHoverBrush" Color="#B91C1C"/>
+            <SolidColorBrush x:Key="DangerBackgroundBrush" Color="#FEF2F2"/>
+            <SolidColorBrush x:Key="InstaPayBrush" Color="#7C3AED"/>
+            <SolidColorBrush x:Key="WalletBrush" Color="#C026D3"/>
+            <SolidColorBrush x:Key="MultiPayBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#475569"/>
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#5B6576"/>
+            <SolidColorBrush x:Key="TextOnDarkBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="TextOnDarkMutedBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="DisabledTextBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="OverlayBrush" Color="#66000000"/>
+            <SolidColorBrush x:Key="FocusRingBrush" Color="#3D0F52BA"/>
 
             <!-- Management-shell palette. The nav rail is deliberately dark in BOTH themes (a
                  calmer, always-dark rail versus a light content area, the same relationship the
@@ -164,27 +170,27 @@
             <Color x:Key="NeutralBackgroundColor">#F1F5F9</Color>
             <Color x:Key="NeutralTextColor">#475569</Color>
 
-            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="{StaticResource ShellBackgroundColor}"/>
-            <SolidColorBrush x:Key="ShellNavBrush" Color="{StaticResource ShellNavColor}"/>
-            <SolidColorBrush x:Key="ShellNavHoverBrush" Color="{StaticResource ShellNavHoverColor}"/>
-            <SolidColorBrush x:Key="ShellNavSelectedBrush" Color="{StaticResource ShellNavSelectedColor}"/>
-            <SolidColorBrush x:Key="ShellDividerBrush" Color="{StaticResource ShellDividerColor}"/>
-            <SolidColorBrush x:Key="TableHeaderBrush" Color="{StaticResource TableHeaderColor}"/>
-            <SolidColorBrush x:Key="TableRowAltBrush" Color="{StaticResource TableRowAltColor}"/>
-            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
-            <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{StaticResource InfoBackgroundColor}"/>
-            <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{StaticResource SuccessBackgroundColor}"/>
-            <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningBackgroundColor}"/>
-            <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{StaticResource NeutralBackgroundColor}"/>
-            <SolidColorBrush x:Key="NeutralTextBrush" Color="{StaticResource NeutralTextColor}"/>
+            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#F7F8FA"/>
+            <SolidColorBrush x:Key="ShellNavBrush" Color="#171B21"/>
+            <SolidColorBrush x:Key="ShellNavHoverBrush" Color="#232931"/>
+            <SolidColorBrush x:Key="ShellNavSelectedBrush" Color="#0F52BA"/>
+            <SolidColorBrush x:Key="ShellDividerBrush" Color="#E5E9EF"/>
+            <SolidColorBrush x:Key="TableHeaderBrush" Color="#EEF1F5"/>
+            <SolidColorBrush x:Key="TableRowAltBrush" Color="#FAFBFC"/>
+            <SolidColorBrush x:Key="InfoBrush" Color="#2563EB"/>
+            <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#EFF6FF"/>
+            <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="#ECFDF5"/>
+            <SolidColorBrush x:Key="WarningBackgroundBrush" Color="#FFFBEB"/>
+            <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="NeutralTextBrush" Color="#475569"/>
 
-            <SolidColorBrush x:Key="SuccessPillBrush" Color="{StaticResource SuccessColor}"/>
-            <SolidColorBrush x:Key="DangerPillBrush" Color="{StaticResource DangerColor}"/>
-            <SolidColorBrush x:Key="WarningPillBrush" Color="{StaticResource WarningColor}"/>
-            <SolidColorBrush x:Key="NeutralPillBrush" Color="{StaticResource NeutralTextColor}"/>
+            <SolidColorBrush x:Key="SuccessPillBrush" Color="#059669"/>
+            <SolidColorBrush x:Key="DangerPillBrush" Color="#DC2626"/>
+            <SolidColorBrush x:Key="WarningPillBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="NeutralPillBrush" Color="#475569"/>
 
             <Color x:Key="CategoryBadgeColor">#EAF2EC</Color>
-            <SolidColorBrush x:Key="CategoryBadgeBrush" Color="{StaticResource CategoryBadgeColor}"/>
+            <SolidColorBrush x:Key="CategoryBadgeBrush" Color="#EAF2EC"/>
 
         </ResourceDictionary>
 
@@ -194,6 +200,7 @@
              and desaturated the way a dark surface needs for contrast, not picked independently
              per screen. Every key name below matches Light exactly. -->
         <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AccentTextBrush" Color="#0F172A"/>
 
             <Color x:Key="BrandPrimaryColor">#4A90E2</Color>
             <Color x:Key="BrandPrimaryHoverColor">#69A6EA</Color>
@@ -244,43 +251,45 @@
 
             <Color x:Key="FocusRingColor">#664A90E2</Color>
 
-            <SolidColorBrush x:Key="BrandPrimaryBrush" Color="{StaticResource BrandPrimaryColor}"/>
-            <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="{StaticResource BrandPrimaryHoverColor}"/>
-            <SolidColorBrush x:Key="BrandPrimaryPressedBrush" Color="{StaticResource BrandPrimaryPressedColor}"/>
-            <SolidColorBrush x:Key="ActionBlueBrush" Color="{StaticResource ActionBlueColor}"/>
-            <SolidColorBrush x:Key="ActionBlueHoverBrush" Color="{StaticResource ActionBlueHoverColor}"/>
-            <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
-            <SolidColorBrush x:Key="PosSurfaceBrush" Color="{StaticResource PosSurfaceColor}"/>
-            <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBackgroundColor}"/>
-            <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorderColor}"/>
-            <SolidColorBrush x:Key="DividerBrush" Color="{StaticResource DividerColor}"/>
-            <SolidColorBrush x:Key="GraphiteBrush" Color="{StaticResource GraphiteColor}"/>
-            <SolidColorBrush x:Key="GraphiteBorderBrush" Color="{StaticResource GraphiteBorderColor}"/>
-            <SolidColorBrush x:Key="GraphiteButtonBrush" Color="{StaticResource GraphiteButtonColor}"/>
-            <SolidColorBrush x:Key="CartBackgroundBrush" Color="{StaticResource CartBackgroundColor}"/>
-            <SolidColorBrush x:Key="CartHeaderBrush" Color="{StaticResource CartHeaderColor}"/>
-            <SolidColorBrush x:Key="CartTabBarBrush" Color="{StaticResource CartTabBarColor}"/>
-            <SolidColorBrush x:Key="CartItemCardBrush" Color="{StaticResource CartItemCardColor}"/>
-            <SolidColorBrush x:Key="CartItemBorderBrush" Color="{StaticResource CartItemBorderColor}"/>
-            <SolidColorBrush x:Key="CartFooterBrush" Color="{StaticResource CartFooterColor}"/>
-            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
-            <SolidColorBrush x:Key="SuccessHoverBrush" Color="{StaticResource SuccessHoverColor}"/>
-            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
-            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
-            <SolidColorBrush x:Key="DangerHoverBrush" Color="{StaticResource DangerHoverColor}"/>
-            <SolidColorBrush x:Key="DangerBackgroundBrush" Color="{StaticResource DangerBackgroundColor}"/>
-            <SolidColorBrush x:Key="InstaPayBrush" Color="{StaticResource InstaPayColor}"/>
-            <SolidColorBrush x:Key="WalletBrush" Color="{StaticResource WalletColor}"/>
-            <SolidColorBrush x:Key="MultiPayBrush" Color="{StaticResource MultiPayColor}"/>
-            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
-            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
-            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}"/>
-            <SolidColorBrush x:Key="TextOnDarkBrush" Color="{StaticResource TextOnDarkColor}"/>
-            <SolidColorBrush x:Key="TextOnDarkMutedBrush" Color="{StaticResource TextOnDarkMutedColor}"/>
-            <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="{StaticResource DisabledBackgroundColor}"/>
-            <SolidColorBrush x:Key="DisabledTextBrush" Color="{StaticResource DisabledTextColor}"/>
-            <SolidColorBrush x:Key="OverlayBrush" Color="{StaticResource OverlayColor}"/>
-            <SolidColorBrush x:Key="FocusRingBrush" Color="{StaticResource FocusRingColor}"/>
+            <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#4A90E2"/>
+            <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="#69A6EA"/>
+            <SolidColorBrush x:Key="BrandPrimaryPressedBrush" Color="#3576C4"/>
+            <SolidColorBrush x:Key="ActionBlueBrush" Color="#5B9BF5"/>
+            <SolidColorBrush x:Key="ActionBlueHoverBrush" Color="#7CADF7"/>
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#14171C"/>
+            <SolidColorBrush x:Key="PosSurfaceBrush" Color="#14171C"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1E232B"/>
+            <SolidColorBrush x:Key="CardBorderBrush" Color="#2C343E"/>
+            <SolidColorBrush x:Key="DividerBrush" Color="#2C343E"/>
+            <SolidColorBrush x:Key="GraphiteBrush" Color="#1A1F26"/>
+            <SolidColorBrush x:Key="GraphiteBorderBrush" Color="#323A46"/>
+            <SolidColorBrush x:Key="GraphiteButtonBrush" Color="#2A313B"/>
+            <SolidColorBrush x:Key="CartBackgroundBrush" Color="#1E232B"/>
+            <SolidColorBrush x:Key="CartHeaderBrush" Color="#1E232B"/>
+            <SolidColorBrush x:Key="CartTabBarBrush" Color="#262C35"/>
+            <SolidColorBrush x:Key="CartItemCardBrush" Color="#242A33"/>
+            <SolidColorBrush x:Key="CartItemBorderBrush" Color="#323A46"/>
+            <SolidColorBrush x:Key="CartFooterBrush" Color="#1A1F26"/>
+            <SolidColorBrush x:Key="SuccessTextBrush" Color="#34D399"/>
+            <SolidColorBrush x:Key="WarningTextBrush" Color="#FBBF24"/>
+            <SolidColorBrush x:Key="SuccessBrush" Color="#34D399"/>
+            <SolidColorBrush x:Key="SuccessHoverBrush" Color="#5FE0B5"/>
+            <SolidColorBrush x:Key="WarningBrush" Color="#FBBF24"/>
+            <SolidColorBrush x:Key="DangerBrush" Color="#F87171"/>
+            <SolidColorBrush x:Key="DangerHoverBrush" Color="#FB9C9C"/>
+            <SolidColorBrush x:Key="DangerBackgroundBrush" Color="#3A1616"/>
+            <SolidColorBrush x:Key="InstaPayBrush" Color="#A78BFA"/>
+            <SolidColorBrush x:Key="WalletBrush" Color="#E879F9"/>
+            <SolidColorBrush x:Key="MultiPayBrush" Color="#FBBF24"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E6E9EE"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#AEB6C2"/>
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#8B93A1"/>
+            <SolidColorBrush x:Key="TextOnDarkBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="TextOnDarkMutedBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#20262E"/>
+            <SolidColorBrush x:Key="DisabledTextBrush" Color="#5B6472"/>
+            <SolidColorBrush x:Key="OverlayBrush" Color="#99000000"/>
+            <SolidColorBrush x:Key="FocusRingBrush" Color="#664A90E2"/>
 
             <Color x:Key="ShellBackgroundColor">#14171C</Color>
             <Color x:Key="ShellNavColor">#171B21</Color>
@@ -296,27 +305,27 @@
             <Color x:Key="NeutralBackgroundColor">#1E232B</Color>
             <Color x:Key="NeutralTextColor">#AEB6C2</Color>
 
-            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="{StaticResource ShellBackgroundColor}"/>
-            <SolidColorBrush x:Key="ShellNavBrush" Color="{StaticResource ShellNavColor}"/>
-            <SolidColorBrush x:Key="ShellNavHoverBrush" Color="{StaticResource ShellNavHoverColor}"/>
-            <SolidColorBrush x:Key="ShellNavSelectedBrush" Color="{StaticResource ShellNavSelectedColor}"/>
-            <SolidColorBrush x:Key="ShellDividerBrush" Color="{StaticResource ShellDividerColor}"/>
-            <SolidColorBrush x:Key="TableHeaderBrush" Color="{StaticResource TableHeaderColor}"/>
-            <SolidColorBrush x:Key="TableRowAltBrush" Color="{StaticResource TableRowAltColor}"/>
-            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
-            <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{StaticResource InfoBackgroundColor}"/>
-            <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{StaticResource SuccessBackgroundColor}"/>
-            <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningBackgroundColor}"/>
-            <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{StaticResource NeutralBackgroundColor}"/>
-            <SolidColorBrush x:Key="NeutralTextBrush" Color="{StaticResource NeutralTextColor}"/>
+            <SolidColorBrush x:Key="ShellBackgroundBrush" Color="#14171C"/>
+            <SolidColorBrush x:Key="ShellNavBrush" Color="#171B21"/>
+            <SolidColorBrush x:Key="ShellNavHoverBrush" Color="#232931"/>
+            <SolidColorBrush x:Key="ShellNavSelectedBrush" Color="#4A90E2"/>
+            <SolidColorBrush x:Key="ShellDividerBrush" Color="#2C343E"/>
+            <SolidColorBrush x:Key="TableHeaderBrush" Color="#1E232B"/>
+            <SolidColorBrush x:Key="TableRowAltBrush" Color="#181D24"/>
+            <SolidColorBrush x:Key="InfoBrush" Color="#60A5FA"/>
+            <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#152A47"/>
+            <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="#132E24"/>
+            <SolidColorBrush x:Key="WarningBackgroundBrush" Color="#3A2A0E"/>
+            <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="#1E232B"/>
+            <SolidColorBrush x:Key="NeutralTextBrush" Color="#AEB6C2"/>
 
-            <SolidColorBrush x:Key="SuccessPillBrush" Color="{StaticResource SuccessColor}"/>
-            <SolidColorBrush x:Key="DangerPillBrush" Color="{StaticResource DangerColor}"/>
-            <SolidColorBrush x:Key="WarningPillBrush" Color="{StaticResource WarningColor}"/>
-            <SolidColorBrush x:Key="NeutralPillBrush" Color="{StaticResource NeutralTextColor}"/>
+            <SolidColorBrush x:Key="SuccessPillBrush" Color="#34D399"/>
+            <SolidColorBrush x:Key="DangerPillBrush" Color="#F87171"/>
+            <SolidColorBrush x:Key="WarningPillBrush" Color="#FBBF24"/>
+            <SolidColorBrush x:Key="NeutralPillBrush" Color="#AEB6C2"/>
 
             <Color x:Key="CategoryBadgeColor">#22303B</Color>
-            <SolidColorBrush x:Key="CategoryBadgeBrush" Color="{StaticResource CategoryBadgeColor}"/>
+            <SolidColorBrush x:Key="CategoryBadgeBrush" Color="#22303B"/>
 
         </ResourceDictionary>
 

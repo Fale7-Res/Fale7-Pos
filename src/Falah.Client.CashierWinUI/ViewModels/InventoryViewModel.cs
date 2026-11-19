@@ -25,7 +25,7 @@ public partial class InventoryViewModel : ObservableObject
 {
     private readonly AppSession _session;
 
-    public InventoryViewModel(AppSession session) => _session = session;
+    public InventoryViewModel(AppSession session) { _session = session; session.TrackManagementOwner(this); }
     private readonly RetainedRequest<RecordCountAdjustmentRequest> _countRequest = new("inventory.count-adjustment");
     private readonly RetainedRequest<RecordWasteRequest> _wasteRequest = new("inventory.waste");
     public bool CanEditAction => !IsBusy && !_countRequest.HasPending && !_wasteRequest.HasPending;
@@ -152,7 +152,7 @@ public partial class InventoryViewModel : ObservableObject
         {
             "PurchaseReceipt" => "استلام شراء",
             "ManualReceipt" => "إدخال يدوي",
-            "Usage" => "استهلاك مبيعات",
+            "Usage" => "استهلاك مبيعات", "UsageReversal" => "إلغاء استهلاك طلب ملغي",
             "Waste" => "فاقد",
             "Spoilage" => "تلف تخزين",
             "Breakage" => "كسر",
@@ -331,7 +331,7 @@ public partial class InventoryViewModel : ObservableObject
         public string SystemDisplay => $"{MilliUnits.Format(Item.BalanceMilliUnits)} {Item.Unit}";
 
         public long? CountedMilliUnits =>
-            MilliUnits.TryParse(CountedText, out var counted) && CountedText.Trim().Length > 0 ? counted : null;
+            MilliUnits.TryParse(CountedText, out var counted) && counted >= 0 && CountedText.Trim().Length > 0 ? counted : null;
 
         public long? VarianceMilliUnits =>
             CountedMilliUnits is { } counted ? counted - Item.BalanceMilliUnits : null;
@@ -438,6 +438,8 @@ public partial class InventoryViewModel : ObservableObject
     {
         if (IsBusy || !IsCounting) return;
 
+        if (CountSheet.Any(l => l.CountedText.Trim().Length > 0 && l.CountedMilliUnits is null))
+        { CountSheetError = "صحّح الكميات المعدودة؛ يجب أن تكون أرقامًا غير سالبة."; return; }
         var differing = CountSheet.Where(l => l.HasVariance).ToList();
         if (differing.Count == 0)
         {
@@ -454,24 +456,23 @@ public partial class InventoryViewModel : ObservableObject
         CountSheetError = null;
         try
         {
-            // One approval for the sheet, not one per line - the manager is authorising this count,
-            // and asking for the PIN once per shelf item would train everyone to hand it over.
-            var (approvalId, approverId, ok) = await ResolveApprovalAsync(
-                CountSheetNeedsApproval, CountSheetManagerPin, "inventory_manage", CountSheetReason,
-                e => CountSheetError = e);
-            if (!ok) return;
-
             var posted = 0;
             var failed = 0;
             foreach (var line in differing)
             {
+                // The operator enters the PIN once; the server issues a separate single-use
+                // approval for each count command, so no approval is spent across two lines.
+                var (approvalId, approverId, ok) = await ResolveApprovalAsync(
+                    CountSheetNeedsApproval, CountSheetManagerPin, "inventory_manage", CountSheetReason,
+                    e => CountSheetError = e);
+                if (!ok) { line.Result = CountSheetError; failed++; break; }
                 var difference = line.VarianceMilliUnits!.Value;
                 // Derived from the sheet and the item, so resubmitting after a failure replays the
                 // same request rather than posting a second adjustment for the same shelf.
                 var requestId = $"{_countSheetId}-{line.Item.Id}";
                 var result = await _session.Api.RecordCountAdjustmentAsync(new RecordCountAdjustmentRequest(
                     requestId, line.Item.Id, Math.Abs(difference), difference > 0 ? "In" : "Out",
-                    CountSheetReason, _session.CurrentUser!.Id, approvalId, approverId));
+                    CountSheetReason, _session.CurrentUser!.Id, approvalId, approverId, CountedTotalMilliUnits: line.CountedMilliUnits));
 
                 if (result.Success && result.Value is not null) { line.Result = "تم"; posted++; }
                 else { line.Result = result.Error ?? "فشل"; failed++; }
@@ -552,7 +553,7 @@ public partial class InventoryViewModel : ObservableObject
             return;
         }
         if (CountTarget is null) return;
-        if (!MilliUnits.TryParse(CountActualText, out var actual))
+        if (!MilliUnits.TryParse(CountActualText, out var actual) || actual < 0)
         {
             CountError = "أدخل الكمية المعدودة بشكل صحيح.";
             return;
@@ -580,7 +581,7 @@ public partial class InventoryViewModel : ObservableObject
 
             await CompleteCountAsync(new RecordCountAdjustmentRequest(
                 _countRequestId!, CountTarget.Id, Math.Abs(difference), difference > 0 ? "In" : "Out",
-                CountReason, _session.CurrentUser!.Id, approvalId, approverId));
+                CountReason, _session.CurrentUser!.Id, approvalId, approverId, CountedTotalMilliUnits: actual));
         }
         finally { IsBusy = false; }
     }

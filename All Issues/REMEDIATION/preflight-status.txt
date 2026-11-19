@@ -1,0 +1,337 @@
+# git status --porcelain at loop preparation, 2026-11-04T22:46Z, branch clients-and-operations-audit @ b3071be
+ M .gitignore
+ M docs/PRINT_AGENT.md
+ M src/Falah.Application/CashDrawer/CashDrawerRequests.cs
+ M src/Falah.Application/Delivery/DeliveryRequests.cs
+ M src/Falah.Application/Employees/EmployeeRequests.cs
+ M src/Falah.Application/Orders/CancelPendingElectronicPaymentRequest.cs
+ M src/Falah.Application/Orders/CheckoutOrderRequest.cs
+ M src/Falah.Application/Orders/OrderDetailsDto.cs
+ M src/Falah.Application/Printing/ComposedTicketDto.cs
+ M src/Falah.Application/Printing/PrintingRequests.cs
+ M src/Falah.Application/Reports/OwnerDashboardDtos.cs
+ M src/Falah.Application/Reports/ReportingDtos.cs
+ M src/Falah.Application/Settings/SettingsRequests.cs
+ M src/Falah.Application/Shifts/CloseShiftRequest.cs
+ M src/Falah.Application/Shifts/OpenShiftRequest.cs
+ M src/Falah.Application/Treasury/TreasuryRequests.cs
+ M src/Falah.Client.CallCenterWinUI/App.xaml
+ M src/Falah.Client.CallCenterWinUI/Converters/Converters.cs
+ M src/Falah.Client.CallCenterWinUI/MainWindow.xaml
+ M src/Falah.Client.CallCenterWinUI/ViewModels/CallCenterViewModel.Checkout.cs
+ M src/Falah.Client.CallCenterWinUI/ViewModels/HeaderViewModel.cs
+ M src/Falah.Client.CallCenterWinUI/Views/CallCenterView.xaml
+ M src/Falah.Client.CallCenterWinUI/Views/LoginView.xaml
+ M src/Falah.Client.Cashier/Views/CashierView.xaml
+ M src/Falah.Client.CashierWinUI/App.xaml
+ M src/Falah.Client.CashierWinUI/Controls/EmptyStateView.xaml
+ M src/Falah.Client.CashierWinUI/Controls/ErrorStateView.xaml
+ M src/Falah.Client.CashierWinUI/Controls/PermissionDeniedStateView.xaml
+ M src/Falah.Client.CashierWinUI/Controls/SparklineView.xaml
+ M src/Falah.Client.CashierWinUI/Converters/Converters.cs
+ M src/Falah.Client.CashierWinUI/MainWindow.xaml
+ M src/Falah.Client.CashierWinUI/MainWindow.xaml.cs
+ M src/Falah.Client.CashierWinUI/Services/ApiClient.cs
+ M src/Falah.Client.CashierWinUI/Styles/Colors.xaml
+ M src/Falah.Client.CashierWinUI/Styles/Controls.xaml
+ M src/Falah.Client.CashierWinUI/Styles/Typography.xaml
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Checkout.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Delivery.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Expense.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Operations.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Refund.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.ShiftClose.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.State.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Operations.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/CustomersViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/HeaderViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/InventoryViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/OwnerDashboardViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/PrintingViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/ReportsViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/ShellViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/TreasuryViewModel.cs
+ M src/Falah.Client.CashierWinUI/ViewModels/UsersViewModel.Actions.cs
+ M src/Falah.Client.CashierWinUI/Views/AppHeaderView.xaml
+ M src/Falah.Client.CashierWinUI/Views/AttendanceView.xaml
+ M src/Falah.Client.CashierWinUI/Views/AuditView.xaml
+ M src/Falah.Client.CashierWinUI/Views/BackupView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CartPanelView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CashCountView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CashierOperationsModalsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CashierView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CategoryStripView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CheckoutView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ControlCenterView.xaml
+ M src/Falah.Client.CashierWinUI/Views/CustomersView.xaml
+ M src/Falah.Client.CashierWinUI/Views/DeliveryDetailsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/DeliveryDirectoryView.xaml
+ M src/Falah.Client.CashierWinUI/Views/DeliveryModalsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/DeliveryView.xaml
+ M src/Falah.Client.CashierWinUI/Views/EmployeeEditorView.xaml
+ M src/Falah.Client.CashierWinUI/Views/EmployeesView.xaml
+ M src/Falah.Client.CashierWinUI/Views/InventoryModalsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/InventoryView.xaml
+ M src/Falah.Client.CashierWinUI/Views/LoginView.xaml
+ M src/Falah.Client.CashierWinUI/Views/MenuEditorView.xaml
+ M src/Falah.Client.CashierWinUI/Views/MenuView.xaml
+ M src/Falah.Client.CashierWinUI/Views/OrdersView.xaml
+ M src/Falah.Client.CashierWinUI/Views/OwnerDashboardView.xaml
+ M src/Falah.Client.CashierWinUI/Views/PayrollView.xaml
+ M src/Falah.Client.CashierWinUI/Views/PrintingView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ProductCatalogueView.xaml
+ M src/Falah.Client.CashierWinUI/Views/PurchasingModalsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/PurchasingView.xaml
+ M src/Falah.Client.CashierWinUI/Views/RecipesView.xaml
+ M src/Falah.Client.CashierWinUI/Views/RefundView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ReportsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/SettingsView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ShellPlaceholderView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ShellView.xaml
+ M src/Falah.Client.CashierWinUI/Views/ShellView.xaml.cs
+ M src/Falah.Client.CashierWinUI/Views/TreasuryView.xaml
+ M src/Falah.Client.CashierWinUI/Views/UsersView.xaml
+ M src/Falah.Client.CashierWinUI/Views/WasteView.xaml
+ M src/Falah.Domain/Authorization/ApprovalRegistry.cs
+ M src/Falah.Domain/Authorization/ManagerApproval.cs
+ M src/Falah.Domain/Authorization/PermissionCatalog.cs
+ M src/Falah.Domain/Authorization/UserManagementRules.cs
+ M src/Falah.Domain/Backup/BackupRules.cs
+ M src/Falah.Domain/Delivery/DeliveryRules.cs
+ M src/Falah.Domain/Employees/EmployeeRules.cs
+ M src/Falah.Domain/Inventory/InventoryRecords.cs
+ M src/Falah.Domain/Inventory/InventoryRules.cs
+ M src/Falah.Domain/Orders/CheckoutRules.cs
+ M src/Falah.Domain/Orders/Order.cs
+ M src/Falah.Domain/Orders/OrderEnums.cs
+ M src/Falah.Domain/Orders/OrderPaymentQueries.cs
+ M src/Falah.Domain/Payroll/PayrollRules.cs
+ M src/Falah.Domain/Printing/EscPosTicketRenderer.cs
+ M src/Falah.Domain/Printing/PrintRecords.cs
+ M src/Falah.Domain/Printing/PrintRules.cs
+ M src/Falah.Domain/Reports/SalesRules.cs
+ M src/Falah.Infrastructure/Approvals/IssueManagerApprovalHandler.cs
+ M src/Falah.Infrastructure/Backup/CreateBackupHandler.cs
+ M src/Falah.Infrastructure/Backup/VerifyBackupHandler.cs
+ M src/Falah.Infrastructure/CashDrawer/CashDrawerHandlers.cs
+ M src/Falah.Infrastructure/ControlCenter/BusinessDayCloseEvaluator.cs
+ M src/Falah.Infrastructure/ControlCenter/CloseBusinessDayHandler.cs
+ M src/Falah.Infrastructure/ControlCenter/ControlCenterQueryService.cs
+ M src/Falah.Infrastructure/Delivery/AssignDeliveryHandler.cs
+ M src/Falah.Infrastructure/Delivery/DeliveryQueryService.cs
+ M src/Falah.Infrastructure/Delivery/ReassignDeliveryHandler.cs
+ M src/Falah.Infrastructure/Delivery/RecordDeliveryResultHandler.cs
+ M src/Falah.Infrastructure/Employees/EmployeeQueryService.cs
+ M src/Falah.Infrastructure/Employees/PayPayrollHandler.cs
+ M src/Falah.Infrastructure/Expenses/AddExpenseHandler.cs
+ M src/Falah.Infrastructure/Falah.Infrastructure.csproj
+ M src/Falah.Infrastructure/Inventory/InventoryQueryService.cs
+ M src/Falah.Infrastructure/Menu/CategoryHandlers.cs
+ M src/Falah.Infrastructure/Menu/MenuQueryService.cs
+ M src/Falah.Infrastructure/Menu/ProductHandlers.cs
+ M src/Falah.Infrastructure/Orders/CancelPendingElectronicPaymentHandler.cs
+ M src/Falah.Infrastructure/Orders/CheckoutOrderHandler.cs
+ M src/Falah.Infrastructure/Orders/OrderEnumMapping.cs
+ M src/Falah.Infrastructure/Orders/OrderMapper.cs
+ M src/Falah.Infrastructure/Orders/RefundOrderHandler.cs
+ M src/Falah.Infrastructure/Persistence/DemoDataSeeder.cs
+ M src/Falah.Infrastructure/Persistence/EfApprovalRegistry.cs
+ M src/Falah.Infrastructure/Persistence/Entities/CashDrawerEntities.cs
+ M src/Falah.Infrastructure/Persistence/Entities/ManagerApprovalEntity.cs
+ M src/Falah.Infrastructure/Persistence/Entities/OrderEntity.cs
+ M src/Falah.Infrastructure/Persistence/Entities/PrintEntities.cs
+ M src/Falah.Infrastructure/Persistence/Entities/SettingsEntity.cs
+ M src/Falah.Infrastructure/Persistence/Entities/SupportingEntities.cs
+ M src/Falah.Infrastructure/Persistence/FalahDbContext.cs
+ M src/Falah.Infrastructure/Persistence/Migrations/FalahDbContextModelSnapshot.cs
+ M src/Falah.Infrastructure/Printing/CreatePrintJobsHandler.cs
+ M src/Falah.Infrastructure/Printing/PrintJobQueryService.cs
+ M src/Falah.Infrastructure/Printing/ReportPrintJobResultHandler.cs
+ M src/Falah.Infrastructure/Purchasing/ReceivePurchaseHandler.cs
+ M src/Falah.Infrastructure/Reports/OwnerDashboardQueryService.cs
+ M src/Falah.Infrastructure/Reports/ReportingQueryService.cs
+ M src/Falah.Infrastructure/Settings/SettingsQueryService.cs
+ M src/Falah.Infrastructure/Settings/UpdateSettingsHandler.cs
+ M src/Falah.Infrastructure/Shifts/CloseShiftHandler.cs
+ M src/Falah.Infrastructure/Shifts/OpenShiftHandler.cs
+ M src/Falah.Infrastructure/Shifts/PrepareShiftCloseHandler.cs
+ M src/Falah.Infrastructure/Shifts/ShiftReconciliation.cs
+ M src/Falah.Infrastructure/Users/ChangePinHandler.cs
+ M src/Falah.Infrastructure/Users/CreateUserHandler.cs
+ M src/Falah.Infrastructure/Users/PinUniquenessChecker.cs
+ M src/Falah.Infrastructure/Users/SetUserActiveHandler.cs
+ M src/Falah.Infrastructure/Users/UpdateUserPermissionsHandler.cs
+ M src/Falah.PrintAgent/AgentOptions.cs
+ M src/Falah.PrintAgent/Falah.PrintAgent.csproj
+ M src/Falah.PrintAgent/PrintJobProcessor.cs
+ M src/Falah.PrintAgent/PrintServerClient.cs
+ M src/Falah.PrintAgent/Program.cs
+ M src/Falah.PrintAgent/UnreportedAttemptStore.cs
+ M src/Falah.PrintAgent/appsettings.json
+ M src/Falah.Server/AuthenticationMiddleware.cs
+ M src/Falah.Server/Falah.Server.csproj
+ M src/Falah.Server/Program.cs
+ M src/Falah.Server/appsettings.json
+ M tests/Falah.Client.Tests/Falah.Client.Tests.csproj
+ M tests/Falah.Client.Tests/FinalVerificationTests.cs
+ M tests/Falah.Client.Tests/ManagementWriteSafetyTests.cs
+ M tests/Falah.Domain.Tests/AuthorizationTests.cs
+ M tests/Falah.Domain.Tests/BackupRulesTests.cs
+ M tests/Falah.Domain.Tests/CheckoutRulesTests.cs
+ M tests/Falah.Domain.Tests/DeliveryRulesTests.cs
+ M tests/Falah.Domain.Tests/PrintRulesTests.cs
+ M tests/Falah.Domain.Tests/SalesRulesTests.cs
+ M tests/Falah.Domain.Tests/UserManagementRulesTests.cs
+ M tests/Falah.Server.IntegrationTests/ActorTokenHandler.cs
+ M tests/Falah.Server.IntegrationTests/AttendanceVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/AuditLogVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/BusinessDayCloseVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/CashDrawerVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/ConfirmElectronicPaymentTests.cs
+ M tests/Falah.Server.IntegrationTests/DeliveryVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/EmployeeVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/EscPosTicketRendererTests.cs
+ M tests/Falah.Server.IntegrationTests/ExpenseVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/Falah.Server.IntegrationTests.csproj
+ M tests/Falah.Server.IntegrationTests/FalahApiFactory.cs
+ M tests/Falah.Server.IntegrationTests/InventoryVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/ManagerApprovalTests.cs
+ M tests/Falah.Server.IntegrationTests/MenuManagementVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/OwnerDashboardVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/PrintAgentTests.cs
+ M tests/Falah.Server.IntegrationTests/PrintingVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/ReportingVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/TreasuryVerticalSliceTests.cs
+ M tests/Falah.Server.IntegrationTests/UserManagementVerticalSliceTests.cs
+ M tools/verify-windows-printer-transport.ps1
+?? .claude/
+?? AUDIT_REPORTS/
+?? "All Issues/"
+?? CLAUDE.md
+?? INDEPENDENT_AUDIT/
+?? PRODUCTION_RESILIENCE_AUDIT/
+?? docs/DAILY_OPERATIONS_VERIFICATION.md
+?? docs/DEMO_READINESS.md
+?? docs/DEPLOYMENT.md
+?? docs/FINAL_CLOSEOUT_REVIEW.md
+?? docs/GO_LIVE_CLEANUP_CHECKLIST.md
+?? docs/LAN_DEPLOYMENT.md
+?? docs/METRIC_DEFINITIONS.md
+?? docs/OPENING_STOCK_CHECKLIST.md
+?? docs/REMEDIATION_PLAN.md
+?? docs/REMEDIATION_PROGRESS.md
+?? "reports from another tool/"
+?? src/Falah.Application/Printing/TicketElementMapping.cs
+?? src/Falah.Application/Reports/CashFlowDtos.cs
+?? src/Falah.Application/Reports/DailyStatementDtos.cs
+?? src/Falah.Application/Users/LoginSecurityDtos.cs
+?? src/Falah.Client.CashierWinUI/Services/ApiClient.Finance.cs
+?? src/Falah.Client.CashierWinUI/Services/DisplayLabels.cs
+?? src/Falah.Client.CashierWinUI/Services/ThemeResources.cs
+?? src/Falah.Client.CashierWinUI/Services/ThemeService.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Durability.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/CashierViewModel.Pickup.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/ControlCenterViewModel.Reconciliation.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/DailyStatementViewModel.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/DailySummaryViewModel.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/DeliveryViewModel.Statistics.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Pay.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/EmployeesViewModel.Report.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/FinancialControlViewModel.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/SettingsViewModel.Appearance.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Close.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.Open.cs
+?? src/Falah.Client.CashierWinUI/ViewModels/ShiftsViewModel.cs
+?? src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml
+?? src/Falah.Client.CashierWinUI/Views/DailyStatementView.xaml.cs
+?? src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml
+?? src/Falah.Client.CashierWinUI/Views/DailySummaryView.xaml.cs
+?? src/Falah.Client.CashierWinUI/Views/FinancialControlView.xaml
+?? src/Falah.Client.CashierWinUI/Views/FinancialControlView.xaml.cs
+?? src/Falah.Client.CashierWinUI/Views/PickupDetailsView.xaml
+?? src/Falah.Client.CashierWinUI/Views/PickupDetailsView.xaml.cs
+?? src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml
+?? src/Falah.Client.CashierWinUI/Views/ShiftsView.xaml.cs
+?? src/Falah.Domain/Authorization/ClientSource.cs
+?? src/Falah.Domain/Financial/ExpenseCategories.cs
+?? src/Falah.Domain/Printing/TicketLayout.cs
+?? src/Falah.Infrastructure/Approvals/ApprovalPinAttemptGuard.cs
+?? src/Falah.Infrastructure/Authorization/LoginAttemptGuard.cs
+?? src/Falah.Infrastructure/Backup/BackupActor.cs
+?? src/Falah.Infrastructure/Backup/ScheduledBackupService.cs
+?? src/Falah.Infrastructure/BusinessDay/BusinessDayShifts.cs
+?? src/Falah.Infrastructure/Employees/EmployeeLedgerPeriods.cs
+?? src/Falah.Infrastructure/Employees/PayEmployeeHandler.cs
+?? src/Falah.Infrastructure/Employees/SalaryAccrual.cs
+?? src/Falah.Infrastructure/Orders/OrderStockDisposition.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260911173753_RenameDineInOrdersToPickup.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260911224157_AddOrderRequestedPickupTime.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919003557_AddSettingsMenuUrl.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919212356_AddPrintJobDocumentKind.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20260919234725_AddSettingsDefaultOpeningCash.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261024162329_AddShiftBusinessDayId.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261024162329_AddShiftBusinessDayId.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261024185051_AddPrintJobClaim.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261024185051_AddPrintJobClaim.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261026131805_AddManagerApprovalRequester.Designer.cs
+?? src/Falah.Infrastructure/Persistence/Migrations/20261026131805_AddManagerApprovalRequester.cs
+?? src/Falah.Infrastructure/Printing/DocumentPrintJobs.cs
+?? src/Falah.Infrastructure/Printing/ReprintDocumentHandler.cs
+?? src/Falah.Infrastructure/Reports/DailyStatementQueryService.cs
+?? src/Falah.Infrastructure/Reports/RefundEventQueries.cs
+?? src/Falah.Infrastructure/Users/PinChoiceGuard.cs
+?? src/Falah.PrintAgent/BitmapTicketRenderer.cs
+?? src/Falah.PrintAgent/CashDrawerKicker.cs
+?? tests/Falah.Client.Tests/CashierDurabilityTests.cs
+?? tests/Falah.Client.Tests/CloseoutRegressionTests.cs
+?? tests/Falah.Client.Tests/FinancialControlViewModelTests.cs
+?? tests/Falah.Client.Tests/VoidDispositionClientTests.cs
+?? tests/Falah.Domain.Tests/ApprovalLifecycleRulesTests.cs
+?? tests/Falah.Domain.Tests/ClientSourceTests.cs
+?? tests/Falah.Domain.Tests/SalaryAccrualRulesTests.cs
+?? tests/Falah.Server.IntegrationTests/ActorIdentityValidationTests.cs
+?? tests/Falah.Server.IntegrationTests/AgentOptionsSecretTests.cs
+?? tests/Falah.Server.IntegrationTests/ApprovalLifecycleTests.cs
+?? tests/Falah.Server.IntegrationTests/ApprovalPinGuessingTests.cs
+?? tests/Falah.Server.IntegrationTests/BusinessDayAssociationTests.cs
+?? tests/Falah.Server.IntegrationTests/BusinessDayMembershipTests.cs
+?? tests/Falah.Server.IntegrationTests/CashDrawerKickTests.cs
+?? tests/Falah.Server.IntegrationTests/CashFlowAndPendingTests.cs
+?? tests/Falah.Server.IntegrationTests/CorsTests.cs
+?? tests/Falah.Server.IntegrationTests/CrossShiftRefundTests.cs
+?? tests/Falah.Server.IntegrationTests/DailyStatementVerticalSliceTests.cs
+?? tests/Falah.Server.IntegrationTests/DefaultOpeningCashTests.cs
+?? tests/Falah.Server.IntegrationTests/DemoCredentialsTests.cs
+?? tests/Falah.Server.IntegrationTests/ExpenseCategoryTests.cs
+?? tests/Falah.Server.IntegrationTests/FinancialReadPermissionTests.cs
+?? tests/Falah.Server.IntegrationTests/HostHardeningTests.cs
+?? tests/Falah.Server.IntegrationTests/LoginPinGuessingTests.cs
+?? tests/Falah.Server.IntegrationTests/MenuQrRenderingTests.cs
+?? tests/Falah.Server.IntegrationTests/OperatingDayScenarioTests.cs
+?? tests/Falah.Server.IntegrationTests/OrderVoidDispositionTests.cs
+?? tests/Falah.Server.IntegrationTests/PayEmployeeVerticalSliceTests.cs
+?? tests/Falah.Server.IntegrationTests/PinChoiceOracleTests.cs
+?? tests/Falah.Server.IntegrationTests/PrintAgentIdentityTests.cs
+?? tests/Falah.Server.IntegrationTests/PrintAgentSessionTests.cs
+?? tests/Falah.Server.IntegrationTests/PrintJobClaimTests.cs
+?? tests/Falah.Server.IntegrationTests/ProfitabilityInputsTests.cs
+?? tests/Falah.Server.IntegrationTests/RefundDateBasisTests.cs
+?? tests/Falah.Server.IntegrationTests/SalaryAccrualDatingTests.cs
+?? tests/Falah.Server.IntegrationTests/SalaryAccrualTests.cs
+?? tests/Falah.Server.IntegrationTests/SlipPrintingAndReprintTests.cs
+?? tests/Falah.Server.IntegrationTests/SplitOrderVoidTests.cs
+?? tests/Falah.Server.IntegrationTests/TicketDtoText.cs
+?? tools/ReceiptPreview/
+?? tools/install-falah-service.ps1
+?? tools/pre-demo-check.ps1
