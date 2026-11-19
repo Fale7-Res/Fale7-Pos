@@ -24,3 +24,19 @@ TestResults/
 __pycache__/
 *.pyc
 tickets/
+
+# Falah installer: generated publish payloads, local build logs, and release artifacts
+/Installer Creation/Application Builds/
+/Installer Creation/Logs/
+/Installer Creation/Output/
+/Installer Creation/Tools/
+
+# Local offline installers stay in the workspace but are distributed separately from Git
+/Installer Creation/Dependencies/Offline Installers/*.exe
+/Installer Creation/Dependencies/Offline Installers/sql-express-download-parts/
+/Installer Creation/Dependencies/Redistributables/*.exe
+
+# Local deployment/tool artifacts outside Installer Creation
+/Installer/
+/dist/
+*.csproj.user
