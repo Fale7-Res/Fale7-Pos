@@ -98,6 +98,20 @@ $env:FALAH_SERVER_URL = 'http://127.0.0.1:5199'
 
 Demo users are never created in Production, and the production server refuses to start while a migration is unapplied.
 
+## Installation package
+
+```powershell
+.\tools\build-install-package.ps1     # -> artifacts\install\Falah-Install-<id>\ and .zip
+```
+
+Builds every program self-contained for win-x64, so the restaurant PCs need no .NET installed. The package also contains the offline migration script, the installers from [deploy/](deploy) and an Arabic guide (`اقرأني أولاً.txt`). On site, double-click `1-Install-Server.cmd` on the server PC, then `2-Install-Cashier.cmd`, `3-Install-CallCenter.cmd` or `4-Install-PrintAgent.cmd` on each station. The installers:
+
+- create the server's HTTPS certificate and trust it on each station;
+- back up and verify an existing database before updating it;
+- register the server and the print agents as Windows services;
+- limit the firewall to the local private network;
+- keep the previous version of each program for rollback.
+
 ## Database changes
 
 Migrations live in `src/Falah.Infrastructure/Persistence/Migrations` and are generated with the pinned `dotnet ef` 8.0.11 (`.config/dotnet-tools.json`) against a database name that does not exist. They are additive and reviewed. In production they are applied from `migrations-idempotent.sql` after a verified backup and a rehearsal on a restored copy ([DEPLOYMENT](docs/DEPLOYMENT.md), [migration review](docs/DATABASE_MIGRATION_REVIEW_20261107.md)).
