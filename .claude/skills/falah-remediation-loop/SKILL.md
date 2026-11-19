@@ -17,7 +17,7 @@ If not, stop and ask.
 
 ## 1. Pick the batch
 - **Choice:** the owner-named batch, or else the first `PENDING` batch whose `depends_on` are all `DONE`.
-- **Policy gate:** if `blocked_by_decision` is set and the decision is not recorded as answered in `docs/REMEDIATION_PLAN.md` § Decisions, mark the batch `BLOCKED` and ask the owner.
+- **Policy gate:** if `blocked_by_decision` is set and the decision is not recorded as answered in `docs/ASSESSMENT.md` / `state.json`, mark the batch `BLOCKED` and ask the owner.
 - **Mark it in progress:** set `status = IN_PROGRESS` in `state.json` and create `All Issues/REMEDIATION/BATCHES/<id>.md` with a header listing its issues.
 
 ## 2. Analyst

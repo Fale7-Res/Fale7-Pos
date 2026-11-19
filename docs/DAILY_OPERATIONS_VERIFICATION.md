@@ -2,7 +2,7 @@
 
 One restaurant day traced from start-up to the next morning: what happens at each step, where it
 is enforced, what proves it, and what still has to be checked by hand on the real machines.
-Status as of the October 2026 remediation (`REMEDIATION_PLAN.md`).
+Kept current with each change; the last whole-project review is `All Issues/REVIEW_20261117_WHOLE_PROJECT.md`.
 
 Evidence key: **auto** = covered by an automated test against a real SQL Server database (class
 named); **code** = traced in code, no automated test; **manual** = needs the physical hardware or a

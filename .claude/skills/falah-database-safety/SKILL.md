@@ -35,7 +35,7 @@ testing connects to it.
 4. Additive and nullable unless a backfill is designed, tested and documented. Never edit an existing
    migration, the history table, or the snapshot by hand; never generate a migration to silence an
    EF warning.
-5. Record it in `docs/REMEDIATION_PROGRESS.md` and in the deployment plan (`docs/DEPLOYMENT.md`).
+5. Record it in the issue file (`All Issues/ISSUES/`) and in the deployment plan (`docs/DEPLOYMENT.md`).
 
 **The server runs `Database.Migrate()` at startup.** Shipping a build is applying its migrations to
 the restaurant's database. Before that: a verified backup (Backup screen → verify), a restore drill

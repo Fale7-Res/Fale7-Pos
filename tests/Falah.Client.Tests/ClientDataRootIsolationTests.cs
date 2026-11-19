@@ -5,7 +5,7 @@ using CallCenter = Falah.Client.CallCenterWinUI.Services;
 namespace Falah.Client.Tests;
 
 /// <summary>A verification session must be able to run the real clients without touching the
-/// station's own pending operations (CLAUDE_FULL_VERIFICATION_AND_UI_MASTER §3).</summary>
+/// station's own pending operations (owner's verification brief, 2026-11-08).</summary>
 [Collection(RetainedRequestStorageCollection.Name)]
 public class ClientDataRootIsolationTests
 {

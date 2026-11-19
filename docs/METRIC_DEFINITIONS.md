@@ -4,7 +4,7 @@ What every financial figure the server reports means: where it comes from, how i
 which time basis decides what "today" includes. Amounts are integer piastres everywhere (1 ج = 100
 piastres); instants are stored in UTC and turned into Cairo dates only when grouping.
 
-Kept current by the remediation work in `REMEDIATION_PLAN.md`. A figure not listed here has no
+Kept current with every change to a figure. A figure not listed here has no
 agreed definition yet and should not be relied on for reconciliation.
 
 ## Time bases

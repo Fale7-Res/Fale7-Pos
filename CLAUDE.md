@@ -30,15 +30,16 @@ dotnet test tests/Falah.Client.Tests
 dotnet test tests/Falah.Server.IntegrationTests --filter "FullyQualifiedName~RefundDateBasisTests"
 ```
 
-- The full integration suite takes about 1.5–2 hours on this laptop (last accepted full run:
-  919/919). It needs the local `.\SQLEXPRESS` instance and space on `E:\SqlData\Tests`. Run it
-  at milestones, not after every
+- The full integration suite takes about 1.5–2.5 hours on this laptop (last full run 2026-11-18:
+  1051/1053, the two failures not code faults and green on re-run). It needs the local
+  `.\SQLEXPRESS` instance and space on `E:\SqlData\Tests`. Run it at milestones, not after every
   change, and never two runs at once in the same tree (they share bin/obj).
 - This machine is a laptop that sleeps on lid/button even with a keep-awake request; a run that
   spans a sleep shows SQL timeouts in test setup. Re-run the affected class before calling it a
   code failure.
 - To run a long suite while continuing to work, copy the tree without `bin`/`obj`/`.git` into the
-  session scratchpad and run it there.
+  session scratchpad and run it there. Publish the WinUI clients from the repository itself: a
+  long scratchpad path pushes Windows App SDK intermediates past the 260-character limit.
 - Migrations: `dotnet ef` 8.0.11 is pinned in `.config/dotnet-tools.json`. Generate with
   `$env:ConnectionStrings__Falah` pointed at a non-existent database (e.g.
   `FalahDesignTime_DoNotConnect`); `migrations add` builds the host but never connects.
@@ -85,9 +86,10 @@ behaviour are the owner's or the accountant's decisions. Record the question in
 
 ## How work is tracked
 
-- `All Issues/01_MASTER_ISSUE_REGISTRY.md` and its issue files hold defect status and evidence.
-  Resume implementation from `docs/CODEX_TAKEOVER_20261108.md` and the current remediation state.
-  The old progress/plan paths are compatibility redirects; historical contents are in `docs/archive/`.
+- `All Issues/01_MASTER_ISSUE_REGISTRY.md` and its issue files hold defect status and evidence;
+  `All Issues/REMEDIATION/state.json` holds the remediation state and the owner's pending questions.
+  Pre-2026-11-08 documentation is in `docs/archive/`; documents removed on 2026-11-19 (old task
+  prompts, takeover checkpoint, superseded verification reports) are in git history before that date.
 - Defects: failing test first, watch it fail for the right reason, fix, run the class and its
   neighbours. "Done" means tests ran green and the evidence is written down; a screen is done when
   it has been run, not when it compiles; hardware behaviour is done only after an on-site test
@@ -95,16 +97,18 @@ behaviour are the owner's or the accountant's decisions. Record the question in
 - Other references: `docs/LAN_DEPLOYMENT.md` (multi-PC, HTTPS), `docs/PRINT_AGENT.md`,
   `docs/DEPLOYMENT.md`, `docs/GO_LIVE_CLEANUP_CHECKLIST.md`.
 
-## Current takeover checkpoint
+## Current checkpoint
 
-The owner transferred implementation to Codex on 2026-11-08. Read `docs/CODEX_TAKEOVER_20261108.md`
-and `docs/UI_OWNER_REQUESTS.md` before resuming. SQL/DPAPI capability depends on the execution
-account: owner-account passes do not establish sandbox-account access. Native isolated fixtures
-are available even when external winapp automation is unavailable. Preserve the evidence limits.
+Release candidate `68BA663DBB1D7804` (commit `14f1726`) is certified in
+`docs/GO_LIVE_ACCEPTANCE_20261114.md` §6: software GO (conditional), production NO-GO until the
+on-site gates and the owner's pre-go-live decisions. Read that section, `docs/UI_OWNER_REQUESTS.md`
+and `state.json` before resuming. SQL/DPAPI capability depends on the execution account:
+owner-account passes do not establish sandbox-account access. Preserve the evidence limits.
 
 ## Documentation navigation
 
-Start with the root `README.md` to find the active references. Reuse the current checkpoint and
-owner-request documents rather than creating a new progress/handoff file for every small change.
-Keep detailed logs in artifacts and link the evidence. Imported audits are historical references;
-do not read the entire archive or reopen old findings without checking the current registry/code.
+Start with the root `README.md` to find the active references. Update the existing reference that
+owns a topic (owner requests, acceptance, deployment, the issue file) rather than creating a new
+progress/handoff file for every change. Generated logs and screenshots go under `artifacts/`
+(ignored) and are linked from the evidence. Imported audits are historical references; do not
+read the entire archive or reopen old findings without checking the current registry and code.

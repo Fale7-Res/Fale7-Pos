@@ -111,8 +111,7 @@ this one.
 
 ## Paper design (redesign approved 2026-11-17)
 
-Spec: `docs/superpowers/specs/2026-11-17-paper-design-design.md`; plan:
-`docs/superpowers/plans/2026-11-17-paper-design.md`.
+Spec (with the owner's amendments): `docs/PAPER_DESIGN.md`.
 
 - **Typeface: Dubai** (Medium for normal text, Bold for bold) at 23/30/40/64/88 px, chosen by the owner
   on paper over Segoe UI and Tahoma. Lines sit on a fixed 1.5 em advance (Dubai's own line height is

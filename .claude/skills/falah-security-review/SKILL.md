@@ -58,4 +58,4 @@ which machine, without the secret?
 ## Done means
 
 Negative tests RED → GREEN, availability test green, residual risk and owner decisions written in
-`docs/REMEDIATION_PROGRESS.md`.
+the issue file (`All Issues/ISSUES/`) and `docs/ASSESSMENT.md`.

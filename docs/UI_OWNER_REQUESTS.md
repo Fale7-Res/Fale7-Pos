@@ -237,7 +237,7 @@ Use an isolated real server and native clients for workflow proof. Software prin
 
 ## Implementation update — Codex takeover, 2026-11-08
 
-The owner explicitly authorized taking over implementation of the whole project. UI-REQ-002 remains the first priority. Its opening/closing modal visibility is now fixed and verified in 72 native fixture cases (UI-0035); the closing slip now includes the shift name. The complete handover reporting/SQL workflow and UI-REQ-001 are not complete. Read CODEX_TAKEOVER_20261108.md for evidence, current environment blockers and the remaining work. Existing business-policy questions remain unchanged.
+The owner explicitly authorized taking over implementation of the whole project. UI-REQ-002 remains the first priority. Its opening/closing modal visibility is now fixed and verified in 72 native fixture cases (UI-0035); the closing slip now includes the shift name. The complete handover reporting/SQL workflow and UI-REQ-001 are not complete. The takeover checkpoint it pointed to (CODEX_TAKEOVER_20261108.md) was removed on 2026-11-19 and is in git history. Existing business-policy questions remain unchanged.
 
 ## Implementation status — Claude, 2026-11-08
 
@@ -405,8 +405,7 @@ presentation of driver fees; DRV-AUTH-01 whether cashiers get `delivery_manage`;
 
 The owner asked for a professional, consistent design for every printed paper, and for the new
 Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
-`docs/superpowers/specs/2026-11-17-paper-design-design.md`. Plan:
-`docs/superpowers/plans/2026-11-17-paper-design.md`. Design and evidence summary:
+`docs/PAPER_DESIGN.md`. Design and evidence summary:
 `docs/PRINT_AGENT.md` § "Paper design".
 
 ### What the owner decided, on paper

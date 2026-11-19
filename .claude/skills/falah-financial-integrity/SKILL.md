@@ -22,7 +22,7 @@ Every figure has one meaning, one formula, one date basis and one set of source 
    (Salary accruals carry their earning date in `ReferenceId`), `StockMovements` (direction-signed;
    `UsageReversal` is an In), `DriverCustody`, `CashCounts`.
 4. **Is it a policy question?** VAT on comps (S2), VAT registration (S1), proration, refund approval,
-   who may see a balance (A1) — stop, record in `docs/REMEDIATION_PLAN.md` § Decisions, change nothing.
+   who may see a balance (A1) — stop, record in `docs/ASSESSMENT.md` and `state.json` `owner_questions_pending`, change nothing.
 
 ## Invariants (each has tests; keep them green)
 
@@ -59,5 +59,5 @@ CashFlowAndPending, Profitability classes.
 
 ## Done means
 
-Formula documented, RED → GREEN recorded in `docs/REMEDIATION_PROGRESS.md`, neighbours green,
+Formula documented, RED → GREEN recorded in the issue file (`All Issues/ISSUES/`), neighbours green,
 estimates labelled as estimates in the API and on screen, open policy questions listed.
