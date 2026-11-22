@@ -203,6 +203,51 @@ public class SlipPrintingAndReprintTests : IAsyncLifetime
         Assert.Contains("العميل فقد الورقة", audit[0].Details + audit[0].Reason);
     }
 
+    // SEC-0030, owner decision 2026-11-22: a reprint needs print_reprint (owners and managers hold
+    // it through "all") or a manager's approval issued for it.
+    [Fact]
+    public async Task A_cashier_reprints_only_with_a_managers_approval()
+    {
+        var shiftId = await OpenShiftAsync($"open-{Guid.NewGuid():N}");
+        var documentId = (await (await _client.PostAsJsonAsync("/api/expenses", new AddExpenseRequest(
+            $"exp-{Guid.NewGuid():N}", shiftId, "مستلزمات تشغيل", 16_000, "شراء أدوات", "tre-drawer", _cashierId, null, null)))
+            .Content.ReadFromJsonAsync<AddExpenseResult>())!.ExpenseId;
+        var productId = await _factory.SeedProductAsync(10_000);
+        var order = (await (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"co-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 10_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null,
+            BusinessDayId: null))).Content.ReadFromJsonAsync<CheckoutOrderResult>())!.OrderId;
+        var jobsBefore = await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.IsReprint));
+
+        var documentRefused = await _client.PostAsJsonAsync("/api/print-jobs/reprint-document",
+            new ReprintDocumentRequest($"rp-{Guid.NewGuid():N}", "Expense", documentId, _cashierId, "الورقة ضاعت"));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, documentRefused.StatusCode);
+        var orderRefused = await _client.PostAsJsonAsync($"/api/orders/{order}/print-jobs", new CreatePrintJobsRequest(
+            $"rp-{Guid.NewGuid():N}", order, "Receipt", IsReprint: true, ActorUserId: _cashierId, IncludeKitchenRoutes: false));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, orderRefused.StatusCode);
+        Assert.Equal(jobsBefore, await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.IsReprint)));
+
+        async Task<string> ApprovalAsync()
+        {
+            var issued = await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
+                new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "print_reprint", "إعادة طباعة"));
+            issued.EnsureSuccessStatusCode();
+            return (await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!.ApprovalId;
+        }
+        (await _client.PostAsJsonAsync("/api/print-jobs/reprint-document",
+            new ReprintDocumentRequest($"rp-{Guid.NewGuid():N}", "Expense", documentId, _cashierId, "الورقة ضاعت", await ApprovalAsync(), _managerId)))
+            .EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync($"/api/orders/{order}/print-jobs", new CreatePrintJobsRequest(
+            $"rp-{Guid.NewGuid():N}", order, "Receipt", IsReprint: true, ActorUserId: _cashierId, IncludeKitchenRoutes: false,
+            ManagerApprovalId: await ApprovalAsync(), ManagerApproverUserId: _managerId))).EnsureSuccessStatusCode();
+        Assert.Equal(jobsBefore + 2, await _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.IsReprint)));
+    }
+
     [Fact]
     public async Task Reprinting_a_document_that_does_not_exist_is_refused()
     {

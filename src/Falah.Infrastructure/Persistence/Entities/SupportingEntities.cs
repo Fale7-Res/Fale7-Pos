@@ -137,7 +137,9 @@ public class TreasuryMovementEntity
     public string Status { get; set; } = default!;
 }
 
-public enum JournalEntryStatus { Pending, Complete, Failed, RecoveryRequired }
+/// <summary>DB-0009 (2026-11-22): Failed and RecoveryRequired were declared and never written; a journal
+/// entry is Pending until its transaction commits it Complete, and a rolled-back one never exists.</summary>
+public enum JournalEntryStatus { Pending, Complete }
 
 public class FinancialJournalEntryEntity
 {

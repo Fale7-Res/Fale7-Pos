@@ -59,6 +59,77 @@ public class OrderVoidDispositionTests : IAsyncLifetime
 
     public Task DisposeAsync() { _factory.Dispose(); return Task.CompletedTask; }
 
+    // ---------- FIN-0051: cancelling a cash-on-delivery order before it leaves (owner decision 2026-11-22) ----------
+
+    private Task<HttpResponseMessage> CancelUndispatchedAsync(string orderId, string actorId, string? disposition,
+        string? approvalId = null, string? approverId = null, string? requestId = null) =>
+        _client.PostAsJsonAsync("/api/orders/cancel-undispatched-delivery", new CancelUndispatchedDeliveryRequest(
+            requestId ?? $"cud-{Guid.NewGuid():N}", orderId, "العميل لغى الطلب", actorId, disposition, approvalId, approverId));
+
+    private Task<string> DeliveryStatusAsync(string orderId) =>
+        _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == orderId).Select(d => d.Status).FirstAsync());
+
+    [Fact]
+    public async Task A_manager_cancels_a_cash_on_delivery_order_that_has_not_left_and_its_food_goes_back()
+    {
+        var (orderId, itemId) = await SellAsync("cash", "delivery");
+        Assert.Equal(-QuantityPerItem, await StockAsync(itemId));
+
+        var requestId = $"cud-{Guid.NewGuid():N}";
+        var response = await CancelUndispatchedAsync(orderId, _managerId, "not_prepared", requestId: requestId);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("cancelled", await OrderStatusAsync(orderId));
+        Assert.Equal("Cancelled", await DeliveryStatusAsync(orderId));
+        Assert.Equal(0, await StockAsync(itemId));
+
+        var replay = await (await CancelUndispatchedAsync(orderId, _managerId, "not_prepared", requestId: requestId))
+            .Content.ReadFromJsonAsync<CancelUndispatchedDeliveryResult>();
+        Assert.True(replay!.WasReplayed);
+        Assert.Equal(0, await StockAsync(itemId));
+        Assert.Equal(0, await _factory.QueryAsync(db => db.TreasuryMovements.CountAsync(m => m.ReferenceId == orderId)));
+    }
+
+    [Fact]
+    public async Task Without_the_permission_a_cancellation_needs_a_managers_approval()
+    {
+        var (orderId, itemId) = await SellAsync("cash", "delivery");
+
+        var refused = await CancelUndispatchedAsync(orderId, _dispatcherId, "prepared");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, refused.StatusCode);
+        Assert.NotEqual("cancelled", await OrderStatusAsync(orderId));
+
+        var issued = await _factory.PostAsSessionOfAsync(_client, _dispatcherId, "/api/approvals/issue",
+            new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_managerId), "delivery_override", "إلغاء طلب لم يخرج"));
+        issued.EnsureSuccessStatusCode();
+        var approvalId = (await issued.Content.ReadFromJsonAsync<Falah.Application.Approvals.IssueManagerApprovalResult>())!.ApprovalId;
+
+        var approved = await CancelUndispatchedAsync(orderId, _dispatcherId, "prepared", approvalId, _managerId);
+        Assert.Equal(HttpStatusCode.OK, approved.StatusCode);
+        Assert.Equal("cancelled", await OrderStatusAsync(orderId));
+        Assert.Equal(QuantityPerItem, await WasteAsync(itemId));
+    }
+
+    [Fact]
+    public async Task An_order_already_with_a_driver_is_not_cancelled_this_way()
+    {
+        var (orderId, _) = await SellAsync("cash", "delivery");
+        await DispatchAsync(orderId);
+
+        var response = await CancelUndispatchedAsync(orderId, _managerId, "prepared");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.NotEqual("cancelled", await OrderStatusAsync(orderId));
+    }
+
+    [Fact]
+    public async Task A_paid_delivery_order_is_refunded_not_cancelled_this_way()
+    {
+        var (orderId, _) = await SellAsync("card", "delivery");
+
+        var response = await CancelUndispatchedAsync(orderId, _managerId, "prepared");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.NotEqual("cancelled", await OrderStatusAsync(orderId));
+    }
+
     // ---------- C10: cancelling an unconfirmed electronic payment ----------
 
     [Fact]

@@ -35,7 +35,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var ticketAgent = await _factory.SeedUserAsync("قارئ تذاكر الطباعة", "print_agent", "print_agent");
         _ticketClient = _factory.CreateClient();
         _ticketClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(ticketAgent));
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "print_reprint");
         // Print results are reported by the print station's own account, never a till (SEC5).
         _agentId = await _factory.SeedUserAsync("محطة الطباعة", "print_agent", "print_agent");
         _menuManagerId = await _factory.SeedUserAsync("مدير المنيو", "supervisor", "menu_manage");

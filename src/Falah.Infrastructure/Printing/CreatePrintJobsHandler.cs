@@ -27,7 +27,9 @@ public sealed class CreatePrintJobsHandler
 {
     private readonly FalahDbContext _db;
     private readonly IAuditLog _auditLog;
-    public CreatePrintJobsHandler(FalahDbContext db, IAuditLog auditLog) { _db = db; _auditLog = auditLog; }
+    private readonly Falah.Domain.Authorization.IApprovalRegistry _approvalRegistry;
+    public CreatePrintJobsHandler(FalahDbContext db, IAuditLog auditLog, Falah.Domain.Authorization.IApprovalRegistry approvalRegistry)
+    { _db = db; _auditLog = auditLog; _approvalRegistry = approvalRegistry; }
 
     public async Task<CreatePrintJobsResult> HandleAsync(CreatePrintJobsRequest request, CancellationToken ct = default)
     {
@@ -50,6 +52,8 @@ public sealed class CreatePrintJobsHandler
             ?? throw new InvalidOperationException("الطلب غير موجود.");
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
+        if (request.IsReprint)
+            await ReprintAuthorization.AuthorizeAsync(_db, _approvalRegistry, actorUser, request.ManagerApprovalId, request.ManagerApproverUserId, request.Reason, ct);
 
         IReadOnlyCollection<PrintRoute> kitchenRoutes = request.IncludeKitchenRoutes
             ? PrintRules.DetermineKitchenRoutes(order.Items.Select(i => i.PreparationStation))

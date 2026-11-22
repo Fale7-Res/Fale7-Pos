@@ -379,6 +379,10 @@ public sealed partial class ApiClient
 
     public sealed record EmployeeBalanceDto(string EmployeeId, long BalancePiastres);
 
+    /// <summary>PERF-0006: every employee's balance in one request (an absent id means 0).</summary>
+    public Task<ApiResult<Dictionary<string, long>>> GetEmployeeBalancesAsync(CancellationToken ct = default) =>
+        ReadAsync<Dictionary<string, long>>(() => _http.GetAsync("/api/employees/balances", ct), ct);
+
     public Task<ApiResult<EmployeeBalanceDto>> GetEmployeeBalanceAsync(string employeeId, CancellationToken ct = default) =>
         ReadAsync<EmployeeBalanceDto>(() => _http.GetAsync($"/api/employees/{Uri.EscapeDataString(employeeId)}/balance", ct), ct);
 
@@ -668,6 +672,10 @@ public sealed partial class ApiClient
     /// the live board. See DeliveryQueryService.ListDispatchBoardAsync.</summary>
     public Task<ApiResult<IReadOnlyList<DeliveryDto>>> GetDispatchBoardAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync("/api/delivery/board", ct), ct);
+
+    /// <summary>FIN-0051: cancel a cash-on-delivery order before it is handed to a driver.</summary>
+    public Task<ApiResult<CancelUndispatchedDeliveryResult>> CancelUndispatchedDeliveryAsync(CancelUndispatchedDeliveryRequest request, CancellationToken ct = default) =>
+        SendAsync<CancelUndispatchedDeliveryResult>(() => _http.PostAsJsonAsync("/api/orders/cancel-undispatched-delivery", request, ct), ct);
 
     public Task<ApiResult<bool>> MarkDeliveryReadyAsync(MarkDeliveryReadyRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/ready", request, ct), ct);

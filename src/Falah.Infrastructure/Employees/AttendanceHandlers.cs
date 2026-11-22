@@ -10,9 +10,25 @@ using Falah.Infrastructure.Persistence.Entities;
 using Falah.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>Ported from biometricCheckIn in lib/store.tsx. Deliberately has NO permission check
-/// (see BiometricCheckInRequest's own doc comment) - operating the biometric device/simulator IS
-/// the authorization. Internally posts a daily-wage credit (compensationType='daily' only, via the
+/// <summary>Who may record a check-in or check-out, and that it carries a request id (SEC-0037, owner
+/// decision 2026-11-22). Recording attendance posts money - a daily wage, a late penalty, overtime -
+/// so it needs attendance_manage, as correcting it does; a biometric device would log in as an account
+/// holding that permission. The request id is what makes a retried event replay instead of post.</summary>
+internal static class AttendanceRecording
+{
+    public static async Task AuthorizeAsync(FalahDbContext db, string actorUserId, string? requestId, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(requestId)) throw new DomainException("رقم العملية مطلوب لتسجيل الحضور أو الانصراف.");
+        var actor = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId, ct)
+            ?? throw new DomainException("ليس لديك صلاحية تسجيل الحضور والانصراف.");
+        if (!Falah.Domain.Authorization.AuthorizationPolicy.HasPermission(Falah.Infrastructure.Orders.OrderMapper.ToActor(actor), "attendance_manage"))
+            throw new DomainException("ليس لديك صلاحية تسجيل الحضور والانصراف.");
+    }
+}
+
+/// <summary>Ported from biometricCheckIn in lib/store.tsx. Needs attendance_manage and a request id
+/// (<see cref="AttendanceRecording"/>; until 2026-11-22 it had no permission check, as the legacy app
+/// treated operating the biometric device as the authorization). Internally posts a daily-wage credit (compensationType='daily' only, via the
 /// EmployeeLedgerPoster helper directly, NOT through the employees_ledger-gated RecordDailyWageHandler
 /// - an automatic system consequence of clocking in is not the same authorization class as a
 /// manager manually crediting a wage) and, when late beyond grace, an automatic late-penalty
@@ -26,6 +42,7 @@ public sealed class BiometricCheckInHandler
 
     public async Task<AttendanceRecordDto?> HandleAsync(BiometricCheckInRequest request, CancellationToken ct = default)
     {
+        await AttendanceRecording.AuthorizeAsync(_db, request.ActorUserId, request.BiometricEventId, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         var employee = await _db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.EmployeeId).AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct);
         if (employee is null) return null;
@@ -106,6 +123,7 @@ public sealed class BiometricCheckOutHandler
 
     public async Task<AttendanceRecordDto> HandleAsync(BiometricCheckOutRequest request, CancellationToken ct = default)
     {
+        await AttendanceRecording.AuthorizeAsync(_db, request.ActorUserId, request.BiometricEventId, ct);
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         var employee = await _db.Employees.FromSqlRaw("SELECT * FROM Employees WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE Id = {0}", request.EmployeeId).AsNoTracking().FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
             ?? throw new InvalidOperationException("الموظف غير موجود.");

@@ -85,6 +85,9 @@ public partial class ShiftsViewModel : ObservableObject
 
     [ObservableProperty] private string? _reprintMessage;
     [ObservableProperty] private bool _isReprinting;
+    /// <summary>SEC-0030: shown when this user may not reprint alone; a manager types their PIN.</summary>
+    [ObservableProperty] private string _reprintManagerPin = "";
+    public bool ReprintNeedsApproval => ReprintApproval.IsNeeded(_session);
 
     // No reprint of the opening slip: the slip is retired (paper redesign 2026-11-17).
 
@@ -106,8 +109,11 @@ public partial class ShiftsViewModel : ObservableObject
         ReprintMessage = null;
         try
         {
+            var (approvalId, approverId, error) = await ReprintApproval.ResolveAsync(_session, ReprintManagerPin, reason);
+            if (error is not null) { ReprintMessage = error; return; }
             var result = await _session.Api.ReprintDocumentAsync(new ReprintDocumentRequest(
-                $"rp-{Guid.NewGuid():N}", documentKind, row.ShiftId, _session.CurrentUser!.Id, reason));
+                $"rp-{Guid.NewGuid():N}", documentKind, row.ShiftId, _session.CurrentUser!.Id, reason, approvalId, approverId));
+            if (result.Success) ReprintManagerPin = "";
             ReprintMessage = result.Success
                 ? "تم إرسال الإيصال للطباعة؛ لم يتم تأكيد خروج الورقة."
                 : result.Error ?? "تعذر إرسال أمر إعادة الطباعة.";

@@ -15,9 +15,23 @@ public sealed class PurchasingQueryService
 
     public async Task<List<SupplierDto>> ListSuppliersAsync(CancellationToken ct = default)
     {
+        // PERF-0004 (2026-11-22): the same three figures ToDto derives, summed per supplier by SQL Server
+        // instead of loading the whole supplier ledger into memory on every list.
         var suppliers = await _db.Suppliers.AsNoTracking().ToListAsync(ct);
-        var ledger = await _db.SupplierLedgerEntries.AsNoTracking().ToListAsync(ct);
-        return suppliers.Select(s => ToDto(s, ledger.Where(e => e.SupplierId == s.Id))).ToList();
+        var totals = await _db.SupplierLedgerEntries.AsNoTracking()
+            .GroupBy(e => e.SupplierId)
+            .Select(g => new
+            {
+                SupplierId = g.Key,
+                Invoiced = g.Sum(e => e.Type == "purchase_invoice" ? e.DebitPiastres : 0),
+                Paid = g.Sum(e => e.Type == "supplier_payment" ? e.CreditPiastres : 0),
+                Outstanding = g.Sum(e => e.DebitPiastres - e.CreditPiastres),
+            })
+            .ToDictionaryAsync(t => t.SupplierId, ct);
+        return suppliers.Select(s => totals.TryGetValue(s.Id, out var t)
+                ? new SupplierDto(s.Id, s.Name, s.Phone, s.Address, s.Category, s.Active, s.Notes, t.Invoiced, t.Paid, t.Outstanding)
+                : new SupplierDto(s.Id, s.Name, s.Phone, s.Address, s.Category, s.Active, s.Notes, 0, 0, 0))
+            .ToList();
     }
 
     public async Task<SupplierDto?> GetSupplierAsync(string id, CancellationToken ct = default)

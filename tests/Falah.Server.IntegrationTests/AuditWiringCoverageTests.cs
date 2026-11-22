@@ -31,7 +31,7 @@ public class AuditWiringCoverageTests : IAsyncLifetime
     {
         _factory = new FalahApiFactory();
         _client = _factory.CreateAuthenticatedClient();
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "inventory_manage");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "shifts_blind_close", "inventory_manage", "print_reprint");
         _managerId = await _factory.SeedUserAsync("المدير", "manager", "all");
         _dispatcherId = await _factory.SeedUserAsync("موظف التوصيل", "dispatcher", "delivery_manage");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();

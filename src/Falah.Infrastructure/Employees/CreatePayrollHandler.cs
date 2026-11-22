@@ -81,7 +81,7 @@ public sealed class CreatePayrollHandler
                     BasePiastres = line.Base.Piastres, OvertimePiastres = line.Overtime.Piastres,
                     ExtraShiftsPiastres = line.ExtraShifts.Piastres, BonusesPiastres = line.Bonuses.Piastres,
                     DeductionsPiastres = line.Deductions.Piastres, AdvanceDeductionsPiastres = line.AdvanceDeductions.Piastres,
-                    NetPayablePiastres = line.NetPayable.Piastres, Status = "unpaid",
+                    NetPayablePiastres = line.NetPayable.Piastres, PaidOutsidePayrollPiastres = line.PaidOutsidePayroll.Piastres, Status = "unpaid",
                 });
             }
             await _db.SaveChangesAsync(ct);

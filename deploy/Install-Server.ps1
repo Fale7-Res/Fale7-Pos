@@ -26,7 +26,9 @@ param(
     [string] $BackupCopyDir = '',
     [string] $SqlInstance   = '.\SQLEXPRESS',
     [string] $SqlService    = 'MSSQL$SQLEXPRESS',
-    [string] $Database      = 'Falah'
+    [string] $Database      = 'Falah',
+    # Setup.exe: running it is the go-ahead for the backup-then-update (the backup is still taken and verified).
+    [switch] $Yes
 )
 . (Join-Path $PSScriptRoot 'Common.ps1')
 Enter-Elevated $PSCommandPath $PSBoundParameters
@@ -39,6 +41,17 @@ if (-not (Get-Service -Name $SqlService -ErrorAction SilentlyContinue)) {
     throw "خدمة SQL Server ($SqlService) مش موجودة على الجهاز ده. ثبّت SQL Server 2022 Express الأول (اسم المثيل SQLEXPRESS)."
 }
 if ((Get-Service $SqlService).Status -ne 'Running') { Start-Service $SqlService }
+
+# ---- 0. SQL Server memory -------------------------------------------------------------------------
+# Measured 2026-11-22 (3000 orders in a day): with SQL Server's default "min server memory" of 16 MB
+# Windows takes its memory back, every report query waits 25 s for a memory grant (RESOURCE_SEMAPHORE)
+# and the daily statement took over two minutes. With 1024 MB the same reports took 0.1-0.3 s.
+# GO_LIVE_CLEANUP_CHECKLIST 12.1 asked for this by hand; it is now part of the install.
+Write-Step 'ذاكرة SQL Server'
+$ramMb = [int]((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
+$minMb, $maxMb = if ($ramMb -ge 6144) { 1024, 2048 } else { 512, 1536 }
+Invoke-SqlNonQuery $SqlInstance 'master' "EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'min server memory (MB)', $minMb; EXEC sp_configure 'max server memory (MB)', $maxMb; RECONFIGURE;"
+Write-Ok "الحد الأدنى $minMb ميجا والأقصى $maxMb ميجا (رامات الجهاز $ramMb ميجا)."
 
 # ---- 1. Certificate --------------------------------------------------------------------------------
 Write-Step 'شهادة HTTPS'
@@ -71,7 +84,7 @@ if ($existing -and $existing.Status -ne 'Stopped') {
     Write-Ok 'اتوقف.'
 }
 & (Join-Path $package 'Update-Database.ps1') -SqlInstance $SqlInstance -Database $Database -BackupDir $BackupDir `
-    -ScriptPath (Join-Path $package 'Database\migrations-idempotent.sql')
+    -ScriptPath (Join-Path $package 'Database\migrations-idempotent.sql') -Yes:$Yes
 
 # The service runs as LocalSystem; give that account the database rights the server uses
 # (read/write, its own backups, and restore from the Backup screen).
@@ -133,12 +146,19 @@ function Set-ServiceEnvironment([hashtable]$values, [string]$extra) {
 $bootstrap = ''
 if ($firstInstall) {
     Write-Step 'أول تثبيت: حساب المالك'
-    Write-Host '    اختار رمز دخول للمالك (4 أرقام أو أكتر، مش متكرر ولا متسلسل). هتغيّره وتضيف باقي المستخدمين من شاشة المستخدمين.'
-    $p1 = Read-Host '    رمز المالك' -AsSecureString
-    $p2 = Read-Host '    اكتبه تاني' -AsSecureString
-    $plain = { param($s) [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)) }
-    $pin = & $plain $p1
-    if ($pin -ne (& $plain $p2)) { throw 'الرمزين مش زي بعض.' }
+    if ($env:FALAH_SETUP_OWNER_PIN) {
+        # Setup.exe asked for it in its own window (the console cannot show Arabic on Windows 10).
+        $pin = $env:FALAH_SETUP_OWNER_PIN
+    } elseif ($env:FALAH_SETUP_RUN) {
+        throw 'ده أول تثبيت للسيرفر ومحتاج رمز المالك. شغّل Setup تاني واكتب رمز المالك في صفحته.'
+    } else {
+        Write-Host '    اختار رمز دخول للمالك (4 أرقام أو أكتر، مش متكرر ولا متسلسل). هتغيّره وتضيف باقي المستخدمين من شاشة المستخدمين.'
+        $p1 = Read-Host '    رمز المالك' -AsSecureString
+        $p2 = Read-Host '    اكتبه تاني' -AsSecureString
+        $plain = { param($s) [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)) }
+        $pin = & $plain $p1
+        if ($pin -ne (& $plain $p2)) { throw 'الرمزين مش زي بعض.' }
+    }
     if ($pin -notmatch '^\d{4,8}$') { throw 'الرمز لازم يكون من 4 لـ 8 أرقام.' }
     $bootstrap = "Bootstrap__OwnerPin=$pin"
 }
@@ -164,7 +184,7 @@ if ($bootstrap) {
     Restart-Service -Name $serviceName
     if (-not (Test-FalahServer "https://localhost:$Port" 25)) { throw 'السيرفر مردّش بعد إعادة التشغيل.' }
     if ([int](Invoke-SqlScalar $SqlInstance $Database 'SELECT COUNT(*) FROM Users') -eq 0) {
-        throw 'السيرفر رفض رمز المالك (غالبًا سهل التخمين: متكرر أو متسلسل). شغّل 1-Install-Server.cmd تاني واختار رمز تاني.'
+        throw 'السيرفر رفض رمز المالك (غالبًا سهل التخمين: متكرر أو متسلسل). شغّل تثبيت السيرفر تاني واختار رمز تاني.'
     }
     Write-Ok 'حساب المالك اتعمل، والرمز اتمسح من الإعدادات.'
 }

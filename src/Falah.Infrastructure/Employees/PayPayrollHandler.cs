@@ -113,11 +113,38 @@ public sealed class PayPayrollHandler
                         ? $"إجمالي المسير صفر. لا يوجد راتب شهري مُسجَّل للموظفين: {string.Join("، ", unpriced)}."
                         : "إجمالي المسير صفر بعد الاستقطاعات، فلا يوجد مبلغ للصرف.");
             }
-            var totalMoney = Money.FromPiastres(total);
-
             // Same lock order as individual payouts: employee balances before treasury funds.
             foreach (var employeeId in lines.Select(l => l.EmployeeId).Distinct().OrderBy(id => id, StringComparer.Ordinal))
                 await LedgerCreditReplay.LockEmployeeAsync(_db, employeeId, ct);
+
+            // True-up: every day of the period not yet accrued (by a business-day close) is accrued
+            // now, in the same transaction as the payout, so a monthly employee is paid against a
+            // whole month earned and their ledger settles to what the run actually owed them.
+            var periodEnd = new DateOnly(int.Parse(run.Period[..4]), int.Parse(run.Period[5..]), 1).AddMonths(1).AddDays(-1);
+            await SalaryAccrual.AccrueThroughAsync(_db, periodEnd, actorUser.Name, lines.Select(l => l.EmployeeId).ToList(), ct);
+            await _db.SaveChangesAsync(ct);
+
+            // PAYR-0004 (owner decision 2026-11-22): never pay a line more than the employee is still
+            // owed. Anything paid since the run was created - a "دفع مستحقات", a "سحب", a payout dated
+            // after the period - is already off the ledger balance, read here under the employee locks.
+            // Advances are left out of that balance: recovering them is a separate decision.
+            var lineEmployeeIds = lines.Select(l => l.EmployeeId).Distinct().ToList();
+            var owed = await _db.EmployeeLedgerEntries.AsNoTracking()
+                .Where(e => lineEmployeeIds.Contains(e.EmployeeId))
+                .GroupBy(e => e.EmployeeId)
+                .Select(g => new { EmployeeId = g.Key, Owed = g.Sum(e => e.CreditPiastres) - g.Sum(e => e.Type == nameof(LedgerEntryType.Advance) ? 0 : e.DebitPiastres) })
+                .ToDictionaryAsync(x => x.EmployeeId, x => x.Owed, ct);
+            foreach (var line in lines.Where(l => l.NetPayablePiastres > 0))
+            {
+                var payable = Math.Min(line.NetPayablePiastres, Math.Max(0, owed.GetValueOrDefault(line.EmployeeId)));
+                if (payable == line.NetPayablePiastres) continue;
+                line.PaidOutsidePayrollPiastres = (line.PaidOutsidePayrollPiastres ?? 0) + (line.NetPayablePiastres - payable);
+                line.NetPayablePiastres = payable;
+            }
+            total = lines.Sum(l => l.NetPayablePiastres);
+            if (total <= 0)
+                throw new DomainException("لا يوجد مبلغ للصرف: مستحقات الموظفين في هذا المسير اتصرفت بالفعل خارج المسير.");
+            var totalMoney = Money.FromPiastres(total);
 
             // Read under a lock, inside the transaction, immediately before spending.
             // Outside it, concurrent commands each read the same balance, each decide it covers
@@ -140,12 +167,6 @@ public sealed class PayPayrollHandler
             var movementEntity = OrderMapper.ToEntity(movement);
             _db.TreasuryMovements.Add(movementEntity);
             journal.Complete(idempotencyKey);
-
-            // True-up: every day of the period not yet accrued (by a business-day close) is accrued
-            // now, in the same transaction as the payout, so a monthly employee is paid against a
-            // whole month earned and their ledger settles to what the run actually owed them.
-            var periodEnd = new DateOnly(int.Parse(run.Period[..4]), int.Parse(run.Period[5..]), 1).AddMonths(1).AddDays(-1);
-            await SalaryAccrual.AccrueThroughAsync(_db, periodEnd, actorUser.Name, lines.Select(l => l.EmployeeId).ToList(), ct);
 
             var settlementCount = 0;
             foreach (var line in lines.Where(l => l.NetPayablePiastres > 0))

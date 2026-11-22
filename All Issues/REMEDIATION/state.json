@@ -762,5 +762,25 @@
     "registry_corrections": ["UI-0006 fixed in code: a kept transfer confirm/cancel is surfaced after restart and discarded after review (CashierViewModel.Durability.cs RecoverUnresolvedOperations; CashierDurabilityTests)", "PAYR-0004 confirmed present: payroll does not net standalone Pay Employee settlements - interim rule: one payout path per employee per month until the owner decides"],
     "accepted_risks": ["OPS-0001 .NET 8 end of support 2026-11-10 (LAN only; upgrade to .NET 10 after go-live)", "OPS-0002 backups on the same machine until Backup:CopyToDirectory is set", "DB-0005 restore with the system stopped", "FIN-0005 split-paid orders not refundable in the app", "PRT-0013 failed print jobs re-sent by hand"],
     "acceptance_doc": "docs/GO_LIVE_ACCEPTANCE_20261114.md section 6"
+  },
+  "claude_code_check_20261122": {
+    "summary": "Every open registry row re-checked against the code (All Issues/OPEN_ISSUES_CODE_CHECK_20261122.md); registry statuses corrected; then fixes.",
+    "owner_decisions_20261122": {
+      "PAYR-0004": "payroll subtracts Settlement and Withdrawal paid in the period at creation, and caps each line at the employee's balance (advances excluded) at pay time; PayrollLines.PaidOutsidePayrollPiastres (migration AddPayrollLinePaidOutsidePayroll, additive nullable)",
+      "SEC-0037": "attendance check-in/out needs attendance_manage and a request id",
+      "FIN-0051": "cancel an unpaid cash-on-delivery order before a driver has it: delivery_override or a manager approval, reason, stock disposition, inside its own open business day",
+      "SEC-0030": "reprints (order receipt and slips) need print_reprint (new permission) or a manager approval; first prints unchanged"
+    },
+    "full_suite_20261122": "1062/1066 in 2h09m; the 4 failures were reprint tests whose cashier lacked print_reprint (expected after SEC-0030); test users given the permission, AuditWiringCoverageTests + PrintingVerticalSliceTests 40/40; Domain 566/566, Client 449/449",
+    "engineering_fixes": ["OPS-0002 copy-directory retention", "OPS-0006 backup disk free space on the owner dashboard", "PERF-0003 close evaluator reads only blocking rows", "PERF-0004 supplier totals aggregated in SQL", "PERF-0006 one balances request for the employees screen", "PRT-0005 spooler submit off the agent loop and cancellable", "DOC-0001 two outdated docs corrected"],
+    "owner_questions_pending_new": [
+      "PRT-0013: retry failed print jobs automatically (risk of double print, since a failed job may still print from the Windows queue) or keep manual reprint?",
+      "PRT-0016: print the held kitchen ticket automatically when the transfer is confirmed?",
+      "PAYR-0021 (accountant): include attendance-correction adjustments in the dashboard wage cost?",
+      "CUS-0002: erase/anonymise a customer on request; who may?",
+      "INV-0011 / FIN-0044: freeze food cost and the day's P&L at close?",
+      "SEC-0007: add an absolute session lifetime (may log a cashier out mid-shift)?",
+      "PRT-0008: implement or hide the printer-width and receipt-copies settings (needs an on-site printer test)?"
+    ]
   }
 }

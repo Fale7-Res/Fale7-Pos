@@ -395,9 +395,27 @@ public partial class CallCenterViewModel
         if (IsOperationBusy || _pendingCheckout is not null) return;
         if (_pendingPrint is not null) { await SendPrintAsync(_pendingPrint); return; }
         if (LookedUpOrder is null) return;
+        // SEC-0030 (owner decision 2026-11-22): without print_reprint a manager approves the reprint.
+        string? approvalId = null, approverId = null;
+        if (ReprintNeedsApproval)
+        {
+            var pin = (ReprintManagerPin ?? "").Trim();
+            if (pin.Length < 4) { ReprintNote = "إعادة الطباعة تحتاج رمز المدير."; return; }
+            var approval = await _session.Api.IssueManagerApprovalAsync(
+                new Falah.Application.Approvals.IssueManagerApprovalRequest(pin, "print_reprint", "إعادة طباعة نسخة العميل"));
+            if (!approval.Success || approval.Value is null)
+            { ReprintNote = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد إعادة الطباعة."; return; }
+            (approvalId, approverId) = (approval.Value.ApprovalId, approval.Value.ApproverUserId);
+        }
         await SendPrintAsync(new CreatePrintJobsRequest($"pj-{Guid.NewGuid():N}",
-            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false));
+            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false,
+            ManagerApprovalId: approvalId, ManagerApproverUserId: approverId));
+        if (_pendingPrint is null) ReprintManagerPin = "";
     }
+
+    /// <summary>SEC-0030: shown when this user may not reprint alone; a manager types their PIN.</summary>
+    [ObservableProperty] private string _reprintManagerPin = "";
+    public bool ReprintNeedsApproval => !_session.HasPermission("print_reprint");
 
     [RelayCommand]
     private async Task RetryPrintAsync()

@@ -177,6 +177,9 @@
 
                         <Button Content="مراجعة التحويل المعلق" Command="{Binding ReviewPendingOrderCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Visibility="{Binding LookupHasPendingPayment, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <Button Content="استرداد مبلغ" Command="{Binding OpenRefundCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch" Visibility="{Binding CanRefundOrder, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <PasswordBox AutomationProperties.AutomationId="OrderLookup_ReprintManagerPin" AutomationProperties.Name="رمز المدير لإعادة الطباعة"
+                                     PlaceholderText="رمز المدير لإعادة الطباعة" Password="{Binding ReprintManagerPin, Mode=TwoWay}"
+                                     Visibility="{Binding ReprintNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <Button AutomationProperties.AutomationId="OrderLookup_Reprint" Content="إعادة طباعة الفاتورة" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
                                 Command="{Binding ReprintOrderCommand}"/>
                     </StackPanel>

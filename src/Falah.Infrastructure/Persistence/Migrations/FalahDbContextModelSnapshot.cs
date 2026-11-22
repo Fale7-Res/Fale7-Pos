@@ -1894,6 +1894,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("PaidAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<long?>("PaidOutsidePayrollPiastres")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("PayrollRunId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");

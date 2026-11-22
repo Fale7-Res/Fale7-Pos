@@ -90,6 +90,23 @@ public class EmployeeVerticalSliceTests : IAsyncLifetime
 
     // ---- Ledger ----
 
+    // PERF-0006 (2026-11-22): the employees screen asked for one balance per employee; this answers for
+    // all of them in one read, the same sum(credit) - sum(debit) as the single-employee balance.
+    [Fact]
+    public async Task Every_employees_balance_comes_back_in_one_read()
+    {
+        var first = await CreateEmployeeAsync("أحمد", "EMP-B1");
+        var second = await CreateEmployeeAsync("محمود", "EMP-B2");
+        await _client.PostAsJsonAsync($"/api/employees/{first.Id}/ledger-entries",
+            new RecordManualLedgerEntryRequest(first.Id, "DailyWage", 20000, true, "يومية", _hrUserId, null, null));
+        await _client.PostAsJsonAsync($"/api/employees/{first.Id}/ledger-entries",
+            new RecordManualLedgerEntryRequest(first.Id, "Deduction", 5000, false, "خصم تأخير", _hrUserId, null, null));
+
+        var balances = await (await _client.GetAsync("/api/employees/balances")).Content.ReadFromJsonAsync<Dictionary<string, long>>();
+        Assert.Equal(15000, balances![first.Id]);
+        Assert.Equal(0, balances.GetValueOrDefault(second.Id));
+    }
+
     [Fact]
     public async Task A_manual_credit_and_debit_compute_the_correct_running_balance()
     {

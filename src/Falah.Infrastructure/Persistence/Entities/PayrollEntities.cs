@@ -34,6 +34,9 @@ public class PayrollLineEntity
     public long DeductionsPiastres { get; set; }
     public long AdvanceDeductionsPiastres { get; set; }
     public long NetPayablePiastres { get; set; }
+    /// <summary>PAYR-0004: what was already paid to the employee outside this run (Settlement /
+    /// Withdrawal) and therefore taken off it. Null on lines created before 2026-11-22.</summary>
+    public long? PaidOutsidePayrollPiastres { get; set; }
     public string Status { get; set; } = default!;
     public DateTimeOffset? PaidAtUtc { get; set; }
     public string? SettlementEntryId { get; set; }

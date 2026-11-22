@@ -80,9 +80,14 @@ $config | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $configFile -Encod
 Write-Ok "الإعدادات: $configFile"
 
 $secrets = Join-Path $configDir 'appsettings.local.json'
-if (-not (Test-Path -LiteralPath $secrets) -or @('نعم','yes','y') -contains (Read-Host 'فيه رمز طباعة محفوظ. تغيّره؟ (نعم/yes أو لا)').Trim().ToLower()) {
-    $s = Read-Host 'رمز مستخدم الطباعة (صلاحية print_agent بس)' -AsSecureString
-    $pin = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s))
+# Setup.exe passes the PIN it asked for in its own window (the console cannot show Arabic on Windows 10).
+$setupPin = $env:FALAH_SETUP_PRINT_PIN
+if ($setupPin -or -not (Test-Path -LiteralPath $secrets) -or @('نعم','yes','y') -contains (Read-Host 'فيه رمز طباعة محفوظ. تغيّره؟ (نعم/yes أو لا)').Trim().ToLower()) {
+    if ($setupPin) { $pin = $setupPin }
+    else {
+        $s = Read-Host 'رمز مستخدم الطباعة (صلاحية print_agent بس)' -AsSecureString
+        $pin = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s))
+    }
     if ($pin -notmatch '^\d{4,8}$') { throw 'الرمز لازم يكون من 4 لـ 8 أرقام.' }
     [IO.File]::WriteAllText($secrets, (@{ Pin = $pin } | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
     & icacls.exe $secrets /inheritance:r /grant:r '*S-1-5-18:F' '*S-1-5-32-544:F' | Out-Null

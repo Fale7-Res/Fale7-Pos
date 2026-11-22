@@ -11,7 +11,7 @@ Arabic interface, Cairo time, Egyptian pounds held as integer piastres.
 |---|---|
 | **Release candidate** | `68BA663DBB1D7804` (commit `14f1726`, 2026-11-19), not yet installed |
 | **Verdict** | Software GO (conditional). Production NO-GO until the on-site acceptance tests and the owner's pre-go-live decisions are done ([acceptance §6](docs/GO_LIVE_ACCEPTANCE_20261114.md)) |
-| **Tests** | Domain 564 · Client 441 · Server integration 1053 (last full run 1051/1053, both failures environmental and green on re-run) |
+| **Tests** | Domain 566 · Client 449 · Server integration 1066 (full run 2026-11-22: 1062/1066; the 4 failures were reprint tests whose users lacked the new `print_reprint` permission, green on re-run after the test fix, 40/40) |
 
 ## What it does
 
@@ -104,7 +104,13 @@ Demo users are never created in Production, and the production server refuses to
 .\tools\build-install-package.ps1     # -> artifacts\install\Falah-Install-<id>\ and .zip
 ```
 
-Builds every program self-contained for win-x64, so the restaurant PCs need no .NET installed. The package also contains the offline migration script, the installers from [deploy/](deploy) and an Arabic guide (`اقرأني أولاً.txt`). On site, double-click `1-Install-Server.cmd` on the server PC, then `2-Install-Cashier.cmd`, `3-Install-CallCenter.cmd` or `4-Install-PrintAgent.cmd` on each station. The installers:
+```powershell
+.\tools\build-setup.ps1               # -> artifacts\install\Falah-Setup-<id>.exe (needs Inno Setup 6 and SQLEXPR_x64_ENU.exe)
+```
+
+Builds every program self-contained for win-x64, so the restaurant PCs need no .NET installed. The package also contains the offline migration script, the installers from [deploy/](deploy) and an Arabic guide (`اقرأني أولاً.txt`).
+
+On site, run `Falah-Setup-<id>.exe` on each PC. It bundles the package and the offline SQL Server 2022 Express installer. Its wizard asks what the PC is (server and cashier, cashier, call center, or printers) and asks every question itself, because the Windows 10 console shows Arabic as boxes. It then runs the [deploy/](deploy) steps hidden through `Run-Step.ps1` and shows each result. The `.cmd` files remain for manual use. The installers:
 
 - create the server's HTTPS certificate and trust it on each station;
 - back up and verify an existing database before updating it;

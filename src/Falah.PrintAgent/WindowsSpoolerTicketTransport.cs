@@ -45,9 +45,16 @@ public sealed class WindowsSpoolerTicketTransport : ITicketTransport
 
     public string Description => $"windows printer \"{_printerName}\" (RAW)";
 
+    /// <summary>The winspool submit (printer, payload, document name, submitted callback → job id).
+    /// Replaceable so a test can stand in for a wedged driver; production always uses <see cref="Send"/>.</summary>
+    public Func<string, byte[], string, Action<int>?, int> Submit { get; init; } = Send;
+
     public async Task SendAsync(byte[] payload, CancellationToken ct)
     {
-        var jobId = Send(_printerName, payload, _documentName, _submitted);
+        // PRT-0005 (2026-11-22): the spooler call is synchronous and a wedged driver can hold it for
+        // ever. It runs off the agent's loop, and the agent stops waiting when it is asked to stop
+        // (service stop, shutdown). A hung call then keeps one pool thread, not the whole agent.
+        var jobId = await Task.Run(() => Submit(_printerName, payload, _documentName, _submitted), CancellationToken.None).WaitAsync(ct);
         if (await WatchAsync(_printerName, jobId, _confirmTimeout, ct) is { } notPrinted)
             throw new InvalidOperationException(notPrinted);
     }

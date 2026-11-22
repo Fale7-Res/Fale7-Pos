@@ -129,12 +129,54 @@ public class CallCenterDurabilityTests : IDisposable
             return new(System.Net.HttpStatusCode.OK) { Content = new System.Net.Http.StringContent("{\"jobs\":[],\"wasReplayed\":false}", System.Text.Encoding.UTF8, "application/json") };
         }
     }
+    /// <summary>Answers the approval request, then captures the reprint that follows it.</summary>
+    private sealed class ApprovalThenPrintHandler : System.Net.Http.HttpMessageHandler
+    {
+        public List<string> Paths { get; } = new();
+        public CreatePrintJobsRequest? Sent { get; private set; }
+        protected override async Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request, CancellationToken ct)
+        {
+            Paths.Add(request.RequestUri!.AbsolutePath);
+            if (request.RequestUri.AbsolutePath == "/api/approvals/issue")
+                return new(System.Net.HttpStatusCode.OK) { Content = new System.Net.Http.StringContent(
+                    "{\"approvalId\":\"approval-1\",\"approverUserId\":\"manager\",\"approverName\":\"المدير\",\"action\":\"print_reprint\",\"approvedAtUtc\":\"2026-11-22T10:00:00Z\"}",
+                    System.Text.Encoding.UTF8, "application/json") };
+            Sent = await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<CreatePrintJobsRequest>(request.Content!, cancellationToken: ct);
+            return new(System.Net.HttpStatusCode.OK) { Content = new System.Net.Http.StringContent("{\"jobs\":[],\"wasReplayed\":false}", System.Text.Encoding.UTF8, "application/json") };
+        }
+    }
+
+    // SEC-0030 (owner decision 2026-11-22): without print_reprint the desk asks for a manager's PIN, and
+    // the approval the server issues for it travels with the reprint.
+    [Fact]
+    public async Task A_reprint_without_the_permission_needs_a_managers_pin_and_carries_the_approval()
+    {
+        var handler = new ApprovalThenPrintHandler();
+        var session = new CallCenterServices.AppSession(new CallCenterServices.ApiClient(new System.Net.Http.HttpClient(handler) { BaseAddress = new Uri("http://fixture.invalid") }))
+        { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos" }) };
+        var vm = new Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel(session, new());
+        vm.LookedUpOrder = System.Text.Json.JsonSerializer.Deserialize<OrderDetailsDto>("{\"id\":\"order\",\"items\":[]}", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        Assert.True(vm.ReprintNeedsApproval);
+
+        await vm.ReprintLookedUpOrderCommand.ExecuteAsync(null);
+        Assert.Empty(handler.Paths);
+        Assert.Contains("رمز المدير", vm.ReprintNote);
+
+        vm.ReprintManagerPin = "4321";
+        await vm.ReprintLookedUpOrderCommand.ExecuteAsync(null);
+        Assert.Equal("/api/approvals/issue", handler.Paths[0]);
+        Assert.Equal("approval-1", handler.Sent!.ManagerApprovalId);
+        Assert.Equal("manager", handler.Sent.ManagerApproverUserId);
+        Assert.True(handler.Sent.IsReprint);
+        Assert.Empty(vm.ReprintManagerPin);
+    }
+
     [Fact]
     public async Task A_call_center_customer_copy_never_requests_new_kitchen_tickets()
     {
         var handler = new PrintCaptureHandler();
         var session = new CallCenterServices.AppSession(new CallCenterServices.ApiClient(new System.Net.Http.HttpClient(handler) { BaseAddress = new Uri("http://fixture.invalid") }))
-        { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos" }) };
+        { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos", "print_reprint" }) };
         var vm = new Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel(session, new());
         vm.LookedUpOrder = System.Text.Json.JsonSerializer.Deserialize<OrderDetailsDto>("{\"id\":\"order\",\"items\":[]}", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         await vm.ReprintLookedUpOrderCommand.ExecuteAsync(null);
@@ -217,7 +259,7 @@ public class CallCenterDurabilityTests : IDisposable
     public async Task Discarding_a_definitively_refused_reprint_also_clears_its_durable_copy()
     {
         var session = new CallCenterServices.AppSession(new CallCenterServices.ApiClient(new System.Net.Http.HttpClient(new RefusedPrintHandler()) { BaseAddress = new Uri("http://fixture.invalid") }))
-            { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos" }) };
+            { CurrentUser = new("operator", "موظف", "cashier", new[] { "pos", "print_reprint" }) };
         var vm = new Falah.Client.CallCenterWinUI.ViewModels.CallCenterViewModel(session, new());
         vm.LookedUpOrder = System.Text.Json.JsonSerializer.Deserialize<OrderDetailsDto>("{\"id\":\"order\",\"items\":[]}", new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         await vm.ReprintLookedUpOrderCommand.ExecuteAsync(null);

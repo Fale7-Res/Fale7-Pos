@@ -2,7 +2,8 @@ namespace Falah.Domain.Idempotency;
 
 using Falah.Domain.Common;
 
-public enum JournalStatus { Pending, Complete, Failed, RecoveryRequired }
+/// <summary>DB-0009 (2026-11-22): Failed and RecoveryRequired were declared and never set anywhere.</summary>
+public enum JournalStatus { Pending, Complete }
 
 /// <summary>
 /// One row per financial operation attempt, keyed by a stable idempotency key that the caller

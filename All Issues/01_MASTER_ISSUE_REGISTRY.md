@@ -2,29 +2,31 @@
 
 One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the source of truth). Grouped by remediation group, then severity, then ID. Remediation progress: [REMEDIATION/PROGRESS.md](REMEDIATION/PROGRESS.md).
 
+> **Code check 2026-11-22:** every open row was re-checked against the current code; statuses below were corrected where the code had moved on (DB-0001, PRT-0012, SEC-0006, SEC-0022/23/24, DOC-0003 fixed in code with only an on-site step left; TEST-0002, DB-0003, PAYR-0015 partly fixed). The review-2026-11-17 row that reused TEST-0003 is now TEST-0004. Evidence per issue: [OPEN_ISSUES_CODE_CHECK_20261122.md](OPEN_ISSUES_CODE_CHECK_20261122.md).
+
 
 ## 1. Critical — fix before production
 
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
-| DB-0001 | Eight untracked, unreviewed migrations (two rewrite data) are auto-applied at startup | Database / deployment | High | P0 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DB-0001.md](ISSUES/DB-0001.md) |
-| PRT-0012 | Print agents exit if the server is not up and have no service/restart tooling | Printing / operations | High | P0 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PRT-0012.md](ISSUES/PRT-0012.md) |
-| SEC-0006 | Server uses plain HTTP by default; PINs and session tokens travel in clear on the LAN | Security / transport | High | P0 | PARTIALLY_FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/SEC-0006.md](ISSUES/SEC-0006.md) |
-| DOC-0003 | CLAUDE.md, 11 operational docs, all audit folders and 8 migrations exist only in the working tree | Documentation / preservation | Medium | P0 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0003.md](ISSUES/DOC-0003.md) |
+| DB-0001 | Eight untracked, unreviewed migrations (two rewrite data) are auto-applied at startup | Database / deployment | High | P0 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DB-0001.md](ISSUES/DB-0001.md) |
+| PRT-0012 | Print agents exit if the server is not up and have no service/restart tooling | Printing / operations | High | P0 | FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0012.md](ISSUES/PRT-0012.md) |
+| SEC-0006 | Server uses plain HTTP by default; PINs and session tokens travel in clear on the LAN | Security / transport | High | P0 | FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/SEC-0006.md](ISSUES/SEC-0006.md) |
+| DOC-0003 | CLAUDE.md, 11 operational docs, all audit folders and 8 migrations exist only in the working tree | Documentation / preservation | Medium | P0 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0003.md](ISSUES/DOC-0003.md) |
 
 ## 2. High priority
 
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
 | DB-0005 | Restore does not block writers; only counts pending journal rows | Database / backup | High | P1 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/DB-0005.md](ISSUES/DB-0005.md) |
-| PAYR-0004 | Standalone employee settlements and payroll runs can both pay the same earnings | Payroll / policy | High | P1 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0004.md](ISSUES/PAYR-0004.md) |
-| SEC-0022 | Demo users (published PINs) seeded into any empty database | Security / credentials | High | P1 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0022.md](ISSUES/SEC-0022.md) |
-| SEC-0023 | Print agent ran as the demo manager; print queue endpoints open to any session | Security / least privilege | High | P1 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0023.md](ISSUES/SEC-0023.md) |
-| SEC-0024 | Exposed demo manager PIN must be rotated on every real database | Security / credentials | High | P1 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0024.md](ISSUES/SEC-0024.md) |
+| PAYR-0004 | Standalone employee settlements and payroll runs can both pay the same earnings | Payroll / policy | High | P1 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/PAYR-0004.md](ISSUES/PAYR-0004.md) |
+| SEC-0022 | Demo users (published PINs) seeded into any empty database | Security / credentials | High | P1 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0022.md](ISSUES/SEC-0022.md) |
+| SEC-0023 | Print agent ran as the demo manager; print queue endpoints open to any session | Security / least privilege | High | P1 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0023.md](ISSUES/SEC-0023.md) |
+| SEC-0024 | Exposed demo manager PIN must be rotated on every real database | Security / credentials | High | P1 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0024.md](ISSUES/SEC-0024.md) |
 | ARCH-0001 | 197 routes in one Program.cs with four hand-written authorization idioms | Architecture | Medium | P1 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0001.md](ISSUES/ARCH-0001.md) |
 | ARCH-0003 | Money-command invariants are composed by hand in each handler | Architecture | Medium | P1 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0003.md](ISSUES/ARCH-0003.md) |
 | HW-0002 | Physical cash drawer kick through the print agent — implemented, never run | Hardware | Medium | P1 | PARTIALLY_FIXED | NOT_VERIFIED | Medium | [ISSUES/HW-0002.md](ISSUES/HW-0002.md) |
-| TEST-0002 | Confirmed money/time defects have no regression tests | Testing | Medium | P1 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/TEST-0002.md](ISSUES/TEST-0002.md) |
+| TEST-0002 | Confirmed money/time defects have no regression tests | Testing | Medium | P1 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/TEST-0002.md](ISSUES/TEST-0002.md) |
 
 ## 3. Medium priority
 
@@ -37,17 +39,17 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | FIN-0020 | Business-day cash count is compared against a typed "expected" figure, not the system's expected cash | Financial / controls | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0020.md](ISSUES/FIN-0020.md) |
 | FIN-0030 | Tax computed before comp is subtracted (VAT on comped orders) | Financial / tax policy | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0030.md](ISSUES/FIN-0030.md) |
 | FIN-0042 | Failed delivery of an already-paid order: refund requirement not surfaced | Financial / delivery | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0042.md](ISSUES/FIN-0042.md) |
-| FIN-0051 | A cash-on-delivery order that has not been dispatched cannot be cancelled or voided | Financial / delivery workflow | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0051.md](ISSUES/FIN-0051.md) |
-| OPS-0002 | Backups stay on the same machine; off-machine copy is manual | Operations / backup | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/OPS-0002.md](ISSUES/OPS-0002.md) |
+| FIN-0051 | A cash-on-delivery order that has not been dispatched cannot be cancelled or voided | Financial / delivery workflow | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0051.md](ISSUES/FIN-0051.md) |
+| OPS-0002 | Backups stay on the same machine; off-machine copy is manual | Operations / backup | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/OPS-0002.md](ISSUES/OPS-0002.md) |
 | OPS-0005 | End-to-end operating scenarios A–F as integration tests | Testing / operations | Medium | P2 | PARTIALLY_FIXED | NOT_VERIFIED | High | [ISSUES/OPS-0005.md](ISSUES/OPS-0005.md) |
 | PAYR-0005 | Attendance corrections revalue old effects at today's wage and settings | Payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0005.md](ISSUES/PAYR-0005.md) |
 | PAYR-0006 | Salary catch-up accrual uses the current salary for past days | Payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0006.md](ISSUES/PAYR-0006.md) |
 | PAYR-0007 | Part-month payroll pays the full profile salary while accrual covers employed days only | Payroll / policy | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0007.md](ISSUES/PAYR-0007.md) |
 | PAYR-0017 | Monthly salary accrual and its dating in reports | Payroll | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0017.md](ISSUES/PAYR-0017.md) |
 | PERF-0001 | Treasury balance re-sums all history under UPDLOCK/HOLDLOCK with no account index | Performance / database | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0001.md](ISSUES/PERF-0001.md) |
-| PERF-0003 | Business-day close evaluator loads all shifts, custodies, journal rows and movements | Performance | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0003.md](ISSUES/PERF-0003.md) |
+| PERF-0003 | Business-day close evaluator loads all shifts, custodies, journal rows and movements | Performance | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0003.md](ISSUES/PERF-0003.md) |
 | PRT-0004 | "Succeeded" means the transport accepted bytes; paper-out and cover-open are invisible; uncertain outcomes look like failures | Printing / hardware | Medium | P2 | PARTIALLY_FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0004.md](ISSUES/PRT-0004.md) |
-| PRT-0005 | Spooler submission is synchronous and ignores cancellation | Printing | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0005.md](ISSUES/PRT-0005.md) |
+| PRT-0005 | Spooler submission is synchronous and ignores cancellation | Printing | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PRT-0005.md](ISSUES/PRT-0005.md) |
 | PRT-0013 | Failed print jobs are never retried automatically | Printing / recovery | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0013.md](ISSUES/PRT-0013.md) |
 | PRT-0016 | Held kitchen ticket is not released automatically when the transfer is confirmed | Printing / workflow | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0016.md](ISSUES/PRT-0016.md) |
 | RPT-0003 | Owner financial screens (cash flow, pending electronic, voids, refunds, payroll accruals) built but not run on the desktop | Reporting / UI verification | Medium | P2 | PARTIALLY_FIXED | EXISTING_TEST_EVIDENCE | Medium | [ISSUES/RPT-0003.md](ISSUES/RPT-0003.md) |
@@ -58,20 +60,20 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
 | DOC-0004 | Prior-tool audit evidence is not reliable without re-verification | Documentation / audit quality | Medium | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0004.md](ISSUES/DOC-0004.md) |
-| PERF-0004 | Supplier list loads the entire supplier ledger | Performance | Medium | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0004.md](ISSUES/PERF-0004.md) |
-| PERF-0006 | Employees screen makes one balance request per employee and empties the list on the first failure | Performance / UI | Medium | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0006.md](ISSUES/PERF-0006.md) |
+| PERF-0004 | Supplier list loads the entire supplier ledger | Performance | Medium | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0004.md](ISSUES/PERF-0004.md) |
+| PERF-0006 | Employees screen makes one balance request per employee and empties the list on the first failure | Performance / UI | Medium | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0006.md](ISSUES/PERF-0006.md) |
 | API-0001 | InvalidOperationException mapped to 404 across ~99 endpoints | API / contracts | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/API-0001.md](ISSUES/API-0001.md) |
 | API-0002 | actorUserId repeated in query strings on reads | API / design | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/API-0002.md](ISSUES/API-0002.md) |
 | ARCH-0002 | Two parallel WinUI client code bases plus a legacy WPF client | Architecture | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0002.md](ISSUES/ARCH-0002.md) |
 | ARCH-0004 | Treasury account ids hard-coded in clients | Code quality | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0004.md](ISSUES/ARCH-0004.md) |
 | CUS-0002 | No way to erase or anonymise a customer record | Privacy / feature | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/CUS-0002.md](ISSUES/CUS-0002.md) |
-| DB-0003 | Queries rely on a case-insensitive database collation | Database / portability | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/DB-0003.md](ISSUES/DB-0003.md) |
-| DB-0009 | Financial journal states Failed and RecoveryRequired are never used | Database / dead state | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/DB-0009.md](ISSUES/DB-0009.md) |
-| DOC-0001 | Documentation places the exposed demo PIN in the wrong file | Documentation | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0001.md](ISSUES/DOC-0001.md) |
+| DB-0003 | Queries rely on a case-insensitive database collation | Database / portability | Low | P3 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/DB-0003.md](ISSUES/DB-0003.md) |
+| DB-0009 | Financial journal states Failed and RecoveryRequired are never used | Database / dead state | Low | P3 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DB-0009.md](ISSUES/DB-0009.md) |
+| DOC-0001 | Documentation places the exposed demo PIN in the wrong file | Documentation | Low | P3 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0001.md](ISSUES/DOC-0001.md) |
 | FIN-0044 | Business-day P&L missing from the close snapshot | Reporting / feature | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/FIN-0044.md](ISSUES/FIN-0044.md) |
 | INV-0011 | Historical food-cost reports use today's recipes and costs | Reporting / costing | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/INV-0011.md](ISSUES/INV-0011.md) |
-| OPS-0006 | No disk-space monitoring for database or backups | Operations / monitoring | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/OPS-0006.md](ISSUES/OPS-0006.md) |
-| PAYR-0015 | PayrollRules.OutstandingAdvance compares lowercase types and is never called | Payroll / latent | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0015.md](ISSUES/PAYR-0015.md) |
+| OPS-0006 | No disk-space monitoring for database or backups | Operations / monitoring | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/OPS-0006.md](ISSUES/OPS-0006.md) |
+| PAYR-0015 | PayrollRules.OutstandingAdvance compares lowercase types and is never called | Payroll / latent | Low | P3 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0015.md](ISSUES/PAYR-0015.md) |
 | PAYR-0019 | Payroll multipliers are doubles rounded with banker's rounding | Payroll / arithmetic | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0019.md](ISSUES/PAYR-0019.md) |
 | PERF-0002 | ControlAuditEvents queried by Action with only a time index | Performance / database | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0002.md](ISSUES/PERF-0002.md) |
 | PRT-0008 | Saved printer width and receipt copy count do not affect printing | Printing / settings | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0008.md](ISSUES/PRT-0008.md) |
@@ -138,7 +140,7 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | PRT-0018 | Ticket layout, price and encoding rendering candidates (prior-tool) | Printing / hardware | Low | P3 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/PRT-0018.md](ISSUES/PRT-0018.md) |
 | RPT-0002 | Multi-query reports and the frozen close snapshot are not read from one consistent snapshot | Reporting / data consistency | Low | P3 | UNVERIFIED | NOT_VERIFIED | Medium | [ISSUES/RPT-0002.md](ISSUES/RPT-0002.md) |
 | RPT-0005 | Owner dashboard candidates: reopened-day omission and derived open-exception count (prior-tool) | Reporting | Low | P3 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/RPT-0005.md](ISSUES/RPT-0005.md) |
-| SEC-0030 | Reprint authorization and reprint voucher handling (prior-tool candidates) | Security / printing | Low | P3 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/SEC-0030.md](ISSUES/SEC-0030.md) |
+| SEC-0030 | Reprint authorization and reprint voucher handling (prior-tool candidates) | Security / printing | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | Low | [ISSUES/SEC-0030.md](ISSUES/SEC-0030.md) |
 | TEST-0003 | Test-only in-memory doubles and test context candidates (prior-tool) | Testing | Low | P3 | UNVERIFIED | NOT_VERIFIED | Low | [ISSUES/TEST-0003.md](ISSUES/TEST-0003.md) |
 
 ## 7. Not a defect / superseded (kept for traceability)
@@ -295,40 +297,48 @@ in the totals below.
 | UI-0050 | Recovered transfer confirm/cancel froze the till with no control | UI / durability | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 | UI-0051 | Cash count read Arabic digits as 0 | UI / input | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 | UI-0052 | Menu photos never showed (image control sends no token); photo GET made public - owner may reverse | UI / menu | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
-| TEST-0003 | Read-gate coverage test did not know the report-export routes | Testing | Low | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
-| SEC-0037 | Attendance check-in/out needs no permission and has an optional request id (owner question) | Security / payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| TEST-0004 | Read-gate coverage test did not know the report-export routes | Testing | Low | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| SEC-0037 | Attendance check-in/out needs no permission and has an optional request id (owner question) | Security / payroll | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 | PAYR-0021 | Dashboard wage cost excludes attendance-correction adjustments that payroll counts (accountant question) | Payroll / reports | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+
+## 10. Code check 2026-11-22
+
+| ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
+|---|---|---|---|---|---|---|---|---|
+| OPS-0008 | SQL Server min server memory 16 MB: report queries wait 25 s for a memory grant (daily statement 128 s on a 3000-order day) | Operations / database | High | P1 | FIXED | CURRENT_TEST_VERIFIED | High | [check](OPEN_ISSUES_CODE_CHECK_20261122.md) |
+| OPS-0009 | Installer prompts and errors in the PowerShell console show Arabic as boxes on Windows 10 | Operations / deployment | Medium | P1 | FIXED | STATIC_CODE_REVIEW | High | [check](OPEN_ISSUES_CODE_CHECK_20261122.md) |
 
 ## Totals
 
-Canonical issues: **230**
+Canonical issues: **247**
 
 | Implementation status | Count |
 |---|---|
-| FIXED | 145 |
+| FIXED | 180 |
 | NOT_A_DEFECT | 11 |
-| NOT_FIXED_YET | 43 |
-| PARTIALLY_FIXED | 17 |
-| UNVERIFIED | 14 |
+| NOT_FIXED_YET | 28 |
+| PARTIALLY_FIXED | 16 |
+| UNVERIFIED | 12 |
 
 | Verification level | Count |
 |---|---|
-| CODE_TEST_VERIFIED_ONSITE_PENDING | 1 |
-| CURRENT_TEST_VERIFIED | 117 |
+| CODE_TEST_VERIFIED_ONSITE_PENDING | 3 |
+| CURRENT_TEST_VERIFIED | 142 |
 | EXISTING_TEST_EVIDENCE | 25 |
 | NATIVE_UI_AND_CONTRAST_VERIFIED | 4 |
-| NOT_VERIFIED | 17 |
-| STATIC_CODE_REVIEW | 66 |
+| NOT_VERIFIED | 15 |
+| STATIC_CODE_REVIEW | 58 |
 
 | Severity | Count |
 |---|---|
-| High | 53 |
-| Low | 64 |
-| Medium | 113 |
+| High | 56 |
+| Low | 65 |
+| Medium | 126 |
 
 | Remediation group | Count |
 |---|---|
 | 1. Critical — fix before production | 4 |
+| 10. Code check 2026-11-22 | 2 |
 | 2. High priority | 9 |
 | 3. Medium priority | 22 |
 | 4. Low priority / polish | 25 |
@@ -336,3 +346,5 @@ Canonical issues: **230**
 | 6. Unverified risks (cannot yet be confirmed) | 14 |
 | 7. Not a defect / superseded (kept for traceability) | 11 |
 | 8. Fixed and verified by current tests | 111 |
+| 9. Whole-project review 2026-11-17 | 15 |
+

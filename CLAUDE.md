@@ -30,8 +30,9 @@ dotnet test tests/Falah.Client.Tests
 dotnet test tests/Falah.Server.IntegrationTests --filter "FullyQualifiedName~RefundDateBasisTests"
 ```
 
-- The full integration suite takes about 1.5–2.5 hours on this laptop (last full run 2026-11-18:
-  1051/1053, the two failures not code faults and green on re-run). It needs the local
+- The full integration suite takes about 1.5–2.5 hours on this laptop (last full run 2026-11-22:
+  1062/1066 in 2 h 9 m; the 4 failures were reprint tests whose users lacked the new `print_reprint`
+  permission, green after the test fix). It needs the local
   `.\SQLEXPRESS` instance and space on `E:\SqlData\Tests`. Run it at milestones, not after every
   change, and never two runs at once in the same tree (they share bin/obj).
 - This machine is a laptop that sleeps on lid/button even with a keep-awake request; a run that

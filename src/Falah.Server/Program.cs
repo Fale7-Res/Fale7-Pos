@@ -91,6 +91,7 @@ builder.Services.AddScoped<CloseShiftHandler>();
 builder.Services.AddScoped<RefundOrderHandler>();
 builder.Services.AddScoped<ConfirmElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelPendingElectronicPaymentHandler>();
+builder.Services.AddScoped<CancelUndispatchedDeliveryHandler>();
 builder.Services.AddScoped<IssueManagerApprovalHandler>();
 // One per process: the PIN guessing allowance must be shared by every request, or it limits nothing.
 builder.Services.AddSingleton(sp => new ApprovalPinAttemptGuard(sp.GetRequiredService<IConfiguration>(), TimeProvider.System));
@@ -914,6 +915,10 @@ app.MapGet("/api/employees/{employeeId}/ledger", async (string employeeId, Emplo
 app.MapGet("/api/employees/{employeeId}/balance", async (string employeeId, EmployeeQueryService query, HttpContext http, CancellationToken ct) =>
     RequireOwner(http) ?? Results.Ok(new { employeeId, balancePiastres = await query.GetBalanceAsync(employeeId, ct) }));
 
+// PERF-0006 (2026-11-22): every balance in one read for the employees screen; same gate as one balance.
+app.MapGet("/api/employees/balances", async (EmployeeQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireOwner(http) ?? Results.Ok(await query.GetAllBalancesAsync(ct)));
+
 // Payroll/employee financial reporting by today/last-7/last-10/month/custom range - the reporting
 // side of the final business rule, now that payment is not tied to a payroll period. Gated on
 // reports_view like every other report.
@@ -1000,8 +1005,12 @@ app.MapPost("/api/employees/{employeeId}/extra-shift", async (string employeeId,
 
 app.MapPost("/api/attendance/check-in", async (Falah.Application.Employees.BiometricCheckInRequest request, BiometricCheckInHandler handler, CancellationToken ct) =>
 {
-    var result = await handler.HandleAsync(request, ct);
-    return result is null ? Results.NotFound(new { error = "الموظف غير موجود." }) : Results.Ok(result);
+    try
+    {
+        var result = await handler.HandleAsync(request, ct);
+        return result is null ? Results.NotFound(new { error = "الموظف غير موجود." }) : Results.Ok(result);
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
 });
 
 app.MapPost("/api/attendance/check-out", async (Falah.Application.Employees.BiometricCheckOutRequest request, BiometricCheckOutHandler handler, CancellationToken ct) =>
@@ -1695,6 +1704,14 @@ app.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.O
     {
         return Results.NotFound(new { error = ex.Message });
     }
+});
+
+// FIN-0051 (owner decision 2026-11-22): cancel a cash-on-delivery order before it leaves with a driver.
+app.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application.Orders.CancelUndispatchedDeliveryRequest request, CancelUndispatchedDeliveryHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(await handler.HandleAsync(request, ct)); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
 app.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Application.Orders.CancelPendingElectronicPaymentRequest request, CancelPendingElectronicPaymentHandler handler, CancellationToken ct) =>

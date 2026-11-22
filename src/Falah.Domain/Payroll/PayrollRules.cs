@@ -79,7 +79,7 @@ public static class PayrollRules
 
     public readonly record struct PayrollLine(
         string EmployeeId, Money Base, Money Overtime, Money ExtraShifts, Money Bonuses, Money Deductions,
-        Money AdvanceDeductions, Money NetPayable);
+        Money AdvanceDeductions, Money NetPayable, Money PaidOutsidePayroll = default);
 
     public sealed record PayrollLineInput(
         string EmployeeId, bool IsActive, bool CompensationIsMonthly, Money? MonthlySalary,
@@ -126,10 +126,15 @@ public static class PayrollRules
             if (emp.RequestedAdvanceDeduction.IsNegative || emp.RequestedAdvanceDeduction > emp.AvailableAdvance)
                 throw new DomainException($"استقطاع السلفة للموظف {emp.EmployeeId} يتجاوز الرصيد المتفق عليه.");
 
-            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction;
+            // PAYR-0004 (owner decision 2026-11-22): money already paid out of these earnings this period,
+            // outside the run - "دفع مستحقات" (Settlement) and "سحب" (Withdrawal) - is not paid again.
+            // An advance is a loan, not a payout of earnings; its recovery is a separate decision.
+            var paidOutside = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is "Settlement" or "Withdrawal").Sum(e => e.Debit.Piastres));
+
+            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction - paidOutside;
             if (net.IsNegative) net = Money.Zero;
 
-            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net));
+            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net, paidOutside));
         }
         return result;
     }

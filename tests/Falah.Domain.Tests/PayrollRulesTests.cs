@@ -143,6 +143,36 @@ public class PayrollRulesTests
         Assert.Equal(61000, line.NetPayable.Piastres);
     }
 
+    // PAYR-0004, owner decision 2026-11-22: what the employee was already paid this period outside the
+    // run ("دفع مستحقات" = Settlement, "سحب" = Withdrawal) comes off the run. An advance does not: how
+    // advances are recovered is a separate decision.
+    [Fact]
+    public void CalculatePayrollLines_subtracts_what_was_already_paid_outside_the_run_but_not_advances()
+    {
+        var entries = new (string, Money, Money)[]
+        {
+            ("DailyWage", Money.FromPiastres(20000), Money.Zero),
+            ("Settlement", Money.Zero, Money.FromPiastres(15000)),
+            ("Withdrawal", Money.Zero, Money.FromPiastres(2000)),
+            ("Advance", Money.Zero, Money.FromPiastres(1000)),
+        };
+        var line = Assert.Single(PayrollRules.CalculatePayrollLines(new[] { DailyEmployee("emp-1", true, entries) }));
+        Assert.Equal(17000, line.PaidOutsidePayroll.Piastres);
+        Assert.Equal(3000, line.NetPayable.Piastres);
+    }
+
+    [Fact]
+    public void CalculatePayrollLines_never_pays_a_negative_amount_after_payouts()
+    {
+        var entries = new (string, Money, Money)[]
+        {
+            ("DailyWage", Money.FromPiastres(20000), Money.Zero),
+            ("Settlement", Money.Zero, Money.FromPiastres(25000)),
+        };
+        var line = Assert.Single(PayrollRules.CalculatePayrollLines(new[] { DailyEmployee("emp-1", true, entries) }));
+        Assert.Equal(0, line.NetPayable.Piastres);
+    }
+
     [Fact]
     public void CalculatePayrollLines_uses_the_monthly_salary_for_a_monthly_employee_not_period_entries()
     {

@@ -41,12 +41,44 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         return (await response.Content.ReadFromJsonAsync<EmployeeDto>())!;
     }
 
+    private static string NewEventId() => $"bio-{Guid.NewGuid():N}";
+
+    // SEC-0037, owner decision 2026-11-22: recording someone's attendance moves money (a daily wage,
+    // a late penalty, overtime), so it needs attendance_manage like correcting it does.
+    [Fact]
+    public async Task Recording_attendance_needs_the_attendance_permission()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+
+        var checkIn = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _cashierId));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, checkIn.StatusCode);
+        Assert.Contains("صلاحية", await checkIn.Content.ReadAsStringAsync());
+        var checkOut = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, NewEventId(), _cashierId));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, checkOut.StatusCode);
+        Assert.Contains("صلاحية", await checkOut.Content.ReadAsStringAsync());
+
+        var entries = await (await _client.GetAsync($"/api/employees/{employee.Id}/ledger")).Content.ReadFromJsonAsync<List<EmployeeLedgerEntryDto>>();
+        Assert.Empty(entries!);
+        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).EnsureSuccessStatusCode();
+    }
+
+    // SEC-0037: every write carries a request id so a retried check-in can never post twice.
+    [Fact]
+    public async Task Recording_attendance_without_a_request_id_is_refused()
+    {
+        var employee = await CreateDailyEmployeeAsync();
+        var checkIn = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, null, _hrUserId));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, checkIn.StatusCode);
+        var checkOut = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, " ", _hrUserId));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, checkOut.StatusCode);
+    }
+
     [Fact]
     public async Task Checking_in_with_no_open_shift_creates_a_present_record_with_no_lateness()
     {
         var employee = await CreateDailyEmployeeAsync();
         var response = await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId));
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId));
         response.EnsureSuccessStatusCode();
         var record = await response.Content.ReadFromJsonAsync<AttendanceRecordDto>();
         Assert.Equal("Present", record!.Status);
@@ -59,9 +91,9 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync(dailyWagePiastres: 20000);
         var eventId = $"bio-{Guid.NewGuid():N}";
-        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, eventId, _cashierId))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, eventId, _hrUserId))).EnsureSuccessStatusCode();
         // A retried/duplicate biometric event for the same employee/day - must remain a single credit.
-        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, eventId, _cashierId))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, eventId, _hrUserId))).EnsureSuccessStatusCode();
 
         var balance = await (await _client.GetAsync($"/api/employees/{employee.Id}/balance")).Content.ReadFromJsonAsync<BalanceResponse>();
         Assert.Equal(20000, balance!.balancePiastres);
@@ -83,7 +115,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, 50000))).Content.ReadFromJsonAsync<OpenShiftResult>();
         var employee = await CreateDailyEmployeeAsync();
 
-        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, null, _cashierId))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).EnsureSuccessStatusCode();
 
         var entries = await (await _client.GetAsync($"/api/employees/{employee.Id}/ledger")).Content.ReadFromJsonAsync<List<EmployeeLedgerEntryDto>>();
         Assert.DoesNotContain(entries!, e => e.Type == "Deduction");
@@ -93,7 +125,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     public async Task Checking_out_without_a_check_in_record_today_is_rejected()
     {
         var employee = await CreateDailyEmployeeAsync();
-        var response = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, null, _cashierId));
+        var response = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, NewEventId(), _hrUserId));
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
@@ -101,9 +133,9 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     public async Task Checking_out_records_a_check_out_time_and_zero_overtime_for_a_short_shift()
     {
         var employee = await CreateDailyEmployeeAsync();
-        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, null, _cashierId))).EnsureSuccessStatusCode();
+        (await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).EnsureSuccessStatusCode();
 
-        var response = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, null, _cashierId));
+        var response = await _client.PostAsJsonAsync("/api/attendance/check-out", new BiometricCheckOutRequest(employee.Id, NewEventId(), _hrUserId));
         response.EnsureSuccessStatusCode();
         var record = await response.Content.ReadFromJsonAsync<AttendanceRecordDto>();
         Assert.NotNull(record!.CheckOut);
@@ -147,9 +179,9 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         // inside biometricCheckIn) - a retried/duplicate biometric event must never surface an error
         // to the device/simulator, unlike the manual command above.
         var employee = await CreateDailyEmployeeAsync();
-        var first = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, null, _cashierId));
+        var first = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId));
         first.EnsureSuccessStatusCode();
-        var second = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, null, _cashierId));
+        var second = await _client.PostAsJsonAsync("/api/attendance/check-in", new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId));
         second.EnsureSuccessStatusCode();
 
         var balance = await (await _client.GetAsync($"/api/employees/{employee.Id}/balance")).Content.ReadFromJsonAsync<BalanceResponse>();
@@ -185,7 +217,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
 
         var response = await _client.PostAsJsonAsync($"/api/attendance/{checkIn!.Id}/correct",
             new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn.Id, "Present", 0, 8, 0, 0, "تصحيح", _cashierId, null, null));
@@ -197,7 +229,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
 
         var response = await _client.PostAsJsonAsync($"/api/attendance/{checkIn!.Id}/correct",
             new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn.Id, "Present", 0, 8, 0, 0, "", _hrUserId, null, null));
@@ -209,7 +241,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
 
         var response = await _client.PostAsJsonAsync($"/api/attendance/{checkIn!.Id}/correct",
             new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn.Id, "Present", 0, 12, 2, 0, "تصحيح ساعات إضافية بعد المراجعة", _hrUserId, null, null));
@@ -227,7 +259,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         // same correction would double-post its financial delta. RequestId now makes this safe.
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
 
         var requestId = $"req-{Guid.NewGuid():N}";
         var request = new CorrectAttendanceRequest(requestId, checkIn!.Id, "Present", 0, 12, 2, 0, "تصحيح ساعات إضافية", _hrUserId, null, null);
@@ -247,7 +279,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
         var first = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
             8 + firstOvertime, firstOvertime, 0, "المراجعة الأولى", _hrUserId, null, null);
         var later = first with { RequestId = $"req-{Guid.NewGuid():N}", WorkHours = 12, OvertimeHours = 4, Reason = "مراجعة لاحقة" };
@@ -271,7 +303,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
         var request = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Late", 120,
             10, 2, 0, "مراجعة التأخير والإضافي", _hrUserId, null, null);
         (await _client.PostAsJsonAsync($"/api/attendance/{checkIn.Id}/correct", request)).EnsureSuccessStatusCode();
@@ -290,7 +322,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
         // Asked for at the cashier's own till: an approval is spent only by the session that asked.
         var approval = await (await _factory.PostAsSessionOfAsync(_client, _cashierId, "/api/approvals/issue",
             new Falah.Application.Approvals.IssueManagerApprovalRequest(_factory.PinFor(_hrUserId), "attendance_manage", "مراجعة")))
@@ -315,7 +347,7 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
     {
         var employee = await CreateDailyEmployeeAsync();
         var checkIn = await (await _client.PostAsJsonAsync("/api/attendance/check-in",
-            new BiometricCheckInRequest(employee.Id, null, _cashierId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>();
         var first = new CorrectAttendanceRequest($"req-{Guid.NewGuid():N}", checkIn!.Id, "Present", 0,
             10, 2, 0, "مراجعة", _hrUserId, null, null);
         var second = sameRequest ? first : first with { RequestId = $"req-{Guid.NewGuid():N}", OvertimeHours = 4, WorkHours = 12 };
@@ -410,9 +442,9 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
         using var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var db = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>(scope.ServiceProvider);
         if (checkIn) return (await new Falah.Infrastructure.Employees.BiometricCheckInHandler(db, new AttendanceClock(instant))
-            .HandleAsync(new BiometricCheckInRequest(employeeId, eventId, _cashierId)))!;
+            .HandleAsync(new BiometricCheckInRequest(employeeId, eventId ?? NewEventId(), _hrUserId)))!;
         return await new Falah.Infrastructure.Employees.BiometricCheckOutHandler(db, new AttendanceClock(instant))
-            .HandleAsync(new BiometricCheckOutRequest(employeeId, eventId, _cashierId));
+            .HandleAsync(new BiometricCheckOutRequest(employeeId, eventId ?? NewEventId(), _hrUserId));
     }
 
     [Theory]

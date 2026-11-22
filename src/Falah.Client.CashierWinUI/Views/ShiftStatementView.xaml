@@ -65,6 +65,9 @@
                 <StackPanel Grid.Row="3" Spacing="8">
                     <TextBlock Text="{Binding ReprintMessage}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
                                Visibility="{Binding ReprintMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <PasswordBox AutomationProperties.AutomationId="ShiftStatement_ReprintManagerPin" AutomationProperties.Name="رمز المدير لإعادة الطباعة"
+                                 PlaceholderText="رمز المدير لإعادة الطباعة" Password="{Binding ReprintManagerPin, Mode=TwoWay}"
+                                 Visibility="{Binding ReprintNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
                     <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Button AutomationProperties.AutomationId="ShiftStatement_Reprint" Content="إعادة طباعة الورقة"

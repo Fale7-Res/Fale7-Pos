@@ -73,6 +73,51 @@ public class BackupVerticalSliceTests : IAsyncLifetime
         finally { try { Directory.Delete(copyDirectory, recursive: true); } catch { } }
     }
 
+    // OPS-0002 (found 2026-11-22): retention deleted the old backups on the server's disk but never their
+    // copies in the second place, so a USB drive filled up and every later copy failed.
+    [Fact]
+    public async Task Retention_also_removes_the_second_copy_of_a_backup_it_deletes()
+    {
+        var copyDirectory = Path.Combine(TestBackupDirectory, "copy-" + Guid.NewGuid().ToString("N"));
+        var settings = new Dictionary<string, string?>
+        {
+            ["Backup:DefaultDirectory"] = TestBackupDirectory, ["Backup:CopyToDirectory"] = copyDirectory,
+        };
+        using var factory = new FalahApiFactory(configOverrides: settings);
+        try
+        {
+            var client = factory.CreateAuthenticatedClient();
+            var adminId = await factory.SeedUserAsync("مسؤول النسخ", "supervisor", "backup_manage");
+            var older = (await (await client.PostAsJsonAsync("/api/backups", new CreateBackupRequest(adminId, TestBackupDirectory)))
+                .Content.ReadFromJsonAsync<BackupRecordDto>())!;
+            var newer = (await (await client.PostAsJsonAsync("/api/backups", new CreateBackupRequest(adminId, TestBackupDirectory)))
+                .Content.ReadFromJsonAsync<BackupRecordDto>())!;
+            var olderCopy = Path.Combine(copyDirectory, Path.GetFileName(older.FilePath));
+            var newerCopy = Path.Combine(copyDirectory, Path.GetFileName(newer.FilePath));
+            var unrelated = Path.Combine(copyDirectory, "owner-notes.txt");
+            File.WriteAllText(unrelated, "not a backup");
+            Assert.True(File.Exists(olderCopy) && File.Exists(newerCopy));
+
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<Falah.Infrastructure.Persistence.FalahDbContext>();
+            var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>(settings)
+            {
+                ["Backup:Automatic:KeepCount"] = "1",
+            }).Build();
+            var worker = new Falah.Infrastructure.Backup.ScheduledBackupService(factory.Services.GetRequiredService<IServiceScopeFactory>(), config,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<Falah.Infrastructure.Backup.ScheduledBackupService>.Instance);
+            var prune = typeof(Falah.Infrastructure.Backup.ScheduledBackupService).GetMethod("PruneAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            await (Task)prune.Invoke(worker, new object[] { db, CancellationToken.None })!;
+
+            Assert.False(File.Exists(older.FilePath));
+            Assert.False(File.Exists(olderCopy), "the pruned backup's second copy should be gone too");
+            Assert.True(File.Exists(newer.FilePath));
+            Assert.True(File.Exists(newerCopy));
+            Assert.True(File.Exists(unrelated), "nothing the system did not write is ever deleted");
+        }
+        finally { try { Directory.Delete(copyDirectory, recursive: true); } catch { } }
+    }
+
     [Fact]
     public async Task A_second_copy_that_cannot_be_written_keeps_the_backup_and_raises_a_critical_audit()
     {

@@ -333,6 +333,11 @@ public partial class OwnerDashboardViewModel : ObservableObject
             Attention.Add(new AttentionItem("warn",
                 $"نسخ احتياطية فاشلة: {d.Health.FailedBackupCount}", "backup"));
 
+        // OPS-0006: a full backup disk fails every later backup silently.
+        if (d.Health.BackupDiskLow)
+            Attention.Add(new AttentionItem("bad",
+                $"مساحة هارد النسخ الاحتياطية قليلة: متبقي {(d.Health.BackupDiskFreeBytes ?? 0) / (1024.0 * 1024 * 1024):0.0} جيجا", "backup"));
+
         // Nothing at all is known about what the day's sales cost. This is louder than an incomplete
         // cost because the profit figures cannot be produced at all, not merely understated.
         if (d.Profitability.SoldLineCount > 0 && d.Profitability.KnownCostLineCount == 0)

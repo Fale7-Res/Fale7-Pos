@@ -207,6 +207,52 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
+    private async Task PayOutsideTheRunAsync(string employeeId, long amountPiastres) =>
+        (await _client.PostAsJsonAsync($"/api/employees/{employeeId}/pay",
+            new PayEmployeeRequest($"pay-{Guid.NewGuid():N}", employeeId, amountPiastres, "tre-main", _managerId, "دفعة من المستحقات", null, null)))
+            .EnsureSuccessStatusCode();
+
+    // PAYR-0004, owner decision 2026-11-22: a mid-month "دفع مستحقات" comes off the run.
+    [Fact]
+    public async Task A_run_created_after_a_payout_pays_only_what_is_still_owed()
+    {
+        var employee = await CreateEmployeeAsync(dailyWagePiastres: 20000);
+        (await _client.PostAsJsonAsync($"/api/employees/{employee.Id}/daily-wage",
+            new RecordDailyWageRequest(employee.Id, null, null, _hrUserId, null, null))).EnsureSuccessStatusCode();
+        await PayOutsideTheRunAsync(employee.Id, 15000);
+
+        var runId = await CreateDraftRunAsync(CurrentPeriod());
+        var line = Assert.Single((await (await _client.GetAsync($"/api/payroll-runs/{runId}/lines")).Content.ReadFromJsonAsync<List<PayrollLineDto>>())!);
+        Assert.Equal(15000, line.PaidOutsidePayrollPiastres);
+        Assert.Equal(5000, line.NetPayablePiastres);
+
+        foreach (var (status, actor) in new[] { ("Calculated", _hrUserId), ("Reviewed", _hrUserId), ("Approved", _payerId) })
+            (await _client.PostAsJsonAsync($"/api/payroll-runs/{runId}/transition", new TransitionPayrollRequest(runId, status, actor, null, null))).EnsureSuccessStatusCode();
+        var paid = await (await _client.PostAsJsonAsync($"/api/payroll-runs/{runId}/pay", new PayPayrollRequest(runId, "tre-main", _payerId, null, null)))
+            .Content.ReadFromJsonAsync<PayPayrollResult>();
+        Assert.Equal(5000, paid!.TotalPaidPiastres);
+        var balance = await (await _client.GetAsync($"/api/employees/{employee.Id}/balance")).Content.ReadFromJsonAsync<BalanceResponse>();
+        Assert.Equal(0, balance!.balancePiastres);
+    }
+
+    // PAYR-0004: a payout between creating and paying the run is not paid a second time either.
+    [Fact]
+    public async Task A_payout_made_after_the_run_was_created_is_not_paid_again()
+    {
+        var employee = await CreateEmployeeAsync(dailyWagePiastres: 20000);
+        var runId = await CreateApprovedRunWithEmployeeAsync(CurrentPeriod(), employee);
+        await PayOutsideTheRunAsync(employee.Id, 15000);
+
+        var paid = await (await _client.PostAsJsonAsync($"/api/payroll-runs/{runId}/pay", new PayPayrollRequest(runId, "tre-main", _payerId, null, null)))
+            .Content.ReadFromJsonAsync<PayPayrollResult>();
+        Assert.Equal(5000, paid!.TotalPaidPiastres);
+        var line = Assert.Single((await (await _client.GetAsync($"/api/payroll-runs/{runId}/lines")).Content.ReadFromJsonAsync<List<PayrollLineDto>>())!);
+        Assert.Equal(5000, line.NetPayablePiastres);
+        Assert.Equal(15000, line.PaidOutsidePayrollPiastres);
+        var balance = await (await _client.GetAsync($"/api/employees/{employee.Id}/balance")).Content.ReadFromJsonAsync<BalanceResponse>();
+        Assert.Equal(0, balance!.balancePiastres);
+    }
+
     [Fact]
     public async Task Paying_the_same_run_twice_never_double_pays()
     {

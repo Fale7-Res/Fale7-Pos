@@ -175,6 +175,14 @@
                 <Expander Header="٤. المصروفات (التفصيل الكامل)" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                     <StackPanel Spacing="8" Padding="4,10,4,4">
                         <TextBlock FontSize="13"><Run Text="إجمالي المصروفات: "/><Run Text="{Binding Statement.Expenses.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/></TextBlock>
+                        <!-- The outcome of a voucher reprint (it was set but never shown), and SEC-0030's manager PIN. -->
+                        <TextBlock Text="{Binding ReprintMessage}" TextWrapping="Wrap" FontWeight="SemiBold"
+                                   AutomationProperties.AutomationId="DailyStatement_ReprintMessage" AutomationProperties.LiveSetting="Polite"
+                                   Visibility="{Binding ReprintMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <PasswordBox MaxWidth="320" HorizontalAlignment="Right"
+                                     AutomationProperties.AutomationId="DailyStatement_ReprintManagerPin" AutomationProperties.Name="رمز المدير لإعادة الطباعة"
+                                     PlaceholderText="رمز المدير لإعادة طباعة إيصال" Password="{Binding ReprintManagerPin, Mode=TwoWay}"
+                                     Visibility="{Binding ReprintNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <!-- AUD-04: cancelling a mistaken expense records a linked reversal (a negative line below); nothing
                              is deleted. Only while the expense's shift is open - the server says so otherwise. -->
                         <Border Visibility="{Binding IsReversalOpen, Converter={StaticResource BoolToVisibleConverter}}"
